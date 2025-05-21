@@ -1,0 +1,50 @@
+:root[data-theme="light"] {
+  /* Colores principales */
+  --color-primary: var(--color-primary-500);
+  --color-secondary: var(--color-primary-400);
+  --color-accent: var(--color-primary-300);
+
+  /* Colores de texto */
+  --text-primary: var(--color-neutral-800);
+  --text-secondary: var(--color-neutral-600);
+
+  /* Colores de fondo */
+  --background-primary: var(--color-neutral-100);
+  --background-secondary: var(--color-neutral-200);
+  --background-elevated: white;
+
+  /* Colores de estado */
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+}
+
+:root[data-theme="dark"] {
+  /* Colores principales */
+  --color-primary: #1E3A8A;  /* Azul oscuro */
+  --color-secondary: #2563EB;  /* Azul medio */
+  --color-accent: #3B82F6;  /* Azul claro */
+
+  /* Colores de texto */
+  --text-primary: var(--color-neutral-100);
+  --text-secondary: var(--color-neutral-300);
+
+  /* Colores de fondo */
+  --background-primary: #0F172A;  /* Azul muy oscuro */
+  --background-secondary: #1E293B;  /* Azul oscuro */
+  --background-elevated: #334155;  /* Azul grisáceo */
+
+  /* Colores de estado */
+  --color-error: #EF4444;
+  --color-success: #10B981;
+}
+
+/* Transiciones suaves para cambios de tema */
+.theme-transition {
+  transition: all var(--transition-normal) ease;
+}
+
+* {
+  transition: background-color var(--transition-normal) ease,
+              color var(--transition-normal) ease,
+              border-color var(--transition-normal) ease;
+}

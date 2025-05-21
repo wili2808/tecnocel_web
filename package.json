@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@vis.gl/react-google-maps": "^1.5.2",
+    "react-toastify": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21"
+  }
+}

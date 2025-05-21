@@ -1,0 +1,7 @@
+{
+  "watch": ["dist"],
+  "ext": "js",
+  "ignore": ["node_modules"],
+  "delay": "1000",
+  "exec": "node --experimental-specifier-resolution=node dist/index.js"
+}

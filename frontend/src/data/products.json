@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "categoria_id": 1,
+    "nombre": "Uniforme Escolar Básico",
+    "descripcion": "Uniforme escolar básico para primaria y secundaria.",
+    "imagen_url": "/src/assets/images/products/uniforme1.jpg",
+    "precio": 50,
+    "existencias": 100,
+    "es_personalizable": false,
+    "sizes": ["S", "M", "L"],
+    "colors": ["Azul", "Blanco"]
+  },
+  {
+    "id": 2,
+    "categoria_id": 1,
+    "nombre": "Uniforme Deportivo Completo",
+    "descripcion": "Uniforme deportivo completo para equipos y clubes.",
+    "imagen_url": "/src/assets/images/products/uniforme2.jpg",
+    "precio": 75,
+    "existencias": 50,
+    "es_personalizable": true,
+    "sizes": ["M", "L", "XL"],
+    "colors": ["Rojo", "Negro"]
+  },
+  {
+    "id": 3,
+    "categoria_id": 2,
+    "nombre": "Camiseta Sublimada Personalizada",
+    "descripcion": "Camiseta sublimada con diseño personalizado.",
+    "imagen_url": "/src/assets/images/products/camiseta1.jpg",
+    "precio": 30,
+    "existencias": 200,
+    "es_personalizable": true,
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["Blanco"]
+  },
+  {
+    "id": 4,
+    "categoria_id": 2,
+    "nombre": "Bordado Personalizado en Camisa",
+    "descripcion": "Bordado personalizado en camisa de alta calidad.",
+    "imagen_url": "/src/assets/images/products/bordado1.jpg",
+    "precio": 40,
+    "existencias": 150,
+    "es_personalizable": true,
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["Negro", "Azul", "Gris"]
+  }
+]

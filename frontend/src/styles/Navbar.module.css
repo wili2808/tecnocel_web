@@ -1,0 +1,315 @@
+/* Variables específicas del navbar */
+:root {
+  --navbar-height: 64px;
+  --navbar-z-index: 1003;
+  --navbar-content-z-index: 1004;
+  --avatar-size: 32px;
+  --button-hover-scale: 1.05;
+  --button-active-scale: 0.95;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background-color: var(--background-elevated);
+  box-shadow: var(--shadow-sm);
+  z-index: var(--navbar-z-index);
+  transition: all var(--transition-duration) ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.navContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Logo */
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  z-index: var(--navbar-content-z-index);
+  transition: opacity var(--transition-duration) ease;
+}
+
+.logoLink:hover {
+  opacity: 0.9;
+}
+
+.logoImage {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  transition: transform var(--transition-duration) ease;
+}
+
+.logoLink:hover .logoImage {
+  transform: scale(1.05);
+}
+
+.logoText {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Menú y Navegación */
+.menuToggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  transition: color var(--transition-duration) ease;
+  z-index: var(--navbar-content-z-index);
+}
+
+.menuToggle:hover {
+  color: var(--color-primary);
+}
+
+.navLinks {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  justify-content: center;
+  flex: 1;
+}
+
+.navLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  position: relative;
+  transition: color var(--transition-duration) ease;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  transition: width var(--transition-duration) ease;
+}
+
+.navLink:hover::after,
+.navLink.active::after {
+  width: 100%;
+}
+
+.navLink:hover,
+.navLink.active {
+  color: var(--text-primary);
+}
+
+/* Contenedor de Autenticación */
+.navControls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  position: relative;
+  z-index: calc(var(--navbar-z-index) - 1);
+}
+
+/* Estilos para el botón de cambio de tema */
+.themeToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-full);
+  color: var(--text-primary);
+  transition: all var(--transition-duration) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.themeToggle:hover {
+  background-color: var(--background-light);
+  transform: scale(var(--button-hover-scale));
+  color: var(--color-primary);
+}
+
+.themeToggle:active {
+  transform: scale(var(--button-active-scale));
+}
+
+.themeToggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.themeToggle .material-icons {
+  font-size: 24px;
+  transition: transform var(--transition-duration) ease;
+}
+
+.themeToggle:hover .material-icons {
+  transform: rotate(15deg);
+}
+
+/* Estilos para el botón de autenticación */
+.authButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-full);
+  transition: all var(--transition-duration) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.authButton:hover {
+  background-color: var(--background-light);
+  transform: scale(var(--button-hover-scale));
+}
+
+.authButton:active {
+  transform: scale(var(--button-active-scale));
+}
+
+/* Estilos para el avatar del usuario */
+.avatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: var(--border-radius-full);
+  object-fit: cover;
+  border: 2px solid var(--color-primary);
+  transition: border-color var(--transition-duration) ease;
+}
+
+.authButton:hover .avatar {
+  border-color: var(--color-primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .navContainer {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .navLink {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .menuToggle {
+    display: block;
+  }
+
+  .navLinks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-elevated);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    transform: translateX(100%);
+    transition: transform var(--transition-duration) ease;
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+
+  .navLinks.active {
+    transform: translateX(0);
+  }
+
+  .navLink {
+    font-size: var(--font-size-lg);
+    width: 100%;
+    text-align: center;
+  }
+
+  .navLink::after {
+    display: none;
+  }
+
+  .navControls {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: var(--background-light);
+    border-radius: var(--border-radius-md);
+    margin-top: var(--spacing-md);
+  }
+
+  .themeToggle {
+    width: 100%;
+    justify-content: flex-start;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    margin-top: var(--spacing-sm);
+  }
+
+  .themeToggle .material-icons {
+    font-size: 20px;
+  }
+
+  .authButton {
+    width: 100%;
+    justify-content: flex-start;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoText {
+    font-size: 1.25rem;
+  }
+
+  .logoImage {
+    width: 32px;
+    height: 32px;
+  }
+
+  .navContainer {
+    padding: 0 var(--spacing-xs);
+  }
+
+  .themeToggle .material-icons {
+    font-size: 18px;
+  }
+} 

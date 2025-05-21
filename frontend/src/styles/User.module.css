@@ -1,0 +1,321 @@
+/* Overlay y Contenedor del Modal de Autenticación */
+.authModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Asegúrate de que este z-index sea adecuado para tu layout */
+}
+
+.modalContent {
+  background-color: var(--background-elevated);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 480px;
+  position: relative;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-xl);
+  color: var(--text-secondary);
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast) ease;
+}
+
+.closeButton:hover {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+/* Contenedor y Estilos del Panel de Usuario */
+.userPanelContainer {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm)); /* Debajo del botón del avatar en la navbar */
+  right: 0; /* Alineado a la derecha del contenedor padre */
+  width: 320px; /* Ancho por defecto en escritorio */
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000; /* Debe estar por encima del contenido normal */
+  transform-origin: top right;
+  animation: panelFadeIn 0.3s ease-out;
+}
+
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Estilos que pueden ser comunes al contenido de ambos paneles */
+.modalHeader { /* Renombrado de .panelHeader */
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Avatar y Sección de Usuario (específico de UserPanel) */
+.avatarSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.avatarContainer {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--border-radius-full);
+  object-fit: cover;
+  border: 3px solid var(--background-elevated); /* Considera usar color-primary */
+  box-shadow: var(--shadow-md);
+}
+
+.avatarUpload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--color-primary);
+  border-radius: var(--border-radius-full);
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all var(--transition-normal) ease;
+  box-shadow: var(--shadow-md);
+}
+
+.avatarUpload:hover {
+  transform: scale(1.1);
+  background: var(--color-secondary);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.userInfo {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.userInfo h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.userInfo p {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
+}
+
+/* Formularios y Campos (específico de AuthPanel, pero puede reutilizarse) */
+.formGroup {
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  transition: all var(--transition-fast) ease;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+/* Botones (reutilizables si se definen genéricos, o específicos) */
+.submitButton { /* Específico de AuthPanel */
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  width: 100%;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.submitButton:hover {
+  background-color: var(--color-secondary);
+  transform: translateY(-1px); /* Pequeña animación al pasar el mouse */
+}
+
+.googleButton { /* Específico de AuthPanel */
+  background-color: white; /* Considera usar var(--background-elevated) */
+  color: var(--text-primary);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  font-weight: 500;
+}
+
+.googleButton img {
+  width: 20px;
+  height: 20px;
+}
+
+.googleButton:hover {
+  background-color: var(--background-secondary); /* Considera usar var(--color-neutral-100) o similar */
+  border-color: var(--color-neutral-400);
+}
+
+/* Opciones y Menú (específico de UserPanel) */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-fast) ease;
+  width: 100%;
+  text-align: left;
+  font-weight: 500;
+}
+
+.option:hover {
+  background-color: var(--background-secondary);
+  transform: translateX(4px); /* Pequeña animación */
+}
+
+.option span { /* Estilo para los iconos */
+  font-size: var(--font-size-xl); /* 24px */
+  color: var(--text-secondary);
+}
+
+.logoutButton {
+  color: var(--error-color); /* Asegúrate de tener --error-color en variables.css */
+  margin-top: var(--spacing-md);
+}
+
+/* Cambio de Modo (específico de AuthPanel) */
+.switchMode {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+}
+
+.switchMode button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .userPanelContainer {
+    width: calc(100% - var(--spacing-md) * 2); /* Ocupa casi todo el ancho con margen */
+    max-width: 320px; /* Pero no más de 320px */
+    right: var(--spacing-md); /* Margen derecho */
+    left: var(--spacing-md); /* Margen izquierdo para centrar si es necesario */
+    margin: 0 auto; /* Centra el bloque si es más pequeño que el 100% */
+    top: calc(var(--navbar-height) + var(--spacing-sm)); /* Posición debajo de la navbar */
+  }
+
+  /* Ajuste para el contenido interno en móviles si es necesario */
+   .modalContent { 
+     padding: var(--spacing-lg); 
+   }
+}
+
+@media (max-width: 480px) {
+  .userPanelContainer {
+    width: calc(100% - var(--spacing-sm) * 2); /* Margen más pequeño en pantallas muy pequeñas */
+    left: var(--spacing-sm);
+    right: var(--spacing-sm);
+     /* max-width: 320px; heredado del breakpoint anterior */
+  }
+
+  /* Ajuste para el contenido interno en pantallas muy pequeñas */
+   .modalContent { 
+     padding: var(--spacing-md); 
+   }
+
+  .avatarContainer {
+    width: 100px;
+    height: 100px;
+  }
+} 

@@ -1,0 +1,16 @@
+/* Variables específicas del layout */
+:root {
+  --transition-duration: 0.3s;
+}
+
+/* Layout Principal */
+.mainLayout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainContent {
+  flex: 1;
+  padding-top: var(--navbar-height);
+} 
