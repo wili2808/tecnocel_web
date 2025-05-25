@@ -8,6 +8,7 @@ import Direccion, { initDireccion } from '../models/Direccion.js';
 import Pedido, { initPedido } from '../models/Pedido.js';
 import ItemCarrito, { initItemCarrito } from '../models/ItemCarrito.js';
 import ItemPedido, { initItemPedido } from '../models/ItemPedido.js';
+import logger from '../utils/logger.js';
 
 dotenv.config();
 
@@ -18,7 +19,11 @@ const sequelize = new Sequelize({
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || '5432'),
   dialect: 'postgres',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  logging: (msg) => {
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug(`[Sequelize] ${msg}`);
+    }
+  },
   pool: {
     max: 5,
     min: 0,
@@ -41,7 +46,7 @@ const createInitialData = async () => {
   try {
     const categoriaCount = await Categoria.count();
     if (categoriaCount === 0) {
-      console.log('Creando categorías y productos de ejemplo...');
+      logger.info('Iniciando creación de datos de ejemplo...');
       // Crear categorías de ejemplo
       const uniformeEscolar = await Categoria.create({ nombre: 'Uniformes Escolares', descripcion: 'Uniformes para diferentes escuelas' });
       const deportivo = await Categoria.create({ nombre: 'Deportivo', descripcion: 'Ropa deportiva' });
@@ -57,24 +62,24 @@ const createInitialData = async () => {
         { categoria_id: bordado.id, nombre: 'Gorra Bordada', descripcion: 'Gorra con logo bordado', precio: 15, existencias: 90, es_personalizable: true },
       ]);
 
-      console.log('Categorías y productos de ejemplo creados correctamente.');
+      logger.info('Datos de ejemplo creados exitosamente');
     } else {
-      console.log('Ya existen categorías en la base de datos, omitiendo la creación de datos de ejemplo.');
+      logger.info('Datos de ejemplo ya existen en la base de datos');
     }
   } catch (error) {
-    console.error('Error al crear datos de ejemplo:', error);
+    logger.error('Error al crear datos de ejemplo:', error);
   }
 };
 
 export const initDatabase = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Conexión a la base de datos establecida correctamente.');
+    logger.info('Conexión a la base de datos establecida correctamente');
     await sequelize.sync();
-    console.log('Modelos sincronizados con la base de datos.');
+    logger.info('Modelos sincronizados con la base de datos');
     await createInitialData();
   } catch (error) {
-    console.error('Error al conectar con la base de datos:', error);
+    logger.error('Error al inicializar la base de datos:', error);
     process.exit(1);
   }
 };

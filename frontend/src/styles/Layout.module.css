@@ -1,6 +1,9 @@
 /* Variables específicas del layout */
 :root {
   --transition-duration: 0.3s;
+  --layout-max-width: var(--max-width);
+  --layout-background: var(--background-primary);
+  --content-padding: var(--spacing-xl);
 }
 
 /* Layout Principal */
@@ -8,9 +11,79 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--layout-background);
+  transition: background-color var(--transition-duration) ease;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .mainContent {
   flex: 1;
-  padding-top: var(--navbar-height);
-} 
+  padding-top: calc(var(--navbar-height) + var(--spacing-md));
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  animation: fadeIn var(--transition-normal) ease;
+}
+
+/* Sección de contenido con sombra suave */
+.contentSection {
+  background-color: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  padding: var(--content-padding);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  transition: box-shadow var(--transition-duration) ease,
+              transform var(--transition-duration) ease;
+}
+
+.contentSection:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media queries */
+@media (max-width: 1024px) {
+  .mainContent {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+  
+  .contentSection {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+    padding-top: calc(var(--navbar-height-mobile) + var(--spacing-sm));
+  }
+  
+  .contentSection {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+}

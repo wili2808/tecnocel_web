@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import { initDatabase } from './config/database.js';
+import logger from './utils/logger.js';
 
 // Configurar variables de entorno
 dotenv.config();
@@ -37,7 +38,13 @@ app.use('/api', productRoutes);
 
 // Manejo de errores global
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
+  logger.error('Error no manejado:', {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+  
   res.status(500).json({
     error: 'Error interno del servidor',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -48,10 +55,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 initDatabase().then(() => {
   // Iniciar servidor
   app.listen(PORT, () => {
-    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
+    logger.info(`Servidor iniciado en http://localhost:${PORT}`);
+    logger.info(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
   });
 }).catch(error => {
-  console.error('Error al inicializar la aplicación:', error);
+  logger.error('Error fatal al inicializar la aplicación:', error);
   process.exit(1);
 });
 

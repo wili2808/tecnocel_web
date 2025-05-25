@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ServiceCard from './ServiceCard';
+import styles from '../../styles/Service.module.css';
 
-const services = [
+interface Service {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+const services: Service[] = [
   {
     title: 'Uniformes Escolares',
     description: 'Confección de uniformes escolares de alta calidad para instituciones educativas.',
@@ -24,19 +31,30 @@ const services = [
   }
 ];
 
-const ServicesSection = () => (
-  <section className="py-20">
-    <div className="container mx-auto px-4">
-      <h2 className="mb-16 text-center text-4xl font-semibold text-primary">
-        Nuestros Servicios
-      </h2>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-        {services.map((service, idx) => (
-          <ServiceCard key={idx} {...service} />
-        ))}
-      </div>
-    </div>
-  </section>
-);
+interface ServicesSectionProps {
+  className?: string;
+}
 
-export default ServicesSection; 
+const ServicesSection: React.FC<ServicesSectionProps> = memo(({ className }) => {
+  return (
+    <section className={`${styles.servicesSection} ${className || ''}`}>
+      <div className={styles.servicesContainer}>
+        <h2 className={styles.sectionTitle}>
+          Nuestros Servicios
+        </h2>
+        <div className={styles.servicesGrid}>
+          {services.map((service, idx) => (
+            <ServiceCard
+              key={`service-${idx}`}
+              {...service}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+});
+
+ServicesSection.displayName = 'ServicesSection';
+
+export default ServicesSection;

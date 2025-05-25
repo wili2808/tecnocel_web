@@ -19,7 +19,6 @@ interface UsuarioAttributes {
   actualizado_en: Date;
 }
 
-// Algunos atributos son opcionales cuando se crea una instancia del modelo
 interface UsuarioCreationAttributes extends Optional<UsuarioAttributes, 'id' | 'creado_en' | 'actualizado_en'> {}
 
 class Usuario extends Model<UsuarioAttributes, UsuarioCreationAttributes> {
@@ -33,12 +32,26 @@ class Usuario extends Model<UsuarioAttributes, UsuarioCreationAttributes> {
   declare creado_en: Date;
   declare actualizado_en: Date;
 
+  // Getters en inglés para compatibilidad futura
+  get password(): string { return this.contrasena; }
+  get firstName(): string { return this.nombre; }
+  get lastName(): string { return this.apellido; }
+  get role(): RolUsuario { return this.rol; }
+  get phone(): string | undefined { return this.telefono; }
+  get createdAt(): Date { return this.creado_en; }
+  get updatedAt(): Date { return this.actualizado_en; }
+
   // Métodos de instancia
   public async compararContrasena(contrasenaCandidata: string): Promise<boolean> {
     if (!contrasenaCandidata || !this.contrasena) {
       return false;
     }
     return bcrypt.compare(contrasenaCandidata, this.contrasena);
+  }
+
+  // Alias en inglés para compatibilidad futura
+  public async comparePassword(candidatePassword: string): Promise<boolean> {
+    return this.compararContrasena(candidatePassword);
   }
 }
 

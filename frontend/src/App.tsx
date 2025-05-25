@@ -1,21 +1,35 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import Layout from './components/layout/Layout';
-import Home from './pages/Home';
-import ProductCatalog from './pages/ProductCatalog';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import './styles/global.css';
+
+// Lazy loading de componentes
+const Home = lazy(() => import('./pages/Home'));
+const ProductCatalog = lazy(() => import('./pages/ProductCatalog'));
+
+// Componente de carga
+const LoadingFallback = () => (
+  <div className="loading-container">
+    <div className="loading-spinner"></div>
+  </div>
+);
 
 function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
         <Router>
-          <Routes>
-            <Route path="/" element={<Layout><Home /></Layout>} />
-            <Route path="/uniformes-escolares" element={<Layout><ProductCatalog /></Layout>} />
-            {/* Agrega otras rutas aquí envolviéndolas también con <Layout> */}
-          </Routes>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/uniformes-escolares" element={<ProductCatalog />} />
+                {/* TODO: Agregar más rutas según sea necesario */}
+              </Route>
+            </Routes>
+          </Suspense>
         </Router>
       </ThemeProvider>
     </AuthProvider>

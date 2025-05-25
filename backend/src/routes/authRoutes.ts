@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { registro, login } from '../controllers/authController.js';
 import { verificarToken } from '../middleware/authMiddleware.js';
+import { validateRegistration } from '../middleware/validateRegistration.js';
 
 const router = Router();
 
 // Rutas públicas de autenticación
-router.post('/registro', registro);
+router.post('/registro', validateRegistration, registro);
 router.post('/login', login);
 
 // Ruta para verificar el token y obtener datos del usuario

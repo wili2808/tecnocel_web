@@ -8,7 +8,7 @@
   --button-active-scale: 0.95;
 }
 
-/* Navbar */
+/* Navbar principal */
 .navbar {
   position: fixed;
   top: 0;
@@ -25,15 +25,21 @@
 
 .navContainer {
   height: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--spacing-md);
   align-items: center;
-  justify-content: space-between;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 var(--spacing-md);
 }
 
-/* Logo */
+/* Sección 1: Logo y Título */
+.brandSection {
+  display: flex;
+  align-items: center;
+}
+
 .logoLink {
   display: flex;
   align-items: center;
@@ -70,7 +76,13 @@
   line-height: 1;
 }
 
-/* Menú y Navegación */
+/* Sección 2: Navegación */
+.navigationSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .menuToggle {
   display: none;
   background: none;
@@ -82,10 +94,6 @@
   z-index: var(--navbar-content-z-index);
 }
 
-.menuToggle:hover {
-  color: var(--color-primary);
-}
-
 .navLinks {
   display: flex;
   gap: var(--spacing-sm);
@@ -93,7 +101,6 @@
   padding: 0;
   list-style: none;
   justify-content: center;
-  flex: 1;
 }
 
 .navLink {
@@ -127,17 +134,14 @@
   color: var(--text-primary);
 }
 
-/* Contenedor de Autenticación */
-.navControls {
-  margin-left: auto;
+/* Sección 3: Controles de Usuario */
+.controlsSection {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  position: relative;
-  z-index: calc(var(--navbar-z-index) - 1);
 }
 
-/* Estilos para el botón de cambio de tema */
+.authButton,
 .themeToggle {
   background: none;
   border: none;
@@ -149,57 +153,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
 }
 
+.authButton:hover,
 .themeToggle:hover {
   background-color: var(--background-light);
   transform: scale(var(--button-hover-scale));
   color: var(--color-primary);
 }
 
+.authButton:active,
 .themeToggle:active {
   transform: scale(var(--button-active-scale));
 }
 
-.themeToggle:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--color-primary);
-}
-
-.themeToggle .material-icons {
-  font-size: 24px;
-  transition: transform var(--transition-duration) ease;
-}
-
-.themeToggle:hover .material-icons {
-  transform: rotate(15deg);
-}
-
-/* Estilos para el botón de autenticación */
-.authButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: var(--border-radius-full);
-  transition: all var(--transition-duration) ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.authButton:hover {
-  background-color: var(--background-light);
-  transform: scale(var(--button-hover-scale));
-}
-
-.authButton:active {
-  transform: scale(var(--button-active-scale));
-}
-
-/* Estilos para el avatar del usuario */
 .avatar {
   width: var(--avatar-size);
   height: var(--avatar-size);
@@ -226,11 +193,15 @@
 }
 
 @media (max-width: 768px) {
+  .navContainer {
+    grid-template-columns: auto 1fr auto;
+  }
+
   .menuToggle {
     display: block;
   }
 
-  .navLinks {
+  .navigationSection {
     position: fixed;
     top: 0;
     left: 0;
@@ -238,16 +209,21 @@
     bottom: 0;
     background-color: var(--background-elevated);
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: var(--spacing-lg);
     transform: translateX(100%);
     transition: transform var(--transition-duration) ease;
-    padding: var(--spacing-xl) var(--spacing-md);
+    z-index: calc(var(--navbar-z-index) - 1);
   }
 
-  .navLinks.active {
+  .navigationSection.active {
     transform: translateX(0);
+  }
+
+  .navLinks {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl) var(--spacing-md);
   }
 
   .navLink {
@@ -260,38 +236,8 @@
     display: none;
   }
 
-  .navControls {
-    flex-direction: column;
-    width: 100%;
+  .controlsSection {
     gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    background-color: var(--background-light);
-    border-radius: var(--border-radius-md);
-    margin-top: var(--spacing-md);
-  }
-
-  .themeToggle {
-    width: 100%;
-    justify-content: flex-start;
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius-md);
-    margin-top: var(--spacing-sm);
-  }
-
-  .themeToggle .material-icons {
-    font-size: 20px;
-  }
-
-  .authButton {
-    width: 100%;
-    justify-content: flex-start;
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius-md);
-  }
-
-  .avatar {
-    width: 28px;
-    height: 28px;
   }
 }
 
@@ -307,9 +253,5 @@
 
   .navContainer {
     padding: 0 var(--spacing-xs);
-  }
-
-  .themeToggle .material-icons {
-    font-size: 18px;
   }
 } 

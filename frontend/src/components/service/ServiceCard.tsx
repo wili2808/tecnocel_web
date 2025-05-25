@@ -1,25 +1,34 @@
-import React from 'react';
+import React, { memo } from 'react';
+import styles from '../../styles/Service.module.css';
 
 interface ServiceCardProps {
   title: string;
   description: string;
   icon: string;
+  className?: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, icon }) => {
+const ServiceCard: React.FC<ServiceCardProps> = memo(({ 
+  title, 
+  description, 
+  icon,
+  className 
+}) => {
   return (
-    <div className="card bg-elevated rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300">
-      <div className="text-4xl mb-6 text-primary">
+    <div className={`${styles.serviceCard} ${className || ''}`}>
+      <div className={styles.icon}>
         {icon}
       </div>
-      <h3 className="text-2xl font-semibold mb-4 text-primary">
+      <h3 className={styles.title}>
         {title}
       </h3>
-      <p className="text-secondary leading-relaxed">
+      <p className={styles.description}>
         {description}
       </p>
     </div>
   );
-};
+});
+
+ServiceCard.displayName = 'ServiceCard';
 
 export default ServiceCard;

@@ -19,18 +19,8 @@ interface ProductoAttributes {
 interface ProductoCreationAttributes extends Optional<ProductoAttributes, 'id' | 'creado_en' | 'actualizado_en'> {}
 
 class Producto extends Model<ProductoAttributes, ProductoCreationAttributes> {
-  // Las propiedades de instancia se definen aquí para la tipificación
-  public id!: number;
-  public categoria_id?: number;
-  public nombre!: string;
-  public descripcion?: string;
-  public precio!: number;
-  public existencias!: number;
-  public imagen_url?: string;
-  public es_personalizable!: boolean;
-  public opciones_personalizacion?: any;
-  public creado_en!: Date;
-  public actualizado_en!: Date;
+  // Eliminamos las propiedades públicas que causan la advertencia
+  // Los atributos se manejan a través de los getters y setters de Sequelize
 }
 
 export const initProducto = (sequelizeInstance: any) => {

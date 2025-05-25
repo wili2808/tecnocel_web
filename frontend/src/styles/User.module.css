@@ -1,4 +1,12 @@
-/* Overlay y Contenedor del Modal de Autenticación */
+/* Variables específicas */
+:root {
+  --modal-z-index: 1005;
+  --modal-animation-duration: 0.3s;
+  --avatar-size: 120px;
+  --avatar-size-mobile: 100px;
+}
+
+/* Overlay del Modal de Autenticación */
 .authModalOverlay {
   position: fixed;
   top: 0;
@@ -10,9 +18,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Asegúrate de que este z-index sea adecuado para tu layout */
+  z-index: var(--modal-z-index);
 }
 
+/* Contenedor del Panel de Usuario */
+.userPanelContainer {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  right: 0;
+  width: 320px;
+  height: auto;
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--modal-z-index);
+  transform-origin: top right;
+  animation: panelFadeIn var(--modal-animation-duration) ease-out;
+}
+
+/* Contenido interno del modal */
 .modalContent {
   background-color: var(--background-elevated);
   padding: var(--spacing-xl);
@@ -21,9 +45,20 @@
   width: 90%;
   max-width: 480px;
   position: relative;
-  animation: modalFadeIn 0.3s ease-out;
+  animation: modalFadeIn var(--modal-animation-duration) ease-out;
 }
 
+/* Aumentar especificidad para el contenido del modal de autenticación */
+.authModalOverlay .modalContent {
+  width: 100%;
+  height: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  margin: auto;
+  overflow-y: auto;
+}
+
+/* Animaciones con nombres específicos */
 @keyframes modalFadeIn {
   from {
     opacity: 0;
@@ -35,6 +70,18 @@
   }
 }
 
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Botón de cierre con especificidad aumentada */
 .closeButton {
   position: absolute;
   top: var(--spacing-md);
@@ -42,7 +89,6 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: var(--font-size-xl);
   color: var(--text-secondary);
   padding: var(--spacing-xs);
   border-radius: var(--border-radius-full);
@@ -57,38 +103,19 @@
   color: var(--text-primary);
 }
 
-/* Contenedor y Estilos del Panel de Usuario */
-.userPanelContainer {
-  position: absolute;
-  top: calc(100% + var(--spacing-sm)); /* Debajo del botón del avatar en la navbar */
-  right: 0; /* Alineado a la derecha del contenedor padre */
-  width: 320px; /* Ancho por defecto en escritorio */
-  background: var(--background-elevated);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
-  z-index: 1000; /* Debe estar por encima del contenido normal */
-  transform-origin: top right;
-  animation: panelFadeIn 0.3s ease-out;
-}
-
-@keyframes panelFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Estilos que pueden ser comunes al contenido de ambos paneles */
-.modalHeader { /* Renombrado de .panelHeader */
+/* Encabezado con especificidad aumentada */
+.modalHeader {
   text-align: center;
   margin-bottom: var(--spacing-xl);
 }
 
-/* Avatar y Sección de Usuario (específico de UserPanel) */
+.modalHeader h2 {
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+}
+
+/* Sección de avatar con especificidad aumentada */
 .avatarSection {
   display: flex;
   justify-content: center;
@@ -97,8 +124,8 @@
 
 .avatarContainer {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
 }
 
 .avatar {
@@ -106,7 +133,7 @@
   height: 100%;
   border-radius: var(--border-radius-full);
   object-fit: cover;
-  border: 3px solid var(--background-elevated); /* Considera usar color-primary */
+  border: 3px solid var(--color-primary);
   box-shadow: var(--shadow-md);
 }
 
@@ -135,6 +162,7 @@
   display: none;
 }
 
+/* Información del usuario con especificidad aumentada */
 .userInfo {
   text-align: center;
   margin-bottom: var(--spacing-xl);
@@ -153,7 +181,7 @@
   font-size: var(--font-size-md);
 }
 
-/* Formularios y Campos (específico de AuthPanel, pero puede reutilizarse) */
+/* Formularios con especificidad aumentada */
 .formGroup {
   margin-bottom: var(--spacing-lg);
 }
@@ -181,43 +209,37 @@
   box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
-/* Botones (reutilizables si se definen genéricos, o específicos) */
-.submitButton { /* Específico de AuthPanel */
-  background-color: var(--color-primary);
-  color: white;
+/* Botones con especificidad aumentada */
+.submitButton,
+.googleButton {
+  width: 100%;
   padding: var(--spacing-md) var(--spacing-xl);
-  border: none;
   border-radius: var(--border-radius-md);
   cursor: pointer;
   transition: all var(--transition-normal) ease;
-  width: 100%;
-  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
+  font-weight: 500;
+}
+
+.submitButton {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
 }
 
 .submitButton:hover {
   background-color: var(--color-secondary);
-  transform: translateY(-1px); /* Pequeña animación al pasar el mouse */
+  transform: translateY(-1px);
 }
 
-.googleButton { /* Específico de AuthPanel */
-  background-color: white; /* Considera usar var(--background-elevated) */
+.googleButton {
+  background-color: white;
   color: var(--text-primary);
-  padding: var(--spacing-md) var(--spacing-xl);
   border: 1px solid var(--color-neutral-300);
-  border-radius: var(--border-radius-md);
-  cursor: pointer;
-  transition: all var(--transition-normal) ease;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  font-weight: 500;
 }
 
 .googleButton img {
@@ -226,11 +248,11 @@
 }
 
 .googleButton:hover {
-  background-color: var(--background-secondary); /* Considera usar var(--color-neutral-100) o similar */
+  background-color: var(--background-secondary);
   border-color: var(--color-neutral-400);
 }
 
-/* Opciones y Menú (específico de UserPanel) */
+/* Opciones del menú con especificidad aumentada */
 .options {
   display: flex;
   flex-direction: column;
@@ -255,20 +277,20 @@
 
 .option:hover {
   background-color: var(--background-secondary);
-  transform: translateX(4px); /* Pequeña animación */
+  transform: translateX(4px);
 }
 
-.option span { /* Estilo para los iconos */
-  font-size: var(--font-size-xl); /* 24px */
+.option span {
+  font-size: var(--font-size-xl);
   color: var(--text-secondary);
 }
 
 .logoutButton {
-  color: var(--error-color); /* Asegúrate de tener --error-color en variables.css */
+  color: var(--error-color);
   margin-top: var(--spacing-md);
 }
 
-/* Cambio de Modo (específico de AuthPanel) */
+/* Cambio de modo con especificidad aumentada */
 .switchMode {
   text-align: center;
   margin-top: var(--spacing-lg);
@@ -284,38 +306,35 @@
   font-weight: 500;
 }
 
-/* Responsive */
+/* Responsive con especificidad aumentada */
 @media (max-width: 768px) {
   .userPanelContainer {
-    width: calc(100% - var(--spacing-md) * 2); /* Ocupa casi todo el ancho con margen */
-    max-width: 320px; /* Pero no más de 320px */
-    right: var(--spacing-md); /* Margen derecho */
-    left: var(--spacing-md); /* Margen izquierdo para centrar si es necesario */
-    margin: 0 auto; /* Centra el bloque si es más pequeño que el 100% */
-    top: calc(var(--navbar-height) + var(--spacing-sm)); /* Posición debajo de la navbar */
+    width: calc(100% - var(--spacing-md) * 2);
+    max-width: 320px;
+    right: var(--spacing-md);
+    left: var(--spacing-md);
+    margin: 0 auto;
+    top: calc(var(--navbar-height) + var(--spacing-sm));
   }
 
-  /* Ajuste para el contenido interno en móviles si es necesario */
-   .modalContent { 
-     padding: var(--spacing-lg); 
-   }
+  .modalContent {
+    padding: var(--spacing-lg);
+  }
 }
 
 @media (max-width: 480px) {
   .userPanelContainer {
-    width: calc(100% - var(--spacing-sm) * 2); /* Margen más pequeño en pantallas muy pequeñas */
+    width: calc(100% - var(--spacing-sm) * 2);
     left: var(--spacing-sm);
     right: var(--spacing-sm);
-     /* max-width: 320px; heredado del breakpoint anterior */
   }
 
-  /* Ajuste para el contenido interno en pantallas muy pequeñas */
-   .modalContent { 
-     padding: var(--spacing-md); 
-   }
+  .modalContent {
+    padding: var(--spacing-md);
+  }
 
   .avatarContainer {
-    width: 100px;
-    height: 100px;
+    width: var(--avatar-size-mobile);
+    height: var(--avatar-size-mobile);
   }
 } 

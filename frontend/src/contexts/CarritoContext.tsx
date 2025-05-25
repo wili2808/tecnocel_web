@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
 
-// Tipos
+/**
+ * Estructura de un item en el carrito
+ */
 interface ItemCarrito {
   id: number;
   producto_id: number;
@@ -11,6 +13,9 @@ interface ItemCarrito {
   subtotal: number;
 }
 
+/**
+ * Estado del carrito
+ */
 interface EstadoCarrito {
   id: number | null;
   items: ItemCarrito[];
@@ -19,6 +24,9 @@ interface EstadoCarrito {
   error: string | null;
 }
 
+/**
+ * Acciones disponibles para el reducer del carrito
+ */
 type AccionCarrito =
   | { type: 'INICIALIZAR_CARRITO'; payload: any }
   | { type: 'AGREGAR_ITEM'; payload: ItemCarrito }
@@ -27,7 +35,6 @@ type AccionCarrito =
   | { type: 'ESTABLECER_CARGANDO'; payload: boolean }
   | { type: 'ESTABLECER_ERROR'; payload: string };
 
-// Estado inicial
 const estadoInicial: EstadoCarrito = {
   id: null,
   items: [],
@@ -36,7 +43,9 @@ const estadoInicial: EstadoCarrito = {
   error: null
 };
 
-// Reducer
+/**
+ * Reducer que maneja las acciones del carrito y actualiza el estado
+ */
 function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCarrito {
   switch (accion.type) {
     case 'INICIALIZAR_CARRITO':
@@ -82,7 +91,9 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
   }
 }
 
-// Contexto
+/**
+ * Contexto del carrito que proporciona el estado y métodos para manipularlo
+ */
 const CarritoContext = createContext<{
   estado: EstadoCarrito;
   obtenerCarrito: () => Promise<void>;
@@ -91,7 +102,9 @@ const CarritoContext = createContext<{
   eliminarItem: (item_id: number) => Promise<void>;
 } | null>(null);
 
-// Hook personalizado
+/**
+ * Hook personalizado para acceder al contexto del carrito
+ */
 export const useCarrito = () => {
   const context = useContext(CarritoContext);
   if (!context) {
@@ -100,11 +113,15 @@ export const useCarrito = () => {
   return context;
 };
 
-// Provider
+/**
+ * Proveedor del contexto del carrito que maneja el estado y las operaciones
+ */
 export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [estado, dispatch] = useReducer(carritoReducer, estadoInicial);
 
-  // Obtener o crear carrito
+  /**
+   * Obtiene o crea un carrito desde el servidor
+   */
   const obtenerCarrito = async () => {
     try {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
@@ -117,7 +134,9 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Agregar item al carrito
+  /**
+   * Agrega un nuevo item al carrito
+   */
   const agregarItem = async (producto_id: number, cantidad: number, detalles_personalizacion?: any) => {
     try {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
@@ -135,7 +154,9 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Actualizar cantidad de un item
+  /**
+   * Actualiza la cantidad de un item existente
+   */
   const actualizarCantidad = async (item_id: number, cantidad: number) => {
     try {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
@@ -148,7 +169,9 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Eliminar item del carrito
+  /**
+   * Elimina un item del carrito
+   */
   const eliminarItem = async (item_id: number) => {
     try {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
@@ -161,7 +184,6 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Cargar carrito inicial
   useEffect(() => {
     obtenerCarrito();
   }, []);

@@ -10,11 +10,6 @@ export const registro = async (req: Request, res: Response) => {
   try {
     const { email, contrasena, nombre, apellido, telefono = '', rol = RolUsuario.CLIENTE } = req.body;
 
-    if (!email || !contrasena || !nombre || !apellido) {
-      logger.warn('Intento de registro con campos incompletos');
-      return res.status(400).json({ mensaje: 'Todos los campos son requeridos' });
-    }
-
     // Verificar si el usuario ya existe
     const usuarioExistente = await Usuario.findOne({ where: { email } });
     if (usuarioExistente) {
