@@ -26,7 +26,7 @@
 .navContainer {
   height: 100%;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: var(--spacing-md);
   align-items: center;
   max-width: var(--max-width);
@@ -81,6 +81,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .menuToggle {
@@ -135,6 +136,12 @@
 }
 
 /* Sección 3: Controles de Usuario */
+.controlsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .controlsSection {
   display: flex;
   align-items: center;
@@ -195,24 +202,34 @@
 @media (max-width: 768px) {
   .navContainer {
     grid-template-columns: auto 1fr auto;
+    padding: 0 var(--spacing-sm);
   }
 
   .menuToggle {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    margin-left: var(--spacing-sm);
   }
 
   .navigationSection {
     position: fixed;
-    top: 0;
+    top: var(--navbar-height);
     left: 0;
     right: 0;
     bottom: 0;
     background-color: var(--background-elevated);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    justify-content: flex-start;
     transform: translateX(100%);
     transition: transform var(--transition-duration) ease;
     z-index: calc(var(--navbar-z-index) - 1);
+    padding-top: var(--spacing-xl);
   }
 
   .navigationSection.active {
@@ -224,12 +241,14 @@
     align-items: center;
     gap: var(--spacing-lg);
     padding: var(--spacing-xl) var(--spacing-md);
+    width: 100%;
   }
 
   .navLink {
     font-size: var(--font-size-lg);
     width: 100%;
     text-align: center;
+    padding: var(--spacing-md);
   }
 
   .navLink::after {
@@ -238,6 +257,7 @@
 
   .controlsSection {
     gap: var(--spacing-sm);
+    margin-left: auto;
   }
 }
 

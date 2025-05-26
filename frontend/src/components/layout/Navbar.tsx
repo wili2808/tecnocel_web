@@ -132,42 +132,58 @@ const Navbar = () => {
     </div>
   );
 
+  /**
+   * Renderiza el botón de cambio de tema
+   */
+  const renderThemeToggle = () => (
+    <button 
+      className={navbarStyle.themeToggle}
+      onClick={toggleTheme}
+      aria-label={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+    >
+      <span className="material-icons">
+        {theme === 'light' ? 'dark_mode' : 'light_mode'}
+      </span>
+    </button>
+  );
+
+  /**
+   * Renderiza el botón de menú móvil
+   */
+  const renderMenuToggle = () => (
+    <button
+      className={navbarStyle.menuToggle}
+      onClick={() => setIsMenuOpen(!isMenuOpen)}
+      aria-expanded={isMenuOpen}
+      aria-label="Toggle navigation menu"
+    >
+      <span className="material-icons">{isMenuOpen ? 'close' : 'menu'}</span>
+    </button>
+  );
+
   return (
     <nav className={`${navbarStyle.navbar} theme-transition`}>
       <div className={navbarStyle.navContainer}>
         {/* Sección 1: Logo y Título */}
         <div className={navbarStyle.brandSection}>
-          <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
+            <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
             <img src={logo} alt="MAC WIL Logo" className={navbarStyle.logoImage} />
             <span className={navbarStyle.logoText}>Mac-Wil</span>
           </Link>
         </div>
 
         {/* Sección 2: Navegación */}
-        <div className={navbarStyle.navigationSection}>
-          <button
-            className={navbarStyle.menuToggle}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-expanded={isMenuOpen}
-            aria-label="Toggle navigation menu"
-          >
-            <span className="material-icons">{isMenuOpen ? 'close' : 'menu'}</span>
-          </button>
+        <div className={`${navbarStyle.navigationSection} ${isMenuOpen ? navbarStyle.active : ''}`}>
           {renderNavLinks()}
         </div>
 
         {/* Sección 3: Controles de Usuario */}
-        <div className={navbarStyle.controlsSection}>
-          {renderAuthControls()}
-          <button 
-            className={navbarStyle.themeToggle}
-            onClick={toggleTheme}
-            aria-label={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
-          >
-            <span className="material-icons">
-              {theme === 'light' ? 'dark_mode' : 'light_mode'}
-            </span>
-          </button>
+        <div className={navbarStyle.controlsGroup}>
+          <div className={navbarStyle.controlsSection}>
+            {renderMenuToggle()}
+            {renderThemeToggle()}
+            {renderAuthControls()}
+          </div>
         </div>
       </div>
     </nav>
