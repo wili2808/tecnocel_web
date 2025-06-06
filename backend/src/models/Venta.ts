@@ -1,17 +1,20 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Carrito extends Model {
-  declare id_carrito: number;
+class Venta extends Model {
+  declare id_venta: number;
   declare nro_venta: number;
-  declare id_producto: number;
-  declare cantidad: number;
+  declare id_cliente: number;
+  declare total_pagado: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
+  declare observaciones: string | null;
+  declare valor_dolar: number | null;
+  declare moneda: string | null;
 }
 
-Carrito.init({
-  id_carrito: {
+Venta.init({
+  id_venta: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
@@ -20,15 +23,15 @@ Carrito.init({
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  id_producto: {
+  id_cliente: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'tb_almacen',
-      key: 'id_producto'
+      model: 'tb_clientes',
+      key: 'id_cliente'
     }
   },
-  cantidad: {
+  total_pagado: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
@@ -39,12 +42,24 @@ Carrito.init({
   fyh_actualizacion: {
     type: DataTypes.DATE,
     allowNull: false
+  },
+  observaciones: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  valor_dolar: {
+    type: DataTypes.DECIMAL(10,2),
+    allowNull: true
+  },
+  moneda: {
+    type: DataTypes.STRING(15),
+    allowNull: true
   }
 }, {
   sequelize,
-  modelName: 'Carrito',
-  tableName: 'tb_carrito',
+  modelName: 'Venta',
+  tableName: 'tb_ventas',
   timestamps: false
 });
 
-export default Carrito;
+export default Venta; 

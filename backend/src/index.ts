@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import authRoutes from './routes/authRoutes.js';
-import productRoutes from './routes/productRoutes.js';
+import almacenRoutes from './routes/almacenRoutes.js';
 import { initDatabase } from './config/database.js';
 import logger from './utils/logger.js';
+import './models/index.js';
 
 // Configurar variables de entorno
 dotenv.config();
@@ -14,9 +14,8 @@ const app = express();
 
 // Configurar middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
@@ -30,11 +29,8 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API de MacWil Web funcionando correctamente' });
 });
 
-// Rutas de autenticación
-app.use('/api/auth', authRoutes);
-
-// Rutas de productos
-app.use('/api', productRoutes);
+// Rutas de almacén
+app.use('/api/almacen', almacenRoutes);
 
 // Manejo de errores global
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -52,15 +48,18 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Inicializar base de datos y servidor
-initDatabase().then(() => {
-  // Iniciar servidor
-  app.listen(PORT, () => {
-    logger.info(`Servidor iniciado en http://localhost:${PORT}`);
-    logger.info(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  });
-}).catch(error => {
-  logger.error('Error fatal al inicializar la aplicación:', error);
-  process.exit(1);
-});
+const startServer = async () => {
+  try {
+    await initDatabase();
+    app.listen(PORT, () => {
+      logger.info(`Servidor corriendo en el puerto ${PORT}`);
+    });
+  } catch (error) {
+    logger.error('Error al iniciar el servidor:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app;

@@ -1,20 +1,20 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Categoria extends Model {
-  declare id_categoria: number;
-  declare nombre_categoria: string;
+class Rol extends Model {
+  declare id_rol: number;
+  declare rol: string;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
 
-Categoria.init({
-  id_categoria: {
+Rol.init({
+  id_rol: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  nombre_categoria: {
+  rol: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
@@ -28,9 +28,9 @@ Categoria.init({
   }
 }, {
   sequelize,
-  modelName: 'Categoria',
-  tableName: 'tb_categorias',
+  modelName: 'Rol',
+  tableName: 'tb_roles',
   timestamps: false
 });
 
-export default Categoria;
+export default Rol; 

@@ -1,22 +1,22 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Carrito extends Model {
-  declare id_carrito: number;
-  declare nro_venta: number;
+class DetalleCompra extends Model {
+  declare id_detalle_compra: number;
+  declare nro_compra: number;
   declare id_producto: number;
   declare cantidad: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
 
-Carrito.init({
-  id_carrito: {
+DetalleCompra.init({
+  id_detalle_compra: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  nro_venta: {
+  nro_compra: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
@@ -42,9 +42,9 @@ Carrito.init({
   }
 }, {
   sequelize,
-  modelName: 'Carrito',
-  tableName: 'tb_carrito',
+  modelName: 'DetalleCompra',
+  tableName: 'tb_detalle_compras',
   timestamps: false
 });
 
-export default Carrito;
+export default DetalleCompra; 

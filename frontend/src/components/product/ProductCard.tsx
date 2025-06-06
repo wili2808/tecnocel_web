@@ -3,31 +3,25 @@ import { Link } from 'react-router-dom';
 import styles from '../../styles/Product.module.css';
 
 export interface ProductCardProps {
-  id: number;
+  id_producto: number;
   nombre: string;
-  descripcion: string;
-  imagen_url: string;
-  precio: number;
-  existencias: number;
-  es_personalizable: boolean;
-  sizes?: string[];
-  colors?: string[];
+  descripcion: string | null;
+  imagen: string | null;
+  precio_venta: string;
+  stock: number;
   className?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = memo(({
-  id,
+  id_producto,
   nombre,
   descripcion,
-  imagen_url,
-  precio,
-  existencias,
-  es_personalizable,
-  sizes,
-  colors,
+  imagen,
+  precio_venta,
+  stock,
   className
 }) => {
-  const isOutOfStock = existencias === 0;
+  const isOutOfStock = stock === 0;
   
   return (
     <article 
@@ -35,7 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     >
       <div className={styles.imageContainer}>
         <img 
-          src={imagen_url} 
+          src={imagen || '/placeholder.png'}
           alt={nombre}
           className={styles.productImage}
           loading="lazy"
@@ -47,35 +41,17 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
         <p className={styles.productDescription}>{descripcion}</p>
         
         <div className={styles.productMeta}>
-          {es_personalizable && (
-            <span className={styles.productTag}>Personalizable</span>
-          )}
-          {existencias > 0 && (
-            <span className={styles.productTag}>{existencias} disponibles</span>
+          {stock > 0 && (
+            <span className={styles.productTag}>{stock} disponibles</span>
           )}
         </div>
-        
-        {(sizes || colors) && (
-          <div className={styles.productMeta}>
-            {sizes && sizes.length > 0 && (
-              <span className={styles.productTag}>
-                Tallas: {sizes.join(', ')}
-              </span>
-            )}
-            {colors && colors.length > 0 && (
-              <span className={styles.productTag}>
-                Colores: {colors.join(', ')}
-              </span>
-            )}
-          </div>
-        )}
 
         <p className={styles.productPrice}>
-          ${precio.toLocaleString('es-AR')}
+          ${Number(precio_venta).toLocaleString('es-AR')}
         </p>
 
         <Link 
-          to={`/productos/${id}`}
+          to={`/productos/${id_producto}`}
           className={styles.actionButton}
           aria-disabled={isOutOfStock}
         >

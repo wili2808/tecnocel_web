@@ -1,126 +1,61 @@
-import { Model, DataTypes, Optional } from 'sequelize';
-import bcrypt from 'bcryptjs';
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-export enum RolUsuario {
-  ADMINISTRADOR = 'administrador',
-  EMPLEADO = 'empleado',
-  CLIENTE = 'cliente'
-}
-
-interface UsuarioAttributes {
-  id: number;
-  email: string;
-  contrasena: string;
-  nombre: string;
-  apellido: string;
-  rol: RolUsuario;
-  telefono?: string;
-  creado_en: Date;
-  actualizado_en: Date;
-}
-
-interface UsuarioCreationAttributes extends Optional<UsuarioAttributes, 'id' | 'creado_en' | 'actualizado_en'> {}
-
-class Usuario extends Model<UsuarioAttributes, UsuarioCreationAttributes> {
-  declare id: number;
+class Usuario extends Model {
+  declare id_usuario: number;
+  declare nombres: string;
   declare email: string;
-  declare contrasena: string;
-  declare nombre: string;
-  declare apellido: string;
-  declare rol: RolUsuario;
-  declare telefono?: string;
-  declare creado_en: Date;
-  declare actualizado_en: Date;
-
-  // Getters en inglés para compatibilidad futura
-  get password(): string { return this.contrasena; }
-  get firstName(): string { return this.nombre; }
-  get lastName(): string { return this.apellido; }
-  get role(): RolUsuario { return this.rol; }
-  get phone(): string | undefined { return this.telefono; }
-  get createdAt(): Date { return this.creado_en; }
-  get updatedAt(): Date { return this.actualizado_en; }
-
-  // Métodos de instancia
-  public async compararContrasena(contrasenaCandidata: string): Promise<boolean> {
-    if (!contrasenaCandidata || !this.contrasena) {
-      return false;
-    }
-    return bcrypt.compare(contrasenaCandidata, this.contrasena);
-  }
-
-  // Alias en inglés para compatibilidad futura
-  public async comparePassword(candidatePassword: string): Promise<boolean> {
-    return this.compararContrasena(candidatePassword);
-  }
+  declare password_user: string;
+  declare token: string;
+  declare id_rol: number;
+  declare fyh_creacion: Date;
+  declare fyh_actualizacion: Date;
 }
 
-export const initUsuario = (sequelizeInstance: any) => {
-  Usuario.init({
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: true
-      }
-    },
-    contrasena: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    nombre: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    apellido: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    rol: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'cliente',
-      validate: {
-        isIn: [Object.values(RolUsuario)]
-      }
-    },
-    telefono: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    creado_en: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
-    actualizado_en: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
+Usuario.init({
+  id_usuario: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  nombres: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    unique: true
+  },
+  password_user: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  token: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  id_rol: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'tb_roles',
+      key: 'id_rol'
     }
-  }, {
-    sequelize: sequelizeInstance,
-    tableName: 'usuarios',
-    timestamps: false,
-    hooks: {
-      beforeCreate: async (usuario: Usuario) => {
-        if (usuario.contrasena) {
-          const salt = await bcrypt.genSalt(10);
-          usuario.contrasena = await bcrypt.hash(usuario.contrasena, salt);
-        }
-      },
-      beforeUpdate: async (usuario: Usuario) => {
-        if (usuario.changed('contrasena') && usuario.contrasena) {
-          const salt = await bcrypt.genSalt(10);
-          usuario.contrasena = await bcrypt.hash(usuario.contrasena, salt);
-        }
-      }
-    }
-  });
-}
+  },
+  fyh_creacion: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  fyh_actualizacion: {
+    type: DataTypes.DATE,
+    allowNull: false
+  }
+}, {
+  sequelize,
+  modelName: 'Usuario',
+  tableName: 'tb_usuarios',
+  timestamps: false
+});
 
 export default Usuario;

@@ -13,7 +13,15 @@ const ProductCatalog: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const data = await productService.getProducts();
-        setProducts(data);
+        const mappedProducts = data.map((prod: any) => ({
+          id_producto: prod.id_producto,
+          nombre: prod.nombre,
+          descripcion: prod.descripcion,
+          imagen: prod.imagen,
+          precio_venta: prod.precio_venta,
+          stock: prod.stock,
+        }));
+        setProducts(mappedProducts);
       } catch (error: any) {
         setError(error.response?.data?.message || error.message || 'Error al cargar los productos');
       } finally {
@@ -59,7 +67,7 @@ const ProductCatalog: React.FC = () => {
         <div className={styles.productsGrid}>
           {products.map(product => (
             <ProductCard
-              key={product.id}
+              key={product.id_producto}
               {...product}
             />
           ))}

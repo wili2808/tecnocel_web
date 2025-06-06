@@ -5,7 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import Usuario, { RolUsuario } from '../models/Usuario.js';
+import Usuario from '../models/Usuario.js';
 import logger from '../utils/logger.js';
 
 // Clave secreta para firmar y verificar tokens JWT
@@ -15,9 +15,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
  * Interfaz que define la estructura del payload del token JWT
  */
 export interface TokenPayload {
-  id: number;
+  id_usuario: number;
   email: string;
-  rol: RolUsuario;
+  id_rol: number;
 }
 
 /**
@@ -52,25 +52,23 @@ export const verificarToken = async (req: Request, res: Response, next: NextFunc
     const decodificado = jwt.verify(token, JWT_SECRET) as TokenPayload;
 
     // Buscar el usuario en la base de datos
-    const usuario = await Usuario.findByPk(decodificado.id);
+    const usuario = await Usuario.findByPk(decodificado.id_usuario);
 
     if (!usuario) {
-      logger.warn('Token válido pero usuario no encontrado', { userId: decodificado.id });
+      logger.warn('Token válido pero usuario no encontrado', { userId: decodificado.id_usuario });
       return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
 
     // Adjuntar información del usuario al objeto request
     req.usuario = {
-      id: usuario.id,
+      id_usuario: usuario.id_usuario,
+      nombres: usuario.nombres,
       email: usuario.email,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      rol: usuario.rol,
-      telefono: usuario.telefono
+      id_rol: usuario.id_rol
     };
     
     logger.debug('Token verificado exitosamente', { 
-      userId: usuario.id,
+      userId: usuario.id_usuario,
       email: usuario.email,
       path: req.path
     });
@@ -91,13 +89,13 @@ export const verificarToken = async (req: Request, res: Response, next: NextFunc
  * @param roles - Array de roles permitidos para acceder a la ruta
  * @returns Middleware que verifica si el usuario tiene el rol adecuado
  */
-export const verificarRol = (roles: RolUsuario[]) => {
+export const verificarRol = (roles: number[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.usuario) {
       return res.status(401).json({ mensaje: 'Usuario no autenticado' });
     }
 
-    if (!roles.includes(req.usuario.rol)) {
+    if (!roles.includes(req.usuario.id_rol)) {
       return res.status(403).json({ mensaje: 'Acceso no autorizado' });
     }
 

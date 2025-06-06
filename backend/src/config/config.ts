@@ -4,12 +4,12 @@ dotenv.config();
 
 export const config = {
   database: {
-    name: process.env.DB_NAME || 'macwil_db',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '6186365074',
+    name: process.env.DB_NAME || 'db_tecnocel',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    dialect: 'postgres'
+    port: parseInt(process.env.DB_PORT || '3306'),
+    dialect: 'mysql'
   },
   server: {
     port: parseInt(process.env.PORT || '3000'),
