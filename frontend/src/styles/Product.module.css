@@ -27,6 +27,18 @@
   opacity: 0;
 }
 
+/* Enlace de la Tarjeta de Producto */
+.productLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  outline: none;
+}
+
+.outOfStockLink {
+  cursor: not-allowed;
+}
+
 /* Tarjeta de Producto */
 .productCard {
   background-color: var(--background-elevated);
@@ -37,16 +49,18 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-md);
+  height: 100%;
 }
 
-.productCard:hover {
+.productLink:hover .productCard,
+.productLink:focus-visible .productCard {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
 .imageContainer {
   position: relative;
-  padding-top: 75%; /* Aspect ratio 4:3 */
+  padding-top: 100%; /* Aspect ratio 1:1 */
   overflow: hidden;
   background-color: var(--background-secondary);
 }
@@ -58,15 +72,50 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-duration) ease;
+  transition: transform var(--transition-duration) ease, filter 0.3s ease;
 }
 
-.productCard:hover .productImage {
+.productLink:hover .productImage,
+.productLink:focus-visible .productImage {
   transform: scale(1.05);
 }
 
+/* Superposición de imagen */
+.imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-duration) ease;
+  pointer-events: none;
+}
+
+.productLink:hover .imageOverlay,
+.productLink:focus-visible .imageOverlay {
+  opacity: 1;
+}
+
+.overlayIcon {
+  font-size: 2rem;
+  font-weight: 200;
+}
+
+.overlayText {
+  margin-top: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .productContent {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -74,10 +123,10 @@
 
 .productTitle {
   color: var(--text-primary);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  margin-bottom: var(--spacing-xs);
-  line-height: 1.3;
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
 }
 
 .productDescription {
@@ -90,16 +139,16 @@
 
 .productPrice {
   color: var(--color-primary);
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
 }
 
 .productMeta {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
 }
 
 .productTag {
@@ -108,44 +157,31 @@
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--border-radius-sm);
   font-size: var(--font-size-sm);
+  font-weight: 500;
 }
 
-.actionButton {
-  background-color: var(--color-primary);
+/* Insignia de Agotado */
+.outOfStockBadge {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  background-color: var(--color-neutral-700);
   color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-duration) ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-}
-
-.actionButton:hover {
-  background-color: var(--color-secondary);
-  transform: translateY(-2px);
-}
-
-.actionButton .icon {
-  font-size: var(--font-size-xl);
+  z-index: 1;
 }
 
 /* Estados */
-.outOfStock .productImage {
+.outOfStockLink .productImage {
+  filter: grayscale(100%);
   opacity: 0.7;
 }
 
-.outOfStock .actionButton {
-  background-color: var(--color-neutral-400);
-  cursor: not-allowed;
-}
-
-.outOfStock .actionButton:hover {
-  transform: none;
+.outOfStockLink .imageOverlay {
+  display: none;
 }
 
 /* Animaciones */

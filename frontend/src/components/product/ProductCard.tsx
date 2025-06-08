@@ -22,46 +22,43 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
   className
 }) => {
   const isOutOfStock = stock === 0;
-  
+
   return (
-    <article 
-      className={`${styles.productCard} ${isOutOfStock ? styles.outOfStock : ''} ${className || ''}`}
+    <Link 
+      to={`/productos/${id_producto}`}
+      className={`${styles.productLink} ${isOutOfStock ? styles.outOfStockLink : ''}`}
+      aria-disabled={isOutOfStock}
+      onClick={(e) => isOutOfStock && e.preventDefault()}
     >
-      <div className={styles.imageContainer}>
-        <img 
-          src={imagen || '/placeholder.png'}
-          alt={nombre}
-          className={styles.productImage}
-          loading="lazy"
-        />
-      </div>
-      
-      <div className={styles.productContent}>
-        <h3 className={styles.productTitle}>{nombre}</h3>
-        <p className={styles.productDescription}>{descripcion}</p>
-        
-        <div className={styles.productMeta}>
-          {stock > 0 && (
-            <span className={styles.productTag}>{stock} disponibles</span>
-          )}
+      <article className={`${styles.productCard} ${className || ''}`}>
+        <div className={styles.imageContainer}>
+          <img
+            src={imagen || '/placeholder.png'}
+            alt={nombre}
+            className={styles.productImage}
+            loading="lazy"
+          />
+          <div className={styles.imageOverlay}>
+            <span className={styles.overlayIcon}>+</span>
+            <span className={styles.overlayText}>Ver más</span>
+          </div>
+          {isOutOfStock && <div className={styles.outOfStockBadge}>Agotado</div>}
         </div>
-
-        <p className={styles.productPrice}>
-          ${Number(precio_venta).toLocaleString('es-AR')}
-        </p>
-
-        <Link 
-          to={`/productos/${id_producto}`}
-          className={styles.actionButton}
-          aria-disabled={isOutOfStock}
-        >
-          <span className="material-icons">
-            {isOutOfStock ? 'remove_shopping_cart' : 'add_shopping_cart'}
-          </span>
-          {isOutOfStock ? 'Sin Stock' : 'Ver Detalles'}
-        </Link>
-      </div>
-    </article>
+        
+        <div className={styles.productContent}>
+          <h3 className={styles.productTitle}>{nombre}</h3>
+          
+          <div className={styles.productMeta}>
+            <p className={styles.productPrice}>
+              ${Number(precio_venta).toLocaleString('es-AR')}
+            </p>
+            {stock > 0 && (
+              <span className={styles.productTag}>{stock} disponibles</span>
+            )}
+          </div>
+        </div>
+      </article>
+    </Link>
   );
 });
 

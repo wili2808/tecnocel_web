@@ -1,0 +1,237 @@
+# .cursorrules - Proyecto MAC WIL
+
+## CONTEXTO DEL SISTEMA
+Este es un sitio web profesional para MAC WIL, empresa de confección, sublimación y bordado. La aplicación es cliente-servidor:
+- **Frontend**: Interfaz de usuario interactiva con React.js y TypeScript.
+- **Backend**: API REST con Node.js y Express para la lógica de negocio, autenticación e interacción con la base de datos.
+- **Base de datos**: MySQL para la persistencia de datos.
+- **Funcionalidad**: Gestión de productos, inventario, usuarios, transacciones y servicios de personalización.
+
+## STACK TECNOLÓGICO
+### Frontend
+- **Framework**: React.js con TypeScript
+- **Entorno de Desarrollo**: Vite
+- **Enrutamiento**: React Router DOM
+- **Estilos**: Emotion (CSS-in-JS)
+- **Cliente HTTP**: Axios
+
+### Backend
+- **Lenguaje**: Node.js con TypeScript
+- **Framework**: Express.js
+- **API**: RESTful
+- **Autenticación**: JSON Web Tokens (JWT)
+- **ORM/Query Builder**: Sequelize
+- **Hashing de Contraseñas**: Bcrypt.js
+
+### Base de Datos
+- **Motor**: MySQL
+
+## ARQUITECTURA Y ESTRUCTURA
+
+### Estructura de Directorios
+```
+macwil_web/
+├── frontend/                 # Aplicación del cliente (Vite + React)
+│   ├── src/
+│   │   ├── api/             # Configuraciones de Axios
+│   │   ├── assets/          # Recursos estáticos (imágenes, fuentes)
+│   │   ├── components/      # Componentes reutilizables (por feature)
+│   │   ├── contexts/        # Contextos de React
+│   │   ├── hooks/           # Hooks personalizados
+│   │   ├── pages/           # Páginas principales (Home, Catálogo)
+│   │   ├── services/        # Lógica de comunicación con la API
+│   │   └── styles/          # Estilos globales y temas (Emotion)
+│   └── public/              # Archivos públicos
+├── backend/                  # Servidor y API (Node.js + Express)
+│   ├── src/
+│   │   ├── config/          # Configuraciones (ej. variables de entorno)
+│   │   ├── controllers/     # Controladores de la API (lógica de rutas)
+│   │   ├── database/        # Configuración de la conexión a la BD (Sequelize)
+│   │   ├── middleware/      # Middlewares de Express
+│   │   ├── models/          # Modelos de datos de Sequelize
+│   │   ├── routes/          # Rutas de la API
+│   │   └── utils/           # Funciones de utilidad
+│   └── dist/                 # Archivos transpilados de TypeScript
+```
+
+### API Endpoints Principales
+- `GET /api/almacen/productos` - Listar productos
+- `GET /api/almacen/productos/:id` - Obtener producto específico
+- `POST /api/ventas` - Crear una venta
+- `POST /api/compras` - Crear una compra
+- `POST /api/devoluciones` - Registrar una devolución
+- `POST /api/presupuestos` - Crear una cotización
+- `POST /api/usuarios/registro` - Registro de usuario
+- `POST /api/usuarios/login` - Login de usuario
+- `GET /api/usuarios/perfil` - Perfil de usuario (protegido)
+
+### Entidades de Base de Datos
+- **usuarios**: id, nombre, email, password_hash, rol_id
+- **roles**: id, nombre_rol
+- **clientes**: id, nombre, contacto
+- **proveedores**: id, nombre, contacto
+- **categorias**: id, nombre, descripcion
+- **almacen (productos)**: id, nombre, descripcion, precio, stock, categoria_id
+- **compras**: id, proveedor_id, total, fecha
+- **detalle_compras**: id, compra_id, producto_id, cantidad, precio
+- **ventas**: id, cliente_id, total, fecha
+- **carrito**: id, cliente_id, producto_id, cantidad
+- **devoluciones**: id, venta_id, fecha
+- **detalle_devoluciones**: id, devolucion_id, producto_id, cantidad
+- **presupuestos**: id, cliente_id, total, estado
+- **detalle_presupuestos**: id, presupuesto_id, descripcion, cantidad, precio
+
+## REGLAS DE CODIFICACIÓN
+
+### Generales
+- Usar nombres descriptivos y en inglés para variables, funciones y clases
+- Comentarios en español para explicaciones complejas
+- Seguir principios SOLID y DRY
+- Manejo robusto de errores con try-catch apropiados
+- Logging detallado para debugging y monitoreo
+
+### Frontend
+- Componentes reutilizables y modulares
+- Separación clara entre lógica y presentación
+- Validación de formularios en el cliente
+- Optimización de imágenes y recursos
+- Accesibilidad (ARIA labels, contraste, navegación por teclado)
+- SEO-friendly (meta tags, structured data)
+
+### Backend
+- Separación en capas: Controller → Service → Model
+- Validación exhaustiva de entrada (sanitización, tipos, rangos)
+- Códigos de estado HTTP correctos (200, 201, 400, 401, 404, 500)
+- Rate limiting para prevenir abuso
+- CORS configurado apropiadamente
+- Sanitización de consultas SQL (prevenir inyección SQL)
+
+### Base de Datos
+- Nombres de tablas en plural y snake_case
+- Claves primarias como 'id' autoincremental
+- Timestamps: created_at, updated_at en todas las tablas
+- Índices en columnas de búsqueda frecuente
+- Restricciones de integridad referencial
+- Campos obligatorios marcados como NOT NULL
+
+## REGLAS DE SEGURIDAD
+
+### Autenticación y Autorización
+- Passwords hasheados con salt (bcrypt/scrypt)
+- JWT con expiración apropiada
+- Validación de tokens en cada request protegido
+- Rate limiting en endpoints de login
+- Logout que invalide tokens
+
+### Validación de Datos
+- Nunca confiar en datos del cliente
+- Validar tipo, formato, rangos y longitud
+- Sanitizar entrada para prevenir XSS
+- Usar prepared statements o ORM para consultas SQL
+- Validar archivos subidos (tipo, tamaño, contenido)
+
+### Configuración
+- Variables de entorno para secretos (DB_PASSWORD, JWT_SECRET)
+- No hardcodear credenciales en el código
+- HTTPS en producción
+- Headers de seguridad apropiados
+
+## CONVENCIONES DE RESPUESTA API
+
+### Formato de Respuesta Exitosa
+```json
+{
+  "success": true,
+  "data": {
+    // datos relevantes
+  },
+  "message": "Descripción opcional"
+}
+```
+
+### Formato de Respuesta de Error
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Descripción del error",
+    "details": "Información adicional si es necesario"
+  }
+}
+```
+
+### Códigos de Estado
+- 200: OK (GET exitoso)
+- 201: Created (POST/PUT exitoso)
+- 400: Bad Request (datos inválidos)
+- 401: Unauthorized (no autenticado)
+- 403: Forbidden (no autorizado)
+- 404: Not Found (recurso no encontrado)
+- 429: Too Many Requests (rate limit)
+- 500: Internal Server Error
+
+## FUNCIONALIDADES CLAVE DE LA PÁGINA DE VENTAS
+
+### Características
+- Catálogo de productos dinámico.
+- Sistema de autenticación y gestión de usuarios con roles.
+- Gestión completa de inventario y almacén.
+- Módulos para compras, ventas, devoluciones y presupuestos.
+- Carrito de compras funcional.
+- Servicios de personalización y cotizaciones.
+
+### Módulos Principales
+1.  **Gestión de Inventario (Almacén)**
+    - Control de stock de productos y categorías.
+    - Asociación con proveedores.
+
+2.  **Gestión de Transacciones**
+    - **Ventas**: Proceso de venta, desde el carrito hasta la finalización.
+    - **Compras**: Registro de compras a proveedores.
+    - **Devoluciones**: Manejo de devoluciones de clientes.
+    - **Presupuestos**: Creación y seguimiento de cotizaciones para trabajos personalizados.
+
+3.  **Gestión de Entidades**
+    - **Usuarios**: Registro, autenticación y perfiles.
+    - **Roles**: Control de acceso basado en roles.
+    - **Clientes y Proveedores**: Administración de la información de contacto y transacciones.
+
+4.  **Servicios Personalizados**
+    - Flujo para solicitar cotizaciones de trabajos de sublimación y bordado.
+    - Seguimiento del estado de los trabajos personalizados.
+
+## INSTRUCCIONES PARA CURSOR
+
+### Al generar código:
+1. Siempre considera la seguridad primero
+2. Implementa validación robusta
+3. Incluye manejo de errores apropiado
+4. Agrega comentarios para lógica compleja
+5. Sigue las convenciones de naming establecidas
+6. Considera la performance y escalabilidad
+7. Implementa logging apropiado
+
+### Al hacer refactoring:
+1. Mantén la compatibilidad de la API
+2. Actualiza documentación relacionada
+3. Considera el impacto en otros componentes
+4. Ejecuta tests antes y después de cambios
+
+### Al debuggear:
+1. Revisa logs primero
+2. Verifica validación de entrada
+3. Confirma conexión a base de datos
+4. Revisa configuración de CORS si hay problemas de frontend
+5. Verifica autenticación/autorización
+
+## NOTAS ADICIONALES
+- Priorizar experiencia de usuario fluida
+- Optimizar para velocidad de carga
+- Implementar caché donde sea apropiado
+- Considerar SEO en todas las páginas públicas
+- Preparar para escalabilidad futura
+- Documentar decisiones arquitectónicas importantes
+
+---
+Este archivo debe ser actualizado conforme el proyecto evolucione.

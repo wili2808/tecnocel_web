@@ -25,7 +25,7 @@ function App() {
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
-                <Route path="/uniformes-escolares" element={<ProductCatalog />} />
+                <Route path="/productos" element={<ProductCatalog />} />
                 {/* TODO: Agregar más rutas según sea necesario */}
               </Route>
             </Routes>

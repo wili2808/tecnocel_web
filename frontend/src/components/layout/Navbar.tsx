@@ -14,7 +14,7 @@ import navbarStyle from '../../styles/Navbar.module.css';
 
 // Rutas de navegación principales
 const NAV_ROUTES = [
-  { path: '/uniformes-escolares', label: 'Escolares' },
+  { path: '/productos', label: 'Productos' },
   { path: '/egresados', label: 'Egresados' },
   { path: '/deportes', label: 'Deportivos' },
   { path: '/sublimacion', label: 'Sublimación' },
