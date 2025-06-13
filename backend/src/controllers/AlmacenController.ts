@@ -223,6 +223,51 @@ class AlmacenController {
       res.status(500).json({ message: 'Error al actualizar el stock' });
     }
   }
+
+  // Obtener productos destacados (los más recientes con stock disponible)
+  async getFeaturedProducts(req: Request, res: Response) {
+    try {
+      logger.debug('Obteniendo productos destacados');
+      const productos = await Almacen.findAll({
+        where: {
+          stock: { [Op.gt]: 0 } // Solo productos con stock disponible
+        },
+        include: [
+          { model: Categoria, attributes: ['nombre_categoria'] },
+          { model: Usuario, attributes: ['nombres'] }
+        ],
+        order: [['fyh_actualizacion', 'DESC']], // Ordenar por más recientes
+        limit: 6 // Limitar a 6 productos destacados
+      });
+
+      logger.info(`Se obtuvieron ${productos.length} productos destacados exitosamente`);
+      res.json(productos);
+    } catch (error) {
+      logger.error('Error al obtener productos destacados:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      res.status(500).json({ message: 'Error al obtener los productos destacados' });
+    }
+  }
+
+  // Obtener todas las categorías disponibles
+  async getAllCategories(req: Request, res: Response) {
+    try {
+      logger.debug('Obteniendo todas las categorías');
+      const categorias = await Categoria.findAll({
+        attributes: ['id_categoria', 'nombre_categoria']
+      });
+      logger.info(`Se obtuvieron ${categorias.length} categorías exitosamente`);
+      res.json(categorias);
+    } catch (error) {
+      logger.error('Error al obtener categorías:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      res.status(500).json({ message: 'Error al obtener las categorías' });
+    }
+  }
 }
 
 export default new AlmacenController(); 

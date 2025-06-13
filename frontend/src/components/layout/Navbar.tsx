@@ -167,8 +167,8 @@ const Navbar = () => {
         {/* Sección 1: Logo y Título */}
         <div className={navbarStyle.brandSection}>
             <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
-            <img src={logo} alt="MAC WIL Logo" className={navbarStyle.logoImage} />
-            <span className={navbarStyle.logoText}>Mac-Wil</span>
+            <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
+            <span className={navbarStyle.logoText}>TECNOCEL</span>
           </Link>
         </div>
 

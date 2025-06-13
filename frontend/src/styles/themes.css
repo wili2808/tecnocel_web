@@ -1,37 +1,37 @@
 :root[data-theme="light"] {
   /* Colores principales */
-  --color-primary: var(--color-primary-500);
-  --color-secondary: var(--color-primary-400);
-  --color-accent: var(--color-primary-300);
+  --color-primary: #6c63ff;         /* Azul violeta suave */
+  --color-secondary: #b3b3cc;       /* Lila grisáceo */
+  --color-accent: #ffd6e0;          /* Rosa pastel muy claro */
 
   /* Colores de texto */
-  --text-primary: var(--color-neutral-800);
-  --text-secondary: var(--color-neutral-600);
+  --text-primary: #2d2d2d;          /* Gris oscuro */
+  --text-secondary: #6e6e6e;        /* Gris medio */
 
   /* Colores de fondo */
-  --background-primary: var(--color-neutral-100);
-  --background-secondary: var(--color-neutral-200);
-  --background-elevated: white;
+  --background-primary: #f4f4f6;    /* Gris muy claro */
+  --background-secondary: #e9e9ec;  /* Gris claro */
+  --background-elevated: #ffffff;   /* Blanco para tarjetas elevadas */
 
   /* Colores de estado */
-  --color-error: var(--color-error);
-  --color-success: var(--color-success);
+  --color-error: #e57373;
+  --color-success: #81c784;
 }
 
 :root[data-theme="dark"] {
   /* Colores principales */
-  --color-primary: #1E3A8A;  /* Azul oscuro */
-  --color-secondary: #2563EB;  /* Azul medio */
-  --color-accent: #3B82F6;  /* Azul claro */
+  --color-primary: #38bdf8;      /* Celeste vibrante */
+  --color-secondary: #818cf8;    /* Lila claro */
+  --color-accent: #f472b6;       /* Rosa claro */
 
   /* Colores de texto */
-  --text-primary: var(--color-neutral-100);
-  --text-secondary: var(--color-neutral-300);
+  --text-primary: #F8FAFC;       /* Casi blanco */
+  --text-secondary: #CBD5E1;     /* Gris claro */
 
   /* Colores de fondo */
-  --background-primary: #0F172A;  /* Azul muy oscuro */
-  --background-secondary: #1E293B;  /* Azul oscuro */
-  --background-elevated: #334155;  /* Azul grisáceo */
+  --background-primary: #18181B; /* Gris muy oscuro */
+  --background-secondary: #27272A; /* Gris oscuro */
+  --background-elevated: #3F3F46; /* Gris medio */
 
   /* Colores de estado */
   --color-error: #EF4444;

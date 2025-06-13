@@ -1,13 +1,15 @@
-# MAC WIL - Creaciones e Impresiones
+# TECNOCEL WEB
 
 ## Descripción del Proyecto
 
-Este proyecto es un sitio web profesional desarrollado para MAC WIL, una empresa especializada en la confección, sublimación y bordado de ropa y uniformes. La aplicación sigue una arquitectura cliente-servidor, donde el **frontend**, desarrollado con React.js y TypeScript, proporciona la interfaz de usuario interactiva. El **backend**, construido con Node.js y Express, maneja la lógica de negocio, la autenticación, la interacción con la base de datos MySQL y expone una API REST para ser consumida por el frontend. Juntos, frontend y backend, permiten gestionar productos, inventario, usuarios, transacciones y ofrecer servicios de personalización.
+Este proyecto es un sitio web profesional desarrollado para TECNOCEL, una empresa enfocada en la venta de articulos tecnologicos como Smartphones y Noteboocks. La aplicación sigue una arquitectura cliente-servidor, donde el **frontend**, desarrollado con React.js y TypeScript, proporciona la interfaz de usuario interactiva. El **backend**, construido con Node.js y Express, maneja la lógica de negocio, la autenticación, la interacción con la base de datos MySQL y expone una API REST para ser consumida por el frontend.
+La base de datos a utilizar sera una ya existente y en funcionamiento por otra app destinada a la gestion de los productos, ventas, clientes y usuarios.
+Una parte preliminar al desarrollo del proyecto será el refinamiento de esta base de datos para adaptarla a las necesidades para la construccion de la API necesario para que la web de ventas "TECNOCEL WEB" pueda brindar las funcionalidades necesarios a los clientes. Entre otros aspectos importantes a implementar sera la autenticacion de usuarios clientes y manejo de su informacion y compras en la web, temas que no son contemplados en el diseño actual de la base de datos.
 
 ## Estructura del Proyecto
 
 ```
-macwil_web/
+tennocel_web/
 ├── frontend/                 # Aplicación del cliente (Vite + React)
 │   ├── src/
 │   │   ├── api/             # Configuraciones de Axios
@@ -31,12 +33,12 @@ macwil_web/
 │   └── dist/                 # Archivos transpilados de TypeScript
 ```
 
-## Características Principales
+## Características Principales de la web de ventas.
 
 - Catálogo de productos dinámico.
-- Sistema de autenticación y gestión de usuarios con roles.
-- Gestión completa de inventario y almacén.
-- Módulos para compras, ventas, devoluciones y presupuestos.
+- Sistema de autenticación y gestión de usuarios clientes.
+- Gestión completa de informacion de cliente.
+- Módulos para compras, carrito, devoluciones.
 - Carrito de compras funcional.
 - Servicios de personalización y cotizaciones.
 

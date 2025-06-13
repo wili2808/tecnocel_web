@@ -6,9 +6,11 @@ const router = Router();
 
 // Rutas públicas (no requieren autenticación)
 router.get('/productos', almacenController.getProducts);
+router.get('/productos/destacados', almacenController.getFeaturedProducts);
 router.get('/productos/:id', almacenController.getProductById);
 router.get('/productos/buscar', almacenController.searchProducts);
 router.get('/productos/categoria/:categoriaId', almacenController.getProductsByCategory);
+router.get('/categorias', almacenController.getAllCategories);
 
 // Rutas protegidas (requieren autenticación)
 router.use(verificarToken);

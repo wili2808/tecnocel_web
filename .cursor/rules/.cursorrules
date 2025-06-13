@@ -1,14 +1,18 @@
 # .cursorrules - Proyecto MAC WIL
 
 ## CONTEXTO DEL SISTEMA
-Este es un sitio web profesional para MAC WIL, empresa de confección, sublimación y bordado. La aplicación es cliente-servidor:
+
+Este es un sitio web profesional para TECNOCEL, empresa de ventas de articulos tecnologicos:
+
 - **Frontend**: Interfaz de usuario interactiva con React.js y TypeScript.
 - **Backend**: API REST con Node.js y Express para la lógica de negocio, autenticación e interacción con la base de datos.
 - **Base de datos**: MySQL para la persistencia de datos.
 - **Funcionalidad**: Gestión de productos, inventario, usuarios, transacciones y servicios de personalización.
 
 ## STACK TECNOLÓGICO
+
 ### Frontend
+
 - **Framework**: React.js con TypeScript
 - **Entorno de Desarrollo**: Vite
 - **Enrutamiento**: React Router DOM
@@ -16,6 +20,7 @@ Este es un sitio web profesional para MAC WIL, empresa de confección, sublimaci
 - **Cliente HTTP**: Axios
 
 ### Backend
+
 - **Lenguaje**: Node.js con TypeScript
 - **Framework**: Express.js
 - **API**: RESTful
@@ -24,11 +29,13 @@ Este es un sitio web profesional para MAC WIL, empresa de confección, sublimaci
 - **Hashing de Contraseñas**: Bcrypt.js
 
 ### Base de Datos
+
 - **Motor**: MySQL
 
 ## ARQUITECTURA Y ESTRUCTURA
 
 ### Estructura de Directorios
+
 ```
 macwil_web/
 ├── frontend/                 # Aplicación del cliente (Vite + React)
@@ -55,6 +62,7 @@ macwil_web/
 ```
 
 ### API Endpoints Principales
+
 - `GET /api/almacen/productos` - Listar productos
 - `GET /api/almacen/productos/:id` - Obtener producto específico
 - `POST /api/ventas` - Crear una venta
@@ -66,6 +74,7 @@ macwil_web/
 - `GET /api/usuarios/perfil` - Perfil de usuario (protegido)
 
 ### Entidades de Base de Datos
+
 - **usuarios**: id, nombre, email, password_hash, rol_id
 - **roles**: id, nombre_rol
 - **clientes**: id, nombre, contacto
@@ -84,6 +93,7 @@ macwil_web/
 ## REGLAS DE CODIFICACIÓN
 
 ### Generales
+
 - Usar nombres descriptivos y en inglés para variables, funciones y clases
 - Comentarios en español para explicaciones complejas
 - Seguir principios SOLID y DRY
@@ -91,6 +101,7 @@ macwil_web/
 - Logging detallado para debugging y monitoreo
 
 ### Frontend
+
 - Componentes reutilizables y modulares
 - Separación clara entre lógica y presentación
 - Validación de formularios en el cliente
@@ -99,6 +110,7 @@ macwil_web/
 - SEO-friendly (meta tags, structured data)
 
 ### Backend
+
 - Separación en capas: Controller → Service → Model
 - Validación exhaustiva de entrada (sanitización, tipos, rangos)
 - Códigos de estado HTTP correctos (200, 201, 400, 401, 404, 500)
@@ -107,6 +119,7 @@ macwil_web/
 - Sanitización de consultas SQL (prevenir inyección SQL)
 
 ### Base de Datos
+
 - Nombres de tablas en plural y snake_case
 - Claves primarias como 'id' autoincremental
 - Timestamps: created_at, updated_at en todas las tablas
@@ -117,6 +130,7 @@ macwil_web/
 ## REGLAS DE SEGURIDAD
 
 ### Autenticación y Autorización
+
 - Passwords hasheados con salt (bcrypt/scrypt)
 - JWT con expiración apropiada
 - Validación de tokens en cada request protegido
@@ -124,6 +138,7 @@ macwil_web/
 - Logout que invalide tokens
 
 ### Validación de Datos
+
 - Nunca confiar en datos del cliente
 - Validar tipo, formato, rangos y longitud
 - Sanitizar entrada para prevenir XSS
@@ -131,6 +146,7 @@ macwil_web/
 - Validar archivos subidos (tipo, tamaño, contenido)
 
 ### Configuración
+
 - Variables de entorno para secretos (DB_PASSWORD, JWT_SECRET)
 - No hardcodear credenciales en el código
 - HTTPS en producción
@@ -139,6 +155,7 @@ macwil_web/
 ## CONVENCIONES DE RESPUESTA API
 
 ### Formato de Respuesta Exitosa
+
 ```json
 {
   "success": true,
@@ -150,6 +167,7 @@ macwil_web/
 ```
 
 ### Formato de Respuesta de Error
+
 ```json
 {
   "success": false,
@@ -162,6 +180,7 @@ macwil_web/
 ```
 
 ### Códigos de Estado
+
 - 200: OK (GET exitoso)
 - 201: Created (POST/PUT exitoso)
 - 400: Bad Request (datos inválidos)
@@ -174,6 +193,7 @@ macwil_web/
 ## FUNCIONALIDADES CLAVE DE LA PÁGINA DE VENTAS
 
 ### Características
+
 - Catálogo de productos dinámico.
 - Sistema de autenticación y gestión de usuarios con roles.
 - Gestión completa de inventario y almacén.
@@ -182,17 +202,21 @@ macwil_web/
 - Servicios de personalización y cotizaciones.
 
 ### Módulos Principales
+
 1.  **Gestión de Inventario (Almacén)**
+
     - Control de stock de productos y categorías.
     - Asociación con proveedores.
 
 2.  **Gestión de Transacciones**
+
     - **Ventas**: Proceso de venta, desde el carrito hasta la finalización.
     - **Compras**: Registro de compras a proveedores.
     - **Devoluciones**: Manejo de devoluciones de clientes.
     - **Presupuestos**: Creación y seguimiento de cotizaciones para trabajos personalizados.
 
 3.  **Gestión de Entidades**
+
     - **Usuarios**: Registro, autenticación y perfiles.
     - **Roles**: Control de acceso basado en roles.
     - **Clientes y Proveedores**: Administración de la información de contacto y transacciones.
@@ -204,6 +228,7 @@ macwil_web/
 ## INSTRUCCIONES PARA CURSOR
 
 ### Al generar código:
+
 1. Siempre considera la seguridad primero
 2. Implementa validación robusta
 3. Incluye manejo de errores apropiado
@@ -213,12 +238,14 @@ macwil_web/
 7. Implementa logging apropiado
 
 ### Al hacer refactoring:
+
 1. Mantén la compatibilidad de la API
 2. Actualiza documentación relacionada
 3. Considera el impacto en otros componentes
 4. Ejecuta tests antes y después de cambios
 
 ### Al debuggear:
+
 1. Revisa logs primero
 2. Verifica validación de entrada
 3. Confirma conexión a base de datos
@@ -226,12 +253,15 @@ macwil_web/
 5. Verifica autenticación/autorización
 
 ## NOTAS ADICIONALES
+
 - Priorizar experiencia de usuario fluida
 - Optimizar para velocidad de carga
 - Implementar caché donde sea apropiado
 - Considerar SEO en todas las páginas públicas
 - Preparar para escalabilidad futura
 - Documentar decisiones arquitectónicas importantes
+- Priorizar la utilizacion de la herramienta context7
 
 ---
+
 Este archivo debe ser actualizado conforme el proyecto evolucione.
