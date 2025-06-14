@@ -1,18 +1,12 @@
-/* Variables específicas del layout */
-:root {
-  --transition-duration: 0.3s;
-  --layout-max-width: var(--max-width);
-  --layout-background: var(--background-primary);
-  --content-padding: var(--spacing-xl);
-}
+/* Layout Principal - Usa variables del sistema global */
 
 /* Layout Principal */
 .mainLayout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--layout-background);
-  transition: background-color var(--transition-duration) ease;
+  background-color: var(--background-primary);
+  transition: background-color var(--transition-normal) ease;
   overflow-x: hidden;
   position: relative;
 }
@@ -21,7 +15,7 @@
   flex: 1;
   padding-top: calc(var(--navbar-height) + var(--spacing-md));
   width: 100%;
-  max-width: var(--layout-max-width);
+  max-width: var(--max-width);
   margin: 0 auto;
   padding-left: var(--container-padding);
   padding-right: var(--container-padding);
@@ -32,11 +26,11 @@
 .contentSection {
   background-color: var(--background-elevated);
   border-radius: var(--border-radius-lg);
-  padding: var(--content-padding);
+  padding: var(--spacing-xl);
   margin-bottom: var(--spacing-xl);
   box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-duration) ease,
-              transform var(--transition-duration) ease;
+  transition: box-shadow var(--transition-normal) ease,
+              transform var(--transition-normal) ease;
 }
 
 .contentSection:hover {

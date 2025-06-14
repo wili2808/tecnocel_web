@@ -1,21 +1,21 @@
 :root[data-theme="light"] {
-  /* Colores principales */
-  --color-primary: #6c63ff;         /* Azul violeta suave */
-  --color-secondary: #b3b3cc;       /* Lila grisáceo */
-  --color-accent: #ffd6e0;          /* Rosa pastel muy claro */
+  /* Colores principales - UNIFICADOS con variables.css */
+  --color-primary: #6B46C1;         /* Violeta unificado */
+  --color-secondary: #805AD5;       /* Lila unificado */
+  --color-accent: #9F7AEA;          /* Rosa unificado */
 
   /* Colores de texto */
   --text-primary: #2d2d2d;          /* Gris oscuro */
   --text-secondary: #6e6e6e;        /* Gris medio */
 
   /* Colores de fondo */
-  --background-primary: #f4f4f6;    /* Gris muy claro */
-  --background-secondary: #e9e9ec;  /* Gris claro */
+  --background-primary: white;      /* Blanco unificado */
+  --background-secondary: #F1F5F9;  /* Gris claro unificado */
   --background-elevated: #ffffff;   /* Blanco para tarjetas elevadas */
 
-  /* Colores de estado */
-  --color-error: #e57373;
-  --color-success: #81c784;
+  /* Colores de estado - UNIFICADOS */
+  --color-error: #EF4444;
+  --color-success: #10B981;
 }
 
 :root[data-theme="dark"] {

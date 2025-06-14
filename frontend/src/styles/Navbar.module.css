@@ -1,12 +1,4 @@
-/* Variables específicas del navbar */
-:root {
-  --navbar-height: 64px;
-  --navbar-z-index: 1003;
-  --navbar-content-z-index: 1004;
-  --avatar-size: 32px;
-  --button-hover-scale: 1.05;
-  --button-active-scale: 0.95;
-}
+/* Variables específicas del navbar que no están en el sistema global */
 
 /* Navbar principal */
 .navbar {
@@ -17,8 +9,8 @@
   height: var(--navbar-height);
   background-color: var(--background-elevated);
   box-shadow: var(--shadow-sm);
-  z-index: var(--navbar-z-index);
-  transition: all var(--transition-duration) ease;
+  z-index: var(--z-navbar);
+  transition: all var(--transition-normal) ease;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -47,8 +39,8 @@
   text-decoration: none;
   color: var(--text-primary);
   font-weight: 600;
-  z-index: var(--navbar-content-z-index);
-  transition: opacity var(--transition-duration) ease;
+  z-index: calc(var(--z-navbar) + 1);
+  transition: opacity var(--transition-normal) ease;
 }
 
 .logoLink:hover {
@@ -165,13 +157,13 @@
 .authButton:hover,
 .themeToggle:hover {
   background-color: var(--background-light);
-  transform: scale(var(--button-hover-scale));
+  transform: scale(var(--scale-hover));
   color: var(--color-primary);
 }
 
 .authButton:active,
 .themeToggle:active {
-  transform: scale(var(--button-active-scale));
+  transform: scale(var(--scale-active));
 }
 
 .avatar {

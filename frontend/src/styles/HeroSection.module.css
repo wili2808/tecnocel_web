@@ -2,11 +2,11 @@
 .heroSection {
   position: relative;
   overflow: hidden;
-  background-color: #111;
+  background-color: var(--color-neutral-900);
   background-image:
     radial-gradient(ellipse at 20% 80%, rgba(56, 189, 248, 0.1), transparent),
     radial-gradient(ellipse at 80% 30%, rgba(79, 70, 229, 0.1), transparent);
-  padding: var(--hero-padding-desktop) var(--container-padding);
+  padding: var(--spacing-4xl) var(--container-padding);
   color: white;
 }
 
@@ -90,7 +90,7 @@
 
 .primaryCta:hover {
   transform: translateY(-3px);
-  background: #38bdf8;
+  background: var(--color-primary-light);
   box-shadow: 0 12px 25px rgba(56, 189, 248, 0.3);
 }
 
@@ -130,7 +130,7 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .heroSection {
-    padding: var(--hero-padding-tablet) 0;
+    padding: var(--spacing-3xl) 0;
   }
 
   .heroTitle {
@@ -140,7 +140,7 @@
 
 @media (max-width: 768px) {
   .heroSection {
-    padding: var(--hero-padding-mobile) 0;
+    padding: var(--spacing-2xl) 0;
   }
 
   .heroTitle {
@@ -168,7 +168,7 @@
 
 @media (max-width: 480px) {
   .heroSection {
-    padding: var(--hero-padding-small) 0;
+    padding: var(--spacing-xl) 0;
   }
 
   .heroTitle {

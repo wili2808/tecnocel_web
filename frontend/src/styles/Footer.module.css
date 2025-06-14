@@ -1,6 +1,6 @@
 /* Footer */
 .footer {
-  background-color: #111111;
+  background-color: var(--color-neutral-900);
   color: var(--color-neutral-400);
   padding: var(--spacing-4xl) var(--container-padding);
   margin-top: auto;
@@ -38,7 +38,7 @@
 .socialLinks a {
   color: var(--color-neutral-400);
   font-size: var(--font-size-xl);
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color var(--transition-fast) ease, transform var(--transition-fast) ease;
 }
 
 .socialLinks a:hover {
@@ -58,7 +58,7 @@
   margin-bottom: var(--spacing-md);
   color: var(--color-neutral-400);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast) ease;
 }
 
 .footerLinks a:hover {

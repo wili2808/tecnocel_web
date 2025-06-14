@@ -1,10 +1,4 @@
-/* Variables específicas */
-:root {
-  --modal-z-index: 1005;
-  --modal-animation-duration: 0.3s;
-  --avatar-size: 120px;
-  --avatar-size-mobile: 100px;
-}
+/* Variables específicas - Usa sistema global cuando sea posible */
 
 /* Overlay del Modal de Autenticación */
 .authModalOverlay {
@@ -18,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--modal-z-index);
+  z-index: var(--z-modal);
 }
 
 /* Contenedor del Panel de Usuario */
@@ -31,9 +25,9 @@
   background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
-  z-index: var(--modal-z-index);
+  z-index: var(--z-modal);
   transform-origin: top right;
-  animation: panelFadeIn var(--modal-animation-duration) ease-out;
+  animation: panelFadeIn var(--transition-normal) ease-out;
 }
 
 /* Contenido interno del modal */
@@ -45,7 +39,7 @@
   width: 90%;
   max-width: 480px;
   position: relative;
-  animation: modalFadeIn var(--modal-animation-duration) ease-out;
+  animation: modalFadeIn var(--transition-normal) ease-out;
 }
 
 /* Aumentar especificidad para el contenido del modal de autenticación */

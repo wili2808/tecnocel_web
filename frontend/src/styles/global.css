@@ -2,7 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 @import './variables.css';
 @import './themes.css';
-@import './utilities.css';
 
 * {
   margin: 0;
@@ -11,10 +10,10 @@
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-family-primary);
   background-color: var(--background-primary);
   color: var(--text-primary);
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -342,7 +341,7 @@ input:focus, textarea:focus, select:focus {
 .shadow-lg { box-shadow: var(--shadow-lg); }
 
 /* Utilidades de transiciones */
-.transition { transition: all var(--transition-duration) ease; }
+.transition { transition: all var(--transition-normal) ease; }
 .transition-fast { transition: all var(--transition-fast) ease; }
 .transition-normal { transition: all var(--transition-normal) ease; }
 .transition-slow { transition: all var(--transition-slow) ease; }

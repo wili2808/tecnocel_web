@@ -1,5 +1,5 @@
 :root {
-  /* Colores principales */
+  /* === COLORES PRINCIPALES === */
   --color-primary: #6B46C1;
   --color-primary-dark: #553C9A;
   --color-primary-light: #9F7AEA;
@@ -10,11 +10,12 @@
   --color-primary-500: #339FFF;
   --color-primary-600: #0087FF;
 
-  /* Colores secundarios */
+  /* === COLORES SECUNDARIOS === */
   --color-secondary: #805AD5;
   --color-accent: #9F7AEA;
 
-  /* Colores neutros */
+  /* === COLORES NEUTROS === */
+  --color-neutral-50: #FAFAFA;
   --color-neutral-100: #F8FAFC;
   --color-neutral-200: #F1F5F9;
   --color-neutral-300: #E2E8F0;
@@ -23,118 +24,156 @@
   --color-neutral-600: #64748B;
   --color-neutral-700: #475569;
   --color-neutral-800: #334155;
+  --color-neutral-900: #1E293B;
 
-  /* Estados y feedback */
+  /* === ESTADOS Y FEEDBACK === */
   --color-success: #10B981;
   --color-error: #EF4444;
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
 
-  /* Texto */
+  /* === TEXTO === */
   --text-primary: var(--color-neutral-800);
   --text-secondary: var(--color-neutral-600);
   --text-light: var(--color-neutral-100);
+  --text-inverse: white;
 
-  /* Fondos */
-  --background-light: var(--color-neutral-100);
+  /* === FONDOS === */
+  --background-primary: white;
+  --background-secondary: var(--color-neutral-100);
+  --background-elevated: white;
+  --background-light: var(--color-neutral-50);
   --background-dark: var(--color-neutral-200);
-  --background-elevated: var(--color-neutral-100);
-  --background-secondary: var(--color-neutral-200);
 
-  /* Espaciado */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  --spacing-3xl: 4rem;
-  --section-spacing: 6rem;
+  /* === TIPOGRAFÍA === */
+  --font-family-primary: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'Courier New', Courier, monospace;
+  --font-family-decorative: 'Great Vibes', cursive;
+  
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-md: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
 
-  /* Tipografía */
-  --font-family: 'Courier New', Courier, monospace;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
-  /* Bordes */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* === ESPACIADO === */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+  --spacing-4xl: 6rem;     /* 96px */
+
+  /* === BORDES === */
   --border-radius-xs: 4px;
   --border-radius-sm: 6px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
   --border-radius-xl: 16px;
+  --border-radius-2xl: 24px;
   --border-radius-full: 9999px;
-  
-  /* Sombras */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+
+  /* === SOMBRAS === */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
-  /* Layout */
+  /* === LAYOUT === */
   --max-width: 1120px;
+  --max-width-prose: 65ch;
   --container-padding: 2rem;
-  --navbar-height: 64px;
-  --navbar-height-mobile: 60px;
-  
-  /* Z-index */
-  --z-index-dropdown: 1000;
-  --z-index-sticky: 1020;
-  --z-index-fixed: 1030;
-  --z-index-modal-backdrop: 1040;
-  --z-index-modal: 1050;
-  --z-index-popover: 1060;
-  --z-index-tooltip: 1070;
-  --z-index-navbar: var(--z-index-fixed);
-  --z-index-navbar-content: calc(var(--z-index-navbar) + 1);
+  --section-spacing: 6rem;
 
-  /* Transiciones */
-  --transition-duration: 0.3s;
+  /* === COMPONENTES ESPECÍFICOS === */
+  --navbar-height: 64px;
+  --navbar-height-mobile: 56px;
+  --avatar-size: 32px;
+  --avatar-size-lg: 48px;
+
+  /* === Z-INDEX === */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-navbar: var(--z-fixed);
+
+  /* === TRANSICIONES === */
   --transition-fast: 0.15s;
   --transition-normal: 0.3s;
   --transition-slow: 0.5s;
+  --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Hero Section */
-  --hero-padding-desktop: 6rem;
-  --hero-padding-tablet: 5rem;
-  --hero-padding-mobile: 4rem;
-  --hero-padding-small: 3rem;
-  
-  /* Tamaños */
-  --avatar-size: 32px;
-  --button-hover-scale: 1.05;
-  --button-active-scale: 0.95;
+  /* === ANIMACIONES === */
+  --animation-duration-fast: 200ms;
+  --animation-duration-normal: 300ms;
+  --animation-duration-slow: 500ms;
 
-  /* Breakpoints */
+  /* === BREAKPOINTS === */
   --breakpoint-sm: 480px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* === ESCALAS === */
+  --scale-hover: 1.05;
+  --scale-active: 0.95;
 }
 
-/* Media queries */
+/* === MEDIA QUERIES RESPONSIVAS === */
 @media (max-width: 768px) {
   :root {
     --container-padding: 1rem;
-    --spacing-2xl: 2rem;
-    --spacing-3xl: 3rem;
+    --section-spacing: 4rem;
     --navbar-height: var(--navbar-height-mobile);
     --font-size-2xl: 1.25rem;
     --font-size-3xl: 1.5rem;
     --font-size-4xl: 2rem;
+    --font-size-5xl: 2.5rem;
   }
 }
 
 @media (max-width: 480px) {
   :root {
-    --container-padding: 0.75rem;
+    --container-padding: 1rem;
+    --section-spacing: 3rem;
     --spacing-xl: 1.5rem;
     --spacing-2xl: 2rem;
     --font-size-lg: 1rem;
     --font-size-xl: 1.125rem;
+  }
+}
+
+/* === MODO OSCURO === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: var(--color-neutral-100);
+    --text-secondary: var(--color-neutral-400);
+    --background-primary: var(--color-neutral-900);
+    --background-secondary: var(--color-neutral-800);
+    --background-elevated: var(--color-neutral-800);
   }
 }

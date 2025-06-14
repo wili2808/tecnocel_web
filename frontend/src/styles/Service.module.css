@@ -32,7 +32,7 @@
   background-color: var(--background-elevated);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
-  transition: all var(--transition-duration) ease;
+  transition: all var(--transition-normal) ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,7 +56,7 @@
   height: 4px;
   background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
   transform: scaleX(0);
-  transition: transform var(--transition-duration) ease;
+  transition: transform var(--transition-normal) ease;
   transform-origin: left;
 }
 
@@ -68,7 +68,7 @@
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
   color: var(--color-primary);
-  transition: transform var(--transition-duration) ease;
+  transition: transform var(--transition-normal) ease;
 }
 
 .serviceCard:hover .icon {
