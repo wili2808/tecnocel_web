@@ -1,50 +1,70 @@
 :root[data-theme="light"] {
-  /* Colores principales - UNIFICADOS con variables.css */
-  --color-primary: #6B46C1;         /* Violeta unificado */
-  --color-secondary: #805AD5;       /* Lila unificado */
-  --color-accent: #9F7AEA;          /* Rosa unificado */
+  /* === COLORES PRINCIPALES === */
+  --color-primary: #6B46C1;
+  --color-primary-dark: #553C9A;
+  --color-primary-light: #9F7AEA;
+  --color-secondary: #805AD5;
+  --color-accent: #9F7AEA;
 
-  /* Colores de texto */
-  --text-primary: #2d2d2d;          /* Gris oscuro */
-  --text-secondary: #6e6e6e;        /* Gris medio */
-
-  /* Colores de fondo */
-  --background-primary: white;      /* Blanco unificado */
-  --background-secondary: #F1F5F9;  /* Gris claro unificado */
-  --background-elevated: #ffffff;   /* Blanco para tarjetas elevadas */
-
-  /* Colores de estado - UNIFICADOS */
+  /* === COLORES DE ESTADO === */
   --color-error: #EF4444;
   --color-success: #10B981;
+
+  /* === COLORES DE TEXTO === */
+  --text-primary: #2d2d2d;
+  --text-secondary: #6e6e6e;
+  --text-light: var(--color-neutral-100);
+  --text-inverse: white;
+
+  /* === COLORES DE FONDO === */
+  --background-primary: white;
+  --background-secondary: #F1F5F9;
+  --background-elevated: #ffffff;
+  --background-light: var(--color-neutral-50);
+  --background-dark: var(--color-neutral-200);
 }
 
 :root[data-theme="dark"] {
-  /* Colores principales */
-  --color-primary: #38bdf8;      /* Celeste vibrante */
-  --color-secondary: #818cf8;    /* Lila claro */
-  --color-accent: #f472b6;       /* Rosa claro */
+  /* === COLORES PRINCIPALES === */
+  --color-primary: #38bdf8;
+  --color-primary-dark: #0ea5e9;
+  --color-primary-light: #7dd3fc;
+  --color-secondary: #818cf8;
+  --color-accent: #f472b6;
 
-  /* Colores de texto */
-  --text-primary: #F8FAFC;       /* Casi blanco */
-  --text-secondary: #CBD5E1;     /* Gris claro */
-
-  /* Colores de fondo */
-  --background-primary: #18181B; /* Gris muy oscuro */
-  --background-secondary: #27272A; /* Gris oscuro */
-  --background-elevated: #3F3F46; /* Gris medio */
-
-  /* Colores de estado */
+  /* === COLORES DE ESTADO === */
   --color-error: #EF4444;
   --color-success: #10B981;
+
+  /* === COLORES DE TEXTO === */
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-light: var(--color-neutral-200);
+  --text-inverse: var(--color-neutral-900);
+
+  /* === COLORES DE FONDO === */
+  --background-primary: #18181B;
+  --background-secondary: #27272A;
+  --background-elevated: #3F3F46;
+  --background-light: var(--color-neutral-900);
+  --background-dark: #09090B;
 }
 
-/* Transiciones suaves para cambios de tema */
+/* === TRANSICIONES SUAVES PARA CAMBIOS DE TEMA === */
 .theme-transition {
-  transition: all var(--transition-normal) ease;
+  transition: background-color var(--transition-normal) ease,
+              color var(--transition-normal) ease,
+              border-color var(--transition-normal) ease,
+              box-shadow var(--transition-normal) ease;
 }
 
-* {
+/* === CLASES PARA ELEMENTOS QUE NECESITAN TRANSICIONES === */
+.theme-aware {
   transition: background-color var(--transition-normal) ease,
               color var(--transition-normal) ease,
               border-color var(--transition-normal) ease;
+}
+
+.theme-aware-all {
+  transition: all var(--transition-normal) ease;
 }

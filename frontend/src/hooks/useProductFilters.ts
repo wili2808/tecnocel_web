@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export interface ProductFilters {
   search: string;
@@ -25,6 +26,9 @@ interface UseProductFiltersReturn {
 }
 
 export const useProductFilters = (): UseProductFiltersReturn => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   // Recuperar filtros guardados del localStorage
   const [filters, setFilters] = useState<ProductFilters>(() => {
     try {
@@ -34,6 +38,19 @@ export const useProductFilters = (): UseProductFiltersReturn => {
       return DEFAULT_FILTERS;
     }
   });
+
+  // Sincronizar con parámetros de URL al cargar
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const searchFromUrl = searchParams.get('search');
+    
+    if (searchFromUrl && searchFromUrl !== filters.search) {
+      setFilters(prev => ({
+        ...prev,
+        search: searchFromUrl
+      }));
+    }
+  }, [location.search, filters.search]);
 
   const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {
     const updatedFilters = { ...filters, ...newFilters };

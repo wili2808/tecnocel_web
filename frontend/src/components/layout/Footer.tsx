@@ -1,10 +1,13 @@
 import { FaGithub, FaInstagram, FaFacebookF, FaTwitter } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../../contexts/ThemeContext';
 import styles from '../../styles/Footer.module.css';
 
 const Footer = () => {
+  const { theme } = useTheme();
+
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer} theme-transition`}>
       <div className={`${styles.footerContainer} ${styles.container}`}>
         <div className={styles.footerGrid}>
           <div className={styles.footerBrand}>
