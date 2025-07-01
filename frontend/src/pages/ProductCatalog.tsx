@@ -18,31 +18,31 @@ const ProductCatalog: React.FC = () => {
   } = useFilteredProducts();
 
   return (
-    <section className={styles.productsSection}>
-      <div className={styles.productsContainer}>
-        <h1 className={styles.sectionTitle}>
-          Catálogo de Productos 
-        </h1>
-        
-        {/* Barra de filtros */}
-        <ProductFiltersBar
-          filters={filters}
-          onFiltersChange={updateFilters}
-          backendCategories={categories}
-          totalProducts={totalProducts}
-          filteredProducts={filteredProducts.length}
-          categoryCounts={categoryCounts}
-        />
-        
-        {/* Grid de productos */}
-        <ProductGrid
-          products={filteredProducts}
-          loading={loading}
-          error={error}
-          onRetry={refetch}
-        />
+    <div className={styles.catalogFullscreen}>
+      <div className={styles.catalogContainer}>
+        {/* Sidebar con filtros fijo a la izquierda */}
+        <aside className={styles.filtersSidebar}>
+          <ProductFiltersBar
+            filters={filters}
+            onFiltersChange={updateFilters}
+            backendCategories={categories}
+            totalProducts={totalProducts}
+            filteredProducts={filteredProducts.length}
+            categoryCounts={categoryCounts}
+          />
+        </aside>
+
+        {/* Contenido principal con el grid de productos */}
+        <main className={styles.productsMainContent}>
+          <ProductGrid
+            products={filteredProducts}
+            loading={loading}
+            error={error}
+            onRetry={refetch}
+          />
+        </main>
       </div>
-    </section>
+    </div>
   );
 };
 

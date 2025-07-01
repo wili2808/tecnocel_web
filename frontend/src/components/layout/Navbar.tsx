@@ -1,8 +1,3 @@
-/**
- * Componente Navbar - Barra de navegación principal de la aplicación
- * Maneja la navegación, búsqueda global, autenticación y cambio de tema
- * Implementa un diseño responsive con menú móvil de dos niveles
- */
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo2.svg';
@@ -76,7 +71,7 @@ const Navbar = () => {
   const handleLinkClick = useCallback(() => {
     setIsMenuOpen(false);
   }, []);
-  
+
   const toggleUserPanel = useCallback(() => {
     if (!isAuthenticated) {
       setIsAuthModalOpen(true);
@@ -113,7 +108,7 @@ const Navbar = () => {
   const renderAuthControls = useCallback(() => {
     if (isAuthenticated && user) {
       const avatarUrl = user.avatarUrl || 'https://via.placeholder.com/150';
-      
+
       return (
         <>
           <button
@@ -138,7 +133,7 @@ const Navbar = () => {
           <span className="material-icons">person</span>
         </button>
         {isAuthModalOpen && (
-          <AuthPanel 
+          <AuthPanel
             onLoginSuccess={handleLoginSuccess}
             onClose={() => setIsAuthModalOpen(false)}
           />
@@ -216,7 +211,7 @@ const Navbar = () => {
    * Renderiza el botón de cambio de tema
    */
   const renderThemeToggle = useCallback(() => (
-    <button 
+    <button
       className={navbarStyle.themeToggle}
       onClick={toggleTheme}
       aria-label={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
@@ -268,7 +263,7 @@ const Navbar = () => {
                 <span className={navbarStyle.logoText}>TECNOCEL</span>
               </Link>
             </div>
-            
+
             {/* Navegación secundaria al lado del logo (Solo Desktop) */}
             <div className={navbarStyle.leftNavigation}>
               {renderSecondaryNavLinks()}
@@ -301,7 +296,7 @@ const Navbar = () => {
                 <span className={navbarStyle.logoText}>TECNOCEL</span>
               </Link>
             </div>
-            
+
             {/* Botón de menú en la esquina superior derecha */}
             <div className={navbarStyle.mobileTopControls}>
               {renderMenuToggle()}

@@ -34,35 +34,49 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
 }) => {
   return (
     <div className={styles.filtersBar}>
-      {/* Buscador */}
-      <ProductSearch
-        searchValue={filters.search}
-        onSearchChange={(search) => onFiltersChange({ search })}
-      />
+      {/* Contador de resultados */}
+      <div className={styles.resultsCounter}>
+        {filteredProducts} de {totalProducts} productos
+      </div>
+
+      {/* Sección de búsqueda */}
+      <div className={styles.filterSection}>
+        <h3 className={styles.filterSectionTitle}>Buscar</h3>
+        <ProductSearch
+          searchValue={filters.search}
+          onSearchChange={(search) => onFiltersChange({ search })}
+        />
+      </div>
       
-      {/* Filtros de categorías */}
-      <CategoryFilters
-        backendCategories={backendCategories}
-        selectedBackendCategory={filters.selectedDropdownCategory}
-        onBackendCategoryChange={(selectedDropdownCategory) => 
-          onFiltersChange({ selectedDropdownCategory })
-        }
-        selectedCustomCategory={filters.selectedCategory}
-        onCustomCategoryChange={(selectedCategory) => 
-          onFiltersChange({ selectedCategory })
-        }
-        categoryCounts={categoryCounts}
-      />
+      {/* Sección de categorías */}
+      <div className={styles.filterSection}>
+        <h3 className={styles.filterSectionTitle}>Categorías</h3>
+        <CategoryFilters
+          backendCategories={backendCategories}
+          selectedBackendCategory={filters.selectedDropdownCategory}
+          onBackendCategoryChange={(selectedDropdownCategory) => 
+            onFiltersChange({ selectedDropdownCategory })
+          }
+          selectedCustomCategory={filters.selectedCategory}
+          onCustomCategoryChange={(selectedCategory) => 
+            onFiltersChange({ selectedCategory })
+          }
+          categoryCounts={categoryCounts}
+        />
+      </div>
       
-      {/* Controles de ordenamiento y filtros adicionales */}
-      <ProductControls
-        sortOrder={filters.order}
-        onSortOrderChange={(order) => onFiltersChange({ order })}
-        onlyInStock={filters.onlyStock}
-        onStockFilterChange={(onlyStock) => onFiltersChange({ onlyStock })}
-        totalProducts={totalProducts}
-        filteredProducts={filteredProducts}
-      />
+      {/* Sección de controles */}
+      <div className={styles.filterSection}>
+        <h3 className={styles.filterSectionTitle}>Ordenar y Filtrar</h3>
+        <ProductControls
+          sortOrder={filters.order}
+          onSortOrderChange={(order) => onFiltersChange({ order })}
+          onlyInStock={filters.onlyStock}
+          onStockFilterChange={(onlyStock) => onFiltersChange({ onlyStock })}
+          totalProducts={totalProducts}
+          filteredProducts={filteredProducts}
+        />
+      </div>
     </div>
   );
 };

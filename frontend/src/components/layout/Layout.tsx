@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = memo(({
     };
 
     window.addEventListener('resize', handleResize);
-    
+
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', handleResize);
@@ -47,15 +47,13 @@ const Layout: React.FC<LayoutProps> = memo(({
     <div className={`${styles.mainLayout} theme-transition ${className || ''}`}>
       {!hideNav && <Navbar />}
       {!hideNav && (
-        <div 
+        <div
           ref={spacerRef}
           className={styles.navbarSpacer}
         />
       )}
-      <main className={styles.mainContent}>
-        <div className={styles.contentSection}>
-          <Outlet />
-        </div>
+      <main>
+        <Outlet />
       </main>
       {!hideFooter && <Footer />}
     </div>

@@ -23,10 +23,13 @@ function App() {
         <Router>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
+              {/* Rutas que usan Layout normal */}
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
+              </Route>
+              {/* Rutas sin footer */}
+              <Route element={<Layout hideFooter />}>
                 <Route path="/productos" element={<ProductCatalog />} />
-                {/* TODO: Agregar más rutas según sea necesario */}
               </Route>
             </Routes>
           </Suspense>
