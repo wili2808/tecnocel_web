@@ -1,5 +1,5 @@
 /**
- * Middleware de autenticación y autorización para la aplicación MacWil
+ * Middleware de autenticación y autorización para la aplicación Tecnocel
  * Este archivo contiene las funciones necesarias para verificar tokens JWT y roles de usuario
  */
 
@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
 import logger from '../utils/logger.js';
+import Cliente from '../models/Cliente.js';
 
 // Clave secreta para firmar y verificar tokens JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
@@ -101,4 +102,41 @@ export const verificarRol = (roles: number[]) => {
 
     next();
   };
+};
+
+/**
+ * Middleware para verificar la autenticación de clientes mediante token JWT
+ */
+export const verificarTokenCliente = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      logger.warn('Intento de acceso cliente sin token', { path: req.path, method: req.method });
+      return res.status(401).json({ mensaje: 'Token no proporcionado' });
+    }
+    const decodificado = jwt.verify(token, JWT_SECRET) as { id_cliente: number; email: string };
+    const cliente = await Cliente.findByPk(decodificado.id_cliente);
+    if (!cliente || !cliente.is_web_enabled || !cliente.email_verified) {
+      logger.warn('Token válido pero cliente no habilitado o no verificado', { id_cliente: decodificado.id_cliente });
+      return res.status(403).json({ mensaje: 'Cliente no habilitado o email no verificado' });
+    }
+    req.usuario = {
+      id_cliente: cliente.id_cliente,
+      nombre_cliente: cliente.nombre_cliente,
+      email_cliente: cliente.email_cliente
+    };
+    logger.debug('Token de cliente verificado exitosamente', {
+      id_cliente: cliente.id_cliente,
+      email: cliente.email_cliente,
+      path: req.path
+    });
+    next();
+  } catch (error) {
+    logger.error('Error al verificar token de cliente:', {
+      error: error instanceof Error ? error.message : 'Error desconocido',
+      path: req.path,
+      method: req.method
+    });
+    return res.status(401).json({ mensaje: 'Token inválido' });
+  }
 };

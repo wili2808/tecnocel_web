@@ -15,7 +15,7 @@ dotenv.config();
  * Se utilizan variables de entorno con valores por defecto
  */
 const sequelize = new Sequelize({
-  database: process.env.DB_NAME || 'tecnocel_db',
+  database: process.env.DB_NAME || 'tecnocel_db_v1',
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   host: process.env.DB_HOST || 'localhost',
@@ -42,36 +42,11 @@ const sequelize = new Sequelize({
  */
 const createInitialData = async () => {
   try {
-    const { Categoria, Almacen, Usuario, Rol } = sequelize.models;
+    const { Categoria, Almacen } = sequelize.models;
     const categoriaCount = await Categoria.count();
     if (categoriaCount === 0) {
       logger.info('Iniciando creación de datos de ejemplo...');
       
-      // Crear roles básicos del sistema
-      const adminRol = await Rol.create({
-        rol: 'administrador',
-        fyh_creacion: new Date(),
-        fyh_actualizacion: new Date()
-      });
-
-      const empleadoRol = await Rol.create({
-        rol: 'empleado',
-        fyh_creacion: new Date(),
-        fyh_actualizacion: new Date()
-      });
-
-      // Crear usuario administrador por defecto
-      // Nota: La contraseña debe ser hasheada en producción
-      await Usuario.create({
-        nombres: 'Administrador',
-        email: 'admin@tecnocel.com',
-        password_user: '$2a$10$X7UrH5YxX5YxX5YxX5YxX.5YxX5YxX5YxX5YxX5YxX5YxX5YxX5YxX', // Contraseña: admin123
-        token: '',
-        id_rol: adminRol.getDataValue('id_rol'),
-        fyh_creacion: new Date(),
-        fyh_actualizacion: new Date()
-      });
-
       // Crear categorías principales del sistema
       const celulares = await Categoria.create({
         nombre_categoria: 'Celulares',
@@ -91,7 +66,7 @@ const createInitialData = async () => {
         fyh_actualizacion: new Date()
       });
 
-      // Crear productos de ejemplo para cada categoría
+      // Crear productos de ejemplo para cada categoría (sin id_usuario)
       await Almacen.bulkCreate([
         {
           codigo: 'CEL001',
@@ -105,7 +80,6 @@ const createInitialData = async () => {
           fecha_ingreso: new Date(),
           imagen: null,
           id_categoria: celulares.getDataValue('id_categoria'),
-          id_usuario: 1,
           fyh_creacion: new Date(),
           fyh_actualizacion: new Date()
         },
@@ -121,7 +95,6 @@ const createInitialData = async () => {
           fecha_ingreso: new Date(),
           imagen: null,
           id_categoria: accesorios.getDataValue('id_categoria'),
-          id_usuario: 1,
           fyh_creacion: new Date(),
           fyh_actualizacion: new Date()
         }

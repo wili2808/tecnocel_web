@@ -9,29 +9,34 @@ import axiosInstance from '../api/axiosConfig';
 const TOKEN_KEY = 'token';
 
 /**
- * Estructura de un usuario en el sistema
+ * Estructura de un cliente en el sistema
  */
-export interface User {
-  id: number;
-  email: string;
-  nombre: string;
-  apellido: string;
-  rol: string;
-  telefono?: string;
-  avatarUrl?: string;
+export interface ClienteUser {
+  id_cliente: number;
+  nombre_cliente: string;
+  email_cliente: string;
+  celular_cliente?: string;
+  nit_ci_cliente?: string;
 }
 
 /**
  * Métodos y propiedades del contexto de autenticación
  */
 interface AuthContextType {
-  user: User | null;
+  user: ClienteUser | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  login: (email_cliente: string, contrasena: string) => Promise<void>;
+  register: (data: {
+    nombre_cliente: string;
+    apellidos: string;
+    email_cliente: string;
+    contrasena: string;
+    celular_cliente: string;
+    nit_ci_cliente: string;
+  }) => Promise<void>;
   logout: () => void;
   googleLogin: () => Promise<void>;
-  subscribeToAuthChanges: (callback: (user: User | null) => void) => () => void;
+  subscribeToAuthChanges: (callback: (user: ClienteUser | null) => void) => () => void;
 }
 
 // Creación del contexto de autenticación
@@ -62,8 +67,8 @@ interface AuthProviderProps {
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Estados
-  const [user, setUser] = useState<User | null>(null);
-  const [subscribers, setSubscribers] = useState<((user: User | null) => void)[]>([]);
+  const [user, setUser] = useState<ClienteUser | null>(null);
+  const [subscribers, setSubscribers] = useState<((user: ClienteUser | null) => void)[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -75,14 +80,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Notifica a todos los suscriptores sobre cambios en el usuario
    */
-  const notifySubscribers = useCallback((newUser: User | null) => {
+  const notifySubscribers = useCallback((newUser: ClienteUser | null) => {
     subscribers.forEach(callback => callback(newUser));
   }, [subscribers]);
 
   /**
    * Actualiza el estado del usuario y notifica a los suscriptores
    */
-  const updateUser = useCallback((newUser: User | null) => {
+  const updateUser = useCallback((newUser: ClienteUser | null) => {
     setUser(newUser);
     notifySubscribers(newUser);
   }, [notifySubscribers]);
@@ -90,7 +95,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Función para suscribirse a cambios en el estado de autenticación
    */
-  const subscribeToAuthChanges = useCallback((callback: (user: User | null) => void) => {
+  const subscribeToAuthChanges = useCallback((callback: (user: ClienteUser | null) => void) => {
     setSubscribers(prevSubscribers => [...prevSubscribers, callback]);
     // Solo notificar al suscriptor si ya hemos inicializado
     if (isInitialized) {
@@ -106,19 +111,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    */
   const verifyToken = useCallback(async () => {
     console.log('verifyToken llamado - Estado:', { isVerifying, isInitialized });
-    
+
     // Solo ejecutar si no está ya verificando Y no ha sido inicializado aún
-    if (isVerifying || isInitialized) { 
+    if (isVerifying || isInitialized) {
       console.log('Verificación ya en progreso o inicializada, retornando...');
       return;
     }
-    
+
     setIsVerifying(true); // Indicar que la verificación está en progreso
     console.log('Iniciando verificación de token...');
 
     const token = localStorage.getItem(TOKEN_KEY);
     console.log('Token en localStorage:', token ? 'Presente' : 'No presente');
-    
+
     if (!token) {
       updateUser(null);
       console.log('Verify Token: No hay token en localStorage.');
@@ -128,34 +133,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     try {
-      // Configurar el token en axios antes de hacer la verificación
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log('Headers de axios configurados:', axiosInstance.defaults.headers.common);
-      
-      console.log('Verify Token: Token encontrado, verificando con el servidor...');
-      const response = await axiosInstance.get('/auth/verify');
-      console.log('Verify Token: Respuesta completa del servidor:', response);
-      
-      // Asegurarnos de que la estructura de datos sea consistente
-      const userData = response.data.usuario || response.data.user;
-      console.log('Datos de usuario extraídos:', userData);
-      
-      if (!userData) {
-        throw new Error('Datos de usuario no encontrados en la respuesta');
+      // Cambiar endpoint a clientes y mapear respuesta
+      const response = await axiosInstance.get('/clientes/verify-token');
+      const cliente = response.data?.cliente;
+      if (!cliente) {
+        throw new Error('Datos de cliente no encontrados en la respuesta');
       }
-      
-      updateUser(userData);
-      console.log('Verify Token: Usuario actualizado desde verificación exitosa.');
+      updateUser(cliente);
     } catch (error) {
-      console.error('Error detallado al verificar token:', error);
       localStorage.removeItem(TOKEN_KEY);
       delete axiosInstance.defaults.headers.common['Authorization'];
       updateUser(null);
-      console.log('Verify Token: Error al verificar token, usuario desautenticado.');
     } finally {
       setIsVerifying(false);
-      setIsInitialized(true); // Marcar como inicializado al finalizar la primera verificación
-      console.log('Verify Token: Proceso de verificación finalizado.');
+      setIsInitialized(true);
     }
   }, [updateUser, isVerifying, isInitialized]);
 
@@ -169,33 +161,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Función para iniciar sesión con email y contraseña
    */
-  const login = async (email: string, password: string) => {
+  const login = async (email_cliente: string, contrasena: string) => {
     try {
-      console.log('Iniciando proceso de login...');
-      const response = await axiosInstance.post('/auth/login', {
-        email: email.trim(),
-        contrasena: password.trim(),
+      const response = await axiosInstance.post('/clientes/login', {
+        email_cliente: email_cliente.trim(),
+        contrasena: contrasena.trim(),
       });
-      
-      console.log('Respuesta completa del servidor:', response);
-      const { usuario: userData, token } = response.data;
-      
-      if (!token) {
-        throw new Error('No se recibió token del servidor');
-      }
-      
-      console.log('Token recibido, guardando en localStorage...');
+      const { cliente, token } = response.data;
+      if (!token) throw new Error('No se recibió token del servidor');
       localStorage.setItem(TOKEN_KEY, token);
-      
-      console.log('Configurando token en axios...');
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log('Headers de axios configurados:', axiosInstance.defaults.headers.common);
-      
-      console.log('Actualizando estado del usuario...');
-      updateUser(userData);
-      console.log('Login exitoso, usuario actualizado en el contexto');
+      setUser(cliente);
     } catch (error: any) {
-      console.error('Error detallado en el proceso de login:', error);
       localStorage.removeItem(TOKEN_KEY);
       delete axiosInstance.defaults.headers.common['Authorization'];
       throw new Error(error.response?.data?.mensaje || 'Error al iniciar sesión. Por favor, intente nuevamente.');
@@ -205,31 +182,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Función para registrar un nuevo usuario
    */
-  const register = async (email: string, password: string, firstName: string, lastName: string) => {
+  const register = async (data: {
+    nombre_cliente: string;
+    apellidos: string;
+    email_cliente: string;
+    contrasena: string;
+    celular_cliente: string;
+    nit_ci_cliente: string;
+  }) => {
     try {
-      if (!email || !password || !firstName || !lastName) {
-        throw new Error('Todos los campos son requeridos');
-      }
-
-      const response = await axiosInstance.post('/auth/registro', {
-        email: email.trim(),
-        contrasena: password.trim(),
-        nombre: firstName.trim(),
-        apellido: lastName.trim(),
-        telefono: ''
+      const response = await axiosInstance.post('/clientes/register', {
+        nombre_cliente: data.nombre_cliente,
+        email_cliente: data.email_cliente,
+        celular_cliente: data.celular_cliente,
+        nit_ci_cliente: data.nit_ci_cliente,
+        contrasena: data.contrasena
       });
-
-      if (!response?.data?.usuario || !response?.data?.token) {
-        throw new Error('Respuesta del servidor inválida');
-      }
-
-      const { usuario: userData, token } = response.data;
-      localStorage.setItem(TOKEN_KEY, token);
-      updateUser(userData);
+      // El backend responde con mensaje, no con token ni cliente, porque requiere verificación de email
+      // Puedes mostrar un toast con el mensaje de éxito
     } catch (error: any) {
-      console.error('Error al registrar usuario:', error);
       if (error.response?.status === 400) {
-        throw new Error(error.response.data.message || 'Datos de registro inválidos');
+        throw new Error(error.response.data.mensaje || 'Datos de registro inválidos');
       } else if (error.response?.status === 409) {
         throw new Error('El correo electrónico ya está registrado');
       }

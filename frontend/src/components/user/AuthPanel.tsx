@@ -1,8 +1,3 @@
-/**
- * Componente AuthPanel - Panel de autenticación modal
- * Maneja el inicio de sesión y registro de usuarios
- * Implementa un formulario dinámico que cambia entre login y registro
- */
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from '../../styles/User.module.css';
@@ -41,19 +36,21 @@ interface AuthPanelProps {
 const AuthPanel = ({ onLoginSuccess, onClose }: AuthPanelProps) => {
   // Hook para acceder a las funciones de autenticación
   const { login, register, googleLogin } = useAuth();
-  
+
   // Estado para controlar si se muestra el formulario de login o registro
   const [isLogin, setIsLogin] = useState(true);
-  
+
   // Estado para controlar el estado de carga durante las operaciones
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Estado para manejar los datos del formulario
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
+    email_cliente: '',
+    contrasena: '',
+    nombre_cliente: '',
+    apellidos: '',
+    celular_cliente: '',
+    nit_ci_cliente: '',
   });
 
   // Hook personalizado para cerrar el modal con la tecla Escape
@@ -77,23 +74,28 @@ const AuthPanel = ({ onLoginSuccess, onClose }: AuthPanelProps) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      console.log('AuthPanel: Iniciando proceso de autenticación...');
       if (isLogin) {
-        await login(formData.email, formData.password);
-        console.log('AuthPanel: Login completado exitosamente');
+        await login(formData.email_cliente, formData.contrasena);
       } else {
-        await register(formData.email, formData.password, formData.firstName, formData.lastName);
-        console.log('AuthPanel: Registro completado exitosamente');
+        // Validar campos requeridos
+        if (!formData.nombre_cliente || !formData.apellidos || !formData.email_cliente || !formData.contrasena || !formData.celular_cliente || !formData.nit_ci_cliente) {
+          toast.error('Todos los campos son obligatorios');
+          setIsLoading(false);
+          return;
+        }
+        await register({
+          nombre_cliente: formData.nombre_cliente,
+          apellidos: formData.apellidos,
+          email_cliente: formData.email_cliente,
+          contrasena: formData.contrasena,
+          celular_cliente: formData.celular_cliente,
+          nit_ci_cliente: formData.nit_ci_cliente
+        });
       }
-      setFormData({ email: '', password: '', firstName: '', lastName: '' });
+      setFormData({ email_cliente: '', contrasena: '', nombre_cliente: '', apellidos: '', celular_cliente: '', nit_ci_cliente: '' });
       onLoginSuccess?.();
-      console.log('AuthPanel: Callback onLoginSuccess ejecutado');
     } catch (error: any) {
-      console.error('AuthPanel: Error en el proceso:', error);
-      const errorMessage = error.response?.data?.mensaje || 
-                          error.response?.data?.message || 
-                          error.message || 
-                          'Error en la autenticación';
+      const errorMessage = error.response?.data?.mensaje || error.response?.data?.message || error.message || 'Error en la autenticación';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -125,12 +127,12 @@ const AuthPanel = ({ onLoginSuccess, onClose }: AuthPanelProps) => {
       {!isLogin && (
         <>
           <div className={styles.formGroup}>
-            <label htmlFor="firstName">Nombre</label>
+            <label htmlFor="nombre_cliente">Nombre</label>
             <input
               type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
+              id="nombre_cliente"
+              name="nombre_cliente"
+              value={formData.nombre_cliente}
               onChange={handleInputChange}
               placeholder="Ingrese su nombre"
               required
@@ -138,42 +140,66 @@ const AuthPanel = ({ onLoginSuccess, onClose }: AuthPanelProps) => {
             />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="lastName">Apellidos</label>
+            <label htmlFor="apellidos">Apellidos</label>
             <input
               type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
+              id="apellidos"
+              name="apellidos"
+              value={formData.apellidos}
               onChange={handleInputChange}
               placeholder="Ingrese sus apellidos"
               required
               disabled={isLoading}
             />
           </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="celular_cliente">Celular</label>
+            <input
+              type="text"
+              id="celular_cliente"
+              name="celular_cliente"
+              value={formData.celular_cliente}
+              onChange={handleInputChange}
+              placeholder="Ingrese su celular"
+              required
+              disabled={isLoading}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="nit_ci_cliente">NIT/CI</label>
+            <input
+              type="text"
+              id="nit_ci_cliente"
+              name="nit_ci_cliente"
+              value={formData.nit_ci_cliente}
+              onChange={handleInputChange}
+              placeholder="Ingrese su NIT o CI"
+              required
+              disabled={isLoading}
+            />
+          </div>
         </>
       )}
-
       <div className={styles.formGroup}>
-        <label htmlFor="email">Correo Electrónico</label>
+        <label htmlFor="email_cliente">Correo Electrónico</label>
         <input
           type="email"
-          id="email"
-          name="email"
-          value={formData.email}
+          id="email_cliente"
+          name="email_cliente"
+          value={formData.email_cliente}
           onChange={handleInputChange}
           placeholder="ejemplo@correo.com"
           required
           disabled={isLoading}
         />
       </div>
-
       <div className={styles.formGroup}>
-        <label htmlFor="password">Contraseña</label>
+        <label htmlFor="contrasena">Contraseña</label>
         <input
           type="password"
-          id="password"
-          name="password"
-          value={formData.password}
+          id="contrasena"
+          name="contrasena"
+          value={formData.contrasena}
           onChange={handleInputChange}
           placeholder="••••••••"
           required
@@ -188,9 +214,9 @@ const AuthPanel = ({ onLoginSuccess, onClose }: AuthPanelProps) => {
     <div className={styles.authModalOverlay}>
       <div className={styles.modalContent}>
         {/* Botón para cerrar el modal */}
-        <button 
-          className={styles.closeButton} 
-          onClick={onClose} 
+        <button
+          className={styles.closeButton}
+          onClick={onClose}
           aria-label="Cerrar modal"
           disabled={isLoading}
         >
@@ -210,8 +236,8 @@ const AuthPanel = ({ onLoginSuccess, onClose }: AuthPanelProps) => {
           {renderFormFields()}
 
           {/* Botón de envío del formulario */}
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.submitButton}
             disabled={isLoading}
           >

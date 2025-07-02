@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import almacenRoutes from './routes/almacenRoutes.js';
+import clienteRoutes from './routes/clienteRoutes.js';
 import { initDatabase } from './config/database.js';
 import logger from './utils/logger.js';
 import './models/index.js';
@@ -31,6 +32,9 @@ app.get('/', (req: Request, res: Response) => {
 
 // Rutas de almacén
 app.use('/api/almacen', almacenRoutes);
+
+// Rutas de clientes
+app.use('/api/clientes', clienteRoutes);
 
 // Manejo de errores global
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
