@@ -27,7 +27,7 @@ const ProductControls: React.FC<ProductControlsProps> = ({
         </label>
         <select
           id="sort-select"
-          className={styles.orderSelect}
+          className={styles.filterSelect}
           value={sortOrder}
           onChange={(e) => onSortOrderChange(e.target.value)}
           aria-label="Ordenar productos"
@@ -50,7 +50,7 @@ const ProductControls: React.FC<ProductControlsProps> = ({
             className={styles.toggleCheckbox}
           />
           <span className={styles.toggleSlider}></span>
-          <span className={styles.toggleText}>Solo stock disponible</span>
+          <span className={styles.toggleText}>Solo con stock disponible</span>
         </label>
       </div>
     </div>

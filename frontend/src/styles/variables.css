@@ -82,7 +82,7 @@
 
   /* === COMPONENTES ESPECÍFICOS === */
   --navbar-height: 64px;
-  --navbar-height-mobile: 96px;
+  --navbar-height-mobile: 108px; /* Altura específica para mobile con dos filas */
 
   /* === ICONOS === */
   --icon-size-sm: 16px;
@@ -150,7 +150,7 @@
     --spacing-2xl: 2rem;
     --font-size-lg: 1rem;
     --font-size-xl: 1.125rem;
-    --navbar-height-mobile: 88px; /* Reducir altura en pantallas muy pequeñas */
+    --navbar-height-mobile: 96px; /* Altura ligeramente reducida para pantallas muy pequeñas */
   }
 }
 

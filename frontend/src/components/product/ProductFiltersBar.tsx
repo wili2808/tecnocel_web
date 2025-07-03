@@ -30,20 +30,7 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
 }) => {
   return (
     <div className={styles.filtersBar}>
-      {/* Contador de resultados compacto */}
-      <div className={styles.resultsCounter}>
-        <span>{filteredProducts} de {totalProducts}</span>
-      </div>
-
-      {/* Búsqueda - Sin título para ahorrar espacio */}
-      <div className={styles.filterSection}>
-        <ProductSearch
-          searchValue={filters.search}
-          onSearchChange={(search) => onFiltersChange({ search })}
-        />
-      </div>
-
-      {/* Categorías - Título más compacto */}
+      {/* Categorías */}
       <div className={styles.filterSection}>
         <h3 className={styles.filterSectionTitle}>Categorías</h3>
         <CategoryFilters
@@ -60,15 +47,23 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
         />
       </div>
 
-      {/* Controles - Título más compacto */}
+      {/* Controles */}
       <div className={styles.filterSection}>
-        <h3 className={styles.filterSectionTitle}>Filtros</h3>
+        <h3 className={styles.filterSectionTitle}>Filtros y Ordenamiento</h3>
         <ProductControls
           sortOrder={filters.order}
           onSortOrderChange={(order) => onFiltersChange({ order })}
           onlyInStock={filters.onlyStock}
           onStockFilterChange={(onlyStock) => onFiltersChange({ onlyStock })}
         />
+      </div>
+
+      {/* Contador de resultados */}
+      <div className={styles.resultsCounter}>
+        <div className={styles.resultsCounterContent}>
+          <span className={styles.resultsNumber}>{filteredProducts}</span>
+          <span className={styles.resultsText}>de {totalProducts} productos</span>
+        </div>
       </div>
     </div>
   );

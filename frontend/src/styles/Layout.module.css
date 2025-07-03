@@ -11,21 +11,13 @@
   position: relative;
 }
 
-/* Spacer invisible que empuja el contenido debajo del navbar fijo */
-.navbarSpacer {
-  height: var(--navbar-height);
-  transition: height var(--transition-normal) ease;
-  /* JavaScript sobrescribirá esta altura con el valor real */
-}
-
+/* Contenido principal - Se ajusta automáticamente al navbar fijo */
 .mainContent {
   flex: 1;
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding-left: var(--container-padding);
-  padding-right: var(--container-padding);
-  padding-top: var(--spacing-md);
+  padding: var(--navbar-height) var(--container-padding) var(--spacing-md);
   animation: fadeIn var(--transition-normal) ease;
 }
 
@@ -66,12 +58,8 @@
 }
 
 @media (max-width: 768px) {
-  .navbarSpacer {
-    /* Valor de fallback - JavaScript calculará la altura real */
-    height: 109px;
-  }
-  
   .mainContent {
+    padding-top: var(--navbar-height-mobile);
     padding-left: var(--spacing-md);
     padding-right: var(--spacing-md);
   }
@@ -82,11 +70,6 @@
 }
 
 @media (max-width: 480px) {
-  .navbarSpacer {
-    /* Valor de fallback - JavaScript calculará la altura real */
-    height: 89px;
-  }
-  
   .mainContent {
     padding-left: var(--spacing-sm);
     padding-right: var(--spacing-sm);

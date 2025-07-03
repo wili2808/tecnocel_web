@@ -107,7 +107,8 @@ const Navbar = () => {
    */
   const renderAuthControls = useCallback(() => {
     if (isAuthenticated && user) {
-      const avatarUrl = user.avatarUrl || 'https://via.placeholder.com/150';
+      // Usar un avatar por defecto ya que ClienteUser no tiene avatarUrl
+      const avatarUrl = 'https://via.placeholder.com/150';
 
       return (
         <>

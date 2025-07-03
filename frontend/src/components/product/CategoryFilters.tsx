@@ -31,7 +31,7 @@ const CategoryFilters: React.FC<CategoryFiltersProps> = ({
       <div className={styles.filterGroup}>
         <label className={styles.filterLabel}>Categorías del Sistema</label>
         <select
-          className={styles.orderSelect}
+          className={styles.filterSelect}
           value={selectedBackendCategory}
           onChange={(e) => onBackendCategoryChange(e.target.value)}
           aria-label="Filtrar por categoría del sistema"
@@ -51,11 +51,10 @@ const CategoryFilters: React.FC<CategoryFiltersProps> = ({
         <div className={styles.customCategoryButtons}>
           <button
             type="button"
-            className={`${styles.categoryButton} ${selectedCustomCategory === null ? styles.categoryButtonActive : ''
-              }`}
+            className={`${styles.categoryButton} ${selectedCustomCategory === null ? styles.categoryButtonActive : ''}`}
             onClick={() => onCustomCategoryChange(null)}
           >
-            Todas
+            <span className={styles.categoryButtonText}>Todas</span>
           </button>
           {CUSTOM_CATEGORIES.map(category => {
             const count = categoryCounts[category.key] || 0;
@@ -65,13 +64,12 @@ const CategoryFilters: React.FC<CategoryFiltersProps> = ({
               <button
                 key={category.key}
                 type="button"
-                className={`${styles.categoryButton} ${isActive ? styles.categoryButtonActive : ''
-                  } ${count === 0 ? styles.categoryButtonDisabled : ''}`}
+                className={`${styles.categoryButton} ${isActive ? styles.categoryButtonActive : ''} ${count === 0 ? styles.categoryButtonDisabled : ''}`}
                 onClick={() => onCustomCategoryChange(category.key)}
                 disabled={count === 0}
                 title={`${category.label} (${count} productos)`}
               >
-                {category.label}
+                <span className={styles.categoryButtonText}>{category.label}</span>
                 {count > 0 && <span className={styles.categoryCount}>({count})</span>}
               </button>
             );
