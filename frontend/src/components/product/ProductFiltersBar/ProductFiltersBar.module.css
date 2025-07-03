@@ -1,0 +1,112 @@
+/* Barra de filtros principal */
+.filtersBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Secciones de filtros */
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: var(--background-primary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.filterSectionTitle {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* Contador de resultados */
+.resultsCounter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  background-color: var(--background-primary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.resultsCounterContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.resultsNumber {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.resultsText {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Estilos modernos y minimalistas */
+.filtersBar {
+  background: linear-gradient(90deg, var(--background-elevated) 80%, var(--background-primary) 100%);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  border-radius: var(--border-radius-xl);
+  border: 1.5px solid var(--color-neutral-200);
+}
+
+/* Media queries responsive */
+@media (max-width: 768px) {
+  .filtersBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+  
+  .filterSection {
+    padding: var(--spacing-xs);
+  }
+  
+  .filterSectionTitle {
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 600px) {
+  .filtersBar {
+    padding: var(--spacing-sm) var(--spacing-xs);
+    gap: var(--spacing-sm);
+  }
+  
+  .resultsCounter {
+    padding: var(--spacing-xs);
+  }
+  
+  .resultsNumber {
+    font-size: var(--font-size-md);
+  }
+  
+  .resultsText {
+    font-size: var(--font-size-xs);
+  }
+} 

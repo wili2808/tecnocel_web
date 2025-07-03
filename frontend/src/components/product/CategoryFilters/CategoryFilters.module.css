@@ -1,0 +1,146 @@
+/* Category Filters Container */
+.categoryFilters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Filter Groups */
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  overflow: hidden;
+}
+
+.filterLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Select Dropdown */
+.filterSelect {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  transition: all var(--transition-duration) ease;
+  width: 100%;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.filterSelect:hover {
+  border-color: var(--color-primary);
+}
+
+/* Custom Category Buttons */
+.customCategoryButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+  overflow: hidden;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--background-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-duration) ease;
+  white-space: nowrap;
+}
+
+.categoryButton:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.categoryButtonActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.categoryButtonActive:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.categoryButtonDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--background-secondary);
+}
+
+.categoryButtonText {
+  font-weight: 500;
+}
+
+.categoryCount {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .customCategoryButtons {
+    justify-content: center;
+  }
+  
+  .categoryButton {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs);
+  }
+  
+  .filterLabel {
+    font-size: var(--font-size-xs);
+  }
+  
+  .filterSelect {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 600px) {
+  .categoryFilters {
+    gap: var(--spacing-xs);
+  }
+  
+  .filterGroup {
+    gap: 2px;
+  }
+  
+  .categoryButton {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .categoryCount {
+    font-size: 9px;
+  }
+} 
