@@ -3,21 +3,17 @@ import ProductSearch from './ProductSearch';
 import CategoryFilters from './CategoryFilters';
 import ProductControls from './ProductControls';
 import styles from '../../styles/Product.module.css';
-import type { ProductFilters } from '../../hooks/useProductFilters';
-
-interface Category {
-  id_categoria: number;
-  nombre_categoria: string;
-}
+import type { ProductUIFilters } from '../../hooks/useProductFilters';
+import type { Category } from '../../types/product';
 
 interface ProductFiltersBarProps {
   // Filtros actuales
-  filters: ProductFilters;
-  onFiltersChange: (filters: Partial<ProductFilters>) => void;
-  
+  filters: ProductUIFilters;
+  onFiltersChange: (filters: Partial<ProductUIFilters>) => void;
+
   // Categorías del backend
   backendCategories: Category[];
-  
+
   // Contadores para estadísticas
   totalProducts: number;
   filteredProducts: number;
@@ -34,47 +30,44 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
 }) => {
   return (
     <div className={styles.filtersBar}>
-      {/* Contador de resultados */}
+      {/* Contador de resultados compacto */}
       <div className={styles.resultsCounter}>
-        {filteredProducts} de {totalProducts} productos
+        <span>{filteredProducts} de {totalProducts}</span>
       </div>
 
-      {/* Sección de búsqueda */}
+      {/* Búsqueda - Sin título para ahorrar espacio */}
       <div className={styles.filterSection}>
-        <h3 className={styles.filterSectionTitle}>Buscar</h3>
         <ProductSearch
           searchValue={filters.search}
           onSearchChange={(search) => onFiltersChange({ search })}
         />
       </div>
-      
-      {/* Sección de categorías */}
+
+      {/* Categorías - Título más compacto */}
       <div className={styles.filterSection}>
         <h3 className={styles.filterSectionTitle}>Categorías</h3>
         <CategoryFilters
           backendCategories={backendCategories}
           selectedBackendCategory={filters.selectedDropdownCategory}
-          onBackendCategoryChange={(selectedDropdownCategory) => 
+          onBackendCategoryChange={(selectedDropdownCategory) =>
             onFiltersChange({ selectedDropdownCategory })
           }
           selectedCustomCategory={filters.selectedCategory}
-          onCustomCategoryChange={(selectedCategory) => 
+          onCustomCategoryChange={(selectedCategory) =>
             onFiltersChange({ selectedCategory })
           }
           categoryCounts={categoryCounts}
         />
       </div>
-      
-      {/* Sección de controles */}
+
+      {/* Controles - Título más compacto */}
       <div className={styles.filterSection}>
-        <h3 className={styles.filterSectionTitle}>Ordenar y Filtrar</h3>
+        <h3 className={styles.filterSectionTitle}>Filtros</h3>
         <ProductControls
           sortOrder={filters.order}
           onSortOrderChange={(order) => onFiltersChange({ order })}
           onlyInStock={filters.onlyStock}
           onStockFilterChange={(onlyStock) => onFiltersChange({ onlyStock })}
-          totalProducts={totalProducts}
-          filteredProducts={filteredProducts}
         />
       </div>
     </div>

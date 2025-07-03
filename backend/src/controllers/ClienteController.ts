@@ -15,7 +15,7 @@ export default class ClienteController {
    */
   static async register(req: Request, res: Response) {
     try {
-      logger.debug('Intentando registrar cliente', req.body);
+      logger.info('Intentando registrar cliente', req.body);
       const { nombre_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena } = req.body;
       // Validaciones básicas
       if (!nombre_cliente || !email_cliente || !celular_cliente || !nit_ci_cliente || !contrasena) {
@@ -60,7 +60,7 @@ export default class ClienteController {
    */
   static async verifyEmail(req: Request, res: Response) {
     try {
-      logger.debug('Intentando verificar email', req.query);
+      logger.info('Intentando verificar email', req.query);
       const { token } = req.query;
       if (!token) {
         logger.warn('Verificación fallida: token no proporcionado');
@@ -89,7 +89,7 @@ export default class ClienteController {
    */
   static async login(req: Request, res: Response) {
     try {
-      logger.debug('Intentando login de cliente', req.body);
+      logger.info('Intentando login de cliente', req.body);
       const { email_cliente, contrasena } = req.body;
       if (!email_cliente || !contrasena) {
         logger.warn('Login fallido: email o contraseña faltantes');
@@ -130,7 +130,7 @@ export default class ClienteController {
    */
   static async forgotPassword(req: Request, res: Response) {
     try {
-      logger.debug('Solicitud de recuperación de contraseña', req.body);
+      logger.info('Solicitud de recuperación de contraseña', req.body);
       const { email_cliente } = req.body;
       if (!email_cliente) {
         logger.warn('Recuperación fallida: email no proporcionado');
@@ -160,7 +160,7 @@ export default class ClienteController {
    */
   static async resetPassword(req: Request, res: Response) {
     try {
-      logger.debug('Intentando restablecer contraseña', req.body);
+      logger.info('Intentando restablecer contraseña', req.body);
       const { reset_token, nueva_contrasena } = req.body;
       if (!reset_token || !nueva_contrasena) {
         logger.warn('Restablecimiento fallido: datos incompletos');
@@ -182,6 +182,51 @@ export default class ClienteController {
     } catch (error) {
       logger.error('Error al restablecer contraseña', { error });
       return res.status(500).json({ mensaje: 'Error al restablecer contraseña', error });
+    }
+  }
+
+  /**
+   * Verificación de token JWT para mantener sesión activa
+   */
+  static async verifyToken(req: Request, res: Response) {
+    try {
+      logger.info('Llamada a verifyToken iniciada');
+      // El middleware verificarTokenCliente ya validó el token y añadió el usuario a req.usuario
+      const cliente = req.usuario;
+      
+      if (!cliente) {
+        logger.warn('Verificación fallida: datos de cliente no encontrados en request');
+        return res.status(401).json({ mensaje: 'Token inválido' });
+      }
+
+      // Buscar datos completos del cliente en la base de datos para asegurar que sigue activo
+      const clienteCompleto = await Cliente.findOne({ 
+        where: { 
+          id_cliente: cliente.id_cliente,
+          is_web_enabled: true,
+          email_verified: true 
+        } 
+      });
+
+      if (!clienteCompleto) {
+        logger.warn(`Verificación fallida: cliente no encontrado o deshabilitado (${cliente.id_cliente})`);
+        return res.status(403).json({ mensaje: 'Cliente no encontrado o no habilitado' });
+      }
+
+      logger.info(`Token verificado exitosamente para: ${clienteCompleto.email_cliente}`);
+      
+      return res.json({ 
+        cliente: { 
+          id_cliente: clienteCompleto.id_cliente, 
+          nombre_cliente: clienteCompleto.nombre_cliente, 
+          email_cliente: clienteCompleto.email_cliente,
+          celular_cliente: clienteCompleto.celular_cliente,
+          nit_ci_cliente: clienteCompleto.nit_ci_cliente
+        } 
+      });
+    } catch (error) {
+      logger.error('Error al verificar token de cliente', { error });
+      return res.status(500).json({ mensaje: 'Error al verificar token', error });
     }
   }
 } 

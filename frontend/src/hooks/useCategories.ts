@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
 import productService from '../services/productService';
-
-interface Category {
-  id_categoria: number;
-  nombre_categoria: string;
-}
+import type { Category } from '../types/product';
 
 interface UseCategoriesReturn {
   categories: Category[];

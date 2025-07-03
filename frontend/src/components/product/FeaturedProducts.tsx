@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
-import productService, { type Product } from '../../services/productService';
+import productService from '../../services/productService';
+import type { Product } from '../../types/product';
 import styles from '../../styles/Product.module.css';
 
 interface FeaturedProductsProps {
@@ -17,6 +18,8 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({ className }) =
       setLoading(true);
       setError(null);
       const data = await productService.getFeaturedProducts();
+
+      // ✅ Confiar en el backend: ya envía URLs válidas
       setProducts(data);
     } catch (err) {
       setError('Error al cargar los productos destacados.');
@@ -54,7 +57,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({ className }) =
           </h2>
           <div className={styles.errorContainer}>
             <p className={styles.errorMessage}>{error}</p>
-            <button 
+            <button
               onClick={fetchFeatured}
               className={styles.retryButton}
             >
@@ -94,7 +97,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({ className }) =
               id_producto={product.id_producto}
               nombre={product.nombre}
               descripcion={product.descripcion}
-              imagen={product.imagen}
+              imagen_url={product.imagen_url}
               precio_venta={String(product.precio_venta)}
               stock={product.stock}
             />

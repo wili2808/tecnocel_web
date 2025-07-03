@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import productService from '../services/productService';
-import type { ProductCardProps } from '../components/product/ProductCard';
+import type { Product } from '../types/product';
 
 interface UseProductsReturn {
-  products: ProductCardProps[];
+  products: Product[];
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
 
 export const useProducts = (): UseProductsReturn => {
-  const [products, setProducts] = useState<ProductCardProps[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,16 +19,9 @@ export const useProducts = (): UseProductsReturn => {
       setLoading(true);
       setError(null);
       const data = await productService.getProducts();
-      const mappedProducts = data.map((prod: any) => ({
-        id_producto: prod.id_producto,
-        nombre: prod.nombre,
-        descripcion: prod.descripcion,
-        imagen: prod.imagen,
-        precio_venta: prod.precio_venta,
-        stock: prod.stock,
-        id_categoria: prod.id_categoria,
-      }));
-      setProducts(mappedProducts);
+      
+      // ✅ Confiar en el backend: ya envía URLs válidas
+      setProducts(data);
     } catch (error: any) {
       setError(error.response?.data?.message || error.message || 'Error al cargar los productos');
     } finally {

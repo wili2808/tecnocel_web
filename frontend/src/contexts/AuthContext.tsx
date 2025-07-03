@@ -72,25 +72,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Efecto para monitorear cambios en isAuthenticated
+  // Efecto para monitorear cambios en isAuthenticated y notificar suscriptores
   useEffect(() => {
     console.log('Estado de autenticación:', !!user ? 'Autenticado' : 'No autenticado');
-  }, [user]);
-
-  /**
-   * Notifica a todos los suscriptores sobre cambios en el usuario
-   */
-  const notifySubscribers = useCallback((newUser: ClienteUser | null) => {
-    subscribers.forEach(callback => callback(newUser));
-  }, [subscribers]);
-
-  /**
-   * Actualiza el estado del usuario y notifica a los suscriptores
-   */
-  const updateUser = useCallback((newUser: ClienteUser | null) => {
-    setUser(newUser);
-    notifySubscribers(newUser);
-  }, [notifySubscribers]);
+    // Notificar a los suscriptores solo si ya se inicializó
+    if (isInitialized) {
+      subscribers.forEach(callback => callback(user));
+    }
+  }, [user, isInitialized, subscribers]);
 
   /**
    * Función para suscribirse a cambios en el estado de autenticación
@@ -107,25 +96,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [user, isInitialized]);
 
   /**
-   * Verifica el token de autenticación
+   * Verifica el token de autenticación - Solo se ejecuta UNA VEZ
    */
   const verifyToken = useCallback(async () => {
     console.log('verifyToken llamado - Estado:', { isVerifying, isInitialized });
 
-    // Solo ejecutar si no está ya verificando Y no ha sido inicializado aún
+    // Solo ejecutar si no está ya verificando Y no está inicializado
     if (isVerifying || isInitialized) {
-      console.log('Verificación ya en progreso o inicializada, retornando...');
+      console.log('Verificación ya en progreso o ya inicializada, retornando...');
       return;
     }
 
-    setIsVerifying(true); // Indicar que la verificación está en progreso
+    setIsVerifying(true);
     console.log('Iniciando verificación de token...');
 
     const token = localStorage.getItem(TOKEN_KEY);
     console.log('Token en localStorage:', token ? 'Presente' : 'No presente');
 
     if (!token) {
-      updateUser(null);
+      setUser(null);
       console.log('Verify Token: No hay token en localStorage.');
       setIsVerifying(false);
       setIsInitialized(true);
@@ -133,30 +122,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     try {
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // Cambiar endpoint a clientes y mapear respuesta
+      // NO configurar headers aquí - dejar que el interceptor lo maneje
       const response = await axiosInstance.get('/clientes/verify-token');
       const cliente = response.data?.cliente;
       if (!cliente) {
         throw new Error('Datos de cliente no encontrados en la respuesta');
       }
-      updateUser(cliente);
+      setUser(cliente);
+      console.log('Token verificado exitosamente:', cliente.email_cliente);
     } catch (error) {
+      console.error('Error al verificar token:', error);
       localStorage.removeItem(TOKEN_KEY);
       delete axiosInstance.defaults.headers.common['Authorization'];
-      updateUser(null);
+      setUser(null);
     } finally {
       setIsVerifying(false);
       setIsInitialized(true);
     }
-  }, [updateUser, isVerifying, isInitialized]);
+  }, []); // Sin dependencias - la función nunca cambia
 
-  // Efecto para verificar el token solo una vez al montar el componente
+  // Efecto para verificar el token SOLO UNA VEZ al montar el componente
   useEffect(() => {
     console.log('AuthProvider montado - Iniciando verificación de token');
-    console.log('Estado actual:', { isVerifying, isInitialized });
     verifyToken();
-  }, [verifyToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Array vacío - solo se ejecuta al montar, verifyToken es estable
 
   /**
    * Función para iniciar sesión con email y contraseña
@@ -170,7 +160,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { cliente, token } = response.data;
       if (!token) throw new Error('No se recibió token del servidor');
       localStorage.setItem(TOKEN_KEY, token);
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // No configurar headers aquí - dejar que el interceptor lo maneje automáticamente
       setUser(cliente);
     } catch (error: any) {
       localStorage.removeItem(TOKEN_KEY);
@@ -214,10 +204,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    * Función para cerrar sesión
    */
   const logout = useCallback(() => {
-    updateUser(null);
+    setUser(null);
     localStorage.removeItem(TOKEN_KEY);
     delete axiosInstance.defaults.headers.common['Authorization'];
-  }, [updateUser]);
+  }, []);
 
   /**
    * Función para iniciar sesión con Google

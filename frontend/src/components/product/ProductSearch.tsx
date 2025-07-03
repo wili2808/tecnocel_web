@@ -13,7 +13,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
   placeholder = "Buscar productos..."
 }) => {
   return (
-    <div style={{ width: '100%' }}>
+    <div className={styles.searchContainer}>
       <input
         type="text"
         className={styles.searchInput}
@@ -21,7 +21,6 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
         value={searchValue}
         onChange={(e) => onSearchChange(e.target.value)}
         aria-label="Buscar productos"
-        style={{ width: '100%' }}
       />
     </div>
   );

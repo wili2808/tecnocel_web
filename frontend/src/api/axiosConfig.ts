@@ -17,11 +17,11 @@ const axiosInstance: AxiosInstance = axios.create({
 // Interceptor para las solicitudes
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Obtener el token del almacenamiento local
+    // Solo añadir el token si no está ya presente en los headers
+    // Esto evita duplicar el token cuando se configura desde AuthContext
     const token = localStorage.getItem('token');
     
-    // Si existe un token, añadirlo a los headers
-    if (token && config.headers) {
+    if (token && config.headers && !config.headers['Authorization']) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     

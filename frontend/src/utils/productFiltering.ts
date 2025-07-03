@@ -1,5 +1,5 @@
-import type { ProductCardProps } from '../components/product/ProductCard';
-import type { ProductFilters } from '../hooks/useProductFilters';
+import type { Product } from '../types/product';
+import type { ProductUIFilters } from '../hooks/useProductFilters';
 import { getProductCustomCategories } from './productCategorization';
 
 export const ORDER_OPTIONS = [
@@ -14,9 +14,9 @@ export const ORDER_OPTIONS = [
  * Filtra productos basándose en los criterios seleccionados
  */
 export function filterProducts(
-  products: ProductCardProps[], 
-  filters: ProductFilters
-): ProductCardProps[] {
+  products: Product[], 
+  filters: ProductUIFilters
+): Product[] {
   let filtered = [...products];
 
   // 1. Filtro de búsqueda (prioridad máxima)
@@ -54,7 +54,7 @@ export function filterProducts(
 /**
  * Ordena productos según el criterio especificado
  */
-function sortProducts(products: ProductCardProps[], orderBy: string): ProductCardProps[] {
+function sortProducts(products: Product[], orderBy: string): Product[] {
   if (!orderBy) return products;
 
   const sorted = [...products];
@@ -81,7 +81,7 @@ function sortProducts(products: ProductCardProps[], orderBy: string): ProductCar
  * Cuenta productos por categoría personalizada
  */
 export function getProductCountByCustomCategory(
-  products: ProductCardProps[]
+  products: Product[]
 ): Record<string, number> {
   const counts: Record<string, number> = {};
   

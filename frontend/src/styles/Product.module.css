@@ -554,13 +554,15 @@
 }
 
 .filtersSidebar {
-  height: 100%;
-  overflow-y: auto;
+  height: 100vh;
+  overflow-y: hidden;
   background: var(--background-elevated);
   box-shadow: var(--shadow-lg);
   border-right: 1px solid var(--color-neutral-200);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-sm);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 .filtersSidebar:hover {
@@ -568,7 +570,7 @@
 }
 
 .filtersSidebar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .filtersSidebar::-webkit-scrollbar-track {
@@ -587,66 +589,69 @@
 }
 
 .productsMainContent {
-  height: 100%;
+  height: 100vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
 }
 
-/* Sección de título para cada grupo de filtros */
+/* === SECCIONES COMPACTAS === */
 .filterSection {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 .filterSectionTitle {
   color: var(--text-primary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
   padding-bottom: var(--spacing-xs);
-  border-bottom: 2px solid var(--color-neutral-200);
+  border-bottom: 1px solid var(--color-neutral-200);
 }
 
-/* Actualizar estilos de la barra de filtros para sidebar */
+/* === BARRA DE FILTROS COMPACTA === */
 .filtersSidebar .filtersBar {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-sm);
   margin-bottom: 0;
   background: transparent;
   box-shadow: none;
   border: none;
   padding: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .filtersSidebar .searchInput,
 .filtersSidebar .orderSelect {
   width: 100%;
   min-width: unset;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
   transition: all 0.2s ease;
 }
 
 .filtersSidebar .searchInput:focus,
 .filtersSidebar .orderSelect:focus {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.15);
+  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.15);
 }
 
 .filtersSidebar .chipsContainer {
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
 }
 
 .filtersSidebar .chip {
   text-align: left;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -668,65 +673,66 @@
 }
 
 .filtersSidebar .chip:hover {
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(2px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .filtersSidebar .chip:hover::before {
-  width: 3px;
+  width: 2px;
 }
 
 .filtersSidebar .chipActive::before {
-  width: 3px;
+  width: 2px;
 }
 
 .filtersSidebar .toggleLabel {
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-xs) 0;
   border-top: 1px solid var(--color-neutral-200);
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
   transition: all 0.2s ease;
 }
 
 .filtersSidebar .toggleLabel:hover {
-  transform: translateX(2px);
+  transform: translateX(1px);
 }
 
-/* Contador de resultados en el sidebar */
+/* === CONTADOR COMPACTO === */
 .resultsCounter {
   background: rgba(107, 70, 193, 0.1);
   color: var(--color-primary);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   text-align: center;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
   border: 1px solid rgba(107, 70, 193, 0.2);
+  flex-shrink: 0;
 }
 
 /* Grid actualizado para el nuevo layout */
 .productsMainContent .productsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
   animation: fadeInUp 0.6s ease-out 0.2s forwards;
   opacity: 0;
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-sm) 0;
 }
 
 /* Asegurar que se muestren al menos 3 productos por fila en pantallas grandes */
 @media (min-width: 1200px) {
   .productsMainContent .productsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-xl);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--spacing-lg);
   }
 }
 
 @media (min-width: 900px) and (max-width: 1199px) {
   .productsMainContent .productsGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
   }
 }
 
@@ -789,4 +795,206 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-sm);
   }
+}
+
+/* === CATEGORY FILTERS COMPACTO === */
+.categoryFilters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.filterLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0;
+}
+
+.customCategoryButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.categoryButton {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--color-neutral-300);
+  color: var(--text-secondary);
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-duration) ease;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.categoryButton:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.categoryButtonActive {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.categoryButtonActive:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: white;
+}
+
+.categoryButtonDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.categoryCount {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+/* === SEARCH CONTAINER COMPACTO === */
+.searchContainer {
+  width: 100%;
+}
+
+/* === CONTROLS CONTAINER COMPACTO === */
+.controlsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.controlLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0;
+}
+
+/* === RESPONSIVE COMPACTO === */
+@media (max-width: 768px) {
+  .customCategoryButtons {
+    justify-content: center;
+  }
+  
+  .categoryButton {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs);
+  }
+  
+  .controlsContainer {
+    gap: var(--spacing-xs);
+  }
+  
+  .controlLabel {
+    font-size: var(--font-size-xs);
+  }
+  
+  /* Sidebar móvil más compacto */
+  .filtersSidebar {
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-neutral-200);
+    padding: var(--spacing-xs);
+  }
+  
+  .filtersSidebar .filtersBar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+  
+  .filterSection {
+    margin-bottom: var(--spacing-xs);
+  }
+}
+
+/* === AJUSTES FINALES PARA MÁXIMA COMPACIDAD === */
+
+/* === OPTIMIZACIÓN DE INPUT Y SELECT === */
+.filtersSidebar .searchInput {
+  height: 36px;
+  border: 1px solid var(--color-neutral-300);
+}
+
+.filtersSidebar .orderSelect {
+  height: 36px;
+  border: 1px solid var(--color-neutral-300);
+}
+
+/* === TOGGLE MÁS COMPACTO === */
+.filtersSidebar .toggleSlider {
+  width: 40px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: var(--color-neutral-300);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filtersSidebar .toggleSlider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.3s ease;
+}
+
+.filtersSidebar .toggleCheckbox:checked + .toggleSlider {
+  background-color: var(--color-primary);
+}
+
+.filtersSidebar .toggleCheckbox:checked + .toggleSlider::before {
+  transform: translateX(20px);
+}
+
+/* === ÚLTIMA SECCIÓN SIN MARGIN BOTTOM === */
+.filtersSidebar .filtersBar .filterSection:last-child {
+  margin-bottom: 0;
+}
+
+/* === SCROLLBAR DEL CONTENIDO DE FILTROS === */
+.filtersSidebar .filtersBar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.filtersSidebar .filtersBar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filtersSidebar .filtersBar::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: 2px;
+}
+
+.filtersSidebar .filtersBar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
 }

@@ -37,16 +37,17 @@ export async function sendResetPasswordEmail(email: string, token: string) {
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: email,
-      subject: 'Recupera tu contraseña en TecnoCel',
+      subject: 'Restablecer tu contraseña en TecnoCel',
       html: `
-        <h2>Recuperación de contraseña</h2>
+        <h2>Restablecer Contraseña</h2>
         <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
         <a href="${resetUrl}">${resetUrl}</a>
+        <p>Este enlace expirará en 1 hora.</p>
       `,
     });
-    logger.info(`Correo de recuperación enviado a ${email}`);
+    logger.info(`Correo de restablecimiento enviado a ${email}`);
   } catch (error) {
-    logger.error('Error enviando correo de recuperación:', error);
-    throw new Error('No se pudo enviar el correo de recuperación');
+    logger.error('Error enviando correo de restablecimiento:', error);
+    throw new Error('No se pudo enviar el correo de restablecimiento');
   }
 } 

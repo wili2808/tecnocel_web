@@ -4,9 +4,94 @@ import Almacen from '../models/Almacen.js';
 import Categoria from '../models/Categoria.js';
 import Usuario from '../models/Usuario.js';
 import logger from '../utils/logger.js';
+import { getImageService } from '../services/imageService.js';
 
 // Controlador para gestionar las operaciones del almacén
 class AlmacenController {
+  
+  // Método helper para transformar productos con URLs de imágenes
+  private transformProductsWithImages(productos: any[]): any[] {
+    try {
+      if (!productos || productos.length === 0) {
+        return [];
+      }
+
+      const imageService = getImageService();
+      if (!imageService) {
+        logger.warn('Servicio de imágenes no disponible, devolviendo productos sin URLs de imagen');
+        return productos.map(p => p.toJSON ? p.toJSON() : p);
+      }
+      
+      return imageService.transformProductsWithImageUrls(productos);
+    } catch (error) {
+      logger.error('Error al transformar productos con imágenes:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        productCount: productos ? productos.length : 0,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      // Fallback: devolver productos sin transformar
+      return productos ? productos.map(p => p.toJSON ? p.toJSON() : p) : [];
+    }
+  }
+
+  // Método alternativo de transformación más simple
+  private transformProductsWithImagesSafe(productos: any[]): any[] {
+    if (!productos || productos.length === 0) {
+      return [];
+    }
+
+    try {
+      const imageService = getImageService();
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      
+      return productos.map(producto => {
+        const productData = producto.toJSON ? producto.toJSON() : producto;
+        
+        if (imageService && productData.imagen) {
+          // Generar URL de imagen usando el servicio
+          productData.imagen_url = imageService.generateImageUrl(productData.imagen);
+          productData.imagen_disponible = !!productData.imagen;
+        } else if (productData.imagen) {
+          // Fallback: generar URL manualmente
+          productData.imagen_url = `${baseUrl}/api/images/${productData.imagen}`;
+          productData.imagen_disponible = !!productData.imagen;
+        } else {
+          // Sin imagen
+          productData.imagen_url = `${baseUrl}/api/images/default-product.png`;
+          productData.imagen_disponible = false;
+        }
+        
+        return productData;
+      });
+    } catch (error) {
+      logger.error('Error en transformación segura:', error);
+      // Último fallback: devolver datos básicos
+      return productos.map(p => p.toJSON ? p.toJSON() : p);
+    }
+  }
+
+  // Método helper para transformar un producto individual con URL de imagen
+  private transformProductWithImage(producto: any): any {
+    try {
+      const imageService = getImageService();
+      if (!imageService) {
+        logger.warn('Servicio de imágenes no disponible, devolviendo producto sin URL de imagen');
+        return producto.toJSON ? producto.toJSON() : producto;
+      }
+      
+      return imageService.transformProductWithImageUrl(producto);
+    } catch (error) {
+      logger.error('Error al transformar producto individual con imagen:', {
+        productId: producto.id_producto || 'unknown',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+      
+      // Fallback: devolver producto sin transformar
+      return producto.toJSON ? producto.toJSON() : producto;
+    }
+  }
+
   // Obtener todos los productos del almacén con sus categorías y usuarios asociados
   async getProducts(req: Request, res: Response) {
     try {
@@ -17,8 +102,13 @@ class AlmacenController {
           { model: Usuario, attributes: ['nombres'] }
         ]
       });
+      
+      // Transformar productos con URLs de imágenes (método seguro)
+      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+      logger.debug('Transformación de imágenes completada');
+      
       logger.info(`Se obtuvieron ${productos.length} productos del almacén exitosamente`);
-      res.json(productos);
+      res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al obtener productos del almacén:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
@@ -46,8 +136,11 @@ class AlmacenController {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
+      // Transformar producto con URL de imagen
+      const productoConImagen = this.transformProductWithImage(producto);
+
       logger.info(`Producto encontrado en almacén: ${producto.getDataValue('nombre')} (ID: ${id})`);
-      res.json(producto);
+      res.json(productoConImagen);
     } catch (error) {
       logger.error('Error al obtener producto del almacén por ID:', {
         id: req.params.id,
@@ -157,8 +250,11 @@ class AlmacenController {
         ]
       });
 
+      // Transformar productos con URLs de imágenes (método seguro)
+      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+
       logger.info(`Se encontraron ${productos.length} productos con el término: ${termino}`);
-      res.json(productos);
+      res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al buscar productos en almacén:', {
         termino: req.query.termino,
@@ -182,8 +278,11 @@ class AlmacenController {
         ]
       });
 
+      // Transformar productos con URLs de imágenes (método seguro)
+      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+
       logger.info(`Se encontraron ${productos.length} productos para la categoría ID: ${categoriaId}`);
-      res.json(productos);
+      res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al obtener productos por categoría:', {
         categoriaId: req.params.categoriaId,
@@ -240,8 +339,12 @@ class AlmacenController {
         limit: 6 // Limitar a 6 productos destacados
       });
 
+      // Transformar productos destacados con URLs de imágenes (método seguro)
+      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+      logger.debug('Transformación de imágenes destacados completada');
+
       logger.info(`Se obtuvieron ${productos.length} productos destacados exitosamente`);
-      res.json(productos);
+      res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al obtener productos destacados:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
@@ -266,6 +369,138 @@ class AlmacenController {
         stack: error instanceof Error ? error.stack : undefined
       });
       res.status(500).json({ message: 'Error al obtener las categorías' });
+    }
+  }
+
+  // Método de diagnóstico para debuggear problemas
+  async diagnosticProducts(req: Request, res: Response) {
+    const diagnostics: any = {
+      step1_basic_query: null,
+      step2_categoria_include: null,
+      step3_usuario_include: null,
+      step4_both_includes: null,
+      step5_transform_test: null,
+      errors: [] as string[]
+    };
+
+    try {
+      // Paso 1: Consulta básica
+      logger.debug('DIAGNÓSTICO Paso 1: Consulta básica sin includes');
+      try {
+        const productosBasicos = await Almacen.findAll({ limit: 5 });
+        diagnostics.step1_basic_query = {
+          success: true,
+          count: productosBasicos.length,
+          sample: productosBasicos.length > 0 ? {
+            id: productosBasicos[0].getDataValue('id_producto'),
+            nombre: productosBasicos[0].getDataValue('nombre'),
+            imagen: productosBasicos[0].getDataValue('imagen')
+          } : null
+        };
+        logger.info(`✅ Paso 1 exitoso: ${productosBasicos.length} productos`);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+        diagnostics.step1_basic_query = { success: false, error: errorMsg };
+        diagnostics.errors.push(`Paso 1: ${errorMsg}`);
+        logger.error(`❌ Paso 1 falló: ${errorMsg}`);
+      }
+
+      // Paso 2: Include Categoria
+      logger.debug('DIAGNÓSTICO Paso 2: Include Categoria');
+      try {
+        const productosConCategoria = await Almacen.findAll({
+          include: [{ model: Categoria, attributes: ['nombre_categoria'] }],
+          limit: 5
+        });
+        diagnostics.step2_categoria_include = {
+          success: true,
+          count: productosConCategoria.length
+        };
+        logger.info(`✅ Paso 2 exitoso: ${productosConCategoria.length} productos con categoría`);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+        diagnostics.step2_categoria_include = { success: false, error: errorMsg };
+        diagnostics.errors.push(`Paso 2: ${errorMsg}`);
+        logger.error(`❌ Paso 2 falló: ${errorMsg}`);
+      }
+
+      // Paso 3: Include Usuario
+      logger.debug('DIAGNÓSTICO Paso 3: Include Usuario');
+      try {
+        const productosConUsuario = await Almacen.findAll({
+          include: [{ model: Usuario, attributes: ['nombres'] }],
+          limit: 5
+        });
+        diagnostics.step3_usuario_include = {
+          success: true,
+          count: productosConUsuario.length
+        };
+        logger.info(`✅ Paso 3 exitoso: ${productosConUsuario.length} productos con usuario`);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+        diagnostics.step3_usuario_include = { success: false, error: errorMsg };
+        diagnostics.errors.push(`Paso 3: ${errorMsg}`);
+        logger.error(`❌ Paso 3 falló: ${errorMsg}`);
+      }
+
+      // Paso 4: Ambos includes
+      logger.debug('DIAGNÓSTICO Paso 4: Ambos includes');
+      try {
+        const productos = await Almacen.findAll({
+          include: [
+            { model: Categoria, attributes: ['nombre_categoria'] },
+            { model: Usuario, attributes: ['nombres'] }
+          ],
+          limit: 5
+        });
+        diagnostics.step4_both_includes = {
+          success: true,
+          count: productos.length
+        };
+        logger.info(`✅ Paso 4 exitoso: ${productos.length} productos con ambos includes`);
+
+                 // Paso 5: Probar transformación
+         logger.debug('DIAGNÓSTICO Paso 5: Transformación de imágenes');
+         try {
+           // Usar método seguro para transformación
+           const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+           diagnostics.step5_transform_test = {
+             success: true,
+             count: productosConImagenes.length,
+             first_transformed: productosConImagenes.length > 0 ? {
+               has_imagen_url: 'imagen_url' in productosConImagenes[0],
+               imagen_url: productosConImagenes[0].imagen_url || null
+             } : null
+           };
+           logger.info(`✅ Paso 5 exitoso: ${productosConImagenes.length} productos transformados`);
+         } catch (error) {
+           const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+           diagnostics.step5_transform_test = { success: false, error: errorMsg };
+           diagnostics.errors.push(`Paso 5: ${errorMsg}`);
+           logger.error(`❌ Paso 5 falló: ${errorMsg}`);
+         }
+
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+        diagnostics.step4_both_includes = { success: false, error: errorMsg };
+        diagnostics.errors.push(`Paso 4: ${errorMsg}`);
+        logger.error(`❌ Paso 4 falló: ${errorMsg}`);
+      }
+
+      logger.info('🔍 Diagnóstico completo:', diagnostics);
+      res.json({
+        success: diagnostics.errors.length === 0,
+        message: diagnostics.errors.length === 0 ? 'Todos los pasos exitosos' : 'Se encontraron errores',
+        diagnostics: diagnostics
+      });
+
+    } catch (error) {
+      logger.error('Error general en diagnóstico:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error general en diagnóstico',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }
 }

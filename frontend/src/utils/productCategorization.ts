@@ -1,4 +1,4 @@
-import type { ProductCardProps } from '../components/product/ProductCard';
+import type { Product } from '../types/product';
 
 // Categorías personalizadas
 export const CUSTOM_CATEGORIES = [
@@ -28,7 +28,7 @@ const CATEGORY_KEYWORDS = {
 /**
  * Determina las categorías personalizadas de un producto basándose en su nombre y descripción
  */
-export function getProductCustomCategories(product: ProductCardProps): CustomCategoryKey[] {
+export function getProductCustomCategories(product: Product): CustomCategoryKey[] {
   const name = (product.nombre || '').toLowerCase();
   const desc = (product.descripcion || '').toLowerCase();
   const categories: CustomCategoryKey[] = [];

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-export interface ProductFilters {
+export interface ProductUIFilters {
   search: string;
   selectedDropdownCategory: string;
   selectedCategory: string | null;
@@ -9,7 +9,7 @@ export interface ProductFilters {
   onlyStock: boolean;
 }
 
-const DEFAULT_FILTERS: ProductFilters = {
+const DEFAULT_FILTERS: ProductUIFilters = {
   search: '',
   selectedDropdownCategory: '',
   selectedCategory: null,
@@ -20,17 +20,16 @@ const DEFAULT_FILTERS: ProductFilters = {
 const STORAGE_KEY = 'catalogoFiltros';
 
 interface UseProductFiltersReturn {
-  filters: ProductFilters;
-  updateFilters: (newFilters: Partial<ProductFilters>) => void;
+  filters: ProductUIFilters;
+  updateFilters: (newFilters: Partial<ProductUIFilters>) => void;
   resetFilters: () => void;
 }
 
 export const useProductFilters = (): UseProductFiltersReturn => {
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Recuperar filtros guardados del localStorage
-  const [filters, setFilters] = useState<ProductFilters>(() => {
+  const [filters, setFilters] = useState<ProductUIFilters>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       return saved ? { ...DEFAULT_FILTERS, ...JSON.parse(saved) } : DEFAULT_FILTERS;
@@ -52,7 +51,7 @@ export const useProductFilters = (): UseProductFiltersReturn => {
     }
   }, [location.search, filters.search]);
 
-  const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {
+  const updateFilters = useCallback((newFilters: Partial<ProductUIFilters>) => {
     const updatedFilters = { ...filters, ...newFilters };
     setFilters(updatedFilters);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedFilters));

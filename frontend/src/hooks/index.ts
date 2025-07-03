@@ -6,4 +6,4 @@ export { useFilteredProducts } from './useFilteredProducts';
 export { useEscapeKey } from './useEscapeKey';
 
 // Tipos exportados
-export type { ProductFilters } from './useProductFilters'; 
+export type { ProductUIFilters } from './useProductFilters'; 

@@ -1,10 +1,10 @@
 import React from 'react';
 import ProductCard from './ProductCard';
 import styles from '../../styles/Product.module.css';
-import type { ProductCardProps } from './ProductCard';
+import type { Product } from '../../types/product';
 
 interface ProductGridProps {
-  products: ProductCardProps[];
+  products: Product[];
   loading: boolean;
   error: string | null;
   onRetry?: () => void;
@@ -33,7 +33,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <span className="material-icons text-4xl text-error">error_outline</span>
         <p className="mt-4 text-error">{error}</p>
         {onRetry && (
-          <button 
+          <button
             onClick={onRetry}
             className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
           >
@@ -60,7 +60,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       {products.map(product => (
         <ProductCard
           key={product.id_producto}
-          {...product}
+          id_producto={product.id_producto}
+          nombre={product.nombre}
+          descripcion={product.descripcion}
+          imagen_url={product.imagen_url}
+          precio_venta={String(product.precio_venta)}
+          stock={product.stock}
         />
       ))}
     </div>

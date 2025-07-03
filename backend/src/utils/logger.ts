@@ -5,19 +5,25 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configuración de formatos personalizados
-const customFormat = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.printf(({ timestamp, level, message }) => {
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
-  })
-);
+// Singleton pattern para evitar múltiples instancias
+let loggerInstance: winston.Logger | null = null;
 
-// Crear el logger
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: customFormat,
-  transports: [
+const createLogger = (): winston.Logger => {
+  // Si ya existe una instancia, devolverla
+  if (loggerInstance) {
+    return loggerInstance;
+  }
+
+  // Configuración de formatos personalizados
+  const customFormat = winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+    })
+  );
+
+  // Configurar transports según el entorno
+  const transports: winston.transport[] = [
     // Logs de error en archivo separado
     new winston.transports.File({
       filename: path.join(__dirname, '../logs/error.log'),
@@ -31,17 +37,30 @@ const logger = winston.createLogger({
       maxsize: 5242880, // 5MB
       maxFiles: 5
     })
-  ]
-});
+  ];
 
-// Agregar logs a la consola en desarrollo
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      customFormat
-    )
-  }));
-}
+  // Agregar transport Console solo en desarrollo (solo para esta instancia)
+  if (process.env.NODE_ENV !== 'production') {
+    transports.push(new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        customFormat
+      )
+    }));
+  }
 
+  // Crear la instancia del logger
+  loggerInstance = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: customFormat,
+    transports: transports,
+    // Prevenir la propagación a loggers padre
+    exitOnError: false
+  });
+
+  return loggerInstance;
+};
+
+// Exportar la instancia singleton
+const logger = createLogger();
 export default logger;

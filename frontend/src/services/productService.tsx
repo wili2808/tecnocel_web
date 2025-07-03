@@ -1,16 +1,5 @@
 import axiosInstance from '../api/axiosConfig';
 
-// Definición del tipo Product (ajustar según ProductCardProps si es necesario)
-export interface Product {
-  id_producto: number;
-  nombre: string;
-  descripcion?: string;
-  imagen?: string;
-  precio_venta: number;
-  stock: number;
-  // Puedes agregar más campos si es necesario
-}
-
 const productService = {
   getProducts: async () => {
     try {
