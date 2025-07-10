@@ -1,0 +1,45 @@
+[2025-07-05T14:27:08.213Z] ERROR: Error al inicializar la base de datos:
+[2025-07-05T14:27:11.025Z] ERROR: Error al inicializar la base de datos:
+[2025-07-05T18:19:30.878Z] ERROR: Error al inicializar la base de datos:
+[2025-07-07T03:00:55.407Z] ERROR: Error al inicializar la base de datos:
+[2025-07-07T03:01:00.057Z] ERROR: Error al inicializar la base de datos:
+[2025-07-07T03:03:39.675Z] ERROR: Error al inicializar la base de datos:
+[2025-07-07T03:03:43.629Z] ERROR: Error al inicializar la base de datos:
+[2025-07-07T03:04:18.942Z] ERROR: Error al inicializar la base de datos: connect ETIMEDOUT
+[2025-07-07T03:05:15.527Z] ERROR: Error al inicializar la base de datos: connect ETIMEDOUT
+[2025-07-07T03:09:33.019Z] ERROR: Error al inicializar la base de datos: connect ETIMEDOUT
+[2025-07-07T03:27:51.024Z] ERROR: Error al inicializar la base de datos: connect ETIMEDOUT
+[2025-07-08T00:01:30.438Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-08T00:01:30.579Z] ERROR: Error al inicializar la base de datos: Table 'db_tecnocel_v1.tb_roles' doesn't exist in engine
+[2025-07-08T00:01:37.320Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-08T00:01:37.374Z] ERROR: Error al inicializar la base de datos: Table 'db_tecnocel_v1.tb_roles' doesn't exist in engine
+[2025-07-08T21:56:50.372Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T00:34:20.357Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T00:34:23.636Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T00:35:41.683Z] ERROR: Error al obtener productos del almacén:
+[2025-07-09T00:35:41.699Z] ERROR: Error al obtener categorías:
+[2025-07-09T00:35:41.704Z] ERROR: Error al obtener productos del almacén:
+[2025-07-09T00:35:41.714Z] ERROR: Error al obtener categorías:
+[2025-07-09T01:22:52.247Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T01:22:55.306Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T03:56:53.514Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T05:48:18.845Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T05:48:22.667Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-09T07:42:30.255Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T01:16:29.729Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T01:16:32.988Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T01:16:55.924Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T01:16:59.085Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T06:20:46.226Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T06:20:49.450Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T09:26:36.624Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T09:26:41.348Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T10:10:50.999Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T14:38:02.369Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T14:38:02.384Z] ERROR: Error al inicializar la base de datos:
+[2025-07-10T14:38:05.248Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T14:38:05.260Z] ERROR: Error al inicializar la base de datos:
+[2025-07-10T14:38:24.311Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T14:38:28.228Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T19:38:53.938Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-10T19:38:58.251Z] ERROR: Directorio de imágenes no existe: C:/xampp/htdocs/tecnocel/almacen/img_productos

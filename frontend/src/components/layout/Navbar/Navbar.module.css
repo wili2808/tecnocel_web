@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   z-index: var(--z-navbar);
-  background: var(--background-primary);
+  background: var(--background-dark);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -18,7 +18,6 @@
 
 /* === BARRA PRINCIPAL === */
 .mainNavbar {
-  background: var(--background-primary);
   border-bottom: 1px solid var(--color-neutral-200);
   width: 100%;
 }
@@ -200,6 +199,11 @@
   color: var(--text-secondary);
 }
 
+.searchInput.searching {
+  background: var(--background-primary);
+  border-color: var(--color-primary-300);
+}
+
 .searchButton {
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--color-primary);
@@ -269,6 +273,50 @@
 
 .menuToggle {
   display: none; /* Oculto por defecto en desktop */
+}
+
+/* === GRUPO DE BOTONES DE AUTENTICACIÓN === */
+.authButtonsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Botón de autenticación cuando es link */
+.authButton {
+  composes: baseButton;
+  text-decoration: none;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid transparent;
+  min-width: auto;
+}
+
+.authButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Texto dentro de los botones de auth */
+.authButtonText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+/* Variante para el botón de registro */
+.registerButton {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border: 1px solid var(--color-primary);
+}
+
+.registerButton:hover {
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+  color: white;
+  border-color: var(--color-secondary);
 }
 
 .avatar {
@@ -425,6 +473,20 @@
     height: var(--avatar-size-md);
   }
 
+  /* Ajustes para botones de auth en móvil */
+  .authButtonsGroup {
+    gap: var(--spacing-xs);
+  }
+
+  .authButton {
+    padding: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+  }
+
+  .authButtonText {
+    display: none; /* Ocultar texto en móvil, solo iconos */
+  }
+
   /* Botón de menú en la primera fila más prominente */
   .mobileTopControls .menuToggle .material-icons {
     font-size: var(--icon-size-xl);
@@ -497,12 +559,27 @@
   .mobileSearchSection .searchButton {
     padding: 6px var(--spacing-xs);
   }
+
+  /* Ajustes adicionales para botones de auth en pantallas pequeñas */
+  .authButtonsGroup {
+    gap: 2px;
+  }
+
+  .authButton {
+    padding: 4px;
+    min-width: 28px;
+    height: 28px;
+  }
+
+  .authButton .material-icons {
+    font-size: var(--icon-size-sm);
+  }
 }
 
 /* === TEMA OSCURO === */
 :root[data-theme="dark"] .navbar {
   background: var(--background-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
 }
 
 :root[data-theme="dark"] .mainNavbar {

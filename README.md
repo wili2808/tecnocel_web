@@ -1,92 +1,145 @@
 # TECNOCEL WEB
 
-## Descripción del Proyecto
+## Descripción General del Proyecto
 
-Este proyecto es un sitio web profesional desarrollado para TECNOCEL, una empresa enfocada en la venta de articulos tecnologicos como Smartphones y Noteboocks. La aplicación sigue una arquitectura cliente-servidor, donde el **frontend**, desarrollado con React.js y TypeScript, proporciona la interfaz de usuario interactiva. El **backend**, construido con Node.js y Express, maneja la lógica de negocio, la autenticación, la interacción con la base de datos MySQL y expone una API REST para ser consumida por el frontend.
-La base de datos a utilizar sera una ya existente y en funcionamiento por otra app destinada a la gestion de los productos, ventas, clientes y usuarios.
-Una parte preliminar al desarrollo del proyecto será el refinamiento de esta base de datos para adaptarla a las necesidades para la construccion de la API necesario para que la web de ventas "TECNOCEL WEB" pueda brindar las funcionalidades necesarios a los clientes. Entre otros aspectos importantes a implementar sera la autenticacion de usuarios clientes y manejo de su informacion y compras en la web, temas que no son contemplados en el diseño actual de la base de datos.
+TECNOCEL WEB es una plataforma profesional para la venta de artículos tecnológicos (smartphones, notebooks, accesorios, etc.), desarrollada con una arquitectura cliente-servidor robusta y escalable. El sistema integra un frontend moderno en React.js/TypeScript y un backend en Node.js/Express con TypeScript, gestionando la lógica de negocio, autenticación, y persistencia de datos en MySQL mediante Sequelize ORM. La base de datos parte de un modelo existente, refinado para soportar la web de ventas y nuevas funcionalidades como autenticación de clientes y gestión de compras online.
 
-## Estructura del Proyecto
+---
+
+## Arquitectura y Estructura del Proyecto
 
 ```
-tennocel_web/
-├── frontend/                 # Aplicación del cliente (Vite + React)
+tecnocel_web/
+├── frontend/                 # Aplicación cliente (Vite + React + TS)
 │   ├── src/
-│   │   ├── api/             # Configuraciones de Axios
-│   │   ├── assets/          # Recursos estáticos (imágenes, fuentes)
-│   │   ├── components/      # Componentes reutilizables (por feature)
-│   │   ├── contexts/        # Contextos de React
+│   │   ├── api/             # Configuración de Axios
+│   │   ├── assets/          # Recursos estáticos (imágenes, fuentes, videos)
+│   │   ├── components/      # Componentes reutilizables por feature
+│   │   ├── contexts/        # Contextos globales (auth, carrito, tema)
 │   │   ├── hooks/           # Hooks personalizados
-│   │   ├── pages/           # Páginas principales (Home, Catálogo)
+│   │   ├── pages/           # Páginas principales (Home, Catálogo, Auth)
 │   │   ├── services/        # Lógica de comunicación con la API
-│   │   └── styles/          # Estilos globales y temas (Emotion)
+│   │   ├── styles/          # Estilos globales y temas (Emotion)
+│   │   ├── types/           # Tipos TypeScript
+│   │   └── utils/           # Utilidades de UI y lógica de negocio
 │   └── public/              # Archivos públicos
-├── backend/                  # Servidor y API (Node.js + Express)
+├── backend/                  # Servidor y API (Node.js + Express + TS)
 │   ├── src/
-│   │   ├── config/          # Configuraciones (ej. variables de entorno)
-│   │   ├── controllers/     # Controladores de la API (lógica de rutas)
-│   │   ├── database/        # Configuración de la conexión a la BD (Sequelize)
-│   │   ├── middleware/      # Middlewares de Express
-│   │   ├── models/          # Modelos de datos de Sequelize
-│   │   ├── routes/          # Rutas de la API
-│   │   └── utils/           # Funciones de utilidad
-│   └── dist/                 # Archivos transpilados de TypeScript
+│   │   ├── config/          # Configuración de BD y variables de entorno
+│   │   ├── controllers/     # Lógica de rutas y negocio (REST)
+│   │   ├── database/        # Scripts SQL y definición de la BD
+│   │   ├── middleware/      # Middlewares (auth, validación, imágenes)
+│   │   ├── models/          # Modelos Sequelize (entidades y relaciones)
+│   │   ├── routes/          # Definición de rutas de la API
+│   │   └── utils/           # Logger, email, utilidades
+│   └── dist/                # Archivos transpilados de TypeScript
+├── database/                 # Scripts y backups de la base de datos
+│   └── backups/             # Respaldos SQL
+└── README.md
 ```
 
-## Características Principales de la web de ventas.
+---
 
-- Catálogo de productos dinámico.
-- Sistema de autenticación y gestión de usuarios clientes.
-- Gestión completa de informacion de cliente.
-- Módulos para compras, carrito, devoluciones.
-- Carrito de compras funcional.
-- Servicios de personalización y cotizaciones.
-
-## Tecnologías
+## Tecnologías Principales
 
 ### Frontend
 
-- **Framework**: React.js con TypeScript
-- **Entorno de Desarrollo**: Vite
-- **Enrutamiento**: React Router DOM
-- **Estilos**: Emotion (CSS-in-JS)
-- **Cliente HTTP**: Axios
+- **Framework:** React.js + TypeScript
+- **Bundler:** Vite
+- **Enrutamiento:** React Router DOM
+- **Estilos:** Emotion (CSS-in-JS)
+- **Cliente HTTP:** Axios
+- **Gestión de Estado:** Context API (auth, carrito, tema)
 
 ### Backend
 
-- **Framework**: Node.js con Express y TypeScript
-- **ORM**: Sequelize
-- **Base de Datos**: MySQL
-- **Autenticación**: JSON Web Tokens (JWT)
-- **Hashing de Contraseñas**: Bcrypt.js
+- **Framework:** Node.js + Express + TypeScript
+- **ORM:** Sequelize
+- **Base de Datos:** MySQL
+- **Autenticación:** JSON Web Tokens (JWT)
+- **Hashing de Contraseñas:** Bcrypt.js
+- **Logger:** Personalizado (integrado con Sequelize)
+
+---
+
+## Flujos y Funcionalidades Clave
+
+### Backend
+
+- **Inicialización automática:**
+  - El archivo `src/config/database.ts` gestiona la conexión a MySQL usando variables de entorno.
+  - Sincroniza modelos Sequelize y crea datos de ejemplo si la base está vacía (categorías y productos base).
+  - Logging avanzado para desarrollo y producción.
+- **API RESTful:**
+  - Endpoints para gestión de inventario, ventas, compras, devoluciones, presupuestos, clientes, usuarios y roles.
+  - Middlewares para autenticación JWT, validación de datos y manejo de imágenes.
+- **Seguridad:**
+  - Uso de variables de entorno para credenciales sensibles.
+  - Hashing de contraseñas con Bcrypt.
+  - Control de acceso basado en roles (Administrador, Cliente, Vendedor, Diseñador).
+
+### Frontend
+
+- **Catálogo de productos:**
+  - Visualización dinámica, filtros por categoría, búsqueda y ordenamiento.
+- **Carrito de compras:**
+  - Añadir, eliminar y modificar productos, integración con el flujo de compra.
+- **Autenticación y gestión de usuario:**
+  - Registro, login, logout y gestión de perfil de cliente.
+- **Experiencia de usuario:**
+  - UI moderna, responsiva y accesible.
+  - Contextos globales para autenticación, carrito y tema.
+
+### Base de Datos
+
+- **Modelo relacional robusto:**
+  - Entidades: Cliente, Usuario, Almacén, Producto, Venta, Compra, Devolución, Presupuesto, Proveedor, Rol, Categoría.
+  - Relaciones bien definidas para soportar operaciones de ventas, compras, devoluciones y presupuestos.
+- **Scripts SQL y backups:**
+  - Scripts para creación, refinamiento y respaldo de la base de datos.
+
+---
 
 ## Roles de Usuario
 
-- **Administrador**: Control total del sistema.
-- **Cliente**: Acceso al catálogo, carrito y sus pedidos.
-- **Vendedor**: Gestión de ventas y clientes.
-- **Diseñador**: Acceso a los módulos de personalización.
+- **Administrador:** Control total del sistema.
+- **Cliente:** Acceso al catálogo, carrito y sus pedidos.
+- **Vendedor:** Gestión de ventas y clientes.
+- **Diseñador:** Acceso a módulos de personalización.
+
+---
 
 ## Módulos Principales
 
-1.  **Gestión de Inventario (Almacén)**
+1. **Gestión de Inventario (Almacén):** Control de stock, categorías y proveedores.
+2. **Gestión de Transacciones:**
+   - Ventas: Flujo completo desde carrito hasta finalización.
+   - Compras: Registro de compras a proveedores.
+   - Devoluciones: Manejo de devoluciones de clientes.
+   - Presupuestos: Cotizaciones y seguimiento de trabajos personalizados.
+3. **Gestión de Entidades:**
+   - Usuarios: Registro, autenticación y perfiles.
+   - Roles: Control de acceso.
+   - Clientes y Proveedores: Administración de información y transacciones.
+4. **Servicios Personalizados:**
+   - Solicitud y seguimiento de trabajos de sublimación y bordado.
 
-    - Control de stock de productos y categorías.
-    - Asociación con proveedores.
+---
 
-2.  **Gestión de Transacciones**
+## Buenas Prácticas y Recomendaciones
 
-    - **Ventas**: Proceso de venta, desde el carrito hasta la finalización.
-    - **Compras**: Registro de compras a proveedores.
-    - **Devoluciones**: Manejo de devoluciones de clientes.
-    - **Presupuestos**: Creación y seguimiento de cotizaciones para trabajos personalizados.
+- **Variables de entorno:** Usar `.env` para credenciales y configuración sensible.
+- **Estructura modular:** Separar lógica de negocio, modelos, rutas y utilidades.
+- **Tipado estricto:** Aprovechar TypeScript en frontend y backend para robustez.
+- **Logger centralizado:** Facilita el debugging y monitoreo.
+- **Onboarding:**
+  1. Clonar el repositorio y ejecutar `npm install` en `/backend` y `/frontend`.
+  2. Configurar archivos `.env` en ambos entornos.
+  3. Levantar la base de datos MySQL y ejecutar los scripts de `/backend/src/database/` si es necesario.
+  4. Iniciar el backend (`npm run dev` o `npm start`) y el frontend (`npm run dev`).
 
-3.  **Gestión de Entidades**
+---
 
-    - **Usuarios**: Registro, autenticación y perfiles.
-    - **Roles**: Control de acceso basado en roles.
-    - **Clientes y Proveedores**: Administración de la información de contacto y transacciones.
+## Contacto y Soporte
 
-4.  **Servicios Personalizados**
-    - Flujo para solicitar cotizaciones de trabajos de sublimación y bordado.
-    - Seguimiento del estado de los trabajos personalizados.
+Para dudas, sugerencias o soporte, contactar al equipo de desarrollo de TECNOCEL.

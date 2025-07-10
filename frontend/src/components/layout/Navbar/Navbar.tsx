@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/logo2.svg';
-import AuthPanel from '../../user/AuthPanel';
 import { useAuth } from '../../../contexts/AuthContext';
-import UserPanel from '../../user/UserPanel';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { useSearch } from '../../../contexts/SearchContext';
 import navbarStyle from './Navbar.module.css';
 
 // Rutas de navegación principales (para la barra secundaria)
@@ -12,12 +11,6 @@ const SECONDARY_NAV_ROUTES = [
     { path: '/productos', label: 'Categorías' },
     { path: '/ofertas', label: 'Ofertas' },
     { path: '/marcas', label: 'Marcas' },
-];
-
-// Enlaces adicionales para menú móvil
-const MOBILE_ADDITIONAL_ROUTES = [
-    { path: '/ubicacion', label: 'Ubicación', icon: 'location_on' },
-    { path: '/contacto', label: 'Contacto', icon: 'contact_mail' }
 ];
 
 /**
@@ -28,120 +21,89 @@ const Navbar = () => {
     // Hooks
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, isAuthenticated, subscribeToAuthChanges } = useAuth();
+    const { user, isAuthenticated, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const { searchQuery, setSearchQuery, navigateToProducts, isSearching } = useSearch();
 
     // Estados locales
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-
-    /**
-     * Cierra todos los modales y menús
-     */
-    const closeAllModals = useCallback(() => {
-        setIsAuthModalOpen(false);
-        setIsUserPanelOpen(false);
-        setIsMenuOpen(false);
-    }, []);
-
-    /**
-     * Efecto optimizado para manejar cambios en el estado de autenticación
-     */
-    useEffect(() => {
-        const unsubscribe = subscribeToAuthChanges((newUser) => {
-            if (newUser) {
-                // Usuario autenticado - cerrar modal de auth
-                setIsAuthModalOpen(false);
-            } else {
-                // Usuario desautenticado - cerrar panel de usuario
-                setIsUserPanelOpen(false);
-            }
-        });
-
-        return unsubscribe;
-    }, [subscribeToAuthChanges]);
 
     // Manejadores de eventos optimizados
-    const handleLoginSuccess = useCallback(() => {
-        closeAllModals();
-    }, [closeAllModals]);
 
     const handleLinkClick = useCallback(() => {
         setIsMenuOpen(false);
     }, []);
 
-    const toggleUserPanel = useCallback(() => {
-        if (!isAuthenticated) {
-            setIsAuthModalOpen(true);
-            return;
+    const handleAuthClick = useCallback(() => {
+        if (isAuthenticated) {
+            logout();
+        } else {
+            navigate('/login');
         }
-        setIsUserPanelOpen(prev => !prev);
-    }, [isAuthenticated]);
+    }, [isAuthenticated, logout, navigate]);
 
     const toggleMobileMenu = useCallback(() => {
         setIsMenuOpen(prev => !prev);
     }, []);
 
     /**
-     * Maneja la búsqueda global
+     * Maneja la búsqueda global (envío del formulario)
      */
     const handleSearch = useCallback((e: React.FormEvent) => {
         e.preventDefault();
-        if (searchQuery.trim()) {
-            navigate(`/productos?search=${encodeURIComponent(searchQuery.trim())}`);
-            setIsMenuOpen(false);
-        }
-    }, [searchQuery, navigate]);
+        navigateToProducts();
+        setIsMenuOpen(false);
+    }, [navigateToProducts]);
 
     /**
      * Maneja el cambio en el input de búsqueda
      */
     const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-    }, []);
+    }, [setSearchQuery]);
 
     /**
      * Renderiza los controles de autenticación según el estado del usuario
      */
     const renderAuthControls = useCallback(() => {
         if (isAuthenticated && user) {
-            // Usar un avatar por defecto ya que ClienteUser no tiene avatarUrl
-            const avatarUrl = 'https://via.placeholder.com/150';
-
             return (
-                <>
+                <div className={navbarStyle.authButtonsGroup}>
                     <button
                         className={navbarStyle.authButton}
-                        onClick={toggleUserPanel}
-                        aria-label="Abrir panel de usuario"
+                        onClick={handleAuthClick}
+                        aria-label="Cerrar sesión"
                     >
-                        <img src={avatarUrl} alt="Avatar de usuario" className={navbarStyle.avatar} />
+                        <span className="material-icons">account_circle</span>
+                        <span className={navbarStyle.authButtonText}>
+                            {user.nombre_cliente} {user.apellido_cliente}
+                        </span>
                     </button>
-                    {isUserPanelOpen && <UserPanel onClose={() => setIsUserPanelOpen(false)} />}
-                </>
+                </div>
             );
         }
 
         return (
-            <>
-                <button
+            <div className={navbarStyle.authButtonsGroup}>
+                <Link
+                    to="/login"
                     className={navbarStyle.authButton}
-                    onClick={() => setIsAuthModalOpen(true)}
                     aria-label="Iniciar sesión"
                 >
-                    <span className="material-icons">person</span>
-                </button>
-                {isAuthModalOpen && (
-                    <AuthPanel
-                        onLoginSuccess={handleLoginSuccess}
-                        onClose={() => setIsAuthModalOpen(false)}
-                    />
-                )}
-            </>
+                    <span className="material-icons">login</span>
+                    <span className={navbarStyle.authButtonText}>Ingresar</span>
+                </Link>
+                <Link
+                    to="/register"
+                    className={`${navbarStyle.authButton} ${navbarStyle.registerButton}`}
+                    aria-label="Crear cuenta"
+                >
+                    <span className="material-icons">person_add</span>
+                    <span className={navbarStyle.authButtonText}>Registro</span>
+                </Link>
+            </div>
         );
-    }, [isAuthenticated, user, isUserPanelOpen, isAuthModalOpen, toggleUserPanel, handleLoginSuccess]);
+    }, [isAuthenticated, user, handleAuthClick]);
 
     /**
      * Renderiza la barra de búsqueda global
@@ -154,21 +116,24 @@ const Navbar = () => {
                         type="text"
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        placeholder="Buscar..."
-                        className={navbarStyle.searchInput}
+                        placeholder="Buscar productos..."
+                        className={`${navbarStyle.searchInput} ${isSearching ? navbarStyle.searching : ''}`}
                         aria-label="Búsqueda global"
                     />
                     <button
                         type="submit"
                         className={navbarStyle.searchButton}
                         aria-label="Buscar"
+                        disabled={isSearching}
                     >
-                        <span className="material-icons">search</span>
+                        <span className="material-icons">
+                            {isSearching ? 'hourglass_empty' : 'search'}
+                        </span>
                     </button>
                 </div>
             </form>
         </div>
-    ), [searchQuery, handleSearch, handleSearchChange]);
+    ), [searchQuery, handleSearch, handleSearchChange, isSearching]);
 
     /**
      * Renderiza los enlaces de la navegación secundaria

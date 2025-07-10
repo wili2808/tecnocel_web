@@ -4,6 +4,7 @@ import sequelize from '../config/database.js';
 class Cliente extends Model {
   declare id_cliente: number;
   declare nombre_cliente: string;
+  declare apellido_cliente: string;
   declare nit_ci_cliente: string;
   declare celular_cliente: string;
   declare email_cliente: string;
@@ -25,6 +26,10 @@ Cliente.init({
     autoIncrement: true
   },
   nombre_cliente: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  apellido_cliente: {
     type: DataTypes.STRING(255),
     allowNull: false
   },

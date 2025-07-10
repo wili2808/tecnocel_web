@@ -1,8 +1,8 @@
-# .cursorrules - Proyecto MAC WIL
+# .cursorrules - Proyecto TECNOCEL
 
 ## CONTEXTO DEL SISTEMA
 
-Este es un sitio web profesional para TECNOCEL, empresa de ventas de articulos tecnologicos:
+Este es un sitio web profesional para TECNOCEL, empresa de ventas de artículos tecnológicos.
 
 - **Frontend**: Interfaz de usuario interactiva con React.js y TypeScript.
 - **Backend**: API REST con Node.js y Express para la lógica de negocio, autenticación e interacción con la base de datos.
@@ -16,7 +16,7 @@ Este es un sitio web profesional para TECNOCEL, empresa de ventas de articulos t
 - **Framework**: React.js con TypeScript
 - **Entorno de Desarrollo**: Vite
 - **Enrutamiento**: React Router DOM
-- **Estilos**: Emotion (CSS-in-JS)
+- **Estilos**: CSS Modules y archivos globales, con soporte para temas y variables. Uso de convenciones BEM y separación modular por feature. (Ver sección especial de estilos más abajo)
 - **Cliente HTTP**: Axios
 
 ### Backend
@@ -34,50 +34,64 @@ Este es un sitio web profesional para TECNOCEL, empresa de ventas de articulos t
 
 ## ARQUITECTURA Y ESTRUCTURA
 
-### Estructura de Directorios
+### Estructura de Directorios (actualizada)
 
 ```
-macwil_web/
-├── frontend/                 # Aplicación del cliente (Vite + React)
+tecnocel_web/
+├── frontend/
 │   ├── src/
-│   │   ├── api/             # Configuraciones de Axios
-│   │   ├── assets/          # Recursos estáticos (imágenes, fuentes)
-│   │   ├── components/      # Componentes reutilizables (por feature)
-│   │   ├── contexts/        # Contextos de React
-│   │   ├── hooks/           # Hooks personalizados
-│   │   ├── pages/           # Páginas principales (Home, Catálogo)
-│   │   ├── services/        # Lógica de comunicación con la API
-│   │   └── styles/          # Estilos globales y temas (Emotion)
-│   └── public/              # Archivos públicos
-├── backend/                  # Servidor y API (Node.js + Express)
+│   │   ├── api/                # Configuración de Axios
+│   │   ├── assets/             # Imágenes, fuentes, videos
+│   │   ├── components/         # Componentes agrupados por dominio: product, user, location, layout, common
+│   │   ├── contexts/           # Contextos globales (Auth, Carrito, Tema)
+│   │   ├── hooks/              # Hooks personalizados (productos, filtros, etc.)
+│   │   ├── pages/              # Páginas principales: Home, Auth, ProductCatalog
+│   │   ├── services/           # Lógica de comunicación con la API
+│   │   ├── styles/             # Estilos globales, variables y temas (ver sección especial)
+│   │   ├── types/              # Tipos TypeScript
+│   │   └── utils/              # Utilidades generales
+│   └── public/                 # Archivos públicos
+├── backend/
 │   ├── src/
-│   │   ├── config/          # Configuraciones (ej. variables de entorno)
-│   │   ├── controllers/     # Controladores de la API (lógica de rutas)
-│   │   ├── database/        # Configuración de la conexión a la BD (Sequelize)
-│   │   ├── middleware/      # Middlewares de Express
-│   │   ├── models/          # Modelos de datos de Sequelize
-│   │   ├── routes/          # Rutas de la API
-│   │   └── utils/           # Funciones de utilidad
-│   └── dist/                 # Archivos transpilados de TypeScript
+│   │   ├── config/             # Configuraciones y variables de entorno
+│   │   ├── controllers/        # Controladores: Cliente, Almacen (otros en desarrollo)
+│   │   ├── database/           # Scripts y migraciones SQL
+│   │   ├── middleware/         # Middlewares: validación, auth, manejo de imágenes
+│   │   ├── models/             # Modelos Sequelize: Cliente, Usuario, Venta, Proveedor, etc.
+│   │   ├── routes/             # Rutas: clienteRoutes, almacenRoutes (otros en desarrollo)
+│   │   └── utils/              # Funciones de utilidad
+│   └── dist/                   # Archivos transpilados
+├── database/
+│   ├── backups/                # Respaldos de la base de datos
+│   └── Refinamiento...pdf      # Documentación de cambios recientes
 ```
 
-### API Endpoints Principales
+### Estado actual de módulos y endpoints
+
+- **Implementados:**
+  - Controladores y rutas para clientes y productos (almacén)
+  - Modelos para todas las entidades principales
+  - Hooks y contextos para autenticación, productos, carrito y tema en frontend
+  - Páginas: Home, Auth (Login/Register), ProductCatalog
+- **En desarrollo o planeados:**
+  - Endpoints y controladores para ventas, compras, devoluciones y presupuestos
+  - Módulos avanzados de gestión de usuarios y roles
+
+### API Endpoints Principales (actuales)
 
 - `GET /api/almacen/productos` - Listar productos
 - `GET /api/almacen/productos/:id` - Obtener producto específico
-- `POST /api/ventas` - Crear una venta
-- `POST /api/compras` - Crear una compra
-- `POST /api/devoluciones` - Registrar una devolución
-- `POST /api/presupuestos` - Crear una cotización
-- `POST /api/usuarios/registro` - Registro de usuario
-- `POST /api/usuarios/login` - Login de usuario
-- `GET /api/usuarios/perfil` - Perfil de usuario (protegido)
+- `POST /api/clientes/registro` - Registro de cliente
+- `POST /api/clientes/login` - Login de cliente
+- `GET /api/clientes/perfil` - Perfil de cliente (protegido)
+
+> **Nota:** Endpoints para ventas, compras, devoluciones y presupuestos están modelados pero no implementados aún.
 
 ### Entidades de Base de Datos
 
 - **usuarios**: id, nombre, email, password_hash, rol_id
 - **roles**: id, nombre_rol
-- **clientes**: id, nombre, contacto
+- **clientes**: id, nombre, contacto, apellidos (nuevo campo)
 - **proveedores**: id, nombre, contacto
 - **categorias**: id, nombre, descripcion
 - **almacen (productos)**: id, nombre, descripcion, precio, stock, categoria_id
@@ -89,6 +103,16 @@ macwil_web/
 - **detalle_devoluciones**: id, devolucion_id, producto_id, cantidad
 - **presupuestos**: id, cliente_id, total, estado
 - **detalle_presupuestos**: id, presupuesto_id, descripcion, cantidad, precio
+
+## CONVENCIÓN Y BUENAS PRÁCTICAS DE ESTILOS EN FRONTEND
+
+- Los estilos se organizan en la carpeta `src/styles/` para globales, temas y variables, y en subcarpetas `*.module.css` junto a cada componente para estilos locales.
+- Se recomienda el uso de CSS Modules para encapsulamiento y evitar colisiones.
+- Para temas y colores, usar `themes.css` y `variables.css`.
+- Seguir la convención BEM para nombrar clases si se requiere mayor claridad.
+- Los componentes deben importar solo sus propios estilos locales y los globales necesarios.
+- Se prioriza la accesibilidad (contraste, ARIA, navegación por teclado) y la optimización de recursos (carga de imágenes, fuentes).
+- El archivo `VERIFICACION_ESTILOS_COMPLETA.md` documenta la revisión y cumplimiento de estilos en el frontend.
 
 ## REGLAS DE CODIFICACIÓN
 

@@ -132,11 +132,12 @@ export const validateRegistration = (req: Request, res: Response, next: NextFunc
 export const validateClienteRegistration = async (req: Request, res: Response, next: NextFunction) => {
   try {
     logger.debug('Iniciando validación de registro de cliente', req.body);
-    const { nombre_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena } = req.body;
+    const { nombre_cliente, apellido_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena } = req.body;
     // Validar campos obligatorios
-    if (!nombre_cliente || !email_cliente || !celular_cliente || !nit_ci_cliente || !contrasena) {
+    if (!nombre_cliente || !apellido_cliente || !email_cliente || !celular_cliente || !nit_ci_cliente || !contrasena) {
       logger.warn('Campos obligatorios faltantes en registro de cliente', {
         nombre_cliente: !!nombre_cliente,
+        apellido_cliente: !!apellido_cliente,
         email_cliente: !!email_cliente,
         celular_cliente: !!celular_cliente,
         nit_ci_cliente: !!nit_ci_cliente,
@@ -146,6 +147,7 @@ export const validateClienteRegistration = async (req: Request, res: Response, n
         error: 'Todos los campos son obligatorios',
         detalles: {
           nombre_cliente: !nombre_cliente ? 'El nombre es requerido' : null,
+          apellido_cliente: !apellido_cliente ? 'El apellido es requerido' : null,
           email_cliente: !email_cliente ? 'El correo electrónico es requerido' : null,
           celular_cliente: !celular_cliente ? 'El celular es requerido' : null,
           nit_ci_cliente: !nit_ci_cliente ? 'El NIT/CI es requerido' : null,
@@ -191,6 +193,15 @@ export const validateClienteRegistration = async (req: Request, res: Response, n
       return res.status(400).json({
         error: 'Nombre inválido',
         detalles: 'El nombre debe tener al menos 2 caracteres y solo letras y espacios'
+      });
+    }
+
+    // Validar apellido_cliente solo letras y espacios
+    if (!nameRegex.test(apellido_cliente) || apellido_cliente.length < 2) {
+      logger.warn('Apellido inválido en registro de cliente', { apellido_cliente });
+      return res.status(400).json({
+        error: 'Apellido inválido',
+        detalles: 'El apellido debe tener al menos 2 caracteres y solo letras y espacios'
       });
     }
     // Validar celular_cliente (8-15 dígitos, puede incluir +, espacios y guiones)

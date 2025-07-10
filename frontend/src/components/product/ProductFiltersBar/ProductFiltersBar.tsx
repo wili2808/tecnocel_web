@@ -1,7 +1,6 @@
 import React from 'react';
-import ProductSearch from '../ProductSearch';
 import CategoryFilters from '../CategoryFilters';
-import ProductControls from '../ProductControls';
+import ProductSorting from '../ProductSorting';
 import styles from './ProductFiltersBar.module.css';
 import type { ProductUIFilters } from '../../../hooks/useProductFilters';
 import type { Category } from '../../../types/product';
@@ -17,7 +16,7 @@ interface ProductFiltersBarProps {
     // Contadores para estadísticas
     totalProducts: number;
     filteredProducts: number;
-    categoryCounts?: Record<string, number>;
+    quickSearchCounts?: Record<string, number>;
 }
 
 const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
@@ -26,7 +25,7 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
     backendCategories,
     totalProducts,
     filteredProducts,
-    categoryCounts = {}
+    quickSearchCounts = {}
 }) => {
     return (
         <div className={styles.filtersBar}>
@@ -39,18 +38,18 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
                     onBackendCategoryChange={(selectedDropdownCategory) =>
                         onFiltersChange({ selectedDropdownCategory })
                     }
-                    selectedCustomCategory={filters.selectedCategory}
-                    onCustomCategoryChange={(selectedCategory) =>
-                        onFiltersChange({ selectedCategory })
+                    selectedQuickSearch={filters.selectedQuickSearch}
+                    onQuickSearchChange={(selectedQuickSearch) =>
+                        onFiltersChange({ selectedQuickSearch })
                     }
-                    categoryCounts={categoryCounts}
+                    quickSearchCounts={quickSearchCounts}
                 />
             </div>
 
-            {/* Controles */}
-            <div className={styles.filterSection}>
-                <h3 className={styles.filterSectionTitle}>Filtros y Ordenamiento</h3>
-                <ProductControls
+            {/* Ordenamiento y Filtros */}
+            <div className={styles.sortingSection}>
+                <h3 className={styles.filterSectionTitle}>Ordenamiento</h3>
+                <ProductSorting
                     sortOrder={filters.order}
                     onSortOrderChange={(order) => onFiltersChange({ order })}
                     onlyInStock={filters.onlyStock}

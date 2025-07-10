@@ -12,7 +12,7 @@
 
 /* Tarjeta de Producto */
 .productCard {
-  background-color: var(--background-elevated);
+  background-color: var(--background-primary);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   transition: all var(--transition-duration) ease;
@@ -58,7 +58,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--color-black-medium);
   color: white;
   display: flex;
   flex-direction: column;

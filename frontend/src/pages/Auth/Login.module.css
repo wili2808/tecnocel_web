@@ -1,0 +1,275 @@
+/* Página principal de login */
+.loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    box-sizing: border-box;
+}
+
+/* Contenedor principal */
+.loginContainer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+    gap: var(--spacing-2xl);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Panel de información */
+.loginInfo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: slideInRight 0.6s ease-out;
+    height: 100%;
+}
+
+.infoCard {
+    border-radius: var(--border-radius-xl);
+    padding: var(--spacing-xl);
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 420px;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    background: var(--background-secondary);
+}
+
+/* Añadir efecto visual sutil */
+.infoCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+}
+
+.infoCard h3 {
+    color: var(--text-primary);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--spacing-lg) 0;
+    line-height: 1.3;
+}
+
+.infoCard p {
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--spacing-2xl) 0;
+}
+
+.infoButton {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-lg);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-normal) ease;
+    min-height: 56px;
+    position: relative;
+    overflow: hidden;
+    margin: var(--spacing-md) 0;
+}
+
+.infoButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--color-white-overlay), transparent);
+    transition: left 0.5s ease;
+}
+
+.infoButton:hover::before {
+    left: 100%;
+}
+
+.infoButton:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-button-primary);
+}
+
+.infoButton:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-button-primary-hover);
+}
+
+.infoButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Animación de información */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsividad para tablets */
+@media (max-width: 1024px) {
+    .loginContainer {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2xl);
+        max-width: 600px;
+    }
+    
+    .loginInfo {
+        order: -1;
+    }
+    
+    .infoCard {
+        max-width: none;
+    }
+    
+    .infoCard h3 {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+    .loginPage {
+        padding: var(--spacing-md);
+        align-items: flex-start;
+        padding-top: var(--spacing-2xl);
+    }
+    
+    .loginContainer {
+        gap: var(--spacing-xl);
+        max-width: 500px;
+    }
+    
+    .infoCard {
+        padding: var(--spacing-xl);
+    }
+    
+    .infoCard h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .infoCard p {
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .infoButton {
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 480px) {
+    .loginPage {
+        padding: var(--spacing-sm);
+        padding-top: var(--spacing-xl);
+    }
+    
+    .loginContainer {
+        max-width: 400px;
+        gap: var(--spacing-lg);
+    }
+    
+    .infoCard {
+        padding: var(--spacing-lg);
+    }
+    
+    .infoCard h3 {
+        font-size: var(--font-size-md);
+    }
+}
+
+/* Responsividad para pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .loginContainer {
+        max-width: 300px;
+        gap: var(--spacing-md);
+    }
+    
+    .infoCard {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .loginInfo {
+        animation: none;
+    }
+    
+    .infoButton:hover {
+        transform: none;
+    }
+}
+
+/* Contraste alto */
+@media (prefers-contrast: high) {
+    .infoCard {
+        border-width: 2px;
+        border-color: var(--text-primary);
+    }
+    
+    .infoButton {
+        border: 2px solid transparent;
+    }
+}
+
+/* Ajustes para pantallas muy anchas */
+@media (min-width: 1400px) {
+    .loginContainer {
+        max-width: 1400px;
+    }
+    
+    .infoCard {
+        max-width: 500px;
+    }
+    
+    .infoCard h3 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .infoCard p {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* Ajustes para pantallas ultra anchas */
+@media (min-width: 1800px) {
+    .loginContainer {
+        max-width: 1600px;
+    }
+    
+    .infoCard {
+        max-width: 600px;
+    }
+} 

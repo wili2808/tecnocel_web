@@ -3,17 +3,26 @@
   width: 100%;
 }
 
+/* Search Input Group */
+.searchInputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 /* Search Input */
 .searchInput {
-  flex: 1 1 220px;
+  flex: 1;
   min-width: 180px;
   padding: var(--spacing-md);
+  padding-right: 3.5rem; /* Espacio para botones */
   border: 1px solid var(--color-neutral-300);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-md);
   background: var(--background-primary);
   color: var(--text-primary);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   font-family: 'Inter', 'Roboto', Arial, sans-serif;
   letter-spacing: 0.01em;
   width: 100%;
@@ -30,12 +39,87 @@
   opacity: 0.7;
 }
 
+/* Estados de búsqueda */
+.searchInput.searching {
+  border-color: var(--color-primary-300);
+  background: var(--background-secondary);
+}
+
+/* Indicador de búsqueda */
+.searchIndicator {
+  position: absolute;
+  right: 3rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.searchIcon {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Botón de limpiar */
+.clearButton {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.clearButton:hover {
+  background: var(--color-neutral-200);
+  color: var(--text-primary);
+}
+
+.clearButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.clearButton .material-icons {
+  font-size: 1.1rem;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .searchInput {
     font-size: 1rem;
     padding: 0.7em 0.8em;
+    padding-right: 3.5rem;
     border-radius: var(--border-radius-md);
     margin-bottom: 0.3em;
+  }
+  
+  .searchIndicator {
+    right: 2.8rem;
+  }
+  
+  .clearButton {
+    right: 0.4rem;
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+  
+  .clearButton .material-icons {
+    font-size: 1rem;
   }
 } 

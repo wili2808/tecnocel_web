@@ -1,5 +1,7 @@
 :root {
-  /* === COLORES NEUTROS === */
+  /* === PALETA DE COLORES BASE === */
+  
+  /* Colores neutros */
   --color-neutral-50: #FAFAFA;
   --color-neutral-100: #F8FAFC;
   --color-neutral-200: #F1F5F9;
@@ -11,15 +13,66 @@
   --color-neutral-800: #334155;
   --color-neutral-900: #1E293B;
 
-  /* === COLORES CON TRANSPARENCIAS === */
-  --color-primary-50: rgba(107, 70, 193, 0.05);
-  --color-primary-100: rgba(107, 70, 193, 0.1);
-  --color-primary-200: rgba(107, 70, 193, 0.2);
-  --color-primary-300: rgba(107, 70, 193, 0.3);
+  /* Colores púrpura (primary) */
+  --color-purple-50: #F3F0FF;
+  --color-purple-100: #E9E5FF;
+  --color-purple-200: #D6CDFF;
+  --color-purple-300: #C3B7FF;
+  --color-purple-400: #9F7AEA;
+  --color-purple-500: #805AD5;
+  --color-purple-600: #6B46C1;
+  --color-purple-700: #553C9A;
+  --color-purple-800: #44337A;
+  --color-purple-900: #322659;
 
-  /* === ESTADOS Y FEEDBACK === */
+  /* Colores específicos del tema oscuro */
+  --color-zinc-900: #18181B;
+  --color-zinc-800: #27272A;
+  --color-zinc-700: #3F3F46;
+  --color-zinc-950: #09090B;
+
+  /* Colores de texto específicos */
+  --color-text-light-primary: #2d2d2d;
+  --color-text-light-secondary: #6e6e6e;
+  --color-text-dark-primary: #F8FAFC;
+  --color-text-dark-secondary: #CBD5E1;
+
+  /* Colores de fondo específicos del tema claro */
+  --color-bg-light-primary: #ffffff;
+  --color-bg-light-secondary: #F1F5F9;
+  --color-bg-light-elevated: #ffffff;
+
+  /* Colores de fondo específicos del tema oscuro */
+  --color-bg-dark-primary: #18181B;
+  --color-bg-dark-secondary: #27272A;
+  --color-bg-dark-elevated: #3F3F46;
+
+  /* === COLORES DE ESTADO === */
+  --color-error: #EF4444;
+  --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
+
+  /* === COLORES PRINCIPALES BASE (para compatibilidad) === */
+  --color-primary: var(--color-purple-600);
+  --color-primary-rgb: 107, 70, 193;
+  --color-primary-dark: var(--color-purple-700);
+  --color-primary-light: var(--color-purple-400);
+  --color-secondary: var(--color-purple-500);
+  --color-accent: var(--color-purple-400);
+
+  /* === COLORES CON TRANSPARENCIAS === */
+  --color-primary-50: rgba(var(--color-primary-rgb), 0.05);
+  --color-primary-100: rgba(var(--color-primary-rgb), 0.1);
+  --color-primary-200: rgba(var(--color-primary-rgb), 0.2);
+  --color-primary-300: rgba(var(--color-primary-rgb), 0.3);
+  --color-primary-400: rgba(var(--color-primary-rgb), 0.4);
+
+  /* === COLORES COMUNES CON TRANSPARENCIAS === */
+  --color-black-light: rgba(0, 0, 0, 0.1);
+  --color-black-medium: rgba(0, 0, 0, 0.4);
+  --color-white-overlay: rgba(255, 255, 255, 0.2);
+  --color-white-overlay-medium: rgba(255, 255, 255, 0.3);
 
   /* === TIPOGRAFÍA === */
   --font-family-primary: 'Poppins', system-ui, -apple-system, sans-serif;
@@ -74,9 +127,18 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
+  /* === SOMBRAS ESPECÍFICAS === */
+  --shadow-focus: 0 0 0 3px var(--color-primary-100);
+  --shadow-focus-error: 0 0 0 3px rgba(220, 38, 127, 0.1);
+  --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
+  --shadow-button-primary-hover: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+  --shadow-card: 0 4px 12px var(--color-black-light);
+  --shadow-card-hover: 0 2px 4px var(--color-black-light);
+
   /* === LAYOUT === */
   --max-width: 1120px;
   --max-width-prose: 65ch;
+  --container-max-width: 1200px;
   --container-padding: 2rem;
   --section-spacing: 6rem;
 
@@ -154,13 +216,13 @@
   }
 }
 
-/* === MODO OSCURO === */
+/* === MODO OSCURO (fallback) === */
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-primary: var(--color-neutral-100);
-    --text-secondary: var(--color-neutral-400);
-    --background-primary: var(--color-neutral-900);
-    --background-secondary: var(--color-neutral-800);
-    --background-elevated: var(--color-neutral-800);
+    --text-primary: var(--color-text-dark-primary);
+    --text-secondary: var(--color-text-dark-secondary);
+    --background-primary: var(--color-bg-dark-primary);
+    --background-secondary: var(--color-bg-dark-secondary);
+    --background-elevated: var(--color-bg-dark-elevated);
   }
 }

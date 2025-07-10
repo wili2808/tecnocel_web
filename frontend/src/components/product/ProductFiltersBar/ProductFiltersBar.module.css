@@ -2,27 +2,63 @@
 .filtersBar {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background-color: var(--background-elevated);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  padding-left: var(--spacing-xl);
   height: 100%;
   overflow: hidden;
+  position: relative;
+}
+
+.filtersBar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
 }
 
 /* Secciones de filtros */
 .filterSection {
+  background: var(--background-secondary);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  background-color: var(--background-primary);
-  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-xs);
+  flex: 2.5;
+  overflow: hidden;
+  min-height: 0;
+  transition: all var(--transition-duration) ease;
+}
+
+.filterSection:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Sección de ordenamiento */
+.sortingSection {
+  background: var(--background-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-xs);
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  transition: all var(--transition-duration) ease;
+}
+
+.sortingSection:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .filterSectionTitle {
@@ -32,6 +68,18 @@
   margin: 0;
   padding-bottom: var(--spacing-xs);
   border-bottom: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.filterSectionTitle::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* Contador de resultados */
@@ -39,12 +87,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm);
-  background-color: var(--background-primary);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-radius: var(--border-radius-lg);
   margin-top: auto;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.resultsCounter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-white-overlay), transparent);
+  transition: left 0.5s ease;
+}
+
+.resultsCounter:hover::before {
+  left: 100%;
 }
 
 .resultsCounterContent {
@@ -52,26 +116,22 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-xs);
+  position: relative;
+  z-index: 1;
 }
 
 .resultsNumber {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: var(--color-primary);
+  color: white;
+  text-shadow: 0 1px 2px var(--color-black-light);
 }
 
 .resultsText {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
   font-weight: 500;
-}
-
-/* Estilos modernos y minimalistas */
-.filtersBar {
-  background: linear-gradient(90deg, var(--background-elevated) 80%, var(--background-primary) 100%);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  border-radius: var(--border-radius-xl);
-  border: 1.5px solid var(--color-neutral-200);
+  text-shadow: 0 1px 2px var(--color-black-light);
 }
 
 /* Media queries responsive */
@@ -84,22 +144,38 @@
   }
   
   .filterSection {
-    padding: var(--spacing-xs);
+    padding: var(--spacing-sm);
+  }
+  
+  .sortingSection {
+    padding: var(--spacing-sm);
   }
   
   .filterSectionTitle {
     font-size: var(--font-size-sm);
   }
+  
+  .resultsNumber {
+    font-size: var(--font-size-lg);
+  }
 }
 
 @media (max-width: 600px) {
   .filtersBar {
-    padding: var(--spacing-sm) var(--spacing-xs);
+    padding: var(--spacing-sm);
     gap: var(--spacing-sm);
   }
   
-  .resultsCounter {
+  .filterSection {
     padding: var(--spacing-xs);
+  }
+  
+  .sortingSection {
+    padding: var(--spacing-xs);
+  }
+  
+  .resultsCounter {
+    padding: var(--spacing-sm);
   }
   
   .resultsNumber {

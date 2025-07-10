@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useSearch } from '../contexts/SearchContext';
 
 export interface ProductUIFilters {
   search: string;
   selectedDropdownCategory: string;
-  selectedCategory: string | null;
+  selectedQuickSearch: string | null;
   order: string;
   onlyStock: boolean;
 }
@@ -12,7 +13,7 @@ export interface ProductUIFilters {
 const DEFAULT_FILTERS: ProductUIFilters = {
   search: '',
   selectedDropdownCategory: '',
-  selectedCategory: null,
+  selectedQuickSearch: null,
   order: '',
   onlyStock: false,
 };
@@ -27,6 +28,7 @@ interface UseProductFiltersReturn {
 
 export const useProductFilters = (): UseProductFiltersReturn => {
   const location = useLocation();
+  const { debouncedSearchQuery } = useSearch();
 
   // Recuperar filtros guardados del localStorage
   const [filters, setFilters] = useState<ProductUIFilters>(() => {
@@ -41,21 +43,39 @@ export const useProductFilters = (): UseProductFiltersReturn => {
   // Sincronizar con parámetros de URL al cargar
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const searchFromUrl = searchParams.get('search');
+    const searchFromUrl = searchParams.get('search') || '';
     
-    if (searchFromUrl && searchFromUrl !== filters.search) {
-      setFilters(prev => ({
-        ...prev,
-        search: searchFromUrl
-      }));
-    }
-  }, [location.search, filters.search]);
+    setFilters(prev => {
+      if (searchFromUrl !== prev.search) {
+        return {
+          ...prev,
+          search: searchFromUrl
+        };
+      }
+      return prev;
+    });
+  }, [location.search]); // Solo depende de la URL
+
+  // Actualizar filtros cuando cambie la búsqueda del contexto
+  useEffect(() => {
+    setFilters(prev => {
+      if (debouncedSearchQuery !== prev.search) {
+        return {
+          ...prev,
+          search: debouncedSearchQuery
+        };
+      }
+      return prev;
+    });
+  }, [debouncedSearchQuery]); // Solo depende de la búsqueda debounced
 
   const updateFilters = useCallback((newFilters: Partial<ProductUIFilters>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    setFilters(updatedFilters);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedFilters));
-  }, [filters]);
+    setFilters(prev => {
+      const updatedFilters = { ...prev, ...newFilters };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedFilters));
+      return updatedFilters;
+    });
+  }, []); // Sin dependencias para evitar recreación
 
   const resetFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS);

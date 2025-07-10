@@ -1,0 +1,35 @@
+/* Contenedor principal de la página Location */
+.locationContainer {
+  padding: var(--spacing-xl) var(--spacing-md);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  min-height: calc(100vh - 200px);
+}
+
+/* Sección del Mapa */
+.mapSection {
+  text-align: center;
+}
+
+.mapSection h3 {
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .locationContainer {
+    padding: 1.5rem 1rem;
+  }
+
+  .mapSection h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .locationContainer {
+    padding: 1rem 0.75rem;
+  }
+} 

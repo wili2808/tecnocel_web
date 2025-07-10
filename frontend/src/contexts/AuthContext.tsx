@@ -14,6 +14,7 @@ const TOKEN_KEY = 'token';
 export interface ClienteUser {
   id_cliente: number;
   nombre_cliente: string;
+  apellido_cliente: string;
   email_cliente: string;
   celular_cliente?: string;
   nit_ci_cliente?: string;
@@ -28,12 +29,12 @@ interface AuthContextType {
   login: (email_cliente: string, contrasena: string) => Promise<void>;
   register: (data: {
     nombre_cliente: string;
-    apellidos: string;
+    apellido_cliente: string;
     email_cliente: string;
     contrasena: string;
     celular_cliente: string;
     nit_ci_cliente: string;
-  }) => Promise<void>;
+  }) => Promise<any>;
   logout: () => void;
   googleLogin: () => Promise<void>;
   subscribeToAuthChanges: (callback: (user: ClienteUser | null) => void) => () => void;
@@ -174,7 +175,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    */
   const register = async (data: {
     nombre_cliente: string;
-    apellidos: string;
+    apellido_cliente: string;
     email_cliente: string;
     contrasena: string;
     celular_cliente: string;
@@ -183,13 +184,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const response = await axiosInstance.post('/clientes/register', {
         nombre_cliente: data.nombre_cliente,
+        apellido_cliente: data.apellido_cliente,
         email_cliente: data.email_cliente,
         celular_cliente: data.celular_cliente,
         nit_ci_cliente: data.nit_ci_cliente,
         contrasena: data.contrasena
       });
-      // El backend responde con mensaje, no con token ni cliente, porque requiere verificación de email
-      // Puedes mostrar un toast con el mensaje de éxito
+
+      // El backend ahora responde con token y datos del cliente para login automático
+      const { cliente, token } = response.data;
+      if (token && cliente) {
+        // Guardar token y actualizar estado del usuario para login automático
+        localStorage.setItem(TOKEN_KEY, token);
+        setUser(cliente);
+        console.log('Usuario registrado y logeado automáticamente:', cliente.email_cliente);
+      }
+
+      return response.data; // Devolver la respuesta para mostrar el mensaje de éxito
     } catch (error: any) {
       if (error.response?.status === 400) {
         throw new Error(error.response.data.mensaje || 'Datos de registro inválidos');

@@ -71,4 +71,15 @@
   .productsSection {
     padding: var(--spacing-xl) 0;
   }
+}
+
+/* Loading state */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  min-height: 200px;
 } 

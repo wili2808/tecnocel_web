@@ -1,0 +1,114 @@
+/* === LAYOUT FULLSCREEN PARA CATÁLOGO === */
+.catalogFullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  padding-top: var(--navbar-height);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.catalogContainer {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  height: calc(100vh - var(--navbar-height));
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 0;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.filtersSidebar {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  height: calc(100vh - var(--navbar-height));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filtersSidebar:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+.filtersSidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filtersSidebar::-webkit-scrollbar-track {
+  background: var(--color-neutral-200);
+  border-radius: var(--border-radius-full);
+}
+
+.filtersSidebar::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-400);
+  border-radius: var(--border-radius-full);
+  transition: background 0.2s ease;
+}
+
+.filtersSidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-500);
+}
+
+.productsMainContent {
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+}
+
+/* === ANIMACIONES === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .catalogContainer {
+    grid-template-columns: 280px 1fr;
+  }
+  
+  .catalogFullscreen {
+    padding-top: var(--navbar-height-mobile);
+  }
+}
+
+@media (max-width: 768px) {
+  .catalogContainer {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  
+  .filtersSidebar {
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-neutral-200);
+    padding: var(--spacing-md);
+  }
+  
+  .productsMainContent {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .filtersSidebar {
+    padding: var(--spacing-sm);
+  }
+  
+  .productsMainContent {
+    padding: var(--spacing-sm);
+  }
+} 

@@ -1,53 +1,45 @@
 :root[data-theme="light"] {
   /* === COLORES PRINCIPALES === */
-  --color-primary: #6B46C1;
-  --color-primary-dark: #553C9A;
-  --color-primary-light: #9F7AEA;
-  --color-secondary: #805AD5;
-  --color-accent: #9F7AEA;
-
-  /* === COLORES DE ESTADO === */
-  --color-error: #EF4444;
-  --color-success: #10B981;
+  --color-primary: var(--color-purple-600);
+  --color-primary-dark: var(--color-purple-700);
+  --color-primary-light: var(--color-purple-400);
+  --color-secondary: var(--color-purple-500);
+  --color-accent: var(--color-purple-400);
 
   /* === COLORES DE TEXTO === */
-  --text-primary: #2d2d2d;
-  --text-secondary: #6e6e6e;
+  --text-primary: var(--color-text-light-primary);
+  --text-secondary: var(--color-text-light-secondary);
   --text-light: var(--color-neutral-100);
-  --text-inverse: white;
+  --text-inverse: var(--color-bg-light-primary);
 
   /* === COLORES DE FONDO === */
-  --background-primary: white;
-  --background-secondary: #F1F5F9;
-  --background-elevated: #ffffff;
+  --background-primary: var(--color-bg-light-primary);
+  --background-secondary: var(--color-bg-light-secondary);
+  --background-elevated: var(--color-bg-light-elevated);
   --background-light: var(--color-neutral-50);
   --background-dark: var(--color-neutral-200);
 }
 
 :root[data-theme="dark"] {
   /* === COLORES PRINCIPALES === */
-  --color-primary: #38bdf8;
-  --color-primary-dark: #0ea5e9;
-  --color-primary-light: #7dd3fc;
-  --color-secondary: #818cf8;
-  --color-accent: #f472b6;
-
-  /* === COLORES DE ESTADO === */
-  --color-error: #EF4444;
-  --color-success: #10B981;
+  --color-primary: var(--color-purple-600);
+  --color-primary-dark: var(--color-purple-700);
+  --color-primary-light: var(--color-purple-400);
+  --color-secondary: var(--color-purple-500);
+  --color-accent: var(--color-purple-400);
 
   /* === COLORES DE TEXTO === */
-  --text-primary: #F8FAFC;
-  --text-secondary: #CBD5E1;
+  --text-primary: var(--color-text-dark-primary);
+  --text-secondary: var(--color-text-dark-secondary);
   --text-light: var(--color-neutral-200);
   --text-inverse: var(--color-neutral-900);
 
   /* === COLORES DE FONDO === */
-  --background-primary: #18181B;
-  --background-secondary: #27272A;
-  --background-elevated: #3F3F46;
+  --background-primary: var(--color-bg-dark-primary);
+  --background-secondary: var(--color-bg-dark-secondary);
+  --background-elevated: var(--color-bg-dark-elevated);
   --background-light: var(--color-neutral-900);
-  --background-dark: #09090B;
+  --background-dark: var(--color-zinc-950);
 }
 
 /* === TRANSICIONES SUAVES PARA CAMBIOS DE TEMA === */

@@ -7,14 +7,38 @@ interface FeaturedProductsProps {
     products: Product[];
     title?: string;
     className?: string;
+    loading?: boolean;
+    error?: string | null;
 }
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({
     products,
     title = 'Productos Destacados',
-    className
+    className,
+    loading = false,
+    error = null
 }) => {
-    if (products.length === 0) {
+    // Si está cargando, mostrar un placeholder
+    if (loading) {
+        return (
+            <section className={`${styles.productsSection} ${className || ''}`}>
+                <div className={styles.productsContainer}>
+                    <h2 className={styles.sectionTitle}>{title}</h2>
+                    <div className={styles.loadingContainer}>
+                        <p>Cargando productos destacados...</p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    // Si hay error, no mostrar nada (comportamiento silencioso)
+    if (error) {
+        return null;
+    }
+
+    // Verificar que products existe y tiene elementos
+    if (!products || products.length === 0) {
         return null;
     }
 

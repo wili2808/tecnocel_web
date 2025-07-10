@@ -16,9 +16,9 @@ export default class ClienteController {
   static async register(req: Request, res: Response) {
     try {
       logger.info('Intentando registrar cliente', req.body);
-      const { nombre_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena } = req.body;
+      const { nombre_cliente, apellido_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena } = req.body;
       // Validaciones básicas
-      if (!nombre_cliente || !email_cliente || !celular_cliente || !nit_ci_cliente || !contrasena) {
+      if (!nombre_cliente || !apellido_cliente || !email_cliente || !celular_cliente || !nit_ci_cliente || !contrasena) {
         logger.warn('Registro fallido: campos obligatorios faltantes');
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
       }
@@ -30,25 +30,44 @@ export default class ClienteController {
       }
       // Hashear contraseña
       const password_hash = await bcrypt.hash(contrasena, 10);
-      // Generar token de verificación
-      const verification_token = uuidv4();
       // Crear cliente
       const cliente = await Cliente.create({
         nombre_cliente,
+        apellido_cliente,
         email_cliente,
         celular_cliente,
         nit_ci_cliente,
         password_hash,
         is_web_enabled: true,
-        email_verified: false,
-        verification_token,
+        email_verified: true, // Marcar como verificado automáticamente para login inmediato
+        verification_token: null, // No necesitamos token de verificación para login automático
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });
       logger.info(`Cliente registrado exitosamente: ${cliente.email_cliente}`);
-      // Enviar email de verificación (implementa sendVerificationEmail en utils)
-      await sendVerificationEmail(cliente.email_cliente, verification_token);
-      return res.status(201).json({ mensaje: 'Registro exitoso. Revisa tu correo para verificar tu cuenta.' });
+      
+      // Generar JWT para login automático
+      const token = jwt.sign({ id_cliente: cliente.id_cliente, email: cliente.email_cliente }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+      
+      // Actualizar último login
+      cliente.last_login = new Date();
+      await cliente.save();
+      
+      // Opcional: Enviar email de bienvenida en lugar de verificación
+      // await sendWelcomeEmail(cliente.email_cliente, cliente.nombre_cliente);
+      
+              return res.status(201).json({ 
+          mensaje: 'Registro exitoso. ¡Bienvenido a TecnoCell!',
+          token, 
+          cliente: { 
+            id_cliente: cliente.id_cliente, 
+            nombre_cliente: cliente.nombre_cliente,
+            apellido_cliente: cliente.apellido_cliente,
+            email_cliente: cliente.email_cliente,
+            celular_cliente: cliente.celular_cliente,
+            nit_ci_cliente: cliente.nit_ci_cliente
+          } 
+        });
     } catch (error) {
       logger.error('Error en el registro de cliente', { error });
       return res.status(500).json({ mensaje: 'Error en el registro', error });
@@ -100,10 +119,6 @@ export default class ClienteController {
         logger.warn(`Login fallido: cliente no encontrado (${email_cliente})`);
         return res.status(404).json({ mensaje: 'Cliente no encontrado o no habilitado para web' });
       }
-      if (!cliente.email_verified) {
-        logger.warn(`Login fallido: email no verificado (${email_cliente})`);
-        return res.status(403).json({ mensaje: 'Debes verificar tu email antes de iniciar sesión' });
-      }
       if (!cliente.password_hash) {
         logger.warn(`Login fallido: contraseña no establecida (${email_cliente})`);
         return res.status(403).json({ mensaje: 'Debes establecer una contraseña para acceder' });
@@ -118,7 +133,7 @@ export default class ClienteController {
       cliente.last_login = new Date();
       await cliente.save();
       logger.info(`Login exitoso para: ${cliente.email_cliente}`);
-      return res.json({ token, cliente: { id_cliente: cliente.id_cliente, nombre_cliente: cliente.nombre_cliente, email_cliente: cliente.email_cliente } });
+      return res.json({ token, cliente: { id_cliente: cliente.id_cliente, nombre_cliente: cliente.nombre_cliente, apellido_cliente: cliente.apellido_cliente, email_cliente: cliente.email_cliente } });
     } catch (error) {
       logger.error('Error en el login de cliente', { error });
       return res.status(500).json({ mensaje: 'Error en el login', error });
@@ -218,7 +233,8 @@ export default class ClienteController {
       return res.json({ 
         cliente: { 
           id_cliente: clienteCompleto.id_cliente, 
-          nombre_cliente: clienteCompleto.nombre_cliente, 
+          nombre_cliente: clienteCompleto.nombre_cliente,
+          apellido_cliente: clienteCompleto.apellido_cliente,
           email_cliente: clienteCompleto.email_cliente,
           celular_cliente: clienteCompleto.celular_cliente,
           nit_ci_cliente: clienteCompleto.nit_ci_cliente

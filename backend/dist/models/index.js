@@ -1,0 +1,16 @@
+import './Carrito.js';
+import './Almacen.js';
+import './Categoria.js';
+import './Cliente.js';
+import './Compra.js';
+import './DetalleCompra.js';
+import './DetalleDevolucion.js';
+import './Devolucion.js';
+import './Presupuesto.js';
+import './PresupuestoDetalle.js';
+import './Proveedor.js';
+import './Rol.js';
+import './Usuario.js';
+import './Venta.js';
+import './relaciones.js';
+//# sourceMappingURL=index.js.map

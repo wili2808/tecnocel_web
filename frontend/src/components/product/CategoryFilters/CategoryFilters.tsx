@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './CategoryFilters.module.css';
 import type { Category } from '../../../types/product';
-import { CUSTOM_CATEGORIES } from '../../../utils/productCategorization';
+import { QUICK_SEARCHES } from '../../../utils/quickSearches';
 
 interface CategoryFiltersProps {
     // Categorías del backend
@@ -9,27 +9,26 @@ interface CategoryFiltersProps {
     selectedBackendCategory: string;
     onBackendCategoryChange: (categoryId: string) => void;
 
-    // Categorías personalizadas
-    selectedCustomCategory: string | null;
-    onCustomCategoryChange: (categoryKey: string | null) => void;
+    // Búsquedas rápidas
+    selectedQuickSearch: string | null;
+    onQuickSearchChange: (searchKey: string | null) => void;
 
-    // Contadores de productos por categoría (opcional)
-    categoryCounts?: Record<string, number>;
+    // Contadores de productos por búsqueda rápida (opcional)
+    quickSearchCounts?: Record<string, number>;
 }
 
 const CategoryFilters: React.FC<CategoryFiltersProps> = ({
     backendCategories,
     selectedBackendCategory,
     onBackendCategoryChange,
-    selectedCustomCategory,
-    onCustomCategoryChange,
-    categoryCounts = {}
+    selectedQuickSearch,
+    onQuickSearchChange,
+    quickSearchCounts = {}
 }) => {
     return (
         <div className={styles.categoryFilters}>
             {/* Dropdown de categorías del backend */}
             <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Categorías del Sistema</label>
                 <select
                     className={styles.filterSelect}
                     value={selectedBackendCategory}
@@ -45,32 +44,32 @@ const CategoryFilters: React.FC<CategoryFiltersProps> = ({
                 </select>
             </div>
 
-            {/* Filtros de categorías personalizadas */}
+            {/* Búsquedas rápidas */}
             <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Categorías Rápidas</label>
-                <div className={styles.customCategoryButtons}>
+                <label className={styles.filterLabel}>Búsquedas Rápidas</label>
+                <div className={styles.quickSearchButtons}>
                     <button
                         type="button"
-                        className={`${styles.categoryButton} ${selectedCustomCategory === null ? styles.categoryButtonActive : ''}`}
-                        onClick={() => onCustomCategoryChange(null)}
+                        className={`${styles.searchButton} ${selectedQuickSearch === null ? styles.searchButtonActive : ''}`}
+                        onClick={() => onQuickSearchChange(null)}
                     >
-                        <span className={styles.categoryButtonText}>Todas</span>
+                        <span className={styles.searchButtonText}>Todas</span>
                     </button>
-                    {CUSTOM_CATEGORIES.map(category => {
-                        const count = categoryCounts[category.key] || 0;
-                        const isActive = selectedCustomCategory === category.key;
+                    {QUICK_SEARCHES.map(quickSearch => {
+                        const count = quickSearchCounts[quickSearch.key] || 0;
+                        const isActive = selectedQuickSearch === quickSearch.key;
 
                         return (
                             <button
-                                key={category.key}
+                                key={quickSearch.key}
                                 type="button"
-                                className={`${styles.categoryButton} ${isActive ? styles.categoryButtonActive : ''} ${count === 0 ? styles.categoryButtonDisabled : ''}`}
-                                onClick={() => onCustomCategoryChange(category.key)}
+                                className={`${styles.searchButton} ${isActive ? styles.searchButtonActive : ''} ${count === 0 ? styles.searchButtonDisabled : ''}`}
+                                onClick={() => onQuickSearchChange(quickSearch.key)}
                                 disabled={count === 0}
-                                title={`${category.label} (${count} productos)`}
+                                title={`Buscar: ${quickSearch.label} (${count} productos)`}
                             >
-                                <span className={styles.categoryButtonText}>{category.label}</span>
-                                {count > 0 && <span className={styles.categoryCount}>({count})</span>}
+                                <span className={styles.searchButtonText}>{quickSearch.label}</span>
+                                {count > 0 && <span className={styles.searchCount}>({count})</span>}
                             </button>
                         );
                     })}

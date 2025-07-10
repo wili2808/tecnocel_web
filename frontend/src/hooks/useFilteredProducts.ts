@@ -1,8 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useProducts } from './useProducts';
 import { useCategories } from './useCategories';
 import { useProductFilters } from './useProductFilters';
-import { filterProducts, getProductCountByCustomCategory } from '../utils/productFiltering';
+import { 
+  filterProducts, 
+  getProductCountByQuickSearch,
+  debugQuickSearches 
+} from '../utils/productFiltering';
 
 interface UseFilteredProductsReturn {
   // Datos de productos
@@ -23,7 +27,7 @@ interface UseFilteredProductsReturn {
   
   // Estadísticas
   totalProducts: number;
-  categoryCounts: Record<string, number>;
+  quickSearchCounts: Record<string, number>;
 }
 
 export const useFilteredProducts = (): UseFilteredProductsReturn => {
@@ -32,14 +36,21 @@ export const useFilteredProducts = (): UseFilteredProductsReturn => {
   const { categories, loading: categoriesLoading } = useCategories();
   const { filters, updateFilters, resetFilters } = useProductFilters();
 
+  // Debug de búsquedas rápidas cuando cambian los productos (solo en desarrollo)
+  useEffect(() => {
+    if (products.length > 0 && import.meta.env.DEV) {
+      debugQuickSearches(products);
+    }
+  }, [products.length]); // Solo cuando cambia la cantidad de productos
+
   // Productos filtrados (memoizados)
   const filteredProducts = useMemo(() => {
     return filterProducts(products, filters);
   }, [products, filters]);
 
-  // Contadores de categorías personalizadas
-  const categoryCounts = useMemo(() => {
-    return getProductCountByCustomCategory(products);
+  // Contadores de búsquedas rápidas
+  const quickSearchCounts = useMemo(() => {
+    return getProductCountByQuickSearch(products);
   }, [products]);
 
   return {
@@ -61,6 +72,6 @@ export const useFilteredProducts = (): UseFilteredProductsReturn => {
     
     // Estadísticas
     totalProducts: products.length,
-    categoryCounts,
+    quickSearchCounts,
   };
 }; 
