@@ -1,39 +1,271 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/logo2.svg';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useSearch } from '../../../contexts/SearchContext';
+import ProductSearch from '../../product/ProductSearch';
 import navbarStyle from './Navbar.module.css';
 
-// Rutas de navegación principales (para la barra secundaria)
+// Rutas de navegación principales
 const SECONDARY_NAV_ROUTES = [
     { path: '/productos', label: 'Categorías' },
     { path: '/ofertas', label: 'Ofertas' },
     { path: '/marcas', label: 'Marcas' },
 ];
 
+// Componente base para botones con iconos - NUEVO
+const IconButton = ({
+    icon,
+    onClick,
+    ariaLabel,
+    className = '',
+    disabled = false,
+    children
+}: {
+    icon: string;
+    onClick?: () => void;
+    ariaLabel: string;
+    className?: string;
+    disabled?: boolean;
+    children?: React.ReactNode;
+}) => (
+    <button
+        className={`${navbarStyle.iconButton} ${className}`}
+        onClick={onClick}
+        aria-label={ariaLabel}
+        disabled={disabled}
+    >
+        <span className="material-icons">{icon}</span>
+        {children}
+    </button>
+);
+
+// Componente de navegación secundaria (optimizado)
+const SecondaryNavLinks = ({ location, handleLinkClick, isMobile = false }: {
+    location: any;
+    handleLinkClick: () => void;
+    isMobile?: boolean;
+}) => (
+    <div className={isMobile ? navbarStyle.mobileNavLinks : navbarStyle.secondaryNavLinks}>
+        {SECONDARY_NAV_ROUTES.map(({ path, label }) => (
+            <Link
+                key={path}
+                to={path}
+                className={`${isMobile ? navbarStyle.mobileDropdownLink : navbarStyle.secondaryNavLink} ${location.pathname === path ? navbarStyle.active : ''
+                    }`}
+                onClick={handleLinkClick}
+            >
+                {label}
+            </Link>
+        ))}
+    </div>
+);
+
+// Componente de controles consolidado (optimizado)
+const ControlButtons = ({
+    theme,
+    toggleTheme,
+    isAuthenticated,
+    isMobile = false
+}: {
+    theme: string;
+    toggleTheme: () => void;
+    isAuthenticated: boolean;
+    isMobile?: boolean;
+}) => (
+    <div className={isMobile ? navbarStyle.mobileControlsGroup : navbarStyle.controlsGroup}>
+        <IconButton
+            icon={theme === 'light' ? 'dark_mode' : 'light_mode'}
+            onClick={toggleTheme}
+            ariaLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+            className={navbarStyle.themeToggle}
+        />
+        <IconButton
+            icon="shopping_cart"
+            ariaLabel="Carrito de compras"
+            disabled={!isAuthenticated}
+            className={`${navbarStyle.cartButton} ${!isAuthenticated ? navbarStyle.cartButtonDisabled : ''}`}
+        >
+            <span className={navbarStyle.cartBadge}>0</span>
+        </IconButton>
+    </div>
+);
+
+// Componente de autenticación consolidado (optimizado)
+const AuthSection = ({
+    isAuthenticated,
+    user,
+    handleAuthClick,
+    handleLinkClick,
+    isMobile = false
+}: {
+    isAuthenticated: boolean;
+    user: any;
+    handleAuthClick: () => void;
+    handleLinkClick: () => void;
+    isMobile?: boolean;
+}) => {
+    const baseClass = isMobile ? navbarStyle.mobileAuthSection : navbarStyle.authButtonsGroup;
+
+    if (isAuthenticated && user) {
+        return (
+            <div className={baseClass}>
+                {isMobile ? (
+                    <div className={navbarStyle.mobileUserProfile}>
+                        <div className={navbarStyle.mobileUserInfo}>
+                            <span className="material-icons">account_circle</span>
+                            <span className={navbarStyle.mobileUserText}>
+                                {user.nombre_cliente} {user.apellido_cliente}
+                            </span>
+                        </div>
+                    </div>
+                ) : (
+                    <button
+                        className={navbarStyle.authButton}
+                        onClick={handleAuthClick}
+                        aria-label="Perfil de usuario"
+                    >
+                        <span className="material-icons">account_circle</span>
+                        <span className={navbarStyle.authButtonText}>
+                            {user.nombre_cliente} {user.apellido_cliente}
+                        </span>
+                    </button>
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <div className={baseClass}>
+            {isMobile ? (
+                <div className={navbarStyle.mobileAuthButtons}>
+                    <Link
+                        to="/login"
+                        className={navbarStyle.mobileAuthButton}
+                        onClick={handleLinkClick}
+                        aria-label="Iniciar sesión"
+                    >
+                        <span className="material-icons">login</span>
+                        <span className={navbarStyle.mobileAuthText}>Ingresar</span>
+                    </Link>
+                    <Link
+                        to="/register"
+                        className={`${navbarStyle.mobileAuthButton} ${navbarStyle.mobileRegisterButton}`}
+                        onClick={handleLinkClick}
+                        aria-label="Crear cuenta"
+                    >
+                        <span className="material-icons">person_add</span>
+                        <span className={navbarStyle.mobileAuthText}>Registro</span>
+                    </Link>
+                </div>
+            ) : (
+                <>
+                    <Link
+                        to="/login"
+                        className={navbarStyle.authButton}
+                        aria-label="Iniciar sesión"
+                    >
+                        <span className="material-icons">login</span>
+                        <span className={navbarStyle.authButtonText}>Ingresar</span>
+                    </Link>
+                    <Link
+                        to="/register"
+                        className={`${navbarStyle.authButton} ${navbarStyle.registerButton}`}
+                        aria-label="Crear cuenta"
+                    >
+                        <span className="material-icons">person_add</span>
+                        <span className={navbarStyle.authButtonText}>Registro</span>
+                    </Link>
+                </>
+            )}
+        </div>
+    );
+};
+
+// Componente de menú móvil simplificado
+const MobileMenu = ({
+    isMenuOpen,
+    location,
+    handleLinkClick,
+    isAuthenticated,
+    user,
+    handleAuthClick,
+    theme,
+    toggleTheme
+}: {
+    isMenuOpen: boolean;
+    location: any;
+    handleLinkClick: () => void;
+    isAuthenticated: boolean;
+    user: any;
+    handleAuthClick: () => void;
+    theme: string;
+    toggleTheme: () => void;
+}) => (
+    <div className={`${navbarStyle.mobileDropdown} ${isMenuOpen ? navbarStyle.active : ''}`}>
+        <div className={navbarStyle.mobileDropdownContent}>
+            <AuthSection
+                isAuthenticated={isAuthenticated}
+                user={user}
+                handleAuthClick={handleAuthClick}
+                handleLinkClick={handleLinkClick}
+                isMobile={true}
+            />
+
+            <div className={navbarStyle.mobileSeparator}></div>
+
+            <SecondaryNavLinks
+                location={location}
+                handleLinkClick={handleLinkClick}
+                isMobile={true}
+            />
+
+            <div className={navbarStyle.mobileSeparator}></div>
+
+            <ControlButtons
+                theme={theme}
+                toggleTheme={toggleTheme}
+                isAuthenticated={isAuthenticated}
+                isMobile={true}
+            />
+
+            {isAuthenticated && user && (
+                <>
+                    <div className={navbarStyle.mobileSeparator}></div>
+                    <div className={navbarStyle.mobileLogoutSection}>
+                        <IconButton
+                            icon="logout"
+                            onClick={() => {
+                                handleAuthClick();
+                                handleLinkClick();
+                            }}
+                            ariaLabel="Cerrar sesión"
+                            className={navbarStyle.mobileLogoutButton}
+                        >
+                            <span className={navbarStyle.mobileLogoutText}>Cerrar Sesión</span>
+                        </IconButton>
+                    </div>
+                </>
+            )}
+        </div>
+    </div>
+);
+
 /**
- * Componente principal de navegación
- * Renderiza la barra de navegación con búsqueda global y navegación secundaria
+ * Componente principal de navegación optimizado
  */
 const Navbar = () => {
-    // Hooks
     const location = useLocation();
     const navigate = useNavigate();
     const { user, isAuthenticated, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
-    const { searchQuery, setSearchQuery, navigateToProducts, isSearching } = useSearch();
+    const { navigateToProducts } = useSearch();
 
-    // Estados locales
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    // Manejadores de eventos optimizados
-
-    const handleLinkClick = useCallback(() => {
-        setIsMenuOpen(false);
-    }, []);
-
+    // Manejadores de eventos consolidados
+    const handleLinkClick = useCallback(() => setIsMenuOpen(false), []);
     const handleAuthClick = useCallback(() => {
         if (isAuthenticated) {
             logout();
@@ -41,187 +273,31 @@ const Navbar = () => {
             navigate('/login');
         }
     }, [isAuthenticated, logout, navigate]);
-
-    const toggleMobileMenu = useCallback(() => {
-        setIsMenuOpen(prev => !prev);
-    }, []);
-
-    /**
-     * Maneja la búsqueda global (envío del formulario)
-     */
+    const toggleMobileMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
     const handleSearch = useCallback((e: React.FormEvent) => {
         e.preventDefault();
         navigateToProducts();
         setIsMenuOpen(false);
     }, [navigateToProducts]);
 
-    /**
-     * Maneja el cambio en el input de búsqueda
-     */
-    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    }, [setSearchQuery]);
-
-    /**
-     * Renderiza los controles de autenticación según el estado del usuario
-     */
-    const renderAuthControls = useCallback(() => {
-        if (isAuthenticated && user) {
-            return (
-                <div className={navbarStyle.authButtonsGroup}>
-                    <button
-                        className={navbarStyle.authButton}
-                        onClick={handleAuthClick}
-                        aria-label="Cerrar sesión"
-                    >
-                        <span className="material-icons">account_circle</span>
-                        <span className={navbarStyle.authButtonText}>
-                            {user.nombre_cliente} {user.apellido_cliente}
-                        </span>
-                    </button>
-                </div>
-            );
-        }
-
-        return (
-            <div className={navbarStyle.authButtonsGroup}>
-                <Link
-                    to="/login"
-                    className={navbarStyle.authButton}
-                    aria-label="Iniciar sesión"
-                >
-                    <span className="material-icons">login</span>
-                    <span className={navbarStyle.authButtonText}>Ingresar</span>
-                </Link>
-                <Link
-                    to="/register"
-                    className={`${navbarStyle.authButton} ${navbarStyle.registerButton}`}
-                    aria-label="Crear cuenta"
-                >
-                    <span className="material-icons">person_add</span>
-                    <span className={navbarStyle.authButtonText}>Registro</span>
-                </Link>
-            </div>
-        );
-    }, [isAuthenticated, user, handleAuthClick]);
-
-    /**
-     * Renderiza la barra de búsqueda global
-     */
-    const renderGlobalSearch = useCallback(() => (
+    // Componente de búsqueda global memoizado
+    const globalSearch = useMemo(() => (
         <div className={navbarStyle.searchContainer}>
             <form onSubmit={handleSearch} className={navbarStyle.searchForm}>
-                <div className={navbarStyle.searchInputGroup}>
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder="Buscar productos..."
-                        className={`${navbarStyle.searchInput} ${isSearching ? navbarStyle.searching : ''}`}
-                        aria-label="Búsqueda global"
-                    />
-                    <button
-                        type="submit"
-                        className={navbarStyle.searchButton}
-                        aria-label="Buscar"
-                        disabled={isSearching}
-                    >
-                        <span className="material-icons">
-                            {isSearching ? 'hourglass_empty' : 'search'}
-                        </span>
-                    </button>
-                </div>
+                <ProductSearch
+                    placeholder="Buscar productos..."
+                    showClearButton={true}
+                    className={navbarStyle.productSearchWrapper}
+                />
             </form>
         </div>
-    ), [searchQuery, handleSearch, handleSearchChange, isSearching]);
-
-    /**
-     * Renderiza los enlaces de la navegación secundaria
-     */
-    const renderSecondaryNavLinks = useCallback(() => (
-        <div className={navbarStyle.secondaryNavLinks}>
-            {SECONDARY_NAV_ROUTES.map(({ path, label }) => (
-                <Link
-                    key={path}
-                    to={path}
-                    className={`${navbarStyle.secondaryNavLink} ${location.pathname === path ? navbarStyle.active : ''}`}
-                    onClick={handleLinkClick}
-                >
-                    {label}
-                </Link>
-            ))}
-        </div>
-    ), [location.pathname, handleLinkClick]);
-
-    /**
-     * Renderiza el menú móvil simplificado
-     */
-    const renderMobileMenu = useCallback(() => (
-        <div className={`${navbarStyle.mobileDropdown} ${isMenuOpen ? navbarStyle.active : ''}`}>
-            <div className={navbarStyle.mobileDropdownContent}>
-                {SECONDARY_NAV_ROUTES.map(({ path, label }) => (
-                    <Link
-                        key={path}
-                        to={path}
-                        className={`${navbarStyle.mobileDropdownLink} ${location.pathname === path ? navbarStyle.active : ''}`}
-                        onClick={handleLinkClick}
-                    >
-                        {label}
-                    </Link>
-                ))}
-            </div>
-        </div>
-    ), [isMenuOpen, location.pathname, handleLinkClick]);
-
-    /**
-     * Renderiza el botón de cambio de tema
-     */
-    const renderThemeToggle = useCallback(() => (
-        <button
-            className={navbarStyle.themeToggle}
-            onClick={toggleTheme}
-            aria-label={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
-        >
-            <span className="material-icons">
-                {theme === 'light' ? 'dark_mode' : 'light_mode'}
-            </span>
-        </button>
-    ), [theme, toggleTheme]);
-
-    /**
-     * Renderiza el botón de menú móvil
-     */
-    const renderMenuToggle = useCallback(() => (
-        <button
-            className={navbarStyle.menuToggle}
-            onClick={toggleMobileMenu}
-            aria-expanded={isMenuOpen}
-            aria-label="Toggle navigation menu"
-        >
-            <span className="material-icons">{isMenuOpen ? 'close' : 'menu'}</span>
-        </button>
-    ), [isMenuOpen, toggleMobileMenu]);
-
-    /**
-     * Renderiza el botón de carrito (placeholder)
-     */
-    const renderCartButton = useCallback(() => (
-        <button
-            className={navbarStyle.cartButton}
-            aria-label="Carrito de compras"
-        >
-            <span className="material-icons">shopping_cart</span>
-            <span className={navbarStyle.cartBadge}>0</span>
-        </button>
-    ), []);
+    ), [handleSearch]);
 
     return (
         <header className={`${navbarStyle.navbar} theme-transition`}>
-            {/* Barra principal */}
             <nav className={navbarStyle.mainNavbar}>
                 {/* Contenedor Desktop */}
                 <div className={navbarStyle.desktopContainer}>
-                    {/* Sección izquierda: Logo + Categorías (Desktop) */}
                     <div className={navbarStyle.leftSection}>
                         <div className={navbarStyle.brandSection}>
                             <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
@@ -229,65 +305,81 @@ const Navbar = () => {
                                 <span className={navbarStyle.logoText}>TECNOCEL</span>
                             </Link>
                         </div>
-
-                        {/* Navegación secundaria al lado del logo (Solo Desktop) */}
                         <div className={navbarStyle.leftNavigation}>
-                            {renderSecondaryNavLinks()}
+                            <SecondaryNavLinks location={location} handleLinkClick={handleLinkClick} />
                         </div>
                     </div>
 
-                    {/* Búsqueda Global (Centro en Desktop) */}
                     <div className={navbarStyle.searchSection}>
-                        {renderGlobalSearch()}
+                        {globalSearch}
                     </div>
 
-                    {/* Controles de Usuario (Derecha) */}
                     <div className={navbarStyle.controlsSection}>
                         <div className={navbarStyle.allControls}>
-                            {renderThemeToggle()}
-                            {renderAuthControls()}
-                            {renderCartButton()}
-                            {renderMenuToggle()}
+                            <ControlButtons
+                                theme={theme}
+                                toggleTheme={toggleTheme}
+                                isAuthenticated={isAuthenticated}
+                            />
+                            <AuthSection
+                                isAuthenticated={isAuthenticated}
+                                user={user}
+                                handleAuthClick={handleAuthClick}
+                                handleLinkClick={handleLinkClick}
+                            />
+                            <IconButton
+                                icon={isMenuOpen ? 'close' : 'menu'}
+                                onClick={toggleMobileMenu}
+                                ariaLabel="Abrir menú"
+                                className={navbarStyle.menuToggle}
+                            />
                         </div>
                     </div>
                 </div>
 
-                {/* Contenedor Mobile - Dos filas */}
+                {/* Contenedor Mobile */}
                 <div className={navbarStyle.mobileContainer}>
-                    {/* Primera fila: Logo centrado + Menú en esquina */}
-                    <div className={navbarStyle.mobileTopRow}>
+                    <div className={navbarStyle.mobileRow}>
                         <div className={navbarStyle.mobileBrandSection}>
                             <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
                                 <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
-                                <span className={navbarStyle.logoText}>TECNOCEL</span>
                             </Link>
                         </div>
 
-                        {/* Botón de menú en la esquina superior derecha */}
-                        <div className={navbarStyle.mobileTopControls}>
-                            {renderMenuToggle()}
-                        </div>
-                    </div>
-
-                    {/* Segunda fila: Búsqueda y controles */}
-                    <div className={navbarStyle.mobileBottomRow}>
-                        {/* Búsqueda */}
                         <div className={navbarStyle.mobileSearchSection}>
-                            {renderGlobalSearch()}
+                            {globalSearch}
                         </div>
 
-                        {/* Controles */}
                         <div className={navbarStyle.mobileControlsSection}>
-                            {renderThemeToggle()}
-                            {renderAuthControls()}
-                            {renderCartButton()}
+                            <IconButton
+                                icon="shopping_cart"
+                                ariaLabel="Carrito de compras"
+                                disabled={!isAuthenticated}
+                                className={`${navbarStyle.cartButton} ${!isAuthenticated ? navbarStyle.cartButtonDisabled : ''}`}
+                            >
+                                <span className={navbarStyle.cartBadge}>0</span>
+                            </IconButton>
+                            <IconButton
+                                icon={isMenuOpen ? 'close' : 'menu'}
+                                onClick={toggleMobileMenu}
+                                ariaLabel="Abrir menú"
+                                className={navbarStyle.menuToggle}
+                            />
                         </div>
                     </div>
                 </div>
             </nav>
 
-            {/* Menú móvil desplegable */}
-            {renderMobileMenu()}
+            <MobileMenu
+                isMenuOpen={isMenuOpen}
+                location={location}
+                handleLinkClick={handleLinkClick}
+                isAuthenticated={isAuthenticated}
+                user={user}
+                handleAuthClick={handleAuthClick}
+                theme={theme}
+                toggleTheme={toggleTheme}
+            />
         </header>
     );
 };

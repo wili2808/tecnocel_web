@@ -1,5 +1,3 @@
-/* Variables específicas del navbar que no están en el sistema global */
-
 /* === ESTRUCTURA PRINCIPAL === */
 .navbar {
   position: fixed;
@@ -7,16 +5,13 @@
   left: 0;
   right: 0;
   z-index: var(--z-navbar);
-  background: var(--background-dark);
+  background: var(--background-light);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   width: 100%;
-  /* Variable dinámica para la altura del navbar */
-  --navbar-actual-height: auto;
 }
 
-/* === BARRA PRINCIPAL === */
 .mainNavbar {
   border-bottom: 1px solid var(--color-neutral-200);
   width: 100%;
@@ -36,49 +31,42 @@
 /* === CONTENEDOR MOBILE === */
 .mobileContainer {
   display: none;
-  flex-direction: column;
   width: 100%;
 }
 
-.mobileTopRow {
+.mobileRow {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-md) var(--spacing-md);
-  border-bottom: 1px solid var(--color-neutral-200);
-}
-
-.mobileBottomRow {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: var(--spacing-xs) var(--spacing-md);
   gap: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-neutral-200);
+  width: 100%;
+  min-height: var(--navbar-height-mobile);
+  box-sizing: border-box;
 }
 
 .mobileBrandSection {
   display: flex;
   align-items: center;
-}
-
-.mobileTopControls {
-  display: flex;
-  align-items: center;
+  flex-shrink: 0;
 }
 
 .mobileSearchSection {
   flex: 1;
-  max-width: 200px;
+  display: flex;
+  justify-content: center;
+  margin: 0 var(--spacing-sm);
 }
 
 .mobileControlsSection {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  position: relative;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
-/* === SECCIÓN IZQUIERDA (Logo + Navegación) === */
+/* === SECCIÓN IZQUIERDA === */
 .leftSection {
   display: flex;
   align-items: center;
@@ -96,12 +84,15 @@
   gap: var(--spacing-sm);
   text-decoration: none;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   transition: opacity var(--transition-normal) ease;
 }
 
 .logoLink:hover {
   opacity: 0.9;
+  color: var(--color-primary);
+  transform: translateY(-1px);
+  transition: all var(--transition-normal) ease;
 }
 
 .logoImage {
@@ -118,14 +109,14 @@
 .logoText {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-lg);
-  font-weight: 400;
+  font-weight: var(--font-weight-normal);
   color: var(--text-primary);
   letter-spacing: 0.5px;
   white-space: nowrap;
   line-height: 1;
 }
 
-/* === NAVEGACIÓN IZQUIERDA === */
+/* === NAVEGACIÓN SECUNDARIA === */
 .leftNavigation {
   display: flex;
 }
@@ -136,22 +127,25 @@
 }
 
 .secondaryNavLink {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--border-radius-md);
   transition: all var(--transition-normal) ease;
-  position: relative;
 }
 
-.secondaryNavLink:hover,
+.secondaryNavLink:hover{
+  color: var(--text-secondary);
+  transform: translateY(-1px);
+};
+
 .secondaryNavLink.active {
   color: var(--color-primary);
 }
 
-/* === SECCIÓN DE BÚSQUEDA === */
+/* === BÚSQUEDA === */
 .searchSection {
   display: flex;
   justify-content: center;
@@ -165,14 +159,23 @@
   width: 100%;
 }
 
+.searchSection:hover {
+  color: var(--text-secondary);
+  transform: translateY(-1px);
+  transition: all var(--transition-normal) ease;
+}
+
 .searchForm {
+  width: 100%;
+}
+
+.productSearchWrapper {
   width: 100%;
 }
 
 .searchInputGroup {
   display: flex;
   align-items: center;
-  background: var(--background-secondary);
   border: 1px solid var(--color-neutral-300);
   border-radius: var(--border-radius-sm);
   transition: all var(--transition-normal) ease;
@@ -181,14 +184,13 @@
 
 .searchInputGroup:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
+  box-shadow: var(--shadow-focus);
 }
 
 .searchInput {
   flex: 1;
   padding: var(--spacing-xs) var(--spacing-sm);
   border: none;
-  background: transparent;
   color: var(--text-primary);
   font-size: var(--font-size-sm);
   outline: none;
@@ -224,8 +226,8 @@
   font-size: var(--icon-size-md);
 }
 
-/* === CLASES BASE PARA BOTONES === */
-.baseButton {
+/* === COMPONENTE BASE ICONBUTTON === */
+.iconButton {
   background: none;
   border: none;
   cursor: pointer;
@@ -239,22 +241,44 @@
   position: relative;
 }
 
-.baseButton:hover {
-  background-color: var(--background-secondary);
-  color: var(--color-primary);
+.iconButton:hover {
+  color: var(--text-secondary);
+  transform: translateY(-1px);
 }
 
-.baseButton .material-icons {
+.iconButton .material-icons {
   font-size: var(--icon-size-lg);
 }
 
-/* === SECCIÓN DE CONTROLES === */
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.iconButton:disabled:hover {
+  background-color: transparent;
+  color: var(--text-secondary);
+  transform: none;
+}
+
+/* === BOTONES ESPECIALIZADOS === */
+.themeToggle,
+.cartButton,
+.menuToggle {
+  /* Heredan estilos de .iconButton */
+}
+
+.menuToggle {
+  display: none;
+}
+
+/* === CONTROLES === */
 .controlsSection {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   justify-content: flex-end;
-  position: relative;
 }
 
 .allControls {
@@ -263,50 +287,46 @@
   gap: var(--spacing-sm);
 }
 
-/* Aplicar clase base a todos los botones */
-.authButton,
-.themeToggle,
-.cartButton,
-.menuToggle {
-  composes: baseButton;
+.controlsGroup,
+.mobileControlsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
-.menuToggle {
-  display: none; /* Oculto por defecto en desktop */
-}
-
-/* === GRUPO DE BOTONES DE AUTENTICACIÓN === */
 .authButtonsGroup {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
 
-/* Botón de autenticación cuando es link */
 .authButton {
-  composes: baseButton;
-  text-decoration: none;
-  gap: var(--spacing-xs);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
   padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  border: 1px solid transparent;
-  min-width: auto;
+  transition: all var(--transition-normal) ease;
 }
 
 .authButton:hover {
+  color: var(--color-primary);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
 }
 
-/* Texto dentro de los botones de auth */
 .authButtonText {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
 
-/* Variante para el botón de registro */
 .registerButton {
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: white;
@@ -319,33 +339,24 @@
   border-color: var(--color-secondary);
 }
 
-.avatar {
-  width: var(--avatar-size-md);
-  height: var(--avatar-size-md);
-  border-radius: var(--border-radius-full);
-  object-fit: cover;
-  border: 2px solid var(--color-primary);
-  transition: border-color var(--transition-normal) ease;
-}
-
 .cartBadge {
   position: absolute;
   top: -2px;
   right: -2px;
   background: var(--color-error);
   color: white;
-  font-size: 10px;
-  font-weight: bold;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   padding: 2px 5px;
   border-radius: var(--border-radius-full);
-  min-width: 16px;
-  height: 16px;
+  min-width: var(--spacing-md);
+  height: var(--spacing-md);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* === MENÚ MÓVIL DESPLEGABLE === */
+/* === MENÚ MÓVIL === */
 .mobileDropdown {
   position: absolute;
   top: 100%;
@@ -354,7 +365,8 @@
   border: 1px solid var(--color-neutral-200);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-lg);
-  min-width: 200px;
+  min-width: 280px;
+  max-width: 320px;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -369,24 +381,151 @@
 }
 
 .mobileDropdownContent {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+/* === SECCIÓN DE AUTENTICACIÓN MÓVIL === */
+.mobileAuthSection {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mobileUserProfile {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mobileUserInfo {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--background-secondary);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+}
+
+.mobileUserText {
+  flex: 1;
+  text-align: left;
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.mobileAuthButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* === BOTONES MÓVILES BASE === */
+.mobileAuthButton,
+.mobileThemeToggle,
+.mobileLogoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-normal) ease;
+  cursor: pointer;
+  width: 100%;
+  text-decoration: none;
+  color: var(--text-primary);
+  background: var(--background-secondary);
+}
+
+.mobileAuthButton:hover,
+.mobileThemeToggle:hover {
+  background: var(--background-elevated);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.mobileAuthText,
+.mobileThemeText,
+.mobileLogoutText {
+  flex: 1;
+  text-align: left;
+  margin-left: var(--spacing-sm);
+}
+
+.mobileRegisterButton {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.mobileRegisterButton:hover {
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+  border-color: var(--color-secondary);
+}
+
+.mobileLogoutButton {
+  background: var(--color-error);
+  border-color: var(--color-error);
+  color: white;
+}
+
+.mobileLogoutButton:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* === SEPARADORES MÓVILES === */
+.mobileSeparator {
+  height: 1px;
+  background: var(--color-neutral-200);
+  margin: var(--spacing-md) 0;
+}
+
+/* === ENLACES DE NAVEGACIÓN MÓVIL === */
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .mobileDropdownLink {
-  display: block;
+  display: flex;
+  align-items: center;
   color: var(--text-primary);
   text-decoration: none;
   font-size: var(--font-size-sm);
-  font-weight: 500;
-  padding: var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
   transition: all var(--transition-normal) ease;
+  background: transparent;
+  border: 1px solid transparent;
 }
 
 .mobileDropdownLink:hover,
 .mobileDropdownLink.active {
   background: var(--background-secondary);
   color: var(--color-primary);
+  border-color: var(--color-primary-200);
+}
+
+/* === SECCIÓN DE CERRAR SESIÓN === */
+.mobileLogoutSection {
+  margin-top: var(--spacing-sm);
+}
+
+/* === ESTADO BLOQUEADO DEL CARRITO === */
+.cartButtonDisabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.cartButtonDisabled:hover {
+  background-color: transparent !important;
+  color: var(--text-secondary) !important;
+  transform: none !important;
 }
 
 /* === RESPONSIVE === */
@@ -419,33 +558,33 @@
 }
 
 @media (max-width: 768px) {
-  .mainNavbar {
-    height: auto;
-  }
-
-  /* Ocultar contenedor desktop */
   .desktopContainer {
     display: none;
   }
 
-  /* Mostrar contenedor mobile */
   .mobileContainer {
     display: flex;
   }
 
-  /* Ajustes para logo en móvil */
+  .mainNavbar {
+    border-bottom: none;
+  }
+
+  .menuToggle {
+    display: flex;
+  }
+
   .mobileContainer .logoImage {
-    width: var(--avatar-size-lg);
-    height: var(--avatar-size-lg);
+    width: var(--avatar-size-md);
+    height: var(--avatar-size-md);
   }
-
+  
   .mobileContainer .logoText {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
+    display: none;
   }
 
-  /* Ajustes para búsqueda en móvil */
   .mobileSearchSection .searchInput {
+    width: 100%;
     font-size: var(--font-size-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
   }
@@ -458,53 +597,26 @@
     font-size: var(--icon-size-sm);
   }
 
-  /* Mostrar botón de menú solo en móvil */
-  .menuToggle {
-    display: flex;
-  }
-
-  /* Ajustes generales para controles en móvil */
-  .mobileControlsSection .baseButton .material-icons {
+  .mobileControlsSection .cartButton .material-icons,
+  .mobileControlsSection .menuToggle .material-icons {
     font-size: var(--icon-size-md);
   }
 
-  .mobileControlsSection .avatar {
-    width: var(--avatar-size-md);
-    height: var(--avatar-size-md);
-  }
-
-  /* Ajustes para botones de auth en móvil */
-  .authButtonsGroup {
-    gap: var(--spacing-xs);
-  }
-
-  .authButton {
+  .mobileControlsSection .cartButton,
+  .mobileControlsSection .menuToggle {
     padding: var(--spacing-xs);
-    font-size: var(--font-size-xs);
   }
 
-  .authButtonText {
-    display: none; /* Ocultar texto en móvil, solo iconos */
-  }
-
-  /* Botón de menú en la primera fila más prominente */
-  .mobileTopControls .menuToggle .material-icons {
-    font-size: var(--icon-size-xl);
-  }
-
-  /* Posicionar el dropdown correctamente */
   .mobileDropdown {
     right: var(--spacing-md);
-    min-width: 180px;
+    min-width: 280px;
+    max-width: 320px;
   }
 }
 
 @media (max-width: 480px) {
-  .mobileTopRow {
-    padding: var(--spacing-sm);
-  }
-
-  .mobileBottomRow {
+  .mobileRow {
+    width: 100%;
     padding: var(--spacing-xs) var(--spacing-sm);
     gap: var(--spacing-xs);
   }
@@ -514,93 +626,45 @@
     height: var(--avatar-size-sm);
   }
 
-  .mobileContainer .logoText {
-    font-size: var(--font-size-sm);
-  }
-
   .mobileSearchSection {
-    max-width: 140px;
+    margin: 0 var(--spacing-xs);
   }
 
   .mobileControlsSection {
     gap: var(--spacing-xs);
   }
 
-  .mobileControlsSection .baseButton {
-    padding: 6px; /* Padding más compacto */
+  .mobileControlsSection .cartButton,
+  .mobileControlsSection .menuToggle {
+    padding: var(--spacing-xs);
   }
 
-  .mobileControlsSection .baseButton .material-icons {
-    font-size: var(--icon-size-md);
-  }
-
-  .mobileControlsSection .avatar {
-    width: var(--avatar-size-sm);
-    height: var(--avatar-size-sm);
+  .mobileControlsSection .cartButton .material-icons,
+  .mobileControlsSection .menuToggle .material-icons {
+    font-size: var(--icon-size-sm);
   }
 
   .mobileControlsSection .cartBadge {
-    font-size: 9px;
-    min-width: 14px;
-    height: 14px;
+    font-size: var(--font-size-xs);
+    min-width: var(--spacing-sm);
+    height: var(--spacing-sm);
   }
 
-  /* Ajustar botón de menú en pantallas pequeñas */
-  .mobileTopControls .menuToggle .material-icons {
-    font-size: var(--icon-size-lg);
-  }
-
-  /* Reducir padding en búsqueda para pantallas muy pequeñas */
   .mobileSearchSection .searchInput {
-    padding: 6px var(--spacing-xs);
-    font-size: 12px;
+    padding: var(--spacing-xs);
+    font-size: var(--font-size-xs);
   }
 
   .mobileSearchSection .searchButton {
-    padding: 6px var(--spacing-xs);
+    padding: var(--spacing-xs);
   }
 
-  /* Ajustes adicionales para botones de auth en pantallas pequeñas */
-  .authButtonsGroup {
-    gap: 2px;
-  }
-
-  .authButton {
-    padding: 4px;
-    min-width: 28px;
-    height: 28px;
-  }
-
-  .authButton .material-icons {
-    font-size: var(--icon-size-sm);
+  .mobileDropdown {
+    right: var(--spacing-sm);
+    min-width: 260px;
+    max-width: 300px;
   }
 }
 
-/* === TEMA OSCURO === */
-:root[data-theme="dark"] .navbar {
-  background: var(--background-primary);
-  box-shadow: var(--shadow-lg);
-}
-
-:root[data-theme="dark"] .mainNavbar {
-  border-bottom-color: var(--color-neutral-700);
-}
-
-:root[data-theme="dark"] .mobileTopRow {
-  border-bottom-color: var(--color-neutral-700);
-}
-
-:root[data-theme="dark"] .searchInputGroup {
-  background: var(--background-elevated);
-  border-color: var(--color-neutral-600);
-}
-
-:root[data-theme="dark"] .searchInputGroup:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-:root[data-theme="dark"] .mobileDropdown {
-  background: var(--background-elevated);
-  border-color: var(--color-neutral-700);
-} 
+/* === FINAL DEL ARCHIVO === */
+/* Los temas se manejan automáticamente a través de las variables CSS definidas en themes.css */ 

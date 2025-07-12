@@ -1,5 +1,5 @@
 import React from 'react';
-import ProductCard from '../ProductCard';
+import ProductCardExtensive from '../ProductCardExtensive';
 import styles from './ProductGrid.module.css';
 import type { Product } from '../../../types/product';
 
@@ -58,7 +58,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     return (
         <div className={styles.productsGrid}>
             {products.map(product => (
-                <ProductCard
+                <ProductCardExtensive
                     key={product.id_producto}
                     id_producto={product.id_producto}
                     nombre={product.nombre}

@@ -1,5 +1,6 @@
 /* Sección Call to Action */
 .section {
+  background: var(--background-primary);
   padding: var(--spacing-3xl) 0;
 }
 
@@ -13,7 +14,6 @@
   max-width: 768px;
   margin: 0 auto;
   border-radius: var(--border-radius-2xl);
-  background: var(--color-secondary);
   padding: var(--spacing-3xl);
   text-align: center;
 }

@@ -1,5 +1,6 @@
 /* Sección de ubicación */
 .section {
+  background: var(--background-primary);
   padding: var(--spacing-3xl) 0;
 }
 

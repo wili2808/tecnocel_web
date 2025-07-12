@@ -1,33 +1,31 @@
 /* === LAYOUT FULLSCREEN PARA CATÁLOGO === */
 .catalogFullscreen {
   position: fixed;
-  top: 0;
+  top: var(--navbar-height);
   left: 0;
   right: 0;
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  padding-top: var(--navbar-height);
   z-index: 10;
   overflow: hidden;
 }
 
 .catalogContainer {
+  padding: 0 var(--container-padding);
   max-width: var(--max-width);
   margin: 0 auto;
-  height: calc(100vh - var(--navbar-height));
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 0;
   animation: fadeIn 0.6s ease-out;
+  background: var(--background-primary);
 }
 
 .filtersSidebar {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  height: calc(100vh - var(--navbar-height));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -55,11 +53,11 @@
 }
 
 .productsMainContent {
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm);
 }
 
 /* === ANIMACIONES === */
@@ -85,30 +83,57 @@
   }
 }
 
+/* Layout móvil NO FIJO - flujo normal */
 @media (max-width: 768px) {
+  .catalogFullscreen {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: calc(100vh - var(--navbar-height-mobile));
+    padding-top: 0;
+    overflow: visible;
+  }
+  
   .catalogContainer {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - var(--navbar-height-mobile));
+    overflow: visible;
   }
   
   .filtersSidebar {
     height: auto;
+    max-height: none;
+    overflow: visible;
     border-right: none;
-    border-bottom: 1px solid var(--color-neutral-200);
-    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
   }
   
   .productsMainContent {
-    padding: var(--spacing-md);
+    height: auto;
+    min-height: 0;
+    flex: 1;
+    overflow: visible;
+    padding: var(--spacing-sm);
   }
 }
 
 @media (max-width: 480px) {
   .filtersSidebar {
-    padding: var(--spacing-sm);
+    padding: 0;
   }
   
   .productsMainContent {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs);
+  }
+  
+  .catalogFullscreen {
+    min-height: calc(100vh - var(--navbar-height-mobile));
   }
 } 

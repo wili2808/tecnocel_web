@@ -47,7 +47,10 @@ const ProductSorting: React.FC<ProductSortingProps> = ({
                         className={styles.toggleCheckbox}
                     />
                     <span className={styles.toggleSlider}></span>
-                    <span className={styles.toggleText}>Solo con stock disponible</span>
+                    <span className={styles.toggleText}>
+                        <span className={styles.toggleTextFull}>Solo con stock disponible</span>
+                        <span className={styles.toggleTextShort}>Stock</span>
+                    </span>
                 </label>
             </div>
         </div>

@@ -1,6 +1,6 @@
 /* Footer */
 .footer {
-  background-color: var(--background-dark);
+  background-color: var(--background-light);
   color: var(--text-secondary);
   padding: var(--spacing-4xl) var(--container-padding);
   margin-top: auto;

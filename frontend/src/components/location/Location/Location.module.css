@@ -1,5 +1,6 @@
 /* Contenedor principal de la página Location */
 .locationContainer {
+  background: var(--background-primary);
   padding: var(--spacing-xl) var(--spacing-md);
   max-width: var(--max-width);
   margin: 0 auto;

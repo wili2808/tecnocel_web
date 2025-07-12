@@ -120,12 +120,12 @@
   opacity: 0.4;
   cursor: not-allowed;
   color: var(--text-muted);
+  background-color: var(--background-neutral);
 }
 
 .searchButtonDisabled:hover {
   transform: none;
   box-shadow: none;
-  background-color: var(--background-secondary);
 }
 
 .searchButtonText {
@@ -145,7 +145,6 @@
 }
 
 .searchButtonActive .searchCount {
-  background: var(--color-white-overlay-medium);
   color: var(--color-white);
 }
 
@@ -202,8 +201,8 @@
 .categoryButtonDisabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background-color: var(--background-secondary);
   color: var(--text-muted);
+  background-color: var(--background-neutral);
 }
 
 .categoryButtonDisabled:hover {
@@ -221,7 +220,6 @@
   font-size: 10px;
   font-weight: 600;
   opacity: 0.8;
-  background: var(--color-white-overlay);
   padding: 2px 6px;
   border-radius: var(--border-radius-sm);
   position: relative;
@@ -230,67 +228,50 @@
 
 .categoryButtonActive .categoryCount {
   background: var(--color-white-overlay-medium);
+  color: var(--color-white);
 }
 
-/* Legacy styles for custom category buttons */
 .customCategoryButtons {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
-  overflow: hidden;
+  padding: var(--spacing-xs);
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-md);
 }
 
-/* Responsive Design */
+/* Layout móvil simplificado - Solo dropdown */
 @media (max-width: 768px) {
   .categoryFilters {
-    gap: var(--spacing-sm);
+    gap: 0;
+    min-height: 0;
+    height: auto;
   }
-  
-  .quickSearchButtons {
-    justify-content: center;
+
+  /* Ocultar búsquedas rápidas en móvil */
+  .filterGroup:nth-child(2) {
+    display: none;
   }
-  
-  .searchButton {
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
+
+  .filterGroup:first-child {
+    margin: 0;
   }
-  
-  .filterLabel {
-    font-size: var(--font-size-xs);
-  }
-  
+
   .filterSelect {
     font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: 8px 10px;
+    border-radius: var(--border-radius-sm);
   }
 }
 
+/* Layout móvil extra compacto */
 @media (max-width: 600px) {
   .categoryFilters {
-    gap: var(--spacing-xs);
+    gap: 0;
   }
-  
-  .filterGroup {
-    gap: var(--spacing-xs);
-  }
-  
-  .searchButton {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-  
-  .searchCount {
-    font-size: 9px;
-    padding: 1px 4px;
-  }
-  
-  .filterLabel {
+
+  .filterSelect {
     font-size: var(--font-size-xs);
-  }
-  
-  .filterLabel::before {
-    width: 2px;
-    height: 10px;
+    padding: 6px 8px;
   }
 } 

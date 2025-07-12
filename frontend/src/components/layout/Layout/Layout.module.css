@@ -18,7 +18,7 @@
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--navbar-height) var(--container-padding) var(--spacing-md);
+  padding-top: var(--navbar-height);
   animation: fadeIn var(--transition-normal) ease;
 }
 

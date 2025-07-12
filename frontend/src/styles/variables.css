@@ -13,7 +13,7 @@
   --color-neutral-800: #334155;
   --color-neutral-900: #1E293B;
 
-  /* Colores púrpura (primary) */
+  /* Colores púrpura (primary anterior) */
   --color-purple-50: #F3F0FF;
   --color-purple-100: #E9E5FF;
   --color-purple-200: #D6CDFF;
@@ -24,6 +24,30 @@
   --color-purple-700: #553C9A;
   --color-purple-800: #44337A;
   --color-purple-900: #322659;
+
+  /* Colores azul moderno (nueva paleta principal) */
+  --color-sky-50: #F0F9FF;
+  --color-sky-100: #E0F2FE;
+  --color-sky-200: #BAE6FD;
+  --color-sky-300: #7DD3FC;
+  --color-sky-400: #38BDF8;
+  --color-sky-500: #0EA5E9;
+  --color-sky-600: #0284C7;
+  --color-sky-700: #0369A1;
+  --color-sky-800: #075985;
+  --color-sky-900: #0C4A6E;
+
+  /* Colores cyan complementarios */
+  --color-cyan-50: #ECFEFF;
+  --color-cyan-100: #CFFAFE;
+  --color-cyan-200: #A5F3FC;
+  --color-cyan-300: #67E8F9;
+  --color-cyan-400: #22D3EE;
+  --color-cyan-500: #06B6D4;
+  --color-cyan-600: #0891B2;
+  --color-cyan-700: #0E7490;
+  --color-cyan-800: #155E75;
+  --color-cyan-900: #164E63;
 
   /* Colores específicos del tema oscuro */
   --color-zinc-900: #18181B;
@@ -53,20 +77,7 @@
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
 
-  /* === COLORES PRINCIPALES BASE (para compatibilidad) === */
-  --color-primary: var(--color-purple-600);
-  --color-primary-rgb: 107, 70, 193;
-  --color-primary-dark: var(--color-purple-700);
-  --color-primary-light: var(--color-purple-400);
-  --color-secondary: var(--color-purple-500);
-  --color-accent: var(--color-purple-400);
 
-  /* === COLORES CON TRANSPARENCIAS === */
-  --color-primary-50: rgba(var(--color-primary-rgb), 0.05);
-  --color-primary-100: rgba(var(--color-primary-rgb), 0.1);
-  --color-primary-200: rgba(var(--color-primary-rgb), 0.2);
-  --color-primary-300: rgba(var(--color-primary-rgb), 0.3);
-  --color-primary-400: rgba(var(--color-primary-rgb), 0.4);
 
   /* === COLORES COMUNES CON TRANSPARENCIAS === */
   --color-black-light: rgba(0, 0, 0, 0.1);
@@ -128,10 +139,7 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
   /* === SOMBRAS ESPECÍFICAS === */
-  --shadow-focus: 0 0 0 3px var(--color-primary-100);
   --shadow-focus-error: 0 0 0 3px rgba(220, 38, 127, 0.1);
-  --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
-  --shadow-button-primary-hover: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
   --shadow-card: 0 4px 12px var(--color-black-light);
   --shadow-card-hover: 0 2px 4px var(--color-black-light);
 
@@ -144,7 +152,8 @@
 
   /* === COMPONENTES ESPECÍFICOS === */
   --navbar-height: 64px;
-  --navbar-height-mobile: 108px; /* Altura específica para mobile con dos filas */
+  --navbar-height-mobile: 60px; /* Altura específica para mobile con una fila optimizada */
+  --search-input-height: 20px;
 
   /* === ICONOS === */
   --icon-size-sm: 16px;
@@ -212,7 +221,6 @@
     --spacing-2xl: 2rem;
     --font-size-lg: 1rem;
     --font-size-xl: 1.125rem;
-    --navbar-height-mobile: 96px; /* Altura ligeramente reducida para pantallas muy pequeñas */
   }
 }
 
