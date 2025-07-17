@@ -3,6 +3,10 @@
   width: 100%;
 }
 
+.searchForm {
+  width: 100%;
+}
+
 /* Search Input Group */
 .searchInputGroup {
   position: relative;
@@ -108,32 +112,3 @@
 .clearButton:hover .material-icons {
   transform: rotate(90deg);
 }
-
-/* Responsive */
-@media (max-width: 600px) {
-  .searchInput {
-    font-size: 1rem;
-    padding: 0.7em 0.8em;
-    padding-right: 3.5rem;
-    border-radius: var(--border-radius-md);
-    margin-bottom: 0.3em;
-  }
-  
-  .searchIndicator {
-    right: 2.8rem;
-  }
-  
-  .clearButton {
-    right: 0.4rem;
-    width: 1.8rem;
-    height: 1.8rem;
-  }
-  
-  .clearButton .material-icons {
-    font-size: 1rem;
-  }
-  
-  .clearButton:hover {
-    transform: scale(1.05);
-  }
-} 

@@ -1,0 +1,41 @@
+/* === COMPONENTE BASE === */
+.cartButton {
+  /* Hereda estilos de IconButton */
+}
+
+.cartBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--color-error);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  padding: 2px 5px;
+  border-radius: var(--border-radius-full);
+  min-width: var(--spacing-md);
+  height: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartButtonDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cartButtonDisabled:hover {
+  transform: none;
+  color: var(--text-secondary);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 480px) {
+  .cartBadge {
+    font-size: 10px;
+    padding: 1px 3px;
+    min-width: 16px;
+    height: 16px;
+  }
+} 

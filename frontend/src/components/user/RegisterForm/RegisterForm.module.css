@@ -1,6 +1,6 @@
 /* Tarjeta del formulario de registro */
 .registerCard {
-    background: var(--background-secondary);
+    background: var(--background-elevated);
     border-radius: var(--border-radius-xl);
     padding: var(--spacing-2xl);
     box-shadow: var(--shadow-xl);
@@ -190,7 +190,6 @@ input[type="password"]::-ms-reveal {
     background-color: transparent !important;
     background-image: none !important;
     border: none !important;
-    transition: background-color 5000s ease-in-out 0s;
 }
 
 /* Para navegadores que soportan la pseudo-clase autofill */

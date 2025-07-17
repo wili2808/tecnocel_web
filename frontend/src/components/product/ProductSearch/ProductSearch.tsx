@@ -33,6 +33,12 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
         if (e.key === 'Escape' && searchQuery) {
             handleClear();
         }
+        // Redireccionar con Enter
+        if (e.key === 'Enter' && searchQuery) {
+            if (location.pathname !== '/productos') {
+                navigate('/productos');
+            }
+        }
     };
 
     return (

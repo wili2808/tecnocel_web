@@ -1,7 +1,6 @@
 /* Featured Products Section */
 .productsSection {
   padding: var(--spacing-2xl) 0;
-  background-color: var(--background-primary);
 }
 
 .productsContainer {

@@ -1,0 +1,305 @@
+/* Resumen de compra */
+.cartSummary {
+    background: var(--background-elevated);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    height: fit-content;
+    border: 1px solid var(--border-color);
+}
+
+.summaryHeader {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summaryHeader h2 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.summaryContent {
+    padding: var(--spacing-lg);
+}
+
+/* Sección de resumen */
+.summarySection {
+    margin-bottom: var(--spacing-lg);
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    font-size: var(--font-size-md);
+    color: var(--text-primary);
+}
+
+.summaryRow:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.freeShipping {
+    color: var(--color-success);
+    font-weight: var(--font-weight-medium);
+}
+
+.discount {
+    color: var(--color-success);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Sección de cupón */
+.couponSection {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+}
+
+.couponToggle {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    transition: var(--theme-transition);
+}
+
+.couponToggle:hover {
+    color: var(--color-primary-dark);
+}
+
+.couponForm {
+    width: 100%;
+}
+
+.couponInputContainer {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.couponInput {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+    background: var(--background-light);
+    color: var(--text-primary);
+    transition: var(--theme-transition);
+}
+
+.couponInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.couponInput:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.couponSubmit {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-primary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--theme-transition);
+}
+
+.couponSubmit:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+.couponSubmit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Sección de total */
+.totalSection {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md) 0;
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.totalLabel {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.totalAmount {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+/* Sección de checkout */
+.checkoutSection {
+    margin-bottom: var(--spacing-lg);
+}
+
+.checkoutButton {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-primary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: var(--theme-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-button-primary);
+}
+
+.checkoutButton:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    box-shadow: var(--shadow-button-primary-hover);
+}
+
+.checkoutButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Sección de beneficios */
+.benefitsSection {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-lg);
+}
+
+.benefitsSection h3 {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+.benefitsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.benefitsList li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.benefitsList li .material-icons {
+    font-size: 18px;
+    color: var(--color-success);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .cartSummary {
+        border-radius: var(--border-radius-md);
+    }
+
+    .summaryHeader,
+    .summaryContent {
+        padding: var(--spacing-md);
+    }
+
+    .summaryHeader h2 {
+        font-size: var(--font-size-lg);
+    }
+
+    .couponSection {
+        padding: var(--spacing-sm);
+    }
+
+    .couponInputContainer {
+        flex-direction: column;
+    }
+
+    .couponSubmit {
+        width: 100%;
+    }
+
+    .totalLabel {
+        font-size: var(--font-size-md);
+    }
+
+    .totalAmount {
+        font-size: var(--font-size-xl);
+    }
+
+    .checkoutButton {
+        padding: var(--spacing-md);
+    }
+
+    .benefitsSection {
+        padding-top: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .summaryHeader,
+    .summaryContent {
+        padding: var(--spacing-sm);
+    }
+
+    .summaryRow {
+        font-size: var(--font-size-sm);
+    }
+
+    .totalLabel {
+        font-size: var(--font-size-sm);
+    }
+
+    .totalAmount {
+        font-size: var(--font-size-lg);
+    }
+
+    .benefitsList li {
+        font-size: var(--font-size-xs);
+    }
+
+    .benefitsList li .material-icons {
+        font-size: 16px;
+    }
+} 

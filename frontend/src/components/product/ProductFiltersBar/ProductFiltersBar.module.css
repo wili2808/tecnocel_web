@@ -2,47 +2,55 @@
 .filtersBar {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
   height: 100%;
   overflow: hidden;
   position: relative;
-  padding-top: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-}
-
-.filtersBar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
 }
 
 /* Secciones de filtros */
 .filterSection {
-  background: var(--background-secondary);
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal) var(--transition-curve);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
-  flex: 2.5;
-  overflow: hidden;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   min-height: 0;
-  transition: all var(--transition-duration) ease;
+  margin-bottom: var(--spacing-md);
+  
+  /* Scrollbar personalizada para categorías */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--background-neutral);
 }
 
-.filterSection:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+.filterSection::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filterSection::-webkit-scrollbar-track {
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-full);
+}
+
+.filterSection::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: var(--border-radius-full);
+  transition: background var(--transition-fast) ease;
+}
+
+.filterSection::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
 }
 
 /* Sección de ordenamiento */
 .sortingSection {
-  background: var(--background-secondary);
+  background: var(--background-elevated);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -50,15 +58,10 @@
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
-  flex: 1;
+  flex: 0 0 auto;
   overflow: hidden;
-  min-height: 0;
-  transition: all var(--transition-duration) ease;
-}
-
-.sortingSection:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-normal) var(--transition-curve);
+  margin-bottom: var(--spacing-md);
 }
 
 .filterSectionTitle {
@@ -82,14 +85,22 @@
   flex-shrink: 0;
 }
 
-/* Contador de resultados */
+/* Contador de resultados - fijo en la parte inferior */
 .resultsCounter {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  flex: 0 0 auto;
   position: relative;
   overflow: hidden;
+  margin-top: auto;
+
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal) var(--transition-curve);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-xs);
 }
 
 .resultsCounterContent {
@@ -141,6 +152,8 @@
     border: none;
     box-shadow: none;
     border-radius: 0;
+    margin-bottom: 0;
+    overflow: visible;
   }
   
   .sortingSection {
@@ -151,6 +164,7 @@
     border: none;
     box-shadow: none;
     border-radius: 0;
+    margin-bottom: 0;
   }
   
   .resultsCounter {
@@ -191,7 +205,9 @@
   }
   
   .resultsCounter {
-    display: none;
+    min-width: 70px;
+    width: 70px;
+    padding: 4px;
   }
   
   .resultsNumber {

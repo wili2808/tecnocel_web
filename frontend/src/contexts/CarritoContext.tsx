@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 /**
@@ -29,6 +29,7 @@ interface EstadoCarrito {
  */
 type AccionCarrito =
   | { type: 'INICIALIZAR_CARRITO'; payload: any }
+  | { type: 'INICIALIZAR_CARRITO_VACIO' }
   | { type: 'AGREGAR_ITEM'; payload: ItemCarrito }
   | { type: 'ACTUALIZAR_CANTIDAD'; payload: { id: number; cantidad: number } }
   | { type: 'ELIMINAR_ITEM'; payload: number }
@@ -36,7 +37,7 @@ type AccionCarrito =
   | { type: 'ESTABLECER_ERROR'; payload: string };
 
 const estadoInicial: EstadoCarrito = {
-  id: null,
+  id: 1, // ID temporal para carrito local
   items: [],
   total: 0,
   cargando: false,
@@ -53,34 +54,41 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
         ...estado,
         id: accion.payload.id,
         items: accion.payload.items || [],
-        total: accion.payload.total || 0
+        total: accion.payload.total || 0,
+        error: null
+      };
+    case 'INICIALIZAR_CARRITO_VACIO':
+      return {
+        ...estado,
+        id: 1, // ID temporal para carrito local
+        items: [],
+        total: 0,
+        error: null
       };
     case 'AGREGAR_ITEM':
+      const nuevosItems = [...estado.items, accion.payload];
       return {
         ...estado,
-        items: [...estado.items, accion.payload],
-        total: estado.total + accion.payload.subtotal
+        items: nuevosItems,
+        total: nuevosItems.reduce((sum, item) => sum + item.subtotal, 0)
       };
     case 'ACTUALIZAR_CANTIDAD':
+      const itemsActualizados = estado.items.map(item =>
+        item.id === accion.payload.id
+          ? { ...item, cantidad: accion.payload.cantidad, subtotal: item.precio * accion.payload.cantidad }
+          : item
+      );
       return {
         ...estado,
-        items: estado.items.map(item =>
-          item.id === accion.payload.id
-            ? { ...item, cantidad: accion.payload.cantidad }
-            : item
-        ),
-        total: estado.items.reduce((sum, item) =>
-          item.id === accion.payload.id
-            ? sum + item.precio * accion.payload.cantidad
-            : sum + item.precio * item.cantidad
-        , 0)
+        items: itemsActualizados,
+        total: itemsActualizados.reduce((sum, item) => sum + item.subtotal, 0)
       };
     case 'ELIMINAR_ITEM':
-      const itemAEliminar = estado.items.find(item => item.id === accion.payload);
+      const itemsRestantes = estado.items.filter(item => item.id !== accion.payload);
       return {
         ...estado,
-        items: estado.items.filter(item => item.id !== accion.payload),
-        total: estado.total - (itemAEliminar ? itemAEliminar.subtotal : 0)
+        items: itemsRestantes,
+        total: itemsRestantes.reduce((sum, item) => sum + item.subtotal, 0)
       };
     case 'ESTABLECER_CARGANDO':
       return { ...estado, cargando: accion.payload };
@@ -100,6 +108,7 @@ const CarritoContext = createContext<{
   agregarItem: (producto_id: number, cantidad: number, detalles_personalizacion?: any) => Promise<void>;
   actualizarCantidad: (item_id: number, cantidad: number) => Promise<void>;
   eliminarItem: (item_id: number) => Promise<void>;
+  agregarItemsPrueba: () => void;
 } | null>(null);
 
 /**
@@ -121,72 +130,78 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Obtiene o crea un carrito desde el servidor
+   * Como el backend no está implementado, inicializa directamente en modo local
    */
-  const obtenerCarrito = async () => {
-    try {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
-      const { data } = await axios.post('/api/carrito/obtener-carrito');
-      dispatch({ type: 'INICIALIZAR_CARRITO', payload: data });
-    } catch (error) {
-      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Error al obtener el carrito' });
-    } finally {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
-    }
-  };
+  const obtenerCarrito = useCallback(async () => {
+    console.log('Carrito inicializado en modo local (backend no implementado)');
+    // Inicializar directamente en modo local sin llamadas HTTP
+    dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+  }, []);
 
   /**
    * Agrega un nuevo item al carrito
+   * Funciona directamente en modo local
    */
-  const agregarItem = async (producto_id: number, cantidad: number, detalles_personalizacion?: any) => {
-    try {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
-      const { data } = await axios.post('/api/carrito/items', {
-        carrito_id: estado.id,
-        producto_id,
-        cantidad,
-        detalles_personalizacion
-      });
-      dispatch({ type: 'AGREGAR_ITEM', payload: data });
-    } catch (error) {
-      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Error al agregar item al carrito' });
-    } finally {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
-    }
-  };
+  const agregarItem = useCallback(async (producto_id: number, cantidad: number, detalles_personalizacion?: any) => {
+    const nuevoItem = {
+      id: Date.now(), // ID temporal
+      producto_id,
+      cantidad,
+      precio: 25000, // Precio simulado
+      detalles_personalizacion,
+      subtotal: 25000 * cantidad
+    };
+    dispatch({ type: 'AGREGAR_ITEM', payload: nuevoItem });
+  }, []);
 
   /**
    * Actualiza la cantidad de un item existente
+   * Funciona directamente en modo local
    */
-  const actualizarCantidad = async (item_id: number, cantidad: number) => {
-    try {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
-      await axios.put(`/api/carrito/items/${item_id}/cantidad`, { cantidad });
-      dispatch({ type: 'ACTUALIZAR_CANTIDAD', payload: { id: item_id, cantidad } });
-    } catch (error) {
-      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Error al actualizar cantidad' });
-    } finally {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
-    }
-  };
+  const actualizarCantidad = useCallback(async (item_id: number, cantidad: number) => {
+    dispatch({ type: 'ACTUALIZAR_CANTIDAD', payload: { id: item_id, cantidad } });
+  }, []);
 
   /**
    * Elimina un item del carrito
+   * Funciona directamente en modo local
    */
-  const eliminarItem = async (item_id: number) => {
-    try {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
-      await axios.delete(`/api/carrito/items/${item_id}`);
-      dispatch({ type: 'ELIMINAR_ITEM', payload: item_id });
-    } catch (error) {
-      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Error al eliminar item' });
-    } finally {
-      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
-    }
-  };
+  const eliminarItem = useCallback(async (item_id: number) => {
+    dispatch({ type: 'ELIMINAR_ITEM', payload: item_id });
+  }, []);
+
+  /**
+   * Agrega items de prueba al carrito para testing
+   */
+  const agregarItemsPrueba = useCallback(() => {
+    const itemsPrueba = [
+      {
+        id: 1,
+        producto_id: 1,
+        cantidad: 1,
+        precio: 38990,
+        detalles_personalizacion: null,
+        subtotal: 38990
+      },
+      {
+        id: 2,
+        producto_id: 2,
+        cantidad: 1,
+        precio: 23900,
+        detalles_personalizacion: null,
+        subtotal: 23900
+      }
+    ];
+
+    itemsPrueba.forEach(item => {
+      dispatch({ type: 'AGREGAR_ITEM', payload: item });
+    });
+  }, []);
 
   useEffect(() => {
+    // Inicializar el carrito directamente en modo local
     obtenerCarrito();
-  }, []);
+  }, [obtenerCarrito]);
 
   return (
     <CarritoContext.Provider
@@ -195,7 +210,8 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
         obtenerCarrito,
         agregarItem,
         actualizarCantidad,
-        eliminarItem
+        eliminarItem,
+        agregarItemsPrueba
       }}
     >
       {children}

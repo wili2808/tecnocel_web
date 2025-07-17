@@ -19,7 +19,7 @@
   /* === SOMBRAS DINÁMICAS === */
   --shadow-focus: 0 0 0 3px var(--color-primary-100);
   --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
-  --shadow-button-primary-hover: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+  --shadow-button-primary-hover: 0 4px 10px rgba(var(--color-primary-rgb), 0.3);
 
   /* === COLORES DE TEXTO === */
   --text-primary: var(--color-text-light-primary);
@@ -31,8 +31,18 @@
   --background-primary: var(--color-bg-light-primary);
   --background-secondary: var(--color-bg-light-secondary);
   --background-elevated: var(--color-bg-light-elevated);
+  --background-neutral: var(--color-bg-light-neutral);
   --background-light: var(--color-neutral-50);
   --background-dark: var(--color-neutral-200);
+  
+  /* === COLORES DE BORDE === */
+  --border-color: var(--color-neutral-200);
+  --border-color-light: var(--color-neutral-100);
+  --border-color-dark: var(--color-neutral-300);
+  
+  /* === COLORES DE TEXTO ADICIONALES === */
+  --text-muted: var(--color-neutral-500);
+  --text-disabled: var(--color-neutral-400);
 }
 
 :root[data-theme="dark"] {
@@ -68,25 +78,30 @@
   --background-primary: var(--color-bg-dark-primary);
   --background-secondary: var(--color-bg-dark-secondary);
   --background-elevated: var(--color-bg-dark-elevated);
+  --background-neutral: var(--color-bg-dark-neutral);
   --background-light: var(--color-neutral-900);
   --background-dark: var(--color-zinc-950);
+  
+  /* === COLORES DE BORDE === */
+  --border-color: var(--color-zinc-700);
+  --border-color-light: var(--color-zinc-800);
+  --border-color-dark: var(--color-zinc-600);
+  
+  /* === COLORES DE TEXTO ADICIONALES === */
+  --text-muted: var(--color-neutral-400);
+  --text-disabled: var(--color-neutral-600);
 }
 
 /* === TRANSICIONES SUAVES PARA CAMBIOS DE TEMA === */
 .theme-transition {
-  transition: background-color var(--transition-normal) ease,
-              color var(--transition-normal) ease,
-              border-color var(--transition-normal) ease,
-              box-shadow var(--transition-normal) ease;
+  transition: var(--theme-transition);
 }
 
 /* === CLASES PARA ELEMENTOS QUE NECESITAN TRANSICIONES === */
 .theme-aware {
-  transition: background-color var(--transition-normal) ease,
-              color var(--transition-normal) ease,
-              border-color var(--transition-normal) ease;
+  transition: var(--theme-transition);
 }
 
 .theme-aware-all {
-  transition: all var(--transition-normal) ease;
+  transition: all var(--transition-normal) var(--transition-curve);
 }

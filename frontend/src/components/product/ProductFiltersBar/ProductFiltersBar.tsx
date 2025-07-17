@@ -1,5 +1,6 @@
 import React from 'react';
 import CategoryFilters from '../CategoryFilters';
+import QuickSearch from '../QuickSearch';
 import ProductSorting from '../ProductSorting';
 import styles from './ProductFiltersBar.module.css';
 import type { ProductUIFilters } from '../../../hooks/useProductFilters';
@@ -38,6 +39,13 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
                     onBackendCategoryChange={(selectedDropdownCategory) =>
                         onFiltersChange({ selectedDropdownCategory })
                     }
+                />
+            </div>
+
+            {/* Búsquedas Rápidas */}
+            <div className={styles.filterSection}>
+                <h3 className={styles.filterSectionTitle}>Búsquedas Rápidas</h3>
+                <QuickSearch
                     selectedQuickSearch={filters.selectedQuickSearch}
                     onQuickSearchChange={(selectedQuickSearch) =>
                         onFiltersChange({ selectedQuickSearch })

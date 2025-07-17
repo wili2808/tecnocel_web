@@ -65,11 +65,13 @@
   --color-bg-light-primary: #ffffff;
   --color-bg-light-secondary: #F1F5F9;
   --color-bg-light-elevated: #ffffff;
+  --color-bg-light-neutral: #F8FAFC;
 
   /* Colores de fondo específicos del tema oscuro */
   --color-bg-dark-primary: #18181B;
   --color-bg-dark-secondary: #27272A;
   --color-bg-dark-elevated: #3F3F46;
+  --color-bg-dark-neutral: #374151;
 
   /* === COLORES DE ESTADO === */
   --color-error: #EF4444;
@@ -84,6 +86,7 @@
   --color-black-medium: rgba(0, 0, 0, 0.4);
   --color-white-overlay: rgba(255, 255, 255, 0.2);
   --color-white-overlay-medium: rgba(255, 255, 255, 0.3);
+  --color-primary-alpha: rgba(59, 130, 246, 0.1);
 
   /* === TIPOGRAFÍA === */
   --font-family-primary: 'Poppins', system-ui, -apple-system, sans-serif;
@@ -139,9 +142,12 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
   /* === SOMBRAS ESPECÍFICAS === */
+  --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.1);
   --shadow-focus-error: 0 0 0 3px rgba(220, 38, 127, 0.1);
   --shadow-card: 0 4px 12px var(--color-black-light);
   --shadow-card-hover: 0 2px 4px var(--color-black-light);
+  --shadow-button-primary: 0 2px 4px rgba(59, 130, 246, 0.2);
+  --shadow-button-primary-hover: 0 4px 8px rgba(59, 130, 246, 0.3);
 
   /* === LAYOUT === */
   --max-width: 1120px;
@@ -153,7 +159,13 @@
   /* === COMPONENTES ESPECÍFICOS === */
   --navbar-height: 64px;
   --navbar-height-mobile: 60px; /* Altura específica para mobile con una fila optimizada */
+  --navbar-height-tablet: 62px;
   --search-input-height: 20px;
+  
+  /* === CATÁLOGO === */
+  --sidebar-width: 320px;
+  --sidebar-width-tablet: 280px;
+  --sidebar-width-mobile: 100%;
 
   /* === ICONOS === */
   --icon-size-sm: 16px;
@@ -171,6 +183,7 @@
   --z-dropdown: 1000;
   --z-sticky: 1020;
   --z-fixed: 1030;
+  --z-catalog: 1035;
   --z-modal-backdrop: 1040;
   --z-modal: 1050;
   --z-popover: 1060;
@@ -182,11 +195,14 @@
   --transition-normal: 0.3s;
   --transition-slow: 0.5s;
   --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
+  --theme-transition: background-color var(--transition-normal) var(--transition-curve), color var(--transition-normal) var(--transition-curve), border-color var(--transition-normal) var(--transition-curve), box-shadow var(--transition-normal) var(--transition-curve);
 
   /* === ANIMACIONES === */
   --animation-duration-fast: 200ms;
   --animation-duration-normal: 300ms;
   --animation-duration-slow: 500ms;
+  --animation-delay-short: 100ms;
+  --animation-delay-normal: 200ms;
 
   /* === BREAKPOINTS === */
   --breakpoint-sm: 480px;

@@ -12,10 +12,10 @@
 
 /* Tarjeta de Producto */
 .productCard {
-  background: var(--background-secondary);
+  background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
-  transition: all var(--transition-duration) ease;
+  transition: all var(--transition-normal) var(--transition-curve);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,6 @@
   position: relative;
   padding-top: 100%; /* Aspect ratio 1:1 */
   overflow: hidden;
-  background-color: var(--background-secondary);
 }
 
 .productImage {
@@ -44,7 +43,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-duration) ease, filter 0.3s ease;
+  transition: transform var(--transition-normal) var(--transition-curve), filter 0.3s var(--transition-curve);
 }
 
 .productLink:hover .productImage,
@@ -66,7 +65,7 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity var(--transition-duration) ease;
+  transition: opacity var(--transition-normal) var(--transition-curve);
   pointer-events: none;
 }
 

@@ -30,7 +30,7 @@
 }
 
 .infoCard {
-    background: var(--background-secondary);
+    background: var(--background-elevated);
     border-radius: var(--border-radius-xl);
     padding: var(--spacing-xl);
     text-align: center;
@@ -81,7 +81,6 @@
     line-height: var(--line-height-relaxed);
     padding: var(--spacing-xs);
     border-radius: var(--border-radius-md);
-    transition: background-color var(--transition-fast) ease;
 }
 
 .benefitsList li:hover {

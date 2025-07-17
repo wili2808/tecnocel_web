@@ -1,0 +1,409 @@
+/* === CART ITEM - HORIZONTAL LAYOUT === */
+.cartItem {
+    background: var(--background-elevated);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: var(--theme-transition);
+    display: flex;
+    flex-direction: row;
+    border: 1px solid var(--border-color);
+    min-height: 140px;
+    width: 100%;
+    padding: var(--spacing-md);
+    align-items: center;
+    gap: var(--spacing-md);
+    position: relative;
+    margin-bottom: var(--spacing-md);
+}
+
+.cartItem:last-child {
+    margin-bottom: 0;
+}
+
+.cartItem:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-primary-light);
+}
+
+.cartItem.updating {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* === CHECKBOX === */
+.itemCheckbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+/* === IMAGEN === */
+.imageContainer {
+    position: relative;
+    width: 120px;
+    min-width: 120px;
+    height: 100px;
+    overflow: hidden;
+    background: var(--background-light);
+    flex-shrink: 0;
+    border-radius: var(--border-radius-md);
+}
+
+.productImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal) var(--transition-curve);
+}
+
+.cartItem:hover .productImage {
+    transform: scale(1.05);
+}
+
+/* === INFORMACIÓN DEL PRODUCTO === */
+.productInfo {
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+    height: 100px;
+}
+
+.productHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xs);
+}
+
+.productTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.priceContainer {
+    flex-shrink: 0;
+}
+
+.unitPrice {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    text-decoration: line-through;
+    white-space: nowrap;
+}
+
+.productDescription {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.productFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xs);
+}
+
+.stockContainer {
+    display: flex;
+    align-items: center;
+}
+
+.stockBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    background: var(--color-success);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.removeButton {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: none;
+    border: none;
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    transition: var(--theme-transition);
+    width: fit-content;
+    border-radius: var(--border-radius-sm);
+}
+
+.removeButton:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+}
+
+.removeButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.removeButton .material-icons {
+    font-size: 16px;
+}
+
+/* === CONTROLES Y PRECIO === */
+.actionContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-shrink: 0;
+    min-width: 120px;
+}
+
+.quantityControls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-xs);
+    background: var(--background-light);
+}
+
+.quantityButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--border-radius-xs);
+    color: var(--text-secondary);
+    transition: var(--theme-transition);
+}
+
+.quantityButton:hover:not(:disabled) {
+    background: var(--background-light);
+    color: var(--text-primary);
+}
+
+.quantityButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.quantityButton .material-icons {
+    font-size: 18px;
+}
+
+.quantity {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    min-width: 32px;
+    text-align: center;
+}
+
+.subtotalContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    text-align: center;
+}
+
+.subtotalLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.subtotal {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    white-space: nowrap;
+}
+
+/* Overlay de carga */
+.loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-color);
+    border-top: 2px solid var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+    .cartItem {
+        flex-direction: column;
+        min-height: auto;
+        align-items: stretch;
+        padding: var(--spacing-sm);
+    }
+    
+    .imageContainer {
+        width: 100%;
+        min-width: 100%;
+        height: 160px;
+    }
+    
+    .productInfo {
+        padding: var(--spacing-sm);
+        height: auto;
+    }
+    
+    .productHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .productTitle {
+        font-size: var(--font-size-lg);
+        -webkit-line-clamp: 2;
+    }
+    
+    .unitPrice {
+        font-size: var(--font-size-sm);
+    }
+    
+    .productDescription {
+        font-size: var(--font-size-sm);
+        -webkit-line-clamp: 2;
+    }
+    
+    .productFooter {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+    
+    .actionContainer {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        min-width: auto;
+        width: 100%;
+        gap: var(--spacing-md);
+    }
+    
+    .subtotalContainer {
+        align-items: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .cartItem {
+        padding: var(--spacing-xs);
+        min-height: auto;
+    }
+    
+    .imageContainer {
+        height: 140px;
+    }
+    
+    .productInfo {
+        padding: var(--spacing-xs);
+    }
+    
+    .productTitle {
+        font-size: var(--font-size-md);
+        -webkit-line-clamp: 2;
+    }
+    
+    .unitPrice {
+        font-size: var(--font-size-sm);
+    }
+    
+    .productDescription {
+        font-size: var(--font-size-xs);
+        -webkit-line-clamp: 2;
+    }
+    
+    .stockBadge {
+        font-size: var(--font-size-xs);
+        padding: 2px var(--spacing-xs);
+    }
+    
+    .quantityControls {
+        padding: var(--spacing-xs);
+    }
+    
+    .quantityButton {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .quantityButton .material-icons {
+        font-size: 16px;
+    }
+    
+    .quantity {
+        font-size: var(--font-size-sm);
+        min-width: 24px;
+    }
+    
+    .subtotal {
+        font-size: var(--font-size-lg);
+    }
+    
+    .removeButton {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-xs);
+    }
+} 

@@ -4,11 +4,11 @@
   color: inherit;
   display: block;
   width: 100%;
-  transition: transform var(--transition-duration) ease;
+  transition: transform var(--transition-normal) var(--transition-curve);
 }
 
 .productLink:hover {
-  transform: translateY(-2px);
+  transform: translateX(2px);
 }
 
 .productLink:focus {
@@ -27,11 +27,11 @@
 }
 
 .productCard {
-  background: var(--background-secondary);
+  background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: all var(--transition-duration) ease;
+  transition: all var(--transition-normal) var(--transition-curve);
   display: flex;
   flex-direction: row;
   border: 1px solid var(--border-color);
@@ -62,7 +62,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-duration) ease;
+  transition: transform var(--transition-normal) var(--transition-curve);
 }
 
 .productCard:hover .productImage {
@@ -197,7 +197,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-duration) ease;
+  transition: all var(--transition-normal) var(--transition-curve);
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0, 188, 212, 0.2);
 }

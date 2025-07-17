@@ -45,7 +45,7 @@
   color: var(--text-primary);
   font-size: var(--font-size-sm);
   font-weight: 400;
-  transition: all var(--transition-duration) ease;
+  transition: all var(--transition-normal) var(--transition-curve);
   width: 100%;
   cursor: pointer;
 }
@@ -54,190 +54,11 @@
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--shadow-focus);
-  transform: translateY(-1px);
 }
 
 .filterSelect:hover {
   border-color: var(--color-primary);
   box-shadow: var(--shadow-sm);
-}
-
-/* Quick Search Buttons */
-.quickSearchButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
-  overflow: hidden;
-  padding: 2px;	
-}
-
-.searchButton {
-  display: flex;
-  align-items: center;
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-duration) ease;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-  padding: 2px 4px;
-}
-
-.searchButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, var(--color-white-overlay), transparent);
-  transition: left var(--transition-duration) ease;
-}
-
-.searchButton:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-  border-radius: var(--border-radius-sm);
-}
-
-.searchButton:hover:not(:disabled)::before {
-  left: 100%;
-}
-
-.searchButtonActive {
-  color: var(--color-secondary);
-  transform: translateY(-1px);
-}
-
-.searchButtonActive:hover {
-  border-color: var(--color-primary-dark);
-}
-
-.searchButtonDisabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  color: var(--text-muted);
-  background-color: var(--background-neutral);
-}
-
-.searchButtonDisabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.searchButtonText {
-  font-weight: 500;
-  position: relative;
-  z-index: 1;
-}
-
-.searchCount {
-  font-size: 10px;
-  font-weight: 600;
-  opacity: 0.8;
-  padding: 2px 6px;
-  border-radius: var(--border-radius-sm);
-  position: relative;
-  z-index: 1;
-}
-
-.searchButtonActive .searchCount {
-  color: var(--color-white);
-}
-
-/* Legacy category button styles for backward compatibility */
-.categoryButton {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-duration) ease;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-}
-
-.categoryButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, var(--color-white-overlay), transparent);
-  transition: left var(--transition-duration) ease;
-}
-
-.categoryButton:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-button-primary);
-}
-
-.categoryButton:hover:not(:disabled)::before {
-  left: 100%;
-}
-
-.categoryButtonActive {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  box-shadow: var(--shadow-button-primary-hover);
-  transform: translateY(-1px);
-}
-
-.categoryButtonActive:hover {
-  border-color: var(--color-primary-dark);
-  box-shadow: var(--shadow-button-primary);
-}
-
-.categoryButtonDisabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  color: var(--text-muted);
-  background-color: var(--background-neutral);
-}
-
-.categoryButtonDisabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.categoryButtonText {
-  font-weight: 500;
-  position: relative;
-  z-index: 1;
-}
-
-.categoryCount {
-  font-size: 10px;
-  font-weight: 600;
-  opacity: 0.8;
-  padding: 2px 6px;
-  border-radius: var(--border-radius-sm);
-  position: relative;
-  z-index: 1;
-}
-
-.categoryButtonActive .categoryCount {
-  background: var(--color-white-overlay-medium);
-  color: var(--color-white);
-}
-
-.customCategoryButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
-  background: var(--background-secondary);
-  border-radius: var(--border-radius-md);
 }
 
 /* Layout móvil simplificado - Solo dropdown */
@@ -246,11 +67,6 @@
     gap: 0;
     min-height: 0;
     height: auto;
-  }
-
-  /* Ocultar búsquedas rápidas en móvil */
-  .filterGroup:nth-child(2) {
-    display: none;
   }
 
   .filterGroup:first-child {
