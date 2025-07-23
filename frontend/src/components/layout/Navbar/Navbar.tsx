@@ -36,14 +36,15 @@ const Navbar = () => {
 
     // Manejadores de eventos
     const handleLinkClick = useCallback(() => setIsMenuOpen(false), []);
+    const toggleMobileMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
     const handleAuthClick = useCallback(() => {
         if (isAuthenticated) {
             navigate('/panel');
         } else {
             navigate('/login');
         }
-    }, [isAuthenticated, navigate]);
-    const toggleMobileMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
+        handleLinkClick();
+    }, [isAuthenticated, navigate, handleLinkClick]);
     const handleSearch = useCallback((e: React.FormEvent) => {
         e.preventDefault();
         navigateToProducts();
@@ -74,7 +75,10 @@ const Navbar = () => {
             <div className={navbarStyle.controlsGroup}>
                 <IconButton
                     icon={theme === 'light' ? 'dark_mode' : 'light_mode'}
-                    onClick={toggleTheme}
+                    onClick={() => {
+                        toggleTheme();
+                        handleLinkClick();
+                    }}
                     ariaLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
                     variant="ghost"
                     size="medium"
@@ -82,7 +86,15 @@ const Navbar = () => {
                 />
                 <IconButton
                     icon="shopping_cart"
-                    onClick={() => isAuthenticated ? navigate('/carrito') : navigate('/login')}
+                    onClick={() => {
+                        if (isAuthenticated) {
+                            navigate('/carrito');
+                            handleLinkClick();
+                        } else {
+                            navigate('/login');
+                            handleLinkClick();
+                        }
+                    }}
                     ariaLabel="Carrito de compras"
                     disabled={!isAuthenticated}
                     variant="ghost"
@@ -163,6 +175,7 @@ const Navbar = () => {
                             to="/login"
                             className={navbarStyle.authButton}
                             aria-label="Iniciar sesión"
+                            onClick={handleLinkClick}
                         >
                             <span className="material-icons">login</span>
                             <span className={navbarStyle.authButtonText}>Ingresar</span>
@@ -171,6 +184,7 @@ const Navbar = () => {
                             to="/register"
                             className={`${navbarStyle.authButton} ${navbarStyle.registerButton}`}
                             aria-label="Crear cuenta"
+                            onClick={handleLinkClick}
                         >
                             <span className="material-icons">person_add</span>
                             <span className={navbarStyle.authButtonText}>Registro</span>
@@ -223,9 +237,10 @@ const Navbar = () => {
             <ProductSearch
                 placeholder="Buscar productos..."
                 showClearButton={true}
+                onSearch={() => handleLinkClick()}
             />
         </div>
-    ), [handleSearch]);
+    ), [handleLinkClick]);
 
     return (
         <header className={`${navbarStyle.navbar} theme-transition`}>

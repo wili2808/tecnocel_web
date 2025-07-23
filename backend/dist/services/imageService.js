@@ -39,14 +39,23 @@ class ImageService {
      * @returns true si es válido, false en caso contrario
      */
     isValidImageName(imageName) {
-        // Verificar que no contenga caracteres peligrosos
+        // Verificar que no contenga caracteres peligrosos para path traversal
         if (imageName.includes('..') || imageName.includes('/') || imageName.includes('\\')) {
             return false;
         }
         // Verificar que tenga una extensión válida
-        const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+        const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.jfif', '.avif', '.bmp', '.tiff', '.tif'];
         const extension = path.extname(imageName).toLowerCase();
-        return validExtensions.includes(extension);
+        if (!validExtensions.includes(extension)) {
+            return false;
+        }
+        // Validación más permisiva: solo rechazar caracteres realmente peligrosos
+        // Permitir guiones, puntos, espacios, números y caracteres alfanuméricos
+        const dangerousChars = /[\x00-\x1f\x7f<>:"|*\?]/;
+        if (dangerousChars.test(imageName)) {
+            return false;
+        }
+        return true;
     }
     /**
      * Verifica si un archivo de imagen existe físicamente

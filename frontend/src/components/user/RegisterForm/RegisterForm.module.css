@@ -630,7 +630,7 @@ input[type="password"]::-ms-reveal {
     }
     
     .authHeader {
-        margin-bottom: var(--spacing-3xl);
+        margin-bottom: var(--spacing-2xl);
     }
     
     .logo {
@@ -649,9 +649,3 @@ input[type="password"]::-ms-reveal {
         gap: var(--spacing-lg);
     }
 }
-
-@media (min-width: 1800px) {
-    .registerCard {
-        max-width: 750px;
-    }
-} 

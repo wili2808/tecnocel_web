@@ -61,8 +61,8 @@ class StaticImageMiddleware {
     }
 
     // VALIDACIÓN SIMPLIFICADA: Solo rechazar caracteres realmente problemáticos
-    // Permitir casi todo excepto caracteres de control y separadores de path
-    const dangerousChars = /[\x00-\x1f\x7f<>:"|?*]/;
+    // Permitir guiones, puntos, espacios, números y caracteres alfanuméricos
+    const dangerousChars = /[\x00-\x1f\x7f<>:"|*\?]/;
     if (dangerousChars.test(filename)) {
       return false;
     }

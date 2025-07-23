@@ -26,6 +26,7 @@ export interface ClienteUser {
 interface AuthContextType {
   user: ClienteUser | null;
   isAuthenticated: boolean;
+  token: string | null;
   login: (email_cliente: string, contrasena: string) => Promise<void>;
   register: (data: {
     nombre_cliente: string;
@@ -69,6 +70,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Estados
   const [user, setUser] = useState<ClienteUser | null>(null);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [subscribers, setSubscribers] = useState<((user: ClienteUser | null) => void)[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -111,11 +113,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsVerifying(true);
     console.log('Iniciando verificación de token...');
 
-    const token = localStorage.getItem(TOKEN_KEY);
-    console.log('Token en localStorage:', token ? 'Presente' : 'No presente');
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    console.log('Token en localStorage:', storedToken ? 'Presente' : 'No presente');
 
-    if (!token) {
+    if (!storedToken) {
       setUser(null);
+      setToken(null);
       console.log('Verify Token: No hay token en localStorage.');
       setIsVerifying(false);
       setIsInitialized(true);
@@ -130,12 +133,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error('Datos de cliente no encontrados en la respuesta');
       }
       setUser(cliente);
+      setToken(storedToken);
       console.log('Token verificado exitosamente:', cliente.email_cliente);
     } catch (error) {
       console.error('Error al verificar token:', error);
       localStorage.removeItem(TOKEN_KEY);
       delete axiosInstance.defaults.headers.common['Authorization'];
       setUser(null);
+      setToken(null);
     } finally {
       setIsVerifying(false);
       setIsInitialized(true);
@@ -163,9 +168,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem(TOKEN_KEY, token);
       // No configurar headers aquí - dejar que el interceptor lo maneje automáticamente
       setUser(cliente);
+      setToken(token);
     } catch (error: any) {
       localStorage.removeItem(TOKEN_KEY);
       delete axiosInstance.defaults.headers.common['Authorization'];
+      setToken(null);
       throw new Error(error.response?.data?.mensaje || 'Error al iniciar sesión. Por favor, intente nuevamente.');
     }
   };
@@ -197,6 +204,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Guardar token y actualizar estado del usuario para login automático
         localStorage.setItem(TOKEN_KEY, token);
         setUser(cliente);
+        setToken(token);
         console.log('Usuario registrado y logeado automáticamente:', cliente.email_cliente);
       }
 
@@ -216,6 +224,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    */
   const logout = useCallback(() => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem(TOKEN_KEY);
     delete axiosInstance.defaults.headers.common['Authorization'];
   }, []);
@@ -238,6 +247,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     <AuthContext.Provider
       value={{
         user,
+        token,
         isAuthenticated: !!user,
         login,
         register,

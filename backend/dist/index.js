@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import almacenRoutes from './routes/almacenRoutes.js';
 import clienteRoutes from './routes/clienteRoutes.js';
+import carritoRoutes from './routes/carritoRoutes.js';
 import { initDatabase } from './config/database.js';
 import logger from './utils/logger.js';
 import { initializeImageService } from './services/imageService.js';
@@ -70,6 +71,8 @@ app.get('/api/images-status', (req, res) => {
 app.use('/api/almacen', almacenRoutes);
 // Rutas de clientes
 app.use('/api/clientes', clienteRoutes);
+// Rutas de carrito
+app.use('/api/carrito', carritoRoutes);
 // Manejo de errores global
 app.use((err, req, res, next) => {
     logger.error('Error no manejado:', {

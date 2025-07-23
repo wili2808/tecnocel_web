@@ -1,24 +1,39 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCarrito } from '../../../contexts/CarritoContext';
 import styles from './CartSummary.module.css';
 
 interface CartSummaryProps {
     total: number;
     itemCount: number;
     items: Array<{
-        id: number;
-        producto_id: number;
+        id_item: number;
+        id_carrito: number;
+        id_producto: number;
         cantidad: number;
-        precio: number;
+        precio_unitario: number;
         subtotal: number;
+        fyh_creacion: string;
+        fyh_actualizacion: string;
+        producto?: {
+            id_producto: number;
+            nombre: string;
+            descripcion: string;
+            precio_venta: string;
+            imagen: string;
+            stock: number;
+        };
     }>;
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) => {
+    const navigate = useNavigate();
+    const { confirmarCompra } = useCarrito();
     const [couponCode, setCouponCode] = useState('');
     const [showCouponInput, setShowCouponInput] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const subtotalProducts = items.reduce((sum, item) => sum + item.subtotal, 0);
+    const subtotalProducts = items.reduce((sum, item) => sum + parseFloat(item.subtotal.toString()), 0);
     const shipping = 0; // Envío gratis
     const discount = 0; // Descuentos por cupón
 
@@ -35,14 +50,28 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
         }, 1000);
     };
 
-    const handleContinuePurchase = () => {
+    const handleContinuePurchase = async () => {
+        if (items.length === 0) {
+            alert('No hay productos en el carrito');
+            return;
+        }
+
         setIsProcessing(true);
-        // Simular proceso de compra
-        setTimeout(() => {
+        try {
+            const venta = await confirmarCompra({
+                observaciones: 'Compra realizada desde la web',
+                moneda: 'BOB'
+            });
+
+            // Mostrar mensaje de éxito y redirigir
+            alert(`¡Compra realizada exitosamente! Número de venta: ${venta.nro_venta}`);
+            navigate('/'); // Redirigir al inicio
+        } catch (error: any) {
+            console.error('Error al procesar la compra:', error);
+            alert(error.message || 'Error al procesar la compra. Intente nuevamente.');
+        } finally {
             setIsProcessing(false);
-            // Aquí iría la lógica para proceder con la compra
-            console.log('Continuar con la compra');
-        }, 1000);
+        }
     };
 
     return (

@@ -5,6 +5,7 @@ class Venta extends Model {
   declare id_venta: number;
   declare nro_venta: number;
   declare id_cliente: number;
+  declare id_carrito: number | null;
   declare total_pagado: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
@@ -29,6 +30,14 @@ Venta.init({
     references: {
       model: 'tb_clientes',
       key: 'id_cliente'
+    }
+  },
+  id_carrito: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tb_carritosweb',
+      key: 'id_carrito'
     }
   },
   total_pagado: {

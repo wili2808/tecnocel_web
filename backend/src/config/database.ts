@@ -15,7 +15,7 @@ dotenv.config();
  * Se utilizan variables de entorno con valores por defecto
  */
 const sequelize = new Sequelize({
-  database: process.env.DB_NAME || 'tecnocel_db_v1',
+  database: process.env.DB_NAME || 'tecnocel_db_v2',
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   host: process.env.DB_HOST || 'localhost',

@@ -43,7 +43,7 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
             </div>
 
             {/* Búsquedas Rápidas */}
-            <div className={styles.filterSection}>
+            <div className={styles.quickSearchSection}>
                 <h3 className={styles.filterSectionTitle}>Búsquedas Rápidas</h3>
                 <QuickSearch
                     selectedQuickSearch={filters.selectedQuickSearch}

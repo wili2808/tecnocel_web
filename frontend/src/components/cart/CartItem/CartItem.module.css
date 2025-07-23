@@ -1,49 +1,29 @@
-/* === CART ITEM - HORIZONTAL LAYOUT === */
+/* === LAYOUT PRINCIPAL === */
 .cartItem {
-    background: var(--background-elevated);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    transition: var(--theme-transition);
     display: flex;
-    flex-direction: row;
-    border: 1px solid var(--border-color);
-    min-height: 140px;
-    width: 100%;
-    padding: var(--spacing-md);
-    align-items: center;
+    align-items: flex-start;
     gap: var(--spacing-md);
-    position: relative;
+    padding: var(--spacing-lg);
+    background: var(--background-primary);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
     margin-bottom: var(--spacing-md);
+    position: relative;
+    transition: var(--theme-transition);
+}
+
+.cartItem:hover {
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-primary-200);
 }
 
 .cartItem:last-child {
     margin-bottom: 0;
 }
 
-.cartItem:hover {
-    box-shadow: var(--shadow-lg);
-    border-color: var(--color-primary-light);
-}
-
 .cartItem.updating {
-    opacity: 0.7;
+    opacity: 0.8;
     pointer-events: none;
-}
-
-/* === CHECKBOX === */
-.itemCheckbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--color-primary);
 }
 
 /* === IMAGEN === */
@@ -98,6 +78,7 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -122,6 +103,7 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
 }
 
@@ -139,15 +121,15 @@
 }
 
 .stockBadge {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+    margin-right: 10px;
     padding: 4px var(--spacing-sm);
     border-radius: var(--border-radius-full);
     font-size: var(--font-size-xs);
     font-weight: 500;
-    background: var(--color-success);
-    color: white;
+    color: var(--color-success);;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -316,6 +298,7 @@
     .productTitle {
         font-size: var(--font-size-lg);
         -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
     
     .unitPrice {
@@ -325,6 +308,7 @@
     .productDescription {
         font-size: var(--font-size-sm);
         -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
     
     .productFooter {
@@ -364,6 +348,7 @@
     .productTitle {
         font-size: var(--font-size-md);
         -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
     
     .unitPrice {
@@ -373,6 +358,7 @@
     .productDescription {
         font-size: var(--font-size-xs);
         -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
     
     .stockBadge {

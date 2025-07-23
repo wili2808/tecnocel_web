@@ -1,0 +1,177 @@
+.notification {
+  position: relative;
+  min-width: 320px;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e1e5e9;
+  overflow: hidden;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification.hide {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.notificationContent {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.messageContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #374151;
+  font-weight: 500;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  text-decoration: underline;
+}
+
+.actionButton:hover {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.closeButton .material-icons {
+  font-size: 18px;
+}
+
+/* Tipos de notificación */
+.error {
+  border-left: 4px solid #ef4444;
+}
+
+.error .icon {
+  color: #ef4444;
+}
+
+.success {
+  border-left: 4px solid #10b981;
+}
+
+.success .icon {
+  color: #10b981;
+}
+
+.warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.warning .icon {
+  color: #f59e0b;
+}
+
+.info {
+  border-left: 4px solid #3b82f6;
+}
+
+.info .icon {
+  color: #3b82f6;
+}
+
+/* Barra de progreso */
+.progressBar {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(to right, currentColor, currentColor);
+  background-size: 100% 100%;
+  animation: progress 5s linear;
+}
+
+.progressBar.error {
+  color: #ef4444;
+}
+
+.progressBar.success {
+  color: #10b981;
+}
+
+.progressBar.warning {
+  color: #f59e0b;
+}
+
+.progressBar.info {
+  color: #3b82f6;
+}
+
+@keyframes progress {
+  0% {
+    background-size: 100% 100%;
+  }
+  100% {
+    background-size: 0% 100%;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .notificationContent {
+    padding: 14px 16px;
+  }
+  
+  .message {
+    font-size: 13px;
+  }
+} 

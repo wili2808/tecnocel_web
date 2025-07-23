@@ -7,12 +7,14 @@ interface ProductSearchProps {
     placeholder?: string;
     showClearButton?: boolean;
     className?: string;
+    onSearch?: () => void;
 }
 
 const ProductSearch: React.FC<ProductSearchProps> = ({
     placeholder = "Buscar productos...",
     showClearButton = true,
-    className = ''
+    className = '',
+    onSearch
 }) => {
     const { searchQuery, setSearchQuery, clearSearch, isSearching } = useSearch();
     const location = useLocation();
@@ -38,6 +40,8 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
             if (location.pathname !== '/productos') {
                 navigate('/productos');
             }
+            // Llamar al callback onSearch si existe
+            onSearch?.();
         }
     };
 

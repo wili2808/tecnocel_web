@@ -1,5 +1,7 @@
 import Almacen from './Almacen.js';
 import Carrito from './Carrito.js';
+import CarritoWeb from './CarritoWeb.js';
+import CarritoWebItems from './CarritoWebItems.js';
 import Categoria from './Categoria.js';
 import Cliente from './Cliente.js';
 import Compra from './Compra.js';
@@ -12,4 +14,4 @@ import Proveedor from './Proveedor.js';
 import Rol from './Rol.js';
 import Usuario from './Usuario.js';
 import Venta from './Venta.js';
-export { Almacen, Carrito, Categoria, Cliente, Compra, DetalleCompra, DetalleDevolucion, Devolucion, Presupuesto, PresupuestoDetalle, Proveedor, Rol, Usuario, Venta };
+export { Almacen, Carrito, CarritoWeb, CarritoWebItems, Categoria, Cliente, Compra, DetalleCompra, DetalleDevolucion, Devolucion, Presupuesto, PresupuestoDetalle, Proveedor, Rol, Usuario, Venta };

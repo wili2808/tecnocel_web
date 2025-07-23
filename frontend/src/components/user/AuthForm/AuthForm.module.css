@@ -59,7 +59,7 @@ input[type="password"]::-ms-reveal {
 /* ===== ESTILOS PARA HEADER INTEGRADO ===== */
 .authHeader {
     text-align: center;
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
     padding-top: var(--spacing-sm);
 }
 
@@ -474,10 +474,6 @@ input[type="password"]::-ms-reveal {
         max-width: 580px;
         padding: var(--spacing-2xl);
     }
-    
-    .authHeader {
-        margin-bottom: var(--spacing-xl);
-    }
 }
 
 @media (max-width: 768px) {
@@ -623,7 +619,7 @@ input[type="password"]::-ms-reveal {
     }
     
     .authHeader {
-        margin-bottom: var(--spacing-3xl);
+        margin-bottom: var(--spacing-2xl);
     }
     
     .logo {

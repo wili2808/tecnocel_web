@@ -4,12 +4,22 @@ import styles from './CartItem.module.css';
 
 interface CartItemProps {
     item: {
-        id: number;
-        producto_id: number;
+        id_item: number;
+        id_carrito: number;
+        id_producto: number;
         cantidad: number;
-        precio: number;
-        detalles_personalizacion?: any;
+        precio_unitario: number;
         subtotal: number;
+        fyh_creacion: string;
+        fyh_actualizacion: string;
+        producto?: {
+            id_producto: number;
+            nombre: string;
+            descripcion: string;
+            precio_venta: string;
+            imagen: string;
+            stock: number;
+        };
     };
 }
 
@@ -22,7 +32,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
         setIsUpdating(true);
         try {
-            await actualizarCantidad(item.id, newQuantity);
+            await actualizarCantidad(item.id_item, newQuantity);
         } catch (error) {
             console.error('Error al actualizar cantidad:', error);
         } finally {
@@ -33,38 +43,29 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     const handleRemoveItem = async () => {
         setIsUpdating(true);
         try {
-            await eliminarItem(item.id);
+            await eliminarItem(item.id_item);
         } catch (error) {
             console.error('Error al eliminar item:', error);
             setIsUpdating(false);
         }
     };
 
-    // Obtener información del producto (placeholder por ahora)
-    const productInfo = {
-        name: item.producto_id === 1 ? 'Mochila Grande Puffer Negra Negro Liso' : 'Porta Termo Puffer Con Correa Color Chocolate',
-        image: item.producto_id === 1 ? '/api/placeholder/100/100' : '/api/placeholder/100/100',
-        stock: item.producto_id === 1 ? 2 : 5,
-        description: item.producto_id === 1 ? 'Mochila grande con diseño puffer' : 'Porta termo con correa ajustable'
+    // Usar datos del producto si están disponibles, sino usar placeholders
+    const productInfo = item.producto || {
+        nombre: `Producto ${item.id_producto}`,
+        descripcion: 'Descripción del producto',
+        imagen: '/placeholder.svg',
+        stock: 0,
+        precio_venta: item.precio_unitario.toString()
     };
 
     return (
         <div className={`${styles.cartItem} ${isUpdating ? styles.updating : ''}`}>
-            {/* Checkbox de selección */}
-            <div className={styles.itemCheckbox}>
-                <input
-                    type="checkbox"
-                    checked={true}
-                    onChange={() => { }}
-                    className={styles.checkbox}
-                />
-            </div>
-
             {/* Imagen del producto */}
             <div className={styles.imageContainer}>
                 <img
-                    src={productInfo.image}
-                    alt={productInfo.name}
+                    src={productInfo.imagen}
+                    alt={productInfo.nombre}
                     className={styles.productImage}
                 />
             </div>
@@ -72,20 +73,20 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             {/* Información del producto */}
             <div className={styles.productInfo}>
                 <div className={styles.productHeader}>
-                    <h3 className={styles.productTitle}>{productInfo.name}</h3>
+                    <h3 className={styles.productTitle}>{productInfo.nombre}</h3>
                     <div className={styles.priceContainer}>
                         <span className={styles.unitPrice}>
-                            $ {item.precio.toLocaleString('es-ES')}
+                            $ {item.precio_unitario.toLocaleString('es-ES')}
                         </span>
                     </div>
                 </div>
 
-                <p className={styles.productDescription}>{productInfo.description}</p>
+                <p className={styles.productDescription}>{productInfo.descripcion}</p>
 
                 <div className={styles.productFooter}>
                     <div className={styles.stockContainer}>
                         <span className={styles.stockBadge}>
-                            {productInfo.stock} disponibles
+                            {productInfo.stock} en Stock
                         </span>
                     </div>
 

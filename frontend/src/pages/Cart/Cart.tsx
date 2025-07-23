@@ -9,7 +9,7 @@ import styles from './Cart.module.css';
 const Cart: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
-    const { estado, obtenerCarrito, agregarItemsPrueba } = useCarrito();
+    const { estado, obtenerCarrito, vaciarCarrito } = useCarrito();
 
     // Redirigir si no está autenticado
     useEffect(() => {
@@ -62,12 +62,7 @@ const Cart: React.FC = () => {
 
     return (
         <div className={styles.cartContainer}>
-            <div className={styles.cartHeader}>
-                <h1 className={styles.pageTitle}>Carrito de Compras</h1>
-                <p className={styles.pageSubtitle}>
-                    {isEmpty ? 'Tu carrito está vacío' : `${estado.items.length} producto${estado.items.length > 1 ? 's' : ''} en tu carrito`}
-                </p>
-            </div>
+
 
             {isEmpty ? (
                 <div className={styles.emptyCart}>
@@ -81,13 +76,13 @@ const Cart: React.FC = () => {
                             onClick={() => navigate('/productos')}
                             className={styles.continueShoppingButton}
                         >
-                            Explorar productos
+                            Productos disponibles
                         </button>
                         <button
-                            onClick={agregarItemsPrueba}
-                            className={styles.addTestItemsButton}
+                            onClick={() => navigate('/ofertas')}
+                            className={styles.offersButton}
                         >
-                            Agregar productos de prueba
+                            Nuestras ofertas
                         </button>
                     </div>
                 </div>
@@ -95,12 +90,10 @@ const Cart: React.FC = () => {
                 <div className={styles.cartContent}>
                     {/* Lista de productos */}
                     <div className={styles.cartItems}>
-                        <div className={styles.cartItemsHeader}>
-                            <h2>Productos de LACUARTAKOKORO</h2>
-                        </div>
+
                         <div className={styles.cartItemsList}>
                             {estado.items.map((item) => (
-                                <CartItem key={item.id} item={item} />
+                                <CartItem key={item.id_item} item={item} />
                             ))}
                         </div>
 
@@ -109,15 +102,32 @@ const Cart: React.FC = () => {
                             <div className={styles.shippingStatus}>
                                 <span className={styles.shippingIcon}>🚚</span>
                                 <div className={styles.shippingText}>
-                                    <span className={styles.shippingBadge}>Gratis</span>
-                                    <span className={styles.shippingLabel}>Envío gratis</span>
+                                    <span className={styles.shippingBadge}>Envio gratis</span>
                                 </div>
                             </div>
                             <div className={styles.shippingDetails}>
-                                <p>Aprovecha tu envío gratis agregando más productos de LACUARTAKOKORO.</p>
-                                <button className={styles.moreProductsButton}>
-                                    Ver más productos de este vendedor
-                                </button>
+                                <p>Aprovecha tu envío gratis agregando más productos.</p>
+                                <div className={styles.cartActions}>
+                                    <button
+                                        className={styles.moreProductsButton}
+                                        onClick={() => navigate('/productos')}
+                                    >
+                                        <span className="material-icons">shopping_bag</span>
+                                        Ver más productos
+                                    </button>
+                                    <button
+                                        className={styles.clearCartButton}
+                                        onClick={async () => {
+                                            if (window.confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+                                                await vaciarCarrito();
+                                            }
+                                        }}
+                                        disabled={estado.cargando}
+                                    >
+                                        <span className="material-icons">delete_sweep</span>
+                                        Vaciar carrito
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -125,8 +135,8 @@ const Cart: React.FC = () => {
                     {/* Resumen de compra */}
                     <div className={styles.cartSummary}>
                         <CartSummary
-                            total={estado.total}
-                            itemCount={estado.items.length}
+                            total={estado.total_carrito}
+                            itemCount={estado.cantidad_items}
                             items={estado.items}
                         />
                     </div>

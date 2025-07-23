@@ -5,6 +5,7 @@
   height: 100%;
   overflow: hidden;
   position: relative;
+
 }
 
 /* Secciones de filtros */
@@ -18,34 +19,29 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
   box-shadow: var(--shadow-xs);
-  flex: 1;
+  flex: 0.7;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  min-height: 0;
   margin-bottom: var(--spacing-md);
-  
-  /* Scrollbar personalizada para categorías */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--background-neutral);
 }
 
-.filterSection::-webkit-scrollbar {
-  width: 4px;
-}
-
-.filterSection::-webkit-scrollbar-track {
-  background: var(--background-neutral);
-  border-radius: var(--border-radius-full);
-}
-
-.filterSection::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: var(--border-radius-full);
-  transition: background var(--transition-fast) ease;
-}
-
-.filterSection::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-dark);
+/* Sección de búsquedas rápidas */
+.quickSearchSection {
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal) var(--transition-curve);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-bottom: var(--spacing-md);
 }
 
 /* Sección de ordenamiento */
@@ -58,7 +54,8 @@
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
-  flex: 0 0 auto;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   transition: all var(--transition-normal) var(--transition-curve);
   margin-bottom: var(--spacing-md);
@@ -144,6 +141,11 @@
     display: none;
   }
   
+  /* Ocultar sección de búsquedas rápidas en móvil */
+  .quickSearchSection {
+    display: none;
+  }
+  
   .filterSection {
     flex: 1;
     min-width: 0;
@@ -157,7 +159,7 @@
   }
   
   .sortingSection {
-    flex: 1.5;
+    flex: 1;
     min-width: 0;
     padding: 0;
     background: transparent;
@@ -201,7 +203,7 @@
   }
   
   .sortingSection {
-    flex: 1.6;
+    flex: 1;
   }
   
   .resultsCounter {

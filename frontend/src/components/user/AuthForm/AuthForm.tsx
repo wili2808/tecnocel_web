@@ -113,7 +113,6 @@ const AuthForm = () => {
                         className={styles.logo}
                     />
                 </div>
-                <h1 className={styles.title}>Iniciar Sesión</h1>
                 <p className={styles.subtitle}>Accede a tu cuenta para continuar</p>
             </div>
 

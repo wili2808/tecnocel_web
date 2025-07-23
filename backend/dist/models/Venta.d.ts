@@ -3,6 +3,7 @@ declare class Venta extends Model {
     id_venta: number;
     nro_venta: number;
     id_cliente: number;
+    id_carrito: number | null;
     total_pagado: number;
     fyh_creacion: Date;
     fyh_actualizacion: Date;

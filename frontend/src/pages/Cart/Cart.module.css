@@ -72,6 +72,7 @@
     align-items: center;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
+    justify-content: center;
 }
 
 .shippingIcon {
@@ -101,6 +102,7 @@
 
 .shippingDetails {
     padding-left: var(--spacing-2xl);
+    text-align: center;
 }
 
 .shippingDetails p {
@@ -109,19 +111,97 @@
     color: var(--text-secondary);
 }
 
+/* === ACCIONES DEL CARRITO === */
+.cartActions {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: var(--spacing-sm);
+    justify-content: center;
+}
+
 .moreProductsButton {
-    background: none;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    border: 2px solid var(--color-primary);
     color: var(--color-primary);
+    border-radius: var(--border-radius-md);
     font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
-    padding: 0;
-    text-decoration: underline;
-    transition: var(--theme-transition);
+    transition: all var(--transition-normal) ease;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .moreProductsButton:hover {
-    color: var(--color-primary-dark);
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-button-primary);
+}
+
+.moreProductsButton:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-button-primary-hover);
+}
+
+.clearCartButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    border: 2px solid var(--color-error);
+    color: var(--color-error);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-normal) ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.clearCartButton:hover:not(:disabled) {
+    background: var(--color-error);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.clearCartButton:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.clearCartButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+    .cartActions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        align-items: stretch;
+    }
+
+    .moreProductsButton,
+    .clearCartButton {
+        justify-content: center;
+        width: 100%;
+        padding: var(--spacing-md);
+    }
 }
 
 /* Resumen de compra */
@@ -198,7 +278,7 @@
     box-shadow: var(--shadow-button-primary-hover);
 }
 
-.addTestItemsButton {
+.offersButton {
     background: var(--color-purple-600);
     color: var(--text-inverse);
     border: none;
@@ -210,7 +290,7 @@
     transition: var(--theme-transition);
 }
 
-.addTestItemsButton:hover {
+.offersButton:hover {
     background: var(--color-purple-700);
 }
 
@@ -373,7 +453,7 @@
     }
     
     .continueShoppingButton,
-    .addTestItemsButton {
+    .offersButton {
         width: 100%;
         max-width: 280px;
     }

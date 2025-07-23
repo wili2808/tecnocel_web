@@ -1,24 +1,18 @@
-import { FaGithub, FaInstagram, FaFacebookF, FaTwitter } from 'react-icons/fa';
+import { FaInstagram, FaFacebookF, FaTwitter } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../../../contexts/ThemeContext';
 import styles from './Footer.module.css';
 
 const Footer = () => {
-    const { theme } = useTheme();
-
     return (
         <footer className={`${styles.footer} theme-transition`}>
             <div className={`${styles.footerContainer} ${styles.container}`}>
                 <div className={styles.footerGrid}>
                     <div className={styles.footerBrand}>
-                        <h3 className={styles.footerTitle}>MAC WIL</h3>
+                        <h3 className={styles.footerTitle}>TECNOCEL</h3>
                         <p className={styles.footerDescription}>
                             Tu tienda de confianza para los últimos dispositivos y accesorios electrónicos.
                         </p>
                         <div className={styles.socialLinks}>
-                            <a href="https://github.com/willy414" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                                <FaGithub />
-                            </a>
                             <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                                 <FaInstagram />
                             </a>
@@ -49,7 +43,7 @@ const Footer = () => {
                 </div>
 
                 <div className={styles.footerCopyright}>
-                    &copy; {new Date().getFullYear()} MAC WIL. Todos los derechos reservados.
+                    &copy; {new Date().getFullYear()} TECNOCEL. Todos los derechos reservados.
                 </div>
             </div>
         </footer>

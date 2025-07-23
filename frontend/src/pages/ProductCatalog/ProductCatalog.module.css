@@ -23,7 +23,7 @@
   padding: var(--container-padding);
   animation: fadeIn var(--animation-duration-normal) var(--transition-curve);
   box-shadow: var(--shadow-md);
-
+  z-index: var(--z-catalog);
 }
 
 .filtersSidebar {

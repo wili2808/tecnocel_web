@@ -280,7 +280,6 @@ const RegisterForm = () => {
                         className={styles.logo}
                     />
                 </div>
-                <h1 className={styles.title}>Crear Cuenta</h1>
                 <p className={styles.subtitle}>Únete a nuestra comunidad y disfruta de beneficios exclusivos</p>
             </div>
 

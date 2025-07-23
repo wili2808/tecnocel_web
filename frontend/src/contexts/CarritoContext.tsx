@@ -1,27 +1,59 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
+import { useAuth } from './AuthContext';
 
 /**
- * Estructura de un item en el carrito
+ * Estructura de un item en el carrito actualizada para el backend
  */
 interface ItemCarrito {
-  id: number;
-  producto_id: number;
+  id_item: number;
+  id_carrito: number;
+  id_producto: number;
   cantidad: number;
-  precio: number;
-  detalles_personalizacion?: any;
+  precio_unitario: number;
   subtotal: number;
+  fyh_creacion: string;
+  fyh_actualizacion: string;
+  producto?: {
+    id_producto: number;
+    nombre: string;
+    descripcion: string;
+    precio_venta: string;
+    imagen: string;
+    stock: number;
+  };
 }
 
 /**
- * Estado del carrito
+ * Estado del carrito actualizado
  */
 interface EstadoCarrito {
-  id: number | null;
+  id_carrito: number | null;
+  estado: 'activo' | 'completado' | 'abandonado';
   items: ItemCarrito[];
-  total: number;
+  total_carrito: number;
+  cantidad_items: number;
   cargando: boolean;
   error: string | null;
+}
+
+/**
+ * Datos de respuesta de compra
+ */
+interface DatosCompra {
+  observaciones?: string;
+  moneda?: 'BOB' | 'USD' | 'EUR';
+  metodo_pago?: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr';
+}
+
+/**
+ * Respuesta de venta confirmada
+ */
+interface VentaConfirmada {
+  id_venta: number;
+  nro_venta: number;
+  total_pagado: number;
+  fyh_creacion: string;
 }
 
 /**
@@ -31,15 +63,19 @@ type AccionCarrito =
   | { type: 'INICIALIZAR_CARRITO'; payload: any }
   | { type: 'INICIALIZAR_CARRITO_VACIO' }
   | { type: 'AGREGAR_ITEM'; payload: ItemCarrito }
-  | { type: 'ACTUALIZAR_CANTIDAD'; payload: { id: number; cantidad: number } }
+  | { type: 'ACTUALIZAR_ITEM'; payload: { id_item: number; cantidad: number; subtotal: number } }
   | { type: 'ELIMINAR_ITEM'; payload: number }
+  | { type: 'VACIAR_CARRITO' }
   | { type: 'ESTABLECER_CARGANDO'; payload: boolean }
-  | { type: 'ESTABLECER_ERROR'; payload: string };
+  | { type: 'ESTABLECER_ERROR'; payload: string | null }
+  | { type: 'ACTUALIZAR_TOTAL'; payload: number };
 
 const estadoInicial: EstadoCarrito = {
-  id: 1, // ID temporal para carrito local
+  id_carrito: null,
+  estado: 'activo',
   items: [],
-  total: 0,
+  total_carrito: 0,
+  cantidad_items: 0,
   cargando: false,
   error: null
 };
@@ -52,48 +88,63 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
     case 'INICIALIZAR_CARRITO':
       return {
         ...estado,
-        id: accion.payload.id,
+        id_carrito: accion.payload.id_carrito,
+        estado: accion.payload.estado || 'activo',
         items: accion.payload.items || [],
-        total: accion.payload.total || 0,
+        total_carrito: accion.payload.total_carrito || 0,
+        cantidad_items: accion.payload.cantidad_items || 0,
+        cargando: false,
         error: null
       };
     case 'INICIALIZAR_CARRITO_VACIO':
       return {
-        ...estado,
-        id: 1, // ID temporal para carrito local
-        items: [],
-        total: 0,
-        error: null
+        ...estadoInicial,
+        cargando: false
       };
     case 'AGREGAR_ITEM':
-      const nuevosItems = [...estado.items, accion.payload];
+      const itemsConNuevo = [...estado.items, accion.payload];
       return {
         ...estado,
-        items: nuevosItems,
-        total: nuevosItems.reduce((sum, item) => sum + item.subtotal, 0)
+        items: itemsConNuevo,
+        cantidad_items: itemsConNuevo.length,
+        error: null
       };
-    case 'ACTUALIZAR_CANTIDAD':
+    case 'ACTUALIZAR_ITEM':
       const itemsActualizados = estado.items.map(item =>
-        item.id === accion.payload.id
-          ? { ...item, cantidad: accion.payload.cantidad, subtotal: item.precio * accion.payload.cantidad }
+        item.id_item === accion.payload.id_item
+          ? { ...item, cantidad: accion.payload.cantidad, subtotal: accion.payload.subtotal }
           : item
       );
       return {
         ...estado,
         items: itemsActualizados,
-        total: itemsActualizados.reduce((sum, item) => sum + item.subtotal, 0)
+        error: null
       };
     case 'ELIMINAR_ITEM':
-      const itemsRestantes = estado.items.filter(item => item.id !== accion.payload);
+      const itemsRestantes = estado.items.filter(item => item.id_item !== accion.payload);
       return {
         ...estado,
         items: itemsRestantes,
-        total: itemsRestantes.reduce((sum, item) => sum + item.subtotal, 0)
+        cantidad_items: itemsRestantes.length,
+        error: null
+      };
+    case 'VACIAR_CARRITO':
+      return {
+        ...estado,
+        items: [],
+        total_carrito: 0,
+        cantidad_items: 0,
+        error: null
+      };
+    case 'ACTUALIZAR_TOTAL':
+      return {
+        ...estado,
+        total_carrito: accion.payload
       };
     case 'ESTABLECER_CARGANDO':
       return { ...estado, cargando: accion.payload };
     case 'ESTABLECER_ERROR':
-      return { ...estado, error: accion.payload };
+      return { ...estado, error: accion.payload, cargando: false };
     default:
       return estado;
   }
@@ -105,9 +156,11 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
 const CarritoContext = createContext<{
   estado: EstadoCarrito;
   obtenerCarrito: () => Promise<void>;
-  agregarItem: (producto_id: number, cantidad: number, detalles_personalizacion?: any) => Promise<void>;
-  actualizarCantidad: (item_id: number, cantidad: number) => Promise<void>;
-  eliminarItem: (item_id: number) => Promise<void>;
+  agregarItem: (id_producto: number, cantidad: number, detalles_personalizacion?: any) => Promise<void>;
+  actualizarCantidad: (id_item: number, cantidad: number) => Promise<void>;
+  eliminarItem: (id_item: number) => Promise<void>;
+  vaciarCarrito: () => Promise<void>;
+  confirmarCompra: (datosCompra: DatosCompra) => Promise<VentaConfirmada>;
   agregarItemsPrueba: () => void;
 } | null>(null);
 
@@ -127,81 +180,230 @@ export const useCarrito = () => {
  */
 export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [estado, dispatch] = useReducer(carritoReducer, estadoInicial);
+  const { isAuthenticated } = useAuth();
 
   /**
-   * Obtiene o crea un carrito desde el servidor
-   * Como el backend no está implementado, inicializa directamente en modo local
+   * Obtiene el carrito activo del cliente desde el servidor
    */
   const obtenerCarrito = useCallback(async () => {
-    console.log('Carrito inicializado en modo local (backend no implementado)');
-    // Inicializar directamente en modo local sin llamadas HTTP
-    dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
-  }, []);
+    if (!isAuthenticated) {
+      dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+      return;
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      const response = await axiosInstance.get('/carrito/');
+
+      if (response.data.carrito) {
+        dispatch({ type: 'INICIALIZAR_CARRITO', payload: response.data.carrito });
+      } else {
+        dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+      }
+    } catch (error: any) {
+      console.error('Error al obtener carrito:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al cargar el carrito';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated]);
 
   /**
-   * Agrega un nuevo item al carrito
-   * Funciona directamente en modo local
+   * Agrega un producto al carrito
    */
-  const agregarItem = useCallback(async (producto_id: number, cantidad: number, detalles_personalizacion?: any) => {
-    const nuevoItem = {
-      id: Date.now(), // ID temporal
-      producto_id,
-      cantidad,
-      precio: 25000, // Precio simulado
-      detalles_personalizacion,
-      subtotal: 25000 * cantidad
-    };
-    dispatch({ type: 'AGREGAR_ITEM', payload: nuevoItem });
-  }, []);
+  const agregarItem = useCallback(async (id_producto: number, cantidad: number, detalles_personalizacion?: any) => {
+    if (!isAuthenticated) {
+      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para agregar productos al carrito' });
+      return;
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      const response = await axiosInstance.post('/carrito/items', {
+        id_producto,
+        cantidad,
+        detalles_personalizacion
+      });
+
+      if (response.data.item) {
+        // Si el item ya existía, se actualizó; si no, se agregó
+        const itemExistente = estado.items.find(item => item.id_producto === id_producto);
+
+        if (itemExistente) {
+          dispatch({
+            type: 'ACTUALIZAR_ITEM',
+            payload: {
+              id_item: response.data.item.id_item,
+              cantidad: response.data.item.cantidad,
+              subtotal: response.data.item.subtotal
+            }
+          });
+        } else {
+          dispatch({ type: 'AGREGAR_ITEM', payload: response.data.item });
+        }
+
+        dispatch({ type: 'ACTUALIZAR_TOTAL', payload: response.data.total_carrito });
+      }
+    } catch (error: any) {
+      console.error('Error al agregar item:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al agregar producto al carrito';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated, estado.items]);
 
   /**
-   * Actualiza la cantidad de un item existente
-   * Funciona directamente en modo local
+   * Actualiza la cantidad de un item en el carrito
    */
-  const actualizarCantidad = useCallback(async (item_id: number, cantidad: number) => {
-    dispatch({ type: 'ACTUALIZAR_CANTIDAD', payload: { id: item_id, cantidad } });
-  }, []);
+  const actualizarCantidad = useCallback(async (id_item: number, cantidad: number) => {
+    if (!isAuthenticated) {
+      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para modificar el carrito' });
+      return;
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      const response = await axiosInstance.put(`/carrito/items/${id_item}`, {
+        cantidad
+      });
+
+      if (response.data.item) {
+        dispatch({
+          type: 'ACTUALIZAR_ITEM',
+          payload: {
+            id_item: response.data.item.id_item,
+            cantidad: response.data.item.cantidad,
+            subtotal: response.data.item.subtotal
+          }
+        });
+        dispatch({ type: 'ACTUALIZAR_TOTAL', payload: response.data.total_carrito });
+      }
+    } catch (error: any) {
+      console.error('Error al actualizar cantidad:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al actualizar la cantidad';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated]);
 
   /**
    * Elimina un item del carrito
-   * Funciona directamente en modo local
    */
-  const eliminarItem = useCallback(async (item_id: number) => {
-    dispatch({ type: 'ELIMINAR_ITEM', payload: item_id });
-  }, []);
+  const eliminarItem = useCallback(async (id_item: number) => {
+    if (!isAuthenticated) {
+      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para modificar el carrito' });
+      return;
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      const response = await axiosInstance.delete(`/carrito/items/${id_item}`);
+
+      dispatch({ type: 'ELIMINAR_ITEM', payload: id_item });
+      dispatch({ type: 'ACTUALIZAR_TOTAL', payload: response.data.total_carrito });
+    } catch (error: any) {
+      console.error('Error al eliminar item:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al eliminar producto del carrito';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated]);
 
   /**
-   * Agrega items de prueba al carrito para testing
+   * Vacía completamente el carrito
    */
-  const agregarItemsPrueba = useCallback(() => {
-    const itemsPrueba = [
-      {
-        id: 1,
-        producto_id: 1,
-        cantidad: 1,
-        precio: 38990,
-        detalles_personalizacion: null,
-        subtotal: 38990
-      },
-      {
-        id: 2,
-        producto_id: 2,
-        cantidad: 1,
-        precio: 23900,
-        detalles_personalizacion: null,
-        subtotal: 23900
+  const vaciarCarrito = useCallback(async () => {
+    if (!isAuthenticated) {
+      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para vaciar el carrito' });
+      return;
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      await axiosInstance.delete('/carrito/');
+
+      dispatch({ type: 'VACIAR_CARRITO' });
+    } catch (error: any) {
+      console.error('Error al vaciar carrito:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al vaciar el carrito';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated]);
+
+  /**
+   * Confirma la compra y convierte el carrito en venta
+   */
+  const confirmarCompra = useCallback(async (datosCompra: DatosCompra): Promise<VentaConfirmada> => {
+    if (!isAuthenticated) {
+      throw new Error('Debe iniciar sesión para realizar la compra');
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      const response = await axiosInstance.post('/carrito/confirmar-compra', datosCompra);
+
+      if (response.data.venta) {
+        // Limpiar carrito después de compra exitosa
+        dispatch({ type: 'VACIAR_CARRITO' });
+        return response.data.venta;
+      } else {
+        throw new Error('Respuesta inválida del servidor');
       }
-    ];
+    } catch (error: any) {
+      console.error('Error al confirmar compra:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al procesar la compra';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      throw new Error(mensajeError);
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated]);
 
-    itemsPrueba.forEach(item => {
-      dispatch({ type: 'AGREGAR_ITEM', payload: item });
-    });
-  }, []);
+  /**
+   * Agrega items de prueba al carrito (solo para desarrollo)
+   */
+  const agregarItemsPrueba = useCallback(async () => {
+    if (!isAuthenticated) {
+      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para usar esta función' });
+      return;
+    }
 
+    try {
+      // Agregar algunos productos de prueba
+      await agregarItem(1, 1);
+      await agregarItem(2, 2);
+    } catch (error) {
+      console.error('Error al agregar items de prueba:', error);
+    }
+  }, [isAuthenticated, agregarItem]);
+
+  // Cargar carrito cuando el usuario se autentica
   useEffect(() => {
-    // Inicializar el carrito directamente en modo local
-    obtenerCarrito();
-  }, [obtenerCarrito]);
+    if (isAuthenticated) {
+      obtenerCarrito();
+    } else {
+      dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+    }
+  }, [isAuthenticated, obtenerCarrito]);
 
   return (
     <CarritoContext.Provider
@@ -211,6 +413,8 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
         agregarItem,
         actualizarCantidad,
         eliminarItem,
+        vaciarCarrito,
+        confirmarCompra,
         agregarItemsPrueba
       }}
     >

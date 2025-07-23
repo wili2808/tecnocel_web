@@ -1,5 +1,7 @@
 import Almacen from './Almacen.js';
 import Carrito from './Carrito.js';
+import CarritoWeb from './CarritoWeb.js';
+import CarritoWebItems from './CarritoWebItems.js';
 import Categoria from './Categoria.js';
 import Cliente from './Cliente.js';
 import Compra from './Compra.js';
@@ -19,11 +21,26 @@ Categoria.hasMany(Almacen, { foreignKey: 'id_categoria' });
 Almacen.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 Usuario.hasMany(Almacen, { foreignKey: 'id_usuario' });
 
-// Carrito
+// Carrito (tabla antigua)
 Carrito.belongsTo(Almacen, { foreignKey: 'id_producto' });
 Almacen.hasMany(Carrito, { foreignKey: 'id_producto' });
 Carrito.belongsTo(Venta, { foreignKey: 'nro_venta', targetKey: 'nro_venta' });
 Venta.hasMany(Carrito, { foreignKey: 'nro_venta', sourceKey: 'nro_venta' });
+
+// CarritoWeb (nueva implementación)
+CarritoWeb.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
+Cliente.hasMany(CarritoWeb, { foreignKey: 'id_cliente', as: 'carritos' });
+
+// CarritoWebItems
+CarritoWebItems.belongsTo(CarritoWeb, { foreignKey: 'id_carrito', as: 'carrito' });
+CarritoWeb.hasMany(CarritoWebItems, { foreignKey: 'id_carrito', as: 'items' });
+
+CarritoWebItems.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+Almacen.hasMany(CarritoWebItems, { foreignKey: 'id_producto', as: 'carritoItems' });
+
+// Venta con CarritoWeb
+Venta.belongsTo(CarritoWeb, { foreignKey: 'id_carrito', as: 'carrito' });
+CarritoWeb.hasOne(Venta, { foreignKey: 'id_carrito', as: 'venta' });
 
 // Compra y DetalleCompra
 Compra.belongsTo(Usuario, { foreignKey: 'id_usuario' });
@@ -64,6 +81,8 @@ Cliente.hasMany(Venta, { foreignKey: 'id_cliente' });
 export {
   Almacen,
   Carrito,
+  CarritoWeb,
+  CarritoWebItems,
   Categoria,
   Cliente,
   Compra,

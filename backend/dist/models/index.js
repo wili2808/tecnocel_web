@@ -1,4 +1,6 @@
 import './Carrito.js';
+import './CarritoWeb.js';
+import './CarritoWebItems.js';
 import './Almacen.js';
 import './Categoria.js';
 import './Cliente.js';

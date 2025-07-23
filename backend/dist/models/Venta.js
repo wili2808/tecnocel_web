@@ -20,6 +20,14 @@ Venta.init({
             key: 'id_cliente'
         }
     },
+    id_carrito: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'tb_carritosweb',
+            key: 'id_carrito'
+        }
+    },
     total_pagado: {
         type: DataTypes.INTEGER,
         allowNull: false

@@ -1,5 +1,8 @@
 import React, { memo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCarrito } from '../../../contexts/CarritoContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNotification } from '../../../contexts/NotificationContext';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
@@ -14,7 +17,14 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     onClick
 }) => {
     const [imageError, setImageError] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const isOutOfStock = stock === 0;
+
+    const { agregarItem, estado } = useCarrito();
+    const { isAuthenticated } = useAuth();
+    const { showNotification } = useNotification();
+    const navigate = useNavigate();
 
     // Usar eager loading para los primeros 8 productos (generalmente los visibles)
     const shouldUseEagerLoading = id_producto <= 8;
@@ -40,8 +50,76 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
         onClick?.();
     };
 
+    /**
+     * Maneja el evento de agregar producto al carrito
+     */
+    const handleAddToCart = async (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevenir navegación del Link
+        e.stopPropagation(); // Prevenir propagación del evento
+
+        if (!isAuthenticated) {
+            showNotification(
+                '¡Inicia sesión para agregar productos a tu carrito!',
+                'info',
+                4000,
+                {
+                    label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        if (isOutOfStock || isAddingToCart) {
+            return;
+        }
+
+        setIsAddingToCart(true);
+        try {
+            await agregarItem(id_producto, 1); // Agregar 1 unidad por defecto
+
+            // Mostrar confirmación visual
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 2000);
+
+        } catch (error) {
+            console.error('Error al agregar producto al carrito:', error);
+            showNotification('Error al agregar el producto al carrito. Por favor, intente nuevamente.', 'error', 5000);
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
+
     const stockText = stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
     const imageSource = imageError ? '/placeholder.svg' : (imagen_url || '/placeholder.svg');
+
+    // Determinar el contenido del overlay según el estado
+    const getOverlayContent = () => {
+        if (isAddingToCart) {
+            return (
+                <>
+                    <span className={`material-icons ${styles.overlayIcon} ${styles.loadingIcon}`}>hourglass_empty</span>
+                    <span className={styles.overlayText}>Agregando...</span>
+                </>
+            );
+        }
+
+        if (showSuccess) {
+            return (
+                <>
+                    <span className={`material-icons ${styles.overlayIcon} ${styles.successIcon}`}>check_circle</span>
+                    <span className={styles.overlayText}>¡Agregado!</span>
+                </>
+            );
+        }
+
+        return (
+            <>
+                <span className={`material-icons ${styles.overlayIcon}`}>add_shopping_cart</span>
+                <span className={styles.overlayText}>Agregar al carrito</span>
+            </>
+        );
+    };
 
     return (
         <Link
@@ -61,10 +139,17 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
                         loading={shouldUseEagerLoading ? "eager" : "lazy"}
                         onError={handleImageError}
                     />
-                    <div className={styles.imageOverlay}>
-                        <span className={styles.overlayIcon} aria-hidden="true">+</span>
-                        <span className={styles.overlayText}>Ver más</span>
-                    </div>
+                    {!isOutOfStock && (
+                        <button
+                            className={`${styles.imageOverlay} ${showSuccess ? styles.successOverlay : ''}`}
+                            onClick={handleAddToCart}
+                            disabled={isAddingToCart || estado.cargando}
+                            aria-label={`Agregar ${nombre} al carrito`}
+                            type="button"
+                        >
+                            {getOverlayContent()}
+                        </button>
+                    )}
                     {isOutOfStock && (
                         <div className={styles.outOfStockBadge} role="status" aria-label="Producto agotado">
                             Agotado

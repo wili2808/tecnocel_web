@@ -92,7 +92,7 @@
 
 /* === INFORMACIÓN DEL PRODUCTO === */
 .productInfo {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -119,6 +119,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
@@ -142,6 +143,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
 }
 
@@ -162,7 +164,6 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: 4px var(--spacing-sm);
   border-radius: var(--border-radius-full);
   font-size: var(--font-size-xs);
   font-weight: 500;
@@ -200,16 +201,62 @@
   transition: all var(--transition-normal) var(--transition-curve);
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0, 188, 212, 0.2);
+  position: relative;
+  overflow: hidden;
 }
 
-.addToCartButton:hover {
+.addToCartButton:hover:not(:disabled) {
   background: #00acc1;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 188, 212, 0.3);
 }
 
-.addToCartButton:active {
+.addToCartButton:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.addToCartButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Botón en estado de éxito */
+.successButton {
+  background: #4caf50 !important;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2) !important;
+  animation: pulseSuccess 0.6s ease-out;
+}
+
+.successButton:hover {
+  background: #45a049 !important;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* Animación de éxito */
+@keyframes pulseSuccess {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+  }
+}
+
+/* Animación de carga */
+.addToCartButton:disabled .material-icons {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .disabledButton {
@@ -256,6 +303,7 @@
   .productTitle {
     font-size: var(--font-size-lg);
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .price {
@@ -265,6 +313,7 @@
   .productDescription {
     font-size: var(--font-size-sm);
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .productFooter {
@@ -296,6 +345,7 @@
   .productTitle {
     font-size: var(--font-size-md);
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .price {
@@ -305,6 +355,7 @@
   .productDescription {
     font-size: var(--font-size-xs);
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .stockBadge {

@@ -1,5 +1,8 @@
 import React, { memo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCarrito } from '../../../contexts/CarritoContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNotification } from '../../../contexts/NotificationContext';
 import styles from './ProductCardExtensive.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
@@ -14,7 +17,14 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     onClick
 }) => {
     const [imageError, setImageError] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const isOutOfStock = stock === 0;
+
+    const { agregarItem, estado } = useCarrito();
+    const { isAuthenticated } = useAuth();
+    const { showNotification } = useNotification();
+    const navigate = useNavigate();
 
     // Formatear precio
     const formatPrice = (price: string): string => {
@@ -37,8 +47,76 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         onClick?.();
     };
 
+    /**
+     * Maneja el evento de agregar producto al carrito
+     */
+    const handleAddToCart = async (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevenir navegación del Link
+        e.stopPropagation(); // Prevenir propagación del evento
+
+        if (!isAuthenticated) {
+            showNotification(
+                '¡Inicia sesión para agregar productos a tu carrito!',
+                'info',
+                4000,
+                {
+                    label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        if (isOutOfStock || isAddingToCart) {
+            return;
+        }
+
+        setIsAddingToCart(true);
+        try {
+            await agregarItem(id_producto, 1); // Agregar 1 unidad por defecto
+
+            // Mostrar confirmación visual
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 2000);
+
+        } catch (error) {
+            console.error('Error al agregar producto al carrito:', error);
+            showNotification('Error al agregar el producto al carrito. Por favor, intente nuevamente.', 'error', 5000);
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
+
     const stockText = stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
     const imageSource = imageError ? '/placeholder.svg' : (imagen_url || '/placeholder.svg');
+
+    // Determinar el texto y estado del botón
+    const getButtonContent = () => {
+        if (isAddingToCart) {
+            return (
+                <>
+                    <span className="material-icons">hourglass_empty</span>
+                    Agregando...
+                </>
+            );
+        }
+
+        if (showSuccess) {
+            return (
+                <>
+                    <span className="material-icons">check_circle</span>
+                    ¡Agregado!
+                </>
+            );
+        }
+
+        return (
+            <>
+                <span className="material-icons">add_shopping_cart</span>
+                Agregar al carrito
+            </>
+        );
+    };
 
     return (
         <Link
@@ -90,9 +168,14 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
 
                         <div className={styles.actionContainer}>
                             {!isOutOfStock ? (
-                                <button className={styles.addToCartButton} type="button">
-                                    <span className="material-icons">add_shopping_cart</span>
-                                    Agregar al carrito
+                                <button
+                                    className={`${styles.addToCartButton} ${showSuccess ? styles.successButton : ''}`}
+                                    type="button"
+                                    onClick={handleAddToCart}
+                                    disabled={isAddingToCart || estado.cargando}
+                                    aria-label={`Agregar ${nombre} al carrito`}
+                                >
+                                    {getButtonContent()}
                                 </button>
                             ) : (
                                 <button className={styles.disabledButton} type="button" disabled>
