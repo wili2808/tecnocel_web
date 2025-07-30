@@ -11,6 +11,16 @@ const productService = {
     }
   },
 
+  getProductById: async (id: number) => {
+    try {
+      const response = await axiosInstance.get(`/almacen/productos/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching product by ID:', error);
+      throw error;
+    }
+  },
+
   getFeaturedProducts: async () => {
     try {
       const response = await axiosInstance.get('/almacen/productos/destacados');

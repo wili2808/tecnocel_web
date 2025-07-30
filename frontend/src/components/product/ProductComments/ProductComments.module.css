@@ -1,0 +1,196 @@
+.productComments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  background-color: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: var(--theme-transition);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-width-thin) solid var(--border-color-light);
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-2xl);
+  text-align: center;
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width-thin) dashed var(--border-color-light);
+}
+
+.placeholderIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+  border-radius: var(--border-radius-full);
+}
+
+.placeholderIcon .material-icons {
+  font-size: 32px;
+}
+
+.placeholderContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: 400px;
+}
+
+.placeholderTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.placeholderText {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+/* Estilos para cuando esté implementado */
+.commentsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.commentInput {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--spacing-md);
+  border: var(--border-width-thin) solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  resize: vertical;
+}
+
+.commentInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-curve);
+  align-self: flex-end;
+}
+
+.submitButton:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.submitButton .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .productComments {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-lg);
+  }
+
+  .placeholder {
+    padding: var(--spacing-xl);
+    gap: var(--spacing-md);
+  }
+
+  .placeholderIcon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .placeholderIcon .material-icons {
+    font-size: 28px;
+  }
+
+  .commentForm {
+    padding: var(--spacing-md);
+  }
+
+  .submitButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .productComments {
+    padding: var(--spacing-md);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .placeholder {
+    padding: var(--spacing-lg);
+  }
+
+  .placeholderIcon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .placeholderIcon .material-icons {
+    font-size: 24px;
+  }
+
+  .placeholderTitle {
+    font-size: var(--font-size-md);
+  }
+
+  .placeholderText {
+    font-size: var(--font-size-sm);
+  }
+} 

@@ -1,0 +1,41 @@
+.imageContainer {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: var(--theme-transition);
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: var(--background-elevated);
+  transition: transform var(--transition-normal) var(--transition-curve);
+}
+
+.productImage:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .imageContainer {
+    max-width: 100%;
+    aspect-ratio: 1;
+  }
+
+  .productImage:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .imageContainer {
+    border-radius: var(--border-radius-md);
+  }
+} 

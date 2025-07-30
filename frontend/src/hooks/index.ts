@@ -1,5 +1,6 @@
 // Hooks personalizados para la aplicación
 export { useProducts } from './useProducts';
+export { useProduct } from './useProduct';
 export { useFeaturedProducts } from './useFeaturedProducts';
 export { useCategories } from './useCategories';
 export { useProductFilters } from './useProductFilters';

@@ -6,10 +6,12 @@
   right: 0;
   z-index: var(--z-navbar);
   background: var(--background-light);
-  box-shadow: var(--shadow-focus);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   width: 100%;
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .mainNavbar {
@@ -106,15 +108,12 @@
 }
 
 .logoText {
-  font-family: var(--font-family-mono);
   font-size: var(--font-size-2xl);
-  font-style: italic;
-  font-weight: var(--font-weight-bold);
-  color: var(--text-inverse);
-  letter-spacing: 0.5px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
   white-space: nowrap;
   line-height: 1;
-  text-shadow: 1px 1px 2px var(--text-primary);
 }
 
 /* === NAVEGACIÓN SECUNDARIA === */
@@ -130,8 +129,6 @@
 .secondaryNavLink {
   color: var(--text-primary);
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  font-size: var(--font-size-sm);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--border-radius-md);
   transition: all var(--transition-normal) var(--transition-curve);
@@ -154,42 +151,6 @@
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-}
-
-/* === COMPONENTE BASE ICONBUTTON === */
-.iconButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: var(--border-radius-md);
-  color: var(--text-primary);
-  transition: all var(--transition-normal) ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.iconButton:hover {
-  color: var(--text-secondary);
-  transform: translateY(-1px);
-}
-
-.iconButton .material-icons {
-  font-size: var(--icon-size-lg);
-}
-
-.iconButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.iconButton:disabled:hover {
-  background-color: transparent;
-  color: var(--text-secondary);
-  transform: none;
 }
 
 /* === BOTONES ESPECIALIZADOS === */
@@ -231,18 +192,13 @@
 }
 
 .authButton {
+  display: flex;
+  color: var(--text-primary);
   background: none;
-  border: 1px solid transparent;
   cursor: pointer;
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
-  color: var(--text-primary);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  align-items: center;
   transition: all var(--transition-normal) ease;
 }
 
@@ -252,21 +208,25 @@
 }
 
 .authButtonText {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
 
 .registerButton {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  border: 1px solid var(--color-primary);
+  display: flex;
+  color: var(--text-primary);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--spacing-xs);
+  text-decoration: none;
+  align-items: center;
+  transition: all var(--transition-normal) ease;
 }
 
 .registerButton:hover {
-  background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
-  color: white;
-  border-color: var(--color-secondary);
+  color: var(--text-secondary);
+  transform: translateY(-1px);
 }
 
 .cartBadge {
@@ -275,8 +235,6 @@
   right: -2px;
   background: var(--color-error);
   color: white;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
   padding: 2px 5px;
   border-radius: var(--border-radius-full);
   min-width: var(--spacing-md);

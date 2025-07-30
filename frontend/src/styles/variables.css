@@ -158,10 +158,10 @@
   --section-spacing: 6rem;
 
   /* === COMPONENTES ESPECÍFICOS === */
-  --navbar-height: 64px;
+  --navbar-height: 60px;
   --navbar-height-mobile: 60px; /* Altura específica para mobile con una fila optimizada */
-  --navbar-height-tablet: 62px;
-  --search-input-height: 20px;
+  --navbar-height-tablet: 60px;
+  --search-input-height: 40px;
   
   /* === CATÁLOGO === */
   --sidebar-width: 320px;
@@ -197,7 +197,7 @@
   --transition-slow: 0.5s;
   --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
   --theme-transition: background-color var(--transition-normal) var(--transition-curve), color var(--transition-normal) var(--transition-curve), border-color var(--transition-normal) var(--transition-curve), box-shadow var(--transition-normal) var(--transition-curve);
-
+  
   /* === ANIMACIONES === */
   --animation-duration-fast: 200ms;
   --animation-duration-normal: 300ms;

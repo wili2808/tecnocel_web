@@ -36,9 +36,9 @@
   --background-dark: var(--color-neutral-200);
   
   /* === COLORES DE BORDE === */
-  --border-color: var(--color-neutral-200);
-  --border-color-light: var(--color-neutral-100);
-  --border-color-dark: var(--color-neutral-300);
+  --border-color: var(--color-neutral-500);
+  --border-color-light: var(--color-neutral-400);
+  --border-color-dark: var(--color-neutral-800);
   
   /* === COLORES DE TEXTO ADICIONALES === */
   --text-muted: var(--color-neutral-500);

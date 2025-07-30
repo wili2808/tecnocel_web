@@ -11,7 +11,7 @@ interface ProductSearchProps {
 }
 
 const ProductSearch: React.FC<ProductSearchProps> = ({
-    placeholder = "Buscar productos...",
+    placeholder = "Buscar productos, marcas y mas ...",
     showClearButton = true,
     className = '',
     onSearch
@@ -55,7 +55,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                     onKeyDown={handleKeyDown}
                     placeholder={placeholder}
                     className={`${styles.searchInput} ${isSearching ? styles.searching : ''}`}
-                    aria-label="Buscar productos"
+                    aria-label="Buscar productos, marcas y mas ..."
                 />
 
                 {/* Indicador de búsqueda */}

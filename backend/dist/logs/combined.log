@@ -1220,3 +1220,1289 @@
 [2025-07-22T23:53:06.152Z] INFO: Datos de ejemplo ya existen en la base de datos
 [2025-07-22T23:53:06.155Z] INFO: Servidor corriendo en el puerto 3000
 [2025-07-22T23:53:07.837Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-22T23:53:09.626Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-22T23:53:09.629Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-22T23:53:09.630Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-22T23:53:09.630Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-22T23:53:09.666Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-22T23:53:09.711Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-22T23:53:09.715Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-22T23:53:09.718Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-22T23:53:13.112Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-22T23:53:13.123Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-22T23:53:30.260Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-22T23:53:30.278Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-22T23:53:30.335Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-22T23:53:30.346Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-22T23:54:45.080Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-22T23:54:45.154Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-22T23:54:45.186Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-22T23:54:45.265Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-22T23:54:49.796Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-22T23:54:49.803Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:27:27.357Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:27:27.368Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:28:02.275Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T05:28:02.282Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T05:28:02.337Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T05:28:02.349Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T05:28:05.151Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:28:05.173Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:28:09.918Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:28:09.929Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:36:10.167Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:36:10.174Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:36:27.234Z] INFO: Intentando login de cliente
+[2025-07-23T05:36:27.414Z] WARN: Login fallido: contraseña incorrecta (wili_2808@hotmail.com)
+[2025-07-23T05:36:30.088Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:36:30.098Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:41:40.223Z] INFO: Intentando login de cliente
+[2025-07-23T05:41:40.350Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T05:41:40.419Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:41:40.425Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:41:40.452Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:41:40.455Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:41:40.471Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:42:33.695Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:42:33.700Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:42:33.701Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:42:33.709Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:42:33.715Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:42:33.716Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:44:38.961Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T05:44:38.968Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T05:44:38.991Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T05:44:39.000Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T05:44:39.054Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:44:39.061Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:44:39.062Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:44:39.222Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:44:39.231Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:44:39.232Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:44:39.242Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:44:39.246Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:44:39.246Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:46:51.429Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T05:46:51.483Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T05:46:51.500Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T05:46:51.504Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T05:46:51.553Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:46:51.561Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:46:51.562Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:46:51.669Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:46:51.707Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:46:51.708Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:46:51.737Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:46:51.748Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:46:51.748Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:51:58.525Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T05:51:58.529Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T05:51:58.554Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T05:51:58.557Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T05:51:58.627Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:51:58.640Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:51:58.641Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:51:58.811Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:51:58.818Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:51:58.818Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:51:58.828Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:51:58.834Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:51:58.835Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:52:01.064Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:52:01.091Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:52:05.012Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:52:05.021Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:52:05.022Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:52:05.032Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T05:52:05.041Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T05:52:05.042Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T05:52:09.176Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:52:09.192Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:52:14.480Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T05:52:14.498Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T05:52:14.652Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T05:52:14.660Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T05:52:32.077Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:52:32.086Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:54:03.946Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T05:54:03.957Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T05:54:04.026Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T05:54:04.040Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T05:54:26.817Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T05:54:26.825Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:00:08.522Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:00:08.580Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:00:08.597Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:00:08.656Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:00:11.662Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:00:11.671Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:00:32.875Z] INFO: Intentando login de cliente
+[2025-07-23T06:00:32.968Z] WARN: Login fallido: contraseña incorrecta (wili_2808@hotmail.com)
+[2025-07-23T06:00:41.311Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:00:41.321Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:16.415Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:16.424Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:18.396Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:18.402Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:18.435Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:18.445Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:27.295Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:27.302Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:28.410Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:28.413Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:28.437Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:28.442Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:39.130Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:39.138Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:39.878Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:39.880Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:39.913Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:39.928Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:41.891Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:41.897Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:41.930Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:41.937Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:45.227Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:45.237Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:45.253Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:45.261Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:53.277Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:53.285Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:54.058Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:54.061Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:54.087Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:54.094Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:57.775Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:57.787Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:01:58.597Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:58.606Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:01:58.621Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:01:58.629Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:01.222Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:02:01.232Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:02:02.377Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:02.391Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:02:02.398Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:02.410Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:02:07.677Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:02:07.686Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:02:09.500Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:02:09.509Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:09.534Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:02:09.543Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:24.934Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:24.960Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:02:24.971Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:02:25.001Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:03:09.520Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:03:09.529Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:00.444Z] INFO: Intentando login de cliente
+[2025-07-23T06:04:00.540Z] WARN: Login fallido: contraseña incorrecta (wili_2808@hotmail.com)
+[2025-07-23T06:04:04.388Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:04.401Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:11.876Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:11.888Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:17.728Z] INFO: Intentando login de cliente
+[2025-07-23T06:04:17.862Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T06:04:17.917Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:17.944Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:04:17.952Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:04:17.957Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:04:17.957Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:04:22.408Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:04:22.448Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 50
+[2025-07-23T06:04:22.448Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:04:23.301Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:04:23.334Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 51
+[2025-07-23T06:04:23.335Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:04:24.314Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:04:24.343Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 52
+[2025-07-23T06:04:24.343Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:04:26.359Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:04:26.373Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:04:26.374Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:04:26.512Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:04:26.518Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:04:26.519Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:04:42.640Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:04:42.644Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:04:42.694Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:04:42.703Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:04:47.155Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:04:47.161Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:04:47.197Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:04:47.207Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:05:34.938Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:05:34.944Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:05:36.310Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:05:36.384Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:05:36.393Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:05:36.401Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:05:39.660Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:05:39.664Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:05:39.664Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:05:39.673Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:05:39.679Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:05:39.679Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:05:43.755Z] INFO: Operación de carrito iniciada: vaciar_carrito
+[2025-07-23T06:05:43.765Z] INFO: Carrito vaciado exitosamente - Cliente: 89
+[2025-07-23T06:05:43.766Z] INFO: Operación de carrito completada: vaciar_carrito
+[2025-07-23T06:05:45.617Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:05:45.625Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:05:45.647Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:05:45.659Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:31.430Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:09:31.439Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:09:32.526Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:09:32.530Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:32.573Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:09:32.583Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:39.451Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:09:39.458Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:09:41.099Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:09:41.132Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:09:41.143Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:41.148Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:44.795Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:09:44.801Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:09:44.801Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:09:44.810Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:09:44.813Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:09:44.813Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:09:46.697Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:09:46.702Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:46.728Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:09:46.732Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:09:49.682Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:09:49.709Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 53
+[2025-07-23T06:09:49.709Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:09:50.746Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:09:50.762Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 54
+[2025-07-23T06:09:50.762Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:09:52.042Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:09:52.061Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 55
+[2025-07-23T06:09:52.062Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:09:54.370Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:09:54.391Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 56
+[2025-07-23T06:09:54.391Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:09:55.761Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:09:55.766Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:09:55.767Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:09:55.773Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:09:55.778Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:09:55.779Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:10:15.494Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:15.502Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:22.112Z] INFO: Intentando login de cliente
+[2025-07-23T06:10:22.257Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T06:10:22.313Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:22.317Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:10:22.327Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:10:22.329Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:10:22.332Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:23.850Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:10:23.856Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:10:23.857Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:10:23.862Z] WARN: Rate limit excedido para operaciones de carrito
+[2025-07-23T06:10:30.208Z] WARN: Rate limit excedido para operaciones de carrito
+[2025-07-23T06:10:30.214Z] WARN: Rate limit excedido para operaciones de carrito
+[2025-07-23T06:10:32.470Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:10:32.508Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:10:32.514Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:10:32.526Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:10:34.403Z] WARN: Rate limit excedido para operaciones de carrito
+[2025-07-23T06:10:34.409Z] WARN: Rate limit excedido para operaciones de carrito
+[2025-07-23T06:10:37.587Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:37.595Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:42.037Z] INFO: Intentando login de cliente
+[2025-07-23T06:10:42.190Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T06:10:42.237Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:10:42.238Z] WARN: Rate limit excedido para operaciones de carrito
+[2025-07-23T06:10:42.245Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:11:05.157Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T06:11:05.161Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T06:11:05.167Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T06:11:05.169Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T06:11:05.222Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:11:05.227Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:11:05.228Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:11:05.338Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:11:05.347Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:11:07.343Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:11:07.347Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:11:07.348Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:11:07.358Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:11:07.365Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:11:07.366Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:11:17.116Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:11:17.124Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:12:36.371Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:12:36.393Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 57
+[2025-07-23T06:12:36.393Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:12:38.161Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:12:38.184Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 58
+[2025-07-23T06:12:38.184Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:12:39.684Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:12:39.706Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 59
+[2025-07-23T06:12:39.707Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:12:41.622Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:12:41.644Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 60
+[2025-07-23T06:12:41.644Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:12:42.567Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:12:42.589Z] INFO: Item agregado exitosamente al carrito - Cliente: 89, Item ID: 61
+[2025-07-23T06:12:42.589Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:12:45.663Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:12:45.670Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:12:45.670Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:12:45.676Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:12:45.682Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T06:12:45.683Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:12:55.224Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:12:55.232Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:13:53.413Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:13:53.433Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:13:53.445Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:13:53.477Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:14:37.964Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:14:37.972Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:15:42.637Z] INFO: Intentando registrar cliente
+[2025-07-23T06:15:42.763Z] INFO: Cliente registrado exitosamente: agustinchamorro@gmail.com
+[2025-07-23T06:15:42.812Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:15:42.840Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:15:42.841Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:15:44.804Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:15:44.813Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:15:50.532Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:15:50.539Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:15:50.540Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:15:50.551Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:15:50.555Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:15:50.555Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:15:53.072Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:15:53.078Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:15:53.110Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:15:53.162Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:15:58.816Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:15:58.823Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:16:08.472Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:16:08.480Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:16:08.521Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:16:08.532Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:16:18.412Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:16:18.420Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:16:57.703Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:16:57.710Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:17:02.621Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:02.649Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:02.658Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:02.668Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:13.660Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:17:13.663Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:17:13.663Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:17:13.668Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:17:13.671Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:17:13.671Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:17:21.227Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:21.233Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:21.256Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:21.259Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:23.297Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:17:23.304Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:17:27.132Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:27.138Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:27.173Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:27.186Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:34.480Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:34.484Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:34.502Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:34.506Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:37.935Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:37.938Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:37.958Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:37.964Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:43.732Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:43.737Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:43.755Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:17:43.759Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:17:58.729Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:17:58.736Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:21:54.808Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:21:54.998Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:22:26.366Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:22:26.370Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:22:26.535Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:22:26.593Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:22:31.309Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:22:31.498Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:22:46.823Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:22:47.000Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:23:15.227Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:23:15.410Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:23:17.406Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:23:17.414Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:23:17.592Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:23:17.600Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:23:30.714Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:23:30.899Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:23:35.399Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:23:35.403Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:23:35.404Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:23:35.593Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:23:35.596Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:23:35.596Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:23:37.436Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:23:37.443Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:23:37.633Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:23:37.643Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:24:15.637Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:24:15.818Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T06:24:20.181Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:24:20.193Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:24:20.387Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:24:20.417Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:24:38.096Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:24:38.102Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:24:38.102Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:24:38.283Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:24:38.288Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:24:38.288Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:24:43.023Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:24:43.026Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:24:43.026Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:24:43.212Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:24:43.218Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:24:43.219Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:24:45.691Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:24:45.693Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:24:45.880Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:24:45.884Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:24:53.297Z] INFO: Operación de carrito iniciada: agregar_item
+[2025-07-23T06:24:53.315Z] INFO: Item agregado exitosamente al carrito - Cliente: 91, Item ID: 62
+[2025-07-23T06:24:53.315Z] INFO: Operación de carrito completada: agregar_item
+[2025-07-23T06:24:55.638Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:24:55.644Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:24:55.644Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:24:55.818Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T06:24:55.822Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T06:24:55.823Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T06:25:06.205Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:25:06.208Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:25:06.412Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T06:25:06.428Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T06:26:02.416Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-23T06:26:02.421Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-23T06:26:02.422Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-23T06:26:02.422Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-23T06:26:02.466Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-23T06:26:02.518Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-23T06:26:02.525Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-23T06:26:02.529Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-23T16:43:16.388Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-23T16:43:16.391Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-23T16:43:16.393Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-23T16:43:16.393Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-23T16:43:16.438Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-23T16:43:16.470Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-23T16:43:16.473Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-23T16:43:16.478Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-23T16:43:19.729Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-23T16:43:19.731Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-23T16:43:19.732Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-23T16:43:19.732Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-23T16:43:19.759Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-23T16:43:19.797Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-23T16:43:19.800Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-23T16:43:19.802Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-23T16:43:31.488Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T16:43:31.490Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T16:43:31.507Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T16:43:31.510Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T16:43:31.533Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T16:43:31.551Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T16:43:31.552Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T16:43:31.705Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T16:43:31.713Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T16:44:05.603Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T16:44:05.614Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T17:09:06.853Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T17:09:06.862Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T17:09:06.919Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T17:09:06.926Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T17:24:40.652Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T17:24:40.660Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T17:24:46.895Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T17:24:46.918Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T17:24:46.965Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T17:24:47.041Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T17:24:49.611Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T17:24:49.647Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T17:24:58.284Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T17:24:58.294Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T17:24:58.325Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T17:24:58.335Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T17:25:02.414Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T17:25:02.422Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:34:39.937Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:34:39.940Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:34:39.945Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:34:39.948Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:34:39.987Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T18:34:39.995Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T18:34:39.995Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T18:34:40.076Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:34:40.081Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:52:01.931Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:52:01.932Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:52:01.939Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:52:01.943Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:52:01.981Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T18:52:01.994Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T18:52:01.994Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T18:52:02.081Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:52:02.104Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:54:01.939Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:54:01.943Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:54:01.955Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:54:01.958Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:54:01.987Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T18:54:01.994Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T18:54:01.995Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T18:54:02.086Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:54:02.101Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:54:05.834Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T18:54:05.841Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T18:54:05.885Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T18:54:05.909Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T18:54:06.738Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:54:06.746Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:55:08.471Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:55:08.477Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:55:08.494Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:55:08.501Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:55:08.543Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T18:55:08.552Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T18:55:08.552Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T18:55:08.685Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:55:08.695Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:56:57.402Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:56:57.404Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:56:57.417Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T18:56:57.423Z] INFO: Token verificado exitosamente para: agustinchamorro@gmail.com
+[2025-07-23T18:56:57.558Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T18:56:57.627Z] INFO: Carrito obtenido exitosamente para cliente: 91
+[2025-07-23T18:56:57.630Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T18:56:58.020Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:56:58.037Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:57:09.776Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:57:09.793Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:57:13.681Z] INFO: Intentando login de cliente
+[2025-07-23T18:57:13.907Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T18:57:14.007Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T18:57:14.019Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T18:57:14.047Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T18:57:14.047Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T18:57:14.070Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:01:17.686Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:01:17.751Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:01:17.801Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:01:17.856Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:01:21.651Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:01:21.670Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:09:24.416Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:09:24.427Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:09:25.675Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:09:25.694Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:09:25.771Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:09:25.794Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:09:31.252Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:09:31.261Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:09:36.599Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T19:09:36.615Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T19:09:36.617Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T19:09:36.638Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T19:09:36.654Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T19:09:36.655Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T19:09:38.452Z] INFO: Operación de carrito iniciada: eliminar_item
+[2025-07-23T19:09:38.516Z] INFO: Item eliminado exitosamente - Item: 56
+[2025-07-23T19:09:38.517Z] INFO: Operación de carrito completada: eliminar_item
+[2025-07-23T19:09:39.463Z] INFO: Operación de carrito iniciada: eliminar_item
+[2025-07-23T19:09:39.492Z] INFO: Item eliminado exitosamente - Item: 55
+[2025-07-23T19:09:39.493Z] INFO: Operación de carrito completada: eliminar_item
+[2025-07-23T19:09:41.012Z] INFO: Operación de carrito iniciada: eliminar_item
+[2025-07-23T19:09:41.033Z] INFO: Item eliminado exitosamente - Item: 57
+[2025-07-23T19:09:41.033Z] INFO: Operación de carrito completada: eliminar_item
+[2025-07-23T19:09:41.725Z] INFO: Operación de carrito iniciada: eliminar_item
+[2025-07-23T19:09:41.753Z] INFO: Item eliminado exitosamente - Item: 58
+[2025-07-23T19:09:41.753Z] INFO: Operación de carrito completada: eliminar_item
+[2025-07-23T19:09:43.883Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:09:43.897Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:18:57.842Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:18:57.857Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:21:27.036Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:21:27.043Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:21:30.386Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:21:30.403Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:21:30.437Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:21:30.453Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:21:31.180Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:21:31.187Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:22:58.211Z] INFO: Intentando login de cliente
+[2025-07-23T19:22:58.291Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T19:22:58.320Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:22:58.323Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T19:22:58.335Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T19:22:58.336Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T19:22:58.341Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:24:27.629Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:24:27.639Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:42:26.264Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:42:26.286Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:42:26.341Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:42:26.399Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:42:43.710Z] INFO: Intentando login de cliente
+[2025-07-23T19:42:43.840Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-23T19:42:43.980Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:42:43.992Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T19:42:44.004Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T19:42:44.005Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T19:42:44.011Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:42:48.018Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T19:42:48.029Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T19:42:48.030Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T19:42:48.043Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T19:42:48.055Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T19:42:48.056Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T19:43:56.433Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:43:56.446Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:44:47.642Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:44:47.646Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:44:47.831Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-23T19:44:47.876Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-23T19:45:05.516Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T19:45:05.528Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T20:36:12.037Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T20:36:12.044Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T20:36:12.045Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T20:36:12.702Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T20:36:12.709Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T20:36:12.722Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T20:36:12.726Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T20:36:12.799Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T20:36:12.810Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T20:36:12.810Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T20:36:13.172Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T20:36:13.186Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T21:16:31.906Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T21:16:31.909Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T21:16:31.925Z] INFO: Llamada a verifyToken iniciada
+[2025-07-23T21:16:31.936Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-23T21:16:32.062Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-23T21:16:32.078Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-23T21:16:32.079Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-23T21:16:32.255Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-23T21:16:32.274Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T20:52:55.673Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-24T20:52:55.676Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-24T20:52:55.677Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-24T20:52:55.677Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-24T20:52:55.720Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-24T20:52:55.760Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-24T20:52:55.763Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-24T20:52:55.767Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-24T20:52:59.146Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-24T20:52:59.149Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-24T20:52:59.150Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-24T20:52:59.150Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-24T20:52:59.181Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-24T20:52:59.220Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-24T20:52:59.223Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-24T20:52:59.226Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-24T20:59:49.859Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T20:59:49.873Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:00:28.313Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:00:28.381Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:00:28.397Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:00:28.435Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:00:38.983Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:00:38.993Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:02:11.660Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:02:11.665Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:06:36.928Z] INFO: Intentando login de cliente
+[2025-07-24T21:06:37.075Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-24T21:06:37.152Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:06:37.155Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-24T21:06:37.173Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-24T21:06:37.174Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-24T21:06:37.181Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:06:54.418Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:06:54.481Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:06:54.501Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:06:54.557Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:07:16.050Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:07:16.060Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:10:18.295Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:10:18.315Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:10:18.322Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:10:18.356Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:10:23.848Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:10:23.887Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:10:23.892Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:10:23.899Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:10:24.666Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:10:24.677Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:10:58.112Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-24T21:10:58.120Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-24T21:10:58.120Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-24T21:10:58.128Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-24T21:10:58.134Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-24T21:10:58.135Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-24T21:38:30.718Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:38:30.730Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:44:14.473Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:44:14.488Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:44:14.557Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:44:14.563Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:44:32.175Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:44:32.187Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:44:34.197Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:44:34.267Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-24T21:44:34.274Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:44:34.293Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-24T21:45:29.261Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:45:29.269Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:49:42.637Z] INFO: Llamada a verifyToken iniciada
+[2025-07-24T21:49:42.639Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-24T21:49:42.647Z] INFO: Llamada a verifyToken iniciada
+[2025-07-24T21:49:42.649Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-24T21:49:42.691Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-24T21:49:42.715Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-24T21:49:42.717Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-24T21:49:42.780Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:49:42.787Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:50:47.670Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:50:47.682Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:53:44.215Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T21:53:44.231Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T23:14:08.365Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T23:14:08.381Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-24T23:14:30.149Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-24T23:14:30.152Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-24T23:14:30.154Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-24T23:14:30.154Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-24T23:14:30.197Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-24T23:14:30.244Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-24T23:14:30.249Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-24T23:14:30.253Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-26T21:13:13.989Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-26T21:13:14.001Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-26T21:13:14.003Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-26T21:13:14.003Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-26T21:13:14.055Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-26T21:13:14.112Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-26T21:13:14.119Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-26T21:13:14.123Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-26T21:13:18.394Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-26T21:13:18.399Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-26T21:13:18.400Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-26T21:13:18.401Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-26T21:13:18.438Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-26T21:13:18.471Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-26T21:13:18.475Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-26T21:13:18.477Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-26T21:16:20.950Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:16:20.972Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:16:32.296Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:16:32.313Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:16:32.438Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:16:32.449Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:16:56.567Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:16:56.583Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:16:56.668Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:16:56.679Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:16:57.617Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:16:57.629Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:19:35.750Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:19:35.762Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:19:35.824Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:19:35.844Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:24:02.578Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:24:02.592Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:32:18.702Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:32:18.712Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:32:18.755Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:32:18.764Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:32:23.199Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:32:23.213Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:32:23.257Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:32:23.304Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:51:46.063Z] INFO: Intentando login de cliente
+[2025-07-26T21:51:46.161Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-26T21:51:46.218Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:51:46.222Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T21:51:46.242Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T21:51:46.242Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T21:51:46.250Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:53:14.334Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:53:14.343Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T21:56:13.067Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:56:13.105Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T21:56:13.116Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T21:56:13.138Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:01:28.476Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:01:28.485Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:01:29.635Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:01:29.639Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:01:29.672Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:01:29.687Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:20:01.686Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:20:01.693Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:20:10.785Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:20:10.789Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:20:10.831Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:20:10.838Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:12.614Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:29:12.621Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:29:16.622Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:16.625Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:16.646Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:16.650Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:18.545Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:29:18.551Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:29:19.709Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:19.713Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:19.735Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:19.741Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:22.818Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:22.829Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:22.846Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:22.856Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:26.394Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:26.404Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:29:26.424Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:29:26.432Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:31:34.517Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:31:34.529Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:34:46.400Z] INFO: Intentando login de cliente
+[2025-07-26T22:34:46.489Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-26T22:34:46.530Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:34:46.548Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:34:46.552Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:34:46.558Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:34:46.559Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:36:05.390Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:36:05.420Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:36:05.428Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:36:05.431Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:36:08.498Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:36:08.507Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:36:08.508Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:36:08.515Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:36:08.522Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:36:08.522Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:36:53.294Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:36:53.297Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:36:53.325Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:36:53.328Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:37:57.673Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:37:57.681Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:38:04.210Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:38:04.214Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:38:04.235Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:38:04.240Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:39:15.622Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:39:15.629Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:39:46.613Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:39:46.648Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:39:46.656Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:39:46.662Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:39:49.465Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:39:49.471Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:39:49.471Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:39:49.480Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:39:49.486Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:39:49.486Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:39:54.219Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:39:54.230Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-26T22:41:21.526Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:41:21.543Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:41:21.550Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:41:21.574Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:45:08.702Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:45:08.704Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:45:08.714Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:45:08.716Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:40.266Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:46:40.275Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:46:40.275Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:46:42.417Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:46:42.419Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:42.426Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:46:42.427Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:42.497Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:46:42.502Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:46:42.502Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:46:42.825Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:46:42.829Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:46:42.877Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:46:42.896Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:46:54.038Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:46:54.041Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:54.050Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:46:54.052Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:54.115Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:46:54.125Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:46:54.126Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:46:54.406Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:46:54.418Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:46:54.496Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:46:54.517Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:46:58.386Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:46:58.396Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:58.414Z] INFO: Llamada a verifyToken iniciada
+[2025-07-26T22:46:58.420Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-26T22:46:58.565Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-26T22:46:58.598Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-26T22:46:58.598Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-26T22:46:58.841Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:46:58.856Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-26T22:46:58.894Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-26T22:46:58.900Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:47:49.316Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-28T15:47:49.327Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-28T15:47:49.331Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-28T15:47:49.331Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-28T15:47:49.427Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-28T15:47:49.491Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-28T15:47:49.497Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-28T15:47:49.510Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-28T15:47:53.781Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-28T15:47:53.786Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-28T15:47:53.787Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-28T15:47:53.788Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-28T15:47:53.855Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-28T15:47:53.909Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-28T15:47:53.917Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-28T15:47:53.922Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-28T15:49:31.078Z] INFO: Llamada a verifyToken iniciada
+[2025-07-28T15:49:31.081Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-28T15:49:31.105Z] INFO: Llamada a verifyToken iniciada
+[2025-07-28T15:49:31.112Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-28T15:49:31.146Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-28T15:49:31.184Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-28T15:49:31.184Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-28T15:49:31.462Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:49:31.477Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:51:58.953Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:51:58.961Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:52:00.159Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T15:52:00.166Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:52:00.217Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T15:52:00.224Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:52:12.415Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:52:12.422Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:52:27.030Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T15:52:27.034Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:52:27.076Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T15:52:27.083Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:52:36.449Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:52:36.458Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:52:39.818Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T15:52:39.823Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:52:39.867Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T15:52:39.877Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T15:53:01.412Z] INFO: Intentando login de cliente
+[2025-07-28T15:53:01.562Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-28T15:53:01.614Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T15:53:01.619Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-28T15:53:01.656Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-28T15:53:01.658Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-28T15:53:01.666Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T16:14:58.409Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T16:14:58.418Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T16:26:37.120Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T16:26:37.162Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T16:26:37.177Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T16:26:37.218Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T18:58:53.346Z] INFO: Llamada a verifyToken iniciada
+[2025-07-28T18:58:53.352Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-28T18:58:53.365Z] INFO: Llamada a verifyToken iniciada
+[2025-07-28T18:58:53.374Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-28T18:58:53.413Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-28T18:58:53.444Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-28T18:58:53.445Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-28T18:58:53.679Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T18:58:53.689Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T18:58:53.738Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-28T18:58:53.745Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-28T20:02:17.424Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T20:02:17.434Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T21:46:19.891Z] INFO: Llamada a verifyToken iniciada
+[2025-07-28T21:46:19.895Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-28T21:46:19.904Z] INFO: Llamada a verifyToken iniciada
+[2025-07-28T21:46:19.915Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-28T21:46:20.026Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-28T21:46:20.068Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-28T21:46:20.068Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-28T21:46:20.467Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-28T21:46:20.537Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T02:15:23.433Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T02:15:23.455Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T02:15:23.473Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T02:15:23.483Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T02:15:23.537Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T02:15:23.566Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T02:15:23.567Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T02:15:23.622Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T02:15:23.645Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:12:05.491Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:12:05.502Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:12:05.524Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:12:05.529Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:12:05.636Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:12:05.655Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:12:05.657Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:12:05.727Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:12:05.753Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:20:54.187Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:20:54.191Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:20:54.199Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:20:54.205Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:20:54.249Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:20:54.263Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:20:54.265Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:20:54.338Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:20:54.347Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:21:18.401Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:21:18.417Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:21:18.456Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:21:18.462Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:21:33.487Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:21:33.494Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:21:37.185Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:21:37.191Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:21:37.245Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:21:37.250Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:21:47.809Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:21:47.815Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:22:33.824Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:22:33.828Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:22:33.833Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:22:33.834Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:22:33.870Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:22:33.877Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:22:33.877Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:22:33.983Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:22:33.990Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:22:49.668Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:22:49.687Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:22:49.694Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:22:49.737Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:23:24.061Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:23:24.069Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:23:30.789Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:23:30.795Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:23:30.823Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:23:30.832Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:27:27.597Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:27:27.604Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:28:37.855Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:28:37.864Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:28:46.373Z] INFO: Intentando login de cliente
+[2025-07-29T05:28:46.475Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:28:46.524Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:28:46.528Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:28:46.541Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:28:46.542Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:28:46.548Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:28:56.468Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:28:56.479Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:29:37.553Z] INFO: Intentando login de cliente
+[2025-07-29T05:29:37.666Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:29:37.718Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:29:37.723Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:29:37.732Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:29:37.733Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:29:37.736Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:29:42.756Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:29:42.765Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:29:45.188Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:29:45.195Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:30:25.201Z] INFO: Intentando login de cliente
+[2025-07-29T05:30:25.321Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:30:25.358Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:30:25.361Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:30:25.374Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:30:25.375Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:30:25.382Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:30:38.375Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:30:38.385Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:32:34.727Z] INFO: Intentando login de cliente
+[2025-07-29T05:32:34.889Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:32:34.932Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:32:34.935Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:32:34.943Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:32:34.944Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:32:34.947Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:32:38.793Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:32:38.800Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:37:52.294Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:37:52.299Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:37:55.489Z] INFO: Intentando login de cliente
+[2025-07-29T05:37:55.595Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:37:55.640Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:37:55.643Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:37:55.651Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:37:55.651Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:37:55.657Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:38:06.658Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:38:06.665Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:38:19.612Z] INFO: Intentando login de cliente
+[2025-07-29T05:38:19.722Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:38:19.747Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:38:19.768Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:38:19.771Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:38:19.779Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:38:19.780Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:40:11.825Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:40:11.834Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:40:18.091Z] INFO: Intentando login de cliente
+[2025-07-29T05:40:18.239Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:40:18.278Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:40:18.280Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:40:18.290Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:40:18.291Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:40:18.295Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:41:44.768Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:41:44.771Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:41:44.780Z] INFO: Llamada a verifyToken iniciada
+[2025-07-29T05:41:44.782Z] INFO: Token verificado exitosamente para: wili_2808@hotmail.com
+[2025-07-29T05:41:44.809Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:41:44.815Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:41:44.815Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:41:44.911Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:41:44.917Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:42:17.643Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:42:17.651Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:42:21.525Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:42:21.534Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:42:21.571Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:42:21.579Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:42:37.181Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:42:37.212Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:42:37.217Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:42:37.242Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:42:51.511Z] INFO: Intentando login de cliente
+[2025-07-29T05:42:51.640Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:42:51.806Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:42:51.813Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:42:51.833Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:42:51.834Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:42:51.850Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:43:00.608Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:43:00.622Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:44:05.099Z] INFO: Intentando login de cliente
+[2025-07-29T05:44:05.251Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:44:05.362Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:44:05.371Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:44:05.397Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:44:05.398Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:44:05.403Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:44:08.452Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:44:08.460Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:16.166Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:16.188Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:18.831Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:47:18.841Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:47:18.907Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T05:47:18.927Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T05:47:20.187Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:20.199Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:43.880Z] INFO: Intentando login de cliente
+[2025-07-29T05:47:44.000Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:47:44.116Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:44.131Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:47:44.159Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:47:44.160Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:47:44.164Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:49.890Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:47:49.900Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:50:31.017Z] INFO: Intentando login de cliente
+[2025-07-29T05:50:31.143Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-29T05:50:31.254Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:50:31.267Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-29T05:50:31.285Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-29T05:50:31.287Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-29T05:50:31.318Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:50:35.258Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:50:35.268Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:58:46.311Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T05:58:46.317Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T06:01:17.513Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T06:01:17.521Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-29T06:01:19.160Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T06:01:19.172Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T06:01:19.202Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-29T06:01:19.213Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-29T22:20:28.189Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-29T22:20:28.193Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-29T22:20:28.194Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-29T22:20:28.194Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-29T22:20:28.239Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-29T22:20:28.288Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-29T22:20:28.292Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-29T22:20:28.295Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-29T22:20:31.738Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-29T22:20:31.740Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-07-29T22:20:31.741Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-07-29T22:20:31.741Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-07-29T22:20:31.771Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-07-29T22:20:31.804Z] INFO: Modelos sincronizados con la base de datos
+[2025-07-29T22:20:31.810Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-07-29T22:20:31.813Z] INFO: Servidor corriendo en el puerto 3000
+[2025-07-30T02:21:53.188Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:21:53.208Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:23:52.932Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:23:52.966Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:26:58.688Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:26:58.695Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:31:09.417Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:31:09.442Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:37:05.038Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:37:05.046Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:39:21.388Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:39:21.403Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:39:52.362Z] INFO: Intentando login de cliente
+[2025-07-30T02:39:52.562Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-30T02:39:52.660Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:39:52.736Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-30T02:39:52.783Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:39:52.804Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-30T02:39:52.806Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-30T02:40:08.896Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:40:08.912Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:41:36.963Z] INFO: Intentando login de cliente
+[2025-07-30T02:41:37.103Z] INFO: Login exitoso para: wili_2808@hotmail.com
+[2025-07-30T02:41:37.218Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:41:37.229Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-30T02:41:37.251Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-30T02:41:37.252Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-30T02:41:37.261Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:41:46.871Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-30T02:41:46.891Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-30T02:41:46.971Z] INFO: Se obtuvieron 278 productos del almacén exitosamente
+[2025-07-30T02:41:46.986Z] INFO: Se obtuvieron 35 categorías exitosamente
+[2025-07-30T02:41:56.040Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:41:56.054Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:42:00.752Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-30T02:42:00.760Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-30T02:42:00.761Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-30T02:42:00.774Z] INFO: Operación de carrito iniciada: obtener_carrito
+[2025-07-30T02:42:00.784Z] INFO: Carrito obtenido exitosamente para cliente: 89
+[2025-07-30T02:42:00.785Z] INFO: Operación de carrito completada: obtener_carrito
+[2025-07-30T02:42:04.428Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:42:04.442Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:56:55.410Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:57:21.388Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:58:29.380Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:59:07.379Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-07-30T02:59:29.392Z] INFO: Se obtuvieron 6 productos destacados exitosamente

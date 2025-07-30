@@ -1,0 +1,200 @@
+.productActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  background-color: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: var(--theme-transition);
+}
+
+.quantitySection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.quantityLabel {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: fit-content;
+  border: var(--border-width-thin) solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-primary);
+  overflow: hidden;
+}
+
+.quantityButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--background-secondary);
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+.quantityButton:hover:not(:disabled) {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+}
+
+.quantityButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantityInput {
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.quantityInput:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.availableStock {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-curve);
+  min-height: 48px;
+}
+
+.buyNowButton {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-button-primary);
+}
+
+.buyNowButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-button-primary-hover);
+  transform: translateY(-1px);
+}
+
+.addToCartButton {
+  background-color: transparent;
+  border: var(--border-width-thick) solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.addToCartButton:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  transform: translateY(-1px);
+}
+
+.successButton {
+  background-color: var(--color-success) !important;
+  border-color: var(--color-success) !important;
+  color: var(--text-inverse) !important;
+}
+
+.disabledButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border: var(--border-width-thick) solid var(--color-error);
+  border-radius: var(--border-radius-md);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: not-allowed;
+  min-height: 48px;
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.actionButton .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+.quantityButton .material-icons {
+  font-size: var(--icon-size-md);
+}
+
+.disabledButton .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .productActions {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-lg);
+  }
+
+  .actionButtons {
+    gap: var(--spacing-sm);
+  }
+
+  .actionButton,
+  .disabledButton {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .productActions {
+    padding: var(--spacing-md);
+  }
+
+  .quantityControls {
+    width: 100%;
+  }
+
+  .quantityInput {
+    flex: 1;
+    width: auto;
+  }
+
+  .actionButton,
+  .disabledButton {
+    width: 100%;
+  }
+} 

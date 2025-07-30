@@ -1,36 +1,61 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styles from './IconButton.module.css';
 
 interface IconButtonProps {
+    /** Nombre del icono de Material Design */
     icon: string;
+    /** Función que se ejecuta al hacer clic */
     onClick?: () => void;
+    /** Texto descriptivo para lectores de pantalla */
     ariaLabel: string;
+    /** Clases CSS adicionales */
     className?: string;
+    /** Si el botón está deshabilitado */
     disabled?: boolean;
-    variant?: 'primary' | 'secondary' | 'ghost' | 'default';
-    size?: 'small' | 'medium' | 'large';
+    /** Variante visual del botón */
+    variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
+    /** Tamaño del botón */
+    size?: 'sm' | 'md' | 'lg';
+    /** Contenido adicional */
     children?: React.ReactNode;
+    /** Si el botón está en estado de carga */
+    loading?: boolean;
+    /** Tipo de botón HTML */
+    type?: 'button' | 'submit' | 'reset';
 }
 
-const IconButton: React.FC<IconButtonProps> = ({
+const IconButton: React.FC<IconButtonProps> = memo(({
     icon,
     onClick,
     ariaLabel,
     className = '',
     disabled = false,
-    variant = 'default',
-    size = 'medium',
-    children
-}) => (
-    <button
-        className={`${styles.iconButton} ${styles[variant]} ${styles[size]} ${className}`}
-        onClick={onClick}
-        aria-label={ariaLabel}
-        disabled={disabled}
-    >
-        <span className="material-icons">{icon}</span>
-        {children}
-    </button>
-);
+    variant = 'ghost',
+    size = 'md',
+    children,
+    loading = false,
+    type = 'button'
+}) => {
+    const isDisabled = disabled || loading;
+
+    return (
+        <button
+            className={`${styles.iconButton} ${styles[variant]} ${styles[size]} ${className}`}
+            onClick={onClick}
+            aria-label={loading ? `${ariaLabel} - Cargando...` : ariaLabel}
+            disabled={isDisabled}
+            type={type}
+        >
+            {loading ? (
+                <span className={`material-icons ${styles.loadingIcon}`}>hourglass_empty</span>
+            ) : (
+                <span className="material-icons">{icon}</span>
+            )}
+            {children}
+        </button>
+    );
+});
+
+IconButton.displayName = 'IconButton';
 
 export default IconButton; 

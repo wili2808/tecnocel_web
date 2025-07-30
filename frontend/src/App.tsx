@@ -12,6 +12,7 @@ import './styles/global.css';
 // Lazy loading de componentes
 const Home = lazy(() => import('./pages/Home'));
 const ProductCatalog = lazy(() => import('./pages/ProductCatalog'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
 const Login = lazy(() => import('./pages/Auth/Login'));
 const Register = lazy(() => import('./pages/Auth/Register'));
 const UserPanel = lazy(() => import('./pages/UserPanel'));
@@ -49,6 +50,7 @@ function App() {
                     {/* Rutas sin footer */}
                     <Route element={<Layout hideFooter />}>
                       <Route path="/productos" element={<ProductCatalog />} />
+                      <Route path="/productos/:id" element={<ProductPage />} />
                     </Route>
                     {/* Rutas de autenticación sin layout */}
                   </Routes>

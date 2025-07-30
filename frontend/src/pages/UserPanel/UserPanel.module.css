@@ -62,7 +62,7 @@
 }
 
 .backButton:hover {
-  background-color: var(--background-light);
+  background-color: var(--background-neutral);
   color: var(--text-primary);
 }
 
@@ -72,7 +72,7 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background-color: var(--background-light);
+  background-color: var(--background-neutral);
   transition: var(--theme-transition);
   border-radius: var(--border-radius-md);
 }
@@ -140,7 +140,7 @@
 }
 
 .menuOption:hover {
-  background-color: var(--background-light);
+  background-color: var(--background-neutral);
   color: var(--text-primary);
 }
 
@@ -220,7 +220,7 @@
 }
 
 .profileCard {
-  background-color: var(--background-light);
+  background-color: var(--background-neutral);
   transition: var(--theme-transition);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-lg);

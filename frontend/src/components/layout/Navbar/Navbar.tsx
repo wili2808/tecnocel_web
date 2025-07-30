@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/logo2.svg';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { useSearch } from '../../../contexts/SearchContext';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import ProductSearch from '../../product/ProductSearch';
 import IconButton from '../../common/IconButton';
@@ -11,20 +10,18 @@ import navbarStyle from './Navbar.module.css';
 
 // Rutas de navegación principales
 const SECONDARY_NAV_ROUTES = [
-    { path: '/productos', label: 'Categorías' },
+    { path: '/productos', label: 'Productos' },
     { path: '/ofertas', label: 'Ofertas' },
     { path: '/marcas', label: 'Marcas' },
+    { path: '/contacto', label: 'Contacto' },
 ];
 
-/**
- * Componente principal de navegación refactorizado
- */
+// Componente principal de navegación
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, isAuthenticated, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
-    const { navigateToProducts } = useSearch();
     const { estado } = useCarrito();
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,11 +42,6 @@ const Navbar = () => {
         }
         handleLinkClick();
     }, [isAuthenticated, navigate, handleLinkClick]);
-    const handleSearch = useCallback((e: React.FormEvent) => {
-        e.preventDefault();
-        navigateToProducts();
-        setIsMenuOpen(false);
-    }, [navigateToProducts]);
 
     // Sección de navegación secundaria
     function SecondaryNavLinks({ isMobile = false }: { isMobile?: boolean }) {
@@ -81,7 +73,7 @@ const Navbar = () => {
                     }}
                     ariaLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
                     variant="ghost"
-                    size="medium"
+                    size="sm"
                     className={navbarStyle.themeToggle}
                 />
                 <IconButton
@@ -98,7 +90,7 @@ const Navbar = () => {
                     ariaLabel="Carrito de compras"
                     disabled={!isAuthenticated}
                     variant="ghost"
-                    size="medium"
+                    size="sm"
                     className={`${navbarStyle.cartButton} ${!isAuthenticated ? navbarStyle.cartButtonDisabled : ''}`}
                 >
                     <span className={navbarStyle.cartBadge}>{cartItemCount}</span>
@@ -131,16 +123,17 @@ const Navbar = () => {
                             </button>
                         </div>
                     ) : (
-                        <button
-                            className={navbarStyle.authButton}
+                        <IconButton
+                            icon="account_circle"
                             onClick={handleAuthClick}
-                            aria-label="Perfil de usuario"
-                        >
-                            <span className="material-icons">account_circle</span>
-                            <span className={navbarStyle.authButtonText}>
+                            ariaLabel="Ir al panel de usuario"
+                            variant="ghost"
+                            size="sm"
+                            className={navbarStyle.authButton}
+                            children={<span className={navbarStyle.authButtonText}>
                                 {user.nombre_cliente} {user.apellido_cliente}
-                            </span>
-                        </button>
+                            </span>}
+                        />
                     )}
                 </div>
             );
@@ -171,24 +164,15 @@ const Navbar = () => {
                     </div>
                 ) : (
                     <>
-                        <Link
-                            to="/login"
+                        <IconButton
+                            icon="login"
+                            onClick={handleAuthClick}
+                            ariaLabel="Iniciar sesión"
+                            variant="ghost"
+                            size="sm"
                             className={navbarStyle.authButton}
-                            aria-label="Iniciar sesión"
-                            onClick={handleLinkClick}
-                        >
-                            <span className="material-icons">login</span>
-                            <span className={navbarStyle.authButtonText}>Ingresar</span>
-                        </Link>
-                        <Link
-                            to="/register"
-                            className={`${navbarStyle.authButton} ${navbarStyle.registerButton}`}
-                            aria-label="Crear cuenta"
-                            onClick={handleLinkClick}
-                        >
-                            <span className="material-icons">person_add</span>
-                            <span className={navbarStyle.authButtonText}>Registro</span>
-                        </Link>
+                            children={<span className={navbarStyle.authButtonText}>Ingresar</span>}
+                        />
                     </>
                 )}
             </div>
@@ -218,7 +202,7 @@ const Navbar = () => {
                                     }}
                                     ariaLabel="Cerrar sesión"
                                     variant="ghost"
-                                    size="medium"
+                                    size="md"
                                     className={navbarStyle.mobileLogoutButton}
                                 >
                                     <span className={navbarStyle.mobileLogoutText}>Cerrar Sesión</span>
@@ -235,7 +219,7 @@ const Navbar = () => {
     const globalSearch = useMemo(() => (
         <div className={navbarStyle.searchSection}>
             <ProductSearch
-                placeholder="Buscar productos..."
+                placeholder="Buscar productos, marcas y mas ..."
                 showClearButton={true}
                 onSearch={() => handleLinkClick()}
             />
@@ -272,7 +256,7 @@ const Navbar = () => {
                                 onClick={toggleMobileMenu}
                                 ariaLabel="Abrir menú"
                                 variant="ghost"
-                                size="medium"
+                                size="md"
                                 className={navbarStyle.menuToggle}
                             />
                         </div>
@@ -300,7 +284,7 @@ const Navbar = () => {
                                 onClick={toggleMobileMenu}
                                 ariaLabel="Abrir menú"
                                 variant="ghost"
-                                size="medium"
+                                size="md"
                                 className={navbarStyle.menuToggle}
                             />
                         </div>
