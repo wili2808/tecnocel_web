@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import ClienteController from '../controllers/ClienteController.js';
+import GoogleAuthController from '../controllers/GoogleAuthController.js';
 import { validateClienteRegistration } from '../middleware/validateRegistration.js';
 import { verificarTokenCliente } from '../middleware/authMiddleware.js';
 
@@ -9,6 +10,8 @@ const router = Router();
 router.post('/register', validateClienteRegistration, ClienteController.register);
 // Login
 router.post('/login', ClienteController.login);
+// Login con Google
+router.post('/google-login', GoogleAuthController.googleLogin);
 // Verificación de token (requiere token válido)
 router.get('/verify-token', verificarTokenCliente, ClienteController.verifyToken);
 // Verificación de email

@@ -39,11 +39,7 @@ const Register = () => {
                         <ul className={styles.benefitsList}>
                             <li>
                                 <span className="material-icons">check_circle</span>
-                                Seguimiento de pedidos
-                            </li>
-                            <li>
-                                <span className="material-icons">check_circle</span>
-                                Ofertas y descuentos exclusivos
+                                Ofertas y descuentos
                             </li>
                             <li>
                                 <span className="material-icons">check_circle</span>
