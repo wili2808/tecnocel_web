@@ -3320,3 +3320,19 @@
 [2025-08-02T00:59:39.223Z] INFO: Se obtuvieron 35 categorías exitosamente
 [2025-08-02T00:59:42.952Z] INFO: Se obtuvieron 6 productos destacados exitosamente
 [2025-08-02T00:59:42.960Z] INFO: Se obtuvieron 6 productos destacados exitosamente
+[2025-08-02T02:10:44.117Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-08-02T02:10:44.124Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-08-02T02:10:44.125Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-08-02T02:10:44.125Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-08-02T02:10:44.205Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-08-02T02:10:44.333Z] INFO: Modelos sincronizados con la base de datos
+[2025-08-02T02:10:44.341Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-08-02T02:10:44.350Z] INFO: Servidor corriendo en el puerto 3000
+[2025-08-02T02:10:47.612Z] INFO: Configurando servicio de imágenes con ruta: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-08-02T02:10:47.614Z] INFO: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+[2025-08-02T02:10:47.614Z] INFO: Configuración del servicio de imágenes validada correctamente
+[2025-08-02T02:10:47.615Z] INFO: Servicio de imágenes inicializado exitosamente
+[2025-08-02T02:10:47.644Z] INFO: Conexión a la base de datos establecida correctamente
+[2025-08-02T02:10:47.673Z] INFO: Modelos sincronizados con la base de datos
+[2025-08-02T02:10:47.676Z] INFO: Datos de ejemplo ya existen en la base de datos
+[2025-08-02T02:10:47.678Z] INFO: Servidor corriendo en el puerto 3000
