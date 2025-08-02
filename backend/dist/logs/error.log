@@ -8,3 +8,5 @@
 [2025-07-19T04:04:35.232Z] ERROR: Error al obtener carrito:
 [2025-07-19T04:08:46.061Z] ERROR: Error al obtener carrito:
 [2025-07-19T04:08:46.140Z] ERROR: Error al obtener carrito:
+[2025-07-30T18:27:23.398Z] ERROR: Error en Google login: Wrong number of segments in token: ya29.A0AS3H6Nz1qAaUpulELIzi73xCpZpyk2b8D3_5koUtcJ9Hajc6JQxi-xtszy4ePcqZMyawerFysSU3_3yKA5eoBSRMxyxkkGFD-2__TVmO42j7Cufi8_VZKVoRnUC7rPk6sBfcp6B89fWj8GIDkA-lxrKDXCsIc15snD8SS0uVMuTCGurUQsDnBRmBiSYR4oBofqnwYtEaCgYKAY0SARYSFQHGX2MiajJ8n2CKYul6B_zjel6ybQ0206
+[2025-07-30T18:34:44.494Z] ERROR: Error en Google login: Invalid value { google_id: '110998812894150885577' }

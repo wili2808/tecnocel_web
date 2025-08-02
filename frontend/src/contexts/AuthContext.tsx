@@ -3,6 +3,7 @@
  */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import axiosInstance from '../api/axiosConfig';
 
 // Constantes
@@ -37,7 +38,7 @@ interface AuthContextType {
     nit_ci_cliente: string;
   }) => Promise<any>;
   logout: () => void;
-  googleLogin: () => Promise<void>;
+  googleLogin: (overrideConfig?: any) => void;
   subscribeToAuthChanges: (callback: (user: ClienteUser | null) => void) => () => void;
 }
 
@@ -45,20 +46,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
- * Hook personalizado para acceder al contexto de autenticación
- * @throws Error si se usa fuera de un AuthProvider
- * @returns {AuthContextType} Contexto de autenticación con sus métodos y propiedades
+ * Hook personalizado para usar el contexto de autenticación
  */
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  }
   return context;
 };
 
-/**
- * Props para el componente AuthProvider
- * @property {ReactNode} children - Componentes hijos
- */
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -149,7 +146,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Efecto para verificar el token SOLO UNA VEZ al montar el componente
   useEffect(() => {
-    console.log('AuthProvider montado - Iniciando verificación de token');
     verifyToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Array vacío - solo se ejecuta al montar, verifyToken es estable
@@ -232,16 +228,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Función para iniciar sesión con Google
    */
-  const googleLogin = async () => {
-    try {
-      // Implementación pendiente de Google OAuth
-      console.log('Autenticación con Google pendiente de implementar');
-      throw new Error('Funcionalidad no implementada');
-    } catch (error) {
-      console.error('Error en autenticación con Google:', error);
-      throw error;
-    }
-  };
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        // Enviar el token de acceso al backend
+        const result = await axiosInstance.post('/clientes/google-login', {
+          access_token: response.access_token
+        });
+
+        const { cliente, token } = result.data;
+        if (!token) throw new Error('No se recibió token del servidor');
+
+        localStorage.setItem(TOKEN_KEY, token);
+        setUser(cliente);
+        setToken(token);
+        console.log('Login exitoso con Google:', cliente.email_cliente);
+      } catch (error: any) {
+        console.error('Error en Google Login:', error);
+        localStorage.removeItem(TOKEN_KEY);
+        delete axiosInstance.defaults.headers.common['Authorization'];
+        setToken(null);
+        throw new Error(error.response?.data?.mensaje || 'Error al autenticarse con Google');
+      }
+    },
+    onError: (error) => {
+      console.error('Error en Google OAuth:', error);
+      throw new Error('Error al autenticarse con Google');
+    },
+    scope: 'email profile',
+    flow: 'implicit'
+  });
 
   return (
     <AuthContext.Provider

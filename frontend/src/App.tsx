@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Layout from './components/layout/Layout';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -29,39 +30,41 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <NotificationProvider>
-          <Router>
-            <SearchProvider>
-              <CarritoProvider>
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    {/* Rutas que usan Layout normal */}
-                    <Route element={<Layout />}>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/register" element={<Register />} />
-                      <Route path="/panel" element={<UserPanel />} />
-                      <Route path="/carrito" element={<Cart />} />
-                      <Route path="/ofertas" element={<Offers />} />
-                      <Route path="/marcas" element={<Brands />} />
-                    </Route>
-                    {/* Rutas sin footer */}
-                    <Route element={<Layout hideFooter />}>
-                      <Route path="/productos" element={<ProductCatalog />} />
-                      <Route path="/productos/:id" element={<ProductPage />} />
-                    </Route>
-                    {/* Rutas de autenticación sin layout */}
-                  </Routes>
-                </Suspense>
-                <NotificationContainer />
-              </CarritoProvider>
-            </SearchProvider>
-          </Router>
-        </NotificationProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      <AuthProvider>
+        <ThemeProvider>
+          <NotificationProvider>
+            <Router>
+              <SearchProvider>
+                <CarritoProvider>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <Routes>
+                      {/* Rutas que usan Layout normal */}
+                      <Route element={<Layout />}>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/panel" element={<UserPanel />} />
+                        <Route path="/carrito" element={<Cart />} />
+                        <Route path="/ofertas" element={<Offers />} />
+                        <Route path="/marcas" element={<Brands />} />
+                      </Route>
+                      {/* Rutas sin footer */}
+                      <Route element={<Layout hideFooter />}>
+                        <Route path="/productos" element={<ProductCatalog />} />
+                        <Route path="/productos/:id" element={<ProductPage />} />
+                      </Route>
+                      {/* Rutas de autenticación sin layout */}
+                    </Routes>
+                  </Suspense>
+                  <NotificationContainer />
+                </CarritoProvider>
+              </SearchProvider>
+            </Router>
+          </NotificationProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   )
 }
 

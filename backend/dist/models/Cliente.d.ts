@@ -15,5 +15,6 @@ declare class Cliente extends Model {
     verification_token: string | null;
     reset_token: string | null;
     reset_token_expires: Date | null;
+    google_id: string | null;
 }
 export default Cliente;

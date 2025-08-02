@@ -65,6 +65,11 @@ Cliente.init({
     reset_token_expires: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    google_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        unique: true
     }
 }, {
     sequelize,

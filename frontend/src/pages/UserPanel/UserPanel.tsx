@@ -9,7 +9,6 @@ const MENU_OPTIONS = [
     { id: 'account', label: 'Datos de Cuenta', icon: 'account_circle' },
     { id: 'security', label: 'Seguridad', icon: 'security' },
     { id: 'purchases', label: 'Mis Compras', icon: 'shopping_bag' },
-    { id: 'tracking', label: 'Seguimientos', icon: 'local_shipping' },
     { id: 'favorites', label: 'Favoritos', icon: 'favorite' },
     { id: 'addresses', label: 'Direcciones', icon: 'location_on' },
     { id: 'support', label: 'Soporte', icon: 'help' },
@@ -85,15 +84,7 @@ const ContentSection = ({ activeSection, user }: { activeSection: string; user: 
                         </div>
                     </div>
                 );
-            case 'tracking':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Seguimientos</h2>
-                        <div className={userPanelStyles.trackingInfo}>
-                            <p>Seguimiento de pedidos en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+
             case 'favorites':
                 return (
                     <div className={userPanelStyles.contentSection}>
