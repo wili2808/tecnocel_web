@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import styles from './CartItem.module.css';
 
@@ -50,6 +51,14 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         }
     };
 
+    const handleQuantityButtonClick = (e: React.MouseEvent, operation: 'add' | 'subtract') => {
+        e.preventDefault(); // Prevenir navegación del Link
+        e.stopPropagation(); // Prevenir propagación del evento
+
+        const newQuantity = operation === 'add' ? item.cantidad + 1 : item.cantidad - 1;
+        handleQuantityChange(newQuantity);
+    };
+
     // Usar datos del producto si están disponibles, sino usar placeholders
     const productInfo = item.producto || {
         nombre: `Producto ${item.id_producto}`,
@@ -61,61 +70,61 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
     return (
         <div className={`${styles.cartItem} ${isUpdating ? styles.updating : ''}`}>
-            {/* Imagen del producto */}
-            <div className={styles.imageContainer}>
-                <img
-                    src={productInfo.imagen}
-                    alt={productInfo.nombre}
-                    className={styles.productImage}
-                />
-            </div>
-
-            {/* Información del producto */}
-            <div className={styles.productInfo}>
-                <div className={styles.productHeader}>
-                    <h3 className={styles.productTitle}>{productInfo.nombre}</h3>
-                    <div className={styles.priceContainer}>
-                        <span className={styles.unitPrice}>
-                            $ {item.precio_unitario.toLocaleString('es-ES')}
-                        </span>
-                    </div>
+            {/* Contenido clickeable del producto */}
+            <Link
+                to={`/productos/${item.id_producto}`}
+                className={styles.productLink}
+                aria-label={`Ver detalles de ${productInfo.nombre}`}
+            >
+                {/* Imagen del producto */}
+                <div className={styles.imageContainer}>
+                    <img
+                        src={productInfo.imagen}
+                        alt={productInfo.nombre}
+                        className={styles.productImage}
+                    />
                 </div>
 
-                <p className={styles.productDescription}>{productInfo.descripcion}</p>
-
-                <div className={styles.productFooter}>
-                    <div className={styles.stockContainer}>
-                        <span className={styles.stockBadge}>
-                            {productInfo.stock} en Stock
-                        </span>
+                {/* Información del producto */}
+                <div className={styles.productInfo}>
+                    <div className={styles.productHeader}>
+                        <h3 className={styles.productTitle}>{productInfo.nombre}</h3>
+                        <div className={styles.priceContainer}>
+                            <span className={styles.unitPrice}>
+                                $ {item.precio_unitario.toLocaleString('es-ES')}
+                            </span>
+                        </div>
                     </div>
 
-                    <button
-                        onClick={handleRemoveItem}
-                        className={styles.removeButton}
-                        disabled={isUpdating}
-                    >
-                        <span className="material-icons">delete</span>
-                        Eliminar
-                    </button>
+                    <p className={styles.productDescription}>{productInfo.descripcion}</p>
+
+                    <div className={styles.productFooter}>
+                        <div className={styles.stockContainer}>
+                            <span className={styles.stockBadge}>
+                                {productInfo.stock} en Stock
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </Link>
 
             {/* Controles y precio total */}
             <div className={styles.actionContainer}>
                 <div className={styles.quantityControls}>
                     <button
-                        onClick={() => handleQuantityChange(item.cantidad - 1)}
+                        onClick={(e) => handleQuantityButtonClick(e, 'subtract')}
                         disabled={item.cantidad <= 1 || isUpdating}
                         className={styles.quantityButton}
+                        type="button"
                     >
                         <span className="material-icons">remove</span>
                     </button>
                     <span className={styles.quantity}>{item.cantidad}</span>
                     <button
-                        onClick={() => handleQuantityChange(item.cantidad + 1)}
+                        onClick={(e) => handleQuantityButtonClick(e, 'add')}
                         disabled={isUpdating}
                         className={styles.quantityButton}
+                        type="button"
                     >
                         <span className="material-icons">add</span>
                     </button>
@@ -127,6 +136,16 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
                         $ {item.subtotal.toLocaleString('es-ES')}
                     </span>
                 </div>
+
+                <button
+                    onClick={handleRemoveItem}
+                    className={styles.removeButton}
+                    disabled={isUpdating}
+                    type="button"
+                >
+                    <span className="material-icons">delete</span>
+                    Eliminar
+                </button>
             </div>
 
             {isUpdating && (

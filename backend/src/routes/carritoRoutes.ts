@@ -10,7 +10,7 @@ import {
   verificarLimitesCarrito,
   logCarritoOperation,
   verificarDisponibilidadProducto,
-  carritoRateLimit
+  carritoRateLimitDiferenciado
 } from '../middleware/validateCarrito.js';
 
 const router = Router();
@@ -18,8 +18,8 @@ const router = Router();
 // Todas las rutas del carrito requieren autenticación de cliente
 router.use(verificarTokenCliente);
 
-// Rate limiting para todas las operaciones de carrito
-router.use(carritoRateLimit);
+// Rate limiting diferenciado para operaciones de carrito
+router.use(carritoRateLimitDiferenciado);
 
 // Obtener carrito activo del cliente
 router.get('/', 
