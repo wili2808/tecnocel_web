@@ -4,26 +4,23 @@
  */
 
 import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
 import logger from '../utils/logger.js';
-
-// Cargar variables de entorno
-dotenv.config();
+import { config } from './config.js';
 
 /**
  * Configuración de la conexión a la base de datos MySQL
- * Se utilizan variables de entorno con valores por defecto
+ * Utiliza la configuración centralizada del archivo config.ts
  */
 const sequelize = new Sequelize({
-  database: process.env.DB_NAME || 'tecnocel_db_v2',
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  dialect: 'mysql',
+  database: config.database.name,
+  username: config.database.user,
+  password: config.database.password,
+  host: config.database.host,
+  port: config.database.port,
+  dialect: 'mysql' as const,
   // Configuración de logging para desarrollo
   logging: (msg) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (config.server.env === 'development' && process.env.SEQUELIZE_DEBUG === 'true') {
       logger.debug(`[Sequelize] ${msg}`);
     }
   },
@@ -45,7 +42,7 @@ const createInitialData = async () => {
     const { Categoria, Almacen } = sequelize.models;
     const categoriaCount = await Categoria.count();
     if (categoriaCount === 0) {
-      logger.info('Iniciando creación de datos de ejemplo...');
+      logger.info('Creando datos de ejemplo en la base de datos');
       
       // Crear categorías principales del sistema
       const celulares = await Categoria.create({
@@ -100,9 +97,14 @@ const createInitialData = async () => {
         }
       ]);
 
-      logger.info('Datos de ejemplo creados exitosamente');
+      logger.info('Datos de ejemplo creados exitosamente', {
+        categorias: 3,
+        productos: 2
+      });
     } else {
-      logger.info('Datos de ejemplo ya existen en la base de datos');
+      logger.info('Datos de ejemplo ya existen en la base de datos', {
+        categorias_existentes: categoriaCount
+      });
     }
   } catch (error) {
     logger.error('Error al crear datos de ejemplo:', error);
@@ -119,7 +121,11 @@ export const initDatabase = async () => {
   try {
     // Verificar la conexión a la base de datos
     await sequelize.authenticate();
-    logger.info('Conexión a la base de datos establecida correctamente');
+    logger.info('Conexión a la base de datos establecida correctamente', {
+      host: config.database.host,
+      port: config.database.port,
+      database: config.database.name
+    });
     
     // Sincronizar modelos con la base de datos
     await sequelize.sync();

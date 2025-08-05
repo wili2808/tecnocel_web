@@ -105,9 +105,11 @@ class AlmacenController {
       
       // Transformar productos con URLs de imágenes (método seguro)
       const productosConImagenes = this.transformProductsWithImagesSafe(productos);
-      logger.debug('Transformación de imágenes completada');
       
-      logger.info(`Se obtuvieron ${productos.length} productos del almacén exitosamente`);
+      logger.info('Productos obtenidos exitosamente', {
+        cantidad: productos.length,
+        conImagenes: productosConImagenes.filter(p => p.imagen_disponible).length
+      });
       res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al obtener productos del almacén:', {
@@ -122,8 +124,6 @@ class AlmacenController {
   async getProductById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      logger.debug(`Buscando producto en almacén con ID: ${id}`);
-      
       const producto = await Almacen.findByPk(id, {
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
@@ -139,7 +139,11 @@ class AlmacenController {
       // Transformar producto con URL de imagen
       const productoConImagen = this.transformProductWithImage(producto);
 
-      logger.info(`Producto encontrado en almacén: ${producto.getDataValue('nombre')} (ID: ${id})`);
+      logger.info('Producto obtenido exitosamente', {
+        id: id,
+        nombre: producto.getDataValue('nombre'),
+        categoria: (producto as any).Categoria?.nombre_categoria
+      });
       res.json(productoConImagen);
     } catch (error) {
       logger.error('Error al obtener producto del almacén por ID:', {
@@ -153,13 +157,16 @@ class AlmacenController {
   // Crear un nuevo producto en el almacén
   async createProduct(req: Request, res: Response) {
     try {
-      logger.debug('Creando nuevo producto en almacén:', req.body);
       const producto = await Almacen.create({
         ...req.body,
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });
-      logger.info(`Producto creado exitosamente en almacén: ${producto.getDataValue('nombre')} (ID: ${producto.getDataValue('id_producto')})`);
+      logger.info('Producto creado exitosamente', {
+        id: producto.getDataValue('id_producto'),
+        nombre: producto.getDataValue('nombre'),
+        codigo: producto.getDataValue('codigo')
+      });
       res.status(201).json(producto);
     } catch (error) {
       logger.error('Error al crear producto en almacén:', {
@@ -174,8 +181,6 @@ class AlmacenController {
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      logger.debug(`Actualizando producto en almacén ID: ${id}`, req.body);
-      
       const [updated] = await Almacen.update({
         ...req.body,
         fyh_actualizacion: new Date()
@@ -188,7 +193,7 @@ class AlmacenController {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
-      logger.info(`Producto actualizado exitosamente en almacén ID: ${id}`);
+      logger.info('Producto actualizado exitosamente', { id: id });
       res.json({ message: 'Producto actualizado correctamente' });
     } catch (error) {
       logger.error('Error al actualizar producto en almacén:', {

@@ -1,0 +1,489 @@
+/* === TARJETA DE COMENTARIO === */
+.commentCard {
+    background: var(--background-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    transition: var(--theme-transition);
+}
+
+.commentCard:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* === HEADER DEL COMENTARIO === */
+.commentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+}
+
+.userInfo {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.avatar {
+    color: var(--text-secondary);
+}
+
+.avatar .material-icons {
+    font-size: 40px;
+}
+
+.userDetails {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.userName {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.commentMeta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.date {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.verified {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    font-weight: var(--font-weight-medium);
+}
+
+.verified .material-icons {
+    font-size: 16px;
+}
+
+/* === ACCIONES === */
+.actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.actionButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--theme-transition);
+}
+
+.actionButton:hover:not(:disabled) {
+    background: var(--background-neutral);
+    color: var(--text-primary);
+}
+
+.actionButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.actionButton .material-icons {
+    font-size: 18px;
+}
+
+/* === CALIFICACIÓN === */
+.rating {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.star {
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.star.active {
+    color: var(--color-warning);
+}
+
+.ratingText {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-left: var(--spacing-sm);
+}
+
+/* === CALIFICACIÓN EDITABLE === */
+.editRatingSection {
+    margin-bottom: var(--spacing-md);
+}
+
+.editLabel {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.editableRating {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.editStar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    transition: var(--theme-transition);
+    color: var(--text-secondary);
+}
+
+.editStar:hover:not(:disabled),
+.editStar.active {
+    color: var(--color-warning);
+    transform: scale(1.1);
+}
+
+.editStar:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.editStar .material-icons {
+    font-size: 20px;
+}
+
+/* === CONTENIDO DEL COMENTARIO === */
+.commentContent {
+    margin-bottom: var(--spacing-md);
+}
+
+.commentText {
+    font-size: var(--font-size-md);
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin: 0;
+    word-wrap: break-word;
+}
+
+/* === EDICIÓN === */
+.editSection {
+    margin-bottom: var(--spacing-sm);
+}
+
+.editTextarea {
+    width: 100%;
+    min-height: 100px;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    font-family: inherit;
+    font-size: var(--font-size-md);
+    line-height: 1.5;
+    resize: vertical;
+    transition: var(--theme-transition);
+    background: var(--background-light);
+    color: var(--text-primary);
+}
+
+.editTextarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-alpha);
+}
+
+.editTextarea:disabled {
+    background: var(--background-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.charCount {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+/* === IMÁGENES DEL COMENTARIO === */
+.commentImages {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.imageContainer {
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
+    cursor: pointer;
+}
+
+.imageContainer:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.02);
+}
+
+.commentImage {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+/* === RESPUESTA DEL ADMIN === */
+.adminResponse {
+    background: var(--background-info);
+    border: 1px solid var(--border-info);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.adminHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-info);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
+
+.adminHeader .material-icons {
+    font-size: 18px;
+}
+
+.responseDate {
+    margin-left: auto;
+    font-weight: normal;
+    color: var(--text-secondary);
+}
+
+.adminText {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+/* === ACCIONES DE EDICIÓN === */
+.editActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.cancelEdit {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: var(--theme-transition);
+}
+
+.cancelEdit:hover:not(:disabled) {
+    background: var(--background-neutral);
+    color: var(--text-primary);
+}
+
+.saveEdit {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-primary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: var(--theme-transition);
+}
+
+.saveEdit:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+.saveEdit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === MODAL DE ELIMINACIÓN === */
+.deleteModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-lg);
+}
+
+.modalContent {
+    background: var(--background-light);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 400px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+}
+
+.modalContent h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+}
+
+.modalContent p {
+    margin: 0 0 var(--spacing-lg) 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+}
+
+.modalCancel {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: var(--theme-transition);
+}
+
+.modalCancel:hover:not(:disabled) {
+    background: var(--background-neutral);
+    color: var(--text-primary);
+}
+
+.modalDelete {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-error);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: var(--theme-transition);
+}
+
+.modalDelete:hover:not(:disabled) {
+    background: var(--color-error-dark);
+}
+
+.modalDelete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .commentCard {
+        padding: var(--spacing-md);
+    }
+
+    .commentHeader {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .userInfo {
+        width: 100%;
+    }
+
+    .actions {
+        align-self: flex-end;
+    }
+
+    .editActions {
+        flex-direction: column-reverse;
+    }
+
+    .cancelEdit,
+    .saveEdit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .commentImages {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--spacing-sm);
+    }
+
+    .modalActions {
+        flex-direction: column-reverse;
+    }
+
+    .modalCancel,
+    .modalDelete {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .commentCard {
+        padding: var(--spacing-sm);
+    }
+
+    .avatar .material-icons {
+        font-size: 32px;
+    }
+
+    .commentImages {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}

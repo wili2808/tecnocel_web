@@ -70,8 +70,7 @@ export const verificarToken = async (req: Request, res: Response, next: NextFunc
     
     logger.debug('Token verificado exitosamente', { 
       userId: usuario.id_usuario,
-      email: usuario.email,
-      path: req.path
+      email: usuario.email
     });
     
     next();
@@ -127,8 +126,7 @@ export const verificarTokenCliente = async (req: Request, res: Response, next: N
     };
     logger.debug('Token de cliente verificado exitosamente', {
       id_cliente: cliente.id_cliente,
-      email: cliente.email_cliente,
-      path: req.path
+      email: cliente.email_cliente
     });
     next();
   } catch (error) {

@@ -15,7 +15,6 @@ export default class ClienteController {
    */
   static async register(req: Request, res: Response) {
     try {
-      logger.info('Intentando registrar cliente', req.body);
       const { nombre_cliente, apellido_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena } = req.body;
       // Validaciones básicas
       if (!nombre_cliente || !apellido_cliente || !email_cliente || !celular_cliente || !nit_ci_cliente || !contrasena) {
@@ -44,7 +43,11 @@ export default class ClienteController {
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });
-      logger.info(`Cliente registrado exitosamente: ${cliente.email_cliente}`);
+      logger.info('Cliente registrado exitosamente', {
+        id: cliente.id_cliente,
+        email: cliente.email_cliente,
+        nombre: cliente.nombre_cliente
+      });
       
       // Generar JWT para login automático
       const token = jwt.sign({ id_cliente: cliente.id_cliente, email: cliente.email_cliente }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
@@ -79,7 +82,6 @@ export default class ClienteController {
    */
   static async verifyEmail(req: Request, res: Response) {
     try {
-      logger.info('Intentando verificar email', req.query);
       const { token } = req.query;
       if (!token) {
         logger.warn('Verificación fallida: token no proporcionado');
@@ -95,7 +97,10 @@ export default class ClienteController {
       cliente.is_web_enabled = true;
       cliente.fyh_actualizacion = new Date();
       await cliente.save();
-      logger.info(`Email verificado correctamente para: ${cliente.email_cliente}`);
+      logger.info('Email verificado correctamente', {
+        id: cliente.id_cliente,
+        email: cliente.email_cliente
+      });
       return res.json({ mensaje: 'Email verificado correctamente. Ya puedes iniciar sesión.' });
     } catch (error) {
       logger.error('Error al verificar email', { error });

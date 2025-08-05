@@ -40,7 +40,10 @@ export default class GoogleAuthController {
         return res.status(400).json({ mensaje: 'Email no disponible' });
       }
 
-      logger.info(`Procesando login de Google para email: ${email}, Google ID: ${googleId}`);
+      logger.info('Procesando login de Google', {
+        email: email,
+        googleId: googleId
+      });
 
       // Buscar cliente existente por Google ID o email
       let cliente = await Cliente.findOne({ 
@@ -54,7 +57,7 @@ export default class GoogleAuthController {
 
       if (!cliente) {
         // Crear nuevo cliente con datos de Google
-        logger.info(`Creando nuevo cliente con Google: ${email}`);
+        logger.info('Creando nuevo cliente con Google', { email: email });
         cliente = await Cliente.create({
           nombre_cliente: given_name || 'Usuario',
           apellido_cliente: family_name || 'Google',
@@ -67,11 +70,17 @@ export default class GoogleAuthController {
           fyh_creacion: new Date(),
           fyh_actualizacion: new Date()
         });
-        logger.info(`Cliente creado exitosamente con ID: ${cliente.id_cliente}`);
+        logger.info('Cliente creado exitosamente con Google', {
+          id: cliente.id_cliente,
+          email: cliente.email_cliente
+        });
       } else {
         // Actualizar Google ID si no existe
         if (!cliente.google_id) {
-          logger.info(`Vinculando cliente existente con Google ID: ${googleId}`);
+          logger.info('Vinculando cliente existente con Google', {
+            id: cliente.id_cliente,
+            googleId: googleId
+          });
           cliente.google_id = googleId;
           await cliente.save();
         }
@@ -88,7 +97,10 @@ export default class GoogleAuthController {
       cliente.last_login = new Date();
       await cliente.save();
 
-      logger.info(`Login exitoso con Google para: ${cliente.email_cliente}`);
+      logger.info('Login exitoso con Google', {
+        id: cliente.id_cliente,
+        email: cliente.email_cliente
+      });
 
       return res.json({
         token,

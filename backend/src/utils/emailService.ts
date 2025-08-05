@@ -24,7 +24,7 @@ export async function sendVerificationEmail(email: string, token: string) {
         <a href="${verificationUrl}">${verificationUrl}</a>
       `,
     });
-    logger.info(`Correo de verificación enviado a ${email}`);
+    logger.info('Correo de verificación enviado', { email: email });
   } catch (error) {
     logger.error('Error enviando correo de verificación:', error);
     throw new Error('No se pudo enviar el correo de verificación');
@@ -45,7 +45,7 @@ export async function sendResetPasswordEmail(email: string, token: string) {
         <p>Este enlace expirará en 1 hora.</p>
       `,
     });
-    logger.info(`Correo de restablecimiento enviado a ${email}`);
+    logger.info('Correo de restablecimiento enviado', { email: email });
   } catch (error) {
     logger.error('Error enviando correo de restablecimiento:', error);
     throw new Error('No se pudo enviar el correo de restablecimiento');

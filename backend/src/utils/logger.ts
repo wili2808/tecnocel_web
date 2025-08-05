@@ -14,11 +14,24 @@ const createLogger = (): winston.Logger => {
     return loggerInstance;
   }
 
-  // Configuración de formatos personalizados
+  // Configuración de formatos personalizados mejorada
   const customFormat = winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => {
-      return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.errors({ stack: true }),
+    winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
+      let logMessage = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+      
+      // Agregar metadatos si existen
+      if (Object.keys(meta).length > 0) {
+        logMessage += ` | ${JSON.stringify(meta)}`;
+      }
+      
+      // Agregar stack trace para errores
+      if (stack) {
+        logMessage += `\n${stack}`;
+      }
+      
+      return logMessage;
     })
   );
 
@@ -29,22 +42,31 @@ const createLogger = (): winston.Logger => {
       filename: path.join(__dirname, '../logs/error.log'),
       level: 'error',
       maxsize: 5242880, // 5MB
-      maxFiles: 5
+      maxFiles: 5,
+      format: customFormat
     }),
     // Logs generales
     new winston.transports.File({
       filename: path.join(__dirname, '../logs/combined.log'),
       maxsize: 5242880, // 5MB
-      maxFiles: 5
+      maxFiles: 5,
+      format: customFormat
     })
   ];
 
-  // Agregar transport Console solo en desarrollo (solo para esta instancia)
+  // Agregar transport Console solo en desarrollo
   if (process.env.NODE_ENV !== 'production') {
     transports.push(new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        customFormat
+        winston.format.simple(),
+        winston.format.printf(({ timestamp, level, message, ...meta }) => {
+          let logMessage = `${timestamp} ${level}: ${message}`;
+          if (Object.keys(meta).length > 0) {
+            logMessage += ` | ${JSON.stringify(meta)}`;
+          }
+          return logMessage;
+        })
       )
     }));
   }

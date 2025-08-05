@@ -4,6 +4,8 @@ import CarritoWeb from './CarritoWeb.js';
 import CarritoWebItems from './CarritoWebItems.js';
 import Categoria from './Categoria.js';
 import Cliente from './Cliente.js';
+import Comentario from './Comentario.js';
+import ComentarioImagen from './ComentarioImagen.js';
 import Compra from './Compra.js';
 import DetalleCompra from './DetalleCompra.js';
 import DetalleDevolucion from './DetalleDevolucion.js';
@@ -77,6 +79,20 @@ Venta.belongsTo(Cliente, { foreignKey: 'id_cliente' });
 Cliente.hasMany(Venta, { foreignKey: 'id_cliente' });
 // Carrito y Venta ya definidos arriba
 
+// Comentarios de productos
+Comentario.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+Almacen.hasMany(Comentario, { foreignKey: 'id_producto', as: 'comentarios' });
+
+Comentario.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
+Cliente.hasMany(Comentario, { foreignKey: 'id_cliente', as: 'comentarios' });
+
+Comentario.belongsTo(Usuario, { foreignKey: 'id_admin_respuesta', as: 'adminRespuesta' });
+Usuario.hasMany(Comentario, { foreignKey: 'id_admin_respuesta', as: 'respuestasAdmin' });
+
+// Imágenes de comentarios
+ComentarioImagen.belongsTo(Comentario, { foreignKey: 'id_comentario', as: 'comentario' });
+Comentario.hasMany(ComentarioImagen, { foreignKey: 'id_comentario', as: 'imagenes' });
+
 // Exportar todos los modelos (opcional, útil para inicialización)
 export {
   Almacen,
@@ -85,6 +101,8 @@ export {
   CarritoWebItems,
   Categoria,
   Cliente,
+  Comentario,
+  ComentarioImagen,
   Compra,
   DetalleCompra,
   DetalleDevolucion,

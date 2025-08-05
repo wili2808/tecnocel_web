@@ -4,6 +4,8 @@ import './CarritoWebItems.js';
 import './Almacen.js';
 import './Categoria.js';
 import './Cliente.js';
+import './Comentario.js';
+import './ComentarioImagen.js';
 import './Compra.js';
 import './DetalleCompra.js';
 import './DetalleDevolucion.js';

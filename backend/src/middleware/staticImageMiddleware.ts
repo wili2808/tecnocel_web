@@ -22,22 +22,25 @@ const MIME_TYPES: { [key: string]: string } = {
 
 interface ImageMiddlewareOptions {
   imagesPath: string;
+  commentsImagesPath?: string; // Nueva ruta específica para comentarios
   defaultImage?: string;
   maxAge?: number; // Cache duration in seconds
 }
 
 class StaticImageMiddleware {
   private imagesPath: string;
+  private commentsImagesPath: string;
   private defaultImage: string;
   private maxAge: number;
 
   constructor(options: ImageMiddlewareOptions) {
     this.imagesPath = options.imagesPath;
+    this.commentsImagesPath = options.commentsImagesPath || path.join(process.cwd(), '../htdocs/tecnocel');
     this.defaultImage = options.defaultImage || 'default-product.png';
     this.maxAge = options.maxAge || 86400; // 24 hours default
   }
 
-  // Validar nombre de archivo por seguridad (versión simplificada y permisiva)
+  // Validar nombre de archivo por seguridad (versión mejorada para rutas de comentarios)
   private isValidFilename(filename: string): boolean {
     // Verificar que el nombre no esté vacío
     if (!filename || filename.trim().length === 0) {
@@ -45,12 +48,12 @@ class StaticImageMiddleware {
     }
 
     // Prevenir path traversal attacks (PRINCIPAL RIESGO DE SEGURIDAD)
-    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+    if (filename.includes('..')) {
       return false;
     }
 
     // Prevenir caracteres de control peligrosos
-    if (filename.includes('\0') || filename.length > 255) {
+    if (filename.includes('\0') || filename.length > 500) {
       return false;
     }
 
@@ -60,10 +63,19 @@ class StaticImageMiddleware {
       return false;
     }
 
-    // VALIDACIÓN SIMPLIFICADA: Solo rechazar caracteres realmente problemáticos
-    // Permitir guiones, puntos, espacios, números y caracteres alfanuméricos
+    // VALIDACIÓN MEJORADA: Permitir rutas de comentarios pero prevenir caracteres peligrosos
+    // Permitir: guiones, puntos, espacios, números, caracteres alfanuméricos, barras normales
     const dangerousChars = /[\x00-\x1f\x7f<>:"|*\?]/;
     if (dangerousChars.test(filename)) {
+      return false;
+    }
+
+    // Validar que las rutas sean seguras (solo permitir rutas de comentarios)
+    const safePaths = ['img_comments/', 'comments_img/', 'comments/'];
+    const hasValidPath = safePaths.some(safePath => filename.startsWith(safePath));
+    
+    // Si no tiene una ruta válida, debe ser un archivo directo (sin barras)
+    if (!hasValidPath && (filename.includes('/') || filename.includes('\\'))) {
       return false;
     }
 
@@ -89,7 +101,15 @@ class StaticImageMiddleware {
   // Middleware principal para servir imágenes
   public serveImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { filename } = req.params;
+      const filename = req.params[0]; // Usar req.params[0] para capturar todo después de /api/images/
+      
+      logger.info(`🔍 MIDDLEWARE EJECUTÁNDOSE - Solicitud de imagen recibida: ${filename}`, {
+        originalUrl: req.originalUrl,
+        method: req.method,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip,
+        params: req.params
+      });
 
       // Validar nombre de archivo
       if (!filename || !this.isValidFilename(filename)) {
@@ -108,21 +128,42 @@ class StaticImageMiddleware {
       }
 
       // Construir ruta completa del archivo
-      const filePath = path.join(this.imagesPath, filename);
+      let filePath: string;
+      if (filename.startsWith('img_comments/') || filename.startsWith('comments_img/') || filename.startsWith('comments/')) {
+        // Para comentarios, extraer solo el nombre del archivo (sin el prefijo)
+        const fileName = filename.replace(/^(img_comments\/|comments_img\/|comments\/)/, '');
+        filePath = path.join(this.commentsImagesPath, fileName);
+        logger.info(`🔍 DEBUG - Ruta de comentario construida: ${filePath} (archivo: ${fileName})`);
+        logger.info(`🔍 DEBUG - commentsImagesPath: ${this.commentsImagesPath}`);
+        logger.info(`🔍 DEBUG - fileName extraído: ${fileName}`);
+      } else {
+        // Para otros archivos, usar el directorio normal (XAMPP)
+        filePath = path.join(this.imagesPath, filename);
+        logger.debug(`Ruta de imagen normal construida: ${filePath}`);
+      }
       
       // Verificar si el archivo existe
       if (!this.fileExists(filePath)) {
-        logger.debug(`Imagen no encontrada: ${filename}, sirviendo imagen por defecto`);
+        logger.warn(`Imagen no encontrada: ${filename}`, {
+          filePath: filePath,
+          exists: fs.existsSync(filePath),
+          isFile: fs.existsSync(filePath) ? fs.statSync(filePath).isFile() : false,
+          directory: path.dirname(filePath),
+          directoryExists: fs.existsSync(path.dirname(filePath))
+        });
         
         // Intentar servir imagen por defecto
         const defaultPath = path.join(this.imagesPath, this.defaultImage);
         if (this.fileExists(defaultPath)) {
+          logger.debug(`Sirviendo imagen por defecto: ${this.defaultImage}`);
           this.sendImage(res, defaultPath, this.defaultImage);
           return;
         } else {
           res.status(404).json({ 
             error: 'Imagen no encontrada',
-            message: 'La imagen solicitada no existe'
+            message: 'La imagen solicitada no existe',
+            requestedFile: filename,
+            constructedPath: filePath
           });
           return;
         }
@@ -134,7 +175,7 @@ class StaticImageMiddleware {
 
     } catch (error) {
       logger.error('Error al servir imagen:', {
-        filename: req.params.filename,
+        filename: req.params[0],
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined
       });
@@ -177,6 +218,7 @@ class StaticImageMiddleware {
   // Middleware para validar que el directorio de imágenes existe
   public validateImagesDirectory(): boolean {
     try {
+      // Validar directorio principal de imágenes
       if (!fs.existsSync(this.imagesPath)) {
         logger.error(`Directorio de imágenes no existe: ${this.imagesPath}`);
         return false;
@@ -188,7 +230,20 @@ class StaticImageMiddleware {
         return false;
       }
 
+      // Validar directorio de comentarios
+      if (!fs.existsSync(this.commentsImagesPath)) {
+        logger.error(`Directorio de imágenes de comentarios no existe: ${this.commentsImagesPath}`);
+        return false;
+      }
+
+      const commentsStats = fs.statSync(this.commentsImagesPath);
+      if (!commentsStats.isDirectory()) {
+        logger.error(`La ruta de comentarios no es un directorio: ${this.commentsImagesPath}`);
+        return false;
+      }
+
       logger.info(`Directorio de imágenes configurado correctamente: ${this.imagesPath}`);
+      logger.info(`Directorio de comentarios configurado correctamente: ${this.commentsImagesPath}`);
       return true;
     } catch (error) {
       logger.error('Error al validar directorio de imágenes:', error);

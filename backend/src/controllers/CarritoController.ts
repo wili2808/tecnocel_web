@@ -20,8 +20,6 @@ export default class CarritoController {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
       }
 
-      logger.debug(`Obteniendo carrito para cliente: ${id_cliente}`);
-
       // Buscar carrito activo del cliente
       let carrito = await CarritoWeb.findOne({
         where: { 
@@ -71,7 +69,11 @@ export default class CarritoController {
         });
       }
 
-      logger.info(`Carrito obtenido exitosamente para cliente: ${id_cliente}`);
+      logger.info('Carrito obtenido exitosamente', {
+        cliente_id: id_cliente,
+        items_count: carrito!.items?.length || 0,
+        total: carrito!.total_carrito
+      });
       return res.json({
         carrito: {
           id_carrito: carrito!.id_carrito,

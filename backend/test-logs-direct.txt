@@ -1,0 +1,48 @@
+2025-08-05 19:04:41 [32minfo[39m: Inicializando servicio de imágenes | {"imagesPath":"C:/xampp/htdocs/tecnocel/almacen/img_productos","commentsImagesPath":"C:/xampp/htdocs/tecnocel/img_comments","baseUrl":"http://localhost:3000"}
+2025-08-05 19:04:41 [32minfo[39m: Directorio de imágenes configurado correctamente: C:/xampp/htdocs/tecnocel/almacen/img_productos
+2025-08-05 19:04:41 [32minfo[39m: Directorio de comentarios configurado correctamente: C:/xampp/htdocs/tecnocel/img_comments
+2025-08-05 19:04:41 [32minfo[39m: Configuración del servicio de imágenes validada correctamente
+2025-08-05 19:04:41 [32minfo[39m: Servicio de imágenes inicializado exitosamente
+2025-08-05 19:04:41 [32minfo[39m: Iniciando servidor... | {"port":"3001","environment":"development","nodeVersion":"v22.15.1"}
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT 1+1 AS result
+2025-08-05 19:04:41 [32minfo[39m: Conexión a la base de datos establecida correctamente | {"host":"localhost","port":3306,"database":"db_tecnocel_v3"}
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_roles' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_roles` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_usuarios' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_usuarios` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_categorias' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_categorias` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_almacen' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_almacen` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_clientes' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_clientes` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_carritosweb' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_carritosweb` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_carritoweb_items' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_carritoweb_items` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_ventas' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_ventas` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_comentarios_productos' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_comentarios_productos` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_comentario_imagenes' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_comentario_imagenes` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_carrito' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_carrito` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_proveedores' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_proveedores` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_compras' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_compras` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_detalle_compras' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_detalle_compras` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_devoluciones' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_devoluciones` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_detalle_devoluciones' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_detalle_devoluciones` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_presupuestos' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_presupuestos` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'tb_presupuesto_detalles' AND TABLE_SCHEMA = 'db_tecnocel_v3'
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SHOW INDEX FROM `tb_presupuesto_detalles` FROM `db_tecnocel_v3`
+2025-08-05 19:04:41 [32minfo[39m: Modelos sincronizados con la base de datos
+2025-08-05 19:04:41 [34mdebug[39m: [Sequelize] Executing (default): SELECT count(*) AS `count` FROM `tb_categorias` AS `Categoria`;
+2025-08-05 19:04:41 [32minfo[39m: Datos de ejemplo ya existen en la base de datos | {"categorias_existentes":35}
+2025-08-05 19:04:41 [32minfo[39m: Servidor iniciado exitosamente | {"port":"3001","environment":"development"}

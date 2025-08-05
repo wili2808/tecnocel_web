@@ -12,6 +12,9 @@ build/
 *.js.map
 *.d.ts.map
 
+# Scripts de test
+scripts_test/
+
 # Variables de entorno
 .env
 .env.local

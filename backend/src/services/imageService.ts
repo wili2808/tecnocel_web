@@ -35,7 +35,6 @@ class ImageService {
 
     // Generar URL completa
     const imageUrl = `${this.config.baseUrl}${this.config.endpoint}/${imageName}`;
-    logger.debug(`URL de imagen generada: ${imageUrl} para archivo: ${imageName}`);
     
     return imageUrl;
   }
@@ -55,7 +54,7 @@ class ImageService {
    */
   private isValidImageName(imageName: string): boolean {
     // Verificar que no contenga caracteres peligrosos para path traversal
-    if (imageName.includes('..') || imageName.includes('/') || imageName.includes('\\')) {
+    if (imageName.includes('..')) {
       return false;
     }
 
@@ -67,10 +66,19 @@ class ImageService {
       return false;
     }
 
-    // Validación más permisiva: solo rechazar caracteres realmente peligrosos
-    // Permitir guiones, puntos, espacios, números y caracteres alfanuméricos
+    // Validación mejorada: permitir rutas de comentarios pero prevenir caracteres peligrosos
+    // Permitir: guiones, puntos, espacios, números, caracteres alfanuméricos, barras normales
     const dangerousChars = /[\x00-\x1f\x7f<>:"|*\?]/;
     if (dangerousChars.test(imageName)) {
+      return false;
+    }
+
+    // Validar que las rutas sean seguras (solo permitir rutas de comentarios)
+    const safePaths = ['img_comments/', 'comments_img/', 'comments/'];
+    const hasValidPath = safePaths.some(safePath => imageName.startsWith(safePath));
+    
+    // Si no tiene una ruta válida, debe ser un archivo directo (sin barras)
+    if (!hasValidPath && (imageName.includes('/') || imageName.includes('\\'))) {
       return false;
     }
 
