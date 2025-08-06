@@ -16,7 +16,7 @@ Este proyecto utiliza variables de entorno para configurar diferentes aspectos d
 
 ### Base de Datos
 
-- `DB_NAME`: Nombre de la base de datos (default: `tecnocel_db_v3`)
+- `DB_NAME`: Nombre de la base de datos (default: `db_tecnocel_v3`)
 - `DB_USER`: Usuario de la base de datos (default: `root`)
 - `DB_PASSWORD`: Contraseña de la base de datos
 - `DB_HOST`: Host de la base de datos (default: `localhost`)
