@@ -2,6 +2,7 @@
 .cursor/
 database/
 note/
+data/migrations/
 
 # Dependencias
 node_modules/
