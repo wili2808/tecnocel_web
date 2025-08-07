@@ -4,8 +4,11 @@ import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import Venta from '../models/Venta.js';
+import Oferta from '../models/Oferta.js';
 import logger from '../utils/logger.js';
 import { Op } from 'sequelize';
+import { getImageService } from '../services/imageService.js';
+import ProductoImagen from '../models/ProductoImagen.js';
 
 export default class CarritoController {
 
@@ -31,11 +34,32 @@ export default class CarritoController {
             model: CarritoWebItems,
             as: 'items',
             include: [
-              {
-                model: Almacen,
-                as: 'producto',
-                attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'imagen', 'stock']
-              }
+                              {
+                  model: Almacen,
+                  as: 'producto',
+                  attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'stock'],
+                  include: [
+                    {
+                      model: ProductoImagen,
+                      as: 'imagenes',
+                      attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+                    },
+                    {
+                      model: Oferta,
+                      as: 'ofertas',
+                      where: {
+                        activo: true,
+                        fecha_inicio: { [Op.lte]: new Date() },
+                        fecha_fin: { [Op.gte]: new Date() }
+                      },
+                      required: false,
+                      through: {
+                        attributes: ['precio_oferta']
+                      },
+                      attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
+                    }
+                  ]
+                }
             ]
           }
         ]
@@ -61,7 +85,28 @@ export default class CarritoController {
                 {
                   model: Almacen,
                   as: 'producto',
-                  attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'imagen', 'stock']
+                  attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'stock'],
+                  include: [
+                    {
+                      model: ProductoImagen,
+                      as: 'imagenes',
+                      attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+                    },
+                    {
+                      model: Oferta,
+                      as: 'ofertas',
+                      where: {
+                        activo: true,
+                        fecha_inicio: { [Op.lte]: new Date() },
+                        fecha_fin: { [Op.gte]: new Date() }
+                      },
+                      required: false,
+                      through: {
+                        attributes: ['precio_oferta']
+                      },
+                      attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
+                    }
+                  ]
                 }
               ]
             }
@@ -69,18 +114,89 @@ export default class CarritoController {
         });
       }
 
+      // Obtener servicio de imágenes
+      const imageService = getImageService();
+      if (!imageService) {
+        logger.warn('Servicio de imágenes no disponible');
+      }
+
+      // Procesar items para incluir información de ofertas e imágenes
+      const itemsConOfertas = await Promise.all((carrito!.items || []).map(async item => {
+        const producto = item.producto as any;
+        const ofertas = producto?.ofertas || [];
+        const ofertaActiva = ofertas.length > 0 ? ofertas[0] : null;
+        
+        let precio_original = parseFloat(producto.precio_venta);
+        let precio_oferta = null;
+        let descuento_porcentaje = null;
+        let en_oferta = false;
+        
+        if (ofertaActiva) {
+          en_oferta = true;
+          if (ofertaActiva.ProductoOferta?.precio_oferta) {
+            precio_oferta = ofertaActiva.ProductoOferta.precio_oferta;
+          } else if (ofertaActiva.tipo_descuento === 'porcentaje') {
+            precio_oferta = precio_original * (1 - ofertaActiva.valor_descuento / 100);
+            descuento_porcentaje = ofertaActiva.valor_descuento;
+          } else if (ofertaActiva.tipo_descuento === 'monto_fijo') {
+            precio_oferta = Math.max(0, precio_original - ofertaActiva.valor_descuento);
+            descuento_porcentaje = ((ofertaActiva.valor_descuento / precio_original) * 100).toFixed(1);
+          }
+        }
+        
+        // Extraer solo los datos necesarios de las ofertas para evitar referencias circulares
+        const ofertasSimplificadas = ofertas.map((oferta: any) => ({
+          id_oferta: oferta.id_oferta,
+          nombre_oferta: oferta.nombre_oferta,
+          descripcion: oferta.descripcion,
+          tipo_descuento: oferta.tipo_descuento,
+          valor_descuento: oferta.valor_descuento,
+          fecha_inicio: oferta.fecha_inicio,
+          fecha_fin: oferta.fecha_fin,
+          activo: oferta.activo
+        }));
+
+        // Transformar el producto con las URLs de imágenes
+        let productoConImagenes = {
+          id_producto: producto.id_producto,
+          nombre: producto.nombre,
+          descripcion: producto.descripcion,
+          precio_venta: producto.precio_venta,
+          stock: producto.stock,
+          precio_original,
+          precio_oferta,
+          descuento_porcentaje,
+          en_oferta,
+          ofertas: ofertasSimplificadas
+        };
+
+        // Si el servicio de imágenes está disponible, transformar las imágenes
+        if (imageService) {
+          productoConImagenes = await imageService.transformProductWithImageUrls({
+            ...productoConImagenes,
+            imagenes: producto.imagenes
+          });
+        }
+        
+        return {
+          ...item.toJSON(),
+          producto: productoConImagenes
+        };
+      }));
+
       logger.info('Carrito obtenido exitosamente', {
         cliente_id: id_cliente,
-        items_count: carrito!.items?.length || 0,
+        items_count: itemsConOfertas.length,
         total: carrito!.total_carrito
       });
+      
       return res.json({
         carrito: {
           id_carrito: carrito!.id_carrito,
           estado: carrito!.estado,
           total_carrito: carrito!.total_carrito,
-          items: carrito!.items || [],
-          cantidad_items: carrito!.items?.length || 0
+          items: itemsConOfertas,
+          cantidad_items: itemsConOfertas.length
         }
       });
 
@@ -198,10 +314,24 @@ export default class CarritoController {
           {
             model: Almacen,
             as: 'producto',
-            attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'imagen', 'stock']
+            attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'stock'],
+            include: [
+              {
+                model: ProductoImagen,
+                as: 'imagenes',
+                attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+              }
+            ]
           }
         ]
       });
+
+      // Transformar las imágenes del producto
+      const imageService = getImageService();
+      if (imageService && itemCompleto?.producto) {
+        const productoTransformado = await imageService.transformProductWithImageUrls(itemCompleto.producto);
+        (itemCompleto as any).producto = productoTransformado;
+      }
 
       logger.info(`Item agregado exitosamente al carrito - Cliente: ${id_cliente}, Item ID: ${item.id_item}`);
       return res.json({

@@ -6,16 +6,24 @@ export interface ProductUIFilters {
   search: string;
   selectedDropdownCategory: string;
   selectedQuickSearch: string | null;
-  order: string;
+  selectedBrand: string;
+  priceRange: [number, number];
+  characteristics: { [key: string]: string };
+  onlyOffers: boolean;
   onlyStock: boolean;
+  order: string;
 }
 
 const DEFAULT_FILTERS: ProductUIFilters = {
   search: '',
   selectedDropdownCategory: '',
   selectedQuickSearch: null,
-  order: '',
+  selectedBrand: '',
+  priceRange: [0, 10000],
+  characteristics: {},
+  onlyOffers: false,
   onlyStock: false,
+  order: '',
 };
 
 const STORAGE_KEY = 'catalogoFiltros';

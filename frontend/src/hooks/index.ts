@@ -7,6 +7,7 @@ export { useProductFilters } from './useProductFilters';
 export { useFilteredProducts } from './useFilteredProducts';
 export { useEscapeKey } from './useEscapeKey';
 export { useAuthForm, authValidationConfigs } from './useAuthForm';
+export { useOfertas } from './useOfertas';
 
 // Tipos exportados
 export type { ProductUIFilters } from './useProductFilters'; 

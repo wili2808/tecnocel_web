@@ -12,9 +12,10 @@ class Almacen extends Model {
   declare precio_compra: string;
   declare precio_venta: string;
   declare fecha_ingreso: Date;
-  declare imagen: string | null;
   declare id_usuario: number;
   declare id_categoria: number;
+  declare es_destacado: boolean;
+  declare orden_destacado: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
@@ -61,10 +62,6 @@ Almacen.init({
     type: DataTypes.DATE,
     allowNull: false
   },
-  imagen: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
   id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -80,6 +77,16 @@ Almacen.init({
       model: 'tb_categorias',
       key: 'id_categoria'
     }
+  },
+  es_destacado: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  orden_destacado: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   },
   fyh_creacion: {
     type: DataTypes.DATE,

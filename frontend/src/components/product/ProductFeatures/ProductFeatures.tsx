@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Product } from '../../../types/product';
+import type { Product, ProductoCaracteristica } from '../../../types/product';
 import styles from './ProductFeatures.module.css';
 
 interface ProductFeaturesProps {
@@ -11,13 +11,16 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         codigo,
         stock,
         stock_minimo,
-        precio_compra,
-        precio_venta,
         fecha_ingreso,
-        fyh_creacion,
         Categoria,
-        Usuario
+        Usuario,
+        marca,
+        caracteristicas,
+        productosCaracteristicas
     } = product;
+
+    // Usar productosCaracteristicas si está disponible, sino caracteristicas
+    const specs = productosCaracteristicas || caracteristicas || [];
 
     // Formatear fecha
     const formatDate = (dateString: string) => {
@@ -32,58 +35,102 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         }
     };
 
-    // Formatear precio
-    const formatPrice = (price: string): string => {
-        const numPrice = Number(price);
-        if (isNaN(numPrice) || numPrice < 0) {
-            return 'No disponible';
+
+
+    // Renderizar valor de característica según su tipo
+    const renderCharacteristicValue = (caracteristica: ProductoCaracteristica) => {
+        const tipoCaracteristica = caracteristica.tipo;
+        const valor = caracteristica.valor;
+
+        if (!tipoCaracteristica) return valor;
+
+        switch (tipoCaracteristica.tipo_dato) {
+            case 'numero':
+                const numValue = parseFloat(valor);
+                if (isNaN(numValue)) return valor;
+                return `${numValue}${tipoCaracteristica.unidad_medida ? ` ${tipoCaracteristica.unidad_medida}` : ''}`;
+
+            case 'booleano':
+                const boolValue = valor.toLowerCase();
+                return boolValue === 'true' || boolValue === '1' || boolValue === 'sí' ? 'Sí' : 'No';
+
+            case 'seleccion':
+            case 'texto':
+            default:
+                return valor;
         }
-        return `$${numPrice.toLocaleString('es-AR')}`;
     };
 
-    const features = [
+    // Obtener icono para el tipo de característica
+    const getCharacteristicIcon = (nombreTipo: string): string => {
+        const iconMap: { [key: string]: string } = {
+            'pantalla': 'monitor',
+            'ram': 'memory',
+            'almacenamiento': 'storage',
+            'cámara principal': 'camera_alt',
+            'cámara frontal': 'camera_front',
+            'batería': 'battery_full',
+            'sistema operativo': 'computer',
+            'conectividad': 'wifi',
+            'color': 'palette',
+            'procesador': 'developer_board',
+            'tarjeta gráfica': 'games',
+            'peso': 'scale',
+            'resistencia': 'security',
+            'carga rápida': 'flash_on',
+            'carga inalámbrica': 'battery_charging_full'
+        };
+        return iconMap[nombreTipo.toLowerCase()] || 'info';
+    };
+
+    // Información básica del producto
+    const basicInfo = [
+        {
+            icon: 'qr_code',
+            label: 'Código',
+            value: codigo
+        },
         {
             icon: 'inventory_2',
             label: 'Stock actual',
             value: `${stock} unidades`
-        },
-        {
-            icon: 'trending_down',
-            label: 'Stock mínimo',
-            value: stock_minimo ? `${stock_minimo} unidades` : 'No definido'
-        },
-        {
-            icon: 'shopping_cart',
-            label: 'Precio de compra',
-            value: formatPrice(precio_compra)
-        },
-        {
-            icon: 'sell',
-            label: 'Precio de venta',
-            value: formatPrice(precio_venta)
-        },
-        {
-            icon: 'event',
-            label: 'Fecha de ingreso',
-            value: formatDate(fecha_ingreso)
-        },
-        {
-            icon: 'schedule',
-            label: 'Fecha de creación',
-            value: formatDate(fyh_creacion)
         }
     ];
 
+    // Agregar marca si existe
+    if (marca) {
+        basicInfo.push({
+            icon: 'business',
+            label: 'Marca',
+            value: marca.nombre_marca
+        });
+    }
+
+    // Agregar categoría si existe
     if (Categoria) {
-        features.unshift({
+        basicInfo.push({
             icon: 'category',
             label: 'Categoría',
             value: Categoria.nombre_categoria
         });
     }
 
+    // Información adicional
+    const additionalInfo = [
+        {
+            icon: 'trending_down',
+            label: 'Stock mínimo',
+            value: stock_minimo ? `${stock_minimo} unidades` : 'No definido'
+        },
+        {
+            icon: 'event',
+            label: 'Fecha de ingreso',
+            value: formatDate(fecha_ingreso)
+        }
+    ];
+
     if (Usuario) {
-        features.push({
+        additionalInfo.push({
             icon: 'person',
             label: 'Registrado por',
             value: Usuario.nombres
@@ -92,19 +139,83 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
 
     return (
         <div className={styles.productFeatures}>
-            <h3 className={styles.sectionTitle}>Características del producto</h3>
-            <div className={styles.featuresGrid}>
-                {features.map((feature, index) => (
-                    <div key={index} className={styles.featureItem}>
-                        <div className={styles.featureIcon}>
-                            <span className="material-icons">{feature.icon}</span>
+            {/* Información básica */}
+            <div className={styles.section}>
+                <h3 className={styles.sectionTitle}>
+                    <span className="material-icons">info</span>
+                    Información básica
+                </h3>
+                <div className={styles.featuresGrid}>
+                    {basicInfo.map((feature, index) => (
+                        <div key={index} className={styles.featureItem}>
+                            <div className={styles.featureIcon}>
+                                <span className="material-icons">{feature.icon}</span>
+                            </div>
+                            <div className={styles.featureContent}>
+                                <span className={styles.featureLabel}>{feature.label}</span>
+                                <span className={styles.featureValue}>{feature.value}</span>
+                            </div>
                         </div>
-                        <div className={styles.featureContent}>
-                            <span className={styles.featureLabel}>{feature.label}</span>
-                            <span className={styles.featureValue}>{feature.value}</span>
-                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Especificaciones técnicas */}
+            {specs && specs.length > 0 && (
+                <div className={styles.section}>
+                    <h3 className={styles.sectionTitle}>
+                        <span className="material-icons">engineering</span>
+                        Especificaciones técnicas
+                    </h3>
+                    <div className={styles.specificationsGrid}>
+                        {specs.map((caracteristica) => (
+                            <div key={caracteristica.id_caracteristica} className={styles.specificationItem}>
+                                <div className={styles.featureIcon}>
+                                    <span className="material-icons">
+                                        {caracteristica.tipo ?
+                                            getCharacteristicIcon(caracteristica.tipo.nombre_tipo) :
+                                            'info'
+                                        }
+                                    </span>
+                                </div>
+                                <div className={styles.featureContent}>
+                                    <span className={styles.featureLabel}>
+                                        {caracteristica.tipo?.nombre_tipo || 'Característica'}
+                                    </span>
+                                    <span className={styles.featureValue}>
+                                        {renderCharacteristicValue(caracteristica)}
+                                    </span>
+                                    {caracteristica.tipo?.descripcion && (
+                                        <span className={styles.featureDescription}>
+                                            {caracteristica.tipo.descripcion}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                </div>
+            )}
+
+            {/* Información adicional */}
+            <div className={styles.section}>
+                <h3 className={styles.sectionTitle}>
+                    <span className="material-icons">more_horiz</span>
+                    Información adicional
+                </h3>
+                <div className={styles.featuresGrid}>
+                    {additionalInfo.map((feature, index) => (
+                        <div key={index} className={styles.featureItem}>
+                            <div className={styles.featureIcon}>
+                                <span className="material-icons">{feature.icon}</span>
+                            </div>
+                            <div className={styles.featureContent}>
+                                <span className={styles.featureLabel}>{feature.label}</span>
+                                <span className={styles.featureValue}>{feature.value}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

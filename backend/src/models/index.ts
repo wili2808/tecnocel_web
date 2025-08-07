@@ -16,4 +16,13 @@ import './Proveedor.js';
 import './Rol.js';
 import './Usuario.js';
 import './Venta.js';
+// Nuevos modelos
+import './Marca.js';
+import './TipoCaracteristica.js';
+import './ProductoCaracteristica.js';
+import './Oferta.js';
+import './ProductoOferta.js';
+import './Favorito.js';
+import './Direccion.js';
+import './ProductoImagen.js';
 import './relaciones.js'; 

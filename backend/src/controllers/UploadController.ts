@@ -13,29 +13,27 @@ interface UploadedFile extends Express.Multer.File {
 }
 
 interface ProcessedImage {
-  nombre_archivo: string;
-  ruta_imagen: string;
-  tipo_archivo: string;
-  tamaño_archivo: number;
+  url_imagen: string;
   alt_text: string;
+  es_principal: boolean;
   orden: number;
 }
 
 class UploadController {
-  private commentsPath: string;
+  private imagesPath: string;
 
   constructor() {
-    this.commentsPath = config.images.commentsImagesPath;
+    this.imagesPath = config.images.imagesPath;
     this.ensureDirectoryExists();
   }
 
   // Asegurar que el directorio existe
   private ensureDirectoryExists(): void {
     try {
-      if (!fs.existsSync(this.commentsPath)) {
-        fs.mkdirSync(this.commentsPath, { recursive: true });
-        logger.info('Directorio de imágenes de comentarios creado', {
-          path: this.commentsPath
+      if (!fs.existsSync(this.imagesPath)) {
+        fs.mkdirSync(this.imagesPath, { recursive: true });
+        logger.info('Directorio de imágenes creado', {
+          path: this.imagesPath
         });
       }
     } catch (error) {
@@ -72,7 +70,7 @@ class UploadController {
       const uniqueId = uuidv4();
       const timestamp = Date.now();
       const fileName = `comment_${timestamp}_${uniqueId}${fileExtension}`;
-      const filePath = path.join(this.commentsPath, fileName);
+      const filePath = path.join(this.imagesPath, fileName);
 
       // Procesar imagen con sharp para optimización
       let processedBuffer: Buffer;
@@ -101,11 +99,9 @@ class UploadController {
       const stats = await fs.promises.stat(filePath);
 
       return {
-        nombre_archivo: fileName,
-        ruta_imagen: `img_comments/${fileName}`,
-        tipo_archivo: fileExtension.replace('.', ''),
-        tamaño_archivo: stats.size,
+        url_imagen: fileName,
         alt_text: `Imagen ${orden + 1} del comentario`,
+        es_principal: orden === 0, // La primera imagen es la principal
         orden: orden + 1
       };
 
@@ -144,8 +140,7 @@ class UploadController {
       const processedImages = await Promise.all(processPromises);
 
       logger.info('Imágenes de comentario subidas exitosamente', {
-        cantidad: processedImages.length,
-        tamaño_total: processedImages.reduce((sum, img) => sum + img.tamaño_archivo, 0)
+        cantidad: processedImages.length
       });
 
       res.status(200).json({
@@ -168,7 +163,7 @@ class UploadController {
   // Eliminar imagen (cuando se elimina un comentario)
   public deleteCommentImage = async (imagePath: string): Promise<boolean> => {
     try {
-      const fullPath = path.join(this.commentsPath, path.basename(imagePath));
+      const fullPath = path.join(this.imagesPath, path.basename(imagePath));
       
       if (fs.existsSync(fullPath)) {
         await fs.promises.unlink(fullPath);

@@ -22,6 +22,17 @@ interface CartSummaryProps {
             precio_venta: string;
             imagen: string;
             stock: number;
+            // Campos para ofertas
+            precio_original?: number;
+            precio_oferta?: number;
+            descuento_porcentaje?: number;
+            en_oferta?: boolean;
+            ofertas?: Array<{
+                id_oferta: number;
+                nombre_oferta: string;
+                tipo_descuento: 'porcentaje' | 'monto_fijo';
+                valor_descuento: number;
+            }>;
         };
     }>;
 }
@@ -33,9 +44,28 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
     const [showCouponInput, setShowCouponInput] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const subtotalProducts = items.reduce((sum, item) => sum + parseFloat(item.subtotal.toString()), 0);
+    // Calcular subtotal y descuentos de ofertas
+    const subtotalProducts = items.reduce((sum, item) => {
+        const productInfo = item.producto;
+        if (productInfo?.en_oferta && productInfo.precio_oferta) {
+            // Si hay oferta, usar el precio con descuento
+            return sum + (productInfo.precio_oferta * item.cantidad);
+        }
+        return sum + parseFloat(item.subtotal.toString());
+    }, 0);
+
+    const subtotalOriginal = items.reduce((sum, item) => {
+        const productInfo = item.producto;
+        if (productInfo?.en_oferta && productInfo.precio_original) {
+            // Precio original sin descuento
+            return sum + (productInfo.precio_original * item.cantidad);
+        }
+        return sum + parseFloat(item.subtotal.toString());
+    }, 0);
+
     const shipping = 0; // Envío gratis
-    const discount = 0; // Descuentos por cupón
+    const discount = subtotalOriginal - subtotalProducts; // Descuentos por ofertas
+    const discountCoupon = 0; // Descuentos por cupón (futuro)
 
     const handleCouponSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,7 +114,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
                 <div className={styles.summarySection}>
                     <div className={styles.summaryRow}>
                         <span>Productos ({itemCount})</span>
-                        <span>$ {subtotalProducts.toLocaleString('es-ES')}</span>
+                        <span>$ {subtotalOriginal.toLocaleString('es-ES')}</span>
                     </div>
 
                     <div className={styles.summaryRow}>
@@ -94,8 +124,15 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
 
                     {discount > 0 && (
                         <div className={styles.summaryRow}>
-                            <span>Descuento</span>
+                            <span>Descuentos por ofertas</span>
                             <span className={styles.discount}>-$ {discount.toLocaleString('es-ES')}</span>
+                        </div>
+                    )}
+
+                    {discountCoupon > 0 && (
+                        <div className={styles.summaryRow}>
+                            <span>Descuento por cupón</span>
+                            <span className={styles.discount}>-$ {discountCoupon.toLocaleString('es-ES')}</span>
                         </div>
                     )}
                 </div>

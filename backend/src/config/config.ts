@@ -3,6 +3,8 @@ import path from 'path';
 
 dotenv.config();
 
+const XAMPP_BASE = process.env.IMAGES_PATH || 'C:/xampp/htdocs/tecnocel';
+
 export const config = {
   database: {
     name: process.env.DB_NAME || 'db_tecnocel_v3',
@@ -26,9 +28,9 @@ export const config = {
     maxFiles: 5
   },
   images: {
-    imagesPath: process.env.IMAGES_PATH || path.join(process.cwd(), '../htdocs/tecnocel'),
-    commentsImagesPath: process.env.COMMENTS_IMAGES_PATH || 'C:/xampp/htdocs/tecnocel/img_comments',
-    baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
+    imagesPath: XAMPP_BASE,
+    baseUrl: process.env.BASE_URL || 'http://localhost',
+    endpoint: process.env.IMAGES_ENDPOINT || '',
     defaultImage: process.env.DEFAULT_IMAGE || 'default-product.png'
   }
 };

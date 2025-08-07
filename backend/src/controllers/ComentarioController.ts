@@ -17,11 +17,9 @@ interface ComentarioCreateData {
 }
 
 interface ComentarioImagenData {
-  nombre_archivo: string;
-  ruta_imagen: string;
-  tipo_archivo: string;
-  tamaño_archivo?: number;
+  url_imagen: string;
   alt_text?: string;
+  es_principal: boolean;
   orden: number;
 }
 
@@ -41,7 +39,6 @@ class ComentarioController {
       }
 
       const imageService = getImageService();
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       
       return comentarios.map(comentario => {
         const comentarioData = comentario.toJSON ? comentario.toJSON() : comentario;
@@ -51,10 +48,9 @@ class ComentarioController {
           comentarioData.imagenes = comentarioData.imagenes.map((imagen: any) => {
             const imagenData = imagen.toJSON ? imagen.toJSON() : imagen;
             
-            if (imageService && imagenData.ruta_imagen) {
-              imagenData.imagen_url = imageService.generateImageUrl(imagenData.ruta_imagen);
-            } else if (imagenData.ruta_imagen) {
-              imagenData.imagen_url = `${baseUrl}/api/images/${imagenData.ruta_imagen}`;
+            // ✅ Usar solo el imageService para generar URLs
+            if (imageService && imagenData.url_imagen) {
+              imagenData.imagen_url = imageService.generateImageUrl(imagenData.url_imagen);
             }
             
             return imagenData;
@@ -124,9 +120,8 @@ class ComentarioController {
           {
             model: ComentarioImagen,
             as: 'imagenes',
-            where: { estado: 'activo' },
             required: false,
-            attributes: ['id_imagen', 'nombre_archivo', 'ruta_imagen', 'alt_text', 'orden']
+            attributes: ['id_imagen', 'url_imagen', 'alt_text', 'es_principal', 'orden']
           },
           {
             model: Usuario,
@@ -248,15 +243,11 @@ class ComentarioController {
 
         const imagenesData = imagenes.map((imagen, index) => ({
           id_comentario: nuevoComentario.id_comentario,
-          nombre_archivo: imagen.nombre_archivo,
-          ruta_imagen: imagen.ruta_imagen,
-          tipo_archivo: imagen.tipo_archivo,
-          tamaño_archivo: imagen.tamaño_archivo,
+          url_imagen: imagen.url_imagen,
           alt_text: imagen.alt_text,
+          es_principal: imagen.es_principal || index === 0,
           orden: imagen.orden || (index + 1),
-          estado: 'activo' as const,
-          fyh_creacion: new Date(),
-          fyh_actualizacion: new Date()
+          fyh_creacion: new Date()
         }));
 
         await ComentarioImagen.bulkCreate(imagenesData);
@@ -273,7 +264,6 @@ class ComentarioController {
           {
             model: ComentarioImagen,
             as: 'imagenes',
-            where: { estado: 'activo' },
             required: false
           }
         ]
@@ -370,7 +360,6 @@ class ComentarioController {
           {
             model: ComentarioImagen,
             as: 'imagenes',
-            where: { estado: 'activo' },
             required: false
           }
         ]
@@ -428,16 +417,9 @@ class ComentarioController {
         fyh_actualizacion: new Date()
       });
 
-      // También marcar las imágenes como eliminadas
-      await ComentarioImagen.update(
-        { 
-          estado: 'eliminado',
-          fyh_actualizacion: new Date()
-        },
-        { 
-          where: { id_comentario: comentarioId } 
-        }
-      );
+      // ✅ Con la nueva estructura, no necesitamos marcar imágenes como eliminadas
+      // Las imágenes se mantienen en la base de datos pero no se muestran
+      // porque el comentario está marcado como eliminado
 
       res.status(200).json({
         mensaje: 'Comentario eliminado exitosamente'
@@ -503,7 +485,6 @@ class ComentarioController {
         {
           model: ComentarioImagen,
           as: 'imagenes',
-          where: { estado: 'activo' },
           required: false
         }
       ]

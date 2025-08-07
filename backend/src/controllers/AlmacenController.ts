@@ -3,14 +3,18 @@ import { Op } from 'sequelize';
 import Almacen from '../models/Almacen.js';
 import Categoria from '../models/Categoria.js';
 import Usuario from '../models/Usuario.js';
+import Marca from '../models/Marca.js';
+import TipoCaracteristica from '../models/TipoCaracteristica.js';
+import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
+import Oferta from '../models/Oferta.js';
+import ProductoImagen from '../models/ProductoImagen.js';
 import logger from '../utils/logger.js';
 import { getImageService } from '../services/imageService.js';
 
-// Controlador para gestionar las operaciones del almacén
 class AlmacenController {
   
   // Método helper para transformar productos con URLs de imágenes
-  private transformProductsWithImages(productos: any[]): any[] {
+  private async transformProductsWithImages(productos: any[]): Promise<any[]> {
     try {
       if (!productos || productos.length === 0) {
         return [];
@@ -22,7 +26,7 @@ class AlmacenController {
         return productos.map(p => p.toJSON ? p.toJSON() : p);
       }
       
-      return imageService.transformProductsWithImageUrls(productos);
+      return await imageService.transformProductsWithImageUrls(productos);
     } catch (error) {
       logger.error('Error al transformar productos con imágenes:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
@@ -30,49 +34,12 @@ class AlmacenController {
         stack: error instanceof Error ? error.stack : undefined
       });
       
-      // Fallback: devolver productos sin transformar
       return productos ? productos.map(p => p.toJSON ? p.toJSON() : p) : [];
     }
   }
 
-  // Método alternativo de transformación más simple
-  private transformProductsWithImagesSafe(productos: any[]): any[] {
-    if (!productos || productos.length === 0) {
-      return [];
-    }
-
-    try {
-      const imageService = getImageService();
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-      
-      return productos.map(producto => {
-        const productData = producto.toJSON ? producto.toJSON() : producto;
-        
-        if (imageService && productData.imagen) {
-          // Generar URL de imagen usando el servicio
-          productData.imagen_url = imageService.generateImageUrl(productData.imagen);
-          productData.imagen_disponible = !!productData.imagen;
-        } else if (productData.imagen) {
-          // Fallback: generar URL manualmente
-          productData.imagen_url = `${baseUrl}/api/images/${productData.imagen}`;
-          productData.imagen_disponible = !!productData.imagen;
-        } else {
-          // Sin imagen
-          productData.imagen_url = `${baseUrl}/api/images/default-product.png`;
-          productData.imagen_disponible = false;
-        }
-        
-        return productData;
-      });
-    } catch (error) {
-      logger.error('Error en transformación segura:', error);
-      // Último fallback: devolver datos básicos
-      return productos.map(p => p.toJSON ? p.toJSON() : p);
-    }
-  }
-
   // Método helper para transformar un producto individual con URL de imagen
-  private transformProductWithImage(producto: any): any {
+  private async transformProductWithImage(producto: any): Promise<any> {
     try {
       const imageService = getImageService();
       if (!imageService) {
@@ -80,31 +47,69 @@ class AlmacenController {
         return producto.toJSON ? producto.toJSON() : producto;
       }
       
-      return imageService.transformProductWithImageUrl(producto);
+      return await imageService.transformProductWithImageUrls(producto);
     } catch (error) {
       logger.error('Error al transformar producto individual con imagen:', {
         productId: producto.id_producto || 'unknown',
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
       
-      // Fallback: devolver producto sin transformar
       return producto.toJSON ? producto.toJSON() : producto;
     }
   }
 
-  // Obtener todos los productos del almacén con sus categorías y usuarios asociados
+  // Obtener todos los productos
   async getProducts(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo lista de productos del almacén');
+      const now = new Date();
+      
       const productos = await Almacen.findAll({
         include: [
-          { model: Categoria, attributes: ['nombre_categoria'] },
-          { model: Usuario, attributes: ['nombres'] }
+          { 
+            model: Categoria, 
+            attributes: ['nombre_categoria'] 
+          },
+          { 
+            model: Usuario, 
+            attributes: ['nombres'] 
+          },
+          {
+            model: Marca,
+            as: 'marca',
+            attributes: ['nombre_marca', 'logo_marca']
+          },
+          {
+            model: TipoCaracteristica,
+            as: 'caracteristicas',
+            through: {
+              attributes: ['valor']
+            },
+            attributes: ['nombre_tipo', 'tipo_dato', 'unidad_medida']
+          },
+          {
+            model: Oferta,
+            as: 'ofertas',
+            where: {
+              activo: true,
+              fecha_inicio: { [Op.lte]: now },
+              fecha_fin: { [Op.gte]: now }
+            },
+            required: false,
+            through: {
+              attributes: ['precio_oferta']
+            },
+            attributes: ['nombre_oferta', 'tipo_descuento', 'valor_descuento']
+          },
+          {
+            model: ProductoImagen,
+            as: 'imagenes',
+            attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+          }
         ]
       });
       
-      // Transformar productos con URLs de imágenes (método seguro)
-      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+      const productosConImagenes = await this.transformProductsWithImages(productos);
       
       logger.info('Productos obtenidos exitosamente', {
         cantidad: productos.length,
@@ -120,14 +125,58 @@ class AlmacenController {
     }
   }
 
-  // Obtener un producto específico del almacén por su ID
+  // Obtener un producto específico por ID
   async getProductById(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const now = new Date();
+      
       const producto = await Almacen.findByPk(id, {
         include: [
-          { model: Categoria, attributes: ['nombre_categoria'] },
-          { model: Usuario, attributes: ['nombres'] }
+          { 
+            model: Categoria, 
+            attributes: ['nombre_categoria'] 
+          },
+          { 
+            model: Usuario, 
+            attributes: ['nombres'] 
+          },
+          {
+            model: Marca,
+            as: 'marca',
+            attributes: ['nombre_marca', 'logo_marca', 'descripcion_marca']
+          },
+          {
+            model: ProductoCaracteristica,
+            as: 'productosCaracteristicas',
+            include: [
+              {
+                model: TipoCaracteristica,
+                as: 'tipo',
+                attributes: ['nombre_tipo', 'tipo_dato', 'unidad_medida', 'descripcion', 'opciones_seleccion']
+              }
+            ],
+            attributes: ['id_caracteristica', 'valor']
+          },
+          {
+            model: Oferta,
+            as: 'ofertas',
+            where: {
+              activo: true,
+              fecha_inicio: { [Op.lte]: now },
+              fecha_fin: { [Op.gte]: now }
+            },
+            required: false,
+            through: {
+              attributes: ['precio_oferta']
+            },
+            attributes: ['nombre_oferta', 'tipo_descuento', 'valor_descuento', 'descripcion']
+          },
+          {
+            model: ProductoImagen,
+            as: 'imagenes',
+            attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+          }
         ]
       });
 
@@ -136,8 +185,7 @@ class AlmacenController {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
-      // Transformar producto con URL de imagen
-      const productoConImagen = this.transformProductWithImage(producto);
+      const productoConImagen = await this.transformProductWithImage(producto);
 
       logger.info('Producto obtenido exitosamente', {
         id: id,
@@ -154,20 +202,40 @@ class AlmacenController {
     }
   }
 
-  // Crear un nuevo producto en el almacén
+  // Crear un nuevo producto
   async createProduct(req: Request, res: Response) {
     try {
+      const { imagenes, ...productoData } = req.body;
+      
       const producto = await Almacen.create({
-        ...req.body,
+        ...productoData,
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });
+
+      // Crear imágenes si se proporcionaron
+      if (Array.isArray(imagenes) && imagenes.length > 0) {
+        const imagenesData = imagenes.map((img: any, index: number) => ({
+          id_producto: producto.id_producto,
+          url_imagen: img.url_imagen,
+          alt_text: img.alt_text || `Imagen ${index + 1} de ${producto.nombre}`,
+          es_principal: index === 0,
+          orden: index,
+          fyh_creacion: new Date()
+        }));
+
+        await ProductoImagen.bulkCreate(imagenesData);
+      }
+
       logger.info('Producto creado exitosamente', {
         id: producto.getDataValue('id_producto'),
         nombre: producto.getDataValue('nombre'),
-        codigo: producto.getDataValue('codigo')
+        codigo: producto.getDataValue('codigo'),
+        imagenes: imagenes?.length || 0
       });
-      res.status(201).json(producto);
+
+      const productoCompleto = await this.getProductById(req, res);
+      return productoCompleto;
     } catch (error) {
       logger.error('Error al crear producto en almacén:', {
         data: req.body,
@@ -177,12 +245,14 @@ class AlmacenController {
     }
   }
 
-  // Actualizar un producto existente en el almacén por su ID
+  // Actualizar un producto existente
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const { imagenes, ...productoData } = req.body;
+
       const [updated] = await Almacen.update({
-        ...req.body,
+        ...productoData,
         fyh_actualizacion: new Date()
       }, {
         where: { id_producto: id }
@@ -193,7 +263,30 @@ class AlmacenController {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
-      logger.info('Producto actualizado exitosamente', { id: id });
+      // Actualizar imágenes si se proporcionaron
+      if (Array.isArray(imagenes)) {
+        await ProductoImagen.destroy({
+          where: { id_producto: id }
+        });
+
+        if (imagenes.length > 0) {
+          const imagenesData = imagenes.map((img: any, index: number) => ({
+            id_producto: id,
+            url_imagen: img.url_imagen,
+            alt_text: img.alt_text || `Imagen ${index + 1} de ${productoData.nombre}`,
+            es_principal: index === 0,
+            orden: index,
+            fyh_creacion: new Date()
+          }));
+
+          await ProductoImagen.bulkCreate(imagenesData);
+        }
+      }
+
+      logger.info('Producto actualizado exitosamente', { 
+        id: id,
+        imagenes_actualizadas: imagenes?.length
+      });
       res.json({ message: 'Producto actualizado correctamente' });
     } catch (error) {
       logger.error('Error al actualizar producto en almacén:', {
@@ -205,12 +298,17 @@ class AlmacenController {
     }
   }
 
-  // Eliminar un producto del almacén por su ID
+  // Eliminar un producto
   async deleteProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
       logger.debug(`Eliminando producto del almacén ID: ${id}`);
       
+      // Eliminar imágenes asociadas
+      await ProductoImagen.destroy({
+        where: { id_producto: id }
+      });
+
       const deleted = await Almacen.destroy({
         where: { id_producto: id }
       });
@@ -231,7 +329,7 @@ class AlmacenController {
     }
   }
 
-  // Buscar productos en el almacén por término (nombre o código)
+  // Buscar productos
   async searchProducts(req: Request, res: Response) {
     try {
       const { termino } = req.query;
@@ -251,12 +349,16 @@ class AlmacenController {
         },
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
-          { model: Usuario, attributes: ['nombres'] }
+          { model: Usuario, attributes: ['nombres'] },
+          {
+            model: ProductoImagen,
+            as: 'imagenes',
+            attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+          }
         ]
       });
 
-      // Transformar productos con URLs de imágenes (método seguro)
-      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+      const productosConImagenes = await this.transformProductsWithImages(productos);
 
       logger.info(`Se encontraron ${productos.length} productos con el término: ${termino}`);
       res.json(productosConImagenes);
@@ -269,7 +371,7 @@ class AlmacenController {
     }
   }
 
-  // Obtener productos del almacén filtrados por categoría
+  // Obtener productos por categoría
   async getProductsByCategory(req: Request, res: Response) {
     try {
       const { categoriaId } = req.params;
@@ -279,12 +381,16 @@ class AlmacenController {
         where: { id_categoria: categoriaId },
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
-          { model: Usuario, attributes: ['nombres'] }
+          { model: Usuario, attributes: ['nombres'] },
+          {
+            model: ProductoImagen,
+            as: 'imagenes',
+            attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+          }
         ]
       });
 
-      // Transformar productos con URLs de imágenes (método seguro)
-      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+      const productosConImagenes = await this.transformProductsWithImages(productos);
 
       logger.info(`Se encontraron ${productos.length} productos para la categoría ID: ${categoriaId}`);
       res.json(productosConImagenes);
@@ -297,7 +403,7 @@ class AlmacenController {
     }
   }
 
-  // Actualizar solo el stock de un producto del almacén
+  // Actualizar stock
   async updateStock(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -328,24 +434,34 @@ class AlmacenController {
     }
   }
 
-  // Obtener productos destacados (los más recientes con stock disponible)
+  // Obtener productos destacados
   async getFeaturedProducts(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo productos destacados');
+      const limit = parseInt(req.query.limit as string) || 6;
+      
       const productos = await Almacen.findAll({
         where: {
-          stock: { [Op.gt]: 0 } // Solo productos con stock disponible
+          stock: { [Op.gt]: 0 },
+          es_destacado: true
         },
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
-          { model: Usuario, attributes: ['nombres'] }
+          { model: Usuario, attributes: ['nombres'] },
+          {
+            model: ProductoImagen,
+            as: 'imagenes',
+            attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+          }
         ],
-        order: [['fyh_actualizacion', 'DESC']], // Ordenar por más recientes
-        limit: 6 // Limitar a 6 productos destacados
+        order: [
+          ['orden_destacado', 'ASC'],
+          ['fyh_actualizacion', 'DESC']
+        ],
+        limit
       });
 
-      // Transformar productos destacados con URLs de imágenes (método seguro)
-      const productosConImagenes = this.transformProductsWithImagesSafe(productos);
+      const productosConImagenes = await this.transformProductsWithImages(productos);
       logger.debug('Transformación de imágenes destacados completada');
 
       logger.info(`Se obtuvieron ${productos.length} productos destacados exitosamente`);
@@ -359,7 +475,7 @@ class AlmacenController {
     }
   }
 
-  // Obtener todas las categorías disponibles
+  // Obtener todas las categorías
   async getAllCategories(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo todas las categorías');
@@ -377,7 +493,7 @@ class AlmacenController {
     }
   }
 
-  // Método de diagnóstico para debuggear problemas
+  // Método de diagnóstico
   async diagnosticProducts(req: Request, res: Response) {
     const diagnostics: any = {
       step1_basic_query: null,
@@ -385,6 +501,7 @@ class AlmacenController {
       step3_usuario_include: null,
       step4_both_includes: null,
       step5_transform_test: null,
+      step6_images_test: null,
       errors: [] as string[]
     };
 
@@ -398,8 +515,7 @@ class AlmacenController {
           count: productosBasicos.length,
           sample: productosBasicos.length > 0 ? {
             id: productosBasicos[0].getDataValue('id_producto'),
-            nombre: productosBasicos[0].getDataValue('nombre'),
-            imagen: productosBasicos[0].getDataValue('imagen')
+            nombre: productosBasicos[0].getDataValue('nombre')
           } : null
         };
         logger.info(`✅ Paso 1 exitoso: ${productosBasicos.length} productos`);
@@ -464,26 +580,56 @@ class AlmacenController {
         };
         logger.info(`✅ Paso 4 exitoso: ${productos.length} productos con ambos includes`);
 
-                 // Paso 5: Probar transformación
-         logger.debug('DIAGNÓSTICO Paso 5: Transformación de imágenes');
-         try {
-           // Usar método seguro para transformación
-           const productosConImagenes = this.transformProductsWithImagesSafe(productos);
-           diagnostics.step5_transform_test = {
-             success: true,
-             count: productosConImagenes.length,
-             first_transformed: productosConImagenes.length > 0 ? {
-               has_imagen_url: 'imagen_url' in productosConImagenes[0],
-               imagen_url: productosConImagenes[0].imagen_url || null
-             } : null
-           };
-           logger.info(`✅ Paso 5 exitoso: ${productosConImagenes.length} productos transformados`);
-         } catch (error) {
-           const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
-           diagnostics.step5_transform_test = { success: false, error: errorMsg };
-           diagnostics.errors.push(`Paso 5: ${errorMsg}`);
-           logger.error(`❌ Paso 5 falló: ${errorMsg}`);
-         }
+        // Paso 5: Probar transformación
+        logger.debug('DIAGNÓSTICO Paso 5: Transformación de imágenes');
+        try {
+          const productosConImagenes = await this.transformProductsWithImages(productos);
+          diagnostics.step5_transform_test = {
+            success: true,
+            count: productosConImagenes.length,
+            first_transformed: productosConImagenes.length > 0 ? {
+              has_imagen_url: 'imagen_url' in productosConImagenes[0],
+              imagen_url: productosConImagenes[0].imagen_url || null
+            } : null
+          };
+          logger.info(`✅ Paso 5 exitoso: ${productosConImagenes.length} productos transformados`);
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+          diagnostics.step5_transform_test = { success: false, error: errorMsg };
+          diagnostics.errors.push(`Paso 5: ${errorMsg}`);
+          logger.error(`❌ Paso 5 falló: ${errorMsg}`);
+        }
+
+        // Paso 6: Probar imágenes
+        logger.debug('DIAGNÓSTICO Paso 6: Prueba de imágenes');
+        try {
+          const productosConImagenesCompleto = await Almacen.findAll({
+            include: [
+              {
+                model: ProductoImagen,
+                as: 'imagenes',
+                attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+              }
+            ],
+            limit: 5
+          });
+
+          diagnostics.step6_images_test = {
+            success: true,
+            count: productosConImagenesCompleto.length,
+            images_count: productosConImagenesCompleto.reduce((acc, prod) => acc + ((prod as any).imagenes?.length || 0), 0),
+            sample: productosConImagenesCompleto.length > 0 ? {
+              product_id: productosConImagenesCompleto[0].id_producto,
+              images: (productosConImagenesCompleto[0] as any).imagenes || []
+            } : null
+          };
+          logger.info(`✅ Paso 6 exitoso: Prueba de imágenes completada`);
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+          diagnostics.step6_images_test = { success: false, error: errorMsg };
+          diagnostics.errors.push(`Paso 6: ${errorMsg}`);
+          logger.error(`❌ Paso 6 falló: ${errorMsg}`);
+        }
 
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
@@ -510,4 +656,4 @@ class AlmacenController {
   }
 }
 
-export default new AlmacenController(); 
+export default new AlmacenController();

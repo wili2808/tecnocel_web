@@ -24,6 +24,7 @@ scripts_test/
 
 # Logs
 logs/
+src/logs/
 *.log
 combined.log
 error.log

@@ -7,6 +7,12 @@ import clienteRoutes from './routes/clienteRoutes.js';
 import carritoRoutes from './routes/carritoRoutes.js';
 import comentarioRoutes from './routes/comentarioRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+// Nuevas rutas
+import marcaRoutes from './routes/marcaRoutes.js';
+import caracteristicaRoutes from './routes/caracteristicaRoutes.js';
+import ofertaRoutes from './routes/ofertaRoutes.js';
+import favoritoRoutes from './routes/favoritoRoutes.js';
+import direccionRoutes from './routes/direccionRoutes.js';
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
 import logger from './utils/logger.js';
@@ -52,23 +58,20 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Configurar servicio de imágenes usando la configuración centralizada
-const IMAGES_PATH = config.images.imagesPath;
-const COMMENTS_IMAGES_PATH = config.images.commentsImagesPath;
-const BASE_URL = config.images.baseUrl;
-const DEFAULT_IMAGE = config.images.defaultImage;
+const { imagesPath, baseUrl, endpoint, defaultImage } = config.images;
 
 logger.info('Inicializando servicio de imágenes', {
-  imagesPath: IMAGES_PATH,
-  commentsImagesPath: COMMENTS_IMAGES_PATH,
-  baseUrl: BASE_URL
+  imagesPath,
+  baseUrl,
+  endpoint
 });
 
 // Configurar middleware de imágenes estáticas
 const imageMiddleware = new StaticImageMiddleware({
-  imagesPath: IMAGES_PATH,
-  commentsImagesPath: COMMENTS_IMAGES_PATH,
-  defaultImage: DEFAULT_IMAGE,
-  maxAge: 86400 // 24 horas de cache
+  imagesPath,
+  defaultImage,
+  maxAge: 86400, // 24 horas de cache
+  endpoint
 });
 
 // Validar que el directorio de imágenes existe antes de inicializar el servicio
@@ -76,10 +79,10 @@ let imageServiceInitialized = false;
 if (imageMiddleware.validateImagesDirectory()) {
   // Inicializar servicio de imágenes solo si el directorio es válido
   const imageService = initializeImageService({
-    baseUrl: BASE_URL,
-    imagesPath: IMAGES_PATH,
-    defaultImage: DEFAULT_IMAGE,
-    endpoint: '/api/images'
+    baseUrl,
+    imagesPath,
+    defaultImage,
+    endpoint
   });
   imageServiceInitialized = true;
   logger.info('Servicio de imágenes inicializado exitosamente');
@@ -102,10 +105,11 @@ app.get('/api/images/*', imageMiddleware.serveImage);
 app.get('/api/images-status', (req: Request, res: Response) => {
   res.json({
     service_initialized: imageServiceInitialized,
-    images_path: IMAGES_PATH,
+    images_path: imagesPath,
     directory_exists: imageMiddleware.validateImagesDirectory(),
-    base_url: BASE_URL,
-    default_image: DEFAULT_IMAGE
+    base_url: baseUrl,
+    endpoint: endpoint,
+    default_image: defaultImage
   });
 });
 
@@ -123,6 +127,13 @@ app.use('/api/comentarios', comentarioRoutes);
 
 // Rutas de uploads
 app.use('/api/upload', uploadRoutes);
+
+// Nuevas rutas
+app.use('/api/marcas', marcaRoutes);
+app.use('/api/caracteristicas', caracteristicaRoutes);
+app.use('/api/ofertas', ofertaRoutes);
+app.use('/api/favoritos', favoritoRoutes);
+app.use('/api/direcciones', direccionRoutes);
 
 // Manejo de errores global
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

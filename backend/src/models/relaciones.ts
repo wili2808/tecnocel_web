@@ -16,12 +16,25 @@ import Proveedor from './Proveedor.js';
 import Rol from './Rol.js';
 import Usuario from './Usuario.js';
 import Venta from './Venta.js';
+// Nuevos modelos
+import Marca from './Marca.js';
+import TipoCaracteristica from './TipoCaracteristica.js';
+import ProductoCaracteristica from './ProductoCaracteristica.js';
+import Oferta from './Oferta.js';
+import ProductoOferta from './ProductoOferta.js';
+import Favorito from './Favorito.js';
+import Direccion from './Direccion.js';
+import ProductoImagen from './ProductoImagen.js';
 
 // Almacen
 Almacen.belongsTo(Categoria, { foreignKey: 'id_categoria' });
 Categoria.hasMany(Almacen, { foreignKey: 'id_categoria' });
 Almacen.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 Usuario.hasMany(Almacen, { foreignKey: 'id_usuario' });
+
+// Nuevas relaciones para Marcas
+Almacen.belongsTo(Marca, { foreignKey: 'id_marca', as: 'marca' });
+Marca.hasMany(Almacen, { foreignKey: 'id_marca', as: 'productos' });
 
 // Carrito (tabla antigua)
 Carrito.belongsTo(Almacen, { foreignKey: 'id_producto' });
@@ -93,6 +106,71 @@ Usuario.hasMany(Comentario, { foreignKey: 'id_admin_respuesta', as: 'respuestasA
 ComentarioImagen.belongsTo(Comentario, { foreignKey: 'id_comentario', as: 'comentario' });
 Comentario.hasMany(ComentarioImagen, { foreignKey: 'id_comentario', as: 'imagenes' });
 
+// Relaciones para Características de Productos
+Almacen.belongsToMany(TipoCaracteristica, {
+  through: ProductoCaracteristica,
+  foreignKey: 'id_producto',
+  otherKey: 'id_tipo',
+  as: 'caracteristicas'
+});
+
+TipoCaracteristica.belongsToMany(Almacen, {
+  through: ProductoCaracteristica,
+  foreignKey: 'id_tipo',
+  otherKey: 'id_producto',
+  as: 'productos'
+});
+
+ProductoCaracteristica.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+ProductoCaracteristica.belongsTo(TipoCaracteristica, { foreignKey: 'id_tipo', as: 'tipo' });
+
+// Relación hasMany de Almacen hacia ProductoCaracteristica para incluir características individuales
+Almacen.hasMany(ProductoCaracteristica, { foreignKey: 'id_producto', as: 'productosCaracteristicas' });
+
+// Relaciones para Ofertas
+Almacen.belongsToMany(Oferta, {
+  through: ProductoOferta,
+  foreignKey: 'id_producto',
+  otherKey: 'id_oferta',
+  as: 'ofertas'
+});
+
+Oferta.belongsToMany(Almacen, {
+  through: ProductoOferta,
+  foreignKey: 'id_oferta',
+  otherKey: 'id_producto',
+  as: 'productos'
+});
+
+ProductoOferta.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+ProductoOferta.belongsTo(Oferta, { foreignKey: 'id_oferta', as: 'oferta' });
+
+// Relaciones para Favoritos
+Cliente.belongsToMany(Almacen, {
+  through: Favorito,
+  foreignKey: 'id_cliente',
+  otherKey: 'id_producto',
+  as: 'favoritos'
+});
+
+Almacen.belongsToMany(Cliente, {
+  through: Favorito,
+  foreignKey: 'id_producto',
+  otherKey: 'id_cliente',
+  as: 'clientesFavoritos'
+});
+
+Favorito.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
+Favorito.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+
+// Relaciones para Direcciones
+Cliente.hasMany(Direccion, { foreignKey: 'id_cliente', as: 'direcciones' });
+Direccion.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
+
+// Relaciones para Imágenes de Productos
+Almacen.hasMany(ProductoImagen, { foreignKey: 'id_producto', as: 'imagenes' });
+ProductoImagen.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+
 // Exportar todos los modelos (opcional, útil para inicialización)
 export {
   Almacen,
@@ -112,5 +190,14 @@ export {
   Proveedor,
   Rol,
   Usuario,
-  Venta
+  Venta,
+  // Nuevos modelos
+  Marca,
+  TipoCaracteristica,
+  ProductoCaracteristica,
+  Oferta,
+  ProductoOferta,
+  Favorito,
+  Direccion,
+  ProductoImagen
 }; 

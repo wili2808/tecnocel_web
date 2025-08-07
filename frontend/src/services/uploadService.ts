@@ -2,11 +2,9 @@ import axiosInstance from '../api/axiosConfig';
 
 // Interfaces para upload
 export interface UploadedImage {
-  nombre_archivo: string;
-  ruta_imagen: string;
-  tipo_archivo: string;
-  tamaño_archivo: number;
+  url_imagen: string;
   alt_text: string;
+  es_principal: boolean;
   orden: number;
 }
 

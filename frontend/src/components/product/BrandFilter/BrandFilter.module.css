@@ -1,0 +1,45 @@
+.brandFilter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.select {
+  padding: 0.75rem;
+  border: 2px solid var(--color-border-light);
+  border-radius: 8px;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.select:hover {
+  border-color: var(--color-primary-light);
+}
+
+.select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha);
+}
+
+.select:disabled {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.select option {
+  padding: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .select {
+    font-size: 0.875rem;
+    padding: 0.625rem;
+  }
+}

@@ -69,6 +69,118 @@
   transform: scale(1.05);
 }
 
+/* === BOTÓN DE FAVORITOS === */
+.favoriteButton {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-curve);
+  z-index: 3;
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.favoriteButton:hover {
+  transform: scale(1.1);
+}
+
+.favoriteButton:active {
+  transform: scale(0.95);
+}
+
+.favoriteButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.favoriteButton:disabled:hover {
+  transform: none;
+}
+
+.favoriteInactive {
+  color: var(--color-neutral-600);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.favoriteInactive:hover {
+  color: var(--color-error);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.favoriteActive {
+  color: var(--color-error);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.favoriteActive:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.favoriteIcon {
+  width: 1rem;
+  height: 1rem;
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.favoriteActive .favoriteIcon {
+  animation: heartbeat 0.6s ease-in-out;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(1.1); }
+  75% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* === INDICADOR DE OFERTA === */
+.offerIndicator {
+  position: absolute;
+  top: var(--spacing-xs);
+  left: var(--spacing-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
+  color: white;
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  transform: rotate(-2deg);
+  transition: transform var(--transition-normal) var(--transition-curve);
+  z-index: 2;
+  padding: 0.1875rem 0.375rem;
+  min-width: 2.25rem;
+}
+
+.offerIndicator:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+.offerPercentage {
+  font-size: 0.6875rem;
+  line-height: 1;
+  margin-bottom: 0.125rem;
+}
+
+.offerLabel {
+  font-size: 0.4375rem;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+  text-transform: uppercase;
+}
+
 .outOfStockOverlay {
   position: absolute;
   top: 0;
@@ -326,6 +438,29 @@
   .disabledButton {
     width: 100%;
   }
+
+  .favoriteButton {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .favoriteIcon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .offerIndicator {
+    padding: 0.25rem 0.5rem;
+    min-width: 2.5rem;
+  }
+
+  .offerPercentage {
+    font-size: 0.75rem;
+  }
+
+  .offerLabel {
+    font-size: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -368,4 +503,36 @@
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: var(--font-size-xs);
   }
+
+  .favoriteButton {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .favoriteIcon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .offerIndicator {
+    padding: 0.1875rem 0.375rem;
+    min-width: 2.25rem;
+  }
+
+  .offerPercentage {
+    font-size: 0.6875rem;
+  }
+
+  .offerLabel {
+    font-size: 0.4375rem;
+  }
+}
+
+/* Estilos para precios con ofertas */
+.originalPrice {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+  font-weight: 400;
+  margin-top: 2px;
 } 

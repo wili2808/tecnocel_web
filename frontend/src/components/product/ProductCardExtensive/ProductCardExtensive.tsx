@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useFavoritos } from '../../../hooks/useFavoritos';
+import ProductImage from '../ProductImage';
 import styles from './ProductCardExtensive.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
@@ -11,12 +13,16 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     nombre,
     descripcion,
     imagen_url,
+    imagenes,
     precio_venta,
     stock,
     className,
-    onClick
+    onClick,
+    precio_original,
+    precio_oferta,
+    descuento_porcentaje,
+    en_oferta
 }) => {
-    const [imageError, setImageError] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const isOutOfStock = stock === 0;
@@ -24,10 +30,10 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     const { agregarItem, estado } = useCarrito();
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
+    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritos();
     const navigate = useNavigate();
 
-    // Formatear precio
-    const formatPrice = (price: string): string => {
+    const formatPrice = (price: string | number): string => {
         const numPrice = Number(price);
         if (isNaN(numPrice) || numPrice < 0) {
             return 'Precio no disponible';
@@ -35,9 +41,23 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         return `$${numPrice.toLocaleString('es-AR')}`;
     };
 
-    const handleImageError = () => {
-        setImageError(true);
+    // Determinar qué precio mostrar
+    const getDisplayPrice = () => {
+        if (en_oferta && precio_oferta) {
+            return {
+                current: precio_oferta,
+                original: precio_original || Number(precio_venta),
+                hasDiscount: true
+            };
+        }
+        return {
+            current: Number(precio_venta),
+            original: Number(precio_venta),
+            hasDiscount: false
+        };
     };
+
+    const priceInfo = getDisplayPrice();
 
     const handleCardClick = (e: React.MouseEvent) => {
         if (isOutOfStock) {
@@ -51,8 +71,8 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
      * Maneja el evento de agregar producto al carrito
      */
     const handleAddToCart = async (e: React.MouseEvent) => {
-        e.preventDefault(); // Prevenir navegación del Link
-        e.stopPropagation(); // Prevenir propagación del evento
+        e.preventDefault();
+        e.stopPropagation();
 
         if (!isAuthenticated) {
             showNotification(
@@ -73,12 +93,9 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
 
         setIsAddingToCart(true);
         try {
-            await agregarItem(id_producto, 1); // Agregar 1 unidad por defecto
-
-            // Mostrar confirmación visual
+            await agregarItem(id_producto, 1);
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 2000);
-
         } catch (error) {
             console.error('Error al agregar producto al carrito:', error);
             showNotification('Error al agregar el producto al carrito. Por favor, intente nuevamente.', 'error', 5000);
@@ -87,8 +104,40 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         }
     };
 
+    /**
+     * Maneja el evento de toggle de favoritos
+     */
+    const handleToggleFavorite = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            showNotification(
+                '¡Inicia sesión para agregar productos a favoritos!',
+                'info',
+                4000,
+                {
+                    label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        if (favoritoLoading) {
+            return;
+        }
+
+        try {
+            await toggleFavorito(id_producto);
+        } catch (error) {
+            console.error('Error al actualizar favoritos:', error);
+            showNotification('Error al actualizar favoritos. Por favor, intente nuevamente.', 'error', 5000);
+        }
+    };
+
     const stockText = stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
-    const imageSource = imageError ? '/placeholder.svg' : (imagen_url || '/placeholder.svg');
+    const isProductFavorite = isFavorito(id_producto);
 
     // Determinar el texto y estado del botón
     const getButtonContent = () => {
@@ -118,6 +167,18 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         );
     };
 
+    // Renderizar indicador de oferta
+    const renderOfferIndicator = () => {
+        if (!en_oferta || !descuento_porcentaje) return null;
+
+        return (
+            <div className={styles.offerIndicator}>
+                <span className={styles.offerPercentage}>-{descuento_porcentaje}%</span>
+                <span className={styles.offerLabel}>OFERTA</span>
+            </div>
+        );
+    };
+
     return (
         <Link
             to={`/productos/${id_producto}`}
@@ -128,15 +189,37 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
             tabIndex={isOutOfStock ? -1 : 0}
         >
             <article className={`${styles.productCard} ${className || ''}`}>
-                {/* Imagen del producto */}
                 <div className={styles.imageContainer}>
-                    <img
-                        src={imageSource}
+                    <ProductImage
+                        images={imagenes}
+                        defaultImage={imagen_url}
                         alt={`Imagen de ${nombre}`}
                         className={styles.productImage}
-                        loading="lazy"
-                        onError={handleImageError}
+                        showThumbnails={true}
                     />
+
+                    {/* Indicador de oferta */}
+                    {renderOfferIndicator()}
+
+                    {/* Botón de favoritos */}
+                    <button
+                        className={`${styles.favoriteButton} ${isProductFavorite ? styles.favoriteActive : styles.favoriteInactive}`}
+                        onClick={handleToggleFavorite}
+                        disabled={favoritoLoading}
+                        aria-label={isProductFavorite ? `Quitar ${nombre} de favoritos` : `Agregar ${nombre} a favoritos`}
+                        type="button"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            className={styles.favoriteIcon}
+                            fill={isProductFavorite ? "currentColor" : "none"}
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        >
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+
                     {isOutOfStock && (
                         <div className={styles.outOfStockOverlay}>
                             <span className={styles.outOfStockText}>Agotado</span>
@@ -144,12 +227,18 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                     )}
                 </div>
 
-                {/* Información del producto */}
                 <div className={styles.productInfo}>
                     <div className={styles.productHeader}>
                         <h3 className={styles.productTitle}>{nombre}</h3>
                         <div className={styles.priceContainer}>
-                            <span className={styles.price}>{formatPrice(precio_venta)}</span>
+                            {priceInfo.hasDiscount ? (
+                                <>
+                                    <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
+                                    <span className={styles.originalPrice}>{formatPrice(priceInfo.original)}</span>
+                                </>
+                            ) : (
+                                <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
+                            )}
                         </div>
                     </div>
 
@@ -193,4 +282,4 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
 
 ProductCardExtensive.displayName = 'ProductCardExtensive';
 
-export default ProductCardExtensive; 
+export default ProductCardExtensive;

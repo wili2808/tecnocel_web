@@ -20,4 +20,6 @@ router.put('/productos/:id', almacenController.updateProduct.bind(almacenControl
 router.delete('/productos/:id', almacenController.deleteProduct.bind(almacenController));
 router.patch('/productos/:id/stock', almacenController.updateStock.bind(almacenController));
 
+
+
 export default router; 

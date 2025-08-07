@@ -1,7 +1,7 @@
 .productFeatures {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-2xl);
   padding: var(--spacing-xl);
   background-color: var(--background-elevated);
   border-radius: var(--border-radius-lg);
@@ -9,13 +9,27 @@
   transition: var(--theme-transition);
 }
 
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
 .sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
   padding-bottom: var(--spacing-md);
   border-bottom: var(--border-width-thin) solid var(--border-color-light);
+}
+
+.sectionTitle .material-icons {
+  font-size: var(--icon-size-lg);
+  color: var(--color-primary);
 }
 
 .featuresGrid {
@@ -76,9 +90,56 @@
   word-break: break-word;
 }
 
+.featureDescription {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin-top: var(--spacing-xs);
+}
+
+/* Grid para especificaciones técnicas */
+.specificationsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+.specificationItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--color-primary-25) 100%);
+  border: var(--border-width-thin) solid var(--color-primary-100);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.specificationItem:hover {
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
+  border-color: var(--color-primary-200);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.specificationItem .featureIcon {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.specificationItem .featureValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+}
+
 /* Grid responsivo para pantallas más grandes */
 @media (min-width: 768px) {
   .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .specificationsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -87,20 +148,37 @@
   .featuresGrid {
     grid-template-columns: repeat(3, 1fr);
   }
+  
+  .specificationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1200px) {
+  .specificationsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {
   .productFeatures {
     padding: var(--spacing-lg);
-    gap: var(--spacing-lg);
+    gap: var(--spacing-xl);
   }
 
-  .featuresGrid {
+  .section {
     gap: var(--spacing-md);
   }
 
-  .featureItem {
+  .featuresGrid,
+  .specificationsGrid {
+    gap: var(--spacing-md);
+  }
+
+  .featureItem,
+  .specificationItem {
     padding: var(--spacing-sm);
   }
 
@@ -112,19 +190,36 @@
   .featureIcon .material-icons {
     font-size: var(--icon-size-md);
   }
-}
-
-@media (max-width: 480px) {
-  .productFeatures {
-    padding: var(--spacing-md);
-  }
 
   .sectionTitle {
     font-size: var(--font-size-lg);
   }
 
-  .featureItem {
+  .sectionTitle .material-icons {
+    font-size: var(--icon-size-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .productFeatures {
+    padding: var(--spacing-md);
+    gap: var(--spacing-lg);
+  }
+
+  .section {
     gap: var(--spacing-sm);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-md);
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .featureItem,
+  .specificationItem {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs);
   }
 
   .featureIcon {
@@ -132,7 +227,15 @@
     height: 32px;
   }
 
+  .featureIcon .material-icons {
+    font-size: var(--icon-size-sm);
+  }
+
   .featureValue {
     font-size: var(--font-size-sm);
+  }
+  
+  .featureDescription {
+    font-size: var(--font-size-xs);
   }
 } 

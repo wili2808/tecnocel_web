@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useFavoritosProductos } from '../../hooks/useFavoritosProductos';
+import { useNotification } from '../../contexts/NotificationContext';
+import ProductCard from '../../components/product/ProductCard';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 import userPanelStyles from './UserPanel.module.css';
 
 // Definir las opciones del menú del panel
@@ -33,6 +37,150 @@ const MenuOption = ({
         <span className={userPanelStyles.menuLabel}>{option.label}</span>
     </button>
 );
+
+// Componente de la sección de favoritos
+const FavoritesSection = () => {
+    const {
+        productos,
+        loading,
+        error,
+        removeFromFavoritos,
+        hasMore,
+        loadMore
+    } = useFavoritosProductos();
+    const { showNotification } = useNotification();
+
+    const handleRemoveFromFavorites = async (productId: number) => {
+        try {
+            const success = await removeFromFavoritos(productId);
+            if (success) {
+                showNotification('Producto removido de favoritos', 'success', 3000);
+            } else {
+                showNotification('Error al remover el producto de favoritos', 'error', 5000);
+            }
+        } catch (error) {
+            console.error('Error al remover de favoritos:', error);
+            showNotification('Error al remover el producto de favoritos', 'error', 5000);
+        }
+    };
+
+    // Debug: Verificar datos de productos
+    console.log('FavoritesSection - Productos cargados:', productos.map(p => ({
+        id: p.id_producto,
+        nombre: p.nombre,
+        imagen_url: p.imagen_url,
+        imagenes_count: p.imagenes?.length || 0,
+        imagenes: p.imagenes
+    })));
+
+    if (loading && productos.length === 0) {
+        return (
+            <div className={userPanelStyles.contentSection}>
+                <h2 className={userPanelStyles.sectionTitle}>Favoritos</h2>
+                <div className={userPanelStyles.loadingContainer}>
+                    <LoadingSpinner />
+                    <p>Cargando tus productos favoritos...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={userPanelStyles.contentSection}>
+                <h2 className={userPanelStyles.sectionTitle}>Favoritos</h2>
+                <div className={userPanelStyles.errorContainer}>
+                    <span className="material-icons">error_outline</span>
+                    <p>Error al cargar favoritos: {error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className={userPanelStyles.retryButton}
+                    >
+                        <span className="material-icons">refresh</span>
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (productos.length === 0) {
+        return (
+            <div className={userPanelStyles.contentSection}>
+                <h2 className={userPanelStyles.sectionTitle}>Favoritos</h2>
+                <div className={userPanelStyles.emptyState}>
+                    <span className="material-icons">favorite_border</span>
+                    <h3>No tienes productos favoritos</h3>
+                    <p>Explora nuestro catálogo y agrega productos a tus favoritos</p>
+                    <a href="/productos" className={userPanelStyles.exploreButton}>
+                        <span className="material-icons">storefront</span>
+                        Explorar productos
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={userPanelStyles.contentSection}>
+            <h2 className={userPanelStyles.sectionTitle}>
+                Favoritos
+                <span className={userPanelStyles.itemCount}>({productos.length})</span>
+            </h2>
+
+            <div className={userPanelStyles.favoritesGrid}>
+                {productos.map((producto) => (
+                    <div key={producto.id_producto} className={userPanelStyles.favoriteItem}>
+                        <ProductCard
+                            id_producto={producto.id_producto}
+                            nombre={producto.nombre}
+                            descripcion={producto.descripcion}
+                            imagen_url={producto.imagen_url}
+                            imagenes={producto.imagenes}
+                            precio_venta={producto.precio_venta}
+                            stock={producto.stock}
+                            precio_original={producto.precio_original}
+                            precio_oferta={producto.precio_oferta}
+                            descuento_porcentaje={producto.descuento_porcentaje}
+                            en_oferta={producto.en_oferta}
+                            className={userPanelStyles.favoriteCard}
+                        />
+                        <button
+                            onClick={() => handleRemoveFromFavorites(producto.id_producto)}
+                            className={userPanelStyles.removeButton}
+                            title="Quitar de favoritos"
+                            aria-label={`Quitar ${producto.nombre} de favoritos`}
+                        >
+                            <span className="material-icons">close</span>
+                        </button>
+                    </div>
+                ))}
+            </div>
+
+            {hasMore && (
+                <div className={userPanelStyles.loadMoreContainer}>
+                    <button
+                        onClick={loadMore}
+                        disabled={loading}
+                        className={userPanelStyles.loadMoreButton}
+                    >
+                        {loading ? (
+                            <>
+                                <LoadingSpinner />
+                                Cargando...
+                            </>
+                        ) : (
+                            <>
+                                <span className="material-icons">expand_more</span>
+                                Cargar más
+                            </>
+                        )}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
 
 // Componente de contenido dinámico
 const ContentSection = ({ activeSection, user }: { activeSection: string; user: any }) => {
@@ -86,14 +234,7 @@ const ContentSection = ({ activeSection, user }: { activeSection: string; user: 
                 );
 
             case 'favorites':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Favoritos</h2>
-                        <div className={userPanelStyles.favoritesInfo}>
-                            <p>Lista de favoritos en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+                return <FavoritesSection />;
             case 'addresses':
                 return (
                     <div className={userPanelStyles.contentSection}>
@@ -145,6 +286,27 @@ const UserPanel = () => {
     const handleBackToHome = () => {
         navigate('/');
     };
+
+    // Verificar si el usuario está autenticado
+    if (!user) {
+        return (
+            <div className={userPanelStyles.userPanel}>
+                <div className={userPanelStyles.container}>
+                    <div className={userPanelStyles.contentSection}>
+                        <h2 className={userPanelStyles.sectionTitle}>Acceso Denegado</h2>
+                        <p>Debes iniciar sesión para acceder al panel de usuario.</p>
+                        <button
+                            onClick={() => navigate('/login')}
+                            className={userPanelStyles.retryButton}
+                        >
+                            <span className="material-icons">login</span>
+                            Ir al Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`${userPanelStyles.userPanel} ${userPanelStyles.themeAware}`}>

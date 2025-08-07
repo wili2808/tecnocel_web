@@ -1,0 +1,103 @@
+import React from 'react';
+import { useFavoritos } from '../../../hooks/useFavoritos';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNotification } from '../../../contexts/NotificationContext';
+import { useNavigate } from 'react-router-dom';
+import styles from './FavoriteButtonReusable.module.css';
+
+interface FavoriteButtonReusableProps {
+    productId: number;
+    productName?: string;
+    className?: string;
+    size?: 'small' | 'medium' | 'large';
+    showText?: boolean;
+    position?: 'absolute' | 'relative' | 'static';
+    variant?: 'default' | 'minimal' | 'outlined';
+    disabled?: boolean;
+}
+
+const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
+    productId,
+    productName = 'producto',
+    className = '',
+    size = 'medium',
+    showText = false,
+    position = 'static',
+    variant = 'default',
+    disabled = false
+}) => {
+    const { isAuthenticated } = useAuth();
+    const { showNotification } = useNotification();
+    const { isFavorito, toggleFavorito, loading } = useFavoritos();
+    const navigate = useNavigate();
+
+    const handleToggle = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (disabled || loading) {
+            return;
+        }
+
+        if (!isAuthenticated) {
+            showNotification(
+                '¡Inicia sesión para agregar productos a favoritos!',
+                'info',
+                4000,
+                {
+                    label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        try {
+            await toggleFavorito(productId);
+        } catch (error) {
+            console.error('Error al actualizar favoritos:', error);
+            showNotification('Error al actualizar favoritos. Por favor, intente nuevamente.', 'error', 5000);
+        }
+    };
+
+    const isActive = isFavorito(productId);
+
+    const heartIcon = (
+        <svg
+            viewBox="0 0 24 24"
+            className={styles.icon}
+            fill={isActive ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+        >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+    );
+
+    return (
+        <button
+            onClick={handleToggle}
+            disabled={disabled || loading}
+            className={`
+                ${styles.favoriteButton}
+                ${styles[size]}
+                ${styles[position]}
+                ${styles[variant]}
+                ${isActive ? styles.active : styles.inactive}
+                ${loading ? styles.loading : ''}
+                ${className}
+            `}
+            title={isActive ? `Quitar ${productName} de favoritos` : `Agregar ${productName} a favoritos`}
+            type="button"
+        >
+            {heartIcon}
+            {showText && (
+                <span className={styles.text}>
+                    {isActive ? "En favoritos" : "Favorito"}
+                </span>
+            )}
+        </button>
+    );
+};
+
+export default FavoriteButtonReusable;

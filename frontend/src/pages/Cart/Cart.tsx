@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCarrito } from '../../contexts/CarritoContext';
-import CartItem from '../../components/cart/CartItem/CartItem';
+import CartItemCard from '../../components/cart/CartItemCard';
 import CartSummary from '../../components/cart/CartSummary/CartSummary';
 import styles from './Cart.module.css';
 
@@ -93,7 +93,7 @@ const Cart: React.FC = () => {
 
                         <div className={styles.cartItemsList}>
                             {estado.items.map((item) => (
-                                <CartItem key={item.id_item} item={item} />
+                                <CartItemCard key={item.id_item} item={item} />
                             ))}
                         </div>
 
