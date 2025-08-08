@@ -26,6 +26,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
     const [orden, setOrden] = useState<'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion'>('recientes');
     const [totalPaginas, setTotalPaginas] = useState(0);
     const [submittingComment, setSubmittingComment] = useState(false);
+    const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
     const COMENTARIOS_POR_PAGINA = 10;
 
@@ -128,14 +129,63 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
     // Manejar edición de comentario
     const handleEditarComentario = async (
         idComentario: number,
-        datos: { comentario?: string; calificacion?: number }
+        datos: { comentario?: string; calificacion?: number; imagenes?: any[] }
     ) => {
         try {
             await commentService.actualizarComentario(idComentario, datos);
+
+            // Recargar comentarios después de confirmar la edición
             await cargarComentarios(currentPage);
+
+            // Limpiar el estado de edición
+            setEditingCommentId(null);
+
+            console.log('✅ Comentario actualizado, recargando comentarios');
         } catch (err) {
             setError('Error al actualizar el comentario.');
             console.error('Error updating comment:', err);
+        }
+    };
+
+    // Manejar inicio de edición de comentario
+    const handleIniciarEdicion = (idComentario: number) => {
+        setEditingCommentId(idComentario);
+        console.log('✏️ Iniciando edición del comentario:', idComentario);
+    };
+
+    // Manejar cancelación de edición de comentario
+    const handleCancelarEdicion = () => {
+        setEditingCommentId(null);
+        console.log('❌ Cancelando edición');
+    };
+
+    // Manejar eliminación de imagen de comentario
+    const handleEliminarImagenComentario = async (idComentario: number, idImagen: number) => {
+        try {
+            await commentService.eliminarImagenComentario(idComentario, idImagen);
+
+            // Si el comentario está en modo de edición, no recargar comentarios
+            // Solo actualizar el estado local del comentario específico
+            if (editingCommentId === idComentario) {
+                setComentarios(prevComentarios =>
+                    prevComentarios.map(comentario => {
+                        if (comentario.id_comentario === idComentario) {
+                            return {
+                                ...comentario,
+                                imagenes: comentario.imagenes?.filter(img => img.id_imagen !== idImagen) || []
+                            };
+                        }
+                        return comentario;
+                    })
+                );
+                console.log('🔄 Imagen eliminada, actualizando estado local sin recargar');
+            } else {
+                // Si no está en edición, recargar comentarios normalmente
+                await cargarComentarios(currentPage);
+            }
+        } catch (err) {
+            setError('Error al eliminar la imagen del comentario.');
+            console.error('Error deleting comment image:', err);
         }
     };
 
@@ -233,6 +283,10 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
                                 currentUserId={user?.id_cliente}
                                 onDelete={handleEliminarComentario}
                                 onEdit={handleEditarComentario}
+                                onImageDelete={handleEliminarImagenComentario}
+                                onStartEdit={handleIniciarEdicion}
+                                onCancelEdit={handleCancelarEdicion}
+                                isEditing={editingCommentId === comentario.id_comentario}
                                 className={styles.commentCard}
                             />
                         ))}

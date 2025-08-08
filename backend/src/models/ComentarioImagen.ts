@@ -6,8 +6,6 @@ class ComentarioImagen extends Model {
   declare id_comentario: number;
   declare url_imagen: string;
   declare alt_text: string | null;
-  declare es_principal: boolean;
-  declare orden: number;
   declare fyh_creacion: Date;
 }
 
@@ -39,19 +37,6 @@ ComentarioImagen.init({
       len: [0, 255]
     }
   },
-  es_principal: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  orden: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 1,
-    validate: {
-      min: 1,
-      max: 5 // Máximo 5 imágenes por comentario
-    }
-  },
   fyh_creacion: {
     type: DataTypes.DATE,
     allowNull: false,
@@ -65,15 +50,6 @@ ComentarioImagen.init({
   indexes: [
     {
       fields: ['id_comentario']
-    },
-    {
-      fields: ['orden']
-    },
-    {
-      fields: ['es_principal']
-    },
-    {
-      fields: ['id_comentario', 'es_principal', 'orden']
     }
   ]
 });

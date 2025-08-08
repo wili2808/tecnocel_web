@@ -21,21 +21,30 @@ const MIME_TYPES: { [key: string]: string } = {
 };
 
 interface ImageMiddlewareOptions {
-  imagesPath: string;
-  defaultImage?: string;
+  basePath: string;
+  productImagesPath: string;
+  commentImagesPath: string;
+  defaultProductImage?: string;
+  defaultCommentImage?: string;
   maxAge?: number;
   endpoint?: string;
 }
 
 class StaticImageMiddleware {
-  private imagesPath: string;
-  private defaultImage: string;
+  private basePath: string;
+  private productImagesPath: string;
+  private commentImagesPath: string;
+  private defaultProductImage: string;
+  private defaultCommentImage: string;
   private maxAge: number;
   private endpoint: string;
 
   constructor(options: ImageMiddlewareOptions) {
-    this.imagesPath = options.imagesPath;
-    this.defaultImage = options.defaultImage || 'placeholder.png';
+    this.basePath = options.basePath;
+    this.productImagesPath = options.productImagesPath;
+    this.commentImagesPath = options.commentImagesPath;
+    this.defaultProductImage = options.defaultProductImage || 'default-product.png';
+    this.defaultCommentImage = options.defaultCommentImage || 'default-comment.png';
     this.maxAge = options.maxAge || 86400;
     this.endpoint = options.endpoint || '/images';
   }
@@ -68,8 +77,7 @@ class StaticImageMiddleware {
       return false;
     }
 
-    // ✅ Con la nueva estructura unificada, no permitir rutas con barras
-    // Solo nombres de archivo simples para mayor seguridad
+    // Solo nombres de archivo sin rutas
     if (filename.includes('/') || filename.includes('\\')) {
       logger.warn(`Nombre de imagen contiene caracteres de ruta no permitidos: ${filename}`);
       return false;
@@ -91,47 +99,100 @@ class StaticImageMiddleware {
     }
   }
 
-  public serveImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  /**
+   * Sirve imágenes de productos
+   */
+  public serveProductImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const filename = req.params[0];
       
-      logger.debug(`Solicitud de imagen recibida: ${filename}`, {
+      logger.debug(`Solicitud de imagen de producto recibida: ${filename}`, {
         originalUrl: req.originalUrl,
-        method: req.method,
-        headers: req.headers
+        method: req.method
       });
 
       if (!filename || !this.isValidFilename(filename)) {
-        logger.warn(`Nombre de imagen inválido: ${filename}`);
-        return this.serveDefaultImage(res);
+        logger.warn(`Nombre de imagen de producto inválido: ${filename}`);
+        return this.serveDefaultProductImage(res);
       }
 
-      // ✅ Con la nueva estructura unificada, todas las imágenes están en el mismo directorio
-      const filePath = path.join(this.imagesPath, filename);
+      const filePath = path.join(this.productImagesPath, filename);
       
-      logger.debug(`Buscando imagen en: ${filePath}`, {
+      logger.debug(`Buscando imagen de producto en: ${filePath}`, {
         fileExists: this.fileExists(filePath)
       });
 
       if (!this.fileExists(filePath)) {
-        logger.warn(`Imagen no encontrada: ${filePath}`);
-        return this.serveDefaultImage(res);
+        logger.warn(`Imagen de producto no encontrada: ${filePath}`);
+        return this.serveDefaultProductImage(res);
       }
 
       this.sendImage(res, filePath, filename);
 
     } catch (error) {
-      logger.error('Error al servir imagen:', error);
-      this.serveDefaultImage(res);
+      logger.error('Error al servir imagen de producto:', error);
+      this.serveDefaultProductImage(res);
     }
   };
 
-  private serveDefaultImage(res: Response): void {
-    const defaultPath = path.join(this.imagesPath, this.defaultImage);
+  /**
+   * Sirve imágenes de comentarios
+   */
+  public serveCommentImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const filename = req.params[0];
+      
+      logger.debug(`Solicitud de imagen de comentario recibida: ${filename}`, {
+        originalUrl: req.originalUrl,
+        method: req.method
+      });
+
+      if (!filename || !this.isValidFilename(filename)) {
+        logger.warn(`Nombre de imagen de comentario inválido: ${filename}`);
+        return this.serveDefaultCommentImage(res);
+      }
+
+      const filePath = path.join(this.commentImagesPath, filename);
+      
+      logger.debug(`Buscando imagen de comentario en: ${filePath}`, {
+        fileExists: this.fileExists(filePath)
+      });
+
+      if (!this.fileExists(filePath)) {
+        logger.warn(`Imagen de comentario no encontrada: ${filePath}`);
+        return this.serveDefaultCommentImage(res);
+      }
+
+      this.sendImage(res, filePath, filename);
+
+    } catch (error) {
+      logger.error('Error al servir imagen de comentario:', error);
+      this.serveDefaultCommentImage(res);
+    }
+  };
+
+  /**
+   * Método legacy para compatibilidad (sirve imágenes de productos)
+   */
+  public serveImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    return this.serveProductImage(req, res, next);
+  };
+
+  private serveDefaultProductImage(res: Response): void {
+    const defaultPath = path.join(this.productImagesPath, this.defaultProductImage);
     if (this.fileExists(defaultPath)) {
-      this.sendImage(res, defaultPath, this.defaultImage);
+      this.sendImage(res, defaultPath, this.defaultProductImage);
     } else {
-      res.status(404).json({ error: 'Imagen no encontrada' });
+      res.status(404).json({ error: 'Imagen de producto no encontrada' });
+    }
+  }
+
+  private serveDefaultCommentImage(res: Response): void {
+    const defaultPath = path.join(this.commentImagesPath, this.defaultCommentImage);
+    if (this.fileExists(defaultPath)) {
+      this.sendImage(res, defaultPath, this.defaultCommentImage);
+    } else {
+      res.status(404).json({ error: 'Imagen de comentario no encontrada' });
     }
   }
 
@@ -157,26 +218,78 @@ class StaticImageMiddleware {
 
   public validateImagesDirectory(): boolean {
     try {
-      // Validar directorio principal de imágenes
-      if (!fs.existsSync(this.imagesPath)) {
-        logger.error(`Directorio de imágenes no existe: ${this.imagesPath}`);
-        return false;
+      // Validar directorios de imágenes
+      const directories = [
+        this.basePath,
+        this.productImagesPath,
+        this.commentImagesPath
+      ];
+
+      for (const dir of directories) {
+        if (!fs.existsSync(dir)) {
+          logger.error(`Directorio de imágenes no existe: ${dir}`);
+          return false;
+        }
+
+        const stats = fs.statSync(dir);
+        if (!stats.isDirectory()) {
+          logger.error(`La ruta de imágenes no es un directorio: ${dir}`);
+          return false;
+        }
       }
 
-      const stats = fs.statSync(this.imagesPath);
-      if (!stats.isDirectory()) {
-        logger.error(`La ruta de imágenes no es un directorio: ${this.imagesPath}`);
-        return false;
-      }
-
-      logger.info(`Directorio de imágenes configurado correctamente:`, {
-        imagesPath: this.imagesPath
+      logger.info(`Directorios de imágenes configurados correctamente:`, {
+        basePath: this.basePath,
+        productImagesPath: this.productImagesPath,
+        commentImagesPath: this.commentImagesPath
       });
       return true;
     } catch (error) {
-      logger.error('Error al validar directorio de imágenes:', error);
+      logger.error('Error al validar directorios de imágenes:', error);
       return false;
     }
+  }
+
+  /**
+   * Obtiene información de los directorios de imágenes
+   */
+  public getDirectoriesInfo(): {
+    basePath: string;
+    productImagesPath: string;
+    commentImagesPath: string;
+    productImagesCount: number;
+    commentImagesCount: number;
+  } {
+    let productImagesCount = 0;
+    let commentImagesCount = 0;
+
+    try {
+      if (fs.existsSync(this.productImagesPath)) {
+        const productFiles = fs.readdirSync(this.productImagesPath);
+        productImagesCount = productFiles.filter(file => {
+          const ext = path.extname(file).toLowerCase();
+          return ALLOWED_IMAGE_TYPES.includes(ext);
+        }).length;
+      }
+
+      if (fs.existsSync(this.commentImagesPath)) {
+        const commentFiles = fs.readdirSync(this.commentImagesPath);
+        commentImagesCount = commentFiles.filter(file => {
+          const ext = path.extname(file).toLowerCase();
+          return ALLOWED_IMAGE_TYPES.includes(ext);
+        }).length;
+      }
+    } catch (error) {
+      logger.error('Error al contar imágenes:', error);
+    }
+
+    return {
+      basePath: this.basePath,
+      productImagesPath: this.productImagesPath,
+      commentImagesPath: this.commentImagesPath,
+      productImagesCount,
+      commentImagesCount
+    };
   }
 }
 

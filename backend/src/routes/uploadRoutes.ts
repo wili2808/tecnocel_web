@@ -1,17 +1,28 @@
-import { Router } from 'express';
+import express from 'express';
 import UploadController from '../controllers/UploadController.js';
 import { verificarTokenCliente } from '../middleware/authMiddleware.js';
 
-const router = Router();
+const router = express.Router();
 
-// Configurar multer para uploads
+// Configurar multer para múltiples archivos
 const upload = UploadController.getMulterConfig();
 
-// Rutas para uploads de imágenes de comentarios
-router.post('/comment-images', 
-  verificarTokenCliente, 
-  upload.array('imagenes', 5), // Máximo 5 imágenes con campo 'imagenes'
+// Ruta para subir imágenes de comentarios
+router.post('/comment-images',
+  verificarTokenCliente, // Verificar que el usuario esté autenticado
+  upload.array('imagenes', 5), // Máximo 5 imágenes
   UploadController.uploadCommentImages
+);
+
+// Ruta para subir imágenes de productos
+router.post('/product-images',
+  upload.array('imagenes', 10), // Máximo 10 imágenes
+  UploadController.uploadProductImages
+);
+
+// Ruta para obtener información de directorios
+router.get('/directories-info',
+  UploadController.getDirectoriesInfo
 );
 
 export default router;

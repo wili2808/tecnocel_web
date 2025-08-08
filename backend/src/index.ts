@@ -58,36 +58,52 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Configurar servicio de imágenes usando la configuración centralizada
-const { imagesPath, baseUrl, endpoint, defaultImage } = config.images;
+const { 
+  basePath, 
+  productImagesPath, 
+  commentImagesPath, 
+  baseUrl, 
+  endpoint, 
+  defaultProductImage, 
+  defaultCommentImage 
+} = config.images;
 
 logger.info('Inicializando servicio de imágenes', {
-  imagesPath,
+  basePath,
+  productImagesPath,
+  commentImagesPath,
   baseUrl,
   endpoint
 });
 
 // Configurar middleware de imágenes estáticas
 const imageMiddleware = new StaticImageMiddleware({
-  imagesPath,
-  defaultImage,
+  basePath,
+  productImagesPath,
+  commentImagesPath,
+  defaultProductImage,
+  defaultCommentImage,
   maxAge: 86400, // 24 horas de cache
   endpoint
 });
 
-// Validar que el directorio de imágenes existe antes de inicializar el servicio
+// Validar que los directorios de imágenes existen antes de inicializar el servicio
 let imageServiceInitialized = false;
 if (imageMiddleware.validateImagesDirectory()) {
-  // Inicializar servicio de imágenes solo si el directorio es válido
+  // Inicializar servicio de imágenes solo si los directorios son válidos
   const imageService = initializeImageService({
     baseUrl,
-    imagesPath,
-    defaultImage,
+    basePath,
+    productImagesPath,
+    commentImagesPath,
+    defaultProductImage,
+    defaultCommentImage,
     endpoint
   });
   imageServiceInitialized = true;
   logger.info('Servicio de imágenes inicializado exitosamente');
 } else {
-  logger.warn('El directorio de imágenes no está disponible. El servicio de imágenes no se inicializará.');
+  logger.warn('Los directorios de imágenes no están disponibles. El servicio de imágenes no se inicializará.');
 }
 
 // Configurar puerto
@@ -95,21 +111,24 @@ const PORT = process.env.PORT || 3000;
 
 // Ruta de prueba
 app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'API de MacWil Web funcionando correctamente' });
+  res.json({ message: 'API de TecnoCel Web funcionando correctamente' });
 });
 
-// Ruta para servir imágenes estáticas
-app.get('/api/images/*', imageMiddleware.serveImage);
+// Rutas para servir imágenes estáticas
+app.get('/api/images/*', imageMiddleware.serveProductImage);
+app.get('/api/comment-images/*', imageMiddleware.serveCommentImage);
 
 // Ruta de diagnóstico para verificar el estado del servicio de imágenes
 app.get('/api/images-status', (req: Request, res: Response) => {
+  const directoriesInfo = imageMiddleware.getDirectoriesInfo();
+  
   res.json({
     service_initialized: imageServiceInitialized,
-    images_path: imagesPath,
-    directory_exists: imageMiddleware.validateImagesDirectory(),
+    directories: directoriesInfo,
     base_url: baseUrl,
     endpoint: endpoint,
-    default_image: defaultImage
+    default_product_image: defaultProductImage,
+    default_comment_image: defaultCommentImage
   });
 });
 

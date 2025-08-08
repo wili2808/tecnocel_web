@@ -19,8 +19,6 @@ interface ComentarioCreateData {
 interface ComentarioImagenData {
   url_imagen: string;
   alt_text?: string;
-  es_principal: boolean;
-  orden: number;
 }
 
 interface GetComentariosQuery {
@@ -29,36 +27,36 @@ interface GetComentariosQuery {
   orden?: 'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion';
 }
 
+interface ActualizarComentarioData {
+  comentario?: string;
+  calificacion?: number;
+  imagenes_a_eliminar?: number[]; // IDs de imágenes a eliminar
+  imagenes?: {
+    nombre_archivo: string;
+    ruta_imagen: string;
+    tipo_archivo: string;
+    tamaño_archivo?: number;
+    alt_text?: string;
+  }[]; // Nuevas imágenes a agregar
+}
+
 class ComentarioController {
   
   // Método helper para transformar comentarios con URLs de imágenes
-  private transformComentariosWithImages(comentarios: any[]): any[] {
+  private async transformComentariosWithImages(comentarios: any[]): Promise<any[]> {
     try {
       if (!comentarios || comentarios.length === 0) {
         return [];
       }
 
       const imageService = getImageService();
+      if (!imageService) {
+        logger.warn('Servicio de imágenes no disponible, devolviendo comentarios sin URLs de imagen');
+        return comentarios.map(c => c.toJSON ? c.toJSON() : c);
+      }
       
-      return comentarios.map(comentario => {
-        const comentarioData = comentario.toJSON ? comentario.toJSON() : comentario;
-        
-        // Transformar imágenes si existen
-        if (comentarioData.imagenes && comentarioData.imagenes.length > 0) {
-          comentarioData.imagenes = comentarioData.imagenes.map((imagen: any) => {
-            const imagenData = imagen.toJSON ? imagen.toJSON() : imagen;
-            
-            // ✅ Usar solo el imageService para generar URLs
-            if (imageService && imagenData.url_imagen) {
-              imagenData.imagen_url = imageService.generateImageUrl(imagenData.url_imagen);
-            }
-            
-            return imagenData;
-          });
-        }
-        
-        return comentarioData;
-      });
+      // Usar el método específico para comentarios del imageService
+      return await imageService.transformCommentsWithImageUrls(comentarios);
     } catch (error) {
       logger.error('Error al transformar comentarios con imágenes:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
@@ -121,7 +119,7 @@ class ComentarioController {
             model: ComentarioImagen,
             as: 'imagenes',
             required: false,
-            attributes: ['id_imagen', 'url_imagen', 'alt_text', 'es_principal', 'orden']
+            attributes: ['id_imagen', 'url_imagen', 'alt_text']
           },
           {
             model: Usuario,
@@ -136,7 +134,7 @@ class ComentarioController {
       });
 
       // Transformar comentarios con URLs de imágenes
-      const comentariosTransformados = this.transformComentariosWithImages(comentarios);
+      const comentariosTransformados = await this.transformComentariosWithImages(comentarios);
 
       // Calcular estadísticas
       const estadisticas = await this.calcularEstadisticasProducto(productId);
@@ -241,12 +239,10 @@ class ComentarioController {
           return;
         }
 
-        const imagenesData = imagenes.map((imagen, index) => ({
+        const imagenesData = imagenes.map((imagen) => ({
           id_comentario: nuevoComentario.id_comentario,
           url_imagen: imagen.url_imagen,
           alt_text: imagen.alt_text,
-          es_principal: imagen.es_principal || index === 0,
-          orden: imagen.orden || (index + 1),
           fyh_creacion: new Date()
         }));
 
@@ -270,7 +266,8 @@ class ComentarioController {
       });
 
       // Transformar con URLs de imágenes
-      const comentarioTransformado = this.transformComentariosWithImages([comentarioCompleto])[0];
+      const comentariosTransformados = await this.transformComentariosWithImages([comentarioCompleto]);
+      const comentarioTransformado = comentariosTransformados[0];
 
       res.status(201).json({
         mensaje: 'Comentario creado exitosamente',
@@ -297,7 +294,7 @@ class ComentarioController {
   async actualizarComentario(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario } = req.params;
-      const { comentario, calificacion } = req.body;
+      const { comentario, calificacion, imagenes_a_eliminar, imagenes }: ActualizarComentarioData = req.body;
 
       // Validaciones
       const comentarioId = parseInt(id_comentario);
@@ -346,6 +343,36 @@ class ComentarioController {
         datosActualizacion.calificacion = calificacion;
       }
 
+      // Eliminar imágenes si se solicita
+      if (imagenes_a_eliminar && imagenes_a_eliminar.length > 0) {
+        await ComentarioImagen.destroy({
+          where: {
+            id_imagen: imagenes_a_eliminar,
+            id_comentario: comentarioId
+          }
+        });
+        logger.info('Imágenes eliminadas del comentario', {
+          id_comentario: comentarioId,
+          ids_imagenes_eliminadas: imagenes_a_eliminar
+        });
+      }
+
+      // Agregar nuevas imágenes si se proporcionan
+      if (imagenes && imagenes.length > 0) {
+        const imagenesData = imagenes.map((imagen) => ({
+          id_comentario: comentarioId,
+          url_imagen: imagen.ruta_imagen,
+          alt_text: imagen.alt_text || `Imagen del comentario`,
+          fyh_creacion: new Date()
+        }));
+
+        await ComentarioImagen.bulkCreate(imagenesData);
+        logger.info('Nuevas imágenes agregadas al comentario', {
+          id_comentario: comentarioId,
+          cantidad_imagenes: imagenes.length
+        });
+      }
+
       // Actualizar comentario
       await comentarioExistente.update(datosActualizacion);
 
@@ -365,7 +392,8 @@ class ComentarioController {
         ]
       });
 
-      const comentarioTransformado = this.transformComentariosWithImages([comentarioActualizado])[0];
+      const comentariosTransformados = await this.transformComentariosWithImages([comentarioActualizado]);
+      const comentarioTransformado = comentariosTransformados[0];
 
       res.status(200).json({
         mensaje: 'Comentario actualizado exitosamente',
@@ -411,18 +439,53 @@ class ComentarioController {
         return;
       }
 
-      // Soft delete
+      // Obtener todas las imágenes del comentario antes de eliminarlo
+      const imagenes = await ComentarioImagen.findAll({
+        where: { id_comentario: comentarioId }
+      });
+
+      // Eliminar archivos físicos de las imágenes
+      const { default: UploadController } = await import('../controllers/UploadController.js');
+      let archivosEliminados = 0;
+      
+      for (const imagen of imagenes) {
+        try {
+          const archivoEliminado = await UploadController.deleteCommentImage(imagen.url_imagen);
+          if (archivoEliminado) {
+            archivosEliminados++;
+          }
+        } catch (error) {
+          logger.warn('Error al eliminar archivo físico de imagen:', {
+            id_imagen: imagen.id_imagen,
+            url_imagen: imagen.url_imagen,
+            error: error instanceof Error ? error.message : 'Error desconocido'
+          });
+        }
+      }
+
+      // Eliminar registros de imágenes de la base de datos
+      await ComentarioImagen.destroy({
+        where: { id_comentario: comentarioId }
+      });
+
+      // Soft delete del comentario
       await comentario.update({
         estado: 'eliminado',
         fyh_actualizacion: new Date()
       });
 
-      // ✅ Con la nueva estructura, no necesitamos marcar imágenes como eliminadas
-      // Las imágenes se mantienen en la base de datos pero no se muestran
-      // porque el comentario está marcado como eliminado
+      logger.info('Comentario eliminado con sus imágenes', {
+        id_comentario: comentarioId,
+        imagenes_eliminadas: imagenes.length,
+        archivos_eliminados: archivosEliminados
+      });
 
       res.status(200).json({
-        mensaje: 'Comentario eliminado exitosamente'
+        mensaje: 'Comentario eliminado exitosamente',
+        datos: {
+          imagenes_eliminadas: imagenes.length,
+          archivos_eliminados: archivosEliminados
+        }
       });
 
     } catch (error) {
@@ -435,6 +498,132 @@ class ComentarioController {
       res.status(500).json({
         mensaje: 'Error interno del servidor',
         error: 'No se pudo eliminar el comentario'
+      });
+    }
+  }
+
+  // Eliminar imagen de comentario
+  async eliminarImagenComentario(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_comentario, id_imagen } = req.params;
+
+      // Log para debugging
+      logger.info('Intento de eliminar imagen de comentario', {
+        id_comentario,
+        id_imagen,
+        usuario: req.usuario,
+        headers: req.headers.authorization ? 'Token presente' : 'Sin token'
+      });
+
+      // Validaciones
+      const comentarioId = parseInt(id_comentario);
+      const imagenId = parseInt(id_imagen);
+
+      if (!comentarioId || comentarioId <= 0) {
+        res.status(400).json({
+          mensaje: 'ID de comentario inválido',
+          error: 'El ID del comentario debe ser un número positivo'
+        });
+        return;
+      }
+
+      if (!imagenId || imagenId <= 0) {
+        res.status(400).json({
+          mensaje: 'ID de imagen inválido',
+          error: 'El ID de la imagen debe ser un número positivo'
+        });
+        return;
+      }
+
+      // Buscar comentario y verificar que pertenece al usuario autenticado
+      const comentario = await Comentario.findByPk(comentarioId);
+      if (!comentario) {
+        res.status(404).json({
+          mensaje: 'Comentario no encontrado',
+          error: 'El comentario especificado no existe'
+        });
+        return;
+      }
+
+      // Verificar que el usuario autenticado es el propietario del comentario
+      const userId = req.usuario?.id_cliente;
+      
+      // Log para debugging
+      logger.info('Verificación de permisos', {
+        userId,
+        comentarioClienteId: comentario.id_cliente,
+        usuarioCompleto: req.usuario
+      });
+      
+      if (!userId) {
+        logger.warn('Usuario no autenticado al intentar eliminar imagen');
+        res.status(401).json({
+          mensaje: 'Usuario no autenticado',
+          error: 'Debes estar autenticado para realizar esta acción'
+        });
+        return;
+      }
+      
+      if (comentario.id_cliente !== userId) {
+        logger.warn('Intento de eliminar imagen de comentario ajeno', {
+          userId,
+          comentarioClienteId: comentario.id_cliente
+        });
+        res.status(403).json({
+          mensaje: 'Acceso denegado',
+          error: 'Solo puedes eliminar imágenes de tus propios comentarios'
+        });
+        return;
+      }
+
+      // Buscar la imagen
+      const imagen = await ComentarioImagen.findOne({
+        where: {
+          id_imagen: imagenId,
+          id_comentario: comentarioId
+        }
+      });
+
+      if (!imagen) {
+        res.status(404).json({
+          mensaje: 'Imagen no encontrada',
+          error: 'La imagen especificada no existe en este comentario'
+        });
+        return;
+      }
+
+      // Eliminar el archivo físico
+      const { default: UploadController } = await import('../controllers/UploadController.js');
+      const archivoEliminado = await UploadController.deleteCommentImage(imagen.url_imagen);
+
+      // Eliminar registro de la base de datos
+      await imagen.destroy();
+
+      logger.info('Imagen de comentario eliminada', {
+        id_comentario: comentarioId,
+        id_imagen: imagenId,
+        archivo_eliminado: archivoEliminado
+      });
+
+      res.status(200).json({
+        mensaje: 'Imagen eliminada exitosamente',
+        datos: {
+          id_imagen: imagenId,
+          archivo_eliminado: archivoEliminado
+        }
+      });
+
+    } catch (error) {
+      logger.error('Error al eliminar imagen de comentario:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        id_comentario: req.params.id_comentario,
+        id_imagen: req.params.id_imagen,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+
+      res.status(500).json({
+        mensaje: 'Error interno del servidor',
+        error: 'No se pudo eliminar la imagen'
       });
     }
   }

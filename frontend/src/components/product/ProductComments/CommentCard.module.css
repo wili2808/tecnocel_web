@@ -233,6 +233,7 @@
 }
 
 .imageContainer {
+    position: relative;
     border-radius: var(--border-radius-md);
     overflow: hidden;
     border: 1px solid var(--border-color);
@@ -250,6 +251,50 @@
     height: 120px;
     object-fit: cover;
     display: block;
+}
+
+.deleteImageButton {
+    position: absolute;
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-error);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--theme-transition);
+    opacity: 0.8;
+    z-index: 2;
+}
+
+.deleteImageButton:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background: var(--color-error-dark);
+}
+
+.deleteImageButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.deleteImageButton .material-icons {
+    font-size: 16px;
+}
+
+.deleteImageButton .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 /* === RESPUESTA DEL ADMIN === */
@@ -346,11 +391,6 @@
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 /* === MODAL DE ELIMINACIÓN === */
 .deleteModal {
     position: fixed;
@@ -410,23 +450,82 @@
 }
 
 .modalDelete {
-    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-error);
-    color: var(--text-inverse);
+    color: white;
     border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--border-radius-md);
     cursor: pointer;
-    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     transition: var(--theme-transition);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
 }
 
 .modalDelete:hover:not(:disabled) {
     background: var(--color-error-dark);
+    transform: translateY(-1px);
 }
 
 .modalDelete:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+}
+
+.modalDelete .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* === ESTADOS DE ELIMINACIÓN === */
+.commentCard.deleting {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.commentCard.deleting::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius-lg);
+    z-index: 1;
+}
+
+/* === MEJORAS EN BOTONES DE ACCIÓN === */
+.actionButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.actionButton:disabled:hover {
+    background: var(--background-light);
+    color: var(--text-secondary);
+}
+
+/* === ANIMACIONES === */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.commentCard {
+    animation: fadeIn 0.3s ease-out;
 }
 
 /* === RESPONSIVE === */
@@ -483,6 +582,108 @@
         font-size: 32px;
     }
 
+    .commentImages {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}
+
+/* === BOTÓN DE AGREGAR IMÁGENES === */
+.addImageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    background: var(--background-light);
+    transition: var(--theme-transition);
+    min-height: 120px;
+    cursor: pointer;
+}
+
+.addImageContainer:hover {
+    border-color: var(--color-primary);
+    background: var(--background-hover);
+}
+
+.fileInput {
+    display: none;
+}
+
+.addImageButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--theme-transition);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+}
+
+.addImageButton:hover:not(:disabled) {
+    color: var(--color-primary);
+    background: var(--background-hover);
+}
+
+.addImageButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.addImageButton .material-icons {
+    font-size: 32px;
+}
+
+.addImageText {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.imageCount {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* === MEJORAS EN CONTENEDOR DE IMÁGENES === */
+.commentImages {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.commentImages:empty {
+    display: none;
+}
+
+/* === RESPONSIVE PARA IMÁGENES === */
+@media (max-width: 768px) {
+    .commentImages {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--spacing-sm);
+    }
+    
+    .addImageContainer {
+        min-height: 100px;
+        padding: var(--spacing-md);
+    }
+    
+    .addImageButton .material-icons {
+        font-size: 24px;
+    }
+    
+    .addImageText {
+        font-size: var(--font-size-xs);
+    }
+}
+
+@media (max-width: 480px) {
     .commentImages {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }

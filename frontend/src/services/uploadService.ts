@@ -4,8 +4,6 @@ import axiosInstance from '../api/axiosConfig';
 export interface UploadedImage {
   url_imagen: string;
   alt_text: string;
-  es_principal: boolean;
-  orden: number;
 }
 
 export interface UploadResponse {

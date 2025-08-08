@@ -104,6 +104,17 @@ const validateIdParam = [
   handleValidationErrors
 ];
 
+// Validaciones para eliminar imagen de comentario
+const validateEliminarImagenComentario = [
+  param('id_comentario')
+    .isInt({ min: 1 })
+    .withMessage('El ID del comentario debe ser un número entero positivo'),
+  param('id_imagen')
+    .isInt({ min: 1 })
+    .withMessage('El ID de la imagen debe ser un número entero positivo'),
+  handleValidationErrors
+];
+
 const validateProductIdParam = [
   param('id_producto')
     .isInt({ min: 1 })
@@ -151,6 +162,14 @@ router.delete(
   verificarTokenCliente,
   validateIdParam,
   (req: Request, res: Response) => comentarioController.eliminarComentario(req, res)
+);
+
+// Eliminar imagen de comentario
+router.delete(
+  '/:id_comentario/imagenes/:id_imagen',
+  verificarTokenCliente,
+  validateEliminarImagenComentario,
+  (req: Request, res: Response) => comentarioController.eliminarImagenComentario(req, res)
 );
 
 // RUTAS ADICIONALES PARA FUTURAS IMPLEMENTACIONES

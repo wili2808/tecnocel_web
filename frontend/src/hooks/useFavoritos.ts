@@ -18,6 +18,8 @@ export const useFavoritos = () => {
       setFavoritos(favoritosIds);
     } catch (error) {
       console.error('Error al cargar favoritos:', error);
+      // En caso de error, mantener el estado actual y no mostrar error al usuario
+      // Los favoritos se pueden recargar en la próxima interacción
     } finally {
       setLoading(false);
     }
@@ -44,9 +46,15 @@ export const useFavoritos = () => {
       return response.esFavorito;
     } catch (error) {
       console.error('Error al alternar favorito:', error);
+      // En caso de error, intentar recargar los favoritos para sincronizar el estado
+      try {
+        await loadFavoritos();
+      } catch (reloadError) {
+        console.error('Error al recargar favoritos después de error:', reloadError);
+      }
       return false;
     }
-  }, [user?.id_cliente]);
+  }, [user?.id_cliente, loadFavoritos]);
 
   // Cargar favoritos cuando cambie el usuario
   useEffect(() => {

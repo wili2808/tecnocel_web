@@ -2,11 +2,21 @@ import path from 'path';
 import fs from 'fs';
 import logger from '../utils/logger.js';
 import ProductoImagen from '../models/ProductoImagen.js';
+import sequelize from '../config/database.js';
+
+// Tipos de imagen soportados
+export enum ImageType {
+  PRODUCT = 'product',
+  COMMENT = 'comment'
+}
 
 interface ImageServiceConfig {
   baseUrl: string;
-  imagesPath: string;
-  defaultImage: string;
+  basePath: string;
+  productImagesPath: string;
+  commentImagesPath: string;
+  defaultProductImage: string;
+  defaultCommentImage: string;
   endpoint: string;
 }
 
@@ -15,10 +25,9 @@ interface ImageInfo {
   url: string;
   existe: boolean;
   es_defecto: boolean;
-  es_principal?: boolean;
   alt_text?: string | null;
-  orden?: number;
   ruta_completa?: string;
+  tipo?: ImageType;
 }
 
 class ImageService {
@@ -26,29 +35,83 @@ class ImageService {
 
   constructor(config: ImageServiceConfig) {
     this.config = config;
+    this.ensureDirectoriesExist();
   }
 
   /**
-   * Genera una URL completa para una imagen
+   * Asegura que los directorios de imágenes existan
    */
-  public generateImageUrl(imageName: string | null): string {
+  private ensureDirectoriesExist(): void {
+    const directories = [
+      this.config.basePath,
+      this.config.productImagesPath,
+      this.config.commentImagesPath
+    ];
+
+    directories.forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        try {
+          fs.mkdirSync(dir, { recursive: true });
+          logger.info(`Directorio creado: ${dir}`);
+        } catch (error) {
+          logger.error(`Error al crear directorio ${dir}:`, error);
+        }
+      }
+    });
+  }
+
+  /**
+   * Obtiene la ruta del directorio según el tipo de imagen
+   */
+  private getImagesPath(imageType: ImageType): string {
+    switch (imageType) {
+      case ImageType.PRODUCT:
+        return this.config.productImagesPath;
+      case ImageType.COMMENT:
+        return this.config.commentImagesPath;
+      default:
+        return this.config.basePath;
+    }
+  }
+
+  /**
+   * Obtiene la imagen por defecto según el tipo
+   */
+  private getDefaultImage(imageType: ImageType): string {
+    switch (imageType) {
+      case ImageType.PRODUCT:
+        return this.config.defaultProductImage;
+      case ImageType.COMMENT:
+        return this.config.defaultCommentImage;
+      default:
+        return this.config.defaultProductImage;
+    }
+  }
+
+  /**
+   * Genera una URL completa para una imagen según su tipo
+   */
+  public generateImageUrl(imageName: string | null, imageType: ImageType = ImageType.PRODUCT): string {
     if (!imageName || imageName.trim() === '') {
-      return this.getDefaultImageUrl();
+      return this.getDefaultImageUrl(imageType);
     }
 
     if (!this.isValidImageName(imageName)) {
       logger.warn(`Nombre de imagen inválido detectado: ${imageName}`);
-      return this.getDefaultImageUrl();
+      return this.getDefaultImageUrl(imageType);
     }
 
-    return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/images/${imageName}`;
+    const endpoint = imageType === ImageType.COMMENT ? 'comment-images' : 'images';
+    return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/${endpoint}/${imageName}`;
   }
 
   /**
-   * Genera URL de imagen por defecto
+   * Genera URL de imagen por defecto según el tipo
    */
-  private getDefaultImageUrl(): string {
-    return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/images/${this.config.defaultImage}`;
+  private getDefaultImageUrl(imageType: ImageType): string {
+    const defaultImage = this.getDefaultImage(imageType);
+    const endpoint = imageType === ImageType.COMMENT ? 'comment-images' : 'images';
+    return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/${endpoint}/${defaultImage}`;
   }
 
   /**
@@ -71,8 +134,7 @@ class ImageService {
       return false;
     }
 
-    // ✅ Simplificar validación - solo nombres de archivo sin rutas
-    // Ya no necesitamos validar rutas porque solo guardamos nombres de archivo
+    // Solo nombres de archivo sin rutas
     if (imageName.includes('/') || imageName.includes('\\')) {
       logger.warn(`Nombre de imagen contiene caracteres de ruta no permitidos: ${imageName}`);
       return false;
@@ -84,13 +146,14 @@ class ImageService {
   /**
    * Verifica si un archivo de imagen existe físicamente
    */
-  public imageExists(imageName: string): boolean {
+  public imageExists(imageName: string, imageType: ImageType = ImageType.PRODUCT): boolean {
     if (!imageName || !this.isValidImageName(imageName)) {
       return false;
     }
 
     try {
-      const filePath = path.join(this.config.imagesPath, imageName);
+      const imagesPath = this.getImagesPath(imageType);
+      const filePath = path.join(imagesPath, imageName);
       return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
     } catch (error) {
       logger.error(`Error al verificar existencia de imagen ${imageName}:`, error);
@@ -103,35 +166,32 @@ class ImageService {
    */
   public async transformProductWithImageUrls(producto: any): Promise<any> {
     try {
-      // Convertir el producto a objeto plano
       const productData = producto.toJSON ? producto.toJSON() : producto;
 
       // Obtener todas las imágenes del producto
       const imagenes = await ProductoImagen.findAll({
-        where: { id_producto: productData.id_producto },
+        where: { 
+          id_producto: productData.id_producto
+        },
         order: [['es_principal', 'DESC'], ['orden', 'ASC']]
       });
 
       // Transformar imágenes con estructura consistente
       const imagenesTransformadas = imagenes.map(imagen => ({
-        url: this.generateImageUrl(imagen.url_imagen),
+        url: this.generateImageUrl(imagen.url_imagen, ImageType.PRODUCT),
         alt_text: imagen.alt_text,
         es_principal: imagen.es_principal,
-        orden: imagen.orden
+        orden: imagen.orden,
+        tipo: ImageType.PRODUCT
       }));
 
-      // Encontrar la imagen principal
-      const imagenPrincipal = imagenes.find(img => img.es_principal);
-      
-      // Si no hay imagen principal, usar la primera imagen disponible
-      const imagenDefault = imagenPrincipal || imagenes[0];
-      
       return {
         ...productData,
-        imagen_url: imagenDefault ? this.generateImageUrl(imagenDefault.url_imagen) : this.getDefaultImageUrl(),
-        imagen_disponible: imagenes.length > 0,
         imagenes: imagenesTransformadas,
-        imagen_principal_url: imagenPrincipal ? this.generateImageUrl(imagenPrincipal.url_imagen) : null
+        imagen_url: imagenesTransformadas.length > 0 ? imagenesTransformadas[0].url : this.getDefaultImageUrl(ImageType.PRODUCT),
+        tiene_imagenes: imagenes.length > 0,
+        cantidad_imagenes: imagenes.length,
+        imagen_disponible: imagenes.length > 0
       };
     } catch (error) {
       logger.error('Error al transformar producto con imágenes:', {
@@ -139,7 +199,14 @@ class ImageService {
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
       
-      return producto.toJSON ? producto.toJSON() : producto;
+      return {
+        ...(producto.toJSON ? producto.toJSON() : producto),
+        imagen_url: this.getDefaultImageUrl(ImageType.PRODUCT),
+        imagenes: [],
+        tiene_imagenes: false,
+        cantidad_imagenes: 0,
+        imagen_disponible: false
+      };
     }
   }
 
@@ -158,10 +225,9 @@ class ImageService {
    */
   public async transformCommentWithImageUrls(comentario: any): Promise<any> {
     try {
-      // Convertir el comentario a objeto plano
       const commentData = comentario.toJSON ? comentario.toJSON() : comentario;
 
-      // Importar el modelo ComentarioImagen dinámicamente para evitar dependencias circulares
+      // Importar el modelo ComentarioImagen dinámicamente
       const { default: ComentarioImagen } = await import('../models/ComentarioImagen.js');
 
       // Obtener todas las imágenes del comentario
@@ -169,15 +235,15 @@ class ImageService {
         where: { 
           id_comentario: commentData.id_comentario
         },
-        order: [['es_principal', 'DESC'], ['orden', 'ASC']]
+        order: [['fyh_creacion', 'ASC']]
       });
 
       // Transformar imágenes con estructura consistente
       const imagenesTransformadas = imagenes.map(imagen => ({
-        url: this.generateImageUrl(imagen.url_imagen),
+        id_imagen: imagen.id_imagen,
+        imagen_url: this.generateImageUrl(imagen.url_imagen, ImageType.COMMENT),
         alt_text: imagen.alt_text,
-        es_principal: imagen.es_principal,
-        orden: imagen.orden
+        tipo: ImageType.COMMENT
       }));
 
       return {
@@ -209,19 +275,20 @@ class ImageService {
   /**
    * Obtiene información detallada de una imagen
    */
-  public async getImageInfo(imageName: string | null, productId?: number): Promise<ImageInfo> {
-    const existe = imageName ? this.imageExists(imageName) : false;
+  public async getImageInfo(imageName: string | null, imageType: ImageType = ImageType.PRODUCT, productId?: number): Promise<ImageInfo> {
+    const existe = imageName ? this.imageExists(imageName, imageType) : false;
     const esDefecto = !imageName || !existe;
-    const url = this.generateImageUrl(imageName);
+    const url = this.generateImageUrl(imageName, imageType);
 
     const info: ImageInfo = {
       nombre: imageName,
       url: url,
       existe: existe,
-      es_defecto: esDefecto
+      es_defecto: esDefecto,
+      tipo: imageType
     };
 
-    if (productId && imageName) {
+    if (productId && imageName && imageType === ImageType.PRODUCT) {
       try {
         const imagen = await ProductoImagen.findOne({
           where: {
@@ -231,9 +298,7 @@ class ImageService {
         });
 
         if (imagen) {
-          info.es_principal = imagen.es_principal;
           info.alt_text = imagen.alt_text;
-          info.orden = imagen.orden;
         }
       } catch (error) {
         logger.error(`Error al obtener información adicional de imagen para producto ${productId}:`, error);
@@ -241,7 +306,8 @@ class ImageService {
     }
 
     if (process.env.NODE_ENV === 'development' && imageName && existe) {
-      info.ruta_completa = path.join(this.config.imagesPath, imageName);
+      const imagesPath = this.getImagesPath(imageType);
+      info.ruta_completa = path.join(imagesPath, imageName);
     }
 
     return info;
@@ -251,79 +317,111 @@ class ImageService {
    * Valida la configuración del servicio
    */
   public validateConfiguration(): boolean {
-    try {
-      if (!fs.existsSync(this.config.imagesPath)) {
-        logger.error(`Directorio de imágenes no existe: ${this.config.imagesPath}`);
+    const directories = [
+      this.config.basePath,
+      this.config.productImagesPath,
+      this.config.commentImagesPath
+    ];
+
+    for (const dir of directories) {
+      if (!fs.existsSync(dir)) {
+        logger.error(`Directorio de imágenes no existe: ${dir}`);
         return false;
       }
-
-      const defaultImagePath = path.join(this.config.imagesPath, this.config.defaultImage);
-      if (!fs.existsSync(defaultImagePath)) {
-        logger.warn(`Imagen por defecto no encontrada: ${defaultImagePath}`);
-      }
-
-      logger.info('Configuración del servicio de imágenes validada correctamente');
-      return true;
-    } catch (error) {
-      logger.error('Error al validar configuración del servicio de imágenes:', error);
-      return false;
     }
+
+    // Verificar imágenes por defecto
+    const defaultProductPath = path.join(this.config.productImagesPath, this.config.defaultProductImage);
+    const defaultCommentPath = path.join(this.config.commentImagesPath, this.config.defaultCommentImage);
+
+    if (!fs.existsSync(defaultProductPath)) {
+      logger.warn(`Imagen por defecto de productos no encontrada: ${defaultProductPath}`);
+    }
+
+    if (!fs.existsSync(defaultCommentPath)) {
+      logger.warn(`Imagen por defecto de comentarios no encontrada: ${defaultCommentPath}`);
+    }
+
+    return true;
   }
 
   /**
-   * Obtiene estadísticas del servicio de imágenes
+   * Obtiene estadísticas de imágenes
    */
   public async getImageStats(): Promise<{
     total_imagenes: number;
     imagenes_por_extension: { [key: string]: number };
     tamaño_total_mb: number;
     imagenes_por_producto: number;
+    imagenes_productos: number;
+    imagenes_comentarios: number;
   }> {
+    const stats = {
+      total_imagenes: 0,
+      imagenes_por_extension: {} as { [key: string]: number },
+      tamaño_total_mb: 0,
+      imagenes_por_producto: 0,
+      imagenes_productos: 0,
+      imagenes_comentarios: 0
+    };
+
     try {
-      const files = fs.readdirSync(this.config.imagesPath);
-      const imageFiles = files.filter(file => this.isValidImageName(file));
-      
-      const stats = {
-        total_imagenes: imageFiles.length,
-        imagenes_por_extension: {} as { [key: string]: number },
-        tamaño_total_mb: 0,
-        imagenes_por_producto: 0
-      };
+      // Contar imágenes de productos
+      const productFiles = fs.readdirSync(this.config.productImagesPath);
+      const productImages = productFiles.filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext);
+      });
 
-      let totalSize = 0;
+      // Contar imágenes de comentarios
+      const commentFiles = fs.readdirSync(this.config.commentImagesPath);
+      const commentImages = commentFiles.filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext);
+      });
 
-      for (const file of imageFiles) {
+      // Combinar todas las imágenes para estadísticas generales
+      const allImages = [...productImages, ...commentImages];
+
+      stats.total_imagenes = allImages.length;
+      stats.imagenes_productos = productImages.length;
+      stats.imagenes_comentarios = commentImages.length;
+
+      // Calcular tamaño total y extensiones
+      for (const file of allImages) {
         const ext = path.extname(file).toLowerCase();
         stats.imagenes_por_extension[ext] = (stats.imagenes_por_extension[ext] || 0) + 1;
-        
+
         try {
-          const filePath = path.join(this.config.imagesPath, file);
-          const fileStats = fs.statSync(filePath);
-          totalSize += fileStats.size;
+          const filePath = allImages.includes(file) 
+            ? path.join(this.config.productImagesPath, file)
+            : path.join(this.config.commentImagesPath, file);
+          
+          if (fs.existsSync(filePath)) {
+            const fileStats = fs.statSync(filePath);
+            stats.tamaño_total_mb += fileStats.size / (1024 * 1024);
+          }
         } catch (error) {
-          logger.debug(`Error al obtener tamaño de ${file}:`, error);
+          logger.warn(`Error al obtener estadísticas de archivo ${file}:`, error);
         }
       }
 
-      stats.tamaño_total_mb = Math.round((totalSize / (1024 * 1024)) * 100) / 100;
-
-      // Obtener promedio de imágenes por producto
+      // Calcular promedio de imágenes por producto
       const totalProductos = await ProductoImagen.count({
         distinct: true,
         col: 'id_producto'
       });
 
       const totalImagenes = await ProductoImagen.count();
-      
-      stats.imagenes_por_producto = totalProductos > 0 
-        ? Math.round((totalImagenes / totalProductos) * 100) / 100 
+      stats.imagenes_por_producto = totalProductos > 0
+        ? Math.round((totalImagenes / totalProductos) * 100) / 100
         : 0;
 
-      return stats;
     } catch (error) {
       logger.error('Error al obtener estadísticas de imágenes:', error);
-      throw error;
     }
+
+    return stats;
   }
 
   /**
@@ -344,13 +442,13 @@ class ImageService {
         return false;
       }
 
-      // Desactivar todas las imágenes principales del producto
+      // Quitar principal de todas las imágenes del producto
       await ProductoImagen.update(
         { es_principal: false },
         { where: { id_producto: productId } }
       );
 
-      // Activar la imagen especificada como principal
+      // Establecer la imagen seleccionada como principal
       await ProductoImagen.update(
         { es_principal: true },
         { where: { id_imagen: imageId } }
@@ -369,25 +467,19 @@ class ImageService {
    */
   public async reorderImages(productId: number, imageOrder: number[]): Promise<boolean> {
     try {
-      // Verificar que todas las imágenes pertenecen al producto
       const imagenes = await ProductoImagen.findAll({
         where: { id_producto: productId }
       });
 
-      if (imagenes.length !== imageOrder.length) {
-        logger.warn(`Número de imágenes no coincide con el orden proporcionado para producto ${productId}`);
-        return false;
-      }
-
-      // Actualizar el orden de cada imagen
       for (let i = 0; i < imageOrder.length; i++) {
+        const imageId = imageOrder[i];
         await ProductoImagen.update(
-          { orden: i },
-          { where: { id_imagen: imageOrder[i] } }
+          { orden: i + 1 },
+          { where: { id_imagen: imageId, id_producto: productId } }
         );
       }
 
-      logger.info(`Orden de imágenes actualizado para producto ${productId}`);
+      logger.info(`Imágenes reordenadas para producto ${productId}`);
       return true;
     } catch (error) {
       logger.error('Error al reordenar imágenes:', error);
@@ -402,21 +494,19 @@ class ImageService {
     try {
       const imagen = await ProductoImagen.findByPk(imageId);
       if (!imagen) {
-        logger.warn(`Imagen ${imageId} no encontrada`);
         return false;
       }
 
-      // Eliminar archivo físico si existe
-      const filePath = path.join(this.config.imagesPath, imagen.url_imagen);
+      // Eliminar archivo físico
+      const filePath = path.join(this.config.productImagesPath, imagen.url_imagen);
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        logger.info(`Archivo físico eliminado: ${filePath}`);
+        await fs.promises.unlink(filePath);
       }
 
       // Eliminar registro de la base de datos
       await imagen.destroy();
 
-      logger.info(`Imagen ${imageId} eliminada exitosamente`);
+      logger.info(`Imagen de producto eliminada: ${imagen.url_imagen}`);
       return true;
     } catch (error) {
       logger.error('Error al eliminar imagen de producto:', error);
@@ -434,17 +524,11 @@ class ImageService {
         order: [['es_principal', 'DESC'], ['orden', 'ASC']]
       });
 
-      return imagenes.map(imagen => ({
-        nombre: imagen.url_imagen,
-        url: this.generateImageUrl(imagen.url_imagen),
-        existe: this.imageExists(imagen.url_imagen),
-        es_defecto: false,
-        es_principal: imagen.es_principal,
-        alt_text: imagen.alt_text,
-        orden: imagen.orden
-      }));
+      return await Promise.all(
+        imagenes.map(imagen => this.getImageInfo(imagen.url_imagen, ImageType.PRODUCT, productId))
+      );
     } catch (error) {
-      logger.error(`Error al obtener imágenes del producto ${productId}:`, error);
+      logger.error('Error al obtener imágenes de producto:', error);
       return [];
     }
   }
@@ -456,18 +540,18 @@ class ImageService {
     try {
       const mainImages = await ProductoImagen.count({
         where: { 
-          id_producto: productId, 
-          es_principal: true 
+          id_producto: productId,
+          es_principal: true
         }
       });
-      
+
       if (newMainImageId) {
-        // Si se está estableciendo una nueva imagen principal, permitir hasta 1
+        // Si estamos estableciendo una nueva imagen principal, debe haber máximo 1
         return mainImages <= 1;
+      } else {
+        // Si no estamos estableciendo una nueva, debe haber exactamente 1
+        return mainImages === 1;
       }
-      
-      // Debe haber exactamente una imagen principal
-      return mainImages === 1;
     } catch (error) {
       logger.error('Error al validar imagen principal:', error);
       return false;
@@ -479,29 +563,27 @@ class ImageService {
    */
   public async cleanOrphanImages(): Promise<number> {
     try {
-      const allFiles = fs.readdirSync(this.config.imagesPath);
-      const imageFiles = allFiles.filter(file => this.isValidImageName(file));
-      
+      const allFiles = fs.readdirSync(this.config.productImagesPath);
       let deletedCount = 0;
 
-      for (const file of imageFiles) {
-        // Verificar si el archivo está referenciado en la base de datos
+      for (const file of allFiles) {
+        if (!this.isValidImageName(file)) continue;
+
         const existsInDB = await ProductoImagen.findOne({
           where: { url_imagen: file }
         });
 
         if (!existsInDB) {
-          const filePath = path.join(this.config.imagesPath, file);
-          fs.unlinkSync(filePath);
+          const filePath = path.join(this.config.productImagesPath, file);
+          await fs.promises.unlink(filePath);
           deletedCount++;
           logger.info(`Imagen huérfana eliminada: ${file}`);
         }
       }
 
-      logger.info(`Limpieza completada. ${deletedCount} imágenes huérfanas eliminadas`);
       return deletedCount;
     } catch (error) {
-      logger.error('Error en limpieza de imágenes huérfanas:', error);
+      logger.error('Error al limpiar imágenes huérfanas:', error);
       return 0;
     }
   }
@@ -518,68 +600,46 @@ class ImageService {
         }
       });
 
-      if (!imagenPrincipal) {
-        // Si no hay imagen principal, buscar la primera imagen disponible
-        const primeraImagen = await ProductoImagen.findOne({
-          where: { id_producto: productId },
-          order: [['orden', 'ASC']]
-        });
-
-        if (!primeraImagen) {
-          return null;
-        }
-
-        return {
-          nombre: primeraImagen.url_imagen,
-          url: this.generateImageUrl(primeraImagen.url_imagen),
-          existe: this.imageExists(primeraImagen.url_imagen),
-          es_defecto: false,
-          es_principal: false,
-          alt_text: primeraImagen.alt_text,
-          orden: primeraImagen.orden,
-          ruta_completa: path.join(this.config.imagesPath, primeraImagen.url_imagen)
-        };
+      if (imagenPrincipal) {
+        return await this.getImageInfo(imagenPrincipal.url_imagen, ImageType.PRODUCT, productId);
       }
 
-      return {
-        nombre: imagenPrincipal.url_imagen,
-        url: this.generateImageUrl(imagenPrincipal.url_imagen),
-        existe: this.imageExists(imagenPrincipal.url_imagen),
-        es_defecto: false,
-        es_principal: true,
-        alt_text: imagenPrincipal.alt_text,
-        orden: imagenPrincipal.orden,
-        ruta_completa: path.join(this.config.imagesPath, imagenPrincipal.url_imagen)
-      };
-    } catch (error) {
-      logger.error('Error al obtener imagen principal:', {
-        productId,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+      // Si no hay imagen principal, obtener la primera imagen
+      const primeraImagen = await ProductoImagen.findOne({
+        where: { id_producto: productId },
+        order: [['orden', 'ASC']]
       });
+
+      if (primeraImagen) {
+        const info = await this.getImageInfo(primeraImagen.url_imagen, ImageType.PRODUCT, productId);
+        if (process.env.NODE_ENV === 'development') {
+          info.ruta_completa = path.join(this.config.productImagesPath, primeraImagen.url_imagen);
+        }
+        return info;
+      }
+
+      return null;
+    } catch (error) {
+      logger.error('Error al obtener imagen principal:', error);
       return null;
     }
   }
 }
 
-// Crear instancia singleton del servicio
+// Singleton pattern para el servicio de imágenes
 let imageServiceInstance: ImageService | null = null;
 
-/**
- * Inicializa el servicio de imágenes con la configuración proporcionada
- */
 export function initializeImageService(config: ImageServiceConfig): ImageService {
-  imageServiceInstance = new ImageService(config);
-  
-  if (!imageServiceInstance.validateConfiguration()) {
-    logger.warn('El servicio de imágenes se inicializó con configuración incompleta');
+  if (!imageServiceInstance) {
+    imageServiceInstance = new ImageService(config);
+    
+    if (!imageServiceInstance.validateConfiguration()) {
+      logger.warn('La configuración del servicio de imágenes tiene problemas');
+    }
   }
-  
   return imageServiceInstance;
 }
 
-/**
- * Obtiene la instancia actual del servicio de imágenes
- */
 export function getImageService(): ImageService | null {
   return imageServiceInstance;
 }

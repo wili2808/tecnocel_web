@@ -7,7 +7,6 @@ export interface ComentarioImagen {
   ruta_imagen: string;
   imagen_url: string;
   alt_text?: string;
-  orden: number;
 }
 
 export interface Cliente {
@@ -75,13 +74,19 @@ export interface CrearComentarioData {
     tipo_archivo: string;
     tamaño_archivo?: number;
     alt_text?: string;
-    orden: number;
   }[];
 }
 
 export interface ActualizarComentarioData {
   comentario?: string;
   calificacion?: number;
+  imagenes?: {
+    nombre_archivo: string;
+    ruta_imagen: string;
+    tipo_archivo: string;
+    tamaño_archivo?: number;
+    alt_text?: string;
+  }[];
 }
 
 export interface ObtenerComentariosParams {
@@ -154,6 +159,25 @@ const commentService = {
       await axiosInstance.delete(`/comentarios/${idComentario}`);
     } catch (error) {
       console.error('Error deleting comment:', error);
+      throw error;
+    }
+  },
+
+  // Eliminar imagen de comentario
+  eliminarImagenComentario: async (idComentario: number, idImagen: number): Promise<void> => {
+    try {
+      console.log('🔍 Intentando eliminar imagen:', { idComentario, idImagen });
+      console.log('🔑 Token en localStorage:', localStorage.getItem('token') ? 'Presente' : 'Ausente');
+      
+      const response = await axiosInstance.delete(`/comentarios/${idComentario}/imagenes/${idImagen}`);
+      console.log('✅ Imagen eliminada exitosamente:', response.data);
+    } catch (error: any) {
+      console.error('❌ Error deleting comment image:', error);
+      console.error('📊 Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
       throw error;
     }
   },

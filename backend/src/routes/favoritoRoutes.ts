@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { FavoritoController } from '../controllers/FavoritoController.js';
+import { verificarTokenCliente } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
 // Todas las rutas requieren autenticación del cliente
-// TODO: Agregar middleware de autenticación de cliente
+router.use(verificarTokenCliente);
 
 // Rutas de favoritos
 router.get('/cliente/:id_cliente', FavoritoController.getFavoritosCliente);
