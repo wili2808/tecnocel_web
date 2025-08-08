@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useFavoritos } from '../../../hooks/useFavoritos';
 import ProductImage from '../ProductImage';
 import styles from './ProductCardExtensive.module.css';
 import type { ProductCardProps } from '../../../types/product';
@@ -30,7 +29,6 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     const { agregarItem, estado } = useCarrito();
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
-    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritos();
     const navigate = useNavigate();
 
     const formatPrice = (price: string | number): string => {
@@ -104,40 +102,7 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         }
     };
 
-    /**
-     * Maneja el evento de toggle de favoritos
-     */
-    const handleToggleFavorite = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!isAuthenticated) {
-            showNotification(
-                '¡Inicia sesión para agregar productos a favoritos!',
-                'info',
-                4000,
-                {
-                    label: 'Ir al login',
-                    onClick: () => navigate('/login')
-                }
-            );
-            return;
-        }
-
-        if (favoritoLoading) {
-            return;
-        }
-
-        try {
-            await toggleFavorito(id_producto);
-        } catch (error) {
-            console.error('Error al actualizar favoritos:', error);
-            showNotification('Error al actualizar favoritos. Por favor, intente nuevamente.', 'error', 5000);
-        }
-    };
-
     const stockText = stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
-    const isProductFavorite = isFavorito(id_producto);
 
     // Determinar el texto y estado del botón
     const getButtonContent = () => {
@@ -201,24 +166,6 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                     {/* Indicador de oferta */}
                     {renderOfferIndicator()}
 
-                    {/* Botón de favoritos */}
-                    <button
-                        className={`${styles.favoriteButton} ${isProductFavorite ? styles.favoriteActive : styles.favoriteInactive}`}
-                        onClick={handleToggleFavorite}
-                        disabled={favoritoLoading}
-                        aria-label={isProductFavorite ? `Quitar ${nombre} de favoritos` : `Agregar ${nombre} a favoritos`}
-                        type="button"
-                    >
-                        <svg
-                            viewBox="0 0 24 24"
-                            className={styles.favoriteIcon}
-                            fill={isProductFavorite ? "currentColor" : "none"}
-                            stroke="currentColor"
-                            strokeWidth="2"
-                        >
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                    </button>
 
                     {isOutOfStock && (
                         <div className={styles.outOfStockOverlay}>
