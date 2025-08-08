@@ -79,6 +79,16 @@
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
 
+  /* === COLORES DE ESTADO CON VARIANTES === */
+  --color-success-light: #D1FAE5;
+  --color-success-dark: #065F46;
+  --color-error-light: #FEE2E2;
+  --color-error-dark: #991B1B;
+  --color-warning-light: #FEF3C7;
+  --color-warning-dark: #92400E;
+  --color-info-light: #DBEAFE;
+  --color-info-dark: #1E40AF;
+
 
 
   /* === COLORES COMUNES CON TRANSPARENCIAS === */

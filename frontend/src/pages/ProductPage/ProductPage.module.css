@@ -370,12 +370,14 @@
 @media (max-width: 480px) {
   .productContent {
     padding: var(--spacing-md) var(--container-padding);
+    gap: var(--spacing-lg);
   }
 
   .breadcrumb {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
   }
 
   .breadcrumbLink,

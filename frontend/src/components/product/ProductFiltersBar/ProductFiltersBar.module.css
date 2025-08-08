@@ -5,7 +5,6 @@
   height: 100%;
   overflow: hidden;
   position: relative;
-
 }
 
 /* Secciones de filtros */
@@ -91,7 +90,6 @@
   position: relative;
   overflow: hidden;
   margin-top: auto;
-
   background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
@@ -126,7 +124,7 @@
 @media (max-width: 768px) {
   .filtersBar {
     background-color: var(--background-secondary);
-    border-radius: var(--border-radius-md);
+    border-radius: 0;
     flex-direction: row;
     align-items: center;
     gap: var(--spacing-sm);
@@ -134,6 +132,10 @@
     overflow: visible;
     min-height: auto;
     height: auto;
+    border-bottom: 1px solid var(--border-color-light);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
   }
   
   /* Ocultar títulos en móvil */
@@ -177,6 +179,8 @@
     margin-left: var(--spacing-xs);
     padding: var(--spacing-xs);
     border-radius: var(--border-radius-md);
+    background: var(--background-elevated);
+    border: 1px solid var(--border-color-light);
   }
   
   .resultsCounterContent {
@@ -199,7 +203,7 @@
 @media (max-width: 600px) {
   .filtersBar {
     gap: var(--spacing-xs);
-    padding: 6px;
+    padding: var(--spacing-xs);
   }
   
   .sortingSection {
@@ -218,5 +222,27 @@
   
   .resultsText {
     font-size: 6px;
+  }
+}
+
+/* Layout móvil muy compacto */
+@media (max-width: 480px) {
+  .filtersBar {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+  
+  .resultsCounter {
+    min-width: 60px;
+    width: 60px;
+    padding: 3px;
+  }
+  
+  .resultsNumber {
+    font-size: 9px;
+  }
+  
+  .resultsText {
+    font-size: 5px;
   }
 } 

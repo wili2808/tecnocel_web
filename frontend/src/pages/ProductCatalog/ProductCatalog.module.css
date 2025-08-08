@@ -97,37 +97,42 @@
   }
 }
 
-/* Layout móvil NO FIJO - flujo normal */
+/* Layout móvil con filtro fijo arriba y contenido scrolleable */
 @media (max-width: 768px) {
   .catalogFullscreen {
-    position: relative;
-    top: 0;
-    width: 100%;
-    height: auto;
-    min-height: calc(100vh - var(--navbar-height-mobile));
-    overflow: visible;
+    position: fixed;
+    top: var(--navbar-height-mobile);
+    width: 100vw;
+    height: calc(100vh - var(--navbar-height-mobile));
+    overflow: hidden;
   }
   
   .catalogContainer {
     display: flex;
     flex-direction: column;
-    height: auto;
-    min-height: calc(100vh - var(--navbar-height-mobile));
-    overflow: visible;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--container-padding);
+    height: 100%;
+    overflow: hidden;
+    gap: 0;
+    padding: 0;
+    max-width: none;
+    margin: 0;
+    box-shadow: none;
   }
   
   .filtersSidebar {
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
     height: auto;
     max-height: none;
     overflow: visible;
-    border-radius: var(--border-radius-md);
-    border: 1px solid var(--border-color);
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     flex-shrink: 0;
     background: var(--background-secondary);
+    padding: var(--spacing-sm) var(--container-padding);
   }
   
   .filtersSidebar:hover {
@@ -136,27 +141,28 @@
   }
   
   .productsMainContent {
-    height: auto;
+    height: 100%;
     min-height: 0;
     flex: 1;
-    overflow: visible;
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    padding: 0;
+    border-radius: 0;
+    background: var(--background-primary);
   }
 }
 
 @media (max-width: 480px) {
   .catalogContainer {
-    gap: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--container-padding);
+    gap: 0;
+    padding: 0;
   }
   
   .filtersSidebar {
-    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-xs) var(--container-padding);
+    border-bottom: 1px solid var(--border-color-light);
   }
   
   .productsMainContent {
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius-sm);
+    padding: 0;
   }
 } 

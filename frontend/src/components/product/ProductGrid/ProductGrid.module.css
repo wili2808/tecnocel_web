@@ -14,6 +14,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: var(--spacing-xs);
+  padding: var(--spacing-sm);
   
   /* Scrollbar para Firefox */
   scrollbar-width: thin;
@@ -98,13 +99,16 @@
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-md);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background-color var(--transition-normal) var(--transition-curve);
+  transition: all var(--transition-normal) var(--transition-curve);
+  box-shadow: var(--shadow-button-primary);
 }
 
 .retryButton:hover {
   background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-primary-hover);
 }
 
 .emptyContainer {
@@ -113,24 +117,22 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-2xl) 0;
-  color: var(--text-secondary);
-  font-size: var(--font-size-lg);
   text-align: center;
+  color: var(--text-secondary);
 }
 
 .emptyIcon {
-  font-size: 4rem;
+  font-size: 48px;
   margin-bottom: var(--spacing-md);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .errorIcon {
-  font-size: 4rem;
+  font-size: 48px;
   margin-bottom: var(--spacing-md);
   color: var(--color-error);
 }
 
-/* Animaciones */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -142,11 +144,10 @@
   }
 }
 
-/* Media Queries */
+/* Responsive */
 @media (max-width: 1024px) {
   .productsGrid {
     gap: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
   }
   
   .productsGrid::-webkit-scrollbar {
@@ -157,12 +158,29 @@
 @media (max-width: 768px) {
   .productsGrid {
     gap: var(--spacing-sm);
-    padding: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background: var(--background-primary);
     height: 100%;
+    overflow-y: auto;
   }
   
   .productsGrid::-webkit-scrollbar {
     width: 4px;
+  }
+  
+  .loadingContainer,
+  .errorContainer,
+  .emptyContainer {
+    padding: var(--spacing-xl) 0;
+  }
+  
+  .errorMessage {
+    font-size: var(--font-size-md);
+  }
+  
+  .retryButton {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -173,7 +191,7 @@
   }
   
   .productsGrid::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
   }
   
   .productsGrid::-webkit-scrollbar-track {
@@ -183,15 +201,15 @@
   .loadingContainer,
   .errorContainer,
   .emptyContainer {
-    padding: var(--spacing-xl) var(--spacing-md);
+    padding: var(--spacing-lg) 0;
   }
   
   .errorMessage {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-sm);
   }
   
   .retryButton {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
 } 
