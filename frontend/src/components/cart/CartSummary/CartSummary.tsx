@@ -63,7 +63,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
         return sum + parseFloat(item.subtotal.toString());
     }, 0);
 
-    const shipping = 0; // Envío gratis
     const discount = subtotalOriginal - subtotalProducts; // Descuentos por ofertas
     const discountCoupon = 0; // Descuentos por cupón (futuro)
 

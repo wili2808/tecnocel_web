@@ -19,7 +19,8 @@ export const useCategories = (): UseCategoriesReturn => {
         setLoading(true);
         setError(null);
         const data = await productService.getCategorias();
-        setCategories(data);
+        // Asegurar que siempre sea un array
+        setCategories(data || []);
       } catch (error: any) {
         setError(error.response?.data?.message || error.message || 'Error al cargar las categorías');
         setCategories([]);
@@ -32,7 +33,7 @@ export const useCategories = (): UseCategoriesReturn => {
   }, []);
 
   return {
-    categories,
+    categories: categories || [], // Asegurar que siempre sea un array
     loading,
     error,
   };

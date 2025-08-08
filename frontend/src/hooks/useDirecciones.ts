@@ -1,134 +1,83 @@
-import { useState, useEffect, useCallback } from 'react';
-import { direccionService, CreateDireccionData } from '../services/direccionService';
-import { Direccion } from '../types/product';
+import { useState, useEffect } from 'react';
+import { direccionService } from '../services/direccionService';
+import type { CreateDireccionData } from '../services/direccionService';
+import type { Direccion } from '../types/product';
 import { useAuth } from '../contexts/AuthContext';
 
-export const useDirecciones = () => {
+interface UseDireccionesReturn {
+  direcciones: Direccion[];
+  loading: boolean;
+  error: string | null;
+  createDireccion: (data: CreateDireccionData) => Promise<void>;
+  updateDireccion: (id: number, data: Partial<CreateDireccionData>) => Promise<void>;
+  deleteDireccion: (id: number) => Promise<void>;
+  refetch: () => Promise<void>;
+}
+
+export const useDirecciones = (): UseDireccionesReturn => {
   const { user } = useAuth();
   const [direcciones, setDirecciones] = useState<Direccion[]>([]);
-  const [direccionPredeterminada, setDireccionPredeterminada] = useState<Direccion | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar direcciones del cliente
-  const loadDirecciones = useCallback(async () => {
+  const fetchDirecciones = async () => {
     if (!user?.id_cliente) return;
-
+    
     try {
       setLoading(true);
+      setError(null);
       const data = await direccionService.getDirecciones(user.id_cliente);
       setDirecciones(data);
-      
-      // Encontrar la dirección predeterminada
-      const predeterminada = data.find(d => d.es_predeterminada);
-      setDireccionPredeterminada(predeterminada || null);
-      
-      setError(null);
-    } catch (err) {
-      setError('Error al cargar direcciones');
-      console.error('Error loading direcciones:', err);
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || 'Error al cargar las direcciones');
     } finally {
       setLoading(false);
     }
-  }, [user?.id_cliente]);
+  };
 
-  // Crear nueva dirección
-  const createDireccion = useCallback(async (data: CreateDireccionData): Promise<Direccion | null> => {
-    if (!user?.id_cliente) return null;
-
+  const createDireccion = async (data: CreateDireccionData) => {
+    if (!user?.id_cliente) throw new Error('Usuario no autenticado');
+    
     try {
-      const nuevaDireccion = await direccionService.createDireccion(user.id_cliente, data);
-      setDirecciones(prev => [...prev, nuevaDireccion]);
-      
-      if (nuevaDireccion.es_predeterminada) {
-        setDireccionPredeterminada(nuevaDireccion);
-      }
-      
-      return nuevaDireccion;
-    } catch (error) {
-      console.error('Error al crear dirección:', error);
-      setError('Error al crear dirección');
-      return null;
+      await direccionService.createDireccion(user.id_cliente, data);
+      await fetchDirecciones();
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || 'Error al crear la dirección');
+      throw error;
     }
-  }, [user?.id_cliente]);
+  };
 
-  // Actualizar dirección
-  const updateDireccion = useCallback(async (id: number, data: Partial<CreateDireccionData>): Promise<boolean> => {
+  const updateDireccion = async (id: number, data: Partial<CreateDireccionData>) => {
     try {
-      const direccionActualizada = await direccionService.updateDireccion(id, data);
-      
-      setDirecciones(prev => 
-        prev.map(d => d.id_direccion === id ? direccionActualizada : d)
-      );
-      
-      if (direccionActualizada.es_predeterminada) {
-        setDireccionPredeterminada(direccionActualizada);
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Error al actualizar dirección:', error);
-      setError('Error al actualizar dirección');
-      return false;
+      await direccionService.updateDireccion(id, data);
+      await fetchDirecciones();
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || 'Error al actualizar la dirección');
+      throw error;
     }
-  }, []);
+  };
 
-  // Establecer como predeterminada
-  const setPredeterminada = useCallback(async (id: number): Promise<boolean> => {
-    try {
-      const direccionActualizada = await direccionService.setPredeterminada(id);
-      
-      // Actualizar todas las direcciones (solo una puede ser predeterminada)
-      setDirecciones(prev => 
-        prev.map(d => ({
-          ...d,
-          es_predeterminada: d.id_direccion === id
-        }))
-      );
-      
-      setDireccionPredeterminada(direccionActualizada);
-      return true;
-    } catch (error) {
-      console.error('Error al establecer dirección predeterminada:', error);
-      setError('Error al establecer dirección predeterminada');
-      return false;
-    }
-  }, []);
-
-  // Eliminar dirección
-  const deleteDireccion = useCallback(async (id: number): Promise<boolean> => {
+  const deleteDireccion = async (id: number) => {
     try {
       await direccionService.deleteDireccion(id);
-      
-      setDirecciones(prev => prev.filter(d => d.id_direccion !== id));
-      
-      // Si era la predeterminada, limpiar
-      if (direccionPredeterminada?.id_direccion === id) {
-        setDireccionPredeterminada(null);
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Error al eliminar dirección:', error);
-      setError('Error al eliminar dirección');
-      return false;
+      await fetchDirecciones();
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || 'Error al eliminar la dirección');
+      throw error;
     }
-  }, [direccionPredeterminada]);
+  };
 
-  // Cargar direcciones cuando cambie el usuario
   useEffect(() => {
-    loadDirecciones();
-  }, [loadDirecciones]);
+    fetchDirecciones();
+  }, [user?.id_cliente]);
 
   return {
     direcciones,
-    direccionPredeterminada,
     loading,
     error,
-    loadDirecciones,
     createDireccion,
     updateDireccion,
-    setPredeterminada,
-    deleteDireccion
+    deleteDireccion,
+    refetch: fetchDirecciones,
   };
 };

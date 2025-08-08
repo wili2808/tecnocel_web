@@ -17,6 +17,11 @@ const ProductCatalog: React.FC = () => {
         quickSearchCounts,
     } = useFilteredProducts();
 
+    // Asegurar que los datos sean seguros
+    const safeFilteredProducts = filteredProducts || [];
+    const safeCategories = categories || [];
+    const safeQuickSearchCounts = quickSearchCounts || {};
+
     return (
         <div className={styles.catalogFullscreen}>
             <div className={styles.catalogContainer}>
@@ -25,17 +30,17 @@ const ProductCatalog: React.FC = () => {
                     <ProductFiltersBar
                         filters={filters}
                         onFiltersChange={updateFilters}
-                        backendCategories={categories}
-                        totalProducts={totalProducts}
-                        filteredProducts={filteredProducts.length}
-                        quickSearchCounts={quickSearchCounts}
+                        backendCategories={safeCategories}
+                        totalProducts={totalProducts || 0}
+                        filteredProducts={safeFilteredProducts.length}
+                        quickSearchCounts={safeQuickSearchCounts}
                     />
                 </aside>
 
                 {/* Contenido principal con el grid de productos */}
                 <main className={styles.productsMainContent}>
                     <ProductGrid
-                        products={filteredProducts}
+                        products={safeFilteredProducts}
                         loading={loading}
                         error={error}
                         onRetry={refetch}

@@ -1,5 +1,5 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Product, ProductFilters, ProductsResponse, ProductoImagen } from '../types/product';
+import type { Product, ProductFilters, ProductoImagen } from '../types/product';
 
 interface GetProductsOptions {
   page?: number;
@@ -9,7 +9,7 @@ interface GetProductsOptions {
 
 const productService = {
   // Obtener lista de productos con paginación y filtros
-  getProducts: async ({ page = 1, limit = 12, filters }: GetProductsOptions = {}): Promise<ProductsResponse> => {
+  getProducts: async ({ page = 1, limit = 12, filters }: GetProductsOptions = {}): Promise<Product[]> => {
     try {
       const response = await axiosInstance.get('/almacen/productos', {
         params: {

@@ -1,29 +1,40 @@
 import { useState, useEffect } from 'react';
-import { marcaService } from '../services/marcaService';
-import { Marca } from '../types/product';
+import marcaService from '../services/marcaService';
+import type { Marca } from '../types/product';
 
-export const useMarcas = () => {
+interface UseMarcasReturn {
+  marcas: Marca[];
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export const useMarcas = (): UseMarcasReturn => {
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchMarcas = async () => {
-      try {
-        setLoading(true);
-        const data = await marcaService.getMarcas();
-        setMarcas(data);
-        setError(null);
-      } catch (err) {
-        setError('Error al cargar las marcas');
-        console.error('Error fetching marcas:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchMarcas = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await marcaService.getMarcas();
+      setMarcas(data);
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || 'Error al cargar las marcas');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMarcas();
   }, []);
 
-  return { marcas, loading, error };
+  return {
+    marcas,
+    loading,
+    error,
+    refetch: fetchMarcas,
+  };
 };

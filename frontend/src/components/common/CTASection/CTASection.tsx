@@ -1,22 +1,33 @@
-import React from 'react';
 import styles from './CTASection.module.css';
 
-const CTASection = () => (
-    <section className={styles.section}>
-        <div className={styles.container}>
-            <div className={styles.ctaCard}>
-                <h2 className={styles.title}>
-                    ¿Listo para personalizar tu pedido?
-                </h2>
-                <p className={styles.description}>
-                    Contáctanos para obtener una cotización personalizada para tu proyecto.
-                </p>
-                <button className={styles.button}>
-                    Solicitar Cotización
-                </button>
+interface CTASectionProps {
+    title: string;
+    description: string;
+    buttonText: string;
+    buttonLink: string;
+    className?: string;
+}
+
+export const CTASection: React.FC<CTASectionProps> = ({
+    title,
+    description,
+    buttonText,
+    buttonLink,
+    className = ''
+}) => {
+    return (
+        <section className={`${styles.ctaSection} ${className}`}>
+            <div className={styles.container}>
+                <div className={styles.content}>
+                    <h2 className={styles.title}>{title}</h2>
+                    <p className={styles.description}>{description}</p>
+                    <a href={buttonLink} className={styles.button}>
+                        {buttonText}
+                    </a>
+                </div>
             </div>
-        </div>
-    </section>
-);
+        </section>
+    );
+};
 
 export default CTASection; 

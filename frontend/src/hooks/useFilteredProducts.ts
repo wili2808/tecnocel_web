@@ -36,26 +36,29 @@ export const useFilteredProducts = (): UseFilteredProductsReturn => {
   const { categories, loading: categoriesLoading } = useCategories();
   const { filters, updateFilters, resetFilters } = useProductFilters();
 
+  // Asegurar que products siempre sea un array
+  const safeProducts = products || [];
+
   // Debug de búsquedas rápidas cuando cambian los productos (solo en desarrollo)
   useEffect(() => {
-    if (products.length > 0 && import.meta.env.DEV) {
-      debugQuickSearches(products);
+    if (safeProducts.length > 0 && import.meta.env.DEV) {
+      debugQuickSearches(safeProducts);
     }
-  }, [products.length]); // Solo cuando cambia la cantidad de productos
+  }, [safeProducts.length]); // Solo cuando cambia la cantidad de productos
 
   // Productos filtrados (memoizados)
   const filteredProducts = useMemo(() => {
-    return filterProducts(products, filters);
-  }, [products, filters]);
+    return filterProducts(safeProducts, filters);
+  }, [safeProducts, filters]);
 
   // Contadores de búsquedas rápidas
   const quickSearchCounts = useMemo(() => {
-    return getProductCountByQuickSearch(products);
-  }, [products]);
+    return getProductCountByQuickSearch(safeProducts);
+  }, [safeProducts]);
 
   return {
     // Datos de productos
-    allProducts: products,
+    allProducts: safeProducts,
     filteredProducts,
     loading,
     error,
@@ -71,7 +74,7 @@ export const useFilteredProducts = (): UseFilteredProductsReturn => {
     resetFilters,
     
     // Estadísticas
-    totalProducts: products.length,
+    totalProducts: safeProducts.length,
     quickSearchCounts,
   };
 }; 

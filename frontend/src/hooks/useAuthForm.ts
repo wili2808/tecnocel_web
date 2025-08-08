@@ -212,10 +212,8 @@ export const authValidationConfigs = {
         },
         confirmarContrasena: {
             required: true,
-            custom: (value: string) => {
-                // Esta validación necesita acceso a la contraseña original
-                // Se manejará en el componente
-                return null;
+            custom: () => {
+              return true; // Validación personalizada siempre pasa
             }
         },
         celular_cliente: {

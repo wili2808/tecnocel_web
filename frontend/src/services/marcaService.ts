@@ -1,32 +1,28 @@
 import axiosInstance from '../api/axiosConfig';
-import { Marca } from '../types/product';
+import type { Marca } from '../types/product';
 
-export interface MarcaResponse {
-  success: boolean;
-  data: Marca[];
-  count: number;
-}
-
-export const marcaService = {
+const marcaService = {
   // Obtener todas las marcas
-  async getMarcas(): Promise<Marca[]> {
+  getMarcas: async (): Promise<Marca[]> => {
     try {
-      const response = await axiosInstance.get<MarcaResponse>('/marcas');
-      return response.data.data;
+      const response = await axiosInstance.get('/almacen/marcas');
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener marcas:', error);
+      console.error('Error fetching brands:', error);
       throw error;
     }
   },
 
-  // Obtener marca por ID
-  async getMarcaById(id: number): Promise<Marca> {
+  // Obtener una marca específica por ID
+  getMarcaById: async (id: number): Promise<Marca> => {
     try {
-      const response = await axiosInstance.get<{ success: boolean; data: Marca }>(`/marcas/${id}`);
-      return response.data.data;
+      const response = await axiosInstance.get(`/almacen/marcas/${id}`);
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener marca:', error);
+      console.error('Error fetching brand by ID:', error);
       throw error;
     }
   }
 };
+
+export default marcaService;

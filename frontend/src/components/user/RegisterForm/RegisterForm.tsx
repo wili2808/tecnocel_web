@@ -36,8 +36,8 @@ const RegisterForm = () => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
 
-        // Limpiar error específico del campo al empezar a escribir
-        if (formErrors[name]) {
+        // Limpiar error del campo cuando el usuario empiece a escribir
+        if (formErrors[name as keyof typeof formErrors]) {
             setFormErrors(prev => ({ ...prev, [name]: '' }));
         }
     };
@@ -212,7 +212,6 @@ const RegisterForm = () => {
         type: string,
         label: string,
         value: string,
-        placeholder: string,
         icon: string,
         autoComplete?: string,
         error?: string,
@@ -293,7 +292,6 @@ const RegisterForm = () => {
                         'text',
                         'Nombre',
                         formData.nombre_cliente,
-                        'Ingrese su nombre',
                         'person',
                         'given-name',
                         formErrors.nombre_cliente
@@ -305,7 +303,6 @@ const RegisterForm = () => {
                         'text',
                         'Apellidos',
                         formData.apellido_cliente,
-                        'Ingrese sus apellidos',
                         'person',
                         'family-name',
                         formErrors.apellido_cliente
@@ -319,7 +316,6 @@ const RegisterForm = () => {
                     'email',
                     'Correo Electrónico',
                     formData.email_cliente,
-                    'ejemplo@correo.com',
                     'email',
                     'email',
                     formErrors.email_cliente
@@ -333,7 +329,6 @@ const RegisterForm = () => {
                         'password',
                         'Contraseña',
                         formData.contrasena,
-                        '••••••••',
                         'lock',
                         'new-password',
                         formErrors.contrasena,
@@ -346,7 +341,6 @@ const RegisterForm = () => {
                         'password',
                         'Confirmar Contraseña',
                         formData.confirmarContrasena,
-                        '••••••••',
                         'lock',
                         'new-password',
                         formErrors.confirmarContrasena,
@@ -362,7 +356,6 @@ const RegisterForm = () => {
                         'tel',
                         'Celular',
                         formData.celular_cliente,
-                        '70123456',
                         'phone',
                         'tel',
                         formErrors.celular_cliente
@@ -374,7 +367,6 @@ const RegisterForm = () => {
                         'text',
                         'NIT/CI',
                         formData.nit_ci_cliente,
-                        '12345678',
                         'badge',
                         undefined,
                         formErrors.nit_ci_cliente

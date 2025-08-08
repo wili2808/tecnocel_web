@@ -19,7 +19,7 @@ const GoogleMap = ({
 }: GoogleMapProps) => {
     return (
         <div className={styles.mapContainer}>
-            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>
                 <Map
                     zoom={zoom}
                     center={center}

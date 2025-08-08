@@ -12,15 +12,15 @@ function debounce<T extends (...args: any[]) => void>(
     func: T,
     wait: number
 ): (...args: Parameters<T>) => void {
-    let timeout: number | undefined;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
 
     return (...args: Parameters<T>) => {
         const later = () => {
-            clearTimeout(timeout);
+            timeout = null;
             func(...args);
         };
 
-        clearTimeout(timeout);
+        if (timeout) clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
 }

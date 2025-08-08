@@ -9,8 +9,7 @@ export {
   ORDER_OPTIONS,
   filterProducts,
   getProductCountByCustomCategory,
-  debugProductCategorization,
-  verifyCustomCategoryFilter
+  debugProductCategorization
 } from './productFiltering';
 
 // Tipos exportados

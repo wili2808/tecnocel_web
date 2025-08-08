@@ -18,12 +18,23 @@ export const useProducts = (): UseProductsReturn => {
     try {
       setLoading(true);
       setError(null);
+      
       const data = await productService.getProducts();
       
-      // ✅ Confiar en el backend: ya envía URLs válidas
-      setProducts(data);
+      // El backend devuelve directamente un array de productos
+      // No necesitamos acceder a data.productos
+      const productos = Array.isArray(data) ? data : [];
+      
+      setProducts(productos);
     } catch (error: any) {
-      setError(error.response?.data?.message || error.message || 'Error al cargar los productos');
+      console.error('Error al cargar productos:', error);
+      
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'Error al cargar los productos';
+      setError(errorMessage);
+      // En caso de error, mantener array vacío
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -34,7 +45,7 @@ export const useProducts = (): UseProductsReturn => {
   }, []);
 
   return {
-    products,
+    products: products || [], // Asegurar que siempre sea un array
     loading,
     error,
     refetch: fetchProducts,
