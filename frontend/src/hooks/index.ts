@@ -7,6 +7,8 @@ export { useProductFilters } from './useProductFilters';
 export { useFilteredProducts } from './useFilteredProducts';
 export { useEscapeKey } from './useEscapeKey';
 export { useAuthForm, authValidationConfigs } from './useAuthForm';
+export { useAuthActions } from './useAuthActions';
+export { useAutoLogout } from './useAutoLogout';
 export { useOfertas } from './useOfertas';
 export { useOfertasGlobal, useOfertasProducto } from './useOfertasGlobal';
 export { useOfertasPagination } from './useOfertasPagination';

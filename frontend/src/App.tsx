@@ -10,6 +10,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { FavoritosGlobalProvider } from './contexts/FavoritosGlobalContext';
 import { OfertasGlobalProvider } from './contexts/OfertasGlobalContext';
 import NotificationContainer from './components/common/NotificationContainer';
+import { useAutoLogout } from './hooks/useAutoLogout';
 import './styles/global.css';
 
 // Lazy loading de componentes
@@ -30,45 +31,59 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Componente wrapper para auto-logout
+const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
+  useAutoLogout({
+    timeoutMinutes: 30,
+    enabled: true,
+    onLogout: () => {
+      console.log('Usuario desconectado por inactividad');
+    }
+  });
+
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
       <AuthProvider>
-        <ThemeProvider>
-          <NotificationProvider>
-            <FavoritosGlobalProvider>
-              <OfertasGlobalProvider>
-                <Router>
-                  <SearchProvider>
-                    <CarritoProvider>
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Routes>
-                          {/* Rutas que usan Layout normal */}
-                          <Route element={<Layout />}>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/panel" element={<UserPanel />} />
-                            <Route path="/carrito" element={<Cart />} />
-                            <Route path="/ofertas" element={<Offers />} />
-                            <Route path="/marcas" element={<Brands />} />
-                          </Route>
-                          {/* Rutas sin footer */}
-                          <Route element={<Layout hideFooter />}>
-                            <Route path="/productos" element={<ProductCatalog />} />
-                            <Route path="/productos/:id" element={<ProductPage />} />
-                          </Route>
-                          {/* Rutas de autenticación sin layout */}
-                        </Routes>
-                      </Suspense>
-                      <NotificationContainer />
-                    </CarritoProvider>
-                  </SearchProvider>
-                </Router>
-              </OfertasGlobalProvider>
-            </FavoritosGlobalProvider>
-          </NotificationProvider>
-        </ThemeProvider>
+        <AutoLogoutWrapper>
+          <ThemeProvider>
+            <NotificationProvider>
+              <FavoritosGlobalProvider>
+                <OfertasGlobalProvider>
+                  <Router>
+                    <SearchProvider>
+                      <CarritoProvider>
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Routes>
+                            {/* Rutas que usan Layout normal */}
+                            <Route element={<Layout />}>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/login" element={<Login />} />
+                              <Route path="/register" element={<Register />} />
+                              <Route path="/panel" element={<UserPanel />} />
+                              <Route path="/carrito" element={<Cart />} />
+                              <Route path="/ofertas" element={<Offers />} />
+                              <Route path="/marcas" element={<Brands />} />
+                            </Route>
+                            {/* Rutas sin footer */}
+                            <Route element={<Layout hideFooter />}>
+                              <Route path="/productos" element={<ProductCatalog />} />
+                              <Route path="/productos/:id" element={<ProductPage />} />
+                            </Route>
+                          </Routes>
+                        </Suspense>
+                        <NotificationContainer />
+                      </CarritoProvider>
+                    </SearchProvider>
+                  </Router>
+                </OfertasGlobalProvider>
+              </FavoritosGlobalProvider>
+            </NotificationProvider>
+          </ThemeProvider>
+        </AutoLogoutWrapper>
       </AuthProvider>
     </GoogleOAuthProvider>
   )

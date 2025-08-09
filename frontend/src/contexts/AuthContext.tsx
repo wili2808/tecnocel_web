@@ -1,13 +1,15 @@
 /**
- * Contexto de Autenticación - Maneja el estado global de autenticación
+ * Contexto de Autenticación Optimizado - Maneja el estado global de autenticación
  */
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import axiosInstance from '../api/axiosConfig';
+import { authService } from '../services/authService';
 
 // Constantes
 const TOKEN_KEY = 'token';
+const AUTH_TIMESTAMP_KEY = 'auth_timestamp';
+const AUTH_USER_KEY = 'auth_user';
 
 /**
  * Estructura de un cliente en el sistema
@@ -21,6 +23,23 @@ export interface ClienteUser {
   nit_ci_cliente?: string;
 }
 
+interface AuthState {
+  user: ClienteUser | null;
+  token: string | null;
+  isVerifying: boolean;
+  isInitialized: boolean;
+  error: string | null;
+}
+
+interface RegisterData {
+  nombre_cliente: string;
+  apellido_cliente: string;
+  email_cliente: string;
+  contrasena: string;
+  celular_cliente: string;
+  nit_ci_cliente: string;
+}
+
 /**
  * Métodos y propiedades del contexto de autenticación
  */
@@ -28,19 +47,24 @@ interface AuthContextType {
   user: ClienteUser | null;
   isAuthenticated: boolean;
   token: string | null;
+  isVerifying: boolean;
+  isInitialized: boolean;
+  error: string | null;
   login: (email_cliente: string, contrasena: string) => Promise<void>;
-  register: (data: {
-    nombre_cliente: string;
-    apellido_cliente: string;
-    email_cliente: string;
-    contrasena: string;
-    celular_cliente: string;
-    nit_ci_cliente: string;
-  }) => Promise<any>;
+  register: (data: RegisterData) => Promise<any>;
   logout: () => void;
   googleLogin: (overrideConfig?: any) => void;
-  subscribeToAuthChanges: (callback: (user: ClienteUser | null) => void) => () => void;
+  clearError: () => void;
 }
+
+// Estado inicial
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  isVerifying: false,
+  isInitialized: false,
+  error: null,
+};
 
 // Creación del contexto de autenticación
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,222 +85,214 @@ interface AuthProviderProps {
 }
 
 /**
- * Proveedor del contexto de autenticación
+ * Proveedor del contexto de autenticación optimizado
  * Maneja el estado global de autenticación y la persistencia de sesión
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  // Estados
-  const [user, setUser] = useState<ClienteUser | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [subscribers, setSubscribers] = useState<((user: ClienteUser | null) => void)[]>([]);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  // Estado unificado
+  const [state, setState] = useState<AuthState>(() => {
+    // Inicialización lazy para evitar cálculos en cada render
+    const token = localStorage.getItem(TOKEN_KEY);
+    const user = localStorage.getItem(AUTH_USER_KEY);
+    const timestamp = localStorage.getItem(AUTH_TIMESTAMP_KEY);
 
-  // Efecto para monitorear cambios en isAuthenticated y notificar suscriptores
-  useEffect(() => {
-    console.log('Estado de autenticación:', !!user ? 'Autenticado' : 'No autenticado');
-    // Notificar a los suscriptores solo si ya se inicializó
-    if (isInitialized) {
-      subscribers.forEach(callback => callback(user));
-    }
-  }, [user, isInitialized]); // OPTIMIZACIÓN: Remover subscribers de dependencias
-
-  /**
-   * Función para suscribirse a cambios en el estado de autenticación
-   */
-  const subscribeToAuthChanges = useCallback((callback: (user: ClienteUser | null) => void) => {
-    setSubscribers(prevSubscribers => [...prevSubscribers, callback]);
-    // Solo notificar al suscriptor si ya hemos inicializado
-    if (isInitialized) {
-      callback(user);
-    }
-    return () => {
-      setSubscribers(prevSubscribers => prevSubscribers.filter(sub => sub !== callback));
-    };
-  }, [user, isInitialized]);
-
-  /**
-   * Verifica el token de autenticación - Solo se ejecuta UNA VEZ
-   */
-  const verifyToken = useCallback(async () => {
-    console.log('verifyToken llamado - Estado:', { isVerifying, isInitialized });
-
-    // Solo ejecutar si no está ya verificando Y no está inicializado
-    if (isVerifying || isInitialized) {
-      console.log('Verificación ya en progreso o ya inicializada, retornando...');
-      return;
-    }
-
-    setIsVerifying(true);
-    console.log('Iniciando verificación de token...');
-
-    const storedToken = localStorage.getItem(TOKEN_KEY);
-    console.log('Token en localStorage:', storedToken ? 'Presente' : 'No presente');
-
-    if (!storedToken) {
-      setUser(null);
-      setToken(null);
-      console.log('Verify Token: No hay token en localStorage.');
-      setIsVerifying(false);
-      setIsInitialized(true);
-      return;
-    }
-
-    try {
-      // NO configurar headers aquí - dejar que el interceptor lo maneje
-      const response = await axiosInstance.get('/clientes/verify-token');
-      const cliente = response.data?.cliente;
-      if (!cliente) {
-        throw new Error('Datos de cliente no encontrados en la respuesta');
+    // Verificar si los datos han expirado (24 horas)
+    if (token && user && timestamp) {
+      const isExpired = Date.now() - parseInt(timestamp) > 24 * 60 * 60 * 1000;
+      if (!isExpired) {
+        return {
+          ...initialState,
+          token,
+          user: JSON.parse(user),
+        };
       }
-      setUser(cliente);
-      setToken(storedToken);
-      console.log('Token verificado exitosamente:', cliente.email_cliente);
-    } catch (error) {
-      console.error('Error al verificar token:', error);
-      localStorage.removeItem(TOKEN_KEY);
-      delete axiosInstance.defaults.headers.common['Authorization'];
-      setUser(null);
-      setToken(null);
-    } finally {
-      setIsVerifying(false);
-      setIsInitialized(true);
     }
-  }, []); // Sin dependencias - la función nunca cambia
 
-  // Efecto para verificar el token SOLO UNA VEZ al montar el componente
-  useEffect(() => {
-    verifyToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Array vacío - solo se ejecuta al montar, verifyToken es estable
+    return initialState;
+  });
 
-  /**
-   * Función para iniciar sesión con email y contraseña
-   */
-  const login = async (email_cliente: string, contrasena: string) => {
-    try {
-      const response = await axiosInstance.post('/clientes/login', {
-        email_cliente: email_cliente.trim(),
-        contrasena: contrasena.trim(),
-      });
-      const { cliente, token } = response.data;
-      if (!token) throw new Error('No se recibió token del servidor');
-      localStorage.setItem(TOKEN_KEY, token);
-      // No configurar headers aquí - dejar que el interceptor lo maneje automáticamente
-      setUser(cliente);
-      setToken(token);
-    } catch (error: any) {
-      localStorage.removeItem(TOKEN_KEY);
-      delete axiosInstance.defaults.headers.common['Authorization'];
-      setToken(null);
-      throw new Error(error.response?.data?.mensaje || 'Error al iniciar sesión. Por favor, intente nuevamente.');
-    }
-  };
+  // Refs para evitar re-renders innecesarios
+  const verificationRef = useRef(false);
+  const isInitializedRef = useRef(false);
 
-  /**
-   * Función para registrar un nuevo usuario
-   */
-  const register = async (data: {
-    nombre_cliente: string;
-    apellido_cliente: string;
-    email_cliente: string;
-    contrasena: string;
-    celular_cliente: string;
-    nit_ci_cliente: string;
-  }) => {
-    try {
-      const response = await axiosInstance.post('/clientes/register', {
-        nombre_cliente: data.nombre_cliente,
-        apellido_cliente: data.apellido_cliente,
-        email_cliente: data.email_cliente,
-        celular_cliente: data.celular_cliente,
-        nit_ci_cliente: data.nit_ci_cliente,
-        contrasena: data.contrasena
-      });
-
-      // El backend ahora responde con token y datos del cliente para login automático
-      const { cliente, token } = response.data;
-      if (token && cliente) {
-        // Guardar token y actualizar estado del usuario para login automático
-        localStorage.setItem(TOKEN_KEY, token);
-        setUser(cliente);
-        setToken(token);
-        console.log('Usuario registrado y logeado automáticamente:', cliente.email_cliente);
-      }
-
-      return response.data; // Devolver la respuesta para mostrar el mensaje de éxito
-    } catch (error: any) {
-      if (error.response?.status === 400) {
-        throw new Error(error.response.data.mensaje || 'Datos de registro inválidos');
-      } else if (error.response?.status === 409) {
-        throw new Error('El correo electrónico ya está registrado');
-      }
-      throw new Error(error.message || 'Error al registrar usuario. Por favor, intente nuevamente.');
-    }
-  };
-
-  /**
-   * Función para cerrar sesión
-   */
-  const logout = useCallback(() => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem(TOKEN_KEY);
-    delete axiosInstance.defaults.headers.common['Authorization'];
+  // Función para actualizar estado de forma inmutable
+  const updateState = useCallback((updates: Partial<AuthState>) => {
+    setState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  /**
-   * Función para iniciar sesión con Google
-   */
+  // Función para guardar datos de autenticación
+  const saveAuthData = useCallback((user: ClienteUser, token: string) => {
+    authService.saveAuthData({ user, token });
+  }, []);
+
+  // Función para limpiar datos de autenticación
+  const clearAuthData = useCallback(() => {
+    authService.clearAuthToken();
+  }, []);
+
+  // Verificación de token optimizada
+  const verifyToken = useCallback(async () => {
+    if (verificationRef.current || isInitializedRef.current) {
+      return;
+    }
+
+    verificationRef.current = true;
+    updateState({ isVerifying: true, error: null });
+
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+
+    if (!storedToken) {
+      updateState({
+        user: null,
+        token: null,
+        isVerifying: false,
+        isInitialized: true
+      });
+      return;
+    }
+
+    try {
+      const cliente = await authService.verifyToken();
+      updateState({
+        user: cliente,
+        token: storedToken,
+        isVerifying: false,
+        isInitialized: true,
+        error: null,
+      });
+    } catch (error) {
+      console.error('Error al verificar token:', error);
+      clearAuthData();
+      updateState({
+        user: null,
+        token: null,
+        isVerifying: false,
+        isInitialized: true,
+        error: 'Sesión expirada',
+      });
+    }
+  }, [updateState, clearAuthData]);
+
+  // Efecto para verificar token solo una vez
+  useEffect(() => {
+    verifyToken();
+  }, [verifyToken]);
+
+  // Login optimizado
+  const login = useCallback(async (email_cliente: string, contrasena: string) => {
+    try {
+      updateState({ error: null });
+
+      const authData = await authService.login(email_cliente, contrasena);
+      saveAuthData(authData.user, authData.token);
+      updateState({
+        user: authData.user,
+        token: authData.token,
+        error: null,
+      });
+    } catch (error: any) {
+      clearAuthData();
+      updateState({
+        user: null,
+        token: null,
+        error: error.message || 'Error al iniciar sesión',
+      });
+      throw error;
+    }
+  }, [updateState, saveAuthData, clearAuthData]);
+
+  // Register optimizado
+  const register = useCallback(async (data: RegisterData) => {
+    try {
+      updateState({ error: null });
+
+      const authData = await authService.register(data);
+      saveAuthData(authData.user, authData.token);
+      updateState({
+        user: authData.user,
+        token: authData.token,
+        error: null,
+      });
+
+      return { success: true, data: authData };
+    } catch (error: any) {
+      const errorMessage = error.message || 'Error al registrar usuario';
+      updateState({ error: errorMessage });
+      throw new Error(errorMessage);
+    }
+  }, [updateState, saveAuthData]);
+
+  // Logout optimizado
+  const logout = useCallback(() => {
+    clearAuthData();
+    updateState({
+      user: null,
+      token: null,
+      error: null,
+    });
+  }, [clearAuthData, updateState]);
+
+  // Google login optimizado
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
-        // Enviar el token de acceso al backend
-        const result = await axiosInstance.post('/clientes/google-login', {
-          access_token: response.access_token
+        updateState({ error: null });
+
+        const authData = await authService.googleLogin(response.access_token);
+        saveAuthData(authData.user, authData.token);
+        updateState({
+          user: authData.user,
+          token: authData.token,
+          error: null,
         });
-
-        const { cliente, token } = result.data;
-        if (!token) throw new Error('No se recibió token del servidor');
-
-        localStorage.setItem(TOKEN_KEY, token);
-        setUser(cliente);
-        setToken(token);
-        console.log('Login exitoso con Google:', cliente.email_cliente);
       } catch (error: any) {
-        console.error('Error en Google Login:', error);
-        localStorage.removeItem(TOKEN_KEY);
-        delete axiosInstance.defaults.headers.common['Authorization'];
-        setToken(null);
-        throw new Error(error.response?.data?.mensaje || 'Error al autenticarse con Google');
+        clearAuthData();
+        updateState({
+          user: null,
+          token: null,
+          error: error.message || 'Error al autenticarse con Google',
+        });
+        throw error;
       }
     },
     onError: (error) => {
       console.error('Error en Google OAuth:', error);
+      updateState({ error: 'Error al autenticarse con Google' });
       throw new Error('Error al autenticarse con Google');
     },
     scope: 'email profile',
     flow: 'implicit'
   });
 
-  // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
+  // Limpiar error
+  const clearError = useCallback(() => {
+    updateState({ error: null });
+  }, [updateState]);
+
+  // Valor del contexto memoizado
   const contextValue = useMemo(() => ({
-    user,
-    token,
-    isAuthenticated: !!user,
+    user: state.user,
+    token: state.token,
+    isAuthenticated: !!state.user,
+    isVerifying: state.isVerifying,
+    isInitialized: state.isInitialized,
+    error: state.error,
     login,
     register,
     logout,
     googleLogin,
-    subscribeToAuthChanges,
+    clearError,
   }), [
-    user,
-    token,
+    state.user,
+    state.token,
+    state.isVerifying,
+    state.isInitialized,
+    state.error,
     login,
     register,
     logout,
     googleLogin,
-    subscribeToAuthChanges,
+    clearError,
   ]);
 
   return (
