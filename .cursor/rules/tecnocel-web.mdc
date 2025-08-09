@@ -1,0 +1,392 @@
+---
+alwaysApply: true
+---
+
+# 🚀 TecnoCel Web - Reglas de Desarrollo
+
+## 📋 Descripción del Proyecto
+
+TecnoCel Web es una plataforma de e-commerce completa para productos tecnológicos desarrollada con arquitectura moderna y escalable. El proyecto utiliza una separación clara entre frontend y backend con tecnologías específicas para cada capa.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+### Frontend (`/frontend/`)
+
+- **Framework**: React 18.2.0 con TypeScript 5.3.3
+- **Build Tool**: Vite 5.0.12 con SWC para Fast Refresh
+- **Routing**: React Router DOM 6.21.3
+- **Styling**: CSS Modules con sistema de variables centralizado
+- **State Management**: React Context API (AuthContext, CarritoContext, etc.)
+- **HTTP Client**: Axios 1.9.0 con interceptores configurados
+- **UI Components**: React Icons 5.5.0
+- **Notifications**: React Toastify 11.0.5
+- **Authentication**: Google OAuth 2.0 con @react-oauth/google
+- **Development**: ESLint con TypeScript, Vite Plugin Compression
+
+### Backend (`/backend/`)
+
+- **Runtime**: Node.js con TypeScript 5.3.3
+- **Framework**: Express.js 4.18.2
+- **ORM**: Sequelize 6.35.2 con MySQL2 3.6.5
+- **Authentication**: JWT con bcryptjs 2.4.3
+- **File Upload**: Multer 2.0.2 con Sharp 0.34.3 para procesamiento de imágenes
+- **Validation**: Express-validator 7.2.1
+- **Logging**: Winston 3.17.0 con sistema estructurado
+- **Email**: Nodemailer 7.0.5
+- **OAuth**: Passport.js con Google OAuth 2.0
+- **Development**: Nodemon, Concurrently, ts-node
+
+### Base de Datos
+
+- **Sistema**: MySQL con Sequelize ORM
+- **Características**: Relaciones complejas, índices optimizados, vistas para estadísticas
+- **Tablas principales**: productos, clientes, carritos, comentarios, imágenes, ofertas, marcas
+
+---
+
+## 🏗️ Arquitectura y Estructura
+
+### Estructura Frontend (`/frontend/src/`)
+
+```
+src/
+├── api/                    # Configuración de Axios y servicios HTTP
+├── assets/                 # Recursos estáticos (imágenes, logos, videos)
+├── components/             # Componentes React organizados por dominio
+│   ├── cart/              # Componentes del carrito de compras
+│   ├── common/            # Componentes reutilizables (LoadingSpinner, IconButton)
+│   ├── layout/            # Componentes de estructura (Navbar, Footer, Layout)
+│   ├── location/          # Componentes de ubicación y mapas
+│   ├── product/           # Componentes de productos (ProductCard, ProductGrid)
+│   └── user/              # Componentes de usuario (AuthForm, RegisterForm)
+├── contexts/              # Contextos de React (AuthContext, CarritoContext)
+├── hooks/                 # Custom hooks personalizados
+├── pages/                 # Páginas principales de la aplicación
+├── services/              # Servicios de API y lógica de negocio
+├── styles/                # Sistema de estilos centralizado
+│   ├── variables.css      # Variables CSS base (colores, tipografía, espaciado)
+│   ├── themes.css         # Mapeo semántico de variables por tema
+│   └── global.css         # Estilos globales y componentes base
+├── types/                 # Definiciones de tipos TypeScript
+└── utils/                 # Utilidades y helpers
+```
+
+### Estructura Backend (`/backend/src/`)
+
+```
+src/
+├── config/                # Configuraciones centralizadas
+│   ├── config.ts          # Configuración principal del sistema
+│   └── database.ts        # Configuración de base de datos
+├── controllers/           # Controladores de la API REST
+├── middleware/            # Middleware personalizado (auth, validación, imágenes)
+├── models/                # Modelos de Sequelize con relaciones
+├── routes/                # Definición de rutas de la API
+├── services/              # Servicios de negocio (imágenes, email)
+├── utils/                 # Utilidades (logger, helpers)
+└── index.ts               # Punto de entrada de la aplicación
+```
+
+---
+
+## 🎨 Sistema de Diseño
+
+### Paleta de Colores
+
+- **Primario**: Púrpura (`--color-purple-600: #6B46C1`)
+- **Secundario**: Azul cielo (`--color-sky-500: #0EA5E9`)
+- **Neutros**: Escala completa de grises (`--color-neutral-50` a `--color-neutral-900`)
+- **Estados**: Error (rojo), Success (verde), Warning (amarillo), Info (azul)
+
+### Sistema de Variables CSS
+
+1. **variables.css**: Define colores base y valores absolutos
+2. **themes.css**: Mapeo semántico para temas claro/oscuro
+3. **global.css**: Aplicación práctica en componentes
+
+### Tipografía
+
+- **Primaria**: Poppins (sans-serif)
+- **Secundaria**: Roboto (sans-serif)
+- **Monospace**: Courier New
+- **Escalas**: xs (12px) a 4xl (36px)
+
+### Espaciado y Layout
+
+- **Grid System**: CSS Grid y Flexbox
+- **Espaciado**: Sistema de 8px base (8px, 16px, 24px, 32px, etc.)
+- **Breakpoints**: Mobile-first con 480px, 768px, 1024px, 1440px
+
+---
+
+## 🔧 Buenas Prácticas de Desarrollo
+
+### Frontend
+
+- **Componentes**: Usar CSS Modules para estilos encapsulados
+- **Estado**: Context API para estado global, useState/useReducer para local
+- **Tipos**: TypeScript estricto con interfaces bien definidas
+- **Hooks**: Custom hooks para lógica reutilizable
+- **Performance**: React.memo, useMemo, useCallback cuando sea necesario
+- **Responsive**: Mobile-first con breakpoints consistentes
+- **Accesibilidad**: ARIA labels, semantic HTML, keyboard navigation
+
+### Backend
+
+- **Arquitectura**: MVC con separación clara de responsabilidades
+- **Validación**: Express-validator en todas las rutas
+- **Autenticación**: JWT con middleware de verificación
+- **Logging**: Winston con niveles estructurados
+- **Base de Datos**: Sequelize con relaciones bien definidas
+- **Imágenes**: Sharp para optimización y redimensionamiento
+- **Seguridad**: CORS configurado, validación de entrada, sanitización
+
+### Base de Datos
+
+- **Nomenclatura**: Prefijo `tb_` para tablas, `vw_` para vistas
+- **Índices**: Optimizados para consultas frecuentes
+- **Relaciones**: Foreign keys con constraints apropiados
+- **Vistas**: Para estadísticas y consultas complejas
+- **Migraciones**: Scripts de mantenimiento en `/scripts_test/`
+
+---
+
+## 📝 Convenciones de Código
+
+### Nomenclatura
+
+- **Archivos**: PascalCase para componentes, camelCase para utilidades
+- **Componentes**: PascalCase (ProductCard, AuthForm)
+- **Variables**: camelCase (userData, productList)
+- **Constantes**: UPPER_SNAKE_CASE (API_BASE_URL, JWT_SECRET)
+- **CSS Classes**: kebab-case (product-card, auth-form)
+
+### Estructura de Componentes
+
+```typescript
+// 1. Imports
+import React from "react";
+import styles from "./ComponentName.module.css";
+
+// 2. Types/Interfaces
+interface ComponentNameProps {
+  // props definition
+}
+
+// 3. Component
+export const ComponentName: React.FC<ComponentNameProps> = ({
+  prop1,
+  prop2,
+}) => {
+  // hooks
+  // handlers
+  // render
+  return <div className={styles.container}>{/* JSX */}</div>;
+};
+
+// 4. Export
+export default ComponentName;
+```
+
+### Estructura de Controladores
+
+```typescript
+// 1. Imports
+import { Request, Response } from "express";
+import { validationResult } from "express-validator";
+
+// 2. Controller class/methods
+export class ControllerName {
+  static async methodName(req: Request, res: Response) {
+    try {
+      // validation
+      // business logic
+      // response
+    } catch (error) {
+      // error handling
+    }
+  }
+}
+```
+
+---
+
+## 🔐 Autenticación y Autorización
+
+### Sistema de Autenticación
+
+- **JWT**: Tokens con expiración configurable
+- **Google OAuth**: Integración completa con @react-oauth/google
+- **Persistencia**: localStorage para tokens, Context para estado
+- **Middleware**: Verificación automática en rutas protegidas
+
+### Roles y Permisos
+
+- **Cliente**: Usuario registrado con acceso a compras y comentarios
+- **Admin**: Acceso completo al sistema (futuro desarrollo)
+
+---
+
+## 📊 Gestión de Estado
+
+### Frontend Contexts
+
+- **AuthContext**: Manejo de autenticación y sesión de usuario
+- **CarritoContext**: Estado del carrito de compras con persistencia
+- **NotificationContext**: Sistema de notificaciones global
+- **SearchContext**: Estado de búsqueda y filtros
+- **ThemeContext**: Gestión de tema claro/oscuro
+
+### Patrones de Estado
+
+- **Local**: useState para estado de componente
+- **Global**: Context API para estado compartido
+- **Server**: Axios interceptors para sincronización
+
+---
+
+## 🖼️ Manejo de Imágenes
+
+### Backend
+
+- **Upload**: Multer con validación de tipos y tamaños
+- **Procesamiento**: Sharp para optimización y redimensionamiento
+- **Almacenamiento**: Sistema de archivos con rutas configurables
+- **Servir**: Middleware estático para entrega de imágenes
+
+### Frontend
+
+- **Optimización**: Lazy loading y placeholders
+- **Responsive**: Diferentes tamaños según dispositivo
+- **Fallbacks**: Imágenes por defecto para errores
+
+---
+
+## 🧪 Testing y Calidad
+
+### Frontend
+
+- **ESLint**: Configuración TypeScript con reglas React
+- **TypeScript**: Configuración estricta con verificación de tipos
+- **Vite**: Hot Module Replacement y optimizaciones de build
+
+### Backend
+
+- **Logging**: Winston con niveles y rotación de archivos
+- **Validación**: Express-validator en todas las rutas
+- **Scripts**: Scripts de prueba en `/scripts_test/`
+
+---
+
+## 🚀 Deployment y Configuración
+
+### Variables de Entorno
+
+- **Frontend**: Configuración de API endpoints
+- **Backend**: Base de datos, JWT, email, Google OAuth
+- **Imágenes**: Rutas de almacenamiento y URLs base
+
+### Scripts Disponibles
+
+```bash
+# Frontend
+npm run dev          # Desarrollo con Vite
+npm run build        # Build de producción
+npm run lint         # Linting con ESLint
+
+# Backend
+npm run dev          # Desarrollo con nodemon
+npm run build        # Compilación TypeScript
+npm run start        # Producción
+```
+
+---
+
+## 📚 Documentación
+
+### Archivos de Documentación (`/note/`)
+
+- **DOCUMENTACION_BACKEND_API.md**: API completa del backend
+- **IMPLEMENTACION_COMENTARIOS.md**: Sistema de comentarios
+- **SISTEMA_COLORES_CENTRALIZADO.md**: Sistema de diseño
+- **MIGRACION*IMAGENES*\*.md**: Migraciones de imágenes
+- **GOOGLE_OAUTH_IMPLEMENTATION.md**: Autenticación Google
+
+### Comentarios en Código
+
+- **JSDoc**: Para funciones y componentes complejos
+- **TypeScript**: Interfaces y tipos bien documentados
+- **README**: Instrucciones de configuración y uso
+
+---
+
+## 🎯 Objetivos del Proyecto
+
+### Funcionalidades Implementadas
+
+- ✅ Catálogo de productos con filtros y búsqueda
+- ✅ Sistema de carrito de compras completo
+- ✅ Autenticación con JWT y Google OAuth
+- ✅ Sistema de comentarios con imágenes
+- ✅ Gestión de favoritos y ofertas
+- ✅ Sistema de temas claro/oscuro
+- ✅ Responsive design completo
+- ✅ Optimización de imágenes y performance
+
+### Próximas Funcionalidades
+
+- 🔄 Panel de administración
+- 🔄 Sistema de pagos
+- 🔄 Notificaciones push
+- 🔄 Analytics y métricas
+- 🔄 PWA (Progressive Web App)
+
+---
+
+## ⚠️ Consideraciones Importantes
+
+### Seguridad
+
+- **JWT_SECRET**: Cambiar en producción
+- **CORS**: Configurar correctamente para producción
+- **Validación**: Validar todas las entradas de usuario
+- **Imágenes**: Validar tipos y tamaños de archivo
+
+### Performance
+
+- **Lazy Loading**: Para componentes y imágenes
+- **Caching**: Headers apropiados para recursos estáticos
+- **Optimización**: Compresión de imágenes y assets
+- **Database**: Índices optimizados para consultas frecuentes
+
+### Mantenimiento
+
+- **Logs**: Sistema de logging estructurado
+- **Monitoreo**: Scripts de verificación y mantenimiento
+- **Backup**: Estrategia de respaldo para base de datos
+- **Updates**: Mantener dependencias actualizadas
+
+---
+
+## 🤝 Contribución
+
+### Flujo de Trabajo
+
+1. **Branch**: Crear rama feature/ desde main
+2. **Desarrollo**: Seguir convenciones establecidas
+3. **Testing**: Verificar funcionalidad y linting
+4. **Commit**: Mensajes descriptivos en español
+5. **Merge**: Pull request con revisión de código
+
+### Estándares de Código
+
+- **TypeScript**: Configuración estricta
+- **ESLint**: Reglas configuradas para el proyecto
+- **Prettier**: Formateo consistente
+- **Commits**: Convención de mensajes descriptivos
+
+---
+
+Este archivo `.cursorrules` proporciona el contexto completo necesario para que los agentes de IA entiendan la arquitectura, tecnologías y buenas prácticas del proyecto TecnoCel Web, facilitando el desarrollo consistente y mantenible.

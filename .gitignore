@@ -1,9 +1,4 @@
 # Carpetas del proyecto
-.cursorrules
-.cursor/
-database/
-note/
-data/migrations/
 
 # Dependencias
 node_modules/
@@ -12,11 +7,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Archivos de entorno
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
 
 # Archivos de build
 dist/
