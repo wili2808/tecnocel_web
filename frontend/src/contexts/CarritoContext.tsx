@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import axiosInstance from '../api/axiosConfig';
 import { useAuth } from './AuthContext';
 
@@ -257,7 +257,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated, estado.items]);
+  }, [isAuthenticated]); // OPTIMIZACIÓN: Remover estado.items de dependencias
 
   /**
    * Actualiza la cantidad de un item en el carrito
@@ -405,19 +405,29 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isAuthenticated, obtenerCarrito]);
 
+  // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
+  const contextValue = useMemo(() => ({
+    estado,
+    obtenerCarrito,
+    agregarItem,
+    actualizarCantidad,
+    eliminarItem,
+    vaciarCarrito,
+    confirmarCompra,
+    agregarItemsPrueba
+  }), [
+    estado,
+    obtenerCarrito,
+    agregarItem,
+    actualizarCantidad,
+    eliminarItem,
+    vaciarCarrito,
+    confirmarCompra,
+    agregarItemsPrueba
+  ]);
+
   return (
-    <CarritoContext.Provider
-      value={{
-        estado,
-        obtenerCarrito,
-        agregarItem,
-        actualizarCantidad,
-        eliminarItem,
-        vaciarCarrito,
-        confirmarCompra,
-        agregarItemsPrueba
-      }}
-    >
+    <CarritoContext.Provider value={contextValue}>
       {children}
     </CarritoContext.Provider>
   );

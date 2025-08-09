@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -114,14 +114,22 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
         }
     }, [navigate, searchQuery]);
 
-    const value: SearchContextType = {
+    // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
+    const value = useMemo<SearchContextType>(() => ({
         searchQuery,
         debouncedSearchQuery,
         isSearching,
         setSearchQuery,
         clearSearch,
         navigateToProducts,
-    };
+    }), [
+        searchQuery,
+        debouncedSearchQuery,
+        isSearching,
+        setSearchQuery,
+        clearSearch,
+        navigateToProducts,
+    ]);
 
     return (
         <SearchContext.Provider value={value}>

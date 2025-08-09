@@ -85,6 +85,26 @@ export interface ProductoOferta {
 }
 
 /**
+ * Interfaz para resumen de ofertas
+ */
+export interface OfertasResumen {
+  total: number;
+  activas: number;
+  expiradas: number;
+  productosEnOferta: number;
+}
+
+/**
+ * Interfaz para oferta con productos incluidos
+ */
+export interface OfertaConProductos extends Oferta {
+  productos?: Product[];
+  productosCount?: number;
+  isActive?: boolean;
+  timeRemaining?: string;
+}
+
+/**
  * Interfaz para Imágenes de Productos - Tabla tb_producto_imagenes
  */
 export interface ProductoImagen {

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useOfertas } from '../../hooks/useOfertas';
+import { useOfertasPagination } from '../../hooks/useOfertasPagination';
 import OffersGrid from '../../components/product/OffersGrid';
 import OffersProductsSection from '../../components/product/OffersProductsSection';
 import { ToastContainer } from 'react-toastify';
@@ -25,6 +25,7 @@ const TOAST_CONFIG = {
 /**
  * Página de ofertas
  * Muestra todas las ofertas disponibles y productos en oferta
+ * Ahora usa el contexto global de ofertas para mejor performance y cache
  */
 const Offers: React.FC = () => {
     const {
@@ -32,20 +33,23 @@ const Offers: React.FC = () => {
         productosEnOferta,
         loading,
         error,
-        totalProductos,
-        cargarMasProductos,
-        hayMasProductos,
-        refetch
-    } = useOfertas();
+        currentPage,
+        totalItems,
+        hasNextPage,
+        loadMore,
+        refreshOfertas,
+        getOfertasCount,
+        getProductosEnOfertaCount
+    } = useOfertasPagination({ itemsPerPage: 20 });
 
-    // Calcular cantidad de productos por oferta
+    // Calcular cantidad de productos por oferta usando el contexto global
     const productCounts = useMemo(() => {
         const counts: Record<number, number> = {};
 
-        // Contar productos por oferta
-        productosEnOferta.forEach(producto => {
+        // Contar productos por oferta usando datos del contexto
+        productosEnOferta.forEach((producto: any) => {
             if (producto.ofertas) {
-                producto.ofertas.forEach(oferta => {
+                producto.ofertas.forEach((oferta: any) => {
                     counts[oferta.id_oferta] = (counts[oferta.id_oferta] || 0) + 1;
                 });
             }
@@ -71,15 +75,15 @@ const Offers: React.FC = () => {
                         </p>
                     </div>
 
-                    {totalProductos > 0 && (
+                    {getProductosEnOfertaCount() > 0 && (
                         <div className={styles.statsCard}>
                             <div className={styles.stat}>
-                                <span className={styles.statNumber}>{ofertas.length}</span>
+                                <span className={styles.statNumber}>{getOfertasCount()}</span>
                                 <span className={styles.statLabel}>Ofertas</span>
                             </div>
                             <div className={styles.statDivider}></div>
                             <div className={styles.stat}>
-                                <span className={styles.statNumber}>{totalProductos}</span>
+                                <span className={styles.statNumber}>{getProductosEnOfertaCount()}</span>
                                 <span className={styles.statLabel}>Productos</span>
                             </div>
                         </div>
@@ -91,7 +95,7 @@ const Offers: React.FC = () => {
                     ofertas={ofertas}
                     loading={loading}
                     error={error}
-                    onRetry={refetch}
+                    onRetry={refreshOfertas}
                     productCounts={productCounts}
                 />
 
@@ -100,11 +104,22 @@ const Offers: React.FC = () => {
                     products={productosEnOferta}
                     loading={loading}
                     error={error}
-                    totalProducts={totalProductos}
-                    hasMore={hayMasProductos}
-                    onLoadMore={cargarMasProductos}
-                    onRetry={refetch}
+                    totalProducts={totalItems}
+                    hasMore={hasNextPage}
+                    onLoadMore={loadMore}
+                    onRetry={refreshOfertas}
                 />
+
+                {/* Debug info - Solo en desarrollo */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div className={styles.debugInfo}>
+                        <h4>🧪 Debug Info (Contexto Global + Paginación)</h4>
+                        <p>Total Ofertas: {getOfertasCount()}</p>
+                        <p>Total Productos: {totalItems}</p>
+                        <p>Página Actual: {currentPage}</p>
+                        <p>Hay más páginas: {hasNextPage ? '✅ Sí' : '❌ No'}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,24 +1,69 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import OfferCard from '../OfferCard';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { useOfertasGlobal } from '../../../hooks/useOfertasGlobal';
 import type { Oferta } from '../../../types/product';
 import styles from './OffersGrid.module.css';
 
 interface OffersGridProps {
-    ofertas: Oferta[];
-    loading: boolean;
-    error: string | null;
+    ofertas?: Oferta[]; // Ahora opcional, usa contexto global si no se proporciona
+    loading?: boolean; // Opcional, usa contexto global si no se proporciona
+    error?: string | null; // Opcional, usa contexto global si no se proporciona
     onRetry?: () => void;
     productCounts?: Record<number, number>;
+    useGlobalContext?: boolean; // Nueva prop para controlar si usar contexto global
 }
 
 const OffersGrid: React.FC<OffersGridProps> = ({
-    ofertas,
-    loading,
-    error,
+    ofertas: propsOfertas,
+    loading: propsLoading,
+    error: propsError,
     onRetry,
-    productCounts = {}
+    productCounts = {},
+    useGlobalContext = true // Por defecto usar contexto global
 }) => {
+    // Usar contexto global si está habilitado y no se proporcionan props
+    const {
+        ofertas: contextOfertas,
+        ofertasActivas,
+        ofertasExpiradas,
+        loading: contextLoading,
+        error: contextError,
+        refreshOfertas
+    } = useOfertasGlobal();
+
+    // Determinar qué datos usar
+    const ofertas = useGlobalContext ? contextOfertas : (propsOfertas || []);
+    const loading = useGlobalContext ? contextLoading : (propsLoading ?? false);
+    const error = useGlobalContext ? contextError : propsError;
+    const handleRetry = useGlobalContext ? refreshOfertas : onRetry;
+
+    // Memoizar las ofertas activas y expiradas para evitar recálculos
+    const { ofertasActivasFiltered, ofertasExpiradasFiltered } = useMemo(() => {
+        if (useGlobalContext) {
+            // Usar datos ya filtrados del contexto global
+            return {
+                ofertasActivasFiltered: ofertasActivas,
+                ofertasExpiradasFiltered: ofertasExpiradas
+            };
+        } else {
+            // Filtrado manual (fallback para compatibilidad)
+            const now = new Date();
+            const activas = ofertas.filter(oferta => {
+                const fin = new Date(oferta.fecha_fin);
+                return fin >= now;
+            });
+            const expiradas = ofertas.filter(oferta => {
+                const fin = new Date(oferta.fecha_fin);
+                return fin < now;
+            });
+            return {
+                ofertasActivasFiltered: activas,
+                ofertasExpiradasFiltered: expiradas
+            };
+        }
+    }, [useGlobalContext, ofertas, ofertasActivas, ofertasExpiradas]);
+
     if (loading && ofertas.length === 0) {
         return (
             <div className={styles.loadingContainer}>
@@ -35,8 +80,8 @@ const OffersGrid: React.FC<OffersGridProps> = ({
                     <span className="material-icons">error_outline</span>
                     <h3>Error al cargar ofertas</h3>
                     <p>{error}</p>
-                    {onRetry && (
-                        <button onClick={onRetry} className={styles.retryButton}>
+                    {handleRetry && (
+                        <button onClick={handleRetry} className={styles.retryButton}>
                             <span className="material-icons">refresh</span>
                             Reintentar
                         </button>
@@ -58,33 +103,21 @@ const OffersGrid: React.FC<OffersGridProps> = ({
         );
     }
 
-    // Separar ofertas activas y expiradas
-    const now = new Date();
-    const ofertasActivas = ofertas.filter(oferta => {
-        const fin = new Date(oferta.fecha_fin);
-        return fin >= now;
-    });
-
-    const ofertasExpiradas = ofertas.filter(oferta => {
-        const fin = new Date(oferta.fecha_fin);
-        return fin < now;
-    });
-
     return (
         <div className={styles.offersGrid}>
             {/* Ofertas activas */}
-            {ofertasActivas.length > 0 && (
+            {ofertasActivasFiltered.length > 0 && (
                 <section className={styles.section}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
                             <span className="material-icons">local_fire_department</span>
                             Ofertas Activas
                         </h2>
-                        <span className={styles.badge}>{ofertasActivas.length}</span>
+                        <span className={styles.badge}>{ofertasActivasFiltered.length}</span>
                     </div>
 
                     <div className={styles.grid}>
-                        {ofertasActivas.map((oferta) => (
+                        {ofertasActivasFiltered.map((oferta) => (
                             <OfferCard
                                 key={oferta.id_oferta}
                                 oferta={oferta}
@@ -96,18 +129,18 @@ const OffersGrid: React.FC<OffersGridProps> = ({
             )}
 
             {/* Ofertas expiradas */}
-            {ofertasExpiradas.length > 0 && (
+            {ofertasExpiradasFiltered.length > 0 && (
                 <section className={styles.section}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
                             <span className="material-icons">schedule</span>
                             Ofertas Expiradas
                         </h2>
-                        <span className={styles.badge}>{ofertasExpiradas.length}</span>
+                        <span className={styles.badge}>{ofertasExpiradasFiltered.length}</span>
                     </div>
 
                     <div className={styles.grid}>
-                        {ofertasExpiradas.map((oferta) => (
+                        {ofertasExpiradasFiltered.map((oferta) => (
                             <OfferCard
                                 key={oferta.id_oferta}
                                 oferta={oferta}
@@ -116,6 +149,17 @@ const OffersGrid: React.FC<OffersGridProps> = ({
                         ))}
                     </div>
                 </section>
+            )}
+
+            {/* Debug info - Solo en desarrollo */}
+            {process.env.NODE_ENV === 'development' && useGlobalContext && (
+                <div className={styles.debugInfo}>
+                    <h4>🧪 Debug Info (OffersGrid)</h4>
+                    <p>Usando Contexto Global: {useGlobalContext ? '✅ Sí' : '❌ No'}</p>
+                    <p>Total Ofertas: {ofertas.length}</p>
+                    <p>Ofertas Activas: {ofertasActivasFiltered.length}</p>
+                    <p>Ofertas Expiradas: {ofertasExpiradasFiltered.length}</p>
+                </div>
             )}
         </div>
     );

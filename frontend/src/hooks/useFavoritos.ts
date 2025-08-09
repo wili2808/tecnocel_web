@@ -2,12 +2,10 @@
  * Hook de Favoritos - Wrapper del contexto global para mantener compatibilidad
  * Optimización: Usa el contexto global para evitar consultas redundantes
  */
-import { useCallback } from 'react';
 import { useFavoritosGlobal } from '../contexts/FavoritosGlobalContext';
 
 export const useFavoritos = () => {
   const {
-    favoritos,
     favoritosCompletos,
     loading,
     error,

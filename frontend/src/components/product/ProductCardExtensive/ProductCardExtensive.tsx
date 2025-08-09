@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useFavoritosGlobal } from '../../../contexts/FavoritosGlobalContext';
+import { useFavoritoProducto } from '../../../contexts/FavoritosGlobalContext';
+import { useOfertasProducto } from '../../../hooks/useOfertasGlobal';
 import ProductImage from '../ProductImage';
 import styles from './ProductCardExtensive.module.css';
 import type { ProductCardProps } from '../../../types/product';
@@ -23,6 +24,8 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     descuento_porcentaje,
     en_oferta
 }) => {
+    // Log para verificar renders
+    console.log(`🔄 ProductCardExtensive renderizado - ID: ${id_producto}, Nombre: ${nombre}`);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const isOutOfStock = stock === 0;
@@ -30,7 +33,8 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     const { agregarItem, estado } = useCarrito();
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
-    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritosGlobal();
+    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritoProducto(id_producto);
+    const { isProductoEnOferta, getOfertaInfo } = useOfertasProducto(id_producto);
     const navigate = useNavigate();
 
     // Validar y formatear precio - Memoizado para evitar recálculos
@@ -60,10 +64,8 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         };
     }, [en_oferta, precio_oferta, precio_original, precio_venta]);
 
-    // Memoizar estado de favorito para evitar recálculos
-    const isProductFavorite = useMemo(() => {
-        return isFavorito(id_producto);
-    }, [isFavorito, id_producto]);
+    // El estado de favorito ya viene memoizado del hook optimizado
+    const isProductFavorite = isFavorito;
 
     const handleCardClick = (e: React.MouseEvent) => {
         if (isOutOfStock) {
@@ -135,7 +137,7 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         }
 
         try {
-            await toggleFavorito(id_producto);
+            await toggleFavorito();
         } catch (error) {
             console.error('Error al actualizar favoritos:', error);
             showNotification('Error al actualizar favoritos. Por favor, intente nuevamente.', 'error', 5000);
@@ -172,13 +174,36 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         );
     };
 
-    // Renderizar indicador de oferta
+    // Renderizar indicador de oferta - Usar contexto global y props
     const renderOfferIndicator = () => {
-        if (!en_oferta || !descuento_porcentaje) return null;
+        // Usar la misma lógica que priceInfo para determinar si hay oferta
+        const isInOffer = isProductoEnOferta();
+        const offerInfo = getOfertaInfo();
+
+        // Calcular descuento basado en contexto global o props
+        let shouldShowOffer = false;
+        let discountPercentage = 0;
+
+        if (isInOffer && offerInfo) {
+            // Usar información del contexto global
+            const firstProduct = offerInfo.productos?.[0];
+            if (firstProduct?.precio_oferta && firstProduct?.precio_original) {
+                const original = Number(firstProduct.precio_original);
+                const offer = Number(firstProduct.precio_oferta);
+                discountPercentage = Math.round(((original - offer) / original) * 100);
+                shouldShowOffer = discountPercentage > 0;
+            }
+        } else if (en_oferta && descuento_porcentaje) {
+            // Fallback a props
+            shouldShowOffer = true;
+            discountPercentage = descuento_porcentaje;
+        }
+
+        if (!shouldShowOffer || discountPercentage <= 0) return null;
 
         return (
             <div className={styles.offerIndicator}>
-                <span className={styles.offerPercentage}>-{descuento_porcentaje}%</span>
+                <span className={styles.offerPercentage}>-{discountPercentage}%</span>
                 <span className={styles.offerLabel}>OFERTA</span>
             </div>
         );

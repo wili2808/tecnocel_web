@@ -1,5 +1,5 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Product, Favorito, PaginatedResponse } from '../types/product';
+import type { Favorito } from '../types/product';
 
 export interface FavoritoResponse {
   success: boolean;

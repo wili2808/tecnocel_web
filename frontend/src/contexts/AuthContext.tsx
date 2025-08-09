@@ -1,7 +1,7 @@
 /**
  * Contexto de Autenticación - Maneja el estado global de autenticación
  */
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import axiosInstance from '../api/axiosConfig';
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (isInitialized) {
       subscribers.forEach(callback => callback(user));
     }
-  }, [user, isInitialized, subscribers]);
+  }, [user, isInitialized]); // OPTIMIZACIÓN: Remover subscribers de dependencias
 
   /**
    * Función para suscribirse a cambios en el estado de autenticación
@@ -259,19 +259,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     flow: 'implicit'
   });
 
+  // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
+  const contextValue = useMemo(() => ({
+    user,
+    token,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    googleLogin,
+    subscribeToAuthChanges,
+  }), [
+    user,
+    token,
+    login,
+    register,
+    logout,
+    googleLogin,
+    subscribeToAuthChanges,
+  ]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated: !!user,
-        login,
-        register,
-        logout,
-        googleLogin,
-        subscribeToAuthChanges,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,8 @@ export { useFilteredProducts } from './useFilteredProducts';
 export { useEscapeKey } from './useEscapeKey';
 export { useAuthForm, authValidationConfigs } from './useAuthForm';
 export { useOfertas } from './useOfertas';
+export { useOfertasGlobal, useOfertasProducto } from './useOfertasGlobal';
+export { useOfertasPagination } from './useOfertasPagination';
 
 // Tipos exportados
 export type { ProductUIFilters } from './useProductFilters'; 

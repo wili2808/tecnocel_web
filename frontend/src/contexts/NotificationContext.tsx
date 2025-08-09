@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 interface Notification {
     id: string;
@@ -31,6 +31,18 @@ export const useNotification = () => {
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
+    // Usar useRef para evitar dependencias circulares en useCallback
+    const hideNotificationRef = useRef<(id: string) => void>();
+
+    const hideNotification = useCallback((id: string) => {
+        setNotifications(prev => prev.filter(notification => notification.id !== id));
+    }, []);
+
+    // OPTIMIZACIÓN: Usar useEffect para actualizar la referencia solo cuando hideNotification cambie
+    useEffect(() => {
+        hideNotificationRef.current = hideNotification;
+    }, [hideNotification]);
+
     const showNotification = useCallback((message: string, type: 'error' | 'success' | 'warning' | 'info', duration = 5000, action?: { label: string; onClick: () => void }) => {
         const id = Date.now().toString();
         const newNotification: Notification = { id, message, type, duration, action };
@@ -39,24 +51,24 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         // Auto-remove notification after duration
         setTimeout(() => {
-            hideNotification(id);
+            if (hideNotificationRef.current) {
+                hideNotificationRef.current(id);
+            }
         }, duration);
-    }, []);
-
-    const hideNotification = useCallback((id: string) => {
-        setNotifications(prev => prev.filter(notification => notification.id !== id));
     }, []);
 
     const clearNotifications = useCallback(() => {
         setNotifications([]);
     }, []);
 
-    const value: NotificationContextType = {
+    // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
+    // CORRECCIÓN: Incluir notifications en las dependencias para que se actualice la UI
+    const value = useMemo<NotificationContextType>(() => ({
         notifications,
         showNotification,
         hideNotification,
         clearNotifications
-    };
+    }), [notifications, showNotification, hideNotification, clearNotifications]);
 
     return (
         <NotificationContext.Provider value={value}>
