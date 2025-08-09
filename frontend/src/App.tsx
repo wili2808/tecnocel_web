@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SearchProvider } from './contexts/SearchContext';
 import { CarritoProvider } from './contexts/CarritoContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { FavoritosGlobalProvider } from './contexts/FavoritosGlobalContext';
 import NotificationContainer from './components/common/NotificationContainer';
 import './styles/global.css';
 
@@ -34,33 +35,35 @@ function App() {
       <AuthProvider>
         <ThemeProvider>
           <NotificationProvider>
-            <Router>
-              <SearchProvider>
-                <CarritoProvider>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <Routes>
-                      {/* Rutas que usan Layout normal */}
-                      <Route element={<Layout />}>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/panel" element={<UserPanel />} />
-                        <Route path="/carrito" element={<Cart />} />
-                        <Route path="/ofertas" element={<Offers />} />
-                        <Route path="/marcas" element={<Brands />} />
-                      </Route>
-                      {/* Rutas sin footer */}
-                      <Route element={<Layout hideFooter />}>
-                        <Route path="/productos" element={<ProductCatalog />} />
-                        <Route path="/productos/:id" element={<ProductPage />} />
-                      </Route>
-                      {/* Rutas de autenticación sin layout */}
-                    </Routes>
-                  </Suspense>
-                  <NotificationContainer />
-                </CarritoProvider>
-              </SearchProvider>
-            </Router>
+            <FavoritosGlobalProvider>
+              <Router>
+                <SearchProvider>
+                  <CarritoProvider>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <Routes>
+                        {/* Rutas que usan Layout normal */}
+                        <Route element={<Layout />}>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/panel" element={<UserPanel />} />
+                          <Route path="/carrito" element={<Cart />} />
+                          <Route path="/ofertas" element={<Offers />} />
+                          <Route path="/marcas" element={<Brands />} />
+                        </Route>
+                        {/* Rutas sin footer */}
+                        <Route element={<Layout hideFooter />}>
+                          <Route path="/productos" element={<ProductCatalog />} />
+                          <Route path="/productos/:id" element={<ProductPage />} />
+                        </Route>
+                        {/* Rutas de autenticación sin layout */}
+                      </Routes>
+                    </Suspense>
+                    <NotificationContainer />
+                  </CarritoProvider>
+                </SearchProvider>
+              </Router>
+            </FavoritosGlobalProvider>
           </NotificationProvider>
         </ThemeProvider>
       </AuthProvider>

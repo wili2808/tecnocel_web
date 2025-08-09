@@ -1,15 +1,9 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Product } from '../types/product';
+import type { Product, Favorito, PaginatedResponse } from '../types/product';
 
 export interface FavoritoResponse {
   success: boolean;
-  data: {
-    id_favorito: number;
-    id_cliente: number;
-    id_producto: number;
-    fyh_creacion: string;
-    producto: Product;
-  }[];
+  data: Favorito[];
   pagination?: {
     total: number;
     limit: number;

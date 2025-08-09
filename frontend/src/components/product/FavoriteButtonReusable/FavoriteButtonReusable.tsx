@@ -1,5 +1,5 @@
-import React from 'react';
-import { useFavoritos } from '../../../hooks/useFavoritos';
+import React, { useMemo } from 'react';
+import { useFavoritosGlobal } from '../../../contexts/FavoritosGlobalContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +28,7 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
 }) => {
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
-    const { isFavorito, toggleFavorito, loading } = useFavoritos();
+    const { isFavorito, toggleFavorito, loading } = useFavoritosGlobal();
     const navigate = useNavigate();
 
     const handleToggle = async (e: React.MouseEvent) => {
@@ -60,7 +60,10 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
         }
     };
 
-    const isActive = isFavorito(productId);
+    // Memoizar estado de favorito para evitar recálculos
+    const isActive = useMemo(() => {
+        return isFavorito(productId);
+    }, [isFavorito, productId]);
 
     const heartIcon = (
         <svg

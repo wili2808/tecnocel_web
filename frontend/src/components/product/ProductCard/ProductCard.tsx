@@ -1,9 +1,9 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useFavoritos } from '../../../hooks/useFavoritos';
+import { useFavoritosGlobal } from '../../../contexts/FavoritosGlobalContext';
 import ProductImage from '../ProductImage';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     const { agregarItem, estado } = useCarrito();
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
-    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritos();
+    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritosGlobal();
     const navigate = useNavigate();
 
     // Debug: Log de props de imagen
@@ -44,17 +44,19 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
         }))
     });
 
-    // Validar y formatear precio
-    const formatPrice = (price: string | number): string => {
-        const numPrice = Number(price);
-        if (isNaN(numPrice) || numPrice < 0) {
-            return 'Precio no disponible';
-        }
-        return `$${numPrice.toLocaleString('es-AR')}`;
-    };
+    // Validar y formatear precio - Memoizado para evitar recálculos
+    const formatPrice = useMemo(() => {
+        return (price: string | number): string => {
+            const numPrice = Number(price);
+            if (isNaN(numPrice) || numPrice < 0) {
+                return 'Precio no disponible';
+            }
+            return `$${numPrice.toLocaleString('es-AR')}`;
+        };
+    }, []);
 
-    // Determinar qué precio mostrar
-    const getDisplayPrice = () => {
+    // Determinar qué precio mostrar - Memoizado para evitar recálculos
+    const priceInfo = useMemo(() => {
         if (en_oferta && precio_oferta) {
             return {
                 current: precio_oferta,
@@ -67,9 +69,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
             original: Number(precio_venta),
             hasDiscount: false
         };
-    };
-
-    const priceInfo = getDisplayPrice();
+    }, [en_oferta, precio_oferta, precio_original, precio_venta]);
 
     const handleCardClick = (e: React.MouseEvent) => {
         if (isOutOfStock) {
@@ -148,8 +148,15 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
         }
     };
 
-    const stockText = stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
-    const isProductFavorite = isFavorito(id_producto);
+    // Memoizar texto de stock para evitar recálculos
+    const stockText = useMemo(() => {
+        return stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
+    }, [stock]);
+
+    // Memoizar estado de favorito para evitar recálculos
+    const isProductFavorite = useMemo(() => {
+        return isFavorito(id_producto);
+    }, [isFavorito, id_producto]);
 
     // Determinar el contenido del overlay según el estado
     const getOverlayContent = () => {
