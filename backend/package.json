@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "concurrently \"tsc --watch\" \"nodemon\"",
-    "test:images": "node scripts_test/test-image-endpoints.js"
+    "test:images": "node scripts_test/test-image-endpoints.js",
+    "init:logs": "node scripts_test/init-logs-structure.js"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

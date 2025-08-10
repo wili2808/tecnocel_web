@@ -294,8 +294,6 @@ export class FavoritoController {
         // Remover de favoritos
         await favoritoExistente.destroy();
         
-        logger.info(`Producto removido de favoritos - Cliente: ${id_cliente}, Producto: ${id_producto}`);
-        
         return res.json({
           success: true,
           message: 'Producto removido de favoritos',
@@ -327,8 +325,6 @@ export class FavoritoController {
           id_producto: parseInt(id_producto),
           fyh_creacion: new Date()
         });
-
-        logger.info(`Producto agregado a favoritos - Cliente: ${id_cliente}, Producto: ${id_producto}`);
 
         return res.status(201).json({
           success: true,

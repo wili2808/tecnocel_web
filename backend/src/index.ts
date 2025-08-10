@@ -35,7 +35,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware de logging de requests
+// Middleware de logging de requests simplificado
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   
@@ -44,13 +44,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     const duration = Date.now() - start;
     const logLevel = res.statusCode >= 400 ? 'warn' : 'info';
     
-    logger.log(logLevel, `API Request`, {
+    // Solo registrar información esencial
+    logger.log(logLevel, 'API Request', {
       method: req.method,
       path: req.path,
       statusCode: res.statusCode,
-      duration: `${duration}ms`,
-      userAgent: req.get('User-Agent')?.substring(0, 100),
-      ip: req.ip || req.connection.remoteAddress
+      duration: `${duration}ms`
     });
   });
   

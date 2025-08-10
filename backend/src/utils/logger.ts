@@ -14,19 +14,41 @@ const createLogger = (): winston.Logger => {
     return loggerInstance;
   }
 
-  // Configuración de formatos personalizados mejorada
-  const customFormat = winston.format.combine(
+  // Formato personalizado para logs más limpios
+  // Interfaces para tipar los metadatos
+interface LogMetadata {
+  method?: string;
+  path?: string;
+  statusCode?: number;
+  duration?: string;
+  userAgent?: string;
+  [key: string]: any;
+}
+
+const customFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
-    winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-      let logMessage = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
-      
-      // Agregar metadatos si existen
-      if (Object.keys(meta).length > 0) {
-        logMessage += ` | ${JSON.stringify(meta)}`;
+    winston.format.printf((info: any) => {
+      const { timestamp, level, message, stack, ...meta } = info;
+      const metadata = meta as LogMetadata;
+      // Para requests de API
+      if (metadata.method && metadata.path) {
+        return `${timestamp} | ${metadata.method} ${metadata.path} | Status: ${metadata.statusCode} | ${metadata.duration}`;
       }
       
-      // Agregar stack trace para errores
+      // Para logs normales
+      let logMessage = `${timestamp} | ${message}`;
+      
+      // Agregar metadatos relevantes
+      if (Object.keys(metadata).length > 0) {
+        // Filtrar y limitar userAgent si existe
+        if (metadata.userAgent) {
+          metadata.userAgent = metadata.userAgent.substring(0, 50) + '...';
+        }
+        logMessage += ` | ${JSON.stringify(metadata)}`;
+      }
+      
+      // Agregar stack trace para errores en nueva línea
       if (stack) {
         logMessage += `\n${stack}`;
       }
@@ -35,22 +57,24 @@ const createLogger = (): winston.Logger => {
     })
   );
 
-  // Configurar transports según el entorno
+  // Configurar transports con rotación semanal
   const transports: winston.transport[] = [
-    // Logs de error en archivo separado
+    // Logs de error
     new winston.transports.File({
       filename: path.join(__dirname, '../logs/error.log'),
       level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      format: customFormat
+      maxsize: 10485760, // 10MB
+      maxFiles: 7,
+      format: customFormat,
+      tailable: true
     }),
-    // Logs generales
+    // Logs de API y operaciones
     new winston.transports.File({
-      filename: path.join(__dirname, '../logs/combined.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      format: customFormat
+      filename: path.join(__dirname, '../logs/api.log'),
+      maxsize: 10485760, // 10MB
+      maxFiles: 7,
+      format: customFormat,
+      tailable: true
     })
   ];
 
@@ -59,11 +83,20 @@ const createLogger = (): winston.Logger => {
     transports.push(new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.simple(),
         winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          let logMessage = `${timestamp} ${level}: ${message}`;
+          // Para requests de API en consola
+          if (meta.method && meta.path) {
+            return `${timestamp} ${level} | ${meta.method} ${meta.path} | Status: ${meta.statusCode} | ${meta.duration}`;
+          }
+          
+          // Para logs normales en consola
+          let logMessage = `${timestamp} ${level} | ${message}`;
           if (Object.keys(meta).length > 0) {
-            logMessage += ` | ${JSON.stringify(meta)}`;
+            // Omitir userAgent en consola para mayor claridad
+            const { userAgent, ...relevantMeta } = meta;
+            if (Object.keys(relevantMeta).length > 0) {
+              logMessage += ` | ${JSON.stringify(relevantMeta)}`;
+            }
           }
           return logMessage;
         })

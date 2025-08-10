@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
 import logger from '../utils/logger.js';
+import CarritoWeb from '../models/CarritoWeb.js';
+import CarritoWebItems from '../models/CarritoWebItems.js';
+import Almacen from '../models/Almacen.js';
 
 /**
  * Middleware para manejar errores de validación
@@ -138,26 +141,85 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
       return res.status(401).json({ mensaje: 'Cliente no autenticado' });
     }
 
-    // Aquí puedes agregar lógicas como:
-    // - Límite máximo de items por carrito (ej: 50 items)
-    // - Límite máximo de valor del carrito
-    // - Verificar si el cliente tiene carritos abandonados excesivos
-    
     const MAX_ITEMS_POR_CARRITO = 50;
-    const { cantidad } = req.body;
+    const MAX_ITEMS_TOTALES = 100;
+    const MAX_VALOR_CARRITO = 50000; // En la moneda base (BOB)
     
+    const { cantidad, id_producto } = req.body;
+
+    // Verificar límite por producto individual
     if (cantidad && cantidad > MAX_ITEMS_POR_CARRITO) {
+      logger.warn('Límite de items por producto excedido', {
+        cliente_id: id_cliente,
+        cantidad_solicitada: cantidad,
+        limite_maximo: MAX_ITEMS_POR_CARRITO,
+        producto_id: id_producto
+      });
+      
       return res.status(400).json({
         mensaje: `No se pueden agregar más de ${MAX_ITEMS_POR_CARRITO} unidades por producto`,
-        limite_maximo: MAX_ITEMS_POR_CARRITO
+        limite_maximo: MAX_ITEMS_POR_CARRITO,
+        cantidad_solicitada: cantidad
       });
+    }
+
+    // Verificar límite total de items en el carrito
+    const carrito = await CarritoWeb.findOne({
+      where: { id_cliente, estado: 'activo' },
+      include: [{ model: CarritoWebItems, as: 'items' }]
+    });
+
+    if (carrito) {
+      // Calcular total de items actual
+      const totalItemsActual = (carrito.items || []).reduce((sum: number, item: CarritoWebItems) => sum + item.cantidad, 0);
+      const nuevoTotal = totalItemsActual + (cantidad || 0);
+
+      if (nuevoTotal > MAX_ITEMS_TOTALES) {
+        logger.warn('Límite total de items en carrito excedido', {
+          cliente_id: id_cliente,
+          items_actuales: totalItemsActual,
+          items_solicitados: cantidad,
+          limite_maximo: MAX_ITEMS_TOTALES
+        });
+        
+        return res.status(400).json({
+          mensaje: `El carrito no puede exceder ${MAX_ITEMS_TOTALES} items en total`,
+          items_actuales: totalItemsActual,
+          limite_maximo: MAX_ITEMS_TOTALES,
+          items_disponibles: MAX_ITEMS_TOTALES - totalItemsActual
+        });
+      }
+
+      // Verificar valor total del carrito
+      const nuevoProducto = await Almacen.findByPk(id_producto);
+      if (nuevoProducto) {
+        const valorActual = parseFloat(carrito.total_carrito.toString());
+        const valorAdicional = parseFloat(nuevoProducto.precio_venta.toString()) * cantidad;
+        const nuevoValorTotal = valorActual + valorAdicional;
+
+        if (nuevoValorTotal > MAX_VALOR_CARRITO) {
+          logger.warn('Límite de valor del carrito excedido', {
+            cliente_id: id_cliente,
+            valor_actual: valorActual,
+            valor_adicional: valorAdicional,
+            limite_maximo: MAX_VALOR_CARRITO
+          });
+          
+          return res.status(400).json({
+            mensaje: `El valor total del carrito no puede exceder ${MAX_VALOR_CARRITO} BOB`,
+            valor_actual: valorActual,
+            limite_maximo: MAX_VALOR_CARRITO
+          });
+        }
+      }
     }
 
     next();
   } catch (error) {
     logger.error('Error al verificar límites del carrito:', {
       error: error instanceof Error ? error.message : 'Error desconocido',
-      cliente_id: req.usuario?.id_cliente
+      cliente_id: req.usuario?.id_cliente,
+      body: req.body
     });
     return res.status(500).json({ mensaje: 'Error interno del servidor' });
   }
@@ -171,28 +233,49 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
 export const logCarritoOperation = (operacion: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const id_cliente = req.usuario?.id_cliente;
-    
-    logger.info(`Operación de carrito iniciada: ${operacion}`, {
-      operacion,
-      cliente_id: id_cliente,
-      path: req.path,
-      method: req.method,
-      body: req.method === 'POST' || req.method === 'PUT' ? req.body : undefined,
-      params: req.params,
-      query: req.query,
-      user_agent: req.get('User-Agent'),
-      ip: req.ip
-    });
+    const startTime = Date.now();
     
     // Interceptar la respuesta para loggear el resultado
     const originalSend = res.json;
     res.json = function(data: any) {
-      logger.info(`Operación de carrito completada: ${operacion}`, {
+      const duration = Date.now() - startTime;
+      const success = res.statusCode < 400;
+      
+      // Un solo log con toda la información relevante
+      const logLevel = success ? 'info' : 'warn';
+      const logData = {
         operacion,
         cliente_id: id_cliente,
         status_code: res.statusCode,
-        success: res.statusCode < 400
-      });
+        success,
+        duration: `${duration}ms`,
+        body: req.method === 'POST' || req.method === 'PUT' ? req.body : undefined,
+        response_data: success ? undefined : data, // Solo loggear datos de respuesta en caso de error
+        user_agent: req.get('User-Agent')
+      };
+
+      // Evitar log duplicado si ya se registró un warn para este error
+      if (!success && res.locals.errorLogged) {
+        return originalSend.call(this, data);
+      }
+
+      // Construir un mensaje más descriptivo para operaciones exitosas
+      let mensaje = `${req.method} ${req.path} | Operación: ${operacion}`;
+      
+      if (success) {
+        switch (operacion) {
+          case 'agregar_item':
+            mensaje = `Producto agregado exitosamente al carrito | Cliente: ${id_cliente}`;
+            break;
+          case 'obtener_carrito':
+            const responseData = data?.carrito;
+            mensaje = `Carrito obtenido exitosamente | Cliente: ${id_cliente} | Items: ${responseData?.cantidad_items || 0} | Total: ${responseData?.total_carrito || '0.00'}`;
+            break;
+        }
+      }
+      
+      logger[logLevel](mensaje, logData);
+      
       return originalSend.call(this, data);
     };
     
@@ -205,7 +288,8 @@ export const logCarritoOperation = (operacion: string) => {
  */
 export const verificarDisponibilidadProducto = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id_producto } = req.body;
+    const { id_producto, cantidad } = req.body;
+    const id_cliente = req.usuario?.id_cliente;
     
     if (!id_producto) {
       return next(); // Si no hay id_producto, dejar que otras validaciones lo manejen
@@ -228,6 +312,46 @@ export const verificarDisponibilidadProducto = async (req: Request, res: Respons
         mensaje: 'Producto sin stock disponible',
         producto: producto.nombre,
         stock_actual: producto.stock
+      });
+    }
+
+    // Verificar cantidad total considerando lo que ya está en el carrito
+    const carrito = await CarritoWeb.findOne({
+      where: { id_cliente, estado: 'activo' },
+      include: [{
+        model: CarritoWebItems,
+        as: 'items',
+        where: { id_producto },
+        required: false
+      }]
+    });
+
+    const cantidadEnCarrito = carrito?.items?.[0]?.cantidad || 0;
+    const cantidadTotal = cantidadEnCarrito + (cantidad || 1);
+
+    if (cantidadTotal > producto.stock) {
+      logger.warn('Intento de agregar más items que el stock disponible', {
+        cliente_id: id_cliente,
+        producto_id: id_producto,
+        stock_disponible: producto.stock,
+        cantidad_en_carrito: cantidadEnCarrito,
+        cantidad_solicitada: cantidad,
+        cantidad_total: cantidadTotal
+      });
+      
+      // Marcar que ya se registró el error
+      res.locals.errorLogged = true;
+
+      return res.status(400).json({
+        mensaje: `No es posible agregar ${cantidad || 1} unidad(es) más. Ya tienes ${cantidadEnCarrito} en el carrito y solo hay ${producto.stock} unidades disponibles.`,
+        stock_disponible: producto.stock,
+        cantidad_actual_en_carrito: cantidadEnCarrito,
+        cantidad_solicitada: cantidad || 1,
+        producto: {
+          id: producto.id_producto,
+          nombre: producto.nombre,
+          precio: producto.precio_venta
+        }
       });
     }
 

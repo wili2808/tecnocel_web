@@ -184,12 +184,7 @@ export default class CarritoController {
         };
       }));
 
-      logger.info('Carrito obtenido exitosamente', {
-        cliente_id: id_cliente,
-        items_count: itemsConOfertas.length,
-        total: carrito!.total_carrito
-      });
-      
+      // El log de éxito se maneja en el middleware de logging
       return res.json({
         carrito: {
           id_carrito: carrito!.id_carrito,
@@ -333,7 +328,7 @@ export default class CarritoController {
         (itemCompleto as any).producto = productoTransformado;
       }
 
-      logger.info(`Item agregado exitosamente al carrito - Cliente: ${id_cliente}, Item ID: ${item.id_item}`);
+      // El log de éxito se maneja en el middleware de logging
       return res.json({
         mensaje: itemExistente ? 'Cantidad actualizada en el carrito' : 'Producto agregado al carrito',
         item: itemCompleto,
