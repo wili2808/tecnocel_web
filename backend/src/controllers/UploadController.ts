@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import { config } from '../config/config.js';
 import { ImageType } from '../services/imageService.js';
 

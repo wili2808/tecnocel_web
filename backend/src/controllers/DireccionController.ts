@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Direccion from '../models/Direccion.js';
 import Cliente from '../models/Cliente.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 
 export class DireccionController {
   // Obtener direcciones de un cliente

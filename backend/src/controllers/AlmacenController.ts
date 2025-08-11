@@ -8,7 +8,7 @@ import TipoCaracteristica from '../models/TipoCaracteristica.js';
 import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
 import Oferta from '../models/Oferta.js';
 import ProductoImagen from '../models/ProductoImagen.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
 
 class AlmacenController {
@@ -111,10 +111,15 @@ class AlmacenController {
       
       const productosConImagenes = await this.transformProductsWithImages(productos);
       
+      res.locals.skipHttpLog = true;
+      
       logger.info('Productos obtenidos exitosamente', {
+        operacion: 'obtener_productos',
         cantidad: productos.length,
-        conImagenes: productosConImagenes.filter(p => p.imagen_disponible).length
+        conImagenes: productosConImagenes.filter(p => p.imagen_disponible).length,
+        success: true
       });
+      
       res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al obtener productos del almacén:', {
@@ -187,11 +192,16 @@ class AlmacenController {
 
       const productoConImagen = await this.transformProductWithImage(producto);
 
+      res.locals.skipHttpLog = true;
+      
       logger.info('Producto obtenido exitosamente', {
-        id: id,
+        operacion: 'obtener_producto',
+        producto_id: id,
         nombre: producto.getDataValue('nombre'),
-        categoria: (producto as any).Categoria?.nombre_categoria
+        categoria: (producto as any).Categoria?.nombre_categoria,
+        success: true
       });
+      
       res.json(productoConImagen);
     } catch (error) {
       logger.error('Error al obtener producto del almacén por ID:', {
@@ -227,11 +237,15 @@ class AlmacenController {
         await ProductoImagen.bulkCreate(imagenesData);
       }
 
+      res.locals.skipHttpLog = true;
+      
       logger.info('Producto creado exitosamente', {
-        id: producto.getDataValue('id_producto'),
+        operacion: 'crear_producto',
+        producto_id: producto.getDataValue('id_producto'),
         nombre: producto.getDataValue('nombre'),
         codigo: producto.getDataValue('codigo'),
-        imagenes: imagenes?.length || 0
+        imagenes: imagenes?.length || 0,
+        success: true
       });
 
       const productoCompleto = await this.getProductById(req, res);
@@ -283,10 +297,15 @@ class AlmacenController {
         }
       }
 
+      res.locals.skipHttpLog = true;
+      
       logger.info('Producto actualizado exitosamente', { 
-        id: id,
-        imagenes_actualizadas: imagenes?.length
+        operacion: 'actualizar_producto',
+        producto_id: id,
+        imagenes_actualizadas: imagenes?.length,
+        success: true
       });
+      
       res.json({ message: 'Producto actualizado correctamente' });
     } catch (error) {
       logger.error('Error al actualizar producto en almacén:', {
@@ -318,7 +337,14 @@ class AlmacenController {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
-      logger.info(`Producto eliminado exitosamente del almacén ID: ${id}`);
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Producto eliminado exitosamente', {
+        operacion: 'eliminar_producto',
+        producto_id: id,
+        success: true
+      });
+      
       res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
       logger.error('Error al eliminar producto del almacén:', {
@@ -422,7 +448,15 @@ class AlmacenController {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
-      logger.info(`Stock actualizado exitosamente para el producto ID: ${id}`);
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Stock actualizado exitosamente', {
+        operacion: 'actualizar_stock',
+        producto_id: id,
+        nuevo_stock: stock,
+        success: true
+      });
+      
       res.json({ message: 'Stock actualizado correctamente' });
     } catch (error) {
       logger.error('Error al actualizar stock:', {
@@ -464,7 +498,16 @@ class AlmacenController {
       const productosConImagenes = await this.transformProductsWithImages(productos);
       logger.debug('Transformación de imágenes destacados completada');
 
-      logger.info(`Se obtuvieron ${productos.length} productos destacados exitosamente`);
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Productos destacados obtenidos exitosamente', {
+        operacion: 'obtener_destacados',
+        cantidad: productos.length,
+        limit: limit,
+        success: true
+      });
+      
       res.json(productosConImagenes);
     } catch (error) {
       logger.error('Error al obtener productos destacados:', {
@@ -482,7 +525,14 @@ class AlmacenController {
       const categorias = await Categoria.findAll({
         attributes: ['id_categoria', 'nombre_categoria']
       });
-      logger.info(`Se obtuvieron ${categorias.length} categorías exitosamente`);
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Categorías obtenidas exitosamente', {
+        operacion: 'obtener_categorias',
+        cantidad: categorias.length,
+        success: true
+      });
+      
       res.json(categorias);
     } catch (error) {
       logger.error('Error al obtener categorías:', {

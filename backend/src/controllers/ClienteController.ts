@@ -3,8 +3,8 @@ import Cliente from '../models/Cliente.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/emailService.js';
-import logger from '../utils/logger.js';
+import { sendVerificationEmail, sendResetPasswordEmail } from '../services/emailService.js';
+import logger from '../services/loggerService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
 const JWT_EXPIRES_IN = '7d';
@@ -43,10 +43,14 @@ export default class ClienteController {
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });
+      res.locals.skipHttpLog = true;
+      
       logger.info('Cliente registrado exitosamente', {
-        id: cliente.id_cliente,
+        operacion: 'registrar_cliente',
+        cliente_id: cliente.id_cliente,
         email: cliente.email_cliente,
-        nombre: cliente.nombre_cliente
+        nombre: cliente.nombre_cliente,
+        success: true
       });
       
       // Generar JWT para login automático
@@ -233,7 +237,14 @@ export default class ClienteController {
         return res.status(403).json({ mensaje: 'Cliente no encontrado o no habilitado' });
       }
 
-      logger.info(`Token verificado exitosamente para: ${clienteCompleto.email_cliente}`);
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Token verificado exitosamente', {
+        operacion: 'verificar_token',
+        cliente_id: clienteCompleto.id_cliente,
+        email: clienteCompleto.email_cliente,
+        success: true
+      });
       
       return res.json({ 
         cliente: { 

@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Backend de TecnoCel Web, API REST completa desarrollada con Node.js, Express, TypeScript y MySQL. Proporciona endpoints para autenticación, productos, carrito, comentarios y gestión de imágenes.
+Backend de TecnoCel Web, API REST completa desarrollada con Node.js, Express, TypeScript y MySQL. Proporciona endpoints para autenticación, productos, carrito, comentarios, gestión de almacén y sistema completo de e-commerce.
 
 ## 🛠️ Stack Tecnológico
 
@@ -10,11 +10,12 @@ Backend de TecnoCel Web, API REST completa desarrollada con Node.js, Express, Ty
 - **Express.js 4.18.2** - Framework web
 - **MySQL 8.0+** con Sequelize 6.35.2 ORM
 - **JWT** con bcryptjs 2.4.3 para autenticación
-- **Passport.js** con Google OAuth 2.0
+- **Google OAuth 2.0** con google-auth-library 10.2.0
 - **Multer 2.0.2** + **Sharp 0.34.3** para manejo de imágenes
 - **Express-validator 7.2.1** para validación
 - **Winston 3.17.0** para logging estructurado
 - **Nodemailer 7.0.5** para envío de emails
+- **UUID 11.1.0** para identificadores únicos
 
 ## 🚀 Instalación y Ejecución
 
@@ -31,8 +32,11 @@ npm run build
 # Ejecutar en producción
 npm start
 
-# Linting
-npm run lint
+# Testing de imágenes
+npm run test:images
+
+# Inicializar estructura de logs
+npm run init:logs
 ```
 
 ## 🏗️ Estructura del Proyecto
@@ -43,47 +47,70 @@ src/
 │   ├── config.ts          # Configuración principal del sistema
 │   └── database.ts        # Configuración de base de datos
 ├── controllers/           # Controladores de la API REST
-│   ├── AuthController.ts  # Autenticación y autorización
-│   ├── ProductController.ts # Gestión de productos
-│   ├── CarritoController.ts # Gestión del carrito
-│   ├── CommentController.ts # Sistema de comentarios
-│   ├── UploadController.ts # Subida de imágenes
-│   ├── OfferController.ts # Gestión de ofertas
-│   ├── FavoriteController.ts # Gestión de favoritos
-│   ├── AlmacenController.ts # Gestión de almacén
-│   └── CaracteristicaController.ts # Características de productos
+│   ├── AlmacenController.ts # Gestión completa de almacén y productos
+│   ├── CaracteristicaController.ts # Características de productos
+│   ├── CarritoController.ts # Gestión del carrito de compras
+│   ├── ClienteController.ts # Gestión de clientes y usuarios
+│   ├── ComentarioController.ts # Sistema de comentarios con imágenes
+│   ├── DireccionController.ts # Gestión de direcciones de envío
+│   ├── FavoritoController.ts # Sistema de favoritos
+│   ├── GoogleAuthController.ts # Autenticación Google OAuth
+│   ├── MarcaController.ts # Gestión de marcas de productos
+│   ├── OfertaController.ts # Sistema de ofertas y descuentos
+│   └── UploadController.ts # Subida y procesamiento de imágenes
 ├── middleware/            # Middleware personalizado
 │   ├── authMiddleware.ts  # Verificación de JWT
 │   ├── staticImageMiddleware.ts # Servir imágenes estáticas
-│   ├── validateCarrito.ts # Validación de carrito
-│   └── uploadMiddleware.ts # Middleware de subida
+│   ├── validateCarrito.ts # Validación completa del carrito
+│   └── validateRegistration.ts # Validación de registro de usuarios
 ├── models/                # Modelos de Sequelize con relaciones
-│   ├── User.ts            # Modelo de usuario
-│   ├── Product.ts         # Modelo de producto
-│   ├── Carrito.ts         # Modelo de carrito
-│   ├── Comment.ts         # Modelo de comentario
-│   ├── Image.ts           # Modelo de imagen
-│   ├── Offer.ts           # Modelo de oferta
-│   ├── Favorite.ts        # Modelo de favorito
-│   ├── Brand.ts           # Modelo de marca
-│   ├── Category.ts        # Modelo de categoría
+│   ├── index.ts           # Configuración de modelos y relaciones
+│   ├── relaciones.ts      # Definición de todas las relaciones
+│   ├── Usuario.ts         # Modelo de usuario del sistema
+│   ├── Cliente.ts         # Modelo de cliente
+│   ├── Producto.ts        # Modelo de producto (referenciado)
+│   ├── Carrito.ts         # Modelo de carrito básico
+│   ├── CarritoWeb.ts      # Modelo de carrito web
+│   ├── CarritoWebItems.ts # Items del carrito web
+│   ├── Comentario.ts      # Modelo de comentario
+│   ├── ComentarioImagen.ts # Imágenes de comentarios
+│   ├── ProductoImagen.ts  # Imágenes de productos
+│   ├── Oferta.ts          # Modelo de oferta
+│   ├── ProductoOferta.ts  # Relación producto-oferta
+│   ├── Favorito.ts        # Modelo de favorito
+│   ├── Marca.ts           # Modelo de marca
+│   ├── Categoria.ts       # Modelo de categoría
 │   ├── Almacen.ts         # Modelo de almacén
-│   └── Caracteristica.ts  # Modelo de característica
+│   ├── Caracteristica.ts  # Modelo de característica
+│   ├── ProductoCaracteristica.ts # Relación producto-característica
+│   ├── TipoCaracteristica.ts # Tipos de características
+│   ├── Proveedor.ts       # Modelo de proveedor
+│   ├── Venta.ts           # Modelo de venta
+│   ├── Compra.ts          # Modelo de compra
+│   ├── DetalleCompra.ts   # Detalles de compra
+│   ├── Devolucion.ts      # Modelo de devolución
+│   ├── DetalleDevolucion.ts # Detalles de devolución
+│   ├── Presupuesto.ts     # Modelo de presupuesto
+│   ├── PresupuestoDetalle.ts # Detalles de presupuesto
+│   └── Rol.ts             # Modelo de roles de usuario
 ├── routes/                # Definición de rutas de la API
-│   ├── authRoutes.ts      # Rutas de autenticación
-│   ├── productRoutes.ts   # Rutas de productos
+│   ├── almacenRoutes.ts   # Rutas de almacén y productos
+│   ├── caracteristicaRoutes.ts # Rutas de características
 │   ├── carritoRoutes.ts   # Rutas del carrito
-│   ├── commentRoutes.ts   # Rutas de comentarios
-│   ├── uploadRoutes.ts    # Rutas de subida
-│   ├── offerRoutes.ts     # Rutas de ofertas
-│   ├── favoriteRoutes.ts  # Rutas de favoritos
-│   ├── almacenRoutes.ts   # Rutas de almacén
-│   └── caracteristicaRoutes.ts # Rutas de características
+│   ├── clienteRoutes.ts   # Rutas de clientes
+│   ├── comentarioRoutes.ts # Rutas de comentarios
+│   ├── direccionRoutes.ts # Rutas de direcciones
+│   ├── favoritoRoutes.ts  # Rutas de favoritos
+│   ├── marcaRoutes.ts     # Rutas de marcas
+│   ├── ofertaRoutes.ts    # Rutas de ofertas
+│   └── uploadRoutes.ts    # Rutas de subida de imágenes
 ├── services/              # Servicios de negocio
-│   └── imageService.ts    # Procesamiento de imágenes
-├── utils/                 # Utilidades y helpers
+│   └── imageService.ts    # Procesamiento y gestión de imágenes
+├── services/              # Servicios de negocio (imágenes, email, logger)
+│   ├── imageService.ts    # Procesamiento y gestión de imágenes
 │   ├── emailService.ts    # Servicio de email
-│   └── logger.ts          # Sistema de logging
+│   ├── loggerService.ts   # Sistema de logging con Winston
+│   └── index.ts           # Exportaciones centralizadas
 └── index.ts               # Punto de entrada de la aplicación
 ```
 
@@ -92,42 +119,62 @@ src/
 ### Variables de Entorno Requeridas
 
 ```env
-# Base de Datos
-DB_NAME=tecnocel_db_v3
+# ===========================================
+# CONFIGURACIÓN DE BASE DE DATOS
+# ===========================================
+DB_NAME=db_tecnocel_v4
 DB_USER=root
 DB_PASSWORD=tu_password_aqui
 DB_HOST=localhost
 DB_PORT=3306
 
-# Servidor
+# ===========================================
+# CONFIGURACIÓN DEL SERVIDOR
+# ===========================================
 PORT=3000
 NODE_ENV=development
 
-# JWT (¡OBLIGATORIO cambiar en producción!)
-JWT_SECRET=tu_clave_secreta_super_segura_aqui
+# ===========================================
+# CONFIGURACIÓN JWT
+# ===========================================
+JWT_SECRET=clave_secreta_supersegura_de_tecnocel
 
-# Imágenes
-IMAGES_PATH=C:/xampp/htdocs/tecnocel
-COMMENTS_IMAGES_PATH=C:/xampp/htdocs/tecnocel/img_comments
-BASE_URL=http://localhost:3000
-DEFAULT_IMAGE=default-product.png
+# ===========================================
+# CONFIGURACIÓN DE LOGGING
+# ===========================================
+LOG_LEVEL=info
+SEQUELIZE_DEBUG=false
 
-# Email (opcional)
+# ===========================================
+# CONFIGURACIÓN DE IMÁGENES
+# ===========================================
+IMAGES_BASE_PATH=C:/xampp/htdocs/tecnocel
+PRODUCT_IMAGES_PATH=C:/xampp/htdocs/tecnocel/almacen/img_productos
+COMMENT_IMAGES_PATH=C:/xampp/htdocs/tecnocel/img_comments
+BASE_URL=http://localhost
+IMAGES_ENDPOINT=
+DEFAULT_PRODUCT_IMAGE=default-product.png
+DEFAULT_COMMENT_IMAGE=default-comment.png
+
+# ===========================================
+# CONFIGURACIÓN DE EMAIL
+# ===========================================
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=tu_email@gmail.com
 EMAIL_PASS=tu_password_de_aplicacion
 EMAIL_FROM=tu_email@gmail.com
 
-# Frontend
+# ===========================================
+# CONFIGURACIÓN DEL FRONTEND
+# ===========================================
 FRONTEND_URL=http://localhost:5173
 
-# Google OAuth (opcional)
+# ===========================================
+# CONFIGURACIÓN DE GOOGLE
+# ===========================================
 GOOGLE_CLIENT_ID=tu_google_client_id_aqui
-
-# Logging
-LOG_LEVEL=info
-SEQUELIZE_DEBUG=false
+GOOGLE_CLIENT_SECRET=tu_google_client_secret_aqui
 ```
 
 ### Configuración de Base de Datos
@@ -135,7 +182,7 @@ SEQUELIZE_DEBUG=false
 1. **Crear base de datos:**
 
    ```sql
-   CREATE DATABASE tecnocel_db_v3;
+   CREATE DATABASE db_tecnocel_v4;
    ```
 
 2. **Configurar conexión:**
@@ -144,90 +191,136 @@ SEQUELIZE_DEBUG=false
 
 ## 🔍 API Endpoints
 
-### Autenticación (`/api/auth`)
+### Almacén y Productos (`/api/almacen`)
 
-- `POST /register` - Registro de usuario
-- `POST /login` - Login con email/password
-- `GET /google` - Login con Google OAuth
-- `POST /logout` - Cerrar sesión
-- `GET /profile` - Obtener perfil del usuario
-
-### Productos (`/api/products`)
-
-- `GET /` - Listar productos con filtros
-- `GET /:id` - Obtener producto por ID
-- `GET /search` - Búsqueda de productos
+- `GET /` - Listar productos con filtros avanzados
+- `GET /:id` - Obtener producto por ID con detalles completos
+- `POST /` - Crear nuevo producto
+- `PUT /:id` - Actualizar producto
+- `DELETE /:id` - Eliminar producto
+- `GET /search` - Búsqueda avanzada de productos
 - `GET /featured` - Productos destacados
 - `GET /categories` - Listar categorías
 - `GET /brands` - Listar marcas
 
-### Carrito (`/api/cart`)
+### Carrito (`/api/carrito`)
 
 - `GET /` - Obtener carrito del usuario
 - `POST /add` - Agregar producto al carrito
 - `PUT /update` - Actualizar cantidad
 - `DELETE /remove/:id` - Remover producto
 - `DELETE /clear` - Vaciar carrito
+- `POST /checkout` - Procesar compra
 
-### Comentarios (`/api/comments`)
+### Comentarios (`/api/comentarios`)
 
 - `GET /:productId` - Comentarios de un producto
-- `POST /` - Crear comentario
+- `POST /` - Crear comentario con imágenes
 - `PUT /:id` - Actualizar comentario
 - `DELETE /:id` - Eliminar comentario
+- `GET /user/:userId` - Comentarios de un usuario
 
-### Ofertas (`/api/offers`)
+### Clientes (`/api/clientes`)
+
+- `GET /profile` - Obtener perfil del cliente
+- `PUT /profile` - Actualizar perfil
+- `POST /register` - Registro de cliente
+- `POST /login` - Login de cliente
+- `POST /logout` - Cerrar sesión
+
+### Ofertas (`/api/ofertas`)
 
 - `GET /` - Listar ofertas activas
 - `GET /:id` - Obtener oferta por ID
-- `POST /` - Crear oferta (admin)
+- `POST /` - Crear oferta
 - `PUT /:id` - Actualizar oferta
 - `DELETE /:id` - Eliminar oferta
+- `GET /product/:productId` - Ofertas de un producto
 
-### Favoritos (`/api/favorites`)
+### Favoritos (`/api/favoritos`)
 
 - `GET /` - Listar favoritos del usuario
 - `POST /` - Agregar a favoritos
 - `DELETE /:id` - Remover de favoritos
+- `GET /check/:productId` - Verificar si está en favoritos
+
+### Marcas (`/api/marcas`)
+
+- `GET /` - Listar todas las marcas
+- `GET /:id` - Obtener marca por ID
+- `POST /` - Crear nueva marca
+- `PUT /:id` - Actualizar marca
+- `DELETE /:id` - Eliminar marca
+
+### Características (`/api/caracteristicas`)
+
+- `GET /` - Listar características
+- `GET /:id` - Obtener característica por ID
+- `POST /` - Crear característica
+- `PUT /:id` - Actualizar característica
+- `DELETE /:id` - Eliminar característica
+- `GET /types` - Listar tipos de características
+
+### Direcciones (`/api/direcciones`)
+
+- `GET /` - Listar direcciones del usuario
+- `POST /` - Crear nueva dirección
+- `PUT /:id` - Actualizar dirección
+- `DELETE /:id` - Eliminar dirección
+- `GET /:id` - Obtener dirección por ID
 
 ### Imágenes (`/api/upload`)
 
 - `POST /product` - Subir imagen de producto
 - `POST /comment` - Subir imagen de comentario
 - `GET /:filename` - Obtener imagen
+- `DELETE /:filename` - Eliminar imagen
 
 ## 🗄️ Modelos de Base de Datos
 
 ### Relaciones Principales
 
-- **User** ↔ **Product** (favoritos)
-- **User** ↔ **Carrito** (carrito de compras)
-- **Product** ↔ **Comment** (comentarios)
-- **Product** ↔ **Image** (imágenes)
-- **Product** ↔ **Offer** (ofertas)
-- **Product** ↔ **Brand** (marcas)
-- **Product** ↔ **Category** (categorías)
+- **Usuario** ↔ **Cliente** (relación 1:1)
+- **Cliente** ↔ **CarritoWeb** (carrito de compras)
+- **Cliente** ↔ **Favorito** (productos favoritos)
+- **Cliente** ↔ **Direccion** (direcciones de envío)
+- **Producto** ↔ **Comentario** (comentarios de productos)
+- **Producto** ↔ **ProductoImagen** (imágenes de productos)
+- **Producto** ↔ **Oferta** (ofertas activas)
+- **Producto** ↔ **Marca** (marca del producto)
+- **Producto** ↔ **Categoria** (categoría del producto)
+- **Producto** ↔ **Caracteristica** (características del producto)
 
 ### Esquemas Principales
 
 ```sql
--- Usuarios
-tb_users (id, email, password, name, role, created_at)
+-- Usuarios del sistema
+tb_usuarios (id, email, password, role, created_at)
+
+-- Clientes
+tb_clientes (id, usuario_id, nombre, apellido, telefono, fecha_nacimiento)
 
 -- Productos
-tb_productos (id, nombre, descripcion, precio, stock, marca_id, categoria_id)
+tb_productos (id, nombre, descripcion, precio, stock, marca_id, categoria_id, almacen_id)
 
--- Carrito
-tb_carrito (id, user_id, producto_id, cantidad, created_at)
+-- Carrito web
+tb_carrito_web (id, cliente_id, created_at, updated_at)
+tb_carrito_web_items (id, carrito_id, producto_id, cantidad, precio_unitario)
 
 -- Comentarios
-tb_comentarios (id, user_id, producto_id, texto, rating, created_at)
-
--- Imágenes
-tb_imagenes (id, producto_id, url, tipo, created_at)
+tb_comentarios (id, cliente_id, producto_id, texto, rating, created_at)
+tb_comentario_imagenes (id, comentario_id, url, created_at)
 
 -- Ofertas
-tb_ofertas (id, producto_id, descuento, fecha_inicio, fecha_fin, activa)
+tb_ofertas (id, nombre, descripcion, descuento, fecha_inicio, fecha_fin, activa)
+tb_producto_ofertas (id, producto_id, oferta_id)
+
+-- Favoritos
+tb_favoritos (id, cliente_id, producto_id, created_at)
+
+-- Características
+tb_caracteristicas (id, nombre, valor, tipo_id, producto_id)
+tb_tipos_caracteristica (id, nombre, descripcion)
 ```
 
 ## 🔐 Autenticación y Autorización
@@ -241,8 +334,9 @@ tb_ofertas (id, producto_id, descuento, fecha_inicio, fecha_fin, activa)
 ### Google OAuth 2.0
 
 - **Client ID**: Configurable via `GOOGLE_CLIENT_ID`
+- **Client Secret**: Configurable via `GOOGLE_CLIENT_SECRET`
 - **Scopes**: email, profile
-- **Callback**: `/api/auth/google/callback`
+- **Integration**: Con google-auth-library 10.2.0
 
 ### Middleware de Autenticación
 
@@ -250,16 +344,19 @@ tb_ofertas (id, producto_id, descuento, fecha_inicio, fecha_fin, activa)
 // Proteger rutas
 app.use("/api/protected", authMiddleware);
 
-// Verificar roles (futuro)
-app.use("/api/admin", adminMiddleware);
+// Validación de registro
+app.use("/api/clientes/register", validateRegistration);
+
+// Validación de carrito
+app.use("/api/carrito", validateCarrito);
 ```
 
 ## 🖼️ Manejo de Imágenes
 
 ### Configuración
 
-- **Productos**: `IMAGES_PATH` (ej: `C:/xampp/htdocs/tecnocel`)
-- **Comentarios**: `COMMENTS_IMAGES_PATH`
+- **Productos**: `PRODUCT_IMAGES_PATH` (ej: `C:/xampp/htdocs/tecnocel/almacen/img_productos`)
+- **Comentarios**: `COMMENT_IMAGES_PATH`
 - **Tipos permitidos**: jpg, jpeg, png, webp
 - **Tamaño máximo**: 5MB por archivo
 
@@ -332,14 +429,11 @@ const logger = winston.createLogger({
 ### Scripts de Prueba
 
 ```bash
-# Verificar conexión a BD
-npm run test:db
+# Verificar endpoints de imágenes
+npm run test:images
 
-# Ejecutar tests unitarios
-npm run test:unit
-
-# Ejecutar tests de integración
-npm run test:integration
+# Inicializar estructura de logs
+npm run init:logs
 ```
 
 ### Scripts de Mantenimiento
@@ -347,6 +441,7 @@ npm run test:integration
 - **Activar ofertas**: `scripts_test/activate-offers-now.js`
 - **Verificar comentarios**: `scripts_test/check-comments-data.js`
 - **Agregar ofertas de prueba**: `scripts_test/add-sample-offers.js`
+- **Verificar estructura de BD**: `scripts_test/check-database-structure.js`
 
 ## 🚀 Performance y Optimización
 
@@ -358,13 +453,13 @@ npm run test:integration
 
 ### Caché
 
-- **Redis**: Implementación futura para sesiones
+- **Images**: Cache de imágenes estáticas con headers apropiados
 - **Memory**: Caché en memoria para datos estáticos
 
 ### Compresión
 
-- **Gzip**: Habilitado para respuestas HTTP
 - **Images**: Optimización automática con Sharp
+- **Response**: Compresión de respuestas HTTP
 
 ## 🔒 Seguridad
 
@@ -373,7 +468,9 @@ npm run test:integration
 ```typescript
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
@@ -469,3 +566,33 @@ npm start
 - **Prometheus**: Métricas del sistema
 - **Grafana**: Dashboards de monitoreo
 - **Alerting**: Notificaciones automáticas
+
+## 🆕 Características Recientes
+
+### Sistema de Almacén Completo
+
+- Gestión de productos con características avanzadas
+- Sistema de inventario y stock
+- Gestión de proveedores y compras
+- Sistema de ventas y devoluciones
+
+### Carrito Web Avanzado
+
+- Carrito persistente por usuario
+- Validación completa de productos
+- Sistema de precios y descuentos
+- Integración con ofertas
+
+### Sistema de Comentarios Mejorado
+
+- Comentarios con imágenes
+- Sistema de ratings
+- Moderación de contenido
+- Relación con productos y usuarios
+
+### Gestión de Direcciones
+
+- Múltiples direcciones por usuario
+- Validación de direcciones
+- Integración con sistema de envíos
+- Historial de direcciones utilizadas

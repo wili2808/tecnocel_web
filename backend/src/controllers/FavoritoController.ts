@@ -4,7 +4,7 @@ import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import Marca from '../models/Marca.js';
 import Categoria from '../models/Categoria.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { getImageService } from '../services/imageService.js';
 
@@ -265,7 +265,15 @@ export class FavoritoController {
 
       await favorito.destroy();
 
-      logger.info(`Producto removido de favoritos - Cliente: ${id_cliente}, Producto: ${id_producto}`);
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Producto removido de favoritos', {
+        operacion: 'remover_favorito',
+        cliente_id: id_cliente,
+        producto_id: id_producto,
+        success: true
+      });
 
       res.json({
         success: true,

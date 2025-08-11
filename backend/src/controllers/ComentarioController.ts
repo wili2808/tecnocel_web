@@ -5,7 +5,7 @@ import ComentarioImagen from '../models/ComentarioImagen.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
 
 // Interfaces para tipado

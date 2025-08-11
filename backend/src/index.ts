@@ -15,7 +15,7 @@ import favoritoRoutes from './routes/favoritoRoutes.js';
 import direccionRoutes from './routes/direccionRoutes.js';
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
-import logger from './utils/logger.js';
+import logger from './services/loggerService.js';
 import { initializeImageService } from './services/imageService.js';
 import StaticImageMiddleware from './middleware/staticImageMiddleware.js';
 import './models/index.js';
@@ -35,7 +35,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware de logging de requests simplificado
+// Middleware de logging de requests optimizado
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   
@@ -44,13 +44,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     const duration = Date.now() - start;
     const logLevel = res.statusCode >= 400 ? 'warn' : 'info';
     
-    // Solo registrar información esencial
-    logger.log(logLevel, 'API Request', {
-      method: req.method,
-      path: req.path,
-      statusCode: res.statusCode,
-      duration: `${duration}ms`
-    });
+    // Formato estructurado para requests HTTP
+    const message = `${req.method} ${req.path} | Status: ${res.statusCode} | ${duration}ms`;
+    
+    // Solo logear si no es una request duplicada o estática
+    if (!res.locals.skipHttpLog) {
+      logger[logLevel](message);
+    }
   });
   
   next();

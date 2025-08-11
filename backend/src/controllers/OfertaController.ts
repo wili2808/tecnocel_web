@@ -7,7 +7,7 @@ import Marca from '../models/Marca.js';
 import Categoria from '../models/Categoria.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { getImageService } from '../services/imageService.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 
 export class OfertaController {
   // Obtener ofertas activas
@@ -22,6 +22,14 @@ export class OfertaController {
           fecha_fin: { [Op.gte]: now }
         },
         order: [['fyh_creacion', 'DESC']]
+      });
+
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Ofertas activas obtenidas exitosamente', {
+        operacion: 'obtener_ofertas_activas',
+        cantidad: ofertas.length,
+        success: true
       });
 
       res.json({
@@ -79,12 +87,10 @@ export class OfertaController {
         order: [['fyh_actualizacion', 'DESC']]
       });
 
-      // Obtener servicio de imágenes
+      // Obtener servicio de imágenes (sin logging innecesario)
       const imageService = getImageService();
       if (!imageService) {
-        logger.warn('Servicio de imágenes no disponible en OfertaController');
-      } else {
-        logger.info('Servicio de imágenes disponible en OfertaController');
+        logger.warn('Servicio de imágenes no disponible para productos en oferta');
       }
 
       // Calcular precios con descuento y transformar imágenes
@@ -122,6 +128,16 @@ export class OfertaController {
         
         return productoJson;
       }));
+
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Productos en oferta obtenidos exitosamente', {
+        operacion: 'obtener_productos_oferta',
+        cantidad: productosConDescuento.length,
+        total: productosEnOferta.count,
+        limit: parseInt(limit as string),
+        success: true
+      });
 
       res.json({
         success: true,

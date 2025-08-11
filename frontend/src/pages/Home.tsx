@@ -3,7 +3,6 @@ import FeaturedProducts from '../components/product/FeaturedProducts';
 import CTASection from '../components/common/CTASection';
 import LocationSection from '../components/location/LocationSection';
 import { useFeaturedProducts } from '../hooks';
-import OfertasTest from '../components/product/OfertasTest';
 
 const Home = () => {
   const { featuredProducts, loading, error } = useFeaturedProducts();
@@ -17,7 +16,6 @@ const Home = () => {
         loading={loading}
         error={error}
       />
-      <OfertasTest />
       <CTASection
         title="¿Listo para personalizar tu pedido?"
         description="Contáctanos para obtener una cotización personalizada para tu proyecto."

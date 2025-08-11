@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import logger from './logger.js';
+import logger from './loggerService.js';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -50,4 +50,4 @@ export async function sendResetPasswordEmail(email: string, token: string) {
     logger.error('Error enviando correo de restablecimiento:', error);
     throw new Error('No se pudo enviar el correo de restablecimiento');
   }
-} 
+}

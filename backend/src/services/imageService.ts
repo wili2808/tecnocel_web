@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import logger from '../utils/logger.js';
+import logger from './loggerService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import sequelize from '../config/database.js';
 

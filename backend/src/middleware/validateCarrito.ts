@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import CarritoWeb from '../models/CarritoWeb.js';
 import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
@@ -273,6 +273,9 @@ export const logCarritoOperation = (operacion: string) => {
             break;
         }
       }
+      
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
       
       logger[logLevel](mensaje, logData);
       

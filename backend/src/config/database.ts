@@ -4,7 +4,7 @@
  */
 
 import { Sequelize } from 'sequelize';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import { config } from './config.js';
 
 /**

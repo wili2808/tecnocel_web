@@ -3,7 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
 import Cliente from '../models/Cliente.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 

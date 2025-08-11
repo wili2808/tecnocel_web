@@ -6,7 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 import Cliente from '../models/Cliente.js';
 
 // Clave secreta para firmar y verificar tokens JWT

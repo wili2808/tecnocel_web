@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Marca from '../models/Marca.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 
 export class MarcaController {
   // Obtener todas las marcas activas

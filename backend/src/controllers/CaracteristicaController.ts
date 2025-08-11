@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import TipoCaracteristica from '../models/TipoCaracteristica.js';
 import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
 import Almacen from '../models/Almacen.js';
-import logger from '../utils/logger.js';
+import logger from '../services/loggerService.js';
 
 export class CaracteristicaController {
   // Obtener todos los tipos de características
