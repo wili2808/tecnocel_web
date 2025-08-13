@@ -25,6 +25,13 @@
   line-height: var(--line-height-tight);
 }
 
+.badgesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
 .categoryBadge {
   display: inline-flex;
   align-items: center;
@@ -37,8 +44,31 @@
   width: fit-content;
 }
 
+.discountBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  width: fit-content;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 .metadata {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-md);
 }
@@ -49,6 +79,18 @@
   font-weight: var(--font-weight-medium);
 }
 
+.offerName {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
 .priceSection {
   display: flex;
   flex-direction: column;
@@ -56,11 +98,27 @@
   align-items: flex-start;
 }
 
-.price {
+.priceContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  align-items: flex-start;
+}
+
+.priceCurrent {
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   line-height: var(--line-height-tight);
+}
+
+.priceOriginal {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  line-height: var(--line-height-tight);
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 .stockBadge {
@@ -107,7 +165,7 @@
   margin: 0;
 }
 
-/* Responsive */
+/* Responsive - Mantener diseño horizontal en pantallas pequeñas */
 @media (max-width: 768px) {
   .productInfo {
     gap: var(--spacing-lg);
@@ -121,12 +179,24 @@
     font-size: var(--font-size-2xl);
   }
 
-  .price {
+  .priceCurrent {
     font-size: var(--font-size-3xl);
   }
 
-  .priceSection {
-    gap: var(--spacing-sm);
+  .priceOriginal {
+    font-size: var(--font-size-md);
+  }
+
+  /* Mantener badges en línea horizontal */
+  .badgesContainer {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  /* Mantener metadata en línea horizontal */
+  .metadata {
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 }
 
@@ -139,13 +209,53 @@
     font-size: var(--font-size-xl);
   }
 
-  .price {
+  .priceCurrent {
     font-size: var(--font-size-2xl);
   }
 
-  .metadata {
-    flex-direction: column;
-    align-items: flex-start;
+  .priceOriginal {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Asegurar que los badges se mantengan horizontales */
+  .badgesContainer {
+    flex-direction: row;
     gap: var(--spacing-xs);
+  }
+
+  .categoryBadge,
+  .discountBadge {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  /* Mantener metadata en línea horizontal incluso en móvil */
+  .metadata {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .productCode,
+  .offerName {
+    font-size: var(--font-size-xs);
+  }
+
+  /* Asegurar que el precio y stock se mantengan en línea horizontal */
+  .priceSection {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .priceContainer {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .stockBadge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
 } 

@@ -1,7 +1,15 @@
+/**
+ * Componente ProductCard - Tarjeta de producto para vista de cuadrícula
+ * Muestra información resumida del producto con imagen, precios y acciones
+ * Incluye indicadores de oferta, favoritos y estado del carrito
+ * Utiliza hook común useProductCardLogic para toda la funcionalidad
+ */
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ProductImage from '../ProductImage';
 import CartIndicator from '../../cart/CartIndicator';
+import OfferIndicator from '../OfferIndicator';
+import FavoriteButtonReusable from '../FavoriteButtonReusable';
 import { useProductCardLogic } from '../../../hooks/useProductCardLogic';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
@@ -20,6 +28,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
     en_oferta
 }) => {
     // ============================================================================
+    // HOOKS DE NAVEGACIÓN
+    // ============================================================================
+    const navigate = useNavigate();
+
+    // ============================================================================
     // HOOK COMÚN - TODA LA LÓGICA CENTRALIZADA
     // ============================================================================
     const logic = useProductCardLogic({
@@ -27,8 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         precio_venta,
         stock,
         precio_original,
-        precio_oferta,
-        en_oferta
+        precio_oferta
     });
 
     // ============================================================================
@@ -42,37 +54,46 @@ const ProductCard: React.FC<ProductCardProps> = ({
         priceInfo,
         handleCardClick,
         handleAddToCart,
-        handleToggleFavorite,
-        isProductFavorite,
-        favoritoLoading,
         carritoLoading,
-        overlayContent,
-        offerIndicator,
         stockText
     } = logic;
 
-    const getButtonContent = () => {
-        if (isAddingToCart) {
-            return (
-                <span className="material-icons">
-                    autorenew
-                </span>
-            );
-        }
-        if (showSuccess) {
-            return (
-                <span className="material-icons">
-                    check_circle
-                </span>
-            );
-        }
-        return (
-            <span className="material-icons">
-                add_shopping_cart
-            </span>
-        );
+    // ============================================================================
+    // ESTADOS ADICIONALES PARA OVERLAY DE LÍMITE DE CARRITO
+    // ============================================================================
+    
+    /**
+     * Verificar si ya no se pueden agregar más productos al carrito
+     * Determina si mostrar overlay rojo de límite alcanzado
+     */
+    const cannotAddMore = !logic.canAddMoreOfProduct(id_producto, stock);
+    
+    /**
+     * Determinar el tipo de overlay a mostrar
+     * Prioriza: éxito > límite alcanzado > agregar al carrito > agotado
+     */
+    const getOverlayType = () => {
+        if (isOutOfStock) return 'outOfStock';
+        if (showSuccess) return 'success';
+        if (cannotAddMore) return 'limitReached';
+        return 'addToCart';
     };
 
+    /**
+     * Obtener la cantidad actual en el carrito para mostrar en el overlay
+     */
+    const currentQuantity = logic.getProductQuantityInCart(id_producto);
+
+    // ============================================================================
+    // FUNCIONES ESPECÍFICAS DE PRODUCTCARD
+    // ============================================================================
+    
+    // Función reservada para futuras funcionalidades
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+    
     return (
         <Link
             to={`/productos/${id_producto}`}
@@ -83,7 +104,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
             tabIndex={isOutOfStock ? -1 : 0}
         >
             <article className={`${styles.productCard} ${className || ''}`}>
+                {/* Contenedor de imagen con indicadores superpuestos */}
                 <div className={styles.imageContainer}>
+                    {/* Imagen principal del producto con galería */}
                     <ProductImage
                         images={imagenes}
                         defaultImage={imagen_url}
@@ -97,121 +120,179 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         }}
                     />
 
-                    {/* Indicador de oferta */}
-                    {offerIndicator.show ? (
-                        <div className={styles.offerIndicator}>
-                            <span className={styles.offerPercentage}>-{offerIndicator.discountPercentage}%</span>
-                            <span className={styles.offerLabel}>OFERTA</span>
-                        </div>
-                    ) : null}
+                    {/* Indicador de oferta reutilizable - Solo visible si hay descuento */}
+                    {(en_oferta || 
+                      (precio_oferta && precio_oferta < Number(precio_venta))) && (
+                        <OfferIndicator
+                            descuentoPorcentaje={
+                                (precio_oferta && precio_venta ? 
+                                    Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
+                            }
+                            size="small"
+                            position="top-left"
+                            showLabel={true}
+                        />
+                    )}
 
                     {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
                     <CartIndicator productId={id_producto} />
 
                     {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
-                    <button
-                        className={`${styles.favoriteButton} ${isProductFavorite ? styles.favoriteActive : styles.favoriteInactive}`}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleToggleFavorite();
-                        }}
-                        disabled={favoritoLoading}
-                        aria-label={isProductFavorite ? `Quitar ${nombre} de favoritos` : `Agregar ${nombre} a favoritos`}
-                        type="button"
-                    >
-                        <svg
-                            viewBox="0 0 24 24"
-                            className={styles.favoriteIcon}
-                            fill={isProductFavorite ? "currentColor" : "none"}
-                            stroke="currentColor"
-                            strokeWidth="2"
-                        >
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                    </button>
+                    <FavoriteButtonReusable
+                        productId={id_producto}
+                        productName={nombre}
+                        size="small"
+                        position="absolute"
+                        variant="minimal"
+                        className={styles.favoriteButton}
+                    />
 
-                    {!isOutOfStock && (
-                        <button
-                            className={`${styles.imageOverlay} ${showSuccess ? styles.successOverlay : ''}`}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleAddToCart();
-                            }}
-                            disabled={isAddingToCart || carritoLoading || !logic.canAddMoreOfProduct(id_producto, stock)}
-                            aria-label={`Agregar ${nombre} al carrito`}
-                            type="button"
-                        >
-                            <span className={`material-icons ${styles.overlayIcon} ${isAddingToCart ? styles.loadingIcon : showSuccess ? styles.successIcon : ''}`}>
-                                {isAddingToCart ? 'hourglass_empty' : showSuccess ? 'check_circle' : 'add_shopping_cart'}
-                            </span>
-                            <span className={styles.overlayText}>
-                                {isAddingToCart ? 'Agregando...' : showSuccess ? '¡Agregado!' : 'Agregar al carrito'}
-                            </span>
-                        </button>
-                    )}
+                    {/* OVERLAY DINÁMICO SEGÚN EL ESTADO DEL PRODUCTO */}
+                    {(() => {
+                        const overlayType = getOverlayType();
+                        
+                        switch (overlayType) {
+                            case 'success':
+                                // ✅ OVERLAY DE ÉXITO - Verde con check, previene navegación
+                                return (
+                                    <button
+                                        className={`${styles.imageOverlay} ${styles.successOverlay}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            // No hacer nada, solo mostrar el mensaje
+                                        }}
+                                        disabled={false}
+                                        aria-label="Producto agregado exitosamente"
+                                        type="button"
+                                    >
+                                        <span className={`material-icons ${styles.overlayIcon} ${styles.successIcon}`}>
+                                            check_circle
+                                        </span>
+                                        <span className={styles.overlayText}>¡Agregado!</span>
+                                    </button>
+                                );
+                            
+                            case 'limitReached':
+                                // 🚫 OVERLAY DE LÍMITE ALCANZADO - Rojo con navegación al carrito
+                                return (
+                                    <button
+                                        className={`${styles.imageOverlay} ${styles.limitReachedOverlay}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            // Navegar directamente al carrito
+                                            navigate('/carrito');
+                                        }}
+                                        disabled={false}
+                                        aria-label="Ir al carrito - Máximo de productos alcanzado"
+                                        type="button"
+                                    >
+                                        <span className={`material-icons ${styles.overlayIcon} ${styles.limitIcon}`}>
+                                            remove_shopping_cart
+                                        </span>
+                                        <span className={styles.overlayText}>
+                                            Máximo alcanzado
+                                        </span>
+                                        <span className={styles.overlaySubtext}>
+                                            Ya tienes {currentQuantity} de {stock}
+                                        </span>
+                                        <span className={styles.overlayAction}>
+                                            Click para ir al carrito
+                                        </span>
+                                    </button>
+                                );
+                            
+                            case 'addToCart':
+                                // 🛒 OVERLAY DE AGREGAR AL CARRITO - Azul con botón
+                                return (
+                                    <button
+                                        className={`${styles.imageOverlay} ${styles.addToCartOverlay}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleAddToCart();
+                                        }}
+                                        disabled={isAddingToCart || carritoLoading}
+                                        aria-label={`Agregar ${nombre} al carrito`}
+                                        type="button"
+                                    >
+                                        <span className={`material-icons ${styles.overlayIcon} ${isAddingToCart ? styles.loadingIcon : ''}`}>
+                                            {isAddingToCart ? 'hourglass_empty' : 'add_shopping_cart'}
+                                        </span>
+                                        <span className={styles.overlayText}>
+                                            {isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}
+                                        </span>
+                                    </button>
+                                );
+                            
+                            case 'outOfStock':
+                            default:
+                                // ❌ OVERLAY DE PRODUCTO AGOTADO - Gris con información
+                                return (
+                                    <div className={`${styles.imageOverlay} ${styles.outOfStockOverlay}`}>
+                                        <span className={`material-icons ${styles.overlayIcon} ${styles.outOfStockIcon}`}>
+                                            remove_shopping_cart
+                                        </span>
+                                        <span className={styles.overlayText}>Agotado</span>
+                                    </div>
+                                );
+                        }
+                    })()}
+                    
+                    {/* Badge de producto agotado - Solo visible si no hay stock */}
                     {isOutOfStock && (
                         <div className={styles.outOfStockBadge} role="status" aria-label="Producto agotado">
                             Agotado
                         </div>
                     )}
-                    {/* Overlay para productos agotados */}
-                    {overlayContent && (
-                        <div className={styles.overlay}>
-                            <span className="material-icons">
-                                {overlayContent.icon}
-                            </span>
-                            <span className={styles.overlayText}>{overlayContent.text}</span>
-                        </div>
-                    )}
                 </div>
 
+                {/* Información del producto debajo de la imagen */}
                 <div className={styles.productInfo}>
+                    {/* Encabezado con título y precios */}
                     <div className={styles.productHeader}>
                         <h3 className={styles.productTitle}>{nombre}</h3>
                         <div className={styles.priceContainer}>
                             {priceInfo.hasDiscount ? (
                                 <>
+                                    {/* Precio con descuento y original en la misma línea */}
                                     <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
                                     <span className={styles.originalPrice}>{formatPrice(priceInfo.original)}</span>
                                 </>
                             ) : (
+                                /* Precio único sin descuento */
                                 <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
                             )}
                         </div>
                     </div>
 
+                    {/* Descripción del producto - Solo visible si existe */}
                     {descripcion && (
                         <p className={styles.productDescription} title={descripcion}>
                             {descripcion}
                         </p>
                     )}
 
+                    {/* Pie de tarjeta con stock y contenedor de acciones futuras */}
                     <div className={styles.productFooter}>
+                        {/* Contenedor de información de stock */}
                         <div className={styles.stockContainer}>
                             <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
                                 {stockText}
                             </span>
+                            {/* Mostrar cantidad en carrito si existe */}
+                            {currentQuantity > 0 && (
+                                <span className={styles.cartQuantityBadge}>
+                                    {currentQuantity} en carrito
+                                </span>
+                            )}
                         </div>
 
+                        {/* Contenedor de botones de acción - RESERVADO PARA FUNCIONES FUTURAS */}
                         <div className={styles.actionContainer}>
-                            {!isOutOfStock ? (
-                                <button
-                                    className={`${styles.addToCartButton} ${showSuccess ? styles.successButton : ''}`}
-                                    type="button"
-                                    onClick={handleAddToCart}
-                                    disabled={isAddingToCart || carritoLoading || !logic.canAddMoreOfProduct}
-                                    aria-label={`Agregar ${nombre} al carrito`}
-                                >
-                                    {getButtonContent()}
-                                </button>
-                            ) : (
-                                <button className={styles.disabledButton} type="button" disabled>
-                                    <span className="material-icons">remove_shopping_cart</span>
-                                    No disponible
-                                </button>
-                            )}
+                            {/* Aquí se pueden agregar botones de funciones adicionales en el futuro */}
+                            {/* Por ejemplo: Comparar, Compartir, Ver especificaciones, etc. */}
                         </div>
                     </div>
                 </div>

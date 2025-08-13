@@ -1,18 +1,25 @@
+/**
+ * Componente RegisterForm - Formulario de registro completo
+ * Maneja creación de cuentas con validación completa y autenticación Google OAuth
+ * Incluye validación de campos, manejo de errores y navegación automática
+ */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-toastify';
+import Button from '../../common/Button';
 import styles from './RegisterForm.module.css';
 
-/**
- * Componente de formulario de registro
- * Contiene la tarjeta completa con cabecera, formulario y funcionalidad
- */
 const RegisterForm = () => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
     const { register, googleLogin } = useAuth();
     const navigate = useNavigate();
 
-    // Estados del formulario
+    // ============================================================================
+    // ESTADOS DEL FORMULARIO
+    // ============================================================================
     const [formData, setFormData] = useState({
         nombre_cliente: '',
         apellido_cliente: '',
@@ -28,70 +35,82 @@ const RegisterForm = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
 
+    // ============================================================================
+    // MANEJADORES DE EVENTOS
+    // ============================================================================
+    
     /**
      * Maneja los cambios en los campos del formulario
-     * @param {React.ChangeEvent<HTMLInputElement>} e - Evento del input
+     * Actualiza el estado local y limpia errores automáticamente
      */
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
 
-        // Limpiar error del campo cuando el usuario empiece a escribir
+        // ✅ LIMPIAR ERROR del campo cuando el usuario empiece a escribir
         if (formErrors[name as keyof typeof formErrors]) {
             setFormErrors(prev => ({ ...prev, [name]: '' }));
         }
     };
 
     /**
-     * Maneja el focus de los inputs
+     * Maneja el focus de los inputs para efectos visuales
+     * Activa el estado de campo enfocado para estilos CSS
      */
     const handleFocus = (fieldName: string) => {
         setFocusedField(fieldName);
     };
 
     /**
-     * Maneja el blur de los inputs
+     * Maneja el blur de los inputs para efectos visuales
+     * Desactiva el estado de campo enfocado
      */
     const handleBlur = () => {
         setFocusedField(null);
     };
 
     /**
-     * Toggle de visibilidad de contraseña
+     * Toggle de visibilidad de contraseña principal
+     * Permite al usuario ver/ocultar el texto de la contraseña
      */
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
 
     /**
-     * Toggle de visibilidad de confirmar contraseña
+     * Toggle de visibilidad de confirmación de contraseña
+     * Permite al usuario ver/ocultar el texto de confirmación
      */
     const toggleConfirmPasswordVisibility = () => {
         setShowConfirmPassword(!showConfirmPassword);
     };
 
+    // ============================================================================
+    // VALIDACIÓN Y MANEJO DE FORMULARIO
+    // ============================================================================
+    
     /**
-     * Valida los datos del formulario
-     * @returns {boolean} - True si el formulario es válido
+     * Valida todos los campos del formulario de registro
+     * Retorna true si el formulario es válido, false si hay errores
      */
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
 
-        // Validar nombre
+        // ✅ VALIDAR NOMBRE con longitud mínima
         if (!formData.nombre_cliente.trim()) {
             errors.nombre_cliente = 'El nombre es requerido';
         } else if (formData.nombre_cliente.trim().length < 2) {
             errors.nombre_cliente = 'El nombre debe tener al menos 2 caracteres';
         }
 
-        // Validar apellidos
+        // ✅ VALIDAR APELLIDOS con longitud mínima
         if (!formData.apellido_cliente.trim()) {
             errors.apellido_cliente = 'Los apellidos son requeridos';
         } else if (formData.apellido_cliente.trim().length < 2) {
             errors.apellido_cliente = 'Los apellidos deben tener al menos 2 caracteres';
         }
 
-        // Validar email
+        // ✅ VALIDAR EMAIL con formato correcto
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email_cliente.trim()) {
             errors.email_cliente = 'El correo electrónico es requerido';
@@ -99,28 +118,28 @@ const RegisterForm = () => {
             errors.email_cliente = 'El formato del correo electrónico no es válido';
         }
 
-        // Validar contraseña
+        // ✅ VALIDAR CONTRASEÑA con longitud mínima
         if (!formData.contrasena) {
             errors.contrasena = 'La contraseña es requerida';
         } else if (formData.contrasena.length < 6) {
             errors.contrasena = 'La contraseña debe tener al menos 6 caracteres';
         }
 
-        // Validar confirmación de contraseña
+        // ✅ VALIDAR CONFIRMACIÓN de contraseña
         if (!formData.confirmarContrasena) {
             errors.confirmarContrasena = 'Confirme su contraseña';
         } else if (formData.contrasena !== formData.confirmarContrasena) {
             errors.confirmarContrasena = 'Las contraseñas no coinciden';
         }
 
-        // Validar celular
+        // ✅ VALIDAR CELULAR con longitud mínima
         if (!formData.celular_cliente.trim()) {
             errors.celular_cliente = 'El número de celular es requerido';
         } else if (formData.celular_cliente.trim().length < 7) {
             errors.celular_cliente = 'El número de celular debe tener al menos 7 dígitos';
         }
 
-        // Validar NIT/CI
+        // ✅ VALIDAR NIT/CI con longitud mínima
         if (!formData.nit_ci_cliente.trim()) {
             errors.nit_ci_cliente = 'El NIT o CI es requerido';
         } else if (formData.nit_ci_cliente.trim().length < 6) {
@@ -133,20 +152,20 @@ const RegisterForm = () => {
 
     /**
      * Maneja el envío del formulario de registro
-     * @param {React.FormEvent} e - Evento del formulario
+     * Valida datos, ejecuta registro y maneja navegación automática
      */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            // Validar formulario
+            // ✅ VALIDAR FORMULARIO antes de procesar
             if (!validateForm()) {
                 toast.error('Por favor corrija los errores en el formulario');
                 return;
             }
 
-            // Registrar usuario
+            // ✅ EJECUTAR REGISTRO con datos validados
             const response = await register({
                 nombre_cliente: formData.nombre_cliente.trim(),
                 apellido_cliente: formData.apellido_cliente.trim(),
@@ -156,10 +175,10 @@ const RegisterForm = () => {
                 nit_ci_cliente: formData.nit_ci_cliente.trim()
             });
 
-            // Mostrar mensaje de éxito
+            // ✅ MOSTRAR MENSAJE DE ÉXITO y limpiar formulario
             toast.success(response.mensaje || '¡Cuenta creada exitosamente! Ya estás logeado.');
 
-            // Limpiar formulario
+            // ✅ LIMPIAR FORMULARIO completo después de éxito
             setFormData({
                 nombre_cliente: '',
                 apellido_cliente: '',
@@ -171,12 +190,13 @@ const RegisterForm = () => {
             });
             setFormErrors({});
 
-            // Redirigir a la página principal ya que el usuario queda logeado automáticamente
+            // ✅ REDIRIGIR a la página principal (usuario ya logeado)
             setTimeout(() => {
                 navigate('/');
             }, 2000);
 
         } catch (error: any) {
+            // ✅ MANEJO DE ERRORES con mensajes descriptivos
             const errorMessage = error.response?.data?.mensaje ||
                 error.response?.data?.message ||
                 error.message ||
@@ -188,7 +208,8 @@ const RegisterForm = () => {
     };
 
     /**
-     * Maneja el registro con Google
+     * Maneja el registro con Google OAuth
+     * Procesa autenticación externa y navegación automática
      */
     const handleGoogleLogin = async () => {
         setIsLoading(true);
@@ -203,8 +224,13 @@ const RegisterForm = () => {
         }
     };
 
+    // ============================================================================
+    // RENDERIZADO DE CAMPOS
+    // ============================================================================
+    
     /**
-     * Renderiza un campo de input personalizado
+     * Renderiza un campo de input personalizado con validación
+     * Incluye iconos, estados de error y toggle de contraseña
      */
     const renderInput = (
         id: string,
@@ -268,9 +294,13 @@ const RegisterForm = () => {
         );
     };
 
+    // ============================================================================
+    // RENDERIZADO PRINCIPAL
+    // ============================================================================
+    
     return (
         <div className={styles.registerCard}>
-            {/* Encabezado integrado */}
+            {/* Encabezado integrado con logo y descripción */}
             <div className={styles.authHeader}>
                 <div className={styles.logoContainer}>
                     <img
@@ -282,9 +312,9 @@ const RegisterForm = () => {
                 <p className={styles.subtitle}>Únete a nuestra comunidad y disfruta de beneficios exclusivos</p>
             </div>
 
-            {/* Formulario de registro */}
+            {/* Formulario de registro con validación y estados */}
             <form onSubmit={handleSubmit} className={styles.registerForm}>
-                {/* Fila 1: Nombre y Apellidos */}
+                {/* Fila 1: Nombre y Apellidos en layout horizontal */}
                 <div className={styles.formRow}>
                     {renderInput(
                         'nombre_cliente',
@@ -309,7 +339,7 @@ const RegisterForm = () => {
                     )}
                 </div>
 
-                {/* Fila 2: Email */}
+                {/* Fila 2: Email en ancho completo */}
                 {renderInput(
                     'email_cliente',
                     'email_cliente',
@@ -321,7 +351,7 @@ const RegisterForm = () => {
                     formErrors.email_cliente
                 )}
 
-                {/* Fila 3: Contraseñas */}
+                {/* Fila 3: Contraseñas en layout horizontal */}
                 <div className={styles.formRow}>
                     {renderInput(
                         'contrasena',
@@ -348,7 +378,7 @@ const RegisterForm = () => {
                     )}
                 </div>
 
-                {/* Fila 4: Celular y NIT/CI */}
+                {/* Fila 4: Celular y NIT/CI en layout horizontal */}
                 <div className={styles.formRow}>
                     {renderInput(
                         'celular_cliente',
@@ -373,26 +403,34 @@ const RegisterForm = () => {
                     )}
                 </div>
 
-                {/* Botón de envío */}
-                <button
+                {/* Botón de envío principal usando componente Button personalizado */}
+                <Button
                     type="submit"
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    loading={isLoading}
+                    icon="person_add"
+                    iconPosition="left"
                     className={styles.submitButton}
-                    disabled={isLoading}
                 >
-                    <span className="material-icons">person_add</span>
                     {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-                </button>
+                </Button>
 
-                {/* Separador */}
+                {/* Separador visual para opciones alternativas */}
                 <div className={styles.divider}>
                     o
                 </div>
 
-                {/* Botón de Google integrado */}
-                <button
+                {/* Botón de Google OAuth usando componente Button personalizado */}
+                <Button
                     type="button"
-                    className={styles.googleButton}
+                    variant="outline"
+                    size="lg"
+                    fullWidth
+                    loading={isLoading}
                     onClick={handleGoogleLogin}
+                    className={styles.googleButton}
                     disabled={isLoading}
                     aria-label="Crear cuenta con Google"
                 >
@@ -425,14 +463,9 @@ const RegisterForm = () => {
                     <span className={styles.buttonText}>
                         {isLoading ? 'Conectando...' : 'Continuar con Google'}
                     </span>
-                    {isLoading && (
-                        <div className={styles.loadingSpinner}>
-                            <div className={styles.spinner}></div>
-                        </div>
-                    )}
-                </button>
+                </Button>
 
-                {/* Enlace a login */}
+                {/* Enlace de navegación a login */}
                 <p className={styles.loginPrompt}>
                     ¿Ya tienes una cuenta?{' '}
                     <Link to="/login" className={styles.loginLink}>

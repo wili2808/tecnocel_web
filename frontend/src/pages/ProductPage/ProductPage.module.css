@@ -89,6 +89,14 @@
   width: 100%;
 }
 
+/* Indicador de cantidad en carrito */
+.cartIndicator {
+  position: absolute;
+  bottom: var(--spacing-sm);
+  right: var(--spacing-sm);
+  z-index: 15;
+}
+
 .offerBadgeContainer {
   position: absolute;
   top: var(--spacing-md);

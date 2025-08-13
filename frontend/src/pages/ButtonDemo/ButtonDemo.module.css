@@ -1,0 +1,96 @@
+/* === PÁGINA DE DEMOSTRACIÓN DEL BUTTON === */
+
+.pageContainer {
+  min-height: 100vh;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family-primary);
+}
+
+.pageHeader {
+  background: linear-gradient(135deg, 
+    var(--color-primary-50) 0%, 
+    var(--color-primary-100) 50%, 
+    var(--background-elevated) 100%);
+  border-bottom: 1px solid var(--border-color-light);
+  padding: var(--spacing-4xl) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.pageHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+.headerContent {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.pageTitle {
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pageSubtitle {
+  font-size: var(--font-size-xl);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-2xl);
+  font-weight: var(--font-weight-medium);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.headerActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: var(--spacing-3xl) 0;
+  }
+  
+  .pageTitle {
+    font-size: var(--font-size-4xl);
+  }
+  
+  .pageSubtitle {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .pageHeader {
+    padding: var(--spacing-2xl) 0;
+  }
+  
+  .pageTitle {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .pageSubtitle {
+    font-size: var(--font-size-md);
+  }
+}

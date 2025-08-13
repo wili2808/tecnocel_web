@@ -1,3 +1,9 @@
+/**
+ * Componente OfferIndicator - Indicador visual de ofertas y descuentos
+ * Muestra el porcentaje de descuento con diferentes tamaños y posiciones
+ * Componente reutilizable para ProductCard, ProductCardExtensive y ProductPage
+ * Incluye animaciones y estilos consistentes con el sistema de diseño
+ */
 import React from 'react';
 import styles from './OfferIndicator.module.css';
 
@@ -16,10 +22,19 @@ const OfferIndicator: React.FC<OfferIndicatorProps> = ({
     position = 'top-left',
     showLabel = true
 }) => {
+    // ============================================================================
+    // VALIDACIONES
+    // ============================================================================
+    
+    // No renderizar si no hay descuento válido
     if (!descuentoPorcentaje || descuentoPorcentaje <= 0) {
         return null;
     }
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+    
     return (
         <div
             className={`
@@ -29,9 +44,12 @@ const OfferIndicator: React.FC<OfferIndicatorProps> = ({
                 ${className}
             `}
         >
+            {/* Porcentaje de descuento principal */}
             <span className={styles.offerPercentage}>
                 -{Math.round(descuentoPorcentaje)}%
             </span>
+            
+            {/* Label "OFERTA" - Opcional según configuración */}
             {showLabel && (
                 <span className={styles.offerLabel}>OFERTA</span>
             )}

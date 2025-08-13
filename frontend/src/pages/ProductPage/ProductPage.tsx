@@ -1,3 +1,8 @@
+/**
+ * Página ProductPage - Vista detallada de un producto individual
+ * Muestra información completa del producto con imágenes, detalles, acciones y comentarios
+ * Incluye navegación breadcrumb y manejo de estado del producto
+ */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductActions } from '../../hooks/useProductActions';
@@ -8,12 +13,20 @@ import ProductFeatures from '../../components/product/ProductFeatures';
 import ProductComments from '../../components/product/ProductComments';
 import OfferIndicator from '../../components/product/OfferIndicator';
 import FavoriteButtonReusable from '../../components/product/FavoriteButtonReusable';
+import CartIndicator from '../../components/cart/CartIndicator';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import styles from './ProductPage.module.css';
 
 const ProductPage: React.FC = () => {
+    // ============================================================================
+    // PARÁMETROS Y ESTADOS
+    // ============================================================================
     const { id } = useParams<{ id: string }>();
     const productId = parseInt(id || '0', 10);
+    
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
     const { 
         currentProduct: product, 
         productsLoading: loading, 
@@ -21,10 +34,21 @@ const ProductPage: React.FC = () => {
         loadProduct,
         forceClearProductState
     } = useProductActions();
+    
+    // ============================================================================
+    // ESTADOS LOCALES
+    // ============================================================================
     const [isOutOfStock, setIsOutOfStock] = useState(false);
     const [hasLoadedProduct, setHasLoadedProduct] = useState<number | null>(null);
 
-    // Cargar producto al montar el componente o cambiar ID - CONTROLADO
+    // ============================================================================
+    // EFECTOS Y CICLO DE VIDA
+    // ============================================================================
+    
+    /**
+     * Cargar producto al montar el componente o cambiar ID - CONTROLADO
+     * Evita cargas innecesarias y mantiene el estado sincronizado
+     */
     useEffect(() => {
         if (productId > 0 && hasLoadedProduct !== productId) {
             // ✅ FORZAR LIMPIEZA COMPLETA antes de cargar nuevo producto
@@ -36,7 +60,10 @@ const ProductPage: React.FC = () => {
         }
     }, [productId, hasLoadedProduct, loadProduct, forceClearProductState]);
 
-    // ✅ LIMPIAR ESTADO cuando se desmonte el componente
+    /**
+     * ✅ LIMPIAR ESTADO cuando se desmonte el componente
+     * Previene memory leaks y mantiene el estado limpio
+     */
     useEffect(() => {
         return () => {
             // Limpiar estado al desmontar
@@ -48,12 +75,34 @@ const ProductPage: React.FC = () => {
         };
     }, []); // ✅ Sin dependencias para evitar bucles
 
+    /**
+     * Actualizar estado local cuando cambia el producto
+     * Incluye logs de desarrollo para debugging de ofertas
+     */
     useEffect(() => {
         if (product) {
             setIsOutOfStock(product.stock === 0);
+            
+            // Log de desarrollo para verificar datos de ofertas
+            if (process.env.NODE_ENV === 'development') {
+                console.log('🛍️ ProductPage - Datos del producto:', {
+                    nombre: product.nombre,
+                    precio_venta: product.precio_venta,
+                    precio_oferta: product.precio_oferta,
+                    descuento_porcentaje: product.descuento_porcentaje,
+                    en_oferta: product.en_oferta,
+                    ofertas: product.ofertas?.length || 0,
+                    hasDiscount: product.precio_oferta && product.precio_oferta < Number(product.precio_venta)
+                });
+            }
         }
     }, [product]);
 
+    // ============================================================================
+    // ESTADOS DE CARGA Y ERROR
+    // ============================================================================
+    
+    // Mostrar spinner de carga mientras se obtiene el producto
     if (loading) {
         return (
             <div className={styles.loadingContainer}>
@@ -63,6 +112,7 @@ const ProductPage: React.FC = () => {
         );
     }
 
+    // Mostrar mensaje de error si falla la carga
     if (error || !product) {
         return (
             <div className={styles.errorContainer}>
@@ -79,9 +129,13 @@ const ProductPage: React.FC = () => {
         );
     }
 
+    // ============================================================================
+    // RENDERIZADO PRINCIPAL
+    // ============================================================================
+    
     return (
         <div className={styles.productPage}>
-            {/* Breadcrumb */}
+            {/* Navegación breadcrumb para orientación del usuario */}
             <nav className={styles.breadcrumb} aria-label="Breadcrumb">
                 <Link to="/" className={styles.breadcrumbLink}>
                     <span className="material-icons">home</span>
@@ -96,6 +150,7 @@ const ProductPage: React.FC = () => {
                 <span className={styles.breadcrumbSeparator}>
                     <span className="material-icons">chevron_right</span>
                 </span>
+                {/* Categoría del producto si existe */}
                 {product.Categoria && (
                     <>
                         <span className={styles.breadcrumbItem}>{product.Categoria.nombre_categoria}</span>
@@ -104,36 +159,53 @@ const ProductPage: React.FC = () => {
                         </span>
                     </>
                 )}
+                {/* Nombre del producto actual */}
                 <span className={styles.breadcrumbCurrent}>{product.nombre}</span>
             </nav>
 
-            {/* Contenido principal */}
+            {/* Contenido principal de la página del producto */}
             <div className={styles.productContent}>
-                {/* Sección principal del producto */}
+                {/* Sección principal del producto con imagen, info y acciones */}
                 <section className={styles.productMainSection}>
+                    {/* Sección de imagen del producto */}
                     <div className={styles.productImageSection}>
                         <div className={styles.imageContainer}>
+                            {/* Galería de imágenes con miniaturas */}
                             <ProductImage
                                 images={product.imagenes || []}
                                 defaultImage={product.imagen_url}
                                 alt={product.nombre}
                                 showThumbnails={true}
                             />
-                            {/* Indicador de oferta reutilizable */}
-                            {product.en_oferta && product.descuento_porcentaje && (
+                            
+                            {/* Indicador de oferta reutilizable - Posicionado en esquina superior izquierda */}
+                            {(product.en_oferta || 
+                              (product.precio_oferta && product.precio_oferta < Number(product.precio_venta)) ||
+                              (product.ofertas && product.ofertas.length > 0)) && (
                                 <OfferIndicator
-                                    descuentoPorcentaje={product.descuento_porcentaje}
+                                    descuentoPorcentaje={
+                                        product.descuento_porcentaje || 
+                                        (product.precio_oferta && product.precio_venta ? 
+                                            Math.round(((Number(product.precio_venta) - product.precio_oferta) / Number(product.precio_venta)) * 100) : 0)
+                                    }
                                     size="large"
                                     position="top-left"
                                     showLabel={true}
                                 />
                             )}
+                            
+                            {/* Indicador de cantidad en carrito - Posicionado en esquina inferior derecha */}
+                            <CartIndicator productId={product.id_producto} />
                         </div>
                     </div>
 
+                    {/* Sección de información del producto */}
                     <div className={styles.productInfoSection}>
                         <div className={styles.productHeader}>
+                            {/* Información detallada del producto */}
                             <ProductInfo product={product} />
+                            
+                            {/* Botón de favoritos - Posicionado en esquina superior derecha */}
                             <div className={styles.favoriteButtonContainer}>
                                 <FavoriteButtonReusable
                                     productId={product.id_producto}
@@ -147,6 +219,7 @@ const ProductPage: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* Sección de acciones del producto (cantidad, agregar al carrito, comprar) */}
                     <div className={styles.productActionsSection}>
                         <ProductActions
                             productId={product.id_producto}
@@ -157,12 +230,12 @@ const ProductPage: React.FC = () => {
                     </div>
                 </section>
 
-                {/* Sección de características */}
+                {/* Sección de características técnicas del producto */}
                 <section className={styles.productDetailsSection}>
                     <ProductFeatures product={product} />
                 </section>
 
-                {/* Sección de comentarios */}
+                {/* Sección de comentarios y reseñas del producto */}
                 <section className={styles.productCommentsSection}>
                     <ProductComments
                         productId={product.id_producto}
@@ -170,7 +243,7 @@ const ProductPage: React.FC = () => {
                     />
                 </section>
 
-                {/* Botón para volver */}
+                {/* Botón para volver al catálogo de productos */}
                 <div className={styles.backToProducts}>
                     <Link to="/productos" className={styles.backButton}>
                         <span className="material-icons">arrow_back</span>

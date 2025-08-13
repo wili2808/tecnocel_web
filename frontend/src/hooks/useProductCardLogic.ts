@@ -2,12 +2,13 @@
  * Hook común para la lógica de ProductCard
  * Elimina duplicación entre ProductCard y ProductCardExtensive
  * Proporciona toda la funcionalidad necesaria para ambos componentes
+ * Centraliza la lógica de carrito, favoritos y manejo de imágenes
  */
 import { useState, useMemo, useCallback } from 'react';
 import { useCarrito } from '../contexts/CarritoContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import { useFavoritosGlobal } from '../contexts/FavoritosGlobalContext';
+
 import { useProductContext } from '../contexts/ProductContext';
 import type { ProductCardProps } from '../types/product';
 
@@ -16,9 +17,8 @@ export const useProductCardLogic = ({
   precio_venta,
   stock,
   precio_original,
-  precio_oferta,
-  en_oferta
-}: Pick<ProductCardProps, 'id_producto' | 'precio_venta' | 'stock' | 'precio_original' | 'precio_oferta' | 'en_oferta'>) => {
+  precio_oferta
+}: Pick<ProductCardProps, 'id_producto' | 'precio_venta' | 'stock' | 'precio_original' | 'precio_oferta'>) => {
   // ============================================================================
   // ESTADOS LOCALES
   // ============================================================================
@@ -32,14 +32,17 @@ export const useProductCardLogic = ({
   const { agregarItem, isProductInCart, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
   const { isAuthenticated } = useAuth();
   const { showNotification } = useNotification();
-  const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritosGlobal();
+
   const { loadImageWithCache } = useProductContext();
 
   // ============================================================================
   // FUNCIONES MEMOIZADAS
   // ============================================================================
   
-  // Formatear precio con caché de imágenes
+  /**
+   * Formatear precio con formato argentino
+   * Convierte números a formato de moneda local con símbolo ARS
+   */
   const formatPrice = useCallback((price: number) => {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -49,7 +52,10 @@ export const useProductCardLogic = ({
     }).format(price);
   }, []);
 
-  // Información de precios
+  /**
+   * Información de precios calculada y memoizada
+   * Incluye precios actuales, originales y cálculo de descuentos
+   */
   const priceInfo = useMemo(() => {
     const current = precio_oferta || Number(precio_venta);
     const original = precio_original || Number(precio_venta);
@@ -63,13 +69,21 @@ export const useProductCardLogic = ({
     };
   }, [precio_venta, precio_original, precio_oferta]);
 
-  // Click en la tarjeta del producto
+  /**
+   * Click en la tarjeta del producto
+   * La navegación se maneja automáticamente por el Link
+   * Solo registrar analytics si es necesario
+   */
   const handleCardClick = useCallback(() => {
     // La navegación se maneja automáticamente por el Link
     // Solo registrar analytics si es necesario
   }, []);
 
-  // Agregar al carrito
+  /**
+   * Agregar producto al carrito con validaciones completas
+   * Verifica autenticación, stock disponible y cantidad máxima
+   * Incluye manejo de errores y sincronización automática
+   */
   const handleAddToCart = useCallback(async () => {
     if (!isAuthenticated) {
       showNotification('Debes iniciar sesión para agregar productos al carrito', 'warning', 3000);
@@ -111,21 +125,12 @@ export const useProductCardLogic = ({
     }
   }, [id_producto, isAuthenticated, isOutOfStock, stock, canAddMoreOfProduct, agregarItem, showNotification, sincronizarCarrito]);
 
-  // Toggle favorito
-  const handleToggleFavorite = useCallback(async () => {
-    if (!isAuthenticated) {
-      showNotification('Debes iniciar sesión para usar favoritos', 'warning', 3000);
-      return;
-    }
 
-    try {
-      await toggleFavorito(id_producto);
-    } catch (error) {
-      showNotification('Error al actualizar favoritos', 'error', 3000);
-    }
-  }, [isAuthenticated, toggleFavorito, id_producto, showNotification]);
 
-  // Cargar imagen con caché
+  /**
+   * Cargar imagen con caché optimizado
+   * Incluye manejo de errores y fallback a URL original
+   */
   const loadImageWithCacheOptimized = useCallback(async (imageUrl: string) => {
     try {
       return await loadImageWithCache(imageUrl);
@@ -139,12 +144,20 @@ export const useProductCardLogic = ({
   // CÁLCULOS Y TEXTOS
   // ============================================================================
   
+  /**
+   * Texto del stock con pluralización correcta
+   * Muestra información clara sobre la disponibilidad
+   */
   const stockText = useMemo(() => {
     if (isOutOfStock) return 'Agotado';
     if (stock <= 5) return `Solo ${stock} disponibles`;
     return 'En stock';
   }, [stock, isOutOfStock]);
 
+  /**
+   * Contenido del overlay para productos agotados
+   * Define icono, texto y clase CSS según el estado
+   */
   const overlayContent = useMemo(() => {
     if (isOutOfStock) {
       return {
@@ -156,29 +169,15 @@ export const useProductCardLogic = ({
     return null;
   }, [isOutOfStock]);
 
-  const offerIndicator = useMemo(() => {
-    // Verificar si hay oferta activa de manera eficiente
-    const hasValidOffer = en_oferta && precio_oferta && precio_oferta < Number(precio_venta);
-    
-    if (hasValidOffer) {
-      const discount = Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100);
-      
-      return {
-        show: true,
-        discountPercentage: discount,
-        text: `-${discount}%`
-      };
-    }
-    
-    return { show: false };
-  }, [en_oferta, precio_oferta, precio_venta]);
-
   // ============================================================================
   // ESTADOS DE CARGA
   // ============================================================================
   const carritoLoading = isAddingToCart;
-  const isProductFavorite = isFavorito(id_producto);
 
+  // ============================================================================
+  // RETORNO DEL HOOK
+  // ============================================================================
+  
   return {
     // Estados
     isAddingToCart,
@@ -190,18 +189,14 @@ export const useProductCardLogic = ({
     priceInfo,
     handleCardClick,
     handleAddToCart,
-    handleToggleFavorite,
     loadImageWithCache: loadImageWithCacheOptimized,
     
     // Estados de carga
-    favoritoLoading,
     carritoLoading,
-    isProductFavorite,
     
     // Datos calculados
     stockText,
     overlayContent,
-    offerIndicator,
     
     // Funciones del carrito
     canAddMoreOfProduct: (id_producto: number, stock: number) => canAddMoreOfProduct(id_producto, stock),

@@ -5,7 +5,7 @@ interface IconButtonProps {
     /** Nombre del icono de Material Design */
     icon: string;
     /** Función que se ejecuta al hacer clic */
-    onClick?: () => void;
+    onClick?: (event?: React.MouseEvent<HTMLButtonElement>) => void;
     /** Texto descriptivo para lectores de pantalla */
     ariaLabel: string;
     /** Clases CSS adicionales */

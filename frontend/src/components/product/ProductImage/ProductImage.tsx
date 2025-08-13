@@ -1,3 +1,8 @@
+/**
+ * Componente ProductImage - Visualización de imágenes del producto
+ * Maneja la galería de imágenes con navegación, miniaturas y estados de carga
+ * Incluye precarga de imágenes y manejo de errores para mejor UX
+ */
 import React, { useState, useEffect } from 'react';
 import styles from './ProductImage.module.css';
 
@@ -20,10 +25,17 @@ const ProductImage: React.FC<ProductImageProps> = ({
     showThumbnails = false,
     onImageChange
 }) => {
+    // ============================================================================
+    // ESTADOS LOCALES
+    // ============================================================================
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [imageError, setImageError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    // ============================================================================
+    // CÁLCULOS Y PREPARACIÓN DE DATOS
+    // ============================================================================
+    
     // Ordenar imágenes: principales primero, luego por orden
     const sortedImages = [...images].sort((a, b) => {
         if (a.es_principal && !b.es_principal) return -1;
@@ -36,16 +48,30 @@ const ProductImage: React.FC<ProductImageProps> = ({
         ? (defaultImage || '')
         : sortedImages[currentImageIndex].url;
 
+    // ============================================================================
+    // EFECTOS Y PRECARGA
+    // ============================================================================
+    
+    /**
+     * Precarga la siguiente imagen para navegación fluida
+     * Mejora la experiencia del usuario al cambiar entre imágenes
+     */
     useEffect(() => {
-        // Precargar la siguiente imagen si existe
         if (sortedImages.length > currentImageIndex + 1) {
             const nextImage = new Image();
             nextImage.src = sortedImages[currentImageIndex + 1].url;
         }
     }, [currentImageIndex, sortedImages]);
 
+    // ============================================================================
+    // MANEJADORES DE EVENTOS
+    // ============================================================================
+    
+    /**
+     * Maneja errores de carga de imagen
+     * Establece fallback y registra error solo en desarrollo
+     */
     const handleImageError = () => {
-        // ✅ Solo log de error cuando realmente falla, no en cada render
         if (process.env.NODE_ENV === 'development') {
             console.warn(`Error al cargar imagen: ${currentImage}`);
         }
@@ -53,11 +79,18 @@ const ProductImage: React.FC<ProductImageProps> = ({
         setIsLoading(false);
     };
 
+    /**
+     * Maneja la carga exitosa de imagen
+     * Oculta el indicador de carga
+     */
     const handleImageLoad = () => {
-        // ✅ Solo actualizar estado, sin logs problemáticos
         setIsLoading(false);
     };
 
+    /**
+     * Cambia la imagen actual y notifica al componente padre
+     * Permite sincronización con otros componentes
+     */
     const handleImageChange = (index: number) => {
         setCurrentImageIndex(index);
         if (onImageChange) {
@@ -65,27 +98,42 @@ const ProductImage: React.FC<ProductImageProps> = ({
         }
     };
 
+    /**
+     * Navega a la imagen anterior
+     * Implementa navegación circular (última -> primera)
+     */
     const handlePrevImage = () => {
         setCurrentImageIndex(prev =>
             prev > 0 ? prev - 1 : sortedImages.length - 1
         );
     };
 
+    /**
+     * Navega a la siguiente imagen
+     * Implementa navegación circular (última -> primera)
+     */
     const handleNextImage = () => {
         setCurrentImageIndex(prev =>
             prev < sortedImages.length - 1 ? prev + 1 : 0
         );
     };
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+    
     return (
         <div className={`${styles.imageContainer} ${className || ''}`}>
-            {/* Imagen principal */}
+            {/* Contenedor de imagen principal con controles de navegación */}
             <div className={styles.mainImageContainer}>
+                {/* Overlay de carga mientras se procesa la imagen */}
                 {isLoading && (
                     <div className={styles.loadingOverlay}>
                         <div className={styles.loadingSpinner} />
                     </div>
                 )}
+                
+                {/* Imagen principal del producto */}
                 <img
                     src={currentImage}
                     alt={sortedImages[currentImageIndex]?.alt_text || alt}
@@ -95,9 +143,10 @@ const ProductImage: React.FC<ProductImageProps> = ({
                     loading="lazy"
                 />
 
-                {/* Controles de navegación */}
+                {/* Controles de navegación - Solo visibles si hay múltiples imágenes */}
                 {sortedImages.length > 1 && (
                     <>
+                        {/* Botón de imagen anterior */}
                         <button
                             className={`${styles.navButton} ${styles.prevButton}`}
                             onClick={handlePrevImage}
@@ -105,6 +154,8 @@ const ProductImage: React.FC<ProductImageProps> = ({
                         >
                             ‹
                         </button>
+                        
+                        {/* Botón de siguiente imagen */}
                         <button
                             className={`${styles.navButton} ${styles.nextButton}`}
                             onClick={handleNextImage}
@@ -116,7 +167,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
                 )}
             </div>
 
-            {/* Miniaturas */}
+            {/* Galería de miniaturas - Solo visible si está habilitada y hay múltiples imágenes */}
             {showThumbnails && sortedImages.length > 1 && (
                 <div className={styles.thumbnailContainer}>
                     {sortedImages.map((image, index) => (

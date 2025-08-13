@@ -1,0 +1,228 @@
+/* === COMPONENTE DE DEMOSTRACIÓN DEL BUTTON === */
+
+.demoContainer {
+  padding: var(--spacing-2xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--background-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.demoTitle {
+  text-align: center;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-3xl);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === SECCIONES DE DEMOSTRACIÓN === */
+
+.demoSection {
+  margin-bottom: var(--spacing-3xl);
+  padding: var(--spacing-xl);
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* === GRID DE BOTONES === */
+
+.buttonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+/* === SECCIÓN DE INFORMACIÓN === */
+
+.infoSection {
+  margin-top: var(--spacing-4xl);
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-primary-50), var(--color-secondary-50));
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-primary-100);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.infoCard {
+  background: var(--background-elevated);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color-light);
+  text-align: center;
+  transition: var(--theme-transition);
+}
+
+.infoCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.infoCard h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.infoCard p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 1024px) {
+  .demoContainer {
+    padding: var(--spacing-xl);
+  }
+  
+  .demoTitle {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .buttonGrid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .demoContainer {
+    padding: var(--spacing-lg);
+  }
+  
+  .demoSection {
+    padding: var(--spacing-lg);
+  }
+  
+  .buttonGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-sm);
+  }
+  
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .demoContainer {
+    padding: var(--spacing-md);
+  }
+  
+  .demoTitle {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-2xl);
+  }
+  
+  .demoSection {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-2xl);
+  }
+  
+  .buttonGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .sectionTitle {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* === ANIMACIONES === */
+
+.demoSection {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.demoSection:nth-child(2) { animation-delay: 0.1s; }
+.demoSection:nth-child(3) { animation-delay: 0.2s; }
+.demoSection:nth-child(4) { animation-delay: 0.3s; }
+.demoSection:nth-child(5) { animation-delay: 0.4s; }
+.demoSection:nth-child(6) { animation-delay: 0.5s; }
+.demoSection:nth-child(7) { animation-delay: 0.6s; }
+.demoSection:nth-child(8) { animation-delay: 0.7s; }
+.demoSection:nth-child(9) { animation-delay: 0.8s; }
+.demoSection:nth-child(10) { animation-delay: 0.9s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === ESTILOS ESPECIALES PARA LA DEMOSTRACIÓN === */
+
+.buttonGrid .button {
+  /* Asegurar que los botones de demostración tengan un tamaño consistente */
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* === HOVER EFFECTS PARA LAS SECCIONES === */
+
+.demoSection:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* === ESTILOS PARA BOTONES ESPECIALES === */
+
+.buttonGrid .button[data-variant="glass"] {
+  backdrop-filter: blur(10px);
+}
+
+.buttonGrid .button[data-variant="elevated"] {
+  box-shadow: var(--shadow-lg);
+}
+
+.buttonGrid .button[data-variant="rounded"] {
+  border-radius: var(--border-radius-full);
+}
+
+/* === ESTILOS PARA BOTONES DE ANCHO COMPLETO === */
+
+.buttonGrid .button[data-fullwidth="true"] {
+  grid-column: 1 / -1;
+}
+
+/* === ESTILOS PARA BOTONES DE TAMAÑO EXTRA LARGO === */
+
+.buttonGrid .button[data-size="xl"] {
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-xl) var(--spacing-2xl);
+}

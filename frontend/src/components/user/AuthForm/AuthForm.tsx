@@ -1,18 +1,25 @@
+/**
+ * Componente AuthForm - Formulario de autenticación completo
+ * Maneja login con email/contraseña y autenticación Google OAuth
+ * Incluye validación, estados de carga y navegación automática
+ */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-toastify';
+import Button from '../../common/Button';
 import styles from './AuthForm.module.css';
 
-/**
- * Componente de formulario de login
- * Contiene la tarjeta completa con cabecera, formulario y funcionalidad de autenticación
- */
 const AuthForm = () => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
     const { login, googleLogin } = useAuth();
     const navigate = useNavigate();
 
-    // Estados del formulario
+    // ============================================================================
+    // ESTADOS DEL FORMULARIO
+    // ============================================================================
     const [formData, setFormData] = useState({
         email_cliente: '',
         contrasena: ''
@@ -21,9 +28,13 @@ const AuthForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
 
+    // ============================================================================
+    // MANEJADORES DE EVENTOS
+    // ============================================================================
+    
     /**
      * Maneja los cambios en los campos del formulario
-     * @param {React.ChangeEvent<HTMLInputElement>} e - Evento del input
+     * Actualiza el estado local y mantiene la sincronización
      */
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -31,14 +42,16 @@ const AuthForm = () => {
     };
 
     /**
-     * Maneja el focus de los inputs
+     * Maneja el focus de los inputs para efectos visuales
+     * Activa el estado de campo enfocado para estilos CSS
      */
     const handleFocus = (fieldName: string) => {
         setFocusedField(fieldName);
     };
 
     /**
-     * Maneja el blur de los inputs
+     * Maneja el blur de los inputs para efectos visuales
+     * Desactiva el estado de campo enfocado
      */
     const handleBlur = () => {
         setFocusedField(null);
@@ -46,36 +59,43 @@ const AuthForm = () => {
 
     /**
      * Toggle de visibilidad de contraseña
+     * Permite al usuario ver/ocultar el texto de la contraseña
      */
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
 
+    // ============================================================================
+    // MANEJADORES DE FORMULARIO
+    // ============================================================================
+    
     /**
      * Maneja el envío del formulario de login
-     * @param {React.FormEvent} e - Evento del formulario
+     * Valida campos, ejecuta autenticación y maneja navegación
      */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            // Validar campos requeridos
+            // ✅ VALIDAR CAMPOS REQUERIDOS antes de procesar
             if (!formData.email_cliente || !formData.contrasena) {
                 toast.error('Por favor complete todos los campos');
                 return;
             }
 
+            // ✅ EJECUTAR AUTENTICACIÓN con credenciales
             await login(formData.email_cliente, formData.contrasena);
             toast.success('¡Bienvenido de vuelta!');
 
-            // Limpiar formulario
+            // ✅ LIMPIAR FORMULARIO después de éxito
             setFormData({ email_cliente: '', contrasena: '' });
 
-            // Redirigir a la página principal
+            // ✅ REDIRIGIR a la página principal
             navigate('/');
 
         } catch (error: any) {
+            // ✅ MANEJO DE ERRORES con mensajes descriptivos
             const errorMessage = error.response?.data?.mensaje ||
                 error.response?.data?.message ||
                 error.message ||
@@ -87,7 +107,8 @@ const AuthForm = () => {
     };
 
     /**
-     * Maneja el inicio de sesión con Google
+     * Maneja el inicio de sesión con Google OAuth
+     * Procesa autenticación externa y navegación automática
      */
     const handleGoogleLogin = async () => {
         setIsLoading(true);
@@ -102,9 +123,13 @@ const AuthForm = () => {
         }
     };
 
+    // ============================================================================
+    // RENDERIZADO PRINCIPAL
+    // ============================================================================
+    
     return (
         <div className={styles.loginCard}>
-            {/* Encabezado integrado */}
+            {/* Encabezado integrado con logo y descripción */}
             <div className={styles.authHeader}>
                 <div className={styles.logoContainer}>
                     <img
@@ -116,9 +141,9 @@ const AuthForm = () => {
                 <p className={styles.subtitle}>Accede a tu cuenta para continuar</p>
             </div>
 
-            {/* Formulario de login */}
+            {/* Formulario de login con validación y estados */}
             <form onSubmit={handleSubmit} className={styles.loginForm}>
-                {/* Campo Email */}
+                {/* Campo Email con validación y estados visuales */}
                 <div className={styles.formGroup}>
                     <label htmlFor="email_cliente" className={styles.label}>
                         Correo Electrónico
@@ -144,7 +169,7 @@ const AuthForm = () => {
                     </div>
                 </div>
 
-                {/* Campo Contraseña */}
+                {/* Campo Contraseña con toggle de visibilidad */}
                 <div className={styles.formGroup}>
                     <label htmlFor="contrasena" className={styles.label}>
                         Contraseña
@@ -181,26 +206,34 @@ const AuthForm = () => {
                     </div>
                 </div>
 
-                {/* Botón de envío */}
-                <button
+                {/* Botón de envío principal usando componente Button personalizado */}
+                <Button
                     type="submit"
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    loading={isLoading}
+                    icon="login"
+                    iconPosition="left"
                     className={styles.submitButton}
-                    disabled={isLoading}
                 >
-                    <span className="material-icons">login</span>
                     {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                </button>
+                </Button>
 
-                {/* Separador */}
+                {/* Separador visual para opciones alternativas */}
                 <div className={styles.divider}>
                     o
                 </div>
 
-                {/* Botón de Google integrado */}
-                <button
+                {/* Botón de Google OAuth usando componente Button personalizado */}
+                <Button
                     type="button"
-                    className={styles.googleButton}
+                    variant="outline"
+                    size="lg"
+                    fullWidth
+                    loading={isLoading}
                     onClick={handleGoogleLogin}
+                    className={styles.googleButton}
                     disabled={isLoading}
                     aria-label="Iniciar sesión con Google"
                 >
@@ -233,14 +266,9 @@ const AuthForm = () => {
                     <span className={styles.buttonText}>
                         {isLoading ? 'Conectando...' : 'Continuar con Google'}
                     </span>
-                    {isLoading && (
-                        <div className={styles.loadingSpinner}>
-                            <div className={styles.spinner}></div>
-                        </div>
-                    )}
-                </button>
+                </Button>
 
-                {/* Enlaces */}
+                {/* Enlaces de navegación y ayuda */}
                 <div className={styles.authLinks}>
                     <Link to="/forgot-password" className={styles.forgotPassword}>
                         ¿Olvidaste tu contraseña?

@@ -72,8 +72,16 @@
 }
 
 .availableStock {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+  text-align: center;
+}
+
+.cartQuantity {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  margin-left: var(--spacing-xs);
 }
 
 .actionButtons {

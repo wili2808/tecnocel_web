@@ -24,6 +24,7 @@ const UserPanel = lazy(() => import('./pages/UserPanel'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Offers = lazy(() => import('./pages/Offers/Offers'));
 const Brands = lazy(() => import('./pages/Brands/Brands'));
+const ButtonDemo = lazy(() => import('./pages/ButtonDemo'));
 
 // Componente de carga
 const LoadingFallback = () => (
@@ -69,6 +70,7 @@ function App() {
                                 <Route path="/carrito" element={<Cart />} />
                                 <Route path="/ofertas" element={<Offers />} />
                                 <Route path="/marcas" element={<Brands />} />
+                                <Route path="/button-demo" element={<ButtonDemo />} />
                               </Route>
                               {/* Rutas sin footer */}
                               <Route element={<Layout hideFooter />}>
