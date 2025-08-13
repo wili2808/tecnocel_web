@@ -6,9 +6,20 @@ export class MarcaController {
   // Obtener todas las marcas activas
   static async getAllMarcas(req: Request, res: Response) {
     try {
+      logger.debug('Obteniendo todas las marcas activas');
+      
       const marcas = await Marca.findAll({
         where: { activo: true },
         order: [['nombre_marca', 'ASC']]
+      });
+
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Marcas obtenidas exitosamente', {
+        operacion: 'obtener_marcas',
+        cantidad: marcas.length,
+        success: true
       });
 
       res.json({
@@ -17,7 +28,10 @@ export class MarcaController {
         count: marcas.length
       });
     } catch (error) {
-      logger.error('Error obteniendo marcas:', error);
+      logger.error('Error obteniendo marcas:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',
@@ -30,6 +44,7 @@ export class MarcaController {
   static async getMarcaById(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      logger.debug(`Obteniendo marca por ID: ${id}`);
       
       const marca = await Marca.findOne({
         where: { 
@@ -39,18 +54,33 @@ export class MarcaController {
       });
 
       if (!marca) {
+        logger.warn(`Marca no encontrada con ID: ${id}`);
         return res.status(404).json({
           success: false,
           message: 'Marca no encontrada'
         });
       }
 
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Marca obtenida exitosamente', {
+        operacion: 'obtener_marca_por_id',
+        marca_id: id,
+        nombre_marca: marca.nombre_marca,
+        success: true
+      });
+
       res.json({
         success: true,
         data: marca
       });
     } catch (error) {
-      logger.error('Error obteniendo marca:', error);
+      logger.error('Error obteniendo marca por ID:', {
+        marca_id: req.params.id,
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',
@@ -63,8 +93,10 @@ export class MarcaController {
   static async createMarca(req: Request, res: Response) {
     try {
       const { nombre_marca, logo_marca, descripcion_marca } = req.body;
+      logger.debug('Creando nueva marca', { nombre_marca, logo_marca: !!logo_marca, descripcion_marca: !!descripcion_marca });
 
       if (!nombre_marca) {
+        logger.warn('Intento de crear marca sin nombre');
         return res.status(400).json({
           success: false,
           message: 'El nombre de la marca es requerido'
@@ -82,7 +114,15 @@ export class MarcaController {
         fyh_actualizacion: now
       });
 
-      logger.info(`Nueva marca creada: ${nombre_marca} (ID: ${nuevaMarca.id_marca})`);
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Nueva marca creada exitosamente', {
+        operacion: 'crear_marca',
+        marca_id: nuevaMarca.id_marca,
+        nombre_marca: nuevaMarca.nombre_marca,
+        success: true
+      });
 
       res.status(201).json({
         success: true,
@@ -90,7 +130,11 @@ export class MarcaController {
         data: nuevaMarca
       });
     } catch (error) {
-      logger.error('Error creando marca:', error);
+      logger.error('Error creando marca:', {
+        nombre_marca: req.body.nombre_marca,
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       
       if (error instanceof Error && error.message.includes('Duplicate entry')) {
         return res.status(400).json({
@@ -112,10 +156,12 @@ export class MarcaController {
     try {
       const { id } = req.params;
       const { nombre_marca, logo_marca, descripcion_marca, activo } = req.body;
+      logger.debug(`Actualizando marca ID: ${id}`, { nombre_marca, logo_marca: !!logo_marca, descripcion_marca: !!descripcion_marca, activo });
 
       const marca = await Marca.findByPk(id);
       
       if (!marca) {
+        logger.warn(`Intento de actualizar marca inexistente ID: ${id}`);
         return res.status(404).json({
           success: false,
           message: 'Marca no encontrada'
@@ -133,7 +179,16 @@ export class MarcaController {
 
       await marca.update(datosActualizados);
 
-      logger.info(`Marca actualizada: ${marca.nombre_marca} (ID: ${id})`);
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Marca actualizada exitosamente', {
+        operacion: 'actualizar_marca',
+        marca_id: id,
+        nombre_marca: marca.nombre_marca,
+        campos_actualizados: Object.keys(datosActualizados),
+        success: true
+      });
 
       res.json({
         success: true,
@@ -141,7 +196,11 @@ export class MarcaController {
         data: marca
       });
     } catch (error) {
-      logger.error('Error actualizando marca:', error);
+      logger.error('Error actualizando marca:', {
+        marca_id: req.params.id,
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',
@@ -154,10 +213,12 @@ export class MarcaController {
   static async deleteMarca(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      logger.debug(`Desactivando marca ID: ${id}`);
 
       const marca = await Marca.findByPk(id);
       
       if (!marca) {
+        logger.warn(`Intento de desactivar marca inexistente ID: ${id}`);
         return res.status(404).json({
           success: false,
           message: 'Marca no encontrada'
@@ -169,14 +230,26 @@ export class MarcaController {
         fyh_actualizacion: new Date()
       });
 
-      logger.info(`Marca desactivada: ${marca.nombre_marca} (ID: ${id})`);
+      // Marcar para evitar log HTTP duplicado
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Marca desactivada exitosamente', {
+        operacion: 'desactivar_marca',
+        marca_id: id,
+        nombre_marca: marca.nombre_marca,
+        success: true
+      });
 
       res.json({
         success: true,
         message: 'Marca eliminada exitosamente'
       });
     } catch (error) {
-      logger.error('Error eliminando marca:', error);
+      logger.error('Error desactivando marca:', {
+        marca_id: req.params.id,
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',
