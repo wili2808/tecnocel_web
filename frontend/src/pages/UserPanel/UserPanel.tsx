@@ -50,17 +50,19 @@ const FavoritesSection = () => {
     } = useFavoritosProductos();
     const { showNotification } = useNotification();
 
-    const handleRemoveFromFavorites = async (productId: number) => {
+    // Función para eliminar todos los favoritos
+    const handleRemoveAllFavorites = async () => {
+        if (productos.length === 0) return;
+        
         try {
-            const success = await removeFromFavoritos(productId);
-            if (success) {
-                showNotification('Producto removido de favoritos', 'success', 3000);
-            } else {
-                showNotification('Error al remover el producto de favoritos', 'error', 5000);
-            }
+            // Eliminar todos los favoritos uno por uno
+            const removePromises = productos.map(producto => removeFromFavoritos(producto.id_producto));
+            await Promise.all(removePromises);
+            
+            showNotification('Todos los favoritos han sido eliminados', 'success', 3000);
         } catch (error) {
-            console.error('Error al remover de favoritos:', error);
-            showNotification('Error al remover el producto de favoritos', 'error', 5000);
+            console.error('Error al eliminar todos los favoritos:', error);
+            showNotification('Error al eliminar todos los favoritos', 'error', 5000);
         }
     };
 
@@ -123,10 +125,23 @@ const FavoritesSection = () => {
 
     return (
         <div className={userPanelStyles.contentSection}>
-            <h2 className={userPanelStyles.sectionTitle}>
-                Favoritos
-                <span className={userPanelStyles.itemCount}>({productos.length})</span>
-            </h2>
+            <div className={userPanelStyles.sectionHeader}>
+                <h2 className={userPanelStyles.sectionTitle}>
+                    Favoritos
+                    <span className={userPanelStyles.itemCount}>({productos.length})</span>
+                </h2>
+                
+                {/* Botón para eliminar todos los favoritos */}
+                <button
+                    onClick={handleRemoveAllFavorites}
+                    className={userPanelStyles.removeAllButton}
+                    title="Eliminar todos los favoritos"
+                    aria-label="Eliminar todos los favoritos"
+                >
+                    <span className="material-icons">delete_sweep</span>
+                    Eliminar todos
+                </button>
+            </div>
 
             <div className={userPanelStyles.favoritesGrid}>
                 {productos.map((producto) => (
@@ -145,14 +160,7 @@ const FavoritesSection = () => {
                             en_oferta={producto.en_oferta}
                             className={userPanelStyles.favoriteCard}
                         />
-                        <button
-                            onClick={() => handleRemoveFromFavorites(producto.id_producto)}
-                            className={userPanelStyles.removeButton}
-                            title="Quitar de favoritos"
-                            aria-label={`Quitar ${producto.nombre} de favoritos`}
-                        >
-                            <span className="material-icons">close</span>
-                        </button>
+                        {/* ELIMINADO: Botón duplicado de quitar favoritos */}
                     </div>
                 ))}
             </div>

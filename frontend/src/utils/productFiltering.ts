@@ -1,5 +1,5 @@
 import type { Product } from '../types/product';
-import type { ProductUIFilters } from '../hooks/useProductFilters';
+import type { ProductUIFilters } from '../types/product';
 import { getQuickSearchCounts, getQuickSearchTerm, type QuickSearchKey, QUICK_SEARCHES } from './quickSearches';
 
 export const ORDER_OPTIONS = [

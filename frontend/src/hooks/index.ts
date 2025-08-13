@@ -1,17 +1,25 @@
-// Hooks personalizados para la aplicación
-export { useProducts } from './useProducts';
-export { useProduct } from './useProduct';
-export { useFeaturedProducts } from './useFeaturedProducts';
-export { useCategories } from './useCategories';
-export { useProductFilters } from './useProductFilters';
-export { useFilteredProducts } from './useFilteredProducts';
-export { useEscapeKey } from './useEscapeKey';
-export { useAuthForm, authValidationConfigs } from './useAuthForm';
+// Hooks de autenticación
 export { useAuthActions } from './useAuthActions';
+export { useAuthForm, authValidationConfigs } from './useAuthForm';
 export { useAutoLogout } from './useAutoLogout';
+
+// Hooks de productos (CONSOLIDADO - ProductContext)
+export { useProductActions } from './useProductActions';
+
+// Hooks de ofertas
 export { useOfertas } from './useOfertas';
 export { useOfertasGlobal, useOfertasProducto } from './useOfertasGlobal';
 export { useOfertasPagination } from './useOfertasPagination';
 
-// Tipos exportados
-export type { ProductUIFilters } from './useProductFilters'; 
+// Hooks de favoritos
+export { useFavoritos } from './useFavoritos';
+export { useFavoritosProductos } from './useFavoritosProductos';
+
+// Hooks de componentes
+export { useProductCardLogic } from './useProductCardLogic';
+
+// Hooks de utilidad
+export { useEscapeKey } from './useEscapeKey';
+
+// Hooks de direcciones
+export { useDirecciones } from './useDirecciones'; 

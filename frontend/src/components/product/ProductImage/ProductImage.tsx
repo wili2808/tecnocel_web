@@ -45,13 +45,16 @@ const ProductImage: React.FC<ProductImageProps> = ({
     }, [currentImageIndex, sortedImages]);
 
     const handleImageError = () => {
-        console.warn(`Error al cargar imagen: ${currentImage}`);
+        // ✅ Solo log de error cuando realmente falla, no en cada render
+        if (process.env.NODE_ENV === 'development') {
+            console.warn(`Error al cargar imagen: ${currentImage}`);
+        }
         setImageError(true);
         setIsLoading(false);
     };
 
     const handleImageLoad = () => {
-        console.log(`Imagen cargada exitosamente: ${currentImage}`);
+        // ✅ Solo actualizar estado, sin logs problemáticos
         setIsLoading(false);
     };
 

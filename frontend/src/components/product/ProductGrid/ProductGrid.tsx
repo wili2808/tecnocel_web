@@ -66,6 +66,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                     imagen_url={product.imagen_url}
                     precio_venta={String(product.precio_venta)}
                     stock={product.stock}
+                    precio_oferta={product.precio_oferta}
+                    en_oferta={product.en_oferta}
+                    precio_original={product.precio_original}
                 />
             ))}
         </div>

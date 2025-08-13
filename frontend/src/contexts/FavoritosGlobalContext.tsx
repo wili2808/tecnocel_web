@@ -166,6 +166,21 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
     }, []);
 
     /**
+     * Sincroniza el cache con el estado actual
+     */
+    const syncCache = useCallback(() => {
+        if (isAuthenticated && user?.id_cliente && state.favoritos.size > 0) {
+            const cacheData = {
+                userId: user.id_cliente,
+                favoritosIds: Array.from(state.favoritos.keys()),
+                favoritosCompletos: state.favoritosCompletos,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(FAVORITOS_CACHE_KEY, JSON.stringify(cacheData));
+        }
+    }, [isAuthenticated, user?.id_cliente, state.favoritos, state.favoritosCompletos]);
+
+    /**
      * Carga los favoritos del usuario desde el servidor
      */
     const loadFavoritos = useCallback(async () => {
@@ -280,6 +295,9 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     };
                 });
 
+                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
+                setTimeout(() => syncCache(), 0);
+
                 showNotificationRef.current('Producto agregado a favoritos', 'success');
                 return true;
             } else {
@@ -298,6 +316,10 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     newFavoritos.set(productId, true);
                     return { ...prev, favoritos: newFavoritos };
                 });
+                
+                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
+                setTimeout(() => syncCache(), 0);
+                
                 return true; // Considerar como éxito ya que el objetivo se logró
             } else if (error.response?.status === 404) {
                 showNotificationRef.current('Producto no encontrado', 'error');
@@ -307,7 +329,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 return false;
             }
         }
-    }, [isAuthenticated, user?.id_cliente]); // OPTIMIZACIÓN: Usar useRef para showNotification
+    }, [isAuthenticated, user?.id_cliente, syncCache]); // ✅ INCLUIR syncCache
 
     /**
      * Remueve un producto de favoritos
@@ -334,6 +356,9 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     };
                 });
 
+                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
+                setTimeout(() => syncCache(), 0);
+
                 showNotificationRef.current('Producto removido de favoritos', 'success');
                 return true;
             } else {
@@ -352,13 +377,17 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     newFavoritos.delete(productId);
                     return { ...prev, favoritos: newFavoritos };
                 });
+                
+                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
+                setTimeout(() => syncCache(), 0);
+                
                 return true; // Considerar como éxito ya que el objetivo se logró
             } else {
                 showNotificationRef.current('Error al quitar favorito', 'error');
                 return false;
             }
         }
-    }, [isAuthenticated, user?.id_cliente]); // OPTIMIZACIÓN: Usar useRef para showNotification
+    }, [isAuthenticated, user?.id_cliente, syncCache]); // ✅ INCLUIR syncCache
 
     /**
      * Toggle de favorito (agregar/quitar)
@@ -407,21 +436,21 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
      */
     const getFavoritosCount = useCallback((): number => {
         return state.favoritos.size;
-    }, [state.favoritos]);
+    }, []); // ✅ SIN DEPENDENCIAS - Función estable
 
     /**
      * Obtiene los IDs de productos favoritos
      */
     const getFavoritosIds = useCallback((): number[] => {
         return Array.from(state.favoritos.keys());
-    }, [state.favoritos]);
+    }, []); // ✅ SIN DEPENDENCIAS - Función estable
 
     /**
      * Obtiene los favoritos completos
      */
     const getFavoritosCompletos = useCallback((): Favorito[] => {
         return state.favoritosCompletos;
-    }, [state.favoritosCompletos]);
+    }, []); // ✅ SIN DEPENDENCIAS - Función estable
 
     // Memoizar el contexto para evitar re-renders innecesarios
     const contextValue = useMemo(() => ({
@@ -458,6 +487,11 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
         isCacheValid,
         invalidateCache
     ]);
+
+    // Sincronizar cache cuando cambie el estado de favoritos
+    useEffect(() => {
+        syncCache();
+    }, [state.favoritos, state.favoritosCompletos, syncCache]);
 
     // Cargar favoritos al montar el componente y cuando cambie la autenticación
     useEffect(() => {

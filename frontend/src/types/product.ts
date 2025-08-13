@@ -339,6 +339,18 @@ export interface ProductFilters {
 }
 
 /**
+ * Interfaz para filtros de UI de productos
+ */
+export interface ProductUIFilters {
+  search: string;
+  selectedQuickSearch: string | null;
+  selectedDropdownCategory: string;
+  selectedDropdownBrand: string;
+  order: string;
+  onlyStock: boolean;
+}
+
+/**
  * Interfaz para respuesta de la API de productos
  */
 export interface ProductsResponse {

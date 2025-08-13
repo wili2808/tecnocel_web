@@ -1,45 +1,93 @@
-.brandFilter {
+/* Brand Filters Container */
+.brandFilters {
+  display: flex;
+  justify-content: baseline;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Filter Groups */
+.filterGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  overflow: hidden;
 }
 
-.select {
-  padding: 0.75rem;
-  border: 2px solid var(--color-border-light);
-  border-radius: 8px;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-size: 1rem;
+.filterLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  position: relative;
+  padding-left: var(--spacing-sm);
+}
+
+.filterLabel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 12px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+/* Select Dropdown */
+.filterSelect {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  transition: all var(--transition-normal) var(--transition-curve);
+  width: 100%;
   cursor: pointer;
-  transition: all 0.3s ease;
+}
+
+.filterSelect:focus {
   outline: none;
-}
-
-.select:hover {
-  border-color: var(--color-primary-light);
-}
-
-.select:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-alpha);
+  box-shadow: var(--shadow-focus);
 }
 
-.select:disabled {
-  background-color: var(--color-surface-secondary);
-  color: var(--color-text-secondary);
-  cursor: not-allowed;
+.filterSelect:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
 }
 
-.select option {
-  padding: 0.5rem;
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
+/* Layout móvil simplificado - Solo dropdown */
 @media (max-width: 768px) {
-  .select {
-    font-size: 0.875rem;
-    padding: 0.625rem;
+  .brandFilters {
+    gap: 0;
+    min-height: 0;
+    height: auto;
+  }
+
+  .filterGroup:first-child {
+    margin: 0;
+  }
+
+  .filterSelect {
+    font-size: var(--font-size-xs);
+    padding: 8px 10px;
+    border-radius: var(--border-radius-sm);
+  }
+}
+
+/* Layout móvil extra compacto */
+@media (max-width: 600px) {
+  .brandFilters {
+    gap: 0;
+  }
+
+  .filterSelect {
+    font-size: var(--font-size-xs);
+    padding: 6px 8px;
   }
 }

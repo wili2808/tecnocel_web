@@ -4,7 +4,6 @@
  */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ofertaService } from '../services/ofertaService';
-import { useNotification } from './NotificationContext';
 import type { Oferta, Product } from '../types/product';
 
 // Constantes
@@ -110,8 +109,6 @@ interface OfertasGlobalProviderProps {
  * Centraliza el manejo de ofertas para optimizar consultas y cache
  */
 export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ children }) => {
-    const { showNotification } = useNotification();
-
     // Estado del contexto
     const [state, setState] = useState<OfertasState>({
         ofertas: [],
@@ -185,48 +182,52 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
      * Carga las ofertas desde el servidor o cache
      */
     const loadOfertas = useCallback(async () => {
-        // Verificar cache primero
-        if (isCacheValid()) {
-            try {
-                const cachedData = localStorage.getItem(OFERTAS_CACHE_KEY);
-                if (cachedData) {
-                    const parsed = JSON.parse(cachedData);
-                    if (parsed.timestamp && Date.now() - parsed.timestamp < CACHE_DURATION) {
-                        console.log('Ofertas cargadas desde cache');
-
-                        // Reconstruir Maps y Sets desde cache con tipos explícitos
-                        const ofertasMap = new Map<number, Oferta>(
-                            parsed.ofertas.map((o: Oferta) => [o.id_oferta, o])
-                        );
-                        const productosMap = new Map<number, Product>(
-                            parsed.productosEnOferta.map((p: Product) => [p.id_producto, p])
-                        );
-                        const ofertasActivasSet = new Set<number>(parsed.ofertasActivas);
-                        const ofertasExpiradasSet = new Set<number>(parsed.ofertasExpiradas);
-
-                        setState(prev => ({
-                            ...prev,
-                            ofertas: parsed.ofertas as Oferta[],
-                            productosEnOferta: parsed.productosEnOferta as Product[],
-                            ofertasActivas: parsed.ofertas.filter((o: Oferta) => isOfertaActive(o)),
-                            ofertasExpiradas: parsed.ofertas.filter((o: Oferta) => !isOfertaActive(o)),
-                            cache: {
-                                ofertas: ofertasMap,
-                                productos: productosMap,
-                                ofertasActivas: ofertasActivasSet,
-                                ofertasExpiradas: ofertasExpiradasSet
-                            },
-                            lastUpdated: parsed.timestamp as number
-                        }));
-                        return;
+        // Verificar cache primero - MEJORADO para evitar llamadas duplicadas
+        try {
+            const cachedData = localStorage.getItem(OFERTAS_CACHE_KEY);
+            if (cachedData) {
+                const parsed = JSON.parse(cachedData);
+                if (parsed.timestamp && Date.now() - parsed.timestamp < CACHE_DURATION) {
+                    // Solo log en desarrollo
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log('🔄 Ofertas cargadas desde cache (evitando llamada duplicada)');
                     }
+
+                    // Reconstruir Maps y Sets desde cache con tipos explícitos
+                    const ofertasMap = new Map<number, Oferta>(
+                        parsed.ofertas.map((o: Oferta) => [o.id_oferta, o])
+                    );
+                    const productosMap = new Map<number, Product>(
+                        parsed.productosEnOferta.map((p: Product) => [p.id_producto, p])
+                    );
+                    const ofertasActivasSet = new Set<number>(parsed.ofertasActivas);
+                    const ofertasExpiradasSet = new Set<number>(parsed.ofertasExpiradas);
+
+                    setState(prev => ({
+                        ...prev,
+                        ofertas: parsed.ofertas as Oferta[],
+                        productosEnOferta: parsed.productosEnOferta as Product[],
+                        ofertasActivas: parsed.ofertas.filter((o: Oferta) => isOfertaActive(o)),
+                        ofertasExpiradas: parsed.ofertas.filter((o: Oferta) => !isOfertaActive(o)),
+                        cache: {
+                            ofertas: ofertasMap,
+                            productos: productosMap,
+                            ofertasActivas: ofertasActivasSet,
+                            ofertasExpiradas: ofertasExpiradasSet
+                        },
+                        lastUpdated: parsed.timestamp as number,
+                        loading: false
+                    }));
+                    return;
                 }
-            } catch (error) {
+            }
+        } catch (error) {
+            if (process.env.NODE_ENV === 'development') {
                 console.warn('Error al cargar cache de ofertas:', error);
             }
         }
 
-        // Cargar desde servidor usando el servicio mejorado
+        // Solo cargar desde servidor si no hay cache válido
         try {
             setState(prev => ({ ...prev, loading: true, error: null }));
 
@@ -246,7 +247,7 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
             const ofertasActivasSet = new Set(ofertasActivas.map(o => o.id_oferta));
             const ofertasExpiradasSet = new Set(ofertasExpiradas.map(o => o.id_oferta));
 
-            // Guardar en cache (localStorage y memoria)
+            // Guardar en cache ANTES de actualizar el estado
             const cacheData = {
                 ofertas: ofertasData,
                 productosEnOferta: productosData.data,
@@ -256,6 +257,7 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
             };
             localStorage.setItem(OFERTAS_CACHE_KEY, JSON.stringify(cacheData));
 
+            // Actualizar estado con timestamp del cache
             setState(prev => ({
                 ...prev,
                 ofertas: ofertasData,
@@ -269,21 +271,23 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
                     ofertasExpiradas: ofertasExpiradasSet
                 },
                 loading: false,
-                lastUpdated: Date.now()
+                lastUpdated: cacheData.timestamp
             }));
 
-            console.log(`Ofertas cargadas desde servidor: ${ofertasData.length} ofertas, ${productosData.data.length} productos`);
+            if (process.env.NODE_ENV === 'development') {
+                console.log(`✅ Ofertas cargadas desde servidor: ${ofertasData.length} ofertas, ${productosData.data.length} productos`);
+            }
         } catch (error) {
-            console.error('Error al cargar ofertas:', error);
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al cargar ofertas:', error);
+            }
             setState(prev => ({
                 ...prev,
                 loading: false,
-                error: 'Error al cargar ofertas'
+                error: error instanceof Error ? error.message : 'Error desconocido'
             }));
-
-            showNotification('Error al cargar ofertas. Inténtalo de nuevo.', 'error', 5000);
         }
-    }, [isCacheValid, isOfertaActive, showNotification]);
+    }, [isOfertaActive]);
 
     /**
      * Refresca las ofertas (fuerza recarga)

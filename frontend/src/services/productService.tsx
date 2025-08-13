@@ -60,6 +60,17 @@ const productService = {
     }
   },
 
+  // Obtener marcas
+  getMarcas: async () => {
+    try {
+      const response = await axiosInstance.get('/marcas');
+      return response.data.data || response.data; // Manejar tanto el formato {data: [...]} como el formato directo
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+      throw error;
+    }
+  },
+
   // Obtener imágenes de un producto
   getProductImages: async (productId: number): Promise<ProductoImagen[]> => {
     try {

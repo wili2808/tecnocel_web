@@ -1,10 +1,11 @@
 import React from 'react';
 import CategoryFilters from '../CategoryFilters';
+import BrandFilter from '../BrandFilter';
 import QuickSearch from '../QuickSearch';
 import ProductSorting from '../ProductSorting';
 import styles from './ProductFiltersBar.module.css';
-import type { ProductUIFilters } from '../../../hooks/useProductFilters';
-import type { Category } from '../../../types/product';
+import type { ProductUIFilters } from '../../../types/product';
+import type { Category, Marca } from '../../../types/product';
 
 interface ProductFiltersBarProps {
     // Filtros actuales
@@ -13,6 +14,9 @@ interface ProductFiltersBarProps {
 
     // Categorías del backend
     backendCategories: Category[];
+    
+    // Marcas del backend
+    backendBrands: Marca[];
 
     // Contadores para estadísticas
     totalProducts: number;
@@ -24,6 +28,7 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
     filters,
     onFiltersChange,
     backendCategories,
+    backendBrands,
     totalProducts,
     filteredProducts,
     quickSearchCounts = {}
@@ -38,6 +43,18 @@ const ProductFiltersBar: React.FC<ProductFiltersBarProps> = ({
                     selectedBackendCategory={filters.selectedDropdownCategory}
                     onBackendCategoryChange={(selectedDropdownCategory) =>
                         onFiltersChange({ selectedDropdownCategory })
+                    }
+                />
+            </div>
+
+            {/* Marcas */}
+            <div className={styles.filterSection}>
+                <h3 className={styles.filterSectionTitle}>Marcas</h3>
+                <BrandFilter
+                    backendBrands={backendBrands}
+                    selectedBackendBrand={filters.selectedDropdownBrand || ''}
+                    onBackendBrandChange={(selectedDropdownBrand) =>
+                        onFiltersChange({ selectedDropdownBrand })
                     }
                 />
             </div>

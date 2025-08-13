@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useSearch } from '../../../contexts/SearchContext';
+import { useProductActions } from '../../../hooks/useProductActions';
 import styles from './ProductSearch.module.css';
 
 interface ProductSearchProps {
@@ -16,7 +16,12 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     className = '',
     onSearch
 }) => {
-    const { searchQuery, setSearchQuery, clearSearch, isSearching } = useSearch();
+    const { 
+        searchQuery, 
+        updateSearch, 
+        clearSearch, 
+        productsLoading: isSearching 
+    } = useProductActions();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -51,7 +56,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                 <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => updateSearch(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={placeholder}
                     className={`${styles.searchInput} ${isSearching ? styles.searching : ''}`}

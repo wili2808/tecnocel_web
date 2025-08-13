@@ -1,54 +1,37 @@
 import React from 'react';
-import { useMarcas } from '../../../hooks/useMarcas';
 import styles from './BrandFilter.module.css';
+import type { Marca } from '../../../types/product';
 
 interface BrandFilterProps {
-    selectedBrand: string;
-    onBrandChange: (brand: string) => void;
-    className?: string;
+    // Marcas del backend
+    backendBrands: Marca[];
+    selectedBackendBrand: string;
+    onBackendBrandChange: (brandId: string) => void;
 }
 
 const BrandFilter: React.FC<BrandFilterProps> = ({
-    selectedBrand,
-    onBrandChange,
-    className = ''
+    backendBrands,
+    selectedBackendBrand,
+    onBackendBrandChange
 }) => {
-    const { marcas, loading, error } = useMarcas();
-
-    if (loading) {
-        return (
-            <div className={`${styles.brandFilter} ${className}`}>
-                <select disabled className={styles.select}>
-                    <option>Cargando marcas...</option>
-                </select>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className={`${styles.brandFilter} ${className}`}>
-                <select disabled className={styles.select}>
-                    <option>Error al cargar marcas</option>
-                </select>
-            </div>
-        );
-    }
-
     return (
-        <div className={`${styles.brandFilter} ${className}`}>
-            <select
-                value={selectedBrand}
-                onChange={(e) => onBrandChange(e.target.value)}
-                className={styles.select}
-            >
-                <option value="">Todas las marcas</option>
-                {marcas.map((marca) => (
-                    <option key={marca.id_marca} value={marca.id_marca.toString()}>
-                        {marca.nombre_marca}
-                    </option>
-                ))}
-            </select>
+        <div className={styles.brandFilters}>
+            {/* Dropdown de marcas del backend */}
+            <div className={styles.filterGroup}>
+                <select
+                    className={styles.filterSelect}
+                    value={selectedBackendBrand}
+                    onChange={(e) => onBackendBrandChange(e.target.value)}
+                    aria-label="Filtrar por marca del sistema"
+                >
+                    <option value="">Todas las marcas</option>
+                    {backendBrands.map(brand => (
+                        <option key={brand.id_marca} value={brand.id_marca.toString()}>
+                            {brand.nombre_marca}
+                        </option>
+                    ))}
+                </select>
+            </div>
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useProduct } from '../../hooks/useProduct';
+import { useProductActions } from '../../hooks/useProductActions';
 import ProductImage from '../../components/product/ProductImage';
 import ProductInfo from '../../components/product/ProductInfo';
 import ProductActions from '../../components/product/ProductActions';
@@ -14,8 +14,39 @@ import styles from './ProductPage.module.css';
 const ProductPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const productId = parseInt(id || '0', 10);
-    const { product, loading, error } = useProduct(productId);
+    const { 
+        currentProduct: product, 
+        productsLoading: loading, 
+        productsError: error,
+        loadProduct,
+        forceClearProductState
+    } = useProductActions();
     const [isOutOfStock, setIsOutOfStock] = useState(false);
+    const [hasLoadedProduct, setHasLoadedProduct] = useState<number | null>(null);
+
+    // Cargar producto al montar el componente o cambiar ID - CONTROLADO
+    useEffect(() => {
+        if (productId > 0 && hasLoadedProduct !== productId) {
+            // ✅ FORZAR LIMPIEZA COMPLETA antes de cargar nuevo producto
+            forceClearProductState();
+            
+            // ✅ SOLO cargar si es un producto diferente al ya cargado
+            setHasLoadedProduct(productId);
+            loadProduct(productId);
+        }
+    }, [productId, hasLoadedProduct, loadProduct, forceClearProductState]);
+
+    // ✅ LIMPIAR ESTADO cuando se desmonte el componente
+    useEffect(() => {
+        return () => {
+            // Limpiar estado al desmontar
+            if (process.env.NODE_ENV === 'development') {
+                console.log('🧹 ProductPage desmontado, limpiando estado');
+            }
+            // ✅ LIMPIEZA MANUAL: Solo limpiar el producto actual
+            // No llamar clearProductState() para evitar bucles infinitos
+        };
+    }, []); // ✅ Sin dependencias para evitar bucles
 
     useEffect(() => {
         if (product) {

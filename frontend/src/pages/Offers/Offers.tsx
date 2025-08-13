@@ -33,7 +33,6 @@ const Offers: React.FC = () => {
         productosEnOferta,
         loading,
         error,
-        currentPage,
         totalItems,
         hasNextPage,
         loadMore,
@@ -110,16 +109,7 @@ const Offers: React.FC = () => {
                     onRetry={refreshOfertas}
                 />
 
-                {/* Debug info - Solo en desarrollo */}
-                {process.env.NODE_ENV === 'development' && (
-                    <div className={styles.debugInfo}>
-                        <h4>🧪 Debug Info (Contexto Global + Paginación)</h4>
-                        <p>Total Ofertas: {getOfertasCount()}</p>
-                        <p>Total Productos: {totalItems}</p>
-                        <p>Página Actual: {currentPage}</p>
-                        <p>Hay más páginas: {hasNextPage ? '✅ Sí' : '❌ No'}</p>
-                    </div>
-                )}
+
             </div>
         </div>
     );

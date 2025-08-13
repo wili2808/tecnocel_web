@@ -1,15 +1,11 @@
-import React, { memo, useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useCarrito } from '../../../contexts/CarritoContext';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useNotification } from '../../../contexts/NotificationContext';
-import { useFavoritoProducto } from '../../../contexts/FavoritosGlobalContext';
-import { useOfertasProducto } from '../../../hooks/useOfertasGlobal';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import ProductImage from '../ProductImage';
+import { useProductCardLogic } from '../../../hooks/useProductCardLogic';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
-const ProductCard: React.FC<ProductCardProps> = memo(({
+const ProductCard: React.FC<ProductCardProps> = ({
     id_producto,
     nombre,
     descripcion,
@@ -18,214 +14,61 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     precio_venta,
     stock,
     className,
-    onClick,
     precio_original,
     precio_oferta,
-    descuento_porcentaje,
     en_oferta
 }) => {
-    // Log para verificar renders
-    console.log(`🔄 ProductCard renderizado - ID: ${id_producto}, Nombre: ${nombre}`);
-    const [isAddingToCart, setIsAddingToCart] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
-    const isOutOfStock = stock === 0;
+    // ============================================================================
+    // HOOK COMÚN - TODA LA LÓGICA CENTRALIZADA
+    // ============================================================================
+    const logic = useProductCardLogic({
+        id_producto,
+        precio_venta,
+        stock,
+        precio_original,
+        precio_oferta,
+        en_oferta
+    });
 
-    const { agregarItem, estado } = useCarrito();
-    const { isAuthenticated } = useAuth();
-    const { showNotification } = useNotification();
-    const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritoProducto(id_producto);
-    const { isProductoEnOferta, getOfertaInfo } = useOfertasProducto(id_producto);
-    const navigate = useNavigate();
+    // ============================================================================
+    // DESTRUCTURING DE LA LÓGICA COMÚN
+    // ============================================================================
+    const {
+        isAddingToCart,
+        showSuccess,
+        isOutOfStock,
+        formatPrice,
+        priceInfo,
+        handleCardClick,
+        handleAddToCart,
+        handleToggleFavorite,
+        isProductFavorite,
+        favoritoLoading,
+        carritoLoading,
+        overlayContent,
+        offerIndicator,
+        stockText
+    } = logic;
 
-    // Validar y formatear precio - Memoizado para evitar recálculos
-    const formatPrice = useMemo(() => {
-        return (price: string | number): string => {
-            const numPrice = Number(price);
-            if (isNaN(numPrice) || numPrice < 0) {
-                return 'Precio no disponible';
-            }
-            return `$${numPrice.toLocaleString('es-AR')}`;
-        };
-    }, []);
-
-    // Determinar qué precio mostrar - Memoizado para evitar recálculos
-    // Usar contexto global para verificar si el producto está en oferta
-    const priceInfo = useMemo(() => {
-        const isInOffer = isProductoEnOferta();
-        const offerInfo = getOfertaInfo();
-
-        if (isInOffer && offerInfo) {
-            // Usar el primer producto de la oferta para obtener precios
-            const firstProduct = offerInfo.productos?.[0];
-            return {
-                current: firstProduct?.precio_oferta || Number(precio_venta),
-                original: firstProduct?.precio_original || Number(precio_venta),
-                hasDiscount: true,
-                offerInfo
-            };
-        }
-
-        // Fallback a props si no hay info en contexto
-        if (en_oferta && precio_oferta) {
-            return {
-                current: precio_oferta,
-                original: precio_original || Number(precio_venta),
-                hasDiscount: true
-            };
-        }
-
-        return {
-            current: Number(precio_venta),
-            original: Number(precio_venta),
-            hasDiscount: false
-        };
-    }, [isProductoEnOferta, getOfertaInfo, en_oferta, precio_oferta, precio_original, precio_venta]);
-
-    const handleCardClick = (e: React.MouseEvent) => {
-        if (isOutOfStock) {
-            e.preventDefault();
-            return;
-        }
-        onClick?.();
-    };
-
-    /**
-     * Maneja el evento de agregar producto al carrito
-     */
-    const handleAddToCart = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!isAuthenticated) {
-            showNotification(
-                '¡Inicia sesión para agregar productos a tu carrito!',
-                'info',
-                4000,
-                {
-                    label: 'Ir al login',
-                    onClick: () => navigate('/login')
-                }
-            );
-            return;
-        }
-
-        if (isOutOfStock || isAddingToCart) {
-            return;
-        }
-
-        setIsAddingToCart(true);
-        try {
-            await agregarItem(id_producto, 1);
-            setShowSuccess(true);
-            setTimeout(() => setShowSuccess(false), 2000);
-        } catch (error) {
-            console.error('Error al agregar producto al carrito:', error);
-            showNotification('Error al agregar el producto al carrito. Por favor, intente nuevamente.', 'error', 5000);
-        } finally {
-            setIsAddingToCart(false);
-        }
-    };
-
-    /**
-     * Maneja el evento de toggle de favoritos
-     */
-    const handleToggleFavorite = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!isAuthenticated) {
-            showNotification(
-                '¡Inicia sesión para agregar productos a favoritos!',
-                'info',
-                4000,
-                {
-                    label: 'Ir al login',
-                    onClick: () => navigate('/login')
-                }
-            );
-            return;
-        }
-
-        if (favoritoLoading) {
-            return;
-        }
-
-        try {
-            await toggleFavorito();
-        } catch (error) {
-            console.error('Error al actualizar favoritos:', error);
-            showNotification('Error al actualizar favoritos. Por favor, intente nuevamente.', 'error', 5000);
-        }
-    };
-
-    // Memoizar texto de stock para evitar recálculos
-    const stockText = useMemo(() => {
-        return stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
-    }, [stock]);
-
-    // El estado de favorito ya viene memoizado del hook optimizado
-    const isProductFavorite = isFavorito;
-
-    // Determinar el contenido del overlay según el estado
-    const getOverlayContent = () => {
+    const getButtonContent = () => {
         if (isAddingToCart) {
             return (
-                <>
-                    <span className={`material-icons ${styles.overlayIcon} ${styles.loadingIcon}`}>hourglass_empty</span>
-                    <span className={styles.overlayText}>Agregando...</span>
-                </>
+                <span className="material-icons">
+                    autorenew
+                </span>
             );
         }
-
         if (showSuccess) {
             return (
-                <>
-                    <span className={`material-icons ${styles.overlayIcon} ${styles.successIcon}`}>check_circle</span>
-                    <span className={styles.overlayText}>¡Agregado!</span>
-                </>
+                <span className="material-icons">
+                    check_circle
+                </span>
             );
         }
-
         return (
-            <>
-                <span className={`material-icons ${styles.overlayIcon}`}>add_shopping_cart</span>
-                <span className={styles.overlayText}>Agregar al carrito</span>
-            </>
-        );
-    };
-
-    // Renderizar indicador de oferta - Usar contexto global y props
-    const renderOfferIndicator = () => {
-        // Usar la misma lógica que priceInfo para determinar si hay oferta
-        const isInOffer = isProductoEnOferta();
-        const offerInfo = getOfertaInfo();
-
-        // Calcular descuento basado en contexto global o props
-        let shouldShowOffer = false;
-        let discountPercentage = 0;
-
-        if (isInOffer && offerInfo) {
-            // Usar información del contexto global
-            const firstProduct = offerInfo.productos?.[0];
-            if (firstProduct?.precio_oferta && firstProduct?.precio_original) {
-                const original = Number(firstProduct.precio_original);
-                const offer = Number(firstProduct.precio_oferta);
-                discountPercentage = Math.round(((original - offer) / original) * 100);
-                shouldShowOffer = discountPercentage > 0;
-            }
-        } else if (en_oferta && descuento_porcentaje) {
-            // Fallback a props
-            shouldShowOffer = true;
-            discountPercentage = descuento_porcentaje;
-        }
-
-        if (!shouldShowOffer || discountPercentage <= 0) return null;
-
-        return (
-            <div className={styles.offerIndicator}>
-                <span className={styles.offerPercentage}>-{discountPercentage}%</span>
-                <span className={styles.offerLabel}>OFERTA</span>
-            </div>
+            <span className="material-icons">
+                add_shopping_cart
+            </span>
         );
     };
 
@@ -245,15 +88,30 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
                         defaultImage={imagen_url}
                         alt={`Imagen de ${nombre}`}
                         className={styles.productImage}
+                        onImageChange={(imageUrl) => {
+                            // Usar cache de imágenes para evitar descargas repetidas
+                            if (logic.loadImageWithCache) {
+                                logic.loadImageWithCache(imageUrl);
+                            }
+                        }}
                     />
 
                     {/* Indicador de oferta */}
-                    {renderOfferIndicator()}
+                    {offerIndicator.show ? (
+                        <div className={styles.offerIndicator}>
+                            <span className={styles.offerPercentage}>-{offerIndicator.discountPercentage}%</span>
+                            <span className={styles.offerLabel}>OFERTA</span>
+                        </div>
+                    ) : null}
 
-                    {/* Botón de favoritos */}
+                    {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
                     <button
                         className={`${styles.favoriteButton} ${isProductFavorite ? styles.favoriteActive : styles.favoriteInactive}`}
-                        onClick={handleToggleFavorite}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleToggleFavorite();
+                        }}
                         disabled={favoritoLoading}
                         aria-label={isProductFavorite ? `Quitar ${nombre} de favoritos` : `Agregar ${nombre} a favoritos`}
                         type="button"
@@ -272,12 +130,21 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
                     {!isOutOfStock && (
                         <button
                             className={`${styles.imageOverlay} ${showSuccess ? styles.successOverlay : ''}`}
-                            onClick={handleAddToCart}
-                            disabled={isAddingToCart || estado.cargando}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleAddToCart();
+                            }}
+                            disabled={isAddingToCart || carritoLoading}
                             aria-label={`Agregar ${nombre} al carrito`}
                             type="button"
                         >
-                            {getOverlayContent()}
+                            <span className={`material-icons ${styles.overlayIcon} ${isAddingToCart ? styles.loadingIcon : showSuccess ? styles.successIcon : ''}`}>
+                                {isAddingToCart ? 'hourglass_empty' : showSuccess ? 'check_circle' : 'add_shopping_cart'}
+                            </span>
+                            <span className={styles.overlayText}>
+                                {isAddingToCart ? 'Agregando...' : showSuccess ? '¡Agregado!' : 'Agregar al carrito'}
+                            </span>
                         </button>
                     )}
                     {isOutOfStock && (
@@ -285,45 +152,69 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
                             Agotado
                         </div>
                     )}
+                    {/* Overlay para productos agotados */}
+                    {overlayContent && (
+                        <div className={styles.overlay}>
+                            <span className="material-icons">
+                                {overlayContent.icon}
+                            </span>
+                            <span className={styles.overlayText}>{overlayContent.text}</span>
+                        </div>
+                    )}
                 </div>
 
-                <div className={styles.productContent}>
-                    <h3 className={styles.productTitle}>{nombre}</h3>
-                    {descripcion && (
-                        <p className={styles.productDescription} title={descripcion}>
-                            {descripcion.length > 80 ? `${descripcion.substring(0, 80)}...` : descripcion}
-                        </p>
-                    )}
-
-                    <div className={styles.productMeta}>
+                <div className={styles.productInfo}>
+                    <div className={styles.productHeader}>
+                        <h3 className={styles.productTitle}>{nombre}</h3>
                         <div className={styles.priceContainer}>
                             {priceInfo.hasDiscount ? (
                                 <>
-                                    <p className={styles.productPrice} aria-label={`Precio con descuento: ${formatPrice(priceInfo.current)}`}>
-                                        {formatPrice(priceInfo.current)}
-                                    </p>
-                                    <p className={styles.originalPrice} aria-label={`Precio original: ${formatPrice(priceInfo.original)}`}>
-                                        {formatPrice(priceInfo.original)}
-                                    </p>
+                                    <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
+                                    <span className={styles.originalPrice}>{formatPrice(priceInfo.original)}</span>
                                 </>
                             ) : (
-                                <p className={styles.productPrice} aria-label={`Precio: ${formatPrice(priceInfo.current)}`}>
-                                    {formatPrice(priceInfo.current)}
-                                </p>
+                                <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
                             )}
                         </div>
-                        <span
-                            className={`${styles.productTag} ${isOutOfStock ? styles.outOfStockTag : ''}`}
-                            aria-label={`Stock: ${stockText}`}
-                        >
-                            {stockText}
-                        </span>
+                    </div>
+
+                    {descripcion && (
+                        <p className={styles.productDescription} title={descripcion}>
+                            {descripcion}
+                        </p>
+                    )}
+
+                    <div className={styles.productFooter}>
+                        <div className={styles.stockContainer}>
+                            <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
+                                {stockText}
+                            </span>
+                        </div>
+
+                        <div className={styles.actionContainer}>
+                            {!isOutOfStock ? (
+                                <button
+                                    className={`${styles.addToCartButton} ${showSuccess ? styles.successButton : ''}`}
+                                    type="button"
+                                    onClick={handleAddToCart}
+                                    disabled={isAddingToCart || carritoLoading}
+                                    aria-label={`Agregar ${nombre} al carrito`}
+                                >
+                                    {getButtonContent()}
+                                </button>
+                            ) : (
+                                <button className={styles.disabledButton} type="button" disabled>
+                                    <span className="material-icons">remove_shopping_cart</span>
+                                    No disponible
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </article>
         </Link>
     );
-});
+};
 
 ProductCard.displayName = 'ProductCard';
 
