@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ProductImage from '../ProductImage';
+import CartIndicator from '../../cart/CartIndicator';
 import { useProductCardLogic } from '../../../hooks/useProductCardLogic';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
@@ -104,6 +105,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         </div>
                     ) : null}
 
+                    {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
+                    <CartIndicator productId={id_producto} />
+
                     {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
                     <button
                         className={`${styles.favoriteButton} ${isProductFavorite ? styles.favoriteActive : styles.favoriteInactive}`}
@@ -135,7 +139,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 e.stopPropagation();
                                 handleAddToCart();
                             }}
-                            disabled={isAddingToCart || carritoLoading}
+                            disabled={isAddingToCart || carritoLoading || !logic.canAddMoreOfProduct(id_producto, stock)}
                             aria-label={`Agregar ${nombre} al carrito`}
                             type="button"
                         >
@@ -197,7 +201,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                     className={`${styles.addToCartButton} ${showSuccess ? styles.successButton : ''}`}
                                     type="button"
                                     onClick={handleAddToCart}
-                                    disabled={isAddingToCart || carritoLoading}
+                                    disabled={isAddingToCart || carritoLoading || !logic.canAddMoreOfProduct}
                                     aria-label={`Agregar ${nombre} al carrito`}
                                 >
                                     {getButtonContent()}

@@ -1,4 +1,21 @@
 /* === PRODUCT CARD EXTENSIVE - HORIZONTAL LAYOUT === */
+
+/* Contenedor principal que envuelve el Link y el botón */
+.productCardContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Contenedor del botón posicionado externamente pero visualmente dentro */
+.externalActionContainer {
+  position: absolute;
+  bottom: var(--spacing-sm);
+  right: var(--spacing-sm);
+  z-index: 10;
+}
+
 .productLink {
   text-decoration: none;
   color: inherit;
@@ -265,11 +282,13 @@
   align-items: center;
   gap: var(--spacing-md);
   margin-top: var(--spacing-xs);
+  width: 100%;
 }
 
 .stockContainer {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .stockBadge {
@@ -295,6 +314,8 @@
 
 .actionContainer {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .addToCartButton {

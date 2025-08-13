@@ -29,7 +29,7 @@ export const useProductCardLogic = ({
   // ============================================================================
   // CONTEXTOS Y HOOKS
   // ============================================================================
-  const { agregarItem } = useCarrito();
+  const { agregarItem, isProductInCart, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
   const { isAuthenticated } = useAuth();
   const { showNotification } = useNotification();
   const { isFavorito, toggleFavorito, loading: favoritoLoading } = useFavoritosGlobal();
@@ -81,18 +81,35 @@ export const useProductCardLogic = ({
       return;
     }
 
+    // Validar stock disponible antes de agregar
+    if (!canAddMoreOfProduct(id_producto, stock)) {
+      showNotification(`Ya tienes la cantidad máxima disponible (${stock}) en tu carrito`, 'warning', 3000);
+      return;
+    }
+
     setIsAddingToCart(true);
     try {
       await agregarItem(id_producto, 1);
       setShowSuccess(true);
       showNotification('Producto agregado al carrito', 'success', 2000);
       setTimeout(() => setShowSuccess(false), 2000);
-    } catch (error) {
-      showNotification('Error al agregar al carrito', 'error', 3000);
+    } catch (error: any) {
+      // El error ya se maneja en el contexto, solo mostrar notificación genérica
+      if (error.message && error.message.includes('Stock insuficiente')) {
+        showNotification(error.message, 'error', 4000);
+        // Forzar sincronización después de error de stock
+        try {
+          await sincronizarCarrito();
+        } catch (syncError) {
+          console.error('Error al sincronizar después de error de stock:', syncError);
+        }
+      } else {
+        showNotification('Error al agregar al carrito', 'error', 3000);
+      }
     } finally {
       setIsAddingToCart(false);
     }
-  }, [id_producto, isAuthenticated, isOutOfStock, agregarItem, showNotification]);
+  }, [id_producto, isAuthenticated, isOutOfStock, stock, canAddMoreOfProduct, agregarItem, showNotification, sincronizarCarrito]);
 
   // Toggle favorito
   const handleToggleFavorite = useCallback(async () => {
@@ -184,6 +201,11 @@ export const useProductCardLogic = ({
     // Datos calculados
     stockText,
     overlayContent,
-    offerIndicator
+    offerIndicator,
+    
+    // Funciones del carrito
+    canAddMoreOfProduct: (id_producto: number, stock: number) => canAddMoreOfProduct(id_producto, stock),
+    isProductInCart: (id_producto: number) => isProductInCart(id_producto),
+    getProductQuantityInCart: (id_producto: number) => getProductQuantityInCart(id_producto)
   };
 };

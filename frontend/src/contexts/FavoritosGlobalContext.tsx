@@ -54,6 +54,8 @@ interface FavoritosContextType extends FavoritosState {
     loadFavoritos: () => Promise<void>;
     refreshFavoritos: () => Promise<void>;
     clearFavoritos: () => void;
+    removeAllFavoritos: (productIds: number[]) => Promise<boolean>; // ✅ NUEVO MÉTODO
+    syncWithBackend: () => Promise<void>; // ✅ NUEVO MÉTODO
 
     // Métodos de utilidad
     getFavoritosCount: () => number;
@@ -316,10 +318,10 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     newFavoritos.set(productId, true);
                     return { ...prev, favoritos: newFavoritos };
                 });
-                
+
                 // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
                 setTimeout(() => syncCache(), 0);
-                
+
                 return true; // Considerar como éxito ya que el objetivo se logró
             } else if (error.response?.status === 404) {
                 showNotificationRef.current('Producto no encontrado', 'error');
@@ -377,10 +379,10 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     newFavoritos.delete(productId);
                     return { ...prev, favoritos: newFavoritos };
                 });
-                
+
                 // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
                 setTimeout(() => syncCache(), 0);
-                
+
                 return true; // Considerar como éxito ya que el objetivo se logró
             } else {
                 showNotificationRef.current('Error al quitar favorito', 'error');
@@ -432,6 +434,87 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
     }, []);
 
     /**
+     * ✅ NUEVO: Elimina múltiples favoritos de manera eficiente
+     * Usado para sincronizar cuando se eliminan todos desde UserPanel
+     */
+    const removeAllFavoritos = useCallback(async (productIds: number[]): Promise<boolean> => {
+        if (!isAuthenticated || !user?.id_cliente || productIds.length === 0) {
+            return false;
+        }
+
+        try {
+            // ✅ OPTIMIZACIÓN: Eliminar todos los favoritos en paralelo
+            const removePromises = productIds.map(productId =>
+                favoritoService.removeFavorito(user.id_cliente, productId)
+            );
+
+            await Promise.all(removePromises);
+
+            // ✅ ACTUALIZAR ESTADO GLOBAL INMEDIATAMENTE
+            setState(prev => {
+                const newFavoritos = new Map(prev.favoritos);
+                productIds.forEach(id => newFavoritos.delete(id));
+
+                return {
+                    ...prev,
+                    favoritos: newFavoritos,
+                    favoritosCompletos: prev.favoritosCompletos.filter(
+                        f => !productIds.includes(f.id_producto)
+                    ),
+                    lastUpdated: Date.now()
+                };
+            });
+
+            // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
+            setTimeout(() => syncCache(), 0);
+
+            return true;
+        } catch (error) {
+            console.error('Error al eliminar múltiples favoritos:', error);
+            return false;
+        }
+    }, [isAuthenticated, user?.id_cliente, syncCache]);
+
+    /**
+     * ✅ NUEVO: Sincroniza el estado local con el backend
+     * Útil después de operaciones masivas o cuando hay desincronización
+     */
+    const syncWithBackend = useCallback(async () => {
+        if (!isAuthenticated || !user?.id_cliente) return;
+
+        try {
+            // Obtener favoritos actuales del backend
+            const response = await favoritoService.getFavoritos(user.id_cliente);
+
+            // Crear nuevo Map con datos del backend
+            const favoritosMap = new Map();
+            response.data.forEach((favorito: Favorito) => {
+                favoritosMap.set(favorito.id_producto, true);
+            });
+
+            // Actualizar estado con datos del backend
+            setState(prev => ({
+                ...prev,
+                favoritos: favoritosMap,
+                favoritosCompletos: response.data,
+                lastUpdated: Date.now(),
+                error: null
+            }));
+
+            // Sincronizar cache
+            syncCache();
+
+            console.log('Estado de favoritos sincronizado con backend');
+        } catch (error) {
+            console.error('Error al sincronizar con backend:', error);
+            setState(prev => ({
+                ...prev,
+                error: 'Error al sincronizar favoritos'
+            }));
+        }
+    }, [isAuthenticated, user?.id_cliente, syncCache]);
+
+    /**
      * Obtiene el conteo de favoritos
      */
     const getFavoritosCount = useCallback((): number => {
@@ -462,6 +545,8 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
         loadFavoritos,
         refreshFavoritos,
         clearFavoritos,
+        removeAllFavoritos,
+        syncWithBackend, // ✅ NUEVO MÉTODO
         getFavoritosCount,
         getFavoritosIds,
         getFavoritosCompletos,
@@ -481,6 +566,8 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
         loadFavoritos,
         refreshFavoritos,
         clearFavoritos,
+        removeAllFavoritos,
+        syncWithBackend, // ✅ NUEVA DEPENDENCIA
         getFavoritosCount,
         getFavoritosIds,
         getFavoritosCompletos,

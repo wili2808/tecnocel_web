@@ -92,7 +92,7 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
         estado: accion.payload.estado || 'activo',
         items: accion.payload.items || [],
         total_carrito: accion.payload.total_carrito || 0,
-        cantidad_items: accion.payload.cantidad_items || 0,
+        cantidad_items: accion.payload.items?.length || 0,
         cargando: false,
         error: null
       };
@@ -103,10 +103,12 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
       };
     case 'AGREGAR_ITEM':
       const itemsConNuevo = [...estado.items, accion.payload];
+      const nuevoTotalAgregar = itemsConNuevo.reduce((total, item) => total + item.subtotal, 0);
       return {
         ...estado,
         items: itemsConNuevo,
         cantidad_items: itemsConNuevo.length,
+        total_carrito: nuevoTotalAgregar,
         error: null
       };
     case 'ACTUALIZAR_ITEM':
@@ -115,17 +117,21 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
           ? { ...item, cantidad: accion.payload.cantidad, subtotal: accion.payload.subtotal }
           : item
       );
+      const nuevoTotalActualizar = itemsActualizados.reduce((total, item) => total + item.subtotal, 0);
       return {
         ...estado,
         items: itemsActualizados,
+        total_carrito: nuevoTotalActualizar,
         error: null
       };
     case 'ELIMINAR_ITEM':
       const itemsRestantes = estado.items.filter(item => item.id_item !== accion.payload);
+      const nuevoTotalEliminar = itemsRestantes.reduce((total, item) => total + item.subtotal, 0);
       return {
         ...estado,
         items: itemsRestantes,
         cantidad_items: itemsRestantes.length,
+        total_carrito: nuevoTotalEliminar,
         error: null
       };
     case 'VACIAR_CARRITO':
@@ -162,6 +168,12 @@ const CarritoContext = createContext<{
   vaciarCarrito: () => Promise<void>;
   confirmarCompra: (datosCompra: DatosCompra) => Promise<VentaConfirmada>;
   agregarItemsPrueba: () => void;
+  // Nuevos métodos útiles
+  isProductInCart: (id_producto: number) => boolean;
+  getProductQuantityInCart: (id_producto: number) => number;
+  canAddMoreOfProduct: (id_producto: number, stock: number) => boolean;
+  // Método para forzar sincronización
+  sincronizarCarrito: () => Promise<void>;
 } | null>(null);
 
 /**
@@ -252,12 +264,48 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     } catch (error: any) {
       console.error('Error al agregar item:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al agregar producto al carrito';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+
+      // Manejar errores específicos del backend
+      if (error.response?.status === 400) {
+        const mensajeError = error.response?.data?.mensaje || 'Error al agregar producto al carrito';
+
+        // Si es error de stock, mostrar mensaje específico
+        if (mensajeError.includes('Stock insuficiente') || mensajeError.includes('stock')) {
+          const stockDisponible = error.response?.data?.stock_disponible;
+          const cantidadEnCarrito = error.response?.data?.cantidad_actual_en_carrito;
+
+          if (stockDisponible !== undefined && cantidadEnCarrito !== undefined) {
+            dispatch({
+              type: 'ESTABLECER_ERROR',
+              payload: `Stock insuficiente. Disponible: ${stockDisponible}, En carrito: ${cantidadEnCarrito}`
+            });
+          } else {
+            dispatch({
+              type: 'ESTABLECER_ERROR',
+              payload: `Stock insuficiente para la cantidad solicitada`
+            });
+          }
+        } else {
+          dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+        }
+      } else {
+        const mensajeError = error.response?.data?.mensaje || 'Error al agregar producto al carrito';
+        dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      }
+
+      // IMPORTANTE: Sincronizar el estado del carrito desde el backend en caso de error
+      // Esto asegura que el estado local esté siempre sincronizado
+      try {
+        await obtenerCarrito();
+      } catch (syncError) {
+        console.error('Error al sincronizar carrito después de error:', syncError);
+        // Si falla la sincronización, limpiar el estado local
+        dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+      }
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]); // OPTIMIZACIÓN: Remover estado.items de dependencias
+  }, [isAuthenticated, estado.items, obtenerCarrito]);
 
   /**
    * Actualiza la cantidad de un item en el carrito
@@ -405,6 +453,48 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isAuthenticated, obtenerCarrito]);
 
+  // Nuevos métodos útiles
+  const isProductInCart = useCallback((id_producto: number) => {
+    return estado.items.some(item => item.id_producto === id_producto);
+  }, [estado.items]);
+
+  const getProductQuantityInCart = useCallback((id_producto: number) => {
+    const item = estado.items.find(item => item.id_producto === id_producto);
+    return item ? item.cantidad : 0;
+  }, [estado.items]);
+
+  const canAddMoreOfProduct = useCallback((id_producto: number, stock: number) => {
+    const currentQuantity = getProductQuantityInCart(id_producto);
+    return currentQuantity < stock;
+  }, [getProductQuantityInCart]);
+
+  // Método para forzar sincronización
+  const sincronizarCarrito = useCallback(async () => {
+    if (!isAuthenticated) {
+      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para sincronizar el carrito' });
+      return;
+    }
+
+    try {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: null });
+
+      const response = await axiosInstance.get('/carrito/');
+
+      if (response.data.carrito) {
+        dispatch({ type: 'INICIALIZAR_CARRITO', payload: response.data.carrito });
+      } else {
+        dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+      }
+    } catch (error: any) {
+      console.error('Error al sincronizar carrito:', error);
+      const mensajeError = error.response?.data?.mensaje || 'Error al sincronizar el carrito';
+      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+    } finally {
+      dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
+    }
+  }, [isAuthenticated]);
+
   // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
   const contextValue = useMemo(() => ({
     estado,
@@ -414,7 +504,11 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     eliminarItem,
     vaciarCarrito,
     confirmarCompra,
-    agregarItemsPrueba
+    agregarItemsPrueba,
+    isProductInCart,
+    getProductQuantityInCart,
+    canAddMoreOfProduct,
+    sincronizarCarrito
   }), [
     estado,
     obtenerCarrito,
@@ -423,7 +517,11 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     eliminarItem,
     vaciarCarrito,
     confirmarCompra,
-    agregarItemsPrueba
+    agregarItemsPrueba,
+    isProductInCart,
+    getProductQuantityInCart,
+    canAddMoreOfProduct,
+    sincronizarCarrito
   ]);
 
   return (

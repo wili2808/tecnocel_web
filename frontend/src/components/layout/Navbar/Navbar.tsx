@@ -28,8 +28,9 @@ const Navbar = () => {
 
     // Memoizar el contador del carrito para evitar re-renders innecesarios
     const cartItemCount = useMemo(() => {
-        return estado?.items?.length || 0;
-    }, [estado?.items?.length]);
+        // Calcular la cantidad total de items (suma de todas las cantidades)
+        return estado?.items?.reduce((total, item) => total + item.cantidad, 0) || 0;
+    }, [estado?.items]);
 
     // Manejadores de eventos
     const handleLinkClick = useCallback(() => setIsMenuOpen(false), []);

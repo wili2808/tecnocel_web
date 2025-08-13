@@ -1,0 +1,73 @@
+/* ============================================================================
+   CART INDICATOR - ESTILOS
+   ============================================================================ */
+
+.cartIndicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: var(--color-purple-600);
+  color: white;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 15;
+  min-width: 32px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  pointer-events: none; /* No interferir con clicks */
+}
+
+.quantity {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.9;
+  line-height: 1;
+}
+
+/* Animación de entrada */
+.cartIndicator {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .cartIndicator {
+    bottom: 6px;
+    right: 6px;
+    padding: 3px 6px;
+    font-size: 11px;
+    min-width: 28px;
+  }
+  
+  .quantity {
+    font-size: 12px;
+  }
+  
+  .label {
+    font-size: 9px;
+  }
+}

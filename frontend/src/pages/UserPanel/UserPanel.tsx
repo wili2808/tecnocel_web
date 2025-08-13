@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritosProductos } from '../../hooks/useFavoritosProductos';
+import { useFavoritosGlobal } from '../../contexts/FavoritosGlobalContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import ProductCard from '../../components/product/ProductCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -44,22 +45,29 @@ const FavoritesSection = () => {
         productos,
         loading,
         error,
-        removeFromFavoritos,
         hasMore,
         loadMore
     } = useFavoritosProductos();
     const { showNotification } = useNotification();
+    const { removeAllFavoritos, syncWithBackend } = useFavoritosGlobal();
 
     // Función para eliminar todos los favoritos
     const handleRemoveAllFavorites = async () => {
         if (productos.length === 0) return;
-        
+
         try {
-            // Eliminar todos los favoritos uno por uno
-            const removePromises = productos.map(producto => removeFromFavoritos(producto.id_producto));
-            await Promise.all(removePromises);
-            
-            showNotification('Todos los favoritos han sido eliminados', 'success', 3000);
+            // ✅ OPTIMIZACIÓN: Usar el método del contexto global que es más eficiente
+            const productIds = productos.map(p => p.id_producto);
+            const success = await removeAllFavoritos(productIds);
+
+            if (success) {
+                // ✅ SINCRONIZACIÓN ROBUSTA: Usar el nuevo método que sincroniza con el backend
+                await syncWithBackend();
+
+                showNotification('Todos los favoritos han sido eliminados', 'success', 3000);
+            } else {
+                showNotification('Error al eliminar algunos favoritos', 'error', 5000);
+            }
         } catch (error) {
             console.error('Error al eliminar todos los favoritos:', error);
             showNotification('Error al eliminar todos los favoritos', 'error', 5000);
@@ -130,7 +138,7 @@ const FavoritesSection = () => {
                     Favoritos
                     <span className={userPanelStyles.itemCount}>({productos.length})</span>
                 </h2>
-                
+
                 {/* Botón para eliminar todos los favoritos */}
                 <button
                     onClick={handleRemoveAllFavorites}
