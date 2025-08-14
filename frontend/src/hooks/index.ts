@@ -6,6 +6,11 @@ export { useAutoLogout } from './useAutoLogout';
 // Hooks de productos (CONSOLIDADO - ProductContext)
 export { useProductActions } from './useProductActions';
 
+// Hooks de carrito
+export { useCarrito } from './useCarrito';
+export { useCarritoOperations } from './useCarritoOperations';
+export { useCarritoUtils } from './useCarritoUtils';
+
 // Hooks de ofertas
 export { useOfertas } from './useOfertas';
 export { useOfertasGlobal, useOfertasProducto } from './useOfertasGlobal';

@@ -1,66 +1,22 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
-import axiosInstance from '../api/axiosConfig';
 import { useAuth } from './AuthContext';
+import { useCarritoOperations } from '../hooks/useCarritoOperations';
+import type { 
+  ItemCarrito, 
+  EstadoCarrito, 
+  DatosCompra, 
+  VentaConfirmada 
+} from '../services/carritoService';
 
-/**
- * Estructura de un item en el carrito actualizada para el backend
- */
-interface ItemCarrito {
-  id_item: number;
-  id_carrito: number;
-  id_producto: number;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  producto?: {
-    id_producto: number;
-    nombre: string;
-    descripcion: string;
-    precio_venta: string;
-    imagen: string;
-    stock: number;
-  };
-}
-
-/**
- * Estado del carrito actualizado
- */
-interface EstadoCarrito {
-  id_carrito: number | null;
-  estado: 'activo' | 'completado' | 'abandonado';
-  items: ItemCarrito[];
-  total_carrito: number;
-  cantidad_items: number;
-  cargando: boolean;
-  error: string | null;
-}
-
-/**
- * Datos de respuesta de compra
- */
-interface DatosCompra {
-  observaciones?: string;
-  moneda?: 'BOB' | 'USD' | 'EUR';
-  metodo_pago?: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr';
-}
-
-/**
- * Respuesta de venta confirmada
- */
-interface VentaConfirmada {
-  id_venta: number;
-  nro_venta: number;
-  total_pagado: number;
-  fyh_creacion: string;
-}
+// ============================================================================
+// INTERFACES Y TIPOS
+// ============================================================================
 
 /**
  * Acciones disponibles para el reducer del carrito
  */
 type AccionCarrito =
-  | { type: 'INICIALIZAR_CARRITO'; payload: any }
+  | { type: 'INICIALIZAR_CARRITO'; payload: EstadoCarrito }
   | { type: 'INICIALIZAR_CARRITO_VACIO' }
   | { type: 'AGREGAR_ITEM'; payload: ItemCarrito }
   | { type: 'ACTUALIZAR_ITEM'; payload: { id_item: number; cantidad: number; subtotal: number } }
@@ -69,6 +25,10 @@ type AccionCarrito =
   | { type: 'ESTABLECER_CARGANDO'; payload: boolean }
   | { type: 'ESTABLECER_ERROR'; payload: string | null }
   | { type: 'ACTUALIZAR_TOTAL'; payload: number };
+
+// ============================================================================
+// ESTADO INICIAL
+// ============================================================================
 
 const estadoInicial: EstadoCarrito = {
   id_carrito: null,
@@ -79,6 +39,10 @@ const estadoInicial: EstadoCarrito = {
   cargando: false,
   error: null
 };
+
+// ============================================================================
+// REDUCER
+// ============================================================================
 
 /**
  * Reducer que maneja las acciones del carrito y actualiza el estado
@@ -156,6 +120,10 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
   }
 }
 
+// ============================================================================
+// CONTEXTO
+// ============================================================================
+
 /**
  * Contexto del carrito que proporciona el estado y métodos para manipularlo
  */
@@ -187,12 +155,31 @@ export const useCarrito = () => {
   return context;
 };
 
+// ============================================================================
+// PROVIDER
+// ============================================================================
+
 /**
  * Proveedor del contexto del carrito que maneja el estado y las operaciones
  */
 export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [estado, dispatch] = useReducer(carritoReducer, estadoInicial);
   const { isAuthenticated } = useAuth();
+  
+  // ============================================================================
+  // HOOKS DE OPERACIONES
+  // ============================================================================
+  
+  // Usar el hook de operaciones del carrito
+  const {
+    obtenerCarrito: obtenerCarritoService,
+    agregarItem: agregarItemService,
+    actualizarCantidad: actualizarCantidadService,
+    eliminarItem: eliminarItemService,
+    vaciarCarrito: vaciarCarritoService,
+    confirmarCompra: confirmarCompraService,
+    sincronizarCarrito: sincronizarCarritoService
+  } = useCarritoOperations();
 
   /**
    * Obtiene el carrito activo del cliente desde el servidor
@@ -207,22 +194,16 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const response = await axiosInstance.get('/carrito/');
-
-      if (response.data.carrito) {
-        dispatch({ type: 'INICIALIZAR_CARRITO', payload: response.data.carrito });
-      } else {
-        dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
-      }
+      const carrito = await obtenerCarritoService();
+      dispatch({ type: 'INICIALIZAR_CARRITO', payload: carrito });
     } catch (error: any) {
       console.error('Error al obtener carrito:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al cargar el carrito';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
       dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, obtenerCarritoService]);
 
   /**
    * Agrega un producto al carrito
@@ -237,75 +218,40 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const response = await axiosInstance.post('/carrito/items', {
-        id_producto,
-        cantidad,
-        detalles_personalizacion
-      });
+      const resultado = await agregarItemService(id_producto, cantidad, detalles_personalizacion);
 
-      if (response.data.item) {
-        // Si el item ya existía, se actualizó; si no, se agregó
-        const itemExistente = estado.items.find(item => item.id_producto === id_producto);
+      // Si el item ya existía, se actualizó; si no, se agregó
+      const itemExistente = estado.items.find(item => item.id_producto === id_producto);
 
-        if (itemExistente) {
-          dispatch({
-            type: 'ACTUALIZAR_ITEM',
-            payload: {
-              id_item: response.data.item.id_item,
-              cantidad: response.data.item.cantidad,
-              subtotal: response.data.item.subtotal
-            }
-          });
-        } else {
-          dispatch({ type: 'AGREGAR_ITEM', payload: response.data.item });
-        }
-
-        dispatch({ type: 'ACTUALIZAR_TOTAL', payload: response.data.total_carrito });
+      if (itemExistente) {
+        dispatch({
+          type: 'ACTUALIZAR_ITEM',
+          payload: {
+            id_item: resultado.item.id_item,
+            cantidad: resultado.item.cantidad,
+            subtotal: resultado.item.subtotal
+          }
+        });
+      } else {
+        dispatch({ type: 'AGREGAR_ITEM', payload: resultado.item });
       }
+
+      dispatch({ type: 'ACTUALIZAR_TOTAL', payload: resultado.total_carrito });
     } catch (error: any) {
       console.error('Error al agregar item:', error);
-
-      // Manejar errores específicos del backend
-      if (error.response?.status === 400) {
-        const mensajeError = error.response?.data?.mensaje || 'Error al agregar producto al carrito';
-
-        // Si es error de stock, mostrar mensaje específico
-        if (mensajeError.includes('Stock insuficiente') || mensajeError.includes('stock')) {
-          const stockDisponible = error.response?.data?.stock_disponible;
-          const cantidadEnCarrito = error.response?.data?.cantidad_actual_en_carrito;
-
-          if (stockDisponible !== undefined && cantidadEnCarrito !== undefined) {
-            dispatch({
-              type: 'ESTABLECER_ERROR',
-              payload: `Stock insuficiente. Disponible: ${stockDisponible}, En carrito: ${cantidadEnCarrito}`
-            });
-          } else {
-            dispatch({
-              type: 'ESTABLECER_ERROR',
-              payload: `Stock insuficiente para la cantidad solicitada`
-            });
-          }
-        } else {
-          dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
-        }
-      } else {
-        const mensajeError = error.response?.data?.mensaje || 'Error al agregar producto al carrito';
-        dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
-      }
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
 
       // IMPORTANTE: Sincronizar el estado del carrito desde el backend en caso de error
-      // Esto asegura que el estado local esté siempre sincronizado
       try {
         await obtenerCarrito();
       } catch (syncError) {
         console.error('Error al sincronizar carrito después de error:', syncError);
-        // Si falla la sincronización, limpiar el estado local
         dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
       }
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated, estado.items, obtenerCarrito]);
+  }, [isAuthenticated, estado.items, agregarItemService, obtenerCarrito]);
 
   /**
    * Actualiza la cantidad de un item en el carrito
@@ -320,29 +266,24 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const response = await axiosInstance.put(`/carrito/items/${id_item}`, {
-        cantidad
-      });
+      const resultado = await actualizarCantidadService(id_item, cantidad);
 
-      if (response.data.item) {
-        dispatch({
-          type: 'ACTUALIZAR_ITEM',
-          payload: {
-            id_item: response.data.item.id_item,
-            cantidad: response.data.item.cantidad,
-            subtotal: response.data.item.subtotal
-          }
-        });
-        dispatch({ type: 'ACTUALIZAR_TOTAL', payload: response.data.total_carrito });
-      }
+      dispatch({
+        type: 'ACTUALIZAR_ITEM',
+        payload: {
+          id_item: resultado.item.id_item,
+          cantidad: resultado.item.cantidad,
+          subtotal: resultado.item.subtotal
+        }
+      });
+      dispatch({ type: 'ACTUALIZAR_TOTAL', payload: resultado.total_carrito });
     } catch (error: any) {
       console.error('Error al actualizar cantidad:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al actualizar la cantidad';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, actualizarCantidadService]);
 
   /**
    * Elimina un item del carrito
@@ -357,18 +298,17 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const response = await axiosInstance.delete(`/carrito/items/${id_item}`);
+      const resultado = await eliminarItemService(id_item);
 
       dispatch({ type: 'ELIMINAR_ITEM', payload: id_item });
-      dispatch({ type: 'ACTUALIZAR_TOTAL', payload: response.data.total_carrito });
+      dispatch({ type: 'ACTUALIZAR_TOTAL', payload: resultado.total_carrito });
     } catch (error: any) {
       console.error('Error al eliminar item:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al eliminar producto del carrito';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, eliminarItemService]);
 
   /**
    * Vacía completamente el carrito
@@ -383,17 +323,15 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      await axiosInstance.delete('/carrito/');
-
+      await vaciarCarritoService();
       dispatch({ type: 'VACIAR_CARRITO' });
     } catch (error: any) {
       console.error('Error al vaciar carrito:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al vaciar el carrito';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, vaciarCarritoService]);
 
   /**
    * Confirma la compra y convierte el carrito en venta
@@ -407,24 +345,19 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const response = await axiosInstance.post('/carrito/confirmar-compra', datosCompra);
+      const venta = await confirmarCompraService(datosCompra);
 
-      if (response.data.venta) {
-        // Limpiar carrito después de compra exitosa
-        dispatch({ type: 'VACIAR_CARRITO' });
-        return response.data.venta;
-      } else {
-        throw new Error('Respuesta inválida del servidor');
-      }
+      // Limpiar carrito después de compra exitosa
+      dispatch({ type: 'VACIAR_CARRITO' });
+      return venta;
     } catch (error: any) {
       console.error('Error al confirmar compra:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al procesar la compra';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
-      throw new Error(mensajeError);
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
+      throw error;
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, confirmarCompraService]);
 
   /**
    * Agrega items de prueba al carrito (solo para desarrollo)
@@ -444,6 +377,10 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isAuthenticated, agregarItem]);
 
+  // ============================================================================
+  // EFECTOS
+  // ============================================================================
+  
   // Cargar carrito cuando el usuario se autentica
   useEffect(() => {
     if (isAuthenticated) {
@@ -479,22 +416,20 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const response = await axiosInstance.get('/carrito/');
-
-      if (response.data.carrito) {
-        dispatch({ type: 'INICIALIZAR_CARRITO', payload: response.data.carrito });
-      } else {
-        dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
-      }
+      const carrito = await sincronizarCarritoService();
+      dispatch({ type: 'INICIALIZAR_CARRITO', payload: carrito });
     } catch (error: any) {
       console.error('Error al sincronizar carrito:', error);
-      const mensajeError = error.response?.data?.mensaje || 'Error al sincronizar el carrito';
-      dispatch({ type: 'ESTABLECER_ERROR', payload: mensajeError });
+      dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, sincronizarCarritoService]);
 
+  // ============================================================================
+  // VALOR DEL CONTEXTO OPTIMIZADO
+  // ============================================================================
+  
   // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
   const contextValue = useMemo(() => ({
     estado,
