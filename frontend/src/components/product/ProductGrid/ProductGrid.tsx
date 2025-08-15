@@ -1,21 +1,38 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ProductCardExtensive from '../ProductCardExtensive';
 import styles from './ProductGrid.module.css';
-import type { Product } from '../../../types/product';
+import { useProductActions } from '../../../hooks/useProductActions';
+import { filterProducts } from '../../../utils/productFiltering';
+import type { ProductUIFilters } from '../../../types/product';
 
 interface ProductGridProps {
-    products: Product[];
-    loading: boolean;
-    error: string | null;
-    onRetry?: () => void;
+    filters?: ProductUIFilters;
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({
-    products,
-    loading,
-    error,
-    onRetry
-}) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
+    // Usar el contexto directamente para obtener productos y estado
+    const { 
+        productsLoading: loading, 
+        productsError: error,
+        products: allProducts,
+        filteredProducts, // ✅ Agregar productos filtrados del contexto
+        loadProducts 
+    } = useProductActions();
+    
+    // ✅ Lógica inteligente: usar filteredProducts del contexto si hay búsqueda activa
+    // y aplicar filtros adicionales del frontend (categoría, marca, stock, ordenamiento)
+    const products = useMemo(() => {
+        if (!filters) return allProducts;
+        
+        // Si hay búsqueda activa, usar productos ya filtrados del contexto
+        let baseProducts = filters.search.trim() ? filteredProducts : allProducts;
+        
+        // Aplicar filtros adicionales del frontend
+        return filterProducts(baseProducts, filters);
+    }, [filters, allProducts, filteredProducts]);
+    
+    const totalProducts = allProducts.length;
+
     // Estado de carga
     if (loading) {
         return (
@@ -32,14 +49,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             <div className={styles.errorContainer}>
                 <span className={`material-icons ${styles.errorIcon}`}>error_outline</span>
                 <p className={styles.errorMessage}>{error}</p>
-                {onRetry && (
-                    <button
-                        onClick={onRetry}
-                        className={styles.retryButton}
-                    >
-                        Reintentar
-                    </button>
-                )}
+                <button
+                    onClick={() => loadProducts()}
+                    className={styles.retryButton}
+                >
+                    Reintentar
+                </button>
             </div>
         );
     }
@@ -50,6 +65,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             <div className={styles.emptyContainer}>
                 <span className={`material-icons ${styles.emptyIcon}`}>search_off</span>
                 <p>No se encontraron productos.</p>
+                {totalProducts > 0 && (
+                    <p className={styles.emptySubtext}>
+                        Intenta ajustar los filtros de búsqueda.
+                    </p>
+                )}
             </div>
         );
     }
@@ -57,7 +77,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     // Grid de productos
     return (
         <div className={styles.productsGrid}>
-            {products.map(product => (
+            {products.map((product: any) => (
                 <ProductCardExtensive
                     key={product.id_producto}
                     id_producto={product.id_producto}

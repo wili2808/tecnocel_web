@@ -2,29 +2,11 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback, u
 import { useAuth } from './AuthContext';
 import { useCarritoOperations } from '../hooks/useCarritoOperations';
 import type { 
-  ItemCarrito, 
   EstadoCarrito, 
   DatosCompra, 
-  VentaConfirmada 
-} from '../services/carritoService';
-
-// ============================================================================
-// INTERFACES Y TIPOS
-// ============================================================================
-
-/**
- * Acciones disponibles para el reducer del carrito
- */
-type AccionCarrito =
-  | { type: 'INICIALIZAR_CARRITO'; payload: EstadoCarrito }
-  | { type: 'INICIALIZAR_CARRITO_VACIO' }
-  | { type: 'AGREGAR_ITEM'; payload: ItemCarrito }
-  | { type: 'ACTUALIZAR_ITEM'; payload: { id_item: number; cantidad: number; subtotal: number } }
-  | { type: 'ELIMINAR_ITEM'; payload: number }
-  | { type: 'VACIAR_CARRITO' }
-  | { type: 'ESTABLECER_CARGANDO'; payload: boolean }
-  | { type: 'ESTABLECER_ERROR'; payload: string | null }
-  | { type: 'ACTUALIZAR_TOTAL'; payload: number };
+  VentaConfirmada,
+  AccionCarrito
+} from '../types/carrito';
 
 // ============================================================================
 // ESTADO INICIAL
@@ -130,13 +112,12 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
 const CarritoContext = createContext<{
   estado: EstadoCarrito;
   obtenerCarrito: () => Promise<void>;
-  agregarItem: (id_producto: number, cantidad: number, detalles_personalizacion?: any) => Promise<void>;
+  agregarItem: (id_producto: number, cantidad: number) => Promise<void>;
   actualizarCantidad: (id_item: number, cantidad: number) => Promise<void>;
   eliminarItem: (id_item: number) => Promise<void>;
   vaciarCarrito: () => Promise<void>;
   confirmarCompra: (datosCompra: DatosCompra) => Promise<VentaConfirmada>;
-  agregarItemsPrueba: () => void;
-  // Nuevos métodos útiles
+  // Métodos útiles básicos
   isProductInCart: (id_producto: number) => boolean;
   getProductQuantityInCart: (id_producto: number) => number;
   canAddMoreOfProduct: (id_producto: number, stock: number) => boolean;
@@ -208,7 +189,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   /**
    * Agrega un producto al carrito
    */
-  const agregarItem = useCallback(async (id_producto: number, cantidad: number, detalles_personalizacion?: any) => {
+  const agregarItem = useCallback(async (id_producto: number, cantidad: number) => {
     if (!isAuthenticated) {
       dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para agregar productos al carrito' });
       return;
@@ -218,7 +199,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: true });
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
-      const resultado = await agregarItemService(id_producto, cantidad, detalles_personalizacion);
+      const resultado = await agregarItemService(id_producto, cantidad);
 
       // Si el item ya existía, se actualizó; si no, se agregó
       const itemExistente = estado.items.find(item => item.id_producto === id_producto);
@@ -359,24 +340,6 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isAuthenticated, confirmarCompraService]);
 
-  /**
-   * Agrega items de prueba al carrito (solo para desarrollo)
-   */
-  const agregarItemsPrueba = useCallback(async () => {
-    if (!isAuthenticated) {
-      dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para usar esta función' });
-      return;
-    }
-
-    try {
-      // Agregar algunos productos de prueba
-      await agregarItem(1, 1);
-      await agregarItem(2, 2);
-    } catch (error) {
-      console.error('Error al agregar items de prueba:', error);
-    }
-  }, [isAuthenticated, agregarItem]);
-
   // ============================================================================
   // EFECTOS
   // ============================================================================
@@ -390,7 +353,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isAuthenticated, obtenerCarrito]);
 
-  // Nuevos métodos útiles
+  // Métodos útiles básicos
   const isProductInCart = useCallback((id_producto: number) => {
     return estado.items.some(item => item.id_producto === id_producto);
   }, [estado.items]);
@@ -439,7 +402,6 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     eliminarItem,
     vaciarCarrito,
     confirmarCompra,
-    agregarItemsPrueba,
     isProductInCart,
     getProductQuantityInCart,
     canAddMoreOfProduct,
@@ -452,7 +414,6 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     eliminarItem,
     vaciarCarrito,
     confirmarCompra,
-    agregarItemsPrueba,
     isProductInCart,
     getProductQuantityInCart,
     canAddMoreOfProduct,

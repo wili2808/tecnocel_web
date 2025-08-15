@@ -1,84 +1,80 @@
+/**
+ * Componente CartSummary - Resumen de compra del carrito
+ * Muestra totales, descuentos por ofertas y botón de checkout
+ * Incluye funcionalidades para procesar compra y mostrar beneficios
+ * Utiliza CarritoContext para confirmar compra y navegación
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import styles from './CartSummary.module.css';
+import type { ItemCarritoCompleto } from '../../../types/carrito';
 
 interface CartSummaryProps {
-    total: number;
     itemCount: number;
-    items: Array<{
-        id_item: number;
-        id_carrito: number;
-        id_producto: number;
-        cantidad: number;
-        precio_unitario: number;
-        subtotal: number;
-        fyh_creacion: string;
-        fyh_actualizacion: string;
-        producto?: {
-            id_producto: number;
-            nombre: string;
-            descripcion: string;
-            precio_venta: string;
-            imagen: string;
-            stock: number;
-            // Campos para ofertas
-            precio_original?: number;
-            precio_oferta?: number;
-            descuento_porcentaje?: number;
-            en_oferta?: boolean;
-            ofertas?: Array<{
-                id_oferta: number;
-                nombre_oferta: string;
-                tipo_descuento: 'porcentaje' | 'monto_fijo';
-                valor_descuento: number;
-            }>;
-        };
-    }>;
+    items: ItemCarritoCompleto[];
 }
 
-const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) => {
+const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
+    // ============================================================================
+    // HOOKS DE NAVEGACIÓN Y CONTEXTO
+    // ============================================================================
     const navigate = useNavigate();
     const { confirmarCompra } = useCarrito();
-    const [couponCode, setCouponCode] = useState('');
-    const [showCouponInput, setShowCouponInput] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Calcular subtotal y descuentos de ofertas
+    // ============================================================================
+    // CÁLCULOS DE PRECIOS Y DESCUENTOS
+    // ============================================================================
+    
+    /**
+     * Calcular subtotal de productos usando precios ya calculados por el backend
+     * Si hay oferta, usa precio_oferta; si no, usa subtotal del item
+     */
     const subtotalProducts = items.reduce((sum, item) => {
         const productInfo = item.producto;
+        // Si el backend ya calculó el precio con oferta, usarlo directamente
         if (productInfo?.en_oferta && productInfo.precio_oferta) {
-            // Si hay oferta, usar el precio con descuento
             return sum + (productInfo.precio_oferta * item.cantidad);
         }
-        return sum + parseFloat(item.subtotal.toString());
+        // Si no hay oferta, usar el subtotal del item (que ya incluye el precio correcto)
+        return sum + item.subtotal;
     }, 0);
 
+    /**
+     * Calcular subtotal original sin descuentos para mostrar el ahorro
+     * Si hay oferta, usa precio_original; si no, usa subtotal del item
+     */
     const subtotalOriginal = items.reduce((sum, item) => {
         const productInfo = item.producto;
+        // Si el backend ya calculó el precio original, usarlo directamente
         if (productInfo?.en_oferta && productInfo.precio_original) {
-            // Precio original sin descuento
             return sum + (productInfo.precio_original * item.cantidad);
         }
-        return sum + parseFloat(item.subtotal.toString());
+        // Si no hay oferta, usar el subtotal del item
+        return sum + item.subtotal;
     }, 0);
 
+    /**
+     * Calcular descuento total por ofertas aplicadas
+     * Diferencia entre precio original y precio con descuento
+     */
     const discount = subtotalOriginal - subtotalProducts; // Descuentos por ofertas
-    const discountCoupon = 0; // Descuentos por cupón (futuro)
+    
+    /**
+     * Calcular el total final con descuentos aplicados
+     * Usa directamente el subtotal de productos (ya incluye descuentos)
+     */
+    const totalFinal = subtotalProducts; // Solo productos con descuentos aplicados
 
-    const handleCouponSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!couponCode.trim()) return;
-
-        setIsProcessing(true);
-        // Simular procesamiento del cupón
-        setTimeout(() => {
-            setIsProcessing(false);
-            // Aquí iría la lógica para aplicar el cupón
-            console.log('Cupón aplicado:', couponCode);
-        }, 1000);
-    };
-
+    // ============================================================================
+    // MANEJO DE OPERACIONES DE COMPRA
+    // ============================================================================
+    
+    /**
+     * Procesar la compra del carrito completo
+     * Confirma la venta y redirige al usuario al inicio
+     */
     const handleContinuePurchase = async () => {
         if (items.length === 0) {
             alert('No hay productos en el carrito');
@@ -103,77 +99,51 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
         }
     };
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+    
     return (
         <div className={styles.cartSummary}>
+            {/* Encabezado del resumen de compra */}
             <div className={styles.summaryHeader}>
                 <h2>Resumen de compra</h2>
             </div>
 
+            {/* Contenido principal del resumen */}
             <div className={styles.summaryContent}>
+                {/* Sección de desglose de precios */}
                 <div className={styles.summarySection}>
+                    {/* Línea de productos con cantidad y precio original */}
                     <div className={styles.summaryRow}>
                         <span>Productos ({itemCount})</span>
                         <span>$ {subtotalOriginal.toLocaleString('es-ES')}</span>
                     </div>
 
+                    {/* Línea de envío (siempre gratis) */}
                     <div className={styles.summaryRow}>
                         <span>Envío</span>
                         <span className={styles.freeShipping}>Gratis</span>
                     </div>
 
+                    {/* Línea de descuentos por ofertas (solo visible si hay descuentos) */}
                     {discount > 0 && (
                         <div className={styles.summaryRow}>
                             <span>Descuentos por ofertas</span>
                             <span className={styles.discount}>-$ {discount.toLocaleString('es-ES')}</span>
                         </div>
                     )}
-
-                    {discountCoupon > 0 && (
-                        <div className={styles.summaryRow}>
-                            <span>Descuento por cupón</span>
-                            <span className={styles.discount}>-$ {discountCoupon.toLocaleString('es-ES')}</span>
-                        </div>
-                    )}
                 </div>
 
-                <div className={styles.couponSection}>
-                    {!showCouponInput ? (
-                        <button
-                            onClick={() => setShowCouponInput(true)}
-                            className={styles.couponToggle}
-                        >
-                            Ingresar código de cupón
-                        </button>
-                    ) : (
-                        <form onSubmit={handleCouponSubmit} className={styles.couponForm}>
-                            <div className={styles.couponInputContainer}>
-                                <input
-                                    type="text"
-                                    value={couponCode}
-                                    onChange={(e) => setCouponCode(e.target.value)}
-                                    placeholder="Código de cupón"
-                                    className={styles.couponInput}
-                                    disabled={isProcessing}
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!couponCode.trim() || isProcessing}
-                                    className={styles.couponSubmit}
-                                >
-                                    {isProcessing ? 'Aplicando...' : 'Aplicar'}
-                                </button>
-                            </div>
-                        </form>
-                    )}
-                </div>
-
+                {/* Sección del total final */}
                 <div className={styles.totalSection}>
                     <div className={styles.totalRow}>
                         <span className={styles.totalLabel}>Total</span>
-                        <span className={styles.totalAmount}>$ {total.toLocaleString('es-ES')}</span>
+                        <span className={styles.totalAmount}>$ {totalFinal.toLocaleString('es-ES')}</span>
                     </div>
                 </div>
 
+                {/* Sección de checkout con botón de compra */}
                 <div className={styles.checkoutSection}>
                     <button
                         onClick={handleContinuePurchase}
@@ -191,21 +161,26 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
                     </button>
                 </div>
 
+                {/* Sección de beneficios del servicio */}
                 <div className={styles.benefitsSection}>
                     <h3>Beneficios</h3>
                     <ul className={styles.benefitsList}>
+                        {/* Envío gratis para compras grandes */}
                         <li>
                             <span className="material-icons">local_shipping</span>
                             <span>Envío gratis en compras superiores a $50.000</span>
                         </li>
+                        {/* Compra protegida */}
                         <li>
                             <span className="material-icons">security</span>
                             <span>Compra protegida</span>
                         </li>
+                        {/* Devolución gratis */}
                         <li>
                             <span className="material-icons">assignment_return</span>
                             <span>Devolución gratis</span>
                         </li>
+                        {/* Atención al cliente 24/7 */}
                         <li>
                             <span className="material-icons">support_agent</span>
                             <span>Atención al cliente 24/7</span>
@@ -216,5 +191,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, itemCount, items }) =>
         </div>
     );
 };
+
+CartSummary.displayName = 'CartSummary';
 
 export default CartSummary; 

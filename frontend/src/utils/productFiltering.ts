@@ -1,6 +1,5 @@
 import type { Product } from '../types/product';
 import type { ProductUIFilters } from '../types/product';
-import { getQuickSearchCounts, getQuickSearchTerm, type QuickSearchKey, QUICK_SEARCHES } from './quickSearches';
 
 export const ORDER_OPTIONS = [
   { value: '', label: 'Sin ordenar' },
@@ -11,14 +10,6 @@ export const ORDER_OPTIONS = [
 ] as const;
 
 /**
- * Valida si una string es una búsqueda rápida válida
- */
-function isValidQuickSearch(search: string | null): search is QuickSearchKey {
-  if (!search) return false;
-  return QUICK_SEARCHES.some(qs => qs.key === search);
-}
-
-/**
  * Filtra productos basándose en los criterios seleccionados
  */
 export function filterProducts(
@@ -27,38 +18,27 @@ export function filterProducts(
 ): Product[] {
   let filtered = [...products];
 
-  // 1. Filtro de búsqueda rápida (tiene prioridad sobre búsqueda manual)
-  let searchTerm = filters.search.trim().toLowerCase();
-  
-  if (filters.selectedQuickSearch && isValidQuickSearch(filters.selectedQuickSearch)) {
-    // Si hay una búsqueda rápida seleccionada y es válida, usar su término
-    const quickSearchTerm = getQuickSearchTerm(filters.selectedQuickSearch);
-    if (quickSearchTerm) {
-      searchTerm = quickSearchTerm.toLowerCase();
-    }
-  }
-
-  // 2. Aplicar filtro de búsqueda (ya sea manual o rápida)
-  if (searchTerm) {
-    filtered = filtered.filter(product =>
-      product.nombre.toLowerCase().includes(searchTerm) ||
-      (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm))
-    );
-  }
-
-  // 3. Filtro por categoría del backend
+  // ✅ NOTA: La búsqueda ya se aplica en el contexto, solo aplicar filtros adicionales
+  // 1. Filtro por categoría del backend
   if (filters.selectedDropdownCategory) {
     filtered = filtered.filter(product => 
       String(product.id_categoria) === filters.selectedDropdownCategory
     );
   }
 
-  // 4. Filtro por stock disponible
+  // 2. Filtro por marca del backend
+  if (filters.selectedDropdownBrand) {
+    filtered = filtered.filter(product => 
+      String(product.id_marca) === filters.selectedDropdownBrand
+    );
+  }
+
+  // 3. Filtro por stock disponible
   if (filters.onlyStock) {
     filtered = filtered.filter(product => product.stock > 0);
   }
 
-  // 5. Ordenamiento
+  // 4. Ordenamiento
   return sortProducts(filtered, filters.order);
 }
 
@@ -86,51 +66,4 @@ function sortProducts(products: Product[], orderBy: string): Product[] {
     default:
       return sorted;
   }
-}
-
-/**
- * Cuenta productos que coinciden con cada búsqueda rápida
- * Reemplaza la función getProductCountByCustomCategory
- */
-export function getProductCountByQuickSearch(
-  products: Product[]
-): Record<string, number> {
-  return getQuickSearchCounts(products);
-}
-
-/**
- * Función de debugging para verificar productos y búsquedas rápidas
- * Solo se ejecuta en modo desarrollo
- */
-export function debugQuickSearches(products: Product[]): void {
-  if (!import.meta.env.DEV) return;
-
-  console.group('🔍 Debug: Búsquedas rápidas');
-  
-  // Verificar productos sin nombre o descripción
-  const productsWithoutName = products.filter(p => !p.nombre || p.nombre.trim() === '');
-  const productsWithoutDescription = products.filter(p => !p.descripcion || p.descripcion.trim() === '');
-  
-  console.log(`📊 Total de productos: ${products.length}`);
-  console.log(`⚠️ Productos sin nombre: ${productsWithoutName.length}`);
-  console.log(`⚠️ Productos sin descripción: ${productsWithoutDescription.length}`);
-  
-  // Mostrar conteo por búsquedas rápidas
-  const quickSearchCounts = getQuickSearchCounts(products);
-  console.log('🔍 Productos por búsqueda rápida:', quickSearchCounts);
-  
-  console.groupEnd();
-}
-
-// Mantener funciones legacy para compatibilidad (deprecadas)
-export const getProductCountByCustomCategory = getProductCountByQuickSearch;
-export const debugProductCategorization = debugQuickSearches;
-
-/**
- * Función global para debugging manual desde la consola del navegador
- * Uso: window.debugQuickSearches() en la consola
- */
-if (import.meta.env.DEV && typeof window !== 'undefined') {
-  // @ts-ignore - Agregamos función global para debugging
-  window.debugQuickSearches = debugQuickSearches;
 } 

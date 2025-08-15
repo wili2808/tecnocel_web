@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import Button from '../../../components/common/Button';
+import IconButton from '../../../components/common/IconButton';
 import styles from './ProductActions.module.css';
 
 interface ProductActionsProps {
@@ -203,15 +205,16 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                     <label className={styles.quantityLabel}>Cantidad:</label>
                     <div className={styles.quantityControls}>
                         {/* Botón para disminuir cantidad */}
-                        <button
-                            className={styles.quantityButton}
+                        <IconButton
+                            icon="remove"
                             onClick={() => handleQuantityChange(quantity - 1)}
                             disabled={quantity <= 1}
                             type="button"
-                            aria-label="Disminuir cantidad"
-                        >
-                            <span className="material-icons">remove</span>
-                        </button>
+                            ariaLabel="Disminuir cantidad"
+                            variant="outline"
+                            size="sm"
+                            className={styles.quantityButton}
+                        />
                         
                         {/* Input de cantidad con validaciones */}
                         <input
@@ -225,15 +228,16 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                         />
                         
                         {/* Botón para aumentar cantidad */}
-                        <button
-                            className={styles.quantityButton}
+                        <IconButton
+                            icon="add"
                             onClick={() => handleQuantityChange(quantity + 1)}
                             disabled={quantity >= maxQuantityToAdd}
                             type="button"
-                            aria-label="Aumentar cantidad"
-                        >
-                            <span className="material-icons">add</span>
-                        </button>
+                            ariaLabel="Aumentar cantidad"
+                            variant="outline"
+                            size="sm"
+                            className={styles.quantityButton}
+                        />
                     </div>
                     
                     {/* Información del stock disponible */}
@@ -254,47 +258,45 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                     <>
                         {/* Botón de compra directa - Siempre habilitado si hay stock */}
                         {/* Permite ir al carrito incluso si no se puede agregar más del producto */}
-                        <button
-                            className={`${styles.actionButton} ${styles.buyNowButton}`}
+                        <Button
+                            variant="primary"
+                            size="lg"
                             onClick={handleBuyNow}
                             disabled={estado.cargando || isOutOfStock}
                             type="button"
+                            icon="shopping_cart_checkout"
+                            fullWidth
+                            elevated
                         >
-                            <span className="material-icons">shopping_cart_checkout</span>
                             Comprar ahora
-                        </button>
+                        </Button>
                         
                         {/* Botón de agregar al carrito */}
-                        <button
-                            className={`${styles.actionButton} ${styles.addToCartButton} ${showSuccess ? styles.successButton : ''}`}
+                        <Button
+                            variant={showSuccess ? 'success' : 'secondary'}
+                            size="lg"
                             onClick={handleAddToCart}
                             disabled={isAddingToCart || estado.cargando || !canAddMore}
                             type="button"
+                            icon={isAddingToCart ? 'hourglass_empty' : showSuccess ? 'check_circle' : 'add_shopping_cart'}
+                            loading={isAddingToCart}
+                            fullWidth
+                            elevated
                         >
-                            {isAddingToCart ? (
-                                <>
-                                    <span className="material-icons">hourglass_empty</span>
-                                    Agregando...
-                                </>
-                            ) : showSuccess ? (
-                                <>
-                                    <span className="material-icons">check_circle</span>
-                                    ¡Agregado!
-                                </>
-                            ) : (
-                                <>
-                                    <span className="material-icons">add_shopping_cart</span>
-                                    Agregar al carrito
-                                </>
-                            )}
-                        </button>
+                            {isAddingToCart ? 'Agregando...' : showSuccess ? '¡Agregado!' : 'Agregar al carrito'}
+                        </Button>
                     </>
                 ) : (
                     /* Botón deshabilitado para productos agotados */
-                    <button className={styles.disabledButton} disabled>
-                        <span className="material-icons">remove_shopping_cart</span>
+                    <Button 
+                        variant="ghost" 
+                        size="lg" 
+                        disabled
+                        icon="remove_shopping_cart"
+                        fullWidth
+                    >
                         Producto agotado
-                    </button>
+                    </Button>
                 )}
             </div>
         </div>

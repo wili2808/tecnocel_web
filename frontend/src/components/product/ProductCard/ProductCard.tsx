@@ -281,12 +281,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
                                 {stockText}
                             </span>
-                            {/* Mostrar cantidad en carrito si existe */}
-                            {currentQuantity > 0 && (
-                                <span className={styles.cartQuantityBadge}>
-                                    {currentQuantity} en carrito
-                                </span>
-                            )}
                         </div>
 
                         {/* Contenedor de botones de acción - RESERVADO PARA FUNCIONES FUTURAS */}

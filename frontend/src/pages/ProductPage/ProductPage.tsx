@@ -13,7 +13,6 @@ import ProductFeatures from '../../components/product/ProductFeatures';
 import ProductComments from '../../components/product/ProductComments';
 import OfferIndicator from '../../components/product/OfferIndicator';
 import FavoriteButtonReusable from '../../components/product/FavoriteButtonReusable';
-import CartIndicator from '../../components/cart/CartIndicator';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import styles from './ProductPage.module.css';
 
@@ -170,6 +169,17 @@ const ProductPage: React.FC = () => {
                     {/* Sección de imagen del producto */}
                     <div className={styles.productImageSection}>
                         <div className={styles.imageContainer}>
+                            {/* Botón de favoritos - Posicionado en esquina superior derecha */}
+                            <div className={styles.favoriteButtonContainer}>
+                                <FavoriteButtonReusable
+                                    productId={product.id_producto}
+                                    productName={product.nombre}
+                                    size="medium"
+                                    showText={false}
+                                    position="static"
+                                    variant="outlined"
+                                />
+                            </div>
                             {/* Galería de imágenes con miniaturas */}
                             <ProductImage
                                 images={product.imagenes || []}
@@ -193,9 +203,6 @@ const ProductPage: React.FC = () => {
                                     showLabel={true}
                                 />
                             )}
-                            
-                            {/* Indicador de cantidad en carrito - Posicionado en esquina inferior derecha */}
-                            <CartIndicator productId={product.id_producto} />
                         </div>
                     </div>
 
@@ -205,22 +212,12 @@ const ProductPage: React.FC = () => {
                             {/* Información detallada del producto */}
                             <ProductInfo product={product} />
                             
-                            {/* Botón de favoritos - Posicionado en esquina superior derecha */}
-                            <div className={styles.favoriteButtonContainer}>
-                                <FavoriteButtonReusable
-                                    productId={product.id_producto}
-                                    productName={product.nombre}
-                                    size="large"
-                                    showText={false}
-                                    position="static"
-                                    variant="outlined"
-                                />
-                            </div>
                         </div>
                     </div>
 
                     {/* Sección de acciones del producto (cantidad, agregar al carrito, comprar) */}
                     <div className={styles.productActionsSection}>
+                        
                         <ProductActions
                             productId={product.id_producto}
                             productName={product.nombre}

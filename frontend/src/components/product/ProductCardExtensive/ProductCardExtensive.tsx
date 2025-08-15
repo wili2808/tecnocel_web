@@ -51,7 +51,6 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         handleCardClick,
         handleAddToCart,
         carritoLoading,
-        stockText
     } = logic;
 
 
@@ -97,18 +96,8 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                             />
                         )}
 
-                        {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
-                        <CartIndicator productId={id_producto} />
-
-                        {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
-                        <FavoriteButtonReusable
-                            productId={id_producto}
-                            productName={nombre}
-                            size="small"
-                            position="absolute"
-                            variant="minimal"
-                            className={styles.favoriteButton}
-                        />
+                       
+                        
 
                         {/* Overlay de producto agotado - Solo visible si no hay stock */}
                         {/* {isOutOfStock && (
@@ -148,19 +137,18 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
 
                     {/* LADO DERECHO: Información de stock y botón de carrito */}
                     <div className={styles.actionSection}>
-                        {/* Información de stock centrada - Usando Button sin interacción */}
-                        <div className={styles.stockContainer}>
-                            <Button
-                                variant={isOutOfStock ? "danger" : "success"}
-                                size="xs"
-                                disabled={true}
-                                fullWidth={true}
-                                className={styles.stockButton}
-                                type="button"
-                            >
-                                {stockText}
-                            </Button>
-                        </div>
+                        {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
+                        <CartIndicator productId={id_producto} className={styles.cartIndicator}/>
+
+                        {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
+                        <FavoriteButtonReusable
+                            productId={id_producto}
+                            productName={nombre}
+                            size="small"
+                            position="absolute"
+                            variant="minimal"
+                            className={styles.favoriteButton}
+                        />
 
                         {/* Botón de acción - Adaptativo según el estado */}
                         <Button

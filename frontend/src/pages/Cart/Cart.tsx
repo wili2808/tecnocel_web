@@ -1,34 +1,42 @@
+/**
+ * Componente Cart - Página principal del carrito de compras
+ * Muestra todos los productos agregados al carrito con opciones de gestión
+ * Incluye funcionalidades para vaciar carrito, continuar comprando y procesar compra
+ * Utiliza CarritoContext para el estado global del carrito
+ */
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import { useCarrito } from '../../contexts/CarritoContext';
 import CartItemCard from '../../components/cart/CartItemCard';
 import CartSummary from '../../components/cart/CartSummary/CartSummary';
 import styles from './Cart.module.css';
 
 const Cart: React.FC = () => {
+    // ============================================================================
+    // HOOKS DE NAVEGACIÓN Y CONTEXTO
+    // ============================================================================
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
     const { estado, obtenerCarrito, vaciarCarrito } = useCarrito();
 
-    // Redirigir si no está autenticado
+    // ============================================================================
+    // EFECTOS Y MANEJO DE ESTADO
+    // ============================================================================
+    
+    /**
+     * Obtener carrito al cargar la página
+     * Se ejecuta cada vez que cambia la función obtenerCarrito
+     */
     useEffect(() => {
-        if (!isAuthenticated) {
-            navigate('/login');
-        }
-    }, [isAuthenticated, navigate]);
+        obtenerCarrito();
+    }, [obtenerCarrito]);
 
-    // Obtener carrito al cargar la página
-    useEffect(() => {
-        if (isAuthenticated) {
-            obtenerCarrito();
-        }
-    }, [isAuthenticated, obtenerCarrito]);
-
-    if (!isAuthenticated) {
-        return null;
-    }
-
+    // ============================================================================
+    // ESTADOS DE CARGA Y ERROR
+    // ============================================================================
+    
+    /**
+     * Estado de carga - Muestra spinner mientras se obtienen datos del carrito
+     */
     if (estado.cargando) {
         return (
             <div className={styles.cartContainer}>
@@ -40,6 +48,9 @@ const Cart: React.FC = () => {
         );
     }
 
+    /**
+     * Estado de error - Muestra mensaje de error con opción de reintentar
+     */
     if (estado.error) {
         return (
             <div className={styles.cartContainer}>
@@ -58,13 +69,25 @@ const Cart: React.FC = () => {
         );
     }
 
+    // ============================================================================
+    // LÓGICA DE ESTADO DEL CARRITO
+    // ============================================================================
+    
+    /**
+     * Verificar si el carrito está vacío para mostrar estado apropiado
+     */
     const isEmpty = estado.items.length === 0;
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+    
     return (
         <div className={styles.cartContainer}>
-
-
             {isEmpty ? (
+                // ============================================================================
+                // ESTADO DE CARRITO VACÍO
+                // ============================================================================
                 <div className={styles.emptyCart}>
                     <div className={styles.emptyCartIcon}>
                         <span className="material-icons">shopping_cart</span>
@@ -87,17 +110,19 @@ const Cart: React.FC = () => {
                     </div>
                 </div>
             ) : (
+                // ============================================================================
+                // ESTADO DE CARRITO CON PRODUCTOS
+                // ============================================================================
                 <div className={styles.cartContent}>
-                    {/* Lista de productos */}
+                    {/* Lista de productos del carrito */}
                     <div className={styles.cartItems}>
-
                         <div className={styles.cartItemsList}>
                             {estado.items.map((item) => (
                                 <CartItemCard key={item.id_item} item={item} />
                             ))}
                         </div>
 
-                        {/* Información de envío */}
+                        {/* Información de envío y acciones del carrito */}
                         <div className={styles.shippingInfo}>
                             <div className={styles.shippingStatus}>
                                 <span className={styles.shippingIcon}>🚚</span>
@@ -132,10 +157,9 @@ const Cart: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Resumen de compra */}
+                    {/* Resumen de compra con totales y botón de checkout */}
                     <div className={styles.cartSummary}>
                         <CartSummary
-                            total={estado.total_carrito}
                             itemCount={estado.cantidad_items}
                             items={estado.items}
                         />
@@ -145,5 +169,7 @@ const Cart: React.FC = () => {
         </div>
     );
 };
+
+Cart.displayName = 'Cart';
 
 export default Cart; 

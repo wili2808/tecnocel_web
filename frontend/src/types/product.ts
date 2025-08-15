@@ -336,6 +336,7 @@ export interface ProductFilters {
   solo_ofertas?: boolean;
   caracteristicas?: { [key: string]: string };
   es_destacado?: boolean;
+  order?: string; // Agregado para soporte de ordenamiento
 }
 
 /**
@@ -343,7 +344,6 @@ export interface ProductFilters {
  */
 export interface ProductUIFilters {
   search: string;
-  selectedQuickSearch: string | null;
   selectedDropdownCategory: string;
   selectedDropdownBrand: string;
   order: string;
@@ -358,38 +358,6 @@ export interface ProductsResponse {
   total: number;
   pagina: number;
   por_pagina: number;
-}
-
-// ============================================================================
-// INTERFACES PARA CARRITO
-// ============================================================================
-
-/**
- * Interfaz para Carrito Web - Tabla tb_carritosweb
- */
-export interface CarritoWeb {
-  id_carrito: number;
-  id_cliente: number;
-  estado: 'activo' | 'completado' | 'abandonado';
-  total_carrito: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  fyh_abandono?: string | null;
-}
-
-/**
- * Interfaz para Items del Carrito Web - Tabla tb_carritoweb_items
- */
-export interface CarritoWebItem {
-  id_item: number;
-  id_carrito: number;
-  id_producto: number;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  producto?: Product;
 }
 
 // ============================================================================

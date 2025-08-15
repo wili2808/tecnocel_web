@@ -1,61 +1,59 @@
+/**
+ * Componente CartItemCard - Tarjeta de item individual del carrito
+ * Muestra información completa del producto con controles de cantidad y eliminación
+ * Incluye funcionalidades para actualizar cantidad, eliminar item y navegar al producto
+ * Utiliza CarritoContext para operaciones del carrito y manejo de estado
+ */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
+import { useCarrito as useCarritoHook } from '../../../hooks/useCarrito';
 import ProductImage from '../../product/ProductImage';
+import IconButton from '../../common/IconButton';
 import styles from './CartItemCard.module.css';
+import type { ItemCarritoCompleto } from '../../../types/carrito';
 
 interface CartItemCardProps {
-    item: {
-        id_item: number;
-        id_carrito: number;
-        id_producto: number;
-        cantidad: number;
-        precio_unitario: number;
-        subtotal: number;
-        fyh_creacion: string;
-        fyh_actualizacion: string;
-        producto?: {
-            id_producto: number;
-            nombre: string;
-            descripcion: string;
-            precio_venta: string;
-            imagenes?: Array<{
-                url: string;
-                alt_text?: string;
-                es_principal: boolean;
-                orden: number;
-            }>;
-            stock: number;
-            precio_original?: number;
-            precio_oferta?: number;
-            descuento_porcentaje?: number;
-            en_oferta?: boolean;
-            ofertas?: Array<{
-                id_oferta: number;
-                nombre_oferta: string;
-                tipo_descuento: 'porcentaje' | 'monto_fijo';
-                valor_descuento: number;
-            }>;
-        };
-    };
+    item: ItemCarritoCompleto;
 }
 
 const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
     const { actualizarCantidad, eliminarItem } = useCarrito();
+    const { canAddMoreOfProduct } = useCarritoHook();
     const [isUpdating, setIsUpdating] = useState(false);
 
+    // ============================================================================
+    // MANEJO DE ESTADO Y OPERACIONES
+    // ============================================================================
+    
+    /**
+     * Manejar cambio de cantidad del item en el carrito
+     * Previene cantidades menores a 1 y muestra estado de carga
+     * USA VALIDACIONES EXISTENTES del hook useCarrito
+     */
     const handleQuantityChange = async (newQuantity: number) => {
         if (newQuantity < 1) return;
+        
+        // USAR VALIDACIONES EXISTENTES: No duplicar lógica
+        // El hook useCarrito ya valida stock antes de enviar al backend
         setIsUpdating(true);
         try {
             await actualizarCantidad(item.id_item, newQuantity);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al actualizar cantidad:', error);
+            // El error ya viene validado del backend con mensaje claro
         } finally {
             setIsUpdating(false);
         }
     };
 
+    /**
+     * Manejar eliminación del item del carrito
+     * Muestra estado de carga durante la operación
+     */
     const handleRemoveItem = async () => {
         setIsUpdating(true);
         try {
@@ -66,29 +64,49 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
         }
     };
 
-    const productInfo = item.producto || {
-        nombre: `Producto ${item.id_producto}`,
-        descripcion: 'Descripción no disponible',
-        imagen: null,
-        imagen_url: null,
-        imagenes: [],
-        stock: 0,
-        precio_venta: item.precio_unitario.toString(),
-        precio_original: item.precio_unitario,
-        precio_oferta: undefined,
-        descuento_porcentaje: undefined,
-        en_oferta: false,
-        ofertas: []
+    // ============================================================================
+    // PROCESAMIENTO DE DATOS DEL PRODUCTO
+    // ============================================================================
+    
+    /**
+     * Crear objeto de información del producto con fallbacks para campos faltantes
+     * Preserva los campos calculados del backend (precio_oferta, descuentos, etc.)
+     */
+    const productInfo = {
+        nombre: item.producto?.nombre || `Producto ${item.id_producto}`,
+        descripcion: item.producto?.descripcion || 'Descripción no disponible',
+        imagen: item.producto?.imagen || null,
+        imagen_url: item.producto?.imagen_url || null,
+        imagenes: item.producto?.imagenes || [],
+        stock: item.producto?.stock ?? 0,
+        precio_venta: item.producto?.precio_venta || item.precio_unitario.toString(),
+        // NO sobrescribir los campos calculados del backend
+        precio_original: item.producto?.precio_original,
+        precio_oferta: item.producto?.precio_oferta,
+        descuento_porcentaje: item.producto?.descuento_porcentaje,
+        en_oferta: item.producto?.en_oferta,
+        ofertas: item.producto?.ofertas || []
     };
 
-    // Usar las imágenes ya transformadas del backend
-    // Transformar las imágenes al formato esperado por ProductImage
-
-
+    /**
+     * Obtener imágenes del producto para el componente ProductImage
+     * Usa las imágenes ya transformadas del backend
+     */
     const images = productInfo.imagenes || [];
 
+    /**
+     * Verificar si se puede agregar más cantidad del producto
+     * Usa la validación existente del hook useCarrito
+     */
+    const canAddMore = canAddMoreOfProduct([item], item.id_producto, productInfo.stock);
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+    
     return (
         <div className={`${styles.card} ${isUpdating ? styles.updating : ''}`}>
+            {/* Enlace a la imagen del producto con navegación a detalles */}
             <Link
                 to={`/productos/${item.id_producto}`}
                 className={styles.imageLink}
@@ -102,79 +120,75 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                 />
             </Link>
 
-            <div className={styles.content}>
-                <div className={styles.header}>
-                    <Link
-                        to={`/productos/${item.id_producto}`}
-                        className={styles.titleLink}
-                    >
-                        <h3 className={styles.title}>{productInfo.nombre}</h3>
-                    </Link>
+            {/* Información del producto y controles */}
+            <div className={styles.productInfo}>
+                {/* Título y descripción del producto */}
+                <h3 className={styles.productTitle}>{productInfo.nombre}</h3>
+                <p className={styles.productDescription}>{productInfo.descripcion}</p>
+                
+                {/* Información de precios con soporte para ofertas */}
+                <div className={styles.priceInfo}>
+                    {productInfo.en_oferta && productInfo.precio_oferta ? (
+                        <>
+                            <span className={styles.currentPrice}>
+                                $ {productInfo.precio_oferta.toLocaleString('es-ES')}
+                            </span>
+                            <span className={styles.originalPrice}>
+                                $ {productInfo.precio_original?.toLocaleString('es-ES')}
+                            </span>
+                        </>
+                    ) : (
+                        <span className={styles.currentPrice}>
+                            $ {Number(productInfo.precio_venta).toLocaleString('es-ES')}
+                        </span>
+                    )}
+                </div>
+
+                {/* Controles de cantidad con botones de incremento/decremento */}
+                <div className={styles.quantityControls}>
                     <button
-                        onClick={handleRemoveItem}
-                        className={styles.removeButton}
-                        disabled={isUpdating}
-                        type="button"
-                        aria-label="Eliminar del carrito"
+                        onClick={() => handleQuantityChange(item.cantidad - 1)}
+                        disabled={item.cantidad <= 1 || isUpdating}
+                        className={styles.quantityButton}
+                        aria-label="Reducir cantidad"
                     >
-                        <span className="material-icons">close</span>
+                        <span className="material-icons">remove</span>
+                    </button>
+                    <span className={styles.quantity}>{item.cantidad}</span>
+                    <button
+                        onClick={() => handleQuantityChange(item.cantidad + 1)}
+                        disabled={isUpdating || !canAddMore}
+                        className={styles.quantityButton}
+                        aria-label="Aumentar cantidad"
+                        title={!canAddMore ? `Stock máximo alcanzado (${productInfo.stock})` : 'Aumentar cantidad'}
+                    >
+                        <span className="material-icons">add</span>
                     </button>
                 </div>
 
-                <div className={styles.details}>
-                    <div className={styles.priceInfo}>
-                        <span className={styles.price}>
-                            ${item.precio_unitario.toLocaleString('es-ES')}
-                        </span>
-                        {productInfo.en_oferta && (
-                            <span className={styles.originalPrice}>
-                                ${productInfo.precio_original?.toLocaleString('es-ES')}
-                            </span>
-                        )}
+                {/* Indicador de stock máximo alcanzado */}
+                {!canAddMore && (
+                    <div className={styles.stockWarning}>
+                        <span className="material-icons">info</span>
+                        <span>Stock máximo alcanzado ({productInfo.stock})</span>
                     </div>
+                )}
 
-                    <div className={styles.quantityControls}>
-                        <button
-                            onClick={() => handleQuantityChange(item.cantidad - 1)}
-                            disabled={item.cantidad <= 1 || isUpdating}
-                            className={styles.quantityButton}
-                            type="button"
-                            aria-label="Reducir cantidad"
-                        >
-                            <span className="material-icons">remove</span>
-                        </button>
-                        <span className={styles.quantity}>{item.cantidad}</span>
-                        <button
-                            onClick={() => handleQuantityChange(item.cantidad + 1)}
-                            disabled={item.cantidad >= productInfo.stock || isUpdating}
-                            className={styles.quantityButton}
-                            type="button"
-                            aria-label="Aumentar cantidad"
-                        >
-                            <span className="material-icons">add</span>
-                        </button>
-                    </div>
-                </div>
+                {/* Botón para eliminar el item del carrito */}
+                <IconButton
+                        icon="delete"
+                        onClick={handleRemoveItem}
+                        disabled={isUpdating}
+                        ariaLabel="Eliminar item del carrito"
+                        className={styles.removeButton}
+                        size="sm"
+                    />
 
-                <div className={styles.footer}>
-                    <div className={styles.stock}>
-                        <span className="material-icons">inventory_2</span>
-                        <span>{productInfo.stock} disponibles</span>
-                    </div>
-                    <div className={styles.subtotal}>
-                        <span>Total:</span>
-                        <strong>${item.subtotal.toLocaleString('es-ES')}</strong>
-                    </div>
-                </div>
             </div>
-
-            {isUpdating && (
-                <div className={styles.loadingOverlay}>
-                    <div className={styles.spinner} />
-                </div>
-            )}
         </div>
     );
 };
+
+CartItemCard.displayName = 'CartItemCard';
 
 export default CartItemCard;

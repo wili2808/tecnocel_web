@@ -1,8 +1,9 @@
 import React, { useEffect, useCallback, useState, useMemo } from 'react';
-import ProductFiltersBar from '../../components/product/ProductFiltersBar';
+import ProductFilters from '../../components/product/ProductFilters';
 import ProductGrid from '../../components/product/ProductGrid';
 import { useProductActions } from '../../hooks/useProductActions';
 import { useOfertasGlobal } from '../../hooks/useOfertasGlobal';
+import { filterProducts } from '../../utils/productFiltering';
 import type { ProductUIFilters } from '../../types/product';
 import styles from './ProductCatalog.module.css';
 
@@ -17,17 +18,13 @@ const ProductCatalog: React.FC = () => {
     // CONTEXTO DE PRODUCTOS - CARGA PRINCIPAL
     // ============================================================================
     const {
-        filteredProducts,
-        productsLoading: loading,
-        productsError: error,
-        categories,
-        brands,
         filters,
         updateFilters,
         products: allProducts,
         loadProducts,
         loadCategories,
-        loadBrands
+        loadBrands,
+        searchQuery // ✅ Agregar búsqueda del contexto
     } = useProductActions();
 
     // ============================================================================
@@ -73,13 +70,12 @@ const ProductCatalog: React.FC = () => {
     // MAPEO DE FILTROS PARA COMPATIBILIDAD - MEMOIZADO
     // ============================================================================
     const uiFilters: ProductUIFilters = useMemo(() => ({
-        search: '',
-        selectedQuickSearch: null,
+        search: searchQuery || '', // ✅ Sincronizar con la búsqueda del contexto
         selectedDropdownCategory: filters.categoria?.toString() || '',
         selectedDropdownBrand: filters.marca?.toString() || '',
-        order: '',
+        order: filters.order || '', // Ahora se sincroniza con el backend
         onlyStock: filters.solo_con_stock || false
-    }), [filters.categoria, filters.marca, filters.solo_con_stock]);
+    }), [searchQuery, filters.categoria, filters.marca, filters.order, filters.solo_con_stock]);
 
     // ============================================================================
     // MANEJADOR DE FILTROS - MEMOIZADO
@@ -95,6 +91,10 @@ const ProductCatalog: React.FC = () => {
             backendFilters.marca = newFilters.selectedDropdownBrand ? parseInt(newFilters.selectedDropdownBrand) : undefined;
         }
         
+        if (newFilters.order !== undefined) {
+            backendFilters.order = newFilters.order;
+        }
+        
         if (newFilters.onlyStock !== undefined) {
             backendFilters.solo_con_stock = newFilters.onlyStock;
         }
@@ -103,23 +103,20 @@ const ProductCatalog: React.FC = () => {
     }, [updateFilters]);
 
     // ============================================================================
-    // DATOS SEGUROS - MEMOIZADOS
+    // DATOS PARA FILTROS - MEMOIZADOS
     // ============================================================================
-    const safeFilteredProducts = useMemo(() => {
-        return filteredProducts && filteredProducts.length > 0 ? filteredProducts : allProducts;
-    }, [filteredProducts, allProducts]);
-
-    const safeCategories = useMemo(() => {
-        return categories || [];
-    }, [categories]);
-
-    const safeBrands = useMemo(() => {
-        return brands || [];
-    }, [brands]);
-
     const totalProducts = useMemo(() => {
         return allProducts.length;
     }, [allProducts.length]);
+
+    // ============================================================================
+    // PRODUCTOS FILTRADOS EN TIEMPO REAL - MEMOIZADO
+    // ============================================================================
+    const filteredProductsCount = useMemo(() => {
+        if (allProducts.length === 0) return 0;
+        const filtered = filterProducts(allProducts, uiFilters);
+        return filtered.length;
+    }, [allProducts, uiFilters]);
 
     // ============================================================================
     // RENDERIZADO OPTIMIZADO
@@ -129,25 +126,17 @@ const ProductCatalog: React.FC = () => {
             <div className={styles.catalogContainer}>
                 {/* Sidebar con filtros fijo a la izquierda */}
                 <aside className={styles.filtersSidebar}>
-                    <ProductFiltersBar
+                    <ProductFilters
                         filters={uiFilters}
                         onFiltersChange={handleFiltersChange}
-                        backendCategories={safeCategories}
-                        backendBrands={safeBrands}
                         totalProducts={totalProducts}
-                        filteredProducts={safeFilteredProducts.length}
-                        quickSearchCounts={{}}
+                        filteredProducts={filteredProductsCount}
                     />
                 </aside>
 
                 {/* Contenido principal con el grid de productos */}
                 <main className={styles.productsMainContent}>
-                    <ProductGrid
-                        products={safeFilteredProducts}
-                        loading={loading}
-                        error={error}
-                        onRetry={() => loadProducts()}
-                    />
+                    <ProductGrid filters={uiFilters} />
                 </main>
             </div>
         </div>

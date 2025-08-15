@@ -247,6 +247,13 @@
   gap: var(--spacing-sm);
 }
 
+.cartIndicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
 /* === CONTENEDOR DE STOCK === */
 .stockContainer {
   display: flex;

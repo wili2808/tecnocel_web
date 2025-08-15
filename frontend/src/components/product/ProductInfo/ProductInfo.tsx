@@ -19,7 +19,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         nombre,
         descripcion,
         precio_venta,
-        stock,
         codigo,
         Categoria,
         // Campos de ofertas
@@ -33,9 +32,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     // ============================================================================
     // CÁLCULOS Y VALIDACIONES
     // ============================================================================
-    
-    // Verificar si el producto está agotado
-    const isOutOfStock = stock === 0;
 
     /**
      * Formatear precio con formato argentino
@@ -62,9 +58,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         discountPercentage: descuento_porcentaje || (en_oferta && precio_oferta ? 
             Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
     };
-
-    // Texto del stock con pluralización correcta
-    const stockText = stock > 0 ? `${stock} disponible${stock !== 1 ? 's' : ''}` : 'Agotado';
 
     // Obtener información de la oferta activa (primera oferta disponible)
     const activeOffer = ofertas && ofertas.length > 0 ? ofertas[0] : null;
@@ -147,12 +140,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                             </span>
                         )}
                     </div>
-                    
-                    {/* Badge de stock con icono y estado */}
-                    <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
-                        <span className="material-icons">{isOutOfStock ? 'inventory_2' : 'inventory'}</span>
-                        {stockText}
-                    </span>
                 </div>
             </div>
 

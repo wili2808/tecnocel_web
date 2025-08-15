@@ -7,9 +7,7 @@ export {
 
 export {
   ORDER_OPTIONS,
-  filterProducts,
-  getProductCountByCustomCategory,
-  debugProductCategorization
+  filterProducts
 } from './productFiltering';
 
 // Tipos exportados

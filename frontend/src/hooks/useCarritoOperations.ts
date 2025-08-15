@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
 import { CarritoService } from '../services/carritoService';
-import type { DatosCompra, VentaConfirmada } from '../services/carritoService';
+import type { DatosCompra, VentaConfirmada } from '../types/carrito';
 import { useCarrito } from './useCarrito';
 
 // ============================================================================
-// HOOK DE OPERACIONES DEL CARRITO
+// HOOK DE OPERACIONES DEL CARRITO - VERSIÓN BÁSICA
 // ============================================================================
 
 /**
- * Hook que maneja todas las operaciones del carrito
- * Combina la lógica del hook useCarrito con las operaciones del servicio
+ * Hook que maneja las operaciones básicas del carrito
+ * Solo funcionalidades esenciales para carrito básico + checkout
  */
 export const useCarritoOperations = () => {
   // ============================================================================
@@ -19,7 +19,6 @@ export const useCarritoOperations = () => {
   const {
     validateCarritoOperation,
     handleCarritoError,
-    prepareItemData,
     prepareCompraData,
     validateQuantity
   } = useCarrito();
@@ -48,7 +47,6 @@ export const useCarritoOperations = () => {
   const agregarItem = useCallback(async (
     id_producto: number, 
     cantidad: number, 
-    detalles_personalizacion?: any,
     stock?: number
   ) => {
     const validation = validateCarritoOperation();
@@ -65,12 +63,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const itemData = prepareItemData(id_producto, cantidad, detalles_personalizacion);
-      const response = await CarritoService.agregarItem(
-        itemData.id_producto,
-        itemData.cantidad,
-        itemData.detalles_personalizacion
-      );
+      const response = await CarritoService.agregarItem(id_producto, cantidad);
       
       return {
         item: response.item,
@@ -80,7 +73,7 @@ export const useCarritoOperations = () => {
       const mensajeError = handleCarritoError(error);
       throw new Error(mensajeError);
     }
-  }, [validateCarritoOperation, validateQuantity, prepareItemData, handleCarritoError]);
+  }, [validateCarritoOperation, validateQuantity, handleCarritoError]);
 
   /**
    * Actualiza la cantidad de un item en el carrito

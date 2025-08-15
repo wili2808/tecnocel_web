@@ -66,13 +66,9 @@
 }
 
 .removeButton {
-    padding: var(--spacing-xs);
     color: var(--text-secondary);
     border-radius: var(--border-radius-full);
     transition: all var(--transition-fast) var(--transition-curve);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .removeButton:hover {
@@ -118,6 +114,7 @@
     background-color: var(--background-secondary);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--border-radius-full);
+    justify-content: space-between;
 }
 
 .quantityButton {
