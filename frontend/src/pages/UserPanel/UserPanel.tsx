@@ -1,3 +1,9 @@
+/**
+ * Componente UserPanel - Panel de usuario completo con navegación lateral
+ * Proporciona acceso a todas las funcionalidades del usuario autenticado
+ * Incluye gestión de perfil, favoritos, compras y configuración de cuenta
+ * Utiliza múltiples hooks y contextos para funcionalidad completa
+ */
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +14,14 @@ import ProductCard from '../../components/product/ProductCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import userPanelStyles from './UserPanel.module.css';
 
-// Definir las opciones del menú del panel
+// ============================================================================
+// CONFIGURACIÓN Y CONSTANTES
+// ============================================================================
+
+/**
+ * Opciones del menú del panel de usuario
+ * Cada opción incluye id, etiqueta e icono de Material Design
+ */
 const MENU_OPTIONS = [
     { id: 'profile', label: 'Información Personal', icon: 'person' },
     { id: 'account', label: 'Datos de Cuenta', icon: 'account_circle' },
@@ -19,7 +32,14 @@ const MENU_OPTIONS = [
     { id: 'support', label: 'Soporte', icon: 'help' },
 ];
 
-// Componente de elemento del menú
+// ============================================================================
+// COMPONENTES AUXILIARES
+// ============================================================================
+
+/**
+ * Componente de elemento del menú del panel
+ * Renderiza cada opción del menú con estado activo y funcionalidad de click
+ */
 const MenuOption = ({
     option,
     isActive,
@@ -39,8 +59,19 @@ const MenuOption = ({
     </button>
 );
 
-// Componente de la sección de favoritos
+// ============================================================================
+// SECCIÓN DE FAVORITOS - COMPONENTE PRINCIPAL
+// ============================================================================
+
+/**
+ * Componente de la sección de favoritos
+ * Gestiona la visualización, carga y eliminación de productos favoritos
+ * Utiliza hooks especializados para favoritos y notificaciones
+ */
 const FavoritesSection = () => {
+    // ============================================================================
+    // HOOKS Y ESTADO
+    // ============================================================================
     const {
         productos,
         loading,
@@ -51,7 +82,14 @@ const FavoritesSection = () => {
     const { showNotification } = useNotification();
     const { removeAllFavoritos, syncWithBackend } = useFavoritosGlobal();
 
-    // Función para eliminar todos los favoritos
+    // ============================================================================
+    // FUNCIONES DE GESTIÓN DE FAVORITOS
+    // ============================================================================
+
+    /**
+     * Elimina todos los productos favoritos del usuario
+     * Utiliza el método optimizado del contexto global y sincroniza con backend
+     */
     const handleRemoveAllFavorites = async () => {
         if (productos.length === 0) return;
 
@@ -74,7 +112,11 @@ const FavoritesSection = () => {
         }
     };
 
-    // Debug: Verificar datos de productos
+    // ============================================================================
+    // DEBUG Y LOGGING
+    // ============================================================================
+
+    // Debug: Verificar datos de productos cargados
     console.log('FavoritesSection - Productos cargados:', productos.map(p => ({
         id: p.id_producto,
         nombre: p.nombre,
@@ -83,6 +125,11 @@ const FavoritesSection = () => {
         imagenes: p.imagenes
     })));
 
+    // ============================================================================
+    // RENDERIZADO CONDICIONAL - ESTADOS DE CARGA
+    // ============================================================================
+
+    // Estado de carga inicial
     if (loading && productos.length === 0) {
         return (
             <div className={userPanelStyles.contentSection}>
@@ -95,6 +142,7 @@ const FavoritesSection = () => {
         );
     }
 
+    // Estado de error
     if (error) {
         return (
             <div className={userPanelStyles.contentSection}>
@@ -114,6 +162,7 @@ const FavoritesSection = () => {
         );
     }
 
+    // Estado vacío - Sin favoritos
     if (productos.length === 0) {
         return (
             <div className={userPanelStyles.contentSection}>
@@ -131,8 +180,13 @@ const FavoritesSection = () => {
         );
     }
 
+    // ============================================================================
+    // RENDERIZADO PRINCIPAL - LISTA DE FAVORITOS
+    // ============================================================================
+
     return (
         <div className={userPanelStyles.contentSection}>
+            {/* Encabezado de sección con contador y botón de eliminación masiva */}
             <div className={userPanelStyles.sectionHeader}>
                 <h2 className={userPanelStyles.sectionTitle}>
                     Favoritos
@@ -151,6 +205,7 @@ const FavoritesSection = () => {
                 </button>
             </div>
 
+            {/* Grid de productos favoritos */}
             <div className={userPanelStyles.favoritesGrid}>
                 {productos.map((producto) => (
                     <div key={producto.id_producto} className={userPanelStyles.favoriteItem}>
@@ -173,6 +228,7 @@ const FavoritesSection = () => {
                 ))}
             </div>
 
+            {/* Botón de carga adicional - Solo visible si hay más productos */}
             {hasMore && (
                 <div className={userPanelStyles.loadMoreContainer}>
                     <button
@@ -198,8 +254,20 @@ const FavoritesSection = () => {
     );
 };
 
-// Componente de contenido dinámico
+// ============================================================================
+// SECCIÓN DE CONTENIDO DINÁMICO
+// ============================================================================
+
+/**
+ * Componente de contenido dinámico del panel
+ * Renderiza diferentes secciones según la opción activa del menú
+ * Cada sección tiene su propia lógica y presentación
+ */
 const ContentSection = ({ activeSection, user }: { activeSection: string; user: any }) => {
+    /**
+     * Renderiza el contenido específico de cada sección del panel
+     * Utiliza switch statement para manejar múltiples opciones de menú
+     */
     const renderContent = () => {
         switch (activeSection) {
             case 'profile':
@@ -286,24 +354,47 @@ const ContentSection = ({ activeSection, user }: { activeSection: string; user: 
     );
 };
 
+// ============================================================================
+// COMPONENTE PRINCIPAL - USERPANEL
+// ============================================================================
+
 /**
  * Componente principal del panel de usuario
+ * Gestiona la autenticación, navegación y renderizado del panel completo
+ * Incluye sidebar con menú y área de contenido principal
  */
 const UserPanel = () => {
+    // ============================================================================
+    // HOOKS Y ESTADO
+    // ============================================================================
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('profile');
 
+    // ============================================================================
+    // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN
+    // ============================================================================
+
+    /**
+     * Cierra la sesión del usuario y redirige al inicio
+     */
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
+    /**
+     * Navega de vuelta a la página principal
+     */
     const handleBackToHome = () => {
         navigate('/');
     };
 
-    // Verificar si el usuario está autenticado
+    // ============================================================================
+    // VERIFICACIÓN DE AUTENTICACIÓN
+    // ============================================================================
+
+    // Verificar si el usuario está autenticado antes de mostrar el panel
     if (!user) {
         return (
             <div className={userPanelStyles.userPanel}>
@@ -324,11 +415,16 @@ const UserPanel = () => {
         );
     }
 
+    // ============================================================================
+    // RENDERIZADO PRINCIPAL DEL PANEL
+    // ============================================================================
+
     return (
         <div className={`${userPanelStyles.userPanel} ${userPanelStyles.themeAware}`}>
             <div className={userPanelStyles.container}>
-                {/* Sidebar del panel */}
+                {/* Sidebar del panel con navegación y información del usuario */}
                 <aside className={userPanelStyles.sidebar}>
+                    {/* Encabezado del sidebar con botón de retorno */}
                     <div className={userPanelStyles.sidebarHeader}>
                         <button
                             className={userPanelStyles.backButton}
@@ -340,6 +436,7 @@ const UserPanel = () => {
                         </button>
                     </div>
 
+                    {/* Información del usuario autenticado */}
                     <div className={userPanelStyles.userInfo}>
                         <div className={userPanelStyles.userAvatar}>
                             <span className="material-icons">account_circle</span>
@@ -351,7 +448,9 @@ const UserPanel = () => {
                         </div>
                     </div>
 
+                    {/* Navegación principal del sidebar */}
                     <nav className={userPanelStyles.sidebarNav}>
+                        {/* Opciones del menú principal */}
                         <div className={userPanelStyles.menuOptions}>
                             {MENU_OPTIONS.map(option => (
                                 <MenuOption
@@ -363,6 +462,7 @@ const UserPanel = () => {
                             ))}
                         </div>
 
+                        {/* Sección de cierre de sesión */}
                         <div className={userPanelStyles.logoutSection}>
                             <button
                                 className={userPanelStyles.logoutButton}
@@ -376,7 +476,7 @@ const UserPanel = () => {
                     </nav>
                 </aside>
 
-                {/* Área de contenido principal */}
+                {/* Área de contenido principal del panel */}
                 <main className={userPanelStyles.mainContent}>
                     <ContentSection activeSection={activeSection} user={user} />
                 </main>
@@ -384,5 +484,7 @@ const UserPanel = () => {
         </div>
     );
 };
+
+UserPanel.displayName = 'UserPanel';
 
 export default UserPanel; 

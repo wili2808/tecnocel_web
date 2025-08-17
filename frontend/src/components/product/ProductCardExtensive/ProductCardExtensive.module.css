@@ -44,7 +44,6 @@
 /* === TARJETA PRINCIPAL === */
 .productCard {
   background: var(--background-elevated);
-  border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-card);
   overflow: hidden;

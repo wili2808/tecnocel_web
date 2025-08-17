@@ -3,6 +3,7 @@ import ProductFilters from '../../components/product/ProductFilters';
 import ProductGrid from '../../components/product/ProductGrid';
 import { useProductActions } from '../../hooks/useProductActions';
 import { useOfertasGlobal } from '../../hooks/useOfertasGlobal';
+import { useSearch } from '../../contexts/SearchContext';
 import { filterProducts } from '../../utils/productFiltering';
 import type { ProductUIFilters } from '../../types/product';
 import styles from './ProductCatalog.module.css';
@@ -24,13 +25,38 @@ const ProductCatalog: React.FC = () => {
         loadProducts,
         loadCategories,
         loadBrands,
-        searchQuery // ✅ Agregar búsqueda del contexto
+        searchQuery: productSearchQuery // ✅ Búsqueda del contexto de productos
     } = useProductActions();
+
+    // ============================================================================
+    // CONTEXTO GLOBAL DE BÚSQUEDA - SINCRONIZACIÓN PRINCIPAL
+    // ============================================================================
+    const {
+        debouncedSearchQuery, // ✅ Búsqueda global con debounce
+        isSearching
+    } = useSearch();
 
     // ============================================================================
     // CONTEXTO DE OFERTAS - CARGA PARA PRODUCTCARDS
     // ============================================================================
     const { loadOfertas, ofertas } = useOfertasGlobal();
+
+    // ============================================================================
+    // SINCRONIZACIÓN DE BÚSQUEDA - PRODUCTCONTEXT CON SEARCHCONTEXT
+    // ============================================================================
+    useEffect(() => {
+        // Sincronizar la búsqueda global con el contexto de productos
+        if (debouncedSearchQuery !== productSearchQuery) {
+            // Solo actualizar si son diferentes para evitar loops infinitos
+            if (debouncedSearchQuery) {
+                // Si hay búsqueda global, actualizar el contexto de productos
+                updateFilters({ busqueda: debouncedSearchQuery });
+            } else if (productSearchQuery) {
+                // Si se limpió la búsqueda global, limpiar también en productos
+                updateFilters({ busqueda: '' });
+            }
+        }
+    }, [debouncedSearchQuery, productSearchQuery, updateFilters]);
 
     // ============================================================================
     // CARGA CONTROLADA - SOLO UNA VEZ AL MONTAR - OPTIMIZADO
@@ -43,7 +69,7 @@ const ProductCatalog: React.FC = () => {
                 console.log('🚀 ProductCatalog: Iniciando carga inicial de datos');
                 setInitializationLogsShown(true);
             }
-            
+
             loadProducts();
             loadCategories();
             loadBrands();
@@ -70,35 +96,35 @@ const ProductCatalog: React.FC = () => {
     // MAPEO DE FILTROS PARA COMPATIBILIDAD - MEMOIZADO
     // ============================================================================
     const uiFilters: ProductUIFilters = useMemo(() => ({
-        search: searchQuery || '', // ✅ Sincronizar con la búsqueda del contexto
+        search: debouncedSearchQuery || productSearchQuery || '', // ✅ Priorizar búsqueda global
         selectedDropdownCategory: filters.categoria?.toString() || '',
         selectedDropdownBrand: filters.marca?.toString() || '',
         order: filters.order || '', // Ahora se sincroniza con el backend
         onlyStock: filters.solo_con_stock || false
-    }), [searchQuery, filters.categoria, filters.marca, filters.order, filters.solo_con_stock]);
+    }), [debouncedSearchQuery, productSearchQuery, filters.categoria, filters.marca, filters.order, filters.solo_con_stock]);
 
     // ============================================================================
     // MANEJADOR DE FILTROS - MEMOIZADO
     // ============================================================================
     const handleFiltersChange = useCallback((newFilters: Partial<ProductUIFilters>) => {
         const backendFilters: any = {};
-        
+
         if (newFilters.selectedDropdownCategory !== undefined) {
             backendFilters.categoria = newFilters.selectedDropdownCategory ? parseInt(newFilters.selectedDropdownCategory) : undefined;
         }
-        
+
         if (newFilters.selectedDropdownBrand !== undefined) {
             backendFilters.marca = newFilters.selectedDropdownBrand ? parseInt(newFilters.selectedDropdownBrand) : undefined;
         }
-        
+
         if (newFilters.order !== undefined) {
             backendFilters.order = newFilters.order;
         }
-        
+
         if (newFilters.onlyStock !== undefined) {
             backendFilters.solo_con_stock = newFilters.onlyStock;
         }
-        
+
         updateFilters(backendFilters);
     }, [updateFilters]);
 

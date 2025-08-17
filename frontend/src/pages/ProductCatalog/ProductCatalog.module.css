@@ -16,7 +16,7 @@
 .catalogContainer {
   display: grid;
   grid-template-columns: var(--sidebar-width, 320px) 1fr;
-  gap: var(--container-padding);
+  column-gap: var(--spacing-lg);
   height: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
@@ -82,7 +82,7 @@
 @media (max-width: 1200px) {
   .catalogContainer {
     grid-template-columns: var(--sidebar-width-tablet, 280px) 1fr;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-md);
   }
 }
 

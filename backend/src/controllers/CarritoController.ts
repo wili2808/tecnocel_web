@@ -198,26 +198,61 @@ export default class CarritoController {
           fyh_creacion: new Date(),
           fyh_actualizacion: new Date()
         });
+      }
 
-        // Recargar con includes
-        carrito = await CarritoWeb.findByPk(carrito.id_carrito, {
-          include: CarritoController.getCarritoIncludes()
+      // Si el carrito existe pero no tiene items, retornar carrito vacío
+      if (!carrito.items || carrito.items.length === 0) {
+        return res.json({
+          carrito: {
+            id_carrito: carrito.id_carrito,
+            id_cliente: carrito.id_cliente,
+            estado: carrito.estado,
+            items: [],
+            total_carrito: 0.00,
+            cantidad_items: 0,
+            cargando: false,
+            error: null
+          }
         });
       }
 
-      // Procesar items para incluir información de ofertas e imágenes
-      const itemsConOfertas = await CarritoController.transformarItemsCarrito(carrito!.items);
+      // Transformar items del carrito con ofertas e imágenes
+      const itemsTransformados = await CarritoController.transformarItemsCarrito(carrito.items);
 
-      // El log de éxito se maneja en el middleware de logging
-      return res.json({
-        carrito: {
-          id_carrito: carrito!.id_carrito,
-          estado: carrito!.estado,
-          total_carrito: carrito!.total_carrito,
-          items: itemsConOfertas,
-          cantidad_items: itemsConOfertas.length
-        }
+      // Recalcular total del carrito para asegurar consistencia
+      const totalRecalculado = itemsTransformados.reduce((sum, item) => sum + parseFloat(item.subtotal.toString()), 0);
+
+      // Actualizar el total en la base de datos si es diferente
+      if (Math.abs(totalRecalculado - parseFloat(carrito.total_carrito.toString())) > 0.01) {
+        await carrito.update({
+          total_carrito: totalRecalculado,
+          fyh_actualizacion: new Date()
+        });
+      }
+
+      // Construir respuesta del carrito
+      const carritoResponse = {
+        id_carrito: carrito.id_carrito,
+        id_cliente: carrito.id_cliente,
+        estado: carrito.estado,
+        items: itemsTransformados,
+        total_carrito: totalRecalculado,
+        cantidad_items: itemsTransformados.length,
+        cargando: false,
+        error: null
+      };
+
+      res.locals.skipHttpLog = true;
+      
+      logger.info('Carrito obtenido exitosamente', {
+        operacion: 'obtener_carrito',
+        cliente_id: id_cliente,
+        cantidad_items: itemsTransformados.length,
+        total_carrito: totalRecalculado,
+        success: true
       });
+
+      return res.json({ carrito: carritoResponse });
 
     } catch (error) {
       logger.error('Error al obtener carrito:', {
@@ -241,15 +276,32 @@ export default class CarritoController {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
       }
 
-      // Validaciones
       if (!id_producto || !cantidad || cantidad < 1) {
-        return res.status(400).json({ mensaje: 'Datos inválidos. Se requiere id_producto y cantidad mayor a 0' });
+        return res.status(400).json({ mensaje: 'Datos inválidos' });
       }
 
       logger.debug(`Agregando item al carrito - Cliente: ${id_cliente}, Producto: ${id_producto}, Cantidad: ${cantidad}`);
 
       // Verificar que el producto existe y tiene stock
-      const producto = await Almacen.findByPk(id_producto);
+      const producto = await Almacen.findByPk(id_producto, {
+        include: [
+          {
+            model: Oferta,
+            as: 'ofertas',
+            where: {
+              activo: true,
+              fecha_inicio: { [Op.lte]: new Date() },
+              fecha_fin: { [Op.gte]: new Date() }
+            },
+            required: false,
+            through: {
+              attributes: ['precio_oferta']
+            },
+            attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
+          }
+        ]
+      });
+
       if (!producto) {
         return res.status(404).json({ mensaje: 'Producto no encontrado' });
       }
@@ -276,7 +328,13 @@ export default class CarritoController {
         });
       }
 
-      const precio_unitario = parseFloat(producto.precio_venta);
+      // Calcular precio con oferta aplicada
+      const ofertas = (producto as any).ofertas || [];
+      const { precio_original, precio_oferta, en_oferta } = 
+        CarritoController.calcularPrecioConOferta(producto, ofertas);
+      
+      // Usar precio con oferta si está disponible, sino precio original
+      const precio_unitario = precio_oferta || precio_original;
       const subtotal = precio_unitario * cantidad;
 
       // Verificar si el producto ya está en el carrito
@@ -305,6 +363,7 @@ export default class CarritoController {
         item = await itemExistente.update({
           cantidad: nuevaCantidad,
           subtotal: nuevoSubtotal,
+          precio_unitario, // Actualizar también el precio unitario por si cambió la oferta
           fyh_actualizacion: new Date()
         });
       } else {
@@ -327,15 +386,45 @@ export default class CarritoController {
         fyh_actualizacion: new Date()
       });
 
-      // Recargar item con datos del producto
+      // Recargar item con datos del producto y ofertas
       const itemCompleto = await CarritoWebItems.findByPk(item.id_item, {
-        include: CarritoController.getProductoBasicoIncludes()
+        include: [
+          {
+            model: Almacen,
+            as: 'producto',
+            attributes: ['id_producto', 'nombre', 'descripcion', 'precio_venta', 'stock'],
+            include: [
+              {
+                model: ProductoImagen,
+                as: 'imagenes',
+                attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+              },
+              {
+                model: Oferta,
+                as: 'ofertas',
+                where: {
+                  activo: true,
+                  fecha_inicio: { [Op.lte]: new Date() },
+                  fecha_fin: { [Op.gte]: new Date() }
+                },
+                required: false,
+                through: {
+                  attributes: ['precio_oferta']
+                },
+                attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
+              }
+            ]
+          }
+        ]
       });
 
-      // Transformar las imágenes del producto
-      const imageService = getImageService();
-      if (imageService && itemCompleto?.producto) {
-        const productoTransformado = await imageService.transformProductWithImageUrls(itemCompleto.producto);
+      // Transformar el producto con ofertas e imágenes
+      if (itemCompleto?.producto) {
+        const ofertasProducto = (itemCompleto.producto as any).ofertas || [];
+        const productoTransformado = await CarritoController.transformarProductoConImagenes(
+          itemCompleto.producto, 
+          ofertasProducto
+        );
         (itemCompleto as any).producto = productoTransformado;
       }
 
@@ -353,7 +442,7 @@ export default class CarritoController {
         cliente_id: req.usuario?.id_cliente,
         body: req.body
       });
-      return res.status(500).json({ mensaje: 'Error al agregar producto al carrito', error });
+      return res.status(500).json({ mensaje: 'Error al agregar item al carrito', error });
     }
   }
 
@@ -371,7 +460,7 @@ export default class CarritoController {
       }
 
       if (!cantidad || cantidad < 1) {
-        return res.status(400).json({ mensaje: 'La cantidad debe ser mayor a 0' });
+        return res.status(400).json({ mensaje: 'Cantidad debe ser mayor a 0' });
       }
 
       logger.debug(`Actualizando cantidad - Cliente: ${id_cliente}, Item: ${id_item}, Nueva cantidad: ${cantidad}`);
@@ -387,7 +476,23 @@ export default class CarritoController {
           },
           {
             model: Almacen,
-            as: 'producto'
+            as: 'producto',
+            include: [
+              {
+                model: Oferta,
+                as: 'ofertas',
+                where: {
+                  activo: true,
+                  fecha_inicio: { [Op.lte]: new Date() },
+                  fecha_fin: { [Op.gte]: new Date() }
+                },
+                required: false,
+                through: {
+                  attributes: ['precio_oferta']
+                },
+                attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
+              }
+            ]
           }
         ]
       });
@@ -404,11 +509,20 @@ export default class CarritoController {
         });
       }
 
-      // Actualizar cantidad y subtotal
-      const nuevoSubtotal = item.precio_unitario * cantidad;
+      // Calcular precio con oferta aplicada para recalcular el subtotal
+      const ofertas = (item.producto as any).ofertas || [];
+      const { precio_original, precio_oferta } = 
+        CarritoController.calcularPrecioConOferta(item.producto!, ofertas);
+      
+      // Usar precio con oferta si está disponible, sino precio original
+      const precio_unitario = precio_oferta || precio_original;
+      
+      // Actualizar cantidad y subtotal con el precio correcto
+      const nuevoSubtotal = precio_unitario * cantidad;
       await item.update({
         cantidad,
         subtotal: nuevoSubtotal,
+        precio_unitario, // Actualizar también el precio unitario por si cambió la oferta
         fyh_actualizacion: new Date()
       });
 

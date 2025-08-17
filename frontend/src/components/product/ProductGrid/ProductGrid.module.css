@@ -1,8 +1,10 @@
 /* Grid de Productos */
 .productsGrid {
+  padding-right: var(--spacing-sm);
+  border-radius: var(--border-radius-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   animation: fadeInUp var(--animation-duration-normal) ease-out var(--animation-delay-short) forwards;
   opacity: 0;
   width: 100%;
@@ -13,8 +15,6 @@
   /* Personalización de scrollbar */
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: var(--spacing-xs);
-  padding: var(--spacing-sm);
   
   /* Scrollbar para Firefox */
   scrollbar-width: thin;

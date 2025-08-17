@@ -28,7 +28,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
     // ============================================================================
     // MANEJO DE ESTADO Y OPERACIONES
     // ============================================================================
-    
+
     /**
      * Manejar cambio de cantidad del item en el carrito
      * Previene cantidades menores a 1 y muestra estado de carga
@@ -36,7 +36,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
      */
     const handleQuantityChange = async (newQuantity: number) => {
         if (newQuantity < 1) return;
-        
+
         // USAR VALIDACIONES EXISTENTES: No duplicar lógica
         // El hook useCarrito ya valida stock antes de enviar al backend
         setIsUpdating(true);
@@ -67,7 +67,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
     // ============================================================================
     // PROCESAMIENTO DE DATOS DEL PRODUCTO
     // ============================================================================
-    
+
     /**
      * Crear objeto de información del producto con fallbacks para campos faltantes
      * Preserva los campos calculados del backend (precio_oferta, descuentos, etc.)
@@ -103,7 +103,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <div className={`${styles.card} ${isUpdating ? styles.updating : ''}`}>
             {/* Enlace a la imagen del producto con navegación a detalles */}
@@ -124,17 +124,16 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
             <div className={styles.productInfo}>
                 {/* Título y descripción del producto */}
                 <h3 className={styles.productTitle}>{productInfo.nombre}</h3>
-                <p className={styles.productDescription}>{productInfo.descripcion}</p>
-                
+
                 {/* Información de precios con soporte para ofertas */}
                 <div className={styles.priceInfo}>
                     {productInfo.en_oferta && productInfo.precio_oferta ? (
                         <>
-                            <span className={styles.currentPrice}>
-                                $ {productInfo.precio_oferta.toLocaleString('es-ES')}
-                            </span>
                             <span className={styles.originalPrice}>
                                 $ {productInfo.precio_original?.toLocaleString('es-ES')}
+                            </span>
+                            <span className={styles.currentPrice}>
+                                $ {productInfo.precio_oferta.toLocaleString('es-ES')}
                             </span>
                         </>
                     ) : (
@@ -144,38 +143,40 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                     )}
                 </div>
 
-                {/* Controles de cantidad con botones de incremento/decremento */}
-                <div className={styles.quantityControls}>
-                    <button
-                        onClick={() => handleQuantityChange(item.cantidad - 1)}
-                        disabled={item.cantidad <= 1 || isUpdating}
-                        className={styles.quantityButton}
-                        aria-label="Reducir cantidad"
-                    >
-                        <span className="material-icons">remove</span>
-                    </button>
-                    <span className={styles.quantity}>{item.cantidad}</span>
-                    <button
-                        onClick={() => handleQuantityChange(item.cantidad + 1)}
-                        disabled={isUpdating || !canAddMore}
-                        className={styles.quantityButton}
-                        aria-label="Aumentar cantidad"
-                        title={!canAddMore ? `Stock máximo alcanzado (${productInfo.stock})` : 'Aumentar cantidad'}
-                    >
-                        <span className="material-icons">add</span>
-                    </button>
-                </div>
-
-                {/* Indicador de stock máximo alcanzado */}
-                {!canAddMore && (
-                    <div className={styles.stockWarning}>
-                        <span className="material-icons">info</span>
-                        <span>Stock máximo alcanzado ({productInfo.stock})</span>
+                <div className={styles.quantityControlsContainer}>
+                    {/* Controles de cantidad con IconButton para consistencia */}
+                    <div className={styles.quantityControls}>
+                        <IconButton
+                            icon="remove"
+                            onClick={() => handleQuantityChange(item.cantidad - 1)}
+                            disabled={item.cantidad <= 1 || isUpdating}
+                            ariaLabel="Reducir cantidad"
+                            variant="outline"
+                            size="sm"
+                            className={styles.quantityButton}
+                        />
+                        {/* Input de cantidad con validaciones */}
+                        <input
+                            type="number"
+                            value={item.cantidad}
+                            onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                            className={styles.quantityInput}
+                            min="1"
+                            max={productInfo.stock}
+                            aria-label="Cantidad del producto"
+                        />
+                        <IconButton
+                            icon="add"
+                            onClick={() => handleQuantityChange(item.cantidad + 1)}
+                            disabled={isUpdating || !canAddMore}
+                            ariaLabel="Aumentar cantidad"
+                            variant="outline"
+                            size="sm"
+                            className={styles.quantityButton}
+                        />
                     </div>
-                )}
-
-                {/* Botón para eliminar el item del carrito */}
-                <IconButton
+                    {/* Botón para eliminar el item del carrito */}
+                    <IconButton
                         icon="delete"
                         onClick={handleRemoveItem}
                         disabled={isUpdating}
@@ -184,6 +185,14 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                         size="sm"
                     />
 
+                </div>
+                {/* Indicador de stock máximo alcanzado */}
+                {!canAddMore && (
+                    <div className={styles.stockWarning}>
+                        <span className="material-icons">info</span>
+                        <span>Stock máximo alcanzado ({productInfo.stock})</span>
+                    </div>
+                )}
             </div>
         </div>
     );

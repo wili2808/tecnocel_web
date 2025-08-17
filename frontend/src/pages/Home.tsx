@@ -10,11 +10,11 @@ const Home = () => {
   // ============================================================================
   // CONTEXTO DE PRODUCTOS - CARGA PRINCIPAL
   // ============================================================================
-  const { 
-    featuredProducts, 
-    productsLoading: loading, 
+  const {
+    featuredProducts,
+    productsLoading: loading,
     productsError: error,
-    loadFeaturedProducts 
+    loadFeaturedProducts
   } = useProductActions();
 
   // ============================================================================
@@ -25,7 +25,7 @@ const Home = () => {
   // ============================================================================
   // FUNCIONES ESTABLES PARA EVITAR BUCLE INFINITO
   // ============================================================================
-  
+
   // Función estable para cargar productos destacados
   const handleLoadFeaturedProducts = useCallback(() => {
     if (featuredProducts.length === 0 && !loading) {
@@ -43,7 +43,7 @@ const Home = () => {
   // ============================================================================
   // CARGA INTELLIGENTE DE DATOS - ORQUESTACIÓN CENTRALIZADA
   // ============================================================================
-  
+
   // Cargar productos destacados solo si no están cargados
   useEffect(() => {
     handleLoadFeaturedProducts();
@@ -63,13 +63,13 @@ const Home = () => {
         loading={loading}
         error={error}
       />
-      <CTASection
+      {/* <CTASection
         title="¿Listo para personalizar tu pedido?"
         description="Contáctanos para obtener una cotización personalizada para tu proyecto."
         buttonText="Solicitar Cotización"
         buttonLink="/contacto"
       />
-      <LocationSection />
+      <LocationSection /> */}
     </>
   );
 };

@@ -58,6 +58,9 @@
 .cartItemsList {
     padding: var(--spacing-md);
     background: var(--background-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
 }
 
 /* Información de envío */

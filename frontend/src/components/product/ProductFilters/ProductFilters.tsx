@@ -22,7 +22,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 }) => {
     // Usar el contexto directamente para obtener categorías y marcas
     const { categories, brands } = useProductActions();
-    
+
     // Datos seguros con fallbacks
     const safeCategories = categories || [];
     const safeBrands = brands || [];
@@ -71,7 +71,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
             {/* Ordenamiento */}
             <div className={styles.filterSection}>
-                <h3 className={styles.filterSectionTitle}>Ordenamiento</h3>
+                <h3 className={styles.filterSectionTitle}>Ordenar</h3>
                 <div className={styles.filterGroup}>
                     <select
                         id="sort-select"
@@ -91,7 +91,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
             {/* Filtro de Stock */}
             <div className={styles.filterSection}>
-                <h3 className={styles.filterSectionTitle}>Stock</h3>
+                <h3 className={styles.filterSectionTitle}>Disponibles</h3>
                 <div className={styles.filterGroup}>
                     <label className={styles.toggleLabel}>
                         <input

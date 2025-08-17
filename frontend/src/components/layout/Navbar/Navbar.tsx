@@ -27,7 +27,6 @@ const SECONDARY_NAV_ROUTES = [
     { path: '/ofertas', label: 'Ofertas' },
     { path: '/marcas', label: 'Marcas' },
     { path: '/contacto', label: 'Contacto' },
-    { path: '/button-demo', label: '🎨 Botones' },
 ];
 
 // ============================================================================
@@ -52,7 +51,7 @@ const Navbar: React.FC = () => {
     // ============================================================================
     // CÁLCULOS MEMOIZADOS
     // ============================================================================
-    
+
     /**
      * Contador total de items en el carrito - MEMOIZADO
      * Calcula la suma de todas las cantidades para evitar re-renders innecesarios
@@ -64,19 +63,19 @@ const Navbar: React.FC = () => {
     // ============================================================================
     // MANEJADORES DE EVENTOS
     // ============================================================================
-    
+
     /**
      * Cerrar menú móvil al hacer clic en un enlace
      * Mejora la UX en dispositivos móviles
      */
     const handleLinkClick = useCallback(() => setIsMenuOpen(false), []);
-    
+
     /**
      * Alternar estado del menú móvil
      * Controla la visibilidad del dropdown en dispositivos móviles
      */
     const toggleMobileMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
-    
+
     /**
      * Manejar clic en botón de autenticación
      * Navega al panel de usuario si está autenticado, o al login si no
@@ -93,7 +92,7 @@ const Navbar: React.FC = () => {
     // ============================================================================
     // COMPONENTES INTERNOS
     // ============================================================================
-    
+
     /**
      * Enlaces de navegación secundaria
      * Renderiza los enlaces principales de la aplicación
@@ -136,7 +135,7 @@ const Navbar: React.FC = () => {
                     size="sm"
                     className={navbarStyle.themeToggle}
                 />
-                
+
                 {/* Botón del carrito de compras */}
                 <IconButton
                     icon="shopping_cart"
@@ -295,7 +294,7 @@ const Navbar: React.FC = () => {
     // ============================================================================
     // COMPONENTES MEMOIZADOS
     // ============================================================================
-    
+
     /**
      * Componente de búsqueda global memoizado
      * Evita re-renders innecesarios del componente de búsqueda
@@ -313,7 +312,7 @@ const Navbar: React.FC = () => {
     // ============================================================================
     // RENDERIZADO PRINCIPAL
     // ============================================================================
-    
+
     return (
         <header className={`${navbarStyle.navbar} theme-transition`}>
             <nav className={navbarStyle.mainNavbar}>
@@ -327,7 +326,7 @@ const Navbar: React.FC = () => {
                                 <span className={navbarStyle.logoText}>TECNOCEL</span>
                             </Link>
                         </div>
-                        
+
                         {/* Navegación secundaria izquierda */}
                         <div className={navbarStyle.leftNavigation}>
                             <SecondaryNavLinks />
@@ -344,7 +343,7 @@ const Navbar: React.FC = () => {
                         <div className={navbarStyle.allControls}>
                             <ControlButtons />
                             <AuthSection />
-                            
+
                             {/* Botón de menú móvil (oculto en desktop) */}
                             <IconButton
                                 icon={isMenuOpen ? 'close' : 'menu'}
@@ -376,7 +375,7 @@ const Navbar: React.FC = () => {
                         {/* Controles móviles */}
                         <div className={navbarStyle.mobileControlsSection}>
                             <ControlButtons />
-                            
+
                             {/* Botón de menú móvil */}
                             <IconButton
                                 icon={isMenuOpen ? 'close' : 'menu'}

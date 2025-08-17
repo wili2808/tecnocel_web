@@ -26,51 +26,54 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
     // ============================================================================
     // CÁLCULOS DE PRECIOS Y DESCUENTOS
     // ============================================================================
-    
+
     /**
      * Calcular subtotal de productos usando precios ya calculados por el backend
-     * Si hay oferta, usa precio_oferta; si no, usa subtotal del item
+     * El backend ahora calcula correctamente los subtotales con ofertas aplicadas
      */
     const subtotalProducts = items.reduce((sum, item) => {
-        const productInfo = item.producto;
-        // Si el backend ya calculó el precio con oferta, usarlo directamente
-        if (productInfo?.en_oferta && productInfo.precio_oferta) {
-            return sum + (productInfo.precio_oferta * item.cantidad);
-        }
-        // Si no hay oferta, usar el subtotal del item (que ya incluye el precio correcto)
-        return sum + item.subtotal;
+        // Usar directamente el subtotal calculado por el backend
+        // que ya incluye las ofertas aplicadas
+        const itemSubtotal = parseFloat(item.subtotal.toString());
+        return sum + itemSubtotal;
     }, 0);
 
     /**
      * Calcular subtotal original sin descuentos para mostrar el ahorro
-     * Si hay oferta, usa precio_original; si no, usa subtotal del item
+     * Si hay oferta, usa precio_original; si no, usa precio_venta
      */
     const subtotalOriginal = items.reduce((sum, item) => {
         const productInfo = item.producto;
-        // Si el backend ya calculó el precio original, usarlo directamente
+        let itemOriginalPrice = 0;
+
         if (productInfo?.en_oferta && productInfo.precio_original) {
-            return sum + (productInfo.precio_original * item.cantidad);
+            // Si hay oferta, usar precio original * cantidad
+            itemOriginalPrice = productInfo.precio_original * item.cantidad;
+        } else {
+            // Si no hay oferta, usar precio_venta * cantidad
+            const precioVenta = parseFloat(productInfo?.precio_venta || '0');
+            itemOriginalPrice = precioVenta * item.cantidad;
         }
-        // Si no hay oferta, usar el subtotal del item
-        return sum + item.subtotal;
+
+        return sum + itemOriginalPrice;
     }, 0);
 
     /**
      * Calcular descuento total por ofertas aplicadas
      * Diferencia entre precio original y precio con descuento
      */
-    const discount = subtotalOriginal - subtotalProducts; // Descuentos por ofertas
-    
+    const discount = subtotalOriginal - subtotalProducts;
+
     /**
      * Calcular el total final con descuentos aplicados
      * Usa directamente el subtotal de productos (ya incluye descuentos)
      */
-    const totalFinal = subtotalProducts; // Solo productos con descuentos aplicados
+    const totalFinal = subtotalProducts;
 
     // ============================================================================
     // MANEJO DE OPERACIONES DE COMPRA
     // ============================================================================
-    
+
     /**
      * Procesar la compra del carrito completo
      * Confirma la venta y redirige al usuario al inicio
@@ -102,7 +105,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <div className={styles.cartSummary}>
             {/* Encabezado del resumen de compra */}

@@ -40,24 +40,24 @@ interface ProductContextState {
   currentProduct: Product | null;
   productsLoading: boolean;
   productsError: string | null;
-  
+
   // CATEGORÍAS
   categories: Category[];
   selectedCategory: Category | null;
   categoriesLoading: boolean;
   categoriesError: string | null;
-  
+
   // MARCAS
   brands: Marca[];
   selectedBrand: Marca | null;
   brandsLoading: boolean;
   brandsError: string | null;
-  
+
   // FILTROS Y BÚSQUEDA
   filters: ProductFilters;
   searchQuery: string;
   filteredProducts: Product[];
-  
+
   // PAGINACIÓN
   pagination: {
     page: number;
@@ -65,7 +65,7 @@ interface ProductContextState {
     total: number;
     hasMore: boolean;
   };
-  
+
   // CACHÉ
   cache: Map<string, { data: any; timestamp: number }>;
   imageCache: Map<string, { url: string; timestamp: number }>;
@@ -82,30 +82,30 @@ type ProductAction =
   | { type: 'SET_PRODUCTS_LOADING'; payload: boolean }
   | { type: 'SET_PRODUCTS_ERROR'; payload: string | null }
   | { type: 'ADD_PRODUCTS'; payload: Product[] }
-  
+
   // CATEGORÍAS
   | { type: 'SET_CATEGORIES'; payload: Category[] }
   | { type: 'SET_SELECTED_CATEGORY'; payload: Category | null }
   | { type: 'SET_CATEGORIES_LOADING'; payload: boolean }
   | { type: 'SET_CATEGORIES_ERROR'; payload: string | null }
-  
+
   // MARCAS
   | { type: 'SET_BRANDS'; payload: Marca[] }
   | { type: 'SET_SELECTED_BRAND'; payload: Marca | null }
   | { type: 'SET_BRANDS_LOADING'; payload: boolean }
   | { type: 'SET_BRANDS_ERROR'; payload: string | null }
-  
+
   // FILTROS Y BÚSQUEDA
   | { type: 'UPDATE_FILTERS'; payload: Partial<ProductFilters> }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'RESET_FILTERS' }
   | { type: 'SET_FILTERED_PRODUCTS'; payload: Product[] }
-  
+
   // PAGINACIÓN
   | { type: 'UPDATE_PAGINATION'; payload: { page: number; limit: number } }
   | { type: 'SET_TOTAL_COUNT'; payload: number }
   | { type: 'SET_HAS_MORE'; payload: boolean }
-  
+
   // CACHÉ
   | { type: 'SET_CACHE'; payload: { key: string; data: any; timestamp: number } }
   | { type: 'CLEAR_CACHE'; payload?: string }
@@ -117,35 +117,35 @@ type ProductAction =
 interface ProductContextType {
   // ESTADO
   state: ProductContextState;
-  
+
   // ACCIONES DE PRODUCTOS
   fetchProducts: (filters?: ProductFilters, page?: number) => Promise<void>;
   fetchProduct: (id: number) => Promise<void>;
   fetchFeaturedProducts: (limit?: number) => Promise<void>;
-  
+
   // ACCIONES DE CATEGORÍAS
   fetchCategories: () => Promise<void>;
   selectCategory: (category: Category | null) => void;
-  
+
   // ACCIONES DE MARCAS
   fetchBrands: () => Promise<void>;
   selectBrand: (brand: Marca | null) => void;
-  
+
   // ACCIONES DE FILTROS Y BÚSQUEDA
   updateFilters: (filters: Partial<ProductFilters>) => void;
   updateSearchQuery: (query: string) => void;
   resetFilters: () => void;
   applyFilters: () => void;
-  
+
   // ACCIONES DE PAGINACIÓN
   updatePagination: (page: number, limit: number) => void;
   loadMore: () => Promise<void>;
-  
+
   // ACCIONES DE CACHÉ
   getCachedData: (key: string) => any | null;
   setCachedData: (key: string, data: any) => void;
   clearCache: (key?: string) => void;
-  
+
   // FUNCIONES DE CACHÉ INTELIGENTE
   loadImageWithCache: (imageUrl: string) => Promise<string>;
   clearImageCache: () => void;
@@ -166,24 +166,24 @@ const initialState: ProductContextState = {
   currentProduct: null,
   productsLoading: false,
   productsError: null,
-  
+
   // CATEGORÍAS
   categories: [],
   selectedCategory: null,
   categoriesLoading: false,
   categoriesError: null,
-  
+
   // MARCAS
   brands: [],
   selectedBrand: null,
   brandsLoading: false,
   brandsError: null,
-  
+
   // FILTROS Y BÚSQUEDA
   filters: {},
   searchQuery: '',
   filteredProducts: [],
-  
+
   // PAGINACIÓN
   pagination: {
     page: 1,
@@ -191,7 +191,7 @@ const initialState: ProductContextState = {
     total: 0,
     hasMore: true,
   },
-  
+
   // CACHÉ
   cache: new Map(),
   imageCache: new Map(),
@@ -206,93 +206,95 @@ function productReducer(state: ProductContextState, action: ProductAction): Prod
     // PRODUCTOS
     case 'SET_PRODUCTS':
       return { ...state, products: action.payload };
-    
+
     case 'SET_FEATURED_PRODUCTS':
       return { ...state, featuredProducts: action.payload };
-    
+
     case 'SET_CURRENT_PRODUCT':
       return { ...state, currentProduct: action.payload };
-    
+
     case 'SET_PRODUCTS_LOADING':
       return { ...state, productsLoading: action.payload };
-    
+
     case 'SET_PRODUCTS_ERROR':
       return { ...state, productsError: action.payload };
-    
+
     case 'ADD_PRODUCTS':
       return { ...state, products: [...state.products, ...action.payload] };
-    
+
     // CATEGORÍAS
     case 'SET_CATEGORIES':
       return { ...state, categories: action.payload };
-    
+
     case 'SET_SELECTED_CATEGORY':
       return { ...state, selectedCategory: action.payload };
-    
+
     case 'SET_CATEGORIES_LOADING':
       return { ...state, categoriesLoading: action.payload };
-    
+
     case 'SET_CATEGORIES_ERROR':
       return { ...state, categoriesError: action.payload };
-    
+
     // MARCAS
     case 'SET_BRANDS':
       return { ...state, brands: action.payload };
-    
+
     case 'SET_SELECTED_BRAND':
       return { ...state, selectedBrand: action.payload };
-    
+
     case 'SET_BRANDS_LOADING':
       return { ...state, brandsLoading: action.payload };
-    
+
     case 'SET_BRANDS_ERROR':
       return { ...state, brandsError: action.payload };
-    
+
     // FILTROS Y BÚSQUEDA
     case 'UPDATE_FILTERS':
-      return { 
-        ...state, 
+      return {
+        ...state,
         filters: { ...state.filters, ...action.payload },
+        // ✅ Sincronizar searchQuery cuando se actualiza filters.busqueda
+        searchQuery: action.payload.busqueda !== undefined ? action.payload.busqueda : state.searchQuery,
         pagination: { ...state.pagination, page: 1 }
       };
-    
+
     case 'SET_SEARCH_QUERY':
-      return { 
-        ...state, 
+      return {
+        ...state,
         searchQuery: action.payload,
         pagination: { ...state.pagination, page: 1 }
       };
-    
+
     case 'RESET_FILTERS':
-      return { 
-        ...state, 
+      return {
+        ...state,
         filters: {},
         searchQuery: '',
         pagination: { ...state.pagination, page: 1 }
       };
-    
+
     case 'SET_FILTERED_PRODUCTS':
       return { ...state, filteredProducts: action.payload };
-    
+
     // PAGINACIÓN
     case 'UPDATE_PAGINATION':
-      return { 
-        ...state, 
+      return {
+        ...state,
         pagination: { ...state.pagination, ...action.payload }
       };
-    
+
     case 'SET_TOTAL_COUNT':
-      return { 
-        ...state, 
+      return {
+        ...state,
         pagination: { ...state.pagination, total: action.payload }
       };
-    
+
     case 'SET_HAS_MORE':
-      return { 
-        ...state, 
+      return {
+        ...state,
         pagination: { ...state.pagination, hasMore: action.payload }
       };
-    
+
     // CACHÉ
     case 'SET_CACHE': {
       const newCache = new Map(state.cache);
@@ -302,7 +304,7 @@ function productReducer(state: ProductContextState, action: ProductAction): Prod
       });
       return { ...state, cache: newCache };
     }
-    
+
     case 'CLEAR_CACHE': {
       const newCache = new Map(state.cache);
       if (action.payload) {
@@ -312,11 +314,11 @@ function productReducer(state: ProductContextState, action: ProductAction): Prod
       }
       return { ...state, cache: newCache };
     }
-    
+
     case 'SET_IMAGE_CACHE': {
       return { ...state, imageCache: action.payload };
     }
-    
+
     default:
       return state;
   }
@@ -338,12 +340,12 @@ interface ProductProviderProps {
 
 export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(productReducer, initialState);
-  
+
   // ============================================================================
   // SINCRONIZACIÓN CON CONTEXTO DE OFERTAS
   // ============================================================================
   const ofertasContext = useOfertasGlobal();
-  
+
   // ============================================================================
   // CONSTANTES CONSOLIDADAS
   // ============================================================================
@@ -351,11 +353,11 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   const IMAGE_CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutos
   const PRODUCT_CACHE_KEY = 'tecnocel_product_cache';
   const IMAGE_CACHE_KEY = 'tecnocel_image_cache';
-  
+
   // ============================================================================
   // FUNCIONES UTILITARIAS CONSOLIDADAS
   // ============================================================================
-  
+
   // Verificar si el caché está fresco
   const isCacheFresh = useCallback((timestamp: number, expiryTime: number): boolean => {
     return Date.now() - timestamp < expiryTime;
@@ -366,21 +368,21 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     if (!ofertasContext?.productosEnOferta?.length) {
       return products;
     }
-    
+
     if (process.env.NODE_ENV === 'development') {
       console.log('🔄 Sincronizando productos con ofertas:', {
         totalProductos: products.length,
         totalOfertas: ofertasContext.productosEnOferta.length
       });
     }
-    
+
     const ofertasMap = new Map(
       ofertasContext.productosEnOferta.map(oferta => [oferta.id_producto, oferta])
     );
-    
+
     return products.map(product => {
       const productoEnOferta = ofertasMap.get(product.id_producto);
-      
+
       if (productoEnOferta) {
         return {
           ...product,
@@ -389,7 +391,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
           precio_original: Number(productoEnOferta.precio_original || product.precio_venta)
         };
       }
-      
+
       return product;
     });
   }, [ofertasContext]);
@@ -397,7 +399,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // ============================================================================
   // SISTEMA DE CACHÉ UNIFICADO
   // ============================================================================
-  
+
   // Cargar datos del caché
   const loadFromCache = useCallback((): CacheData | null => {
     try {
@@ -405,7 +407,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       if (!cached) return null;
 
       const cacheData: CacheData = JSON.parse(cached);
-      
+
       if (!isCacheFresh(cacheData.timestamp, CACHE_EXPIRY_TIME)) {
         localStorage.removeItem(PRODUCT_CACHE_KEY);
         return null;
@@ -478,12 +480,12 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   const getCachedData = useCallback((key: string): any | null => {
     const entry = state.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() - entry.timestamp > CACHE_EXPIRY_TIME) {
       dispatch({ type: 'CLEAR_CACHE', payload: key });
       return null;
     }
-    
+
     return entry.data;
   }, [state.cache, CACHE_EXPIRY_TIME]);
 
@@ -501,7 +503,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // ============================================================================
   // SISTEMA DE CACHÉ DE IMÁGENES OPTIMIZADO
   // ============================================================================
-  
+
   const loadImageWithCache = useCallback(async (imageUrl: string): Promise<string> => {
     try {
       // Verificar caché en memoria primero
@@ -517,7 +519,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       if (existingImageCache) {
         const cacheData: ImageCacheData = JSON.parse(existingImageCache);
         const cachedImage = cacheData[imageUrl];
-        
+
         if (cachedImage && isCacheFresh(cachedImage.timestamp, IMAGE_CACHE_EXPIRY)) {
           // Sincronizar con estado en memoria
           const newImageCache = new Map(state.imageCache);
@@ -526,7 +528,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
             timestamp: cachedImage.timestamp
           });
           dispatch({ type: 'SET_IMAGE_CACHE', payload: newImageCache });
-          
+
           return cachedImage.url;
         }
       }
@@ -536,10 +538,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
-      
+
       // Guardar en ambos caches
       const newImageCache = new Map(state.imageCache);
       newImageCache.set(imageUrl, {
@@ -547,7 +549,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         timestamp: Date.now()
       });
       dispatch({ type: 'SET_IMAGE_CACHE', payload: newImageCache });
-      
+
       // Guardar en localStorage
       const currentImageCache = localStorage.getItem(IMAGE_CACHE_KEY);
       const cacheData: ImageCacheData = currentImageCache ? JSON.parse(currentImageCache) : {};
@@ -556,7 +558,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         timestamp: Date.now()
       };
       localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify(cacheData));
-      
+
       return objectUrl;
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
@@ -572,14 +574,14 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       const imageCache = localStorage.getItem(IMAGE_CACHE_KEY);
       if (imageCache) {
         const cacheData: ImageCacheData = JSON.parse(imageCache);
-        
+
         // Revocar URLs de objetos para liberar memoria
         Object.values(cacheData).forEach(imageData => {
           if (imageData.url.startsWith('blob:')) {
             URL.revokeObjectURL(imageData.url);
           }
         });
-        
+
         localStorage.removeItem(IMAGE_CACHE_KEY);
       }
     } catch (error) {
@@ -592,21 +594,21 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // ============================================================================
   // FUNCIÓN UNIFICADA DE LIMPIEZA
   // ============================================================================
-  
+
   const clearProductState = useCallback((force: boolean = false) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(force ? '🚨 LIMPIEZA FORZADA' : '🧹 Limpieza completa', 'del estado del producto');
     }
-    
+
     // Limpiar estados relacionados con productos
     dispatch({ type: 'SET_CURRENT_PRODUCT', payload: null });
     dispatch({ type: 'SET_PRODUCTS_LOADING', payload: false });
     dispatch({ type: 'SET_PRODUCTS_ERROR', payload: null });
     dispatch({ type: 'SET_FILTERED_PRODUCTS', payload: [] });
-    
+
     // Limpiar cache de productos
     clearCache();
-    
+
     // Si es limpieza forzada, también limpiar cache de imágenes
     if (force) {
       clearImageCache();
@@ -621,7 +623,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // ============================================================================
   // FUNCIONES PRINCIPALES OPTIMIZADAS
   // ============================================================================
-  
+
   // Cargar productos con caché inteligente
   const fetchProducts = useCallback(async (filters?: ProductFilters, page?: number) => {
     // Verificar caché si no hay filtros
@@ -639,15 +641,15 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
       const products = await productService.getProducts({ page, limit: state.pagination.limit, filters });
       const productsWithOffers = syncProductsWithOffers(products);
-      
+
       // Guardar en caché solo si no hay filtros
       if (!filters) {
         saveToCache({ products: productsWithOffers });
       }
-      
+
       dispatch({ type: 'SET_PRODUCTS', payload: productsWithOffers });
       dispatch({ type: 'SET_FILTERED_PRODUCTS', payload: productsWithOffers });
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar productos';
       dispatch({ type: 'SET_PRODUCTS_ERROR', payload: errorMessage });
@@ -661,15 +663,15 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     try {
       // Limpieza completa del estado
       clearProductState();
-      
+
       // Pausa breve para asegurar limpieza
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       const product = await productService.getProductById(id);
       const productWithOffers = syncProductsWithOffers([product])[0];
-      
+
       dispatch({ type: 'SET_CURRENT_PRODUCT', payload: productWithOffers });
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar el producto';
       dispatch({ type: 'SET_PRODUCTS_ERROR', payload: errorMessage });
@@ -694,10 +696,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
       const featuredProducts = await productService.getFeaturedProducts(limit);
       const productsWithOffers = syncProductsWithOffers(featuredProducts);
-      
+
       saveToCache({ featuredProducts: productsWithOffers });
       dispatch({ type: 'SET_FEATURED_PRODUCTS', payload: productsWithOffers });
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar productos destacados';
       dispatch({ type: 'SET_PRODUCTS_ERROR', payload: errorMessage });
@@ -723,7 +725,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       const categories = await productService.getCategorias();
       dispatch({ type: 'SET_CATEGORIES', payload: categories });
       saveToCache({ categories });
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar categorías';
       dispatch({ type: 'SET_CATEGORIES_ERROR', payload: errorMessage });
@@ -735,7 +737,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // Seleccionar categoría
   const selectCategory = useCallback((category: Category | null) => {
     dispatch({ type: 'SET_SELECTED_CATEGORY', payload: category });
-    
+
     if (category) {
       dispatch({ type: 'UPDATE_FILTERS', payload: { categoria: category.id_categoria } });
     } else {
@@ -760,7 +762,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       const brands = await productService.getMarcas();
       dispatch({ type: 'SET_BRANDS', payload: brands });
       saveToCache({ brands });
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar marcas';
       dispatch({ type: 'SET_BRANDS_ERROR', payload: errorMessage });
@@ -772,7 +774,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // Seleccionar marca
   const selectBrand = useCallback((brand: Marca | null) => {
     dispatch({ type: 'SET_SELECTED_BRAND', payload: brand });
-    
+
     if (brand) {
       dispatch({ type: 'UPDATE_FILTERS', payload: { marca: brand.id_marca } });
     } else {
@@ -798,36 +800,36 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
   const applyFilters = useCallback(() => {
     let filtered = state.products;
-    
+
     // Aplicar filtros
     if (state.filters.categoria) {
       filtered = filtered.filter(product => product.id_categoria === state.filters.categoria);
     }
-    
+
     if (state.filters.marca) {
       filtered = filtered.filter(product => product.id_marca === state.filters.marca);
     }
-    
+
     if (state.filters.precio_min !== undefined) {
       filtered = filtered.filter(product => parseFloat(product.precio_venta) >= state.filters.precio_min!);
     }
-    
+
     if (state.filters.precio_max !== undefined) {
       filtered = filtered.filter(product => parseFloat(product.precio_venta) <= state.filters.precio_max!);
     }
-    
+
     if (state.filters.solo_con_stock) {
       filtered = filtered.filter(product => product.stock > 0);
     }
-    
+
     if (state.filters.solo_ofertas) {
       filtered = filtered.filter(product => product.en_oferta);
     }
-    
+
     if (state.filters.es_destacado) {
       filtered = filtered.filter(product => product.es_destacado);
     }
-    
+
     // Búsqueda por texto
     if (state.searchQuery) {
       const query = state.searchQuery.toLowerCase();
@@ -837,7 +839,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         (product.modelo && product.modelo.toLowerCase().includes(query))
       );
     }
-    
+
     dispatch({ type: 'SET_FILTERED_PRODUCTS', payload: filtered });
   }, [state.products, state.filters, state.searchQuery]);
 
@@ -851,7 +853,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
   const loadMore = useCallback(async () => {
     if (!state.pagination.hasMore || state.pagination.page === 1) return;
-    
+
     const nextPage = state.pagination.page + 1;
     await fetchProducts(state.filters, nextPage);
   }, [state.pagination.hasMore, state.pagination.page, state.filters, fetchProducts]);
@@ -864,7 +866,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   useEffect(() => {
     if (state.products.length > 0 && !state.productsLoading) {
       const hasActiveFilters = Object.keys(state.filters).length > 0 || state.searchQuery.trim().length > 0;
-      
+
       if (hasActiveFilters) {
         applyFilters();
       } else {
@@ -876,13 +878,13 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // Sincronizar productos con ofertas - OPTIMIZADO
   useEffect(() => {
     if (state.products.length > 0 && ofertasContext?.productosEnOferta) {
-      const needsSync = state.products.some(product => 
+      const needsSync = state.products.some(product =>
         !product.en_oferta && !product.precio_oferta
       );
-      
+
       if (needsSync) {
         const productsWithOffers = syncProductsWithOffers(state.products);
-        
+
         // Solo actualizar si hay cambios reales
         const hasChanges = productsWithOffers.some((product, index) => {
           const currentProduct = state.products[index];
@@ -892,7 +894,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
             product.precio_original !== currentProduct.precio_original
           );
         });
-        
+
         if (hasChanges) {
           dispatch({ type: 'SET_PRODUCTS', payload: productsWithOffers });
           dispatch({ type: 'SET_FILTERED_PRODUCTS', payload: productsWithOffers });
@@ -904,13 +906,13 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // Sincronizar productos destacados con ofertas - OPTIMIZADO
   useEffect(() => {
     if (state.featuredProducts.length > 0 && ofertasContext?.productosEnOferta) {
-      const needsSync = state.featuredProducts.some(product => 
+      const needsSync = state.featuredProducts.some(product =>
         !product.en_oferta && !product.precio_oferta
       );
-      
+
       if (needsSync) {
         const featuredProductsWithOffers = syncProductsWithOffers(state.featuredProducts);
-        
+
         // Solo actualizar si hay cambios reales
         const hasChanges = featuredProductsWithOffers.some((product, index) => {
           const currentProduct = state.featuredProducts[index];
@@ -920,7 +922,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
             product.precio_original !== currentProduct.precio_original
           );
         });
-        
+
         if (hasChanges) {
           dispatch({ type: 'SET_FEATURED_PRODUCTS', payload: featuredProductsWithOffers });
         }

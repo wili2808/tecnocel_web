@@ -44,7 +44,6 @@
 }
 
 .productLink:hover .productCard {
-  border-color: var(--color-primary-light);
   box-shadow: var(--shadow-card-hover);
 }
 
@@ -159,7 +158,7 @@
 
 /* Mostrar overlay en hover de la card */
 .productLink:hover .addToCartOverlay {
-  opacity: .5;
+  opacity: .3;
 }
 
 /* === OVERLAY DE ÉXITO === */

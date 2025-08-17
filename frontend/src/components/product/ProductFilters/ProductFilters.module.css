@@ -2,12 +2,13 @@
 .filtersContainer {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: var(--color-neutral-50);
+    background: var(--background-elevated);
     border-radius: 0.75rem;
-    border: 1px solid var(--color-neutral-200);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    height: 100%;
 }
 
 /* Sección de filtro individual */
@@ -19,9 +20,8 @@
 
 /* Título de la sección */
 .filterSectionTitle {
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
-    color: var(--color-neutral-700);
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -35,13 +35,12 @@
 
 /* Select de filtro */
 .filterSelect {
+    color: var(--text-secondary);
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--color-neutral-300);
+    padding: var(--spacing-xs);
     border-radius: 0.5rem;
-    background: var(--color-white);
-    color: var(--color-neutral-700);
-    font-size: 0.875rem;
+    background: var(--background-secondary);
+    font-size: var(--font-size-sm);
     font-family: inherit;
     transition: all 0.2s ease;
     cursor: pointer;
@@ -121,14 +120,13 @@
 }
 
 .toggleTextFull {
-    font-size: 0.875rem;
-    color: var(--color-neutral-700);
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
     font-weight: 500;
 }
 
 .toggleTextShort {
     font-size: 0.75rem;
-    color: var(--color-neutral-500);
     display: none;
 }
 

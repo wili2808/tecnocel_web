@@ -35,13 +35,13 @@ const ProductActions: React.FC<ProductActionsProps> = ({
     // ============================================================================
     // CONTEXTOS Y HOOKS
     // ============================================================================
-    const { 
-        agregarItem, 
-        estado, 
-        canAddMoreOfProduct, 
-        getProductQuantityInCart 
+    const {
+        agregarItem,
+        estado,
+        canAddMoreOfProduct,
+        getProductQuantityInCart
     } = useCarrito();
-    
+
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
     const navigate = useNavigate();
@@ -49,7 +49,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
     // ============================================================================
     // CÁLCULOS Y VALIDACIONES
     // ============================================================================
-    
+
     // Usar métodos del contexto para obtener información del carrito
     const currentQuantityInCart = getProductQuantityInCart(productId);
     const canAddMore = canAddMoreOfProduct(productId, stock);
@@ -58,7 +58,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
     // ============================================================================
     // MANEJADORES DE EVENTOS
     // ============================================================================
-    
+
     /**
      * Maneja el cambio de cantidad en el selector
      * Valida que no exceda el stock disponible
@@ -115,7 +115,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
         setIsAddingToCart(true);
         try {
             await agregarItem(productId, quantity);
-            
+
             // Mostrar confirmación visual y notificación
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 2000);
@@ -196,7 +196,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <div className={styles.productActions}>
             {/* Selector de cantidad - Solo visible si hay stock */}
@@ -215,7 +215,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                             size="sm"
                             className={styles.quantityButton}
                         />
-                        
+
                         {/* Input de cantidad con validaciones */}
                         <input
                             type="number"
@@ -226,7 +226,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                             max={maxQuantityToAdd}
                             aria-label="Cantidad del producto"
                         />
-                        
+
                         {/* Botón para aumentar cantidad */}
                         <IconButton
                             icon="add"
@@ -239,10 +239,10 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                             className={styles.quantityButton}
                         />
                     </div>
-                    
+
                     {/* Información del stock disponible */}
                     <span className={styles.availableStock}>
-                        Máximo: {stock} 
+                        Máximo: {stock}
                         {currentQuantityInCart > 0 && (
                             <span className={styles.cartQuantity}>
                                 (En carrito: {currentQuantityInCart})
@@ -260,7 +260,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                         {/* Permite ir al carrito incluso si no se puede agregar más del producto */}
                         <Button
                             variant="primary"
-                            size="lg"
+                            size="md"
                             onClick={handleBuyNow}
                             disabled={estado.cargando || isOutOfStock}
                             type="button"
@@ -270,11 +270,11 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                         >
                             Comprar ahora
                         </Button>
-                        
+
                         {/* Botón de agregar al carrito */}
                         <Button
                             variant={showSuccess ? 'success' : 'secondary'}
-                            size="lg"
+                            size="md"
                             onClick={handleAddToCart}
                             disabled={isAddingToCart || estado.cargando || !canAddMore}
                             type="button"
@@ -288,9 +288,9 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                     </>
                 ) : (
                     /* Botón deshabilitado para productos agotados */
-                    <Button 
-                        variant="ghost" 
-                        size="lg" 
+                    <Button
+                        variant="ghost"
+                        size="lg"
                         disabled
                         icon="remove_shopping_cart"
                         fullWidth
