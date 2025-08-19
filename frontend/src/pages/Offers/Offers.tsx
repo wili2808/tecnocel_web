@@ -1,3 +1,9 @@
+/**
+ * Página Offers - Página principal de ofertas especiales
+ * Muestra todas las ofertas disponibles y productos en oferta con paginación
+ * Incluye funcionalidades para estadísticas, grid de ofertas y productos en oferta
+ * Utiliza useOfertasPagination para gestión de datos paginados y contexto global
+ */
 import React, { useMemo } from 'react';
 import { useOfertasPagination } from '../../hooks/useOfertasPagination';
 import OffersGrid from '../../components/product/OffersGrid';
@@ -6,8 +12,13 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Offers.module.css';
 
+// ============================================================================
+// CONFIGURACIÓN DE NOTIFICACIONES
+// ============================================================================
+
 /**
  * Configuración de notificaciones toast
+ * Define posición, duración y comportamiento de las notificaciones del sistema
  */
 const TOAST_CONFIG = {
     position: "top-center" as const,
@@ -22,12 +33,11 @@ const TOAST_CONFIG = {
     "aria-label": "Notificaciones del sistema"
 };
 
-/**
- * Página de ofertas
- * Muestra todas las ofertas disponibles y productos en oferta
- * Ahora usa el contexto global de ofertas para mejor performance y cache
- */
 const Offers: React.FC = () => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     const {
         ofertas,
         productosEnOferta,
@@ -40,6 +50,10 @@ const Offers: React.FC = () => {
         getOfertasCount,
         getProductosEnOfertaCount
     } = useOfertasPagination({ itemsPerPage: 20 });
+
+    // ============================================================================
+    // PROCESAMIENTO DE DATOS
+    // ============================================================================
 
     // Calcular cantidad de productos por oferta usando el contexto global
     const productCounts = useMemo(() => {
@@ -57,12 +71,17 @@ const Offers: React.FC = () => {
         return counts;
     }, [productosEnOferta]);
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+
     return (
         <div className={styles.offersPage}>
+            {/* Contenedor de notificaciones toast */}
             <ToastContainer {...TOAST_CONFIG} />
 
             <div className={styles.offersContainer}>
-                {/* Header */}
+                {/* Header de la página con título y estadísticas */}
                 <header className={styles.pageHeader}>
                     <div className={styles.headerContent}>
                         <h1 className={styles.pageTitle}>
@@ -74,6 +93,7 @@ const Offers: React.FC = () => {
                         </p>
                     </div>
 
+                    {/* Tarjeta de estadísticas con conteo de ofertas y productos */}
                     {getProductosEnOfertaCount() > 0 && (
                         <div className={styles.statsCard}>
                             <div className={styles.stat}>
@@ -89,7 +109,7 @@ const Offers: React.FC = () => {
                     )}
                 </header>
 
-                {/* Grid de ofertas */}
+                {/* Grid de ofertas con separación por estado */}
                 <OffersGrid
                     ofertas={ofertas}
                     loading={loading}
@@ -98,7 +118,7 @@ const Offers: React.FC = () => {
                     productCounts={productCounts}
                 />
 
-                {/* Productos en oferta */}
+                {/* Sección de productos en oferta con paginación */}
                 <OffersProductsSection
                     products={productosEnOferta}
                     loading={loading}
@@ -108,11 +128,11 @@ const Offers: React.FC = () => {
                     onLoadMore={loadMore}
                     onRetry={refreshOfertas}
                 />
-
-
             </div>
         </div>
     );
 };
+
+Offers.displayName = 'Offers';
 
 export default Offers; 

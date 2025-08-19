@@ -1,6 +1,6 @@
 /* === TARJETA DE COMENTARIO === */
 .commentCard {
-    background: var(--background-light);
+    background: var(--background-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
     padding: var(--spacing-lg);

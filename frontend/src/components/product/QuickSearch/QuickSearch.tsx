@@ -1,3 +1,9 @@
+/**
+ * Componente QuickSearch - Búsquedas rápidas predefinidas
+ * Muestra botones de búsqueda rápida con contadores de productos por categoría
+ * Incluye funcionalidades para selección de búsqueda y visualización de conteos
+ * Utiliza QUICK_SEARCHES para opciones de búsqueda predefinidas del sistema
+ */
 import React from 'react';
 import styles from './QuickSearch.module.css';
 import { QUICK_SEARCHES } from '../../../utils/quickSearches';
@@ -16,9 +22,14 @@ const QuickSearch: React.FC<QuickSearchProps> = ({
     onQuickSearchChange,
     quickSearchCounts = {}
 }) => {
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+
     return (
         <div className={styles.quickSearch}>
             <div className={styles.quickSearchButtons}>
+                {/* Botón para mostrar todos los productos */}
                 <button
                     type="button"
                     className={`${styles.searchButton} ${selectedQuickSearch === null ? styles.searchButtonActive : ''}`}
@@ -26,6 +37,8 @@ const QuickSearch: React.FC<QuickSearchProps> = ({
                 >
                     <span className={styles.searchButtonText}>Todas</span>
                 </button>
+
+                {/* Botones de búsquedas rápidas predefinidas */}
                 {QUICK_SEARCHES.map(quickSearch => {
                     const count = quickSearchCounts[quickSearch.key] || 0;
                     const isActive = selectedQuickSearch === quickSearch.key;
@@ -40,6 +53,7 @@ const QuickSearch: React.FC<QuickSearchProps> = ({
                             title={`Buscar: ${quickSearch.label} (${count} productos)`}
                         >
                             <span className={styles.searchButtonText}>{quickSearch.label}</span>
+                            {/* Mostrar contador solo si hay productos disponibles */}
                             {count > 0 && <span className={styles.searchCount}>({count})</span>}
                         </button>
                     );
@@ -48,5 +62,7 @@ const QuickSearch: React.FC<QuickSearchProps> = ({
         </div>
     );
 };
+
+QuickSearch.displayName = 'QuickSearch';
 
 export default QuickSearch; 

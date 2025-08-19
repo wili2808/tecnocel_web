@@ -1,10 +1,9 @@
 /* Comment Filters Styles */
 .commentFilters {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color-light);
   border-radius: 8px;
   padding: 16px;
-  margin-bottom: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -26,7 +25,7 @@
 
 .totalCount .material-icons {
   font-size: 18px;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .orderSection {
@@ -39,7 +38,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #374151;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   margin: 0;
@@ -54,8 +53,7 @@
 .orderOptions {
   display: flex;
   gap: 4px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color-light);
   border-radius: 6px;
   padding: 2px;
 }
@@ -68,7 +66,7 @@
   background: transparent;
   border: none;
   border-radius: 4px;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -77,8 +75,8 @@
 }
 
 .orderButton:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--background-elevated);
+  color: var(--text-primary);
 }
 
 .orderButton.active {
@@ -193,7 +191,6 @@
 /* Modo oscuro */
 @media (prefers-color-scheme: dark) {
   .commentFilters {
-    background: #1f2937;
     border-color: #374151;
   }
 
@@ -205,16 +202,7 @@
     color: #6b7280;
   }
 
-  .orderLabel {
-    color: #e5e7eb;
-  }
-
-  .orderLabel .material-icons {
-    color: #9ca3af;
-  }
-
   .orderOptions {
-    background: #111827;
     border-color: #374151;
   }
 

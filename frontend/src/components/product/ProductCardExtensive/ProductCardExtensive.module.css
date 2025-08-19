@@ -26,12 +26,6 @@
   transform: translateX(2px);
 }
 
-.productLink:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: var(--border-radius-lg);
-}
-
 .outOfStockLink {
   opacity: 0.7;
   cursor: not-allowed;
@@ -45,6 +39,7 @@
 .productCard {
   background: var(--background-elevated);
   border-radius: var(--border-radius-xl);
+  border: 1px solid var(--border-color-light);
   box-shadow: var(--shadow-card);
   overflow: hidden;
   transition: all var(--transition-normal) var(--transition-curve);
@@ -58,7 +53,6 @@
 }
 
 .productCard:hover {
-  border-color: var(--color-primary-light);
   box-shadow: var(--shadow-card-hover);
 }
 

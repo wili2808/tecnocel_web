@@ -1,3 +1,9 @@
+/**
+ * Componente FavoriteButtonReusable - Botón de favoritos reutilizable
+ * Muestra botón de corazón para agregar/quitar productos de favoritos
+ * Incluye funcionalidades para autenticación, navegación y notificaciones
+ * Utiliza FavoritosGlobalContext para gestión centralizada de favoritos
+ */
 import React, { useMemo } from 'react';
 import { useFavoritosGlobal } from '../../../contexts/FavoritosGlobalContext';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -26,11 +32,24 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
     variant = 'default',
     disabled = false
 }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
     const { isFavorito, toggleFavorito, loading } = useFavoritosGlobal();
     const navigate = useNavigate();
 
+    // ============================================================================
+    // MANEJO DE EVENTOS
+    // ============================================================================
+
+    /**
+     * Manejar toggle del estado de favorito del producto
+     * Previene propagación del evento y valida autenticación del usuario
+     * Muestra notificaciones informativas y maneja errores de operación
+     */
     const handleToggle = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -60,10 +79,18 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
         }
     };
 
+    // ============================================================================
+    // CÁLCULOS Y ESTADOS
+    // ============================================================================
+
     // Memoizar estado de favorito para evitar recálculos
     const isActive = useMemo(() => {
         return isFavorito(productId);
     }, [isFavorito, productId]);
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     const heartIcon = (
         <svg
@@ -102,5 +129,7 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
         </button>
     );
 };
+
+FavoriteButtonReusable.displayName = 'FavoriteButtonReusable';
 
 export default FavoriteButtonReusable;

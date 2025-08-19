@@ -127,19 +127,46 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
 
                 {/* Información de precios con soporte para ofertas */}
                 <div className={styles.priceInfo}>
+                    {isUpdating && (
+                        <div className={styles.updatingPrices}>
+                            <span className="material-icons">sync</span>
+                            <span>Actualizando precios...</span>
+                        </div>
+                    )}
                     {productInfo.en_oferta && productInfo.precio_oferta ? (
                         <>
-                            <span className={styles.originalPrice}>
-                                $ {productInfo.precio_original?.toLocaleString('es-ES')}
-                            </span>
-                            <span className={styles.currentPrice}>
-                                $ {productInfo.precio_oferta.toLocaleString('es-ES')}
-                            </span>
+                            <div className={styles.priceRow}>
+                                <span className={styles.originalPrice}>
+                                    $ {productInfo.precio_original?.toLocaleString('es-ES')}
+                                </span>
+                                <span className={styles.currentPrice}>
+                                    $ {productInfo.precio_oferta.toLocaleString('es-ES')}
+                                </span>
+                                {productInfo.descuento_porcentaje && (
+                                    <span className={styles.discountBadge}>
+                                        -{productInfo.descuento_porcentaje}%
+                                    </span>
+                                )}
+                            </div>
+                            <div className={styles.subtotalInfo}>
+                                <span className={styles.subtotalLabel}>Subtotal:</span>
+                                <span className={styles.subtotalAmount}>
+                                    $ {item.subtotal.toLocaleString('es-ES')}
+                                </span>
+                            </div>
                         </>
                     ) : (
-                        <span className={styles.currentPrice}>
-                            $ {Number(productInfo.precio_venta).toLocaleString('es-ES')}
-                        </span>
+                        <>
+                            <span className={styles.currentPrice}>
+                                $ {Number(productInfo.precio_venta).toLocaleString('es-ES')}
+                            </span>
+                            <div className={styles.subtotalInfo}>
+                                <span className={styles.subtotalLabel}>Subtotal:</span>
+                                <span className={styles.subtotalAmount}>
+                                    $ {item.subtotal.toLocaleString('es-ES')}
+                                </span>
+                            </div>
+                        </>
                     )}
                 </div>
 
@@ -175,6 +202,13 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                             className={styles.quantityButton}
                         />
                     </div>
+                    {/* Indicador de stock máximo alcanzado */}
+                    {!canAddMore && (
+                        <div className={styles.stockWarning}>
+                            <span className="material-icons">info</span>
+                            <span>Stock máximo ({productInfo.stock})</span>
+                        </div>
+                    )}
                     {/* Botón para eliminar el item del carrito */}
                     <IconButton
                         icon="delete"
@@ -186,13 +220,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                     />
 
                 </div>
-                {/* Indicador de stock máximo alcanzado */}
-                {!canAddMore && (
-                    <div className={styles.stockWarning}>
-                        <span className="material-icons">info</span>
-                        <span>Stock máximo alcanzado ({productInfo.stock})</span>
-                    </div>
-                )}
+
             </div>
         </div>
     );

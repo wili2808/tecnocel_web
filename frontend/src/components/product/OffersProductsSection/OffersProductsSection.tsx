@@ -1,3 +1,9 @@
+/**
+ * Componente OffersProductsSection - Sección de productos en oferta
+ * Muestra grid de productos con ofertas activas y controles de paginación
+ * Incluye funcionalidades para cargar productos desde contexto global o props
+ * Utiliza useOfertasGlobal para gestión centralizada de productos en oferta
+ */
 import React, { useMemo } from 'react';
 import ProductCard from '../ProductCard';
 import LoadingSpinner from '../../common/LoadingSpinner';
@@ -26,6 +32,10 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
     onRetry,
     useGlobalContext = true // Por defecto usar contexto global
 }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     // Usar contexto global si está habilitado
     const {
         productosEnOferta: contextProducts,
@@ -35,12 +45,20 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
         refreshOfertas
     } = useOfertasGlobal();
 
+    // ============================================================================
+    // DETERMINACIÓN DE FUENTE DE DATOS
+    // ============================================================================
+
     // Determinar qué datos usar
     const products = useGlobalContext ? contextProducts : (propsProducts || []);
     const loading = useGlobalContext ? contextLoading : (propsLoading ?? false);
     const error = useGlobalContext ? contextError : propsError;
     const totalProducts = useGlobalContext ? getProductosEnOfertaCount() : (propsTotalProducts || 0);
     const handleRetry = useGlobalContext ? refreshOfertas : onRetry;
+
+    // ============================================================================
+    // PROCESAMIENTO DE PRODUCTOS
+    // ============================================================================
 
     // Memoizar productos para evitar re-renders innecesarios
     const memoizedProducts = useMemo(() => {
@@ -53,6 +71,10 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
             descuento_porcentaje: product.descuento_porcentaje || 0
         }));
     }, [products]);
+
+    // ============================================================================
+    // ESTADOS DE CARGA Y ERROR
+    // ============================================================================
 
     if (loading && products.length === 0) {
         return (
@@ -98,6 +120,10 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
             </section>
         );
     }
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     return (
         <section className={styles.productsSection}>
@@ -154,19 +180,10 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
                     </button>
                 </div>
             )}
-
-            {/* Debug info - Solo en desarrollo */}
-            {process.env.NODE_ENV === 'development' && useGlobalContext && (
-                <div className={styles.debugInfo}>
-                    <h4>🧪 Debug Info (OffersProductsSection)</h4>
-                    <p>Usando Contexto Global: {useGlobalContext ? '✅ Sí' : '❌ No'}</p>
-                    <p>Productos Cargados: {products.length}</p>
-                    <p>Total Productos: {totalProducts}</p>
-                    <p>Productos con Oferta: {products.filter(p => p.en_oferta).length}</p>
-                </div>
-            )}
         </section>
     );
 };
+
+OffersProductsSection.displayName = 'OffersProductsSection';
 
 export default OffersProductsSection;

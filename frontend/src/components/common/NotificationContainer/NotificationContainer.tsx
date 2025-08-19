@@ -1,13 +1,28 @@
+/**
+ * Componente NotificationContainer - Contenedor de notificaciones del sistema
+ * Renderiza lista de notificaciones activas con funcionalidad de ocultamiento
+ * Incluye integración con NotificationContext para gestión centralizada
+ * Utiliza componente Notification individual para cada notificación
+ */
 import React from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import Notification from '../Notification';
 import styles from './NotificationContainer.module.css';
 
 const NotificationContainer: React.FC = () => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     const { notifications, hideNotification } = useNotification();
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     return (
         <div className={styles.container}>
+            {/* Mapear notificaciones activas a componentes Notification */}
             {notifications.map((notification) => (
                 <Notification
                     key={notification.id}
@@ -22,5 +37,7 @@ const NotificationContainer: React.FC = () => {
         </div>
     );
 };
+
+NotificationContainer.displayName = 'NotificationContainer';
 
 export default NotificationContainer; 

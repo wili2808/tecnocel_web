@@ -1,6 +1,6 @@
 /* === CONTENEDOR PRINCIPAL === */
 .productComments {
-    background: var(--background-light);
+    background: var(--background-elevated);
     border-radius: var(--border-radius-lg);
     padding: var(--spacing-lg);
     margin-top: var(--spacing-xl);

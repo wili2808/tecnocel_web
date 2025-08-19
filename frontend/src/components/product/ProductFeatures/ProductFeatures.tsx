@@ -1,3 +1,9 @@
+/**
+ * Componente ProductFeatures - Características y especificaciones del producto
+ * Muestra información básica, especificaciones técnicas y datos adicionales del producto
+ * Incluye funcionalidades para formateo de fechas, renderizado de características y mapeo de iconos
+ * Utiliza datos del producto para mostrar información estructurada en secciones
+ */
 import React from 'react';
 import type { Product, ProductoCaracteristica } from '../../../types/product';
 import styles from './ProductFeatures.module.css';
@@ -7,6 +13,10 @@ interface ProductFeaturesProps {
 }
 
 const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
+    // ============================================================================
+    // EXTRACCIÓN DE DATOS DEL PRODUCTO
+    // ============================================================================
+
     const {
         codigo,
         stock,
@@ -22,7 +32,14 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
     // Usar productosCaracteristicas si está disponible, sino caracteristicas
     const specs = productosCaracteristicas || caracteristicas || [];
 
-    // Formatear fecha
+    // ============================================================================
+    // FUNCIONES DE FORMATEO Y UTILIDADES
+    // ============================================================================
+
+    /**
+     * Formatear fecha en formato legible para el usuario
+     * Convierte string de fecha a formato localizado en español argentino
+     */
     const formatDate = (dateString: string) => {
         try {
             return new Date(dateString).toLocaleDateString('es-AR', {
@@ -35,9 +52,11 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         }
     };
 
-
-
-    // Renderizar valor de característica según su tipo
+    /**
+     * Renderizar valor de característica según su tipo de dato
+     * Aplica formateo específico para números, booleanos y selecciones
+     * Incluye unidades de medida cuando están disponibles
+     */
     const renderCharacteristicValue = (caracteristica: ProductoCaracteristica) => {
         const tipoCaracteristica = caracteristica.tipo;
         const valor = caracteristica.valor;
@@ -61,7 +80,11 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         }
     };
 
-    // Obtener icono para el tipo de característica
+    /**
+     * Obtener icono para el tipo de característica
+     * Mapea nombres de características a iconos de Material Design
+     * Proporciona icono por defecto para características no mapeadas
+     */
     const getCharacteristicIcon = (nombreTipo: string): string => {
         const iconMap: { [key: string]: string } = {
             'pantalla': 'monitor',
@@ -82,6 +105,10 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         };
         return iconMap[nombreTipo.toLowerCase()] || 'info';
     };
+
+    // ============================================================================
+    // CONSTRUCCIÓN DE DATOS PARA RENDERIZADO
+    // ============================================================================
 
     // Información básica del producto
     const basicInfo = [
@@ -137,9 +164,13 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         });
     }
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+
     return (
         <div className={styles.productFeatures}>
-            {/* Información básica */}
+            {/* Información básica del producto */}
             <div className={styles.section}>
                 <h3 className={styles.sectionTitle}>
                     <span className="material-icons">info</span>
@@ -160,7 +191,7 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
                 </div>
             </div>
 
-            {/* Especificaciones técnicas */}
+            {/* Especificaciones técnicas del producto */}
             {specs && specs.length > 0 && (
                 <div className={styles.section}>
                     <h3 className={styles.sectionTitle}>
@@ -197,7 +228,7 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
                 </div>
             )}
 
-            {/* Información adicional */}
+            {/* Información adicional del producto */}
             <div className={styles.section}>
                 <h3 className={styles.sectionTitle}>
                     <span className="material-icons">more_horiz</span>
@@ -220,5 +251,7 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
         </div>
     );
 };
+
+ProductFeatures.displayName = 'ProductFeatures';
 
 export default ProductFeatures; 

@@ -1,3 +1,9 @@
+/**
+ * Componente FeaturedProducts - Sección de productos destacados
+ * Muestra grid de productos destacados con manejo de estados de carga y error
+ * Incluye funcionalidades para renderizado condicional según estado de datos
+ * Utiliza React.memo para optimización de re-renders
+ */
 import React, { memo } from 'react';
 import ProductCard from '../ProductCard';
 import styles from './FeaturedProducts.module.css';
@@ -18,6 +24,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({
     loading = false,
     error = null
 }) => {
+    // ============================================================================
+    // ESTADOS DE CARGA Y ERROR
+    // ============================================================================
+
     // Si está cargando, mostrar un placeholder
     if (loading) {
         return (
@@ -41,6 +51,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({
     if (!products || products.length === 0) {
         return null;
     }
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     return (
         <section className={`${styles.productsSection} ${className || ''}`}>

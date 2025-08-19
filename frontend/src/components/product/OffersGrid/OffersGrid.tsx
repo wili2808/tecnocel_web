@@ -1,3 +1,9 @@
+/**
+ * Componente OffersGrid - Grid de ofertas con separación por estado
+ * Muestra ofertas activas y expiradas organizadas en secciones
+ * Incluye funcionalidades para cargar ofertas desde contexto global o props
+ * Utiliza useOfertasGlobal para gestión centralizada de ofertas
+ */
 import React, { useMemo } from 'react';
 import OfferCard from '../OfferCard';
 import LoadingSpinner from '../../common/LoadingSpinner';
@@ -22,6 +28,10 @@ const OffersGrid: React.FC<OffersGridProps> = ({
     productCounts = {},
     useGlobalContext = true // Por defecto usar contexto global
 }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     // Usar contexto global si está habilitado y no se proporcionan props
     const {
         ofertas: contextOfertas,
@@ -32,11 +42,19 @@ const OffersGrid: React.FC<OffersGridProps> = ({
         refreshOfertas
     } = useOfertasGlobal();
 
+    // ============================================================================
+    // DETERMINACIÓN DE FUENTE DE DATOS
+    // ============================================================================
+
     // Determinar qué datos usar
     const ofertas = useGlobalContext ? contextOfertas : (propsOfertas || []);
     const loading = useGlobalContext ? contextLoading : (propsLoading ?? false);
     const error = useGlobalContext ? contextError : propsError;
     const handleRetry = useGlobalContext ? refreshOfertas : onRetry;
+
+    // ============================================================================
+    // PROCESAMIENTO Y FILTRADO DE OFERTAS
+    // ============================================================================
 
     // Memoizar las ofertas activas y expiradas para evitar recálculos
     const { ofertasActivasFiltered, ofertasExpiradasFiltered } = useMemo(() => {
@@ -63,6 +81,10 @@ const OffersGrid: React.FC<OffersGridProps> = ({
             };
         }
     }, [useGlobalContext, ofertas, ofertasActivas, ofertasExpiradas]);
+
+    // ============================================================================
+    // ESTADOS DE CARGA Y ERROR
+    // ============================================================================
 
     if (loading && ofertas.length === 0) {
         return (
@@ -102,6 +124,10 @@ const OffersGrid: React.FC<OffersGridProps> = ({
             </div>
         );
     }
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     return (
         <div className={styles.offersGrid}>
@@ -150,19 +176,10 @@ const OffersGrid: React.FC<OffersGridProps> = ({
                     </div>
                 </section>
             )}
-
-            {/* Debug info - Solo en desarrollo */}
-            {process.env.NODE_ENV === 'development' && useGlobalContext && (
-                <div className={styles.debugInfo}>
-                    <h4>🧪 Debug Info (OffersGrid)</h4>
-                    <p>Usando Contexto Global: {useGlobalContext ? '✅ Sí' : '❌ No'}</p>
-                    <p>Total Ofertas: {ofertas.length}</p>
-                    <p>Ofertas Activas: {ofertasActivasFiltered.length}</p>
-                    <p>Ofertas Expiradas: {ofertasExpiradasFiltered.length}</p>
-                </div>
-            )}
         </div>
     );
 };
+
+OffersGrid.displayName = 'OffersGrid';
 
 export default OffersGrid;

@@ -1,9 +1,15 @@
+/**
+ * Contexto del Carrito de Compras - Maneja el estado global del carrito
+ * Proporciona funcionalidades para agregar, actualizar, eliminar y gestionar items del carrito
+ * Incluye sincronización con backend, validaciones de stock y confirmación de compras
+ * Utiliza useReducer para gestión eficiente del estado y useCarritoOperations para operaciones
+ */
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { useCarritoOperations } from '../hooks/useCarritoOperations';
-import type { 
-  EstadoCarrito, 
-  DatosCompra, 
+import type {
+  EstadoCarrito,
+  DatosCompra,
   VentaConfirmada,
   AccionCarrito
 } from '../types/carrito';
@@ -12,6 +18,10 @@ import type {
 // ESTADO INICIAL
 // ============================================================================
 
+/**
+ * Estado inicial del carrito
+ * Define valores por defecto para todos los campos del estado
+ */
 const estadoInicial: EstadoCarrito = {
   id_carrito: null,
   estado: 'activo',
@@ -28,6 +38,8 @@ const estadoInicial: EstadoCarrito = {
 
 /**
  * Reducer que maneja las acciones del carrito y actualiza el estado
+ * Implementa lógica inmutable para todas las operaciones del carrito
+ * Calcula automáticamente totales y cantidades basados en los items
  */
 function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCarrito {
   switch (accion.type) {
@@ -60,7 +72,7 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
     case 'ACTUALIZAR_ITEM':
       const itemsActualizados = estado.items.map(item =>
         item.id_item === accion.payload.id_item
-          ? { ...item, cantidad: accion.payload.cantidad, subtotal: accion.payload.subtotal }
+          ? accion.payload
           : item
       );
       const nuevoTotalActualizar = itemsActualizados.reduce((total, item) => total + item.subtotal, 0);
@@ -108,6 +120,8 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
 
 /**
  * Contexto del carrito que proporciona el estado y métodos para manipularlo
+ * Define la API pública del contexto para componentes consumidores
+ * Incluye operaciones CRUD completas y métodos de utilidad
  */
 const CarritoContext = createContext<{
   estado: EstadoCarrito;
@@ -127,6 +141,7 @@ const CarritoContext = createContext<{
 
 /**
  * Hook personalizado para acceder al contexto del carrito
+ * Proporciona acceso seguro al contexto con validación de uso
  */
 export const useCarrito = () => {
   const context = useContext(CarritoContext);
@@ -142,15 +157,21 @@ export const useCarrito = () => {
 
 /**
  * Proveedor del contexto del carrito que maneja el estado y las operaciones
+ * Integra autenticación, operaciones del backend y gestión de estado local
+ * Incluye optimizaciones para evitar re-renders innecesarios
  */
 export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // ============================================================================
+  // ESTADO Y HOOKS
+  // ============================================================================
+
   const [estado, dispatch] = useReducer(carritoReducer, estadoInicial);
   const { isAuthenticated } = useAuth();
-  
+
   // ============================================================================
   // HOOKS DE OPERACIONES
   // ============================================================================
-  
+
   // Usar el hook de operaciones del carrito
   const {
     obtenerCarrito: obtenerCarritoService,
@@ -162,8 +183,14 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     sincronizarCarrito: sincronizarCarritoService
   } = useCarritoOperations();
 
+  // ============================================================================
+  // OPERACIONES PRINCIPALES DEL CARRITO
+  // ============================================================================
+
   /**
    * Obtiene el carrito activo del cliente desde el servidor
+   * Inicializa el estado del carrito con datos del backend
+   * Incluye manejo de errores y estados de carga
    */
   const obtenerCarrito = useCallback(async () => {
     if (!isAuthenticated) {
@@ -188,6 +215,8 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Agrega un producto al carrito
+   * Maneja tanto productos nuevos como actualización de cantidades existentes
+   * Incluye sincronización automática en caso de errores
    */
   const agregarItem = useCallback(async (id_producto: number, cantidad: number) => {
     if (!isAuthenticated) {
@@ -207,11 +236,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (itemExistente) {
         dispatch({
           type: 'ACTUALIZAR_ITEM',
-          payload: {
-            id_item: resultado.item.id_item,
-            cantidad: resultado.item.cantidad,
-            subtotal: resultado.item.subtotal
-          }
+          payload: resultado.item
         });
       } else {
         dispatch({ type: 'AGREGAR_ITEM', payload: resultado.item });
@@ -236,6 +261,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Actualiza la cantidad de un item en el carrito
+   * Valida stock disponible y sincroniza con el backend
    */
   const actualizarCantidad = useCallback(async (id_item: number, cantidad: number) => {
     if (!isAuthenticated) {
@@ -251,11 +277,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       dispatch({
         type: 'ACTUALIZAR_ITEM',
-        payload: {
-          id_item: resultado.item.id_item,
-          cantidad: resultado.item.cantidad,
-          subtotal: resultado.item.subtotal
-        }
+        payload: resultado.item
       });
       dispatch({ type: 'ACTUALIZAR_TOTAL', payload: resultado.total_carrito });
     } catch (error: any) {
@@ -268,6 +290,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Elimina un item del carrito
+   * Actualiza totales y sincroniza con el backend
    */
   const eliminarItem = useCallback(async (id_item: number) => {
     if (!isAuthenticated) {
@@ -293,6 +316,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Vacía completamente el carrito
+   * Limpia todos los items y resetea totales
    */
   const vaciarCarrito = useCallback(async () => {
     if (!isAuthenticated) {
@@ -316,6 +340,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Confirma la compra y convierte el carrito en venta
+   * Procesa la transacción y limpia el carrito después del éxito
    */
   const confirmarCompra = useCallback(async (datosCompra: DatosCompra): Promise<VentaConfirmada> => {
     if (!isAuthenticated) {
@@ -343,7 +368,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // ============================================================================
   // EFECTOS
   // ============================================================================
-  
+
   // Cargar carrito cuando el usuario se autentica
   useEffect(() => {
     if (isAuthenticated) {
@@ -353,7 +378,11 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isAuthenticated, obtenerCarrito]);
 
-  // Métodos útiles básicos
+  // ============================================================================
+  // MÉTODOS DE UTILIDAD
+  // ============================================================================
+
+  // Métodos útiles básicos para consultas del estado del carrito
   const isProductInCart = useCallback((id_producto: number) => {
     return estado.items.some(item => item.id_producto === id_producto);
   }, [estado.items]);
@@ -368,7 +397,10 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return currentQuantity < stock;
   }, [getProductQuantityInCart]);
 
-  // Método para forzar sincronización
+  /**
+   * Método para forzar sincronización del carrito
+   * Útil para resolver inconsistencias entre frontend y backend
+   */
   const sincronizarCarrito = useCallback(async () => {
     if (!isAuthenticated) {
       dispatch({ type: 'ESTABLECER_ERROR', payload: 'Debe iniciar sesión para sincronizar el carrito' });
@@ -392,7 +424,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // ============================================================================
   // VALOR DEL CONTEXTO OPTIMIZADO
   // ============================================================================
-  
+
   // OPTIMIZACIÓN: Memoizar el valor del contexto para evitar re-renders innecesarios
   const contextValue = useMemo(() => ({
     estado,

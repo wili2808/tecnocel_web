@@ -11,7 +11,7 @@
   padding: var(--spacing-xl) var(--container-padding);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-xl);
 }
 
 /* Breadcrumb */
@@ -19,9 +19,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-xl);
   padding: var(--spacing-md);
-  background-color: var(--background-secondary);
+  background-color: var(--background-elevated);
   border-radius: var(--border-radius-md);
   flex-wrap: wrap;
 }
@@ -74,7 +73,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: var(--spacing-2xl);
-  align-items: start;
+  align-items: center;
+  padding: var(--spacing-lg);
+  background-color: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: var(--theme-transition);
 }
 
 .productImageSection {

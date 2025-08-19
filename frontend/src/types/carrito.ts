@@ -82,7 +82,7 @@ export type AccionCarrito =
   | { type: 'INICIALIZAR_CARRITO'; payload: EstadoCarrito }
   | { type: 'INICIALIZAR_CARRITO_VACIO' }
   | { type: 'AGREGAR_ITEM'; payload: ItemCarritoCompleto }
-  | { type: 'ACTUALIZAR_ITEM'; payload: { id_item: number; cantidad: number; subtotal: number } }
+  | { type: 'ACTUALIZAR_ITEM'; payload: ItemCarritoCompleto }
   | { type: 'ELIMINAR_ITEM'; payload: number }
   | { type: 'VACIAR_CARRITO' }
   | { type: 'ESTABLECER_CARGANDO'; payload: boolean }

@@ -22,18 +22,18 @@ const ProductPage: React.FC = () => {
     // ============================================================================
     const { id } = useParams<{ id: string }>();
     const productId = parseInt(id || '0', 10);
-    
+
     // ============================================================================
     // HOOKS Y CONTEXTOS
     // ============================================================================
-    const { 
-        currentProduct: product, 
-        productsLoading: loading, 
+    const {
+        currentProduct: product,
+        productsLoading: loading,
         productsError: error,
         loadProduct,
         forceClearProductState
     } = useProductActions();
-    
+
     // ============================================================================
     // ESTADOS LOCALES
     // ============================================================================
@@ -43,7 +43,7 @@ const ProductPage: React.FC = () => {
     // ============================================================================
     // EFECTOS Y CICLO DE VIDA
     // ============================================================================
-    
+
     /**
      * Cargar producto al montar el componente o cambiar ID - CONTROLADO
      * Evita cargas innecesarias y mantiene el estado sincronizado
@@ -52,7 +52,7 @@ const ProductPage: React.FC = () => {
         if (productId > 0 && hasLoadedProduct !== productId) {
             // ✅ FORZAR LIMPIEZA COMPLETA antes de cargar nuevo producto
             forceClearProductState();
-            
+
             // ✅ SOLO cargar si es un producto diferente al ya cargado
             setHasLoadedProduct(productId);
             loadProduct(productId);
@@ -81,7 +81,7 @@ const ProductPage: React.FC = () => {
     useEffect(() => {
         if (product) {
             setIsOutOfStock(product.stock === 0);
-            
+
             // Log de desarrollo para verificar datos de ofertas
             if (process.env.NODE_ENV === 'development') {
                 console.log('🛍️ ProductPage - Datos del producto:', {
@@ -100,7 +100,7 @@ const ProductPage: React.FC = () => {
     // ============================================================================
     // ESTADOS DE CARGA Y ERROR
     // ============================================================================
-    
+
     // Mostrar spinner de carga mientras se obtiene el producto
     if (loading) {
         return (
@@ -131,39 +131,39 @@ const ProductPage: React.FC = () => {
     // ============================================================================
     // RENDERIZADO PRINCIPAL
     // ============================================================================
-    
+
     return (
         <div className={styles.productPage}>
-            {/* Navegación breadcrumb para orientación del usuario */}
-            <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-                <Link to="/" className={styles.breadcrumbLink}>
-                    <span className="material-icons">home</span>
-                    Inicio
-                </Link>
-                <span className={styles.breadcrumbSeparator}>
-                    <span className="material-icons">chevron_right</span>
-                </span>
-                <Link to="/productos" className={styles.breadcrumbLink}>
-                    Productos
-                </Link>
-                <span className={styles.breadcrumbSeparator}>
-                    <span className="material-icons">chevron_right</span>
-                </span>
-                {/* Categoría del producto si existe */}
-                {product.Categoria && (
-                    <>
-                        <span className={styles.breadcrumbItem}>{product.Categoria.nombre_categoria}</span>
-                        <span className={styles.breadcrumbSeparator}>
-                            <span className="material-icons">chevron_right</span>
-                        </span>
-                    </>
-                )}
-                {/* Nombre del producto actual */}
-                <span className={styles.breadcrumbCurrent}>{product.nombre}</span>
-            </nav>
-
             {/* Contenido principal de la página del producto */}
             <div className={styles.productContent}>
+                {/* Navegación breadcrumb para orientación del usuario */}
+                <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+                    <Link to="/" className={styles.breadcrumbLink}>
+                        <span className="material-icons">home</span>
+                        Inicio
+                    </Link>
+                    <span className={styles.breadcrumbSeparator}>
+                        <span className="material-icons">chevron_right</span>
+                    </span>
+                    <Link to="/productos" className={styles.breadcrumbLink}>
+                        Productos
+                    </Link>
+                    <span className={styles.breadcrumbSeparator}>
+                        <span className="material-icons">chevron_right</span>
+                    </span>
+                    {/* Categoría del producto si existe */}
+                    {product.Categoria && (
+                        <>
+                            <span className={styles.breadcrumbItem}>{product.Categoria.nombre_categoria}</span>
+                            <span className={styles.breadcrumbSeparator}>
+                                <span className="material-icons">chevron_right</span>
+                            </span>
+                        </>
+                    )}
+                    {/* Nombre del producto actual */}
+                    <span className={styles.breadcrumbCurrent}>{product.nombre}</span>
+                </nav>
+
                 {/* Sección principal del producto con imagen, info y acciones */}
                 <section className={styles.productMainSection}>
                     {/* Sección de imagen del producto */}
@@ -187,22 +187,22 @@ const ProductPage: React.FC = () => {
                                 alt={product.nombre}
                                 showThumbnails={true}
                             />
-                            
+
                             {/* Indicador de oferta reutilizable - Posicionado en esquina superior izquierda */}
-                            {(product.en_oferta || 
-                              (product.precio_oferta && product.precio_oferta < Number(product.precio_venta)) ||
-                              (product.ofertas && product.ofertas.length > 0)) && (
-                                <OfferIndicator
-                                    descuentoPorcentaje={
-                                        product.descuento_porcentaje || 
-                                        (product.precio_oferta && product.precio_venta ? 
-                                            Math.round(((Number(product.precio_venta) - product.precio_oferta) / Number(product.precio_venta)) * 100) : 0)
-                                    }
-                                    size="large"
-                                    position="top-left"
-                                    showLabel={true}
-                                />
-                            )}
+                            {(product.en_oferta ||
+                                (product.precio_oferta && product.precio_oferta < Number(product.precio_venta)) ||
+                                (product.ofertas && product.ofertas.length > 0)) && (
+                                    <OfferIndicator
+                                        descuentoPorcentaje={
+                                            product.descuento_porcentaje ||
+                                            (product.precio_oferta && product.precio_venta ?
+                                                Math.round(((Number(product.precio_venta) - product.precio_oferta) / Number(product.precio_venta)) * 100) : 0)
+                                        }
+                                        size="large"
+                                        position="top-left"
+                                        showLabel={true}
+                                    />
+                                )}
                         </div>
                     </div>
 
@@ -211,13 +211,13 @@ const ProductPage: React.FC = () => {
                         <div className={styles.productHeader}>
                             {/* Información detallada del producto */}
                             <ProductInfo product={product} />
-                            
+
                         </div>
                     </div>
 
                     {/* Sección de acciones del producto (cantidad, agregar al carrito, comprar) */}
                     <div className={styles.productActionsSection}>
-                        
+
                         <ProductActions
                             productId={product.id_producto}
                             productName={product.nombre}

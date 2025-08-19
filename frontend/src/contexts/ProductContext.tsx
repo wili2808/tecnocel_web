@@ -1,3 +1,9 @@
+/**
+ * Contexto de Productos - Gestión centralizada del estado de productos del sistema
+ * Proporciona funcionalidades para cargar, filtrar, buscar y gestionar productos
+ * Incluye sistema de caché inteligente, sincronización con ofertas y paginación
+ * Utiliza useReducer para gestión eficiente del estado y optimizaciones de performance
+ */
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { Product, Category, Marca, ProductFilters } from '../types/product';
@@ -8,6 +14,10 @@ import { useOfertasGlobal } from './OfertasGlobalContext';
 // INTERFACES Y TIPOS
 // ============================================================================
 
+/**
+ * Estructura de datos del caché de productos
+ * Define la información almacenada en caché para optimizar performance
+ */
 interface CacheData {
   products: Product[];
   categories: Category[];
@@ -18,6 +28,10 @@ interface CacheData {
   searchQuery: string;
 }
 
+/**
+ * Estructura de datos del caché de imágenes
+ * Almacena URLs y timestamps de imágenes para evitar descargas repetidas
+ */
 interface ImageCacheData {
   [key: string]: {
     url: string;
@@ -32,6 +46,7 @@ interface ImageCacheData {
 
 /**
  * Estado del contexto de productos
+ * Define toda la estructura de datos manejada por el contexto
  */
 interface ProductContextState {
   // PRODUCTOS
@@ -73,6 +88,7 @@ interface ProductContextState {
 
 /**
  * Acciones del contexto
+ * Define todas las operaciones posibles para modificar el estado
  */
 type ProductAction =
   // PRODUCTOS
@@ -113,6 +129,7 @@ type ProductAction =
 
 /**
  * Interfaz del contexto
+ * Define la API pública del contexto para componentes consumidores
  */
 interface ProductContextType {
   // ESTADO
@@ -159,6 +176,10 @@ interface ProductContextType {
 // ESTADO INICIAL
 // ============================================================================
 
+/**
+ * Estado inicial del contexto
+ * Define valores por defecto para todos los campos del estado
+ */
 const initialState: ProductContextState = {
   // PRODUCTOS
   products: [],
@@ -201,6 +222,11 @@ const initialState: ProductContextState = {
 // REDUCER
 // ============================================================================
 
+/**
+ * Reducer que maneja las acciones del contexto de productos
+ * Implementa lógica inmutable para todas las operaciones del estado
+ * Mantiene consistencia en la estructura de datos y cálculos automáticos
+ */
 function productReducer(state: ProductContextState, action: ProductAction): ProductContextState {
   switch (action.type) {
     // PRODUCTOS
@@ -328,6 +354,7 @@ function productReducer(state: ProductContextState, action: ProductAction): Prod
 // CONTEXTO
 // ============================================================================
 
+// Creación del contexto de productos
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 // ============================================================================
@@ -338,17 +365,24 @@ interface ProductProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Proveedor del contexto de productos
+ * Maneja toda la lógica de estado, caché y sincronización con ofertas
+ * Incluye optimizaciones para evitar re-renders innecesarios
+ */
 export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(productReducer, initialState);
 
   // ============================================================================
   // SINCRONIZACIÓN CON CONTEXTO DE OFERTAS
   // ============================================================================
+
   const ofertasContext = useOfertasGlobal();
 
   // ============================================================================
   // CONSTANTES CONSOLIDADAS
   // ============================================================================
+
   const CACHE_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutos
   const IMAGE_CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutos
   const PRODUCT_CACHE_KEY = 'tecnocel_product_cache';
@@ -358,12 +392,18 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // FUNCIONES UTILITARIAS CONSOLIDADAS
   // ============================================================================
 
-  // Verificar si el caché está fresco
+  /**
+   * Verificar si el caché está fresco
+   * Compara timestamp actual con tiempo de expiración configurado
+   */
   const isCacheFresh = useCallback((timestamp: number, expiryTime: number): boolean => {
     return Date.now() - timestamp < expiryTime;
   }, []);
 
-  // Función unificada para sincronizar productos con ofertas
+  /**
+   * Función unificada para sincronizar productos con ofertas
+   * Aplica información de ofertas a productos del catálogo
+   */
   const syncProductsWithOffers = useCallback((products: Product[]) => {
     if (!ofertasContext?.productosEnOferta?.length) {
       return products;
@@ -400,7 +440,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // SISTEMA DE CACHÉ UNIFICADO
   // ============================================================================
 
-  // Cargar datos del caché
+  /**
+   * Cargar datos del caché desde localStorage
+   * Verifica expiración y maneja errores de parsing
+   */
   const loadFromCache = useCallback((): CacheData | null => {
     try {
       const cached = localStorage.getItem(PRODUCT_CACHE_KEY);
@@ -421,7 +464,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [isCacheFresh]);
 
-  // Guardar datos en caché
+  /**
+   * Guardar datos en caché en localStorage
+   * Preserva datos existentes y actualiza timestamp
+   */
   const saveToCache = useCallback((data: Partial<CacheData>) => {
     try {
       const existingCache = loadFromCache() || {
@@ -446,7 +492,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [loadFromCache]);
 
-  // Verificar si los datos están en caché y son frescos
+  /**
+   * Verificar si los datos están en caché y son frescos
+   * Valida existencia y expiración de datos específicos
+   */
   const hasFreshData = useCallback((dataType: keyof CacheData): boolean => {
     const cache = loadFromCache();
     if (!cache) return false;
@@ -457,7 +506,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     return isCacheFresh(cache.timestamp, CACHE_EXPIRY_TIME);
   }, [loadFromCache, isCacheFresh]);
 
-  // Cargar datos del caché al estado
+  /**
+   * Cargar datos del caché al estado
+   * Restaura todos los datos almacenados en caché
+   */
   const restoreFromCache = useCallback(() => {
     const cache = loadFromCache();
     if (!cache) return false;
@@ -477,6 +529,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // FUNCIONES DE CACHÉ DE MEMORIA
   // ============================================================================
 
+  /**
+   * Obtener datos del caché en memoria
+   * Verifica expiración y limpia entradas obsoletas
+   */
   const getCachedData = useCallback((key: string): any | null => {
     const entry = state.cache.get(key);
     if (!entry) return null;
@@ -489,6 +545,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     return entry.data;
   }, [state.cache, CACHE_EXPIRY_TIME]);
 
+  /**
+   * Establecer datos en caché de memoria
+   * Almacena datos con timestamp para control de expiración
+   */
   const setCachedData = useCallback((key: string, data: any) => {
     dispatch({
       type: 'SET_CACHE',
@@ -496,6 +556,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     });
   }, []);
 
+  /**
+   * Limpiar caché de memoria
+   * Permite limpieza selectiva o completa del caché
+   */
   const clearCache = useCallback((key?: string) => {
     dispatch({ type: 'CLEAR_CACHE', payload: key });
   }, []);
@@ -504,6 +568,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // SISTEMA DE CACHÉ DE IMÁGENES OPTIMIZADO
   // ============================================================================
 
+  /**
+   * Cargar imagen con sistema de caché optimizado
+   * Combina caché en memoria y localStorage para máxima eficiencia
+   */
   const loadImageWithCache = useCallback(async (imageUrl: string): Promise<string> => {
     try {
       // Verificar caché en memoria primero
@@ -568,7 +636,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [state.imageCache, isCacheFresh, IMAGE_CACHE_EXPIRY]);
 
-  // Limpiar caché de imágenes
+  /**
+   * Limpiar caché de imágenes
+   * Revoca URLs de objetos y libera memoria del navegador
+   */
   const clearImageCache = useCallback(() => {
     try {
       const imageCache = localStorage.getItem(IMAGE_CACHE_KEY);
@@ -595,6 +666,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // FUNCIÓN UNIFICADA DE LIMPIEZA
   // ============================================================================
 
+  /**
+   * Limpiar estado de productos de forma controlada
+   * Permite limpieza selectiva o completa según parámetros
+   */
   const clearProductState = useCallback((force: boolean = false) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(force ? '🚨 LIMPIEZA FORZADA' : '🧹 Limpieza completa', 'del estado del producto');
@@ -615,7 +690,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [clearCache, clearImageCache]);
 
-  // ✅ FUNCIÓN COMPATIBILIDAD: Limpieza forzada para navegación
+  /**
+   * ✅ FUNCIÓN COMPATIBILIDAD: Limpieza forzada para navegación
+   * Permite limpieza completa del estado incluyendo caché de imágenes
+   */
   const forceClearProductState = useCallback(() => {
     clearProductState(true);
   }, [clearProductState]);
@@ -624,7 +702,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // FUNCIONES PRINCIPALES OPTIMIZADAS
   // ============================================================================
 
-  // Cargar productos con caché inteligente
+  /**
+   * Cargar productos con caché inteligente
+   * Verifica caché antes de hacer llamadas a la API
+   */
   const fetchProducts = useCallback(async (filters?: ProductFilters, page?: number) => {
     // Verificar caché si no hay filtros
     if (hasFreshData('products') && !filters) {
@@ -658,7 +739,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [state.pagination.limit, syncProductsWithOffers, hasFreshData, restoreFromCache, saveToCache]);
 
-  // Cargar un producto específico
+  /**
+   * Cargar un producto específico por ID
+   * Incluye limpieza del estado y sincronización con ofertas
+   */
   const fetchProduct = useCallback(async (id: number) => {
     try {
       // Limpieza completa del estado
@@ -680,7 +764,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [syncProductsWithOffers, clearProductState]);
 
-  // Cargar productos destacados
+  /**
+   * Cargar productos destacados con caché inteligente
+   * Verifica caché antes de hacer llamadas a la API
+   */
   const fetchFeaturedProducts = useCallback(async (limit?: number) => {
     if (hasFreshData('featuredProducts')) {
       if (process.env.NODE_ENV === 'development') {
@@ -708,7 +795,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [syncProductsWithOffers, hasFreshData, restoreFromCache, saveToCache]);
 
-  // Cargar categorías
+  /**
+   * Cargar categorías con caché inteligente
+   * Verifica caché antes de hacer llamadas a la API
+   */
   const fetchCategories = useCallback(async () => {
     if (hasFreshData('categories')) {
       if (process.env.NODE_ENV === 'development') {
@@ -734,7 +824,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [hasFreshData, restoreFromCache, saveToCache]);
 
-  // Seleccionar categoría
+  /**
+   * Seleccionar categoría y actualizar filtros
+   * Sincroniza selección con sistema de filtros
+   */
   const selectCategory = useCallback((category: Category | null) => {
     dispatch({ type: 'SET_SELECTED_CATEGORY', payload: category });
 
@@ -745,7 +838,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, []);
 
-  // Cargar marcas
+  /**
+   * Cargar marcas con caché inteligente
+   * Verifica caché antes de hacer llamadas a la API
+   */
   const fetchBrands = useCallback(async () => {
     if (hasFreshData('brands')) {
       if (process.env.NODE_ENV === 'development') {
@@ -771,7 +867,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
   }, [hasFreshData, restoreFromCache, saveToCache]);
 
-  // Seleccionar marca
+  /**
+   * Seleccionar marca y actualizar filtros
+   * Sincroniza selección con sistema de filtros
+   */
   const selectBrand = useCallback((brand: Marca | null) => {
     dispatch({ type: 'SET_SELECTED_BRAND', payload: brand });
 
@@ -786,18 +885,34 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // ACCIONES DE FILTROS Y BÚSQUEDA
   // ============================================================================
 
+  /**
+   * Actualizar filtros de productos
+   * Sincroniza cambios con sistema de paginación
+   */
   const updateFilters = useCallback((filters: Partial<ProductFilters>) => {
     dispatch({ type: 'UPDATE_FILTERS', payload: filters });
   }, []);
 
+  /**
+   * Actualizar query de búsqueda
+   * Sincroniza con sistema de paginación
+   */
   const updateSearchQuery = useCallback((query: string) => {
     dispatch({ type: 'SET_SEARCH_QUERY', payload: query });
   }, []);
 
+  /**
+   * Resetear todos los filtros
+   * Restaura estado inicial de filtros y búsqueda
+   */
   const resetFilters = useCallback(() => {
     dispatch({ type: 'RESET_FILTERS' });
   }, []);
 
+  /**
+   * Aplicar filtros a productos
+   * Implementa lógica de filtrado completa con múltiples criterios
+   */
   const applyFilters = useCallback(() => {
     let filtered = state.products;
 
@@ -847,10 +962,18 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // ACCIONES DE PAGINACIÓN
   // ============================================================================
 
+  /**
+   * Actualizar configuración de paginación
+   * Modifica página y límite de productos por página
+   */
   const updatePagination = useCallback((page: number, limit: number) => {
     dispatch({ type: 'UPDATE_PAGINATION', payload: { page, limit } });
   }, []);
 
+  /**
+   * Cargar más productos
+   * Implementa paginación infinita para mejor UX
+   */
   const loadMore = useCallback(async () => {
     if (!state.pagination.hasMore || state.pagination.page === 1) return;
 
@@ -934,6 +1057,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // VALOR DEL CONTEXTO OPTIMIZADO
   // ============================================================================
 
+  /**
+   * Valor del contexto memoizado para evitar re-renders innecesarios
+   * Solo se recrea cuando cambian las dependencias reales
+   */
   const contextValue: ProductContextType = useMemo(() => ({
     state,
     fetchProducts,
@@ -995,6 +1122,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 // HOOK PERSONALIZADO
 // ============================================================================
 
+/**
+ * Hook personalizado para usar el contexto de productos
+ * Proporciona acceso seguro al contexto con validación de uso
+ */
 export const useProductContext = (): ProductContextType => {
   const context = useContext(ProductContext);
   if (context === undefined) {

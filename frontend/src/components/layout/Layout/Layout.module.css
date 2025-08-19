@@ -20,7 +20,7 @@
   padding-top: var(--navbar-height);
   animation: fadeIn var(--transition-normal) var(--transition-curve);
   box-shadow: var(--shadow-md);
-  background-color: var(--background-secondary);
+  background-color: var(--background-primary);
 }
 
 .contentSection:hover {

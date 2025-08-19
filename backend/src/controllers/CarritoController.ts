@@ -479,6 +479,11 @@ export default class CarritoController {
             as: 'producto',
             include: [
               {
+                model: ProductoImagen,
+                as: 'imagenes',
+                attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+              },
+              {
                 model: Oferta,
                 as: 'ofertas',
                 where: {
@@ -511,7 +516,7 @@ export default class CarritoController {
 
       // Calcular precio con oferta aplicada para recalcular el subtotal
       const ofertas = (item.producto as any).ofertas || [];
-      const { precio_original, precio_oferta } = 
+      const { precio_original, precio_oferta, descuento_porcentaje, en_oferta } = 
         CarritoController.calcularPrecioConOferta(item.producto!, ofertas);
       
       // Usar precio con oferta si está disponible, sino precio original
@@ -544,12 +549,25 @@ export default class CarritoController {
         success: true
       });
       
+      // Transformar el producto con ofertas e imágenes usando el método helper
+      const ofertasProducto = (item.producto as any).ofertas || [];
+      const productoTransformado = await CarritoController.transformarProductoConImagenes(
+        item.producto!, 
+        ofertasProducto
+      );
+
       return res.json({
         mensaje: 'Cantidad actualizada exitosamente',
         item: {
           id_item: item.id_item,
+          id_carrito: item.id_carrito,
+          id_producto: item.id_producto,
           cantidad: item.cantidad,
-          subtotal: item.subtotal
+          precio_unitario: item.precio_unitario,
+          subtotal: item.subtotal,
+          fyh_creacion: item.fyh_creacion.toISOString(),
+          fyh_actualizacion: item.fyh_actualizacion.toISOString(),
+          producto: productoTransformado
         },
         total_carrito: nuevoTotal
       });

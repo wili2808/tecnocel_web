@@ -18,6 +18,11 @@ class Almacen extends Model {
   declare orden_destacado: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
+  
+  // Declarar asociaciones
+  declare imagenes?: any[];
+  declare ofertas?: any[];
+  declare caracteristicas?: any[];
 }
 
 Almacen.init({

@@ -61,13 +61,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // ============================================================================
     // ESTADOS ADICIONALES PARA OVERLAY DE LÍMITE DE CARRITO
     // ============================================================================
-    
+
     /**
      * Verificar si ya no se pueden agregar más productos al carrito
      * Determina si mostrar overlay rojo de límite alcanzado
      */
     const cannotAddMore = !logic.canAddMoreOfProduct(id_producto, stock);
-    
+
     /**
      * Determinar el tipo de overlay a mostrar
      * Prioriza: éxito > límite alcanzado > agregar al carrito > agotado
@@ -87,13 +87,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // ============================================================================
     // FUNCIONES ESPECÍFICAS DE PRODUCTCARD
     // ============================================================================
-    
+
     // Función reservada para futuras funcionalidades
 
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <Link
             to={`/productos/${id_producto}`}
@@ -121,18 +121,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     />
 
                     {/* Indicador de oferta reutilizable - Solo visible si hay descuento */}
-                    {(en_oferta || 
-                      (precio_oferta && precio_oferta < Number(precio_venta))) && (
-                        <OfferIndicator
-                            descuentoPorcentaje={
-                                (precio_oferta && precio_venta ? 
-                                    Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
-                            }
-                            size="small"
-                            position="top-left"
-                            showLabel={true}
-                        />
-                    )}
+                    {(en_oferta ||
+                        (precio_oferta && precio_oferta < Number(precio_venta))) && (
+                            <OfferIndicator
+                                descuentoPorcentaje={
+                                    (precio_oferta && precio_venta ?
+                                        Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
+                                }
+                                size="small"
+                                position="top-left"
+                                showLabel={true}
+                            />
+                        )}
 
                     {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
                     <CartIndicator productId={id_producto} />
@@ -150,7 +150,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     {/* OVERLAY DINÁMICO SEGÚN EL ESTADO DEL PRODUCTO */}
                     {(() => {
                         const overlayType = getOverlayType();
-                        
+
                         switch (overlayType) {
                             case 'success':
                                 // ✅ OVERLAY DE ÉXITO - Verde con check, previene navegación
@@ -172,7 +172,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         <span className={styles.overlayText}>¡Agregado!</span>
                                     </button>
                                 );
-                            
+
                             case 'limitReached':
                                 // 🚫 OVERLAY DE LÍMITE ALCANZADO - Rojo con navegación al carrito
                                 return (
@@ -202,7 +202,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         </span>
                                     </button>
                                 );
-                            
+
                             case 'addToCart':
                                 // 🛒 OVERLAY DE AGREGAR AL CARRITO - Azul con botón
                                 return (
@@ -225,7 +225,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         </span>
                                     </button>
                                 );
-                            
+
                             case 'outOfStock':
                             default:
                                 // ❌ OVERLAY DE PRODUCTO AGOTADO - Gris con información
@@ -239,7 +239,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 );
                         }
                     })()}
-                    
+
                     {/* Badge de producto agotado - Solo visible si no hay stock */}
                     {isOutOfStock && (
                         <div className={styles.outOfStockBadge} role="status" aria-label="Producto agotado">
@@ -278,9 +278,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <div className={styles.productFooter}>
                         {/* Contenedor de información de stock */}
                         <div className={styles.stockContainer}>
-                            <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
+                            {/* <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
                                 {stockText}
-                            </span>
+                            </span> */}
                         </div>
 
                         {/* Contenedor de botones de acción - RESERVADO PARA FUNCIONES FUTURAS */}

@@ -16,7 +16,7 @@
   justify-content: space-between;
   margin-bottom: 24px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid var(--border-color-light);
 }
 
 .sectionTitle {
@@ -25,23 +25,23 @@
   gap: 12px;
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .sectionTitle .material-icons {
   font-size: 28px;
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .badge {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--text-light);
   padding: 6px 12px;
   border-radius: 16px;
   font-size: 0.875rem;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-button-primary);
 }
 
 .grid {
@@ -66,7 +66,7 @@
 
 .loadingText {
   margin-top: 16px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 500;
 }
@@ -83,20 +83,20 @@
 .errorContent .material-icons,
 .emptyContent .material-icons {
   font-size: 64px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .errorContent h3,
 .emptyContent h3 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .errorContent p,
 .emptyContent p {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
@@ -107,20 +107,20 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--text-light);
   border: none;
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-button-primary);
 }
 
 .retryButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: var(--shadow-button-primary-hover);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-dark) 100%);
 }
 
 .retryButton:active {

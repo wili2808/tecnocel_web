@@ -1,8 +1,8 @@
 .offerCard {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background-color: var(--background-elevated);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color-light);
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
@@ -165,8 +165,8 @@
 /* Footer */
 .cardFooter {
   padding: 20px 24px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-top: 1px solid var(--border-color-light);
+  background: var(--background-secondary);
 }
 
 .viewButton {

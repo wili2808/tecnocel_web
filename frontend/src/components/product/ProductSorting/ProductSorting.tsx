@@ -1,3 +1,9 @@
+/**
+ * Componente ProductSorting - Controles de ordenamiento y filtros básicos
+ * Muestra selector de ordenamiento y toggle de filtro de stock disponible
+ * Incluye funcionalidades para cambio de orden y filtrado por disponibilidad
+ * Utiliza ORDER_OPTIONS para opciones de ordenamiento predefinidas
+ */
 import React from 'react';
 import styles from './ProductSorting.module.css';
 import { ORDER_OPTIONS } from '../../../utils/productFiltering';
@@ -18,9 +24,13 @@ const ProductSorting: React.FC<ProductSortingProps> = ({
     onlyInStock,
     onStockFilterChange
 }) => {
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+
     return (
         <div className={styles.sortingContainer}>
-            {/* Selector de ordenamiento */}
+            {/* Selector de ordenamiento de productos */}
             <div className={styles.sortingGroup}>
                 <select
                     id="sort-select"
@@ -37,7 +47,7 @@ const ProductSorting: React.FC<ProductSortingProps> = ({
                 </select>
             </div>
 
-            {/* Toggle de stock disponible */}
+            {/* Toggle de filtro por stock disponible */}
             <div className={styles.sortingGroup}>
                 <label className={styles.toggleLabel}>
                     <input
@@ -56,5 +66,7 @@ const ProductSorting: React.FC<ProductSortingProps> = ({
         </div>
     );
 };
+
+ProductSorting.displayName = 'ProductSorting';
 
 export default ProductSorting; 

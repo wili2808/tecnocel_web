@@ -136,9 +136,9 @@
 
 /* === PRIMARY === */
 .primary {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-light);
   color: var(--text-inverse);
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-light);
   box-shadow: var(--shadow-button-primary);
 }
 

@@ -1,3 +1,9 @@
+/**
+ * Componente OfferCard - Tarjeta de oferta individual
+ * Muestra información completa de una oferta con estado y tiempo restante
+ * Incluye funcionalidades para formateo de fechas, descuentos y validación de estado
+ * Utiliza lógica de tiempo para determinar si la oferta está activa o expirada
+ */
 import React from 'react';
 import type { Oferta } from '../../../types/product';
 import styles from './OfferCard.module.css';
@@ -13,6 +19,14 @@ const OfferCard: React.FC<OfferCardProps> = ({
     productCount = 0,
     className = ''
 }) => {
+    // ============================================================================
+    // FUNCIONES DE FORMATEO Y VALIDACIÓN
+    // ============================================================================
+
+    /**
+     * Formatear fecha en formato legible para el usuario
+     * Convierte string de fecha a formato localizado en español argentino
+     */
     const formatDate = (dateString: string) => {
         try {
             return new Date(dateString).toLocaleDateString('es-AR', {
@@ -25,6 +39,10 @@ const OfferCard: React.FC<OfferCardProps> = ({
         }
     };
 
+    /**
+     * Formatear descuento según el tipo (porcentaje o monto fijo)
+     * Retorna string formateado para mostrar en la interfaz
+     */
     const formatDiscount = () => {
         if (oferta.tipo_descuento === 'porcentaje') {
             return `${oferta.valor_descuento}% OFF`;
@@ -33,6 +51,10 @@ const OfferCard: React.FC<OfferCardProps> = ({
         }
     };
 
+    /**
+     * Verificar si la oferta está actualmente activa
+     * Compara fecha actual con fechas de inicio y fin de la oferta
+     */
     const isActive = () => {
         const now = new Date();
         const inicio = new Date(oferta.fecha_inicio);
@@ -40,6 +62,10 @@ const OfferCard: React.FC<OfferCardProps> = ({
         return now >= inicio && now <= fin;
     };
 
+    /**
+     * Calcular tiempo restante hasta que expire la oferta
+     * Retorna string descriptivo del tiempo restante en días u horas
+     */
     const getTimeRemaining = () => {
         const now = new Date();
         const fin = new Date(oferta.fecha_fin);
@@ -59,8 +85,16 @@ const OfferCard: React.FC<OfferCardProps> = ({
         }
     };
 
+    // ============================================================================
+    // CÁLCULOS DE ESTADO
+    // ============================================================================
+
     const active = isActive();
     const timeRemaining = getTimeRemaining();
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     return (
         <div className={`${styles.offerCard} ${!active ? styles.inactive : ''} ${className}`}>
@@ -126,5 +160,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
         </div>
     );
 };
+
+OfferCard.displayName = 'OfferCard';
 
 export default OfferCard;

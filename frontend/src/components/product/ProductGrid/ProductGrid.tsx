@@ -1,3 +1,9 @@
+/**
+ * Componente ProductGrid - Grid de productos con filtrado inteligente
+ * Muestra productos en grid con soporte para filtros, búsqueda y estados de carga
+ * Incluye funcionalidades para filtrado inteligente combinando contexto y filtros locales
+ * Utiliza useProductActions para gestión de productos y lógica de filtrado optimizada
+ */
 import React, { useMemo } from 'react';
 import ProductCardExtensive from '../ProductCardExtensive';
 import styles from './ProductGrid.module.css';
@@ -10,30 +16,42 @@ interface ProductGridProps {
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     // Usar el contexto directamente para obtener productos y estado
-    const { 
-        productsLoading: loading, 
+    const {
+        productsLoading: loading,
         productsError: error,
         products: allProducts,
         filteredProducts, // ✅ Agregar productos filtrados del contexto
-        loadProducts 
+        loadProducts
     } = useProductActions();
-    
+
+    // ============================================================================
+    // PROCESAMIENTO Y FILTRADO DE PRODUCTOS
+    // ============================================================================
+
     // ✅ Lógica inteligente: usar filteredProducts del contexto si hay búsqueda activa
     // y aplicar filtros adicionales del frontend (categoría, marca, stock, ordenamiento)
     const products = useMemo(() => {
         if (!filters) return allProducts;
-        
+
         // Si hay búsqueda activa, usar productos ya filtrados del contexto
         let baseProducts = filters.search.trim() ? filteredProducts : allProducts;
-        
+
         // Aplicar filtros adicionales del frontend
         return filterProducts(baseProducts, filters);
     }, [filters, allProducts, filteredProducts]);
-    
+
     const totalProducts = allProducts.length;
 
-    // Estado de carga
+    // ============================================================================
+    // ESTADOS DE CARGA Y ERROR
+    // ============================================================================
+
+    // Estado de carga inicial
     if (loading) {
         return (
             <div className={styles.loadingContainer}>
@@ -43,7 +61,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
         );
     }
 
-    // Estado de error
+    // Estado de error con opción de reintento
     if (error) {
         return (
             <div className={styles.errorContainer}>
@@ -59,7 +77,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
         );
     }
 
-    // Estado vacío
+    // Estado vacío con sugerencias de filtros
     if (products.length === 0) {
         return (
             <div className={styles.emptyContainer}>
@@ -74,7 +92,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
         );
     }
 
-    // Grid de productos
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+
+    // Grid de productos con ProductCardExtensive
     return (
         <div className={styles.productsGrid}>
             {products.map((product: any) => (
@@ -94,5 +116,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
         </div>
     );
 };
+
+ProductGrid.displayName = 'ProductGrid';
 
 export default ProductGrid; 

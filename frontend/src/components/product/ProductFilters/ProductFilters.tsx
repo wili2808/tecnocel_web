@@ -1,3 +1,9 @@
+/**
+ * Componente ProductFilters - Filtros y controles de búsqueda de productos
+ * Muestra filtros por categoría, marca, ordenamiento y disponibilidad de stock
+ * Incluye funcionalidades para filtrado dinámico y contadores de resultados
+ * Utiliza useProductActions para obtener categorías y marcas del sistema
+ */
 import React from 'react';
 import styles from './ProductFilters.module.css';
 import type { ProductUIFilters } from '../../../types/product';
@@ -20,16 +26,28 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     totalProducts,
     filteredProducts
 }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+
     // Usar el contexto directamente para obtener categorías y marcas
     const { categories, brands } = useProductActions();
+
+    // ============================================================================
+    // PREPARACIÓN DE DATOS
+    // ============================================================================
 
     // Datos seguros con fallbacks
     const safeCategories = categories || [];
     const safeBrands = brands || [];
 
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
+
     return (
         <div className={styles.filtersContainer}>
-            {/* Filtro de Categorías */}
+            {/* Filtro de Categorías del sistema */}
             <div className={styles.filterSection}>
                 <h3 className={styles.filterSectionTitle}>Categorías</h3>
                 <div className={styles.filterGroup}>
@@ -49,7 +67,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </div>
             </div>
 
-            {/* Filtro de Marcas */}
+            {/* Filtro de Marcas del sistema */}
             <div className={styles.filterSection}>
                 <h3 className={styles.filterSectionTitle}>Marcas</h3>
                 <div className={styles.filterGroup}>
@@ -69,7 +87,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </div>
             </div>
 
-            {/* Ordenamiento */}
+            {/* Selector de ordenamiento de productos */}
             <div className={styles.filterSection}>
                 <h3 className={styles.filterSectionTitle}>Ordenar</h3>
                 <div className={styles.filterGroup}>
@@ -89,7 +107,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </div>
             </div>
 
-            {/* Filtro de Stock */}
+            {/* Filtro de disponibilidad de stock */}
             <div className={styles.filterSection}>
                 <h3 className={styles.filterSectionTitle}>Disponibles</h3>
                 <div className={styles.filterGroup}>
@@ -109,7 +127,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </div>
             </div>
 
-            {/* Contador de resultados */}
+            {/* Contador de resultados filtrados */}
             <div className={styles.resultsCounter}>
                 <div className={styles.resultsCounterContent}>
                     <span className={styles.resultsNumber}>{filteredProducts}</span>
@@ -119,5 +137,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         </div>
     );
 };
+
+ProductFilters.displayName = 'ProductFilters';
 
 export default ProductFilters;

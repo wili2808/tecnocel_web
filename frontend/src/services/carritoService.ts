@@ -36,10 +36,7 @@ export class CarritoService {
   /**
    * Actualiza la cantidad de un item en el carrito
    */
-  static async actualizarCantidad(
-    id_item: number, 
-    cantidad: number
-  ): Promise<ItemResponse> {
+  static async actualizarCantidad (id_item: number, cantidad: number): Promise <ItemResponse> {
     const response = await axiosInstance.put(`/carrito/items/${id_item}`, {
       cantidad
     });
@@ -49,7 +46,7 @@ export class CarritoService {
   /**
    * Elimina un item del carrito
    */
-  static async eliminarItem(id_item: number): Promise<EliminarItemResponse> {
+  static async eliminarItem (id_item: number): Promise <EliminarItemResponse> {
     const response = await axiosInstance.delete(`/carrito/items/${id_item}`);
     return response.data;
   }

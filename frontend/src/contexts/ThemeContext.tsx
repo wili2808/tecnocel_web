@@ -1,21 +1,48 @@
 /**
- * Contexto de Tema - Maneja el estado global del tema
+ * Contexto de Tema - Maneja el estado global del tema de la aplicación
+ * Proporciona funcionalidades para alternar entre tema claro y oscuro
+ * Incluye persistencia en localStorage y sincronización con preferencias del sistema
+ * Utiliza useEffect para sincronizar cambios de tema con el DOM y meta tags
  */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+// ============================================================================
+// TIPOS Y CONFIGURACIÓN
+// ============================================================================
+
 /**
- * Tipos de temas disponibles
+ * Tipos de temas disponibles en la aplicación
+ * Define los valores válidos para el estado del tema
  */
 export type Theme = 'light' | 'dark';
 
+// ============================================================================
+// INTERFACES
+// ============================================================================
+
 /**
  * Métodos y propiedades del contexto de tema
+ * Define la API pública del contexto para componentes consumidores
  */
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
 }
+
+/**
+ * Props para el componente ThemeProvider
+ * @property {React.ReactNode} children - Componentes hijos
+ * @property {Theme} defaultTheme - Tema por defecto (opcional)
+ */
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+}
+
+// ============================================================================
+// CREACIÓN DEL CONTEXTO
+// ============================================================================
 
 // Creación del contexto de tema
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -33,23 +60,23 @@ export const useTheme = () => {
   return context;
 };
 
-/**
- * Props para el componente ThemeProvider
- * @property {React.ReactNode} children - Componentes hijos
- * @property {Theme} defaultTheme - Tema por defecto (opcional)
- */
-interface ThemeProviderProps {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-}
+// ============================================================================
+// PROVIDER PRINCIPAL
+// ============================================================================
 
 /**
  * Proveedor del contexto de tema que maneja el estado y las operaciones
+ * Incluye persistencia automática y sincronización con preferencias del sistema
+ * Optimizado para evitar re-renders innecesarios con useMemo
  */
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ 
-  children, 
-  defaultTheme = 'light' 
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+  children,
+  defaultTheme = 'dark'
 }) => {
+  // ============================================================================
+  // ESTADO Y FUNCIONES
+  // ============================================================================
+
   // Estado para almacenar el tema actual
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
@@ -63,6 +90,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   /**
    * Establece un tema específico
+   * Actualiza el estado local y dispara efectos de sincronización
    */
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -70,19 +98,25 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   /**
    * Alterna entre tema claro y oscuro
+   * Cambia automáticamente al tema opuesto del actual
    */
   const toggleTheme = useCallback(() => {
     setThemeState(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   }, []);
 
+  // ============================================================================
+  // EFECTOS Y SINCRONIZACIÓN
+  // ============================================================================
+
   /**
    * Actualiza el tema en el DOM y localStorage
+   * Sincroniza el atributo data-theme y meta theme-color para navegadores móviles
    */
   useEffect(() => {
     try {
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
-      
+
       // Actualizar meta theme-color para navegadores móviles
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) {
@@ -98,10 +132,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   /**
    * Sincroniza con las preferencias del sistema
+   * Escucha cambios en las preferencias de color del sistema operativo
+   * Incluye manejo de errores para navegadores que no soportan la API
    */
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = (e: MediaQueryListEvent) => {
       setThemeState(e.matches ? 'dark' : 'light');
     };
@@ -120,6 +156,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       }
     };
   }, []);
+
+  // ============================================================================
+  // VALOR DEL CONTEXTO
+  // ============================================================================
 
   // Memoización del valor del contexto para optimizar rendimiento
   const value = React.useMemo(() => ({

@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
-  background-color: var(--background-elevated);
+  background-color: var(--background-secondary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
   transition: var(--theme-transition);
@@ -39,7 +39,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: var(--background-secondary);
+  background-color: var(--background-elevated);
   border: none;
   color: var(--text-primary);
   cursor: pointer;

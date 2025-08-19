@@ -1,3 +1,9 @@
+/**
+ * Componente IconButton - Botón con icono personalizable
+ * Muestra botón con icono de Material Design y múltiples variantes visuales
+ * Incluye funcionalidades para estados de carga, deshabilitado y diferentes tamaños
+ * Utiliza React.memo para optimización de re-renders
+ */
 import React, { memo } from 'react';
 import styles from './IconButton.module.css';
 
@@ -36,7 +42,15 @@ const IconButton: React.FC<IconButtonProps> = memo(({
     loading = false,
     type = 'button'
 }) => {
+    // ============================================================================
+    // CÁLCULOS DE ESTADO
+    // ============================================================================
+
     const isDisabled = disabled || loading;
+
+    // ============================================================================
+    // RENDERIZADO
+    // ============================================================================
 
     return (
         <button
@@ -46,11 +60,13 @@ const IconButton: React.FC<IconButtonProps> = memo(({
             disabled={isDisabled}
             type={type}
         >
+            {/* Mostrar icono de carga o icono normal según estado */}
             {loading ? (
                 <span className={`material-icons ${styles.loadingIcon}`}>hourglass_empty</span>
             ) : (
                 <span className="material-icons">{icon}</span>
             )}
+            {/* Contenido adicional del botón */}
             {children}
         </button>
     );

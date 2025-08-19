@@ -1,6 +1,6 @@
 .offersPage {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--background-secondary);
   padding: 0;
 }
 
@@ -8,6 +8,7 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 32px 24px;
+  background: var(--background-primary);
 }
 
 /* Header */
@@ -17,10 +18,10 @@
   justify-content: space-between;
   margin-bottom: 48px;
   padding: 32px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--background-elevated);
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 32px var(--color-black-light);
+  border: 1px solid var(--border-color-light);
 }
 
 .headerContent {
@@ -33,9 +34,9 @@
   gap: 16px;
   font-size: 2.5rem;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0 0 12px 0;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -43,13 +44,13 @@
 
 .pageTitle .material-icons {
   font-size: 40px;
-  color: #3b82f6;
-  -webkit-text-fill-color: #3b82f6;
+  color: var(--color-primary);
+  -webkit-text-fill-color: var(--color-primary);
 }
 
 .pageSubtitle {
   font-size: 1.2rem;
-  color: #64748b;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
   max-width: 600px;
@@ -61,10 +62,10 @@
   align-items: center;
   gap: 24px;
   padding: 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border-radius: 16px;
-  color: white;
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  color: var(--text-light);
+  box-shadow: var(--shadow-button-primary);
 }
 
 .stat {
@@ -91,7 +92,7 @@
 .statDivider {
   width: 1px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-white-overlay-medium);
 }
 
 /* Responsive */
@@ -224,31 +225,5 @@
   animation: fadeIn 0.8s ease-out;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .offersPage {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  }
-  
-  .pageHeader {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    border-color: #475569;
-  }
-  
-  .pageTitle {
-    color: #f1f5f9;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  .pageTitle .material-icons {
-    color: #60a5fa;
-    -webkit-text-fill-color: #60a5fa;
-  }
-  
-  .pageSubtitle {
-    color: #94a3b8;
-  }
-}
+/* Dark mode support - Ahora manejado por el sistema de temas */
+/* Las variables CSS ya se adaptan automáticamente al cambiar el atributo data-theme */

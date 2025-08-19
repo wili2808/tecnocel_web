@@ -1,18 +1,30 @@
 /**
  * Contexto de Autenticación Optimizado - Maneja el estado global de autenticación
+ * Proporciona funcionalidades de login, registro, logout y autenticación con Google OAuth
+ * Incluye persistencia de sesión, verificación de tokens y manejo de errores
+ * Utiliza useGoogleLogin para integración con Google OAuth 2.0
  */
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { authService } from '../services/authService';
 
-// Constantes
+// ============================================================================
+// CONSTANTES Y CONFIGURACIÓN
+// ============================================================================
+
+// Constantes para almacenamiento local
 const TOKEN_KEY = 'token';
 const AUTH_TIMESTAMP_KEY = 'auth_timestamp';
 const AUTH_USER_KEY = 'auth_user';
 
+// ============================================================================
+// INTERFACES Y TIPOS
+// ============================================================================
+
 /**
  * Estructura de un cliente en el sistema
+ * Define los campos básicos de información del usuario autenticado
  */
 export interface ClienteUser {
   id_cliente: number;
@@ -23,6 +35,10 @@ export interface ClienteUser {
   nit_ci_cliente?: string;
 }
 
+/**
+ * Estado interno del contexto de autenticación
+ * Mantiene información del usuario, token y estados de operación
+ */
 interface AuthState {
   user: ClienteUser | null;
   token: string | null;
@@ -31,6 +47,10 @@ interface AuthState {
   error: string | null;
 }
 
+/**
+ * Datos requeridos para el registro de un nuevo usuario
+ * Incluye validación de campos obligatorios y opcionales
+ */
 interface RegisterData {
   nombre_cliente: string;
   apellido_cliente: string;
@@ -42,6 +62,7 @@ interface RegisterData {
 
 /**
  * Métodos y propiedades del contexto de autenticación
+ * Define la API pública del contexto para componentes consumidores
  */
 interface AuthContextType {
   user: ClienteUser | null;
@@ -57,7 +78,11 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-// Estado inicial
+// ============================================================================
+// ESTADO INICIAL
+// ============================================================================
+
+// Estado inicial del contexto
 const initialState: AuthState = {
   user: null,
   token: null,
@@ -66,11 +91,16 @@ const initialState: AuthState = {
   error: null,
 };
 
+// ============================================================================
+// CREACIÓN DEL CONTEXTO
+// ============================================================================
+
 // Creación del contexto de autenticación
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
  * Hook personalizado para usar el contexto de autenticación
+ * Proporciona acceso seguro al contexto con validación de uso
  */
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -80,16 +110,29 @@ export const useAuth = () => {
   return context;
 };
 
+// ============================================================================
+// PROPIEDADES DEL PROVIDER
+// ============================================================================
+
 interface AuthProviderProps {
   children: ReactNode;
 }
 
+// ============================================================================
+// PROVIDER PRINCIPAL
+// ============================================================================
+
 /**
  * Proveedor del contexto de autenticación optimizado
  * Maneja el estado global de autenticación y la persistencia de sesión
+ * Incluye optimizaciones para evitar re-renders innecesarios
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  // Estado unificado
+  // ============================================================================
+  // ESTADO Y REFS
+  // ============================================================================
+
+  // Estado unificado del contexto
   const [state, setState] = useState<AuthState>(() => {
     // Inicialización lazy para evitar cálculos en cada render
     const token = localStorage.getItem(TOKEN_KEY);
@@ -115,6 +158,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const verificationRef = useRef(false);
   const isInitializedRef = useRef(false);
 
+  // ============================================================================
+  // FUNCIONES AUXILIARES
+  // ============================================================================
+
   // Función para actualizar estado de forma inmutable
   const updateState = useCallback((updates: Partial<AuthState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -130,7 +177,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     authService.clearAuthToken();
   }, []);
 
-  // Verificación de token optimizada
+  // ============================================================================
+  // VERIFICACIÓN DE TOKEN
+  // ============================================================================
+
+  /**
+   * Verificación de token optimizada
+   * Valida el token almacenado y actualiza el estado del usuario
+   * Incluye manejo de errores y limpieza automática de datos expirados
+   */
   const verifyToken = useCallback(async () => {
     if (verificationRef.current || isInitializedRef.current) {
       return;
@@ -173,12 +228,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [updateState, clearAuthData]);
 
+  // ============================================================================
+  // EFECTOS
+  // ============================================================================
+
   // Efecto para verificar token solo una vez
   useEffect(() => {
     verifyToken();
   }, [verifyToken]);
 
-  // Login optimizado
+  // ============================================================================
+  // FUNCIONES DE AUTENTICACIÓN
+  // ============================================================================
+
+  /**
+   * Login optimizado con credenciales de usuario
+   * Maneja autenticación, persistencia de datos y manejo de errores
+   */
   const login = useCallback(async (email_cliente: string, contrasena: string) => {
     try {
       updateState({ error: null });
@@ -201,7 +267,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [updateState, saveAuthData, clearAuthData]);
 
-  // Register optimizado
+  /**
+   * Register optimizado para nuevos usuarios
+   * Crea cuenta de usuario y establece sesión automáticamente
+   */
   const register = useCallback(async (data: RegisterData) => {
     try {
       updateState({ error: null });
@@ -222,7 +291,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [updateState, saveAuthData]);
 
-  // Logout optimizado
+  /**
+   * Logout optimizado
+   * Limpia datos de sesión y restablece estado inicial
+   */
   const logout = useCallback(() => {
     clearAuthData();
     updateState({
@@ -232,7 +304,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
   }, [clearAuthData, updateState]);
 
-  // Google login optimizado
+  /**
+   * Google login optimizado con OAuth 2.0
+   * Configura flujo de autenticación con Google y maneja respuestas
+   */
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
@@ -264,12 +339,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     flow: 'implicit'
   });
 
-  // Limpiar error
+  /**
+   * Limpiar error del contexto
+   * Permite a los componentes limpiar mensajes de error
+   */
   const clearError = useCallback(() => {
     updateState({ error: null });
   }, [updateState]);
 
-  // Valor del contexto memoizado
+  // ============================================================================
+  // VALOR DEL CONTEXTO
+  // ============================================================================
+
+  // Valor del contexto memoizado para evitar re-renders innecesarios
   const contextValue = useMemo(() => ({
     user: state.user,
     token: state.token,

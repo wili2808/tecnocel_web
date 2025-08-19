@@ -87,6 +87,7 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     // ============================================================================
     // HOOKS Y NAVEGACIÓN
     // ============================================================================
+
     const location = useLocation();
     const navigate = useNavigate();
 
