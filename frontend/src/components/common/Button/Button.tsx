@@ -1,75 +1,12 @@
 /**
- * Componente Button - Botón universal para todo el proyecto
- * Proporciona múltiples variantes, tamaños y tipos para cubrir todos los casos de uso
- * Integrado completamente con el sistema de diseño de TecnoCel
- * Soporta botones de texto, enlaces, formularios y estados especiales
+ * Componente Button optimizado - Botón universal responsive para TecnoCel Web
+ * Versión simplificada que mantiene todas las funcionalidades esenciales
+ * Optimizado para smartphones, tablets y desktop
  */
 import React, { memo, forwardRef } from 'react';
 import styles from './Button.module.css';
 
-// ============================================================================
-// TIPOS Y INTERFACES
-// ============================================================================
-
-export interface ButtonProps {
-  /** Contenido del botón (texto, iconos, etc.) */
-  children: React.ReactNode;
-  
-  /** Variante visual del botón */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'text' | 'link' | 'danger' | 'success' | 'warning';
-  
-  /** Tamaño del botón */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  
-  /** Si el botón está deshabilitado */
-  disabled?: boolean;
-  
-  /** Si el botón está en estado de carga */
-  loading?: boolean;
-  
-  /** Tipo de botón HTML */
-  type?: 'button' | 'submit' | 'reset';
-  
-  /** ID del formulario asociado */
-  form?: string;
-  
-  /** Clases CSS adicionales */
-  className?: string;
-  
-  /** Función que se ejecuta al hacer clic */
-  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
-  
-  /** URL para botones de enlace */
-  href?: string;
-  
-  /** Target para enlaces externos */
-  target?: '_blank' | '_self' | '_parent' | '_top';
-  
-  /** Rel para enlaces externos */
-  rel?: string;
-  
-  /** Si el botón debe ocupar todo el ancho disponible */
-  fullWidth?: boolean;
-  
-  /** Si el botón debe tener bordes redondeados */
-  rounded?: boolean;
-  
-  /** Icono opcional (Material Design) */
-  icon?: string;
-  
-  /** Posición del icono */
-  iconPosition?: 'left' | 'right';
-  
-  /** Si el botón debe tener efecto de elevación */
-  elevated?: boolean;
-  
-  /** Si el botón debe tener efecto de glassmorphism */
-  glass?: boolean;
-}
-
-// ============================================================================
-// COMPONENTE PRINCIPAL
-// ============================================================================
+import type { ButtonProps } from './types';
 
 const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
   children,
@@ -85,41 +22,36 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
   target,
   rel,
   fullWidth = false,
+  mobileFullWidth = false,
   rounded = false,
   icon,
   iconPosition = 'left',
   elevated = false,
-  glass = false,
+  hideOnMobile = false,
+  showOnMobile = false,
+  ariaLabel,
   ...props
 }, ref) => {
-  // ============================================================================
-  // VALIDACIONES Y ESTADOS
-  // ============================================================================
-  
   const isDisabled = disabled || loading;
   const isLink = Boolean(href);
-  
-  // ============================================================================
-  // CLASES CSS DINÁMICAS
-  // ============================================================================
-  
+
+  // Clases CSS dinámicas optimizadas
   const buttonClasses = [
     styles.button,
     styles[variant],
     styles[size],
     fullWidth && styles.fullWidth,
+    mobileFullWidth && styles.mobileFullWidth,
     rounded && styles.rounded,
     elevated && styles.elevated,
-    glass && styles.glass,
+    hideOnMobile && styles.hideOnMobile,
+    showOnMobile && styles.showOnMobile,
     isDisabled && styles.disabled,
     loading && styles.loading,
     className
   ].filter(Boolean).join(' ');
-  
-  // ============================================================================
-  // RENDERIZADO DEL CONTENIDO
-  // ============================================================================
-  
+
+  // Renderizado del contenido optimizado
   const renderContent = () => {
     if (loading) {
       return (
@@ -129,14 +61,12 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
         </>
       );
     }
-    
-    if (icon) {
-      const iconElement = (
-        <span className={`material-icons ${styles.icon}`}>
-          {icon}
-        </span>
-      );
-      
+
+    const iconElement = icon ? (
+      <span className={`material-icons ${styles.icon}`}>{icon}</span>
+    ) : null;
+
+    if (iconElement && children) {
       return (
         <>
           {iconPosition === 'left' && iconElement}
@@ -145,14 +75,23 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
         </>
       );
     }
-    
+
+    if (iconElement) {
+      return iconElement;
+    }
+
     return <span className={styles.content}>{children}</span>;
   };
-  
-  // ============================================================================
-  // RENDERIZADO CONDICIONAL
-  // ============================================================================
-  
+
+  // Props de accesibilidad
+  const accessibilityProps = {
+    'aria-label': ariaLabel || (icon && !children ? icon : undefined),
+    'aria-disabled': isDisabled,
+    'aria-busy': loading,
+    role: isLink ? 'link' : 'button',
+  };
+
+  // Renderizado condicional optimizado
   if (isLink) {
     return (
       <a
@@ -162,15 +101,14 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
         rel={target === '_blank' ? 'noopener noreferrer' : rel}
         onClick={onClick as React.MouseEventHandler<HTMLAnchorElement>}
         className={buttonClasses}
-        aria-disabled={isDisabled}
-        aria-busy={loading}
+        {...accessibilityProps}
         {...props}
       >
         {renderContent()}
       </a>
     );
   }
-  
+
   return (
     <button
       ref={ref as React.Ref<HTMLButtonElement>}
@@ -179,18 +117,13 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
       onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
       disabled={isDisabled}
       className={buttonClasses}
-      aria-disabled={isDisabled}
-      aria-busy={loading}
+      {...accessibilityProps}
       {...props}
     >
       {renderContent()}
     </button>
   );
 });
-
-// ============================================================================
-// CONFIGURACIÓN DEL COMPONENTE
-// ============================================================================
 
 Button.displayName = 'Button';
 

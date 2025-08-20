@@ -58,7 +58,7 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <div className={styles.productCardContainer}>
             {/* Link principal para navegar al detalle del producto */}
@@ -83,21 +83,21 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                         />
 
                         {/* Indicador de oferta reutilizable - Solo visible si hay descuento */}
-                        {(en_oferta || 
-                          (precio_oferta && precio_oferta < Number(precio_venta))) && (
-                            <OfferIndicator
-                                descuentoPorcentaje={
-                                    (precio_oferta && precio_venta ? 
-                                        Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
-                                }
-                                size="small"
-                                position="top-left"
-                                showLabel={true}
-                            />
-                        )}
+                        {(en_oferta ||
+                            (precio_oferta && precio_oferta < Number(precio_venta))) && (
+                                <OfferIndicator
+                                    descuentoPorcentaje={
+                                        (precio_oferta && precio_venta ?
+                                            Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
+                                    }
+                                    size="small"
+                                    position="top-left"
+                                    showLabel={true}
+                                />
+                            )}
 
-                       
-                        
+
+
 
                         {/* Overlay de producto agotado - Solo visible si no hay stock */}
                         {/* {isOutOfStock && (
@@ -138,7 +138,7 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                     {/* LADO DERECHO: Información de stock y botón de carrito */}
                     <div className={styles.actionSection}>
                         {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
-                        <CartIndicator productId={id_producto} className={styles.cartIndicator}/>
+                        <CartIndicator productId={id_producto} className={styles.cartIndicator} />
 
                         {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
                         <FavoriteButtonReusable
@@ -177,10 +177,22 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                             fullWidth={true}
                             className={styles.cartButton}
                             type="button"
+                            ariaLabel={
+                                isOutOfStock
+                                    ? "Producto agotado"
+                                    : (!logic.canAddMoreOfProduct(id_producto, stock)
+                                        ? "Ir al carrito"
+                                        : "Agregar al carrito")
+                            }
                         >
-                            {isOutOfStock ? "Agregar al carrito" : 
-                             (!logic.canAddMoreOfProduct(id_producto, stock) ? "Ir al Carrito" : 
-                              (!isAddingToCart && !showSuccess ? "Agregar al carrito" : "¡Agregado!"))}
+                            {isOutOfStock
+                                ? "Agotado"
+                                : (!logic.canAddMoreOfProduct(id_producto, stock)
+                                    ? "Ver carrito"
+                                    : (!isAddingToCart && !showSuccess
+                                        ? "Agregar"
+                                        : "¡Agregado!"))
+                            }
                         </Button>
                     </div>
                 </article>

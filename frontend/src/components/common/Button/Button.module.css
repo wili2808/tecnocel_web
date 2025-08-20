@@ -1,39 +1,36 @@
-/* === COMPONENTE BUTTON - BOTÓN UNIVERSAL DEL PROYECTO === */
+/* === COMPONENTE BUTTON OPTIMIZADO === */
 
 /* ============================================================================
    ESTILOS BASE DEL BOTÓN
    ============================================================================ */
 
 .button {
-  /* === LAYOUT Y DISPLAY === */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
   
-  /* === TIPOGRAFÍA === */
   font-family: var(--font-family-primary);
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
   text-align: center;
   white-space: nowrap;
   
-  /* === BORDES Y FONDOS === */
   border: var(--border-width-thick) solid transparent;
   border-radius: var(--border-radius-md);
   background: transparent;
   
-  /* === INTERACCIÓN === */
   cursor: pointer;
   user-select: none;
   transition: var(--theme-transition);
   
-  /* === POSICIONAMIENTO === */
   position: relative;
   overflow: hidden;
-  
-  /* === ACCESIBILIDAD === */
   outline: none;
+  
+  /* Touch-friendly por defecto */
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 /* ============================================================================
@@ -42,10 +39,12 @@
 
 .button:hover:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .button:active:not(:disabled) {
   transform: translateY(0);
+  transition-duration: 0.1s;
 }
 
 .button:focus-visible {
@@ -62,79 +61,49 @@
   transform: none !important;
 }
 
-/* ============================================================================
-   ESTADO DE CARGA
-   ============================================================================ */
-
 .button.loading {
   cursor: wait;
   pointer-events: none;
 }
 
-.loadingIcon {
-  animation: spin 1s linear infinite;
-  font-size: var(--icon-size-md);
-}
-
-.loadingText {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 /* ============================================================================
-   TAMAÑOS
+   TAMAÑOS RESPONSIVE
    ============================================================================ */
 
-/* Extra Small */
 .xs {
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-xs);
   min-height: 32px;
-  gap: var(--spacing-xs);
 }
 
-/* Small */
 .sm {
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-sm);
   min-height: 36px;
-  gap: var(--spacing-xs);
 }
 
-/* Medium (default) */
 .md {
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: var(--font-size-md);
   min-height: 44px;
-  gap: var(--spacing-sm);
 }
 
-/* Large */
 .lg {
   padding: var(--spacing-lg) var(--spacing-xl);
   font-size: var(--font-size-lg);
   min-height: 52px;
-  gap: var(--spacing-sm);
 }
 
-/* Extra Large */
 .xl {
   padding: var(--spacing-xl) var(--spacing-2xl);
   font-size: var(--font-size-xl);
   min-height: 60px;
-  gap: var(--spacing-md);
 }
 
 /* ============================================================================
    VARIANTES PRINCIPALES
    ============================================================================ */
 
-/* === PRIMARY === */
 .primary {
   background-color: var(--color-primary-light);
   color: var(--text-inverse);
@@ -148,7 +117,6 @@
   box-shadow: var(--shadow-button-primary-hover);
 }
 
-/* === SECONDARY === */
 .secondary {
   background-color: var(--background-neutral);
   color: var(--text-primary);
@@ -161,7 +129,6 @@
   color: var(--text-secondary);
 }
 
-/* === GHOST === */
 .ghost {
   background-color: transparent;
   color: var(--text-primary);
@@ -173,7 +140,6 @@
   color: var(--text-secondary);
 }
 
-/* === OUTLINE === */
 .outline {
   background-color: transparent;
   color: var(--color-primary);
@@ -185,7 +151,6 @@
   color: var(--text-inverse);
 }
 
-/* === TEXT === */
 .text {
   background-color: transparent;
   color: var(--color-primary);
@@ -199,7 +164,6 @@
   color: var(--color-primary-dark);
 }
 
-/* === LINK === */
 .link {
   background-color: transparent;
   color: var(--color-primary);
@@ -219,7 +183,6 @@
    VARIANTES DE ESTADO
    ============================================================================ */
 
-/* === DANGER === */
 .danger {
   background-color: var(--color-error);
   color: var(--text-inverse);
@@ -233,7 +196,6 @@
   box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
-/* === SUCCESS === */
 .success {
   background-color: var(--color-success);
   color: var(--text-inverse);
@@ -247,7 +209,6 @@
   box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
 }
 
-/* === WARNING === */
 .warning {
   background-color: var(--color-warning);
   color: var(--text-inverse);
@@ -262,40 +223,28 @@
 }
 
 /* ============================================================================
-   MODIFICADORES ESPECIALES
+   MODIFICADORES
    ============================================================================ */
 
-/* === FULL WIDTH === */
 .fullWidth {
   width: 100%;
   justify-content: center;
 }
 
-/* === ROUNDED === */
+.mobileFullWidth {
+  width: 100%;
+}
+
 .rounded {
   border-radius: var(--border-radius-full);
 }
 
-/* === ELEVATED === */
 .elevated {
   box-shadow: var(--shadow-md);
 }
 
 .elevated:hover:not(:disabled) {
   box-shadow: var(--shadow-lg);
-}
-
-/* === GLASS === */
-.glass {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: var(--text-primary);
-}
-
-.glass:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================================================
@@ -306,6 +255,8 @@
   display: flex;
   align-items: center;
   gap: inherit;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .icon {
@@ -313,106 +264,133 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.loadingIcon {
+  animation: spin 1s linear infinite;
+  font-size: inherit;
+}
+
+.loadingText {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* ============================================================================
-   RESPONSIVE DESIGN
+   RESPONSIVE - 3 BREAKPOINTS PRINCIPALES
    ============================================================================ */
 
-@media (max-width: 768px) {
+/* === MOBILE (< 640px) === */
+@media (max-width: 639px) {
   .button {
-    /* Ajustar tamaños en móvil */
-    min-height: auto;
-  }
-  
-  .xs {
-    min-height: 28px;
-    padding: var(--spacing-xs);
-  }
-  
-  .sm {
-    min-height: 32px;
-    padding: var(--spacing-sm);
-  }
-  
-  .md {
-    min-height: 40px;
+    min-height: 44px;
+    font-size: var(--font-size-sm);
     padding: var(--spacing-sm) var(--spacing-md);
   }
   
-  .lg {
-    min-height: 48px;
-    padding: var(--spacing-md) var(--spacing-lg);
+  .xs { min-height: 36px; }
+  .sm { min-height: 40px; }
+  .md { min-height: 44px; }
+  .lg { min-height: 48px; }
+  .xl { min-height: 52px; }
+  
+  .mobileFullWidth {
+    width: 100%;
   }
   
-  .xl {
-    min-height: 56px;
-    padding: var(--spacing-lg) var(--spacing-xl);
+  .hideOnMobile {
+    display: none;
+  }
+  
+  .showOnMobile {
+    display: inline-flex;
   }
 }
 
-@media (max-width: 480px) {
+/* === TABLET (640px - 1024px) === */
+@media (min-width: 640px) and (max-width: 1023px) {
   .button {
-    /* Optimizaciones para pantallas muy pequeñas */
-    font-size: var(--font-size-sm);
+    min-height: auto;
   }
   
-  .lg,
-  .xl {
-    font-size: var(--font-size-md);
+  .xs { min-height: 32px; }
+  .sm { min-height: 36px; }
+  .md { min-height: 42px; }
+  .lg { min-height: 48px; }
+  .xl { min-height: 56px; }
+  
+  .hideOnMobile {
+    display: inline-flex;
+  }
+  
+  .showOnMobile {
+    display: none;
+  }
+}
+
+/* === DESKTOP (>= 1024px) === */
+@media (min-width: 1024px) {
+  .button {
+    min-height: auto;
+  }
+  
+  .xs { min-height: 32px; }
+  .sm { min-height: 36px; }
+  .md { min-height: 44px; }
+  .lg { min-height: 52px; }
+  .xl { min-height: 60px; }
+  
+  .button:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+  
+  .elevated:hover:not(:disabled) {
+    box-shadow: var(--shadow-xl);
   }
 }
 
 /* ============================================================================
-   ANIMACIONES Y TRANSICIONES
+   ACCESIBILIDAD Y PREFERENCIAS
    ============================================================================ */
 
-.button {
-  transition: 
-    background-color var(--transition-normal) var(--transition-curve),
-    color var(--transition-normal) var(--transition-curve),
-    border-color var(--transition-normal) var(--transition-curve),
-    box-shadow var(--transition-normal) var(--transition-curve),
-    transform var(--transition-fast) var(--transition-curve),
-    opacity var(--transition-fast) var(--transition-curve);
-}
-
-/* ============================================================================
-   ESTADOS ESPECIALES
-   ============================================================================ */
-
-/* Botón con icono solo (sin texto) */
-.button:has(.icon:only-child) {
-  padding: var(--spacing-sm);
-  min-width: var(--spacing-xl);
-  min-height: var(--spacing-xl);
-}
-
-/* Botón con icono y texto */
-.button:has(.icon + .content),
-.button:has(.content + .icon) {
-  padding-left: var(--spacing-md);
-  padding-right: var(--spacing-md);
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+    transform: none !important;
+  }
+  
+  .loadingIcon {
+    animation: none;
+  }
 }
 
 /* ============================================================================
    UTILIDADES ADICIONALES
    ============================================================================ */
 
-/* Botón de formulario */
 .button[type="submit"] {
   font-weight: var(--font-weight-bold);
 }
 
-/* Botón de reset */
 .button[type="reset"] {
   font-weight: var(--font-weight-medium);
 }
 
-/* Enlace externo */
 .button[target="_blank"]::after {
   content: "↗";
   font-size: 0.8em;
   margin-left: var(--spacing-xs);
   opacity: 0.7;
+}
+
+@media (max-width: 639px) {
+  .button[target="_blank"]::after {
+    display: none;
+  }
 }

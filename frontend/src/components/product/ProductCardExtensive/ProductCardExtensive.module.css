@@ -271,6 +271,15 @@
 .cartButton {
   font-weight: var(--font-weight-semibold);
   transition: all var(--transition-normal) var(--transition-curve);
+  /* Asegurar que el botón se adapte al contenido */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Mejorar la legibilidad del texto */
+  line-height: 1.2;
+  /* Asegurar que el botón mantenga proporciones adecuadas */
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .cartButton:hover:not(:disabled) {
@@ -291,6 +300,36 @@
 
 
 /* === RESPONSIVE DESIGN === */
+
+/* === DESKTOP GRANDE (>= 1024px) === */
+@media (min-width: 1024px) {
+  .cartButton {
+    min-height: 44px;
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    /* Mejorar la legibilidad en desktop */
+    line-height: 1.5;
+    /* Efectos hover más pronunciados en desktop */
+    transition: all var(--transition-normal) var(--transition-curve);
+  }
+  
+  .cartButton:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-button-primary-hover);
+  }
+}
+
+/* === TABLET MEDIANO (768px - 1024px) === */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cartButton {
+    min-height: 40px;
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    /* Mejorar la legibilidad en tablet mediano */
+    line-height: 1.4;
+  }
+}
+
 @media (max-width: 768px) {
   .productCard {
     padding: var(--spacing-sm);
@@ -328,8 +367,11 @@
   }
   
   .cartButton {
-    min-height: 32px;
+    min-height: 36px;
     font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    /* Mejorar la legibilidad en tablet */
+    line-height: 1.3;
   }
 }
 
@@ -389,9 +431,14 @@
   }
   
   .cartButton {
-    min-height: 28px;
-    font-size: 0.625rem;
+    min-height: 32px;
+    font-size: var(--font-size-xs);
     padding: var(--spacing-xs);
+    /* Texto más compacto en móvil */
+    font-size: 0.625rem;
+    /* Asegurar que el botón se adapte al espacio disponible */
+    width: 100%;
+    max-width: 100%;
   }
   
   .stockButton {
@@ -452,9 +499,16 @@
   }
   
   .cartButton {
-    min-height: 24px;
+    min-height: 28px;
     font-size: 0.5rem;
-    padding: 4px;
+    padding: 4px 6px;
+    /* Asegurar que el texto se mantenga legible */
+    line-height: 1.2;
+    /* Optimizar para pantallas muy pequeñas */
+    width: 100%;
+    max-width: 100%;
+    /* Reducir el padding para ahorrar espacio */
+    padding: 3px 4px;
   }
   
   .stockButton {
