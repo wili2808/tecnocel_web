@@ -3,15 +3,16 @@
  * Muestra información del producto en layout horizontal con imagen a la izquierda
  * Incluye indicadores de oferta, favoritos y botón de carrito externo
  * Utiliza hook común useProductCardLogic para toda la funcionalidad
+ * Botón de carrito personalizado integrado con estilos responsive
+ * Indicador de carrito integrado para mayor eficiencia
  */
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ProductImage from '../ProductImage';
-import CartIndicator from '../../cart/CartIndicator';
 import OfferIndicator from '../OfferIndicator';
 import FavoriteButtonReusable from '../FavoriteButtonReusable';
-import Button from '../../common/Button';
 import { useProductCardLogic } from '../../../hooks/useProductCardLogic';
+import { useCarrito } from '../../../contexts/CarritoContext';
 import styles from './ProductCardExtensive.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
@@ -28,6 +29,11 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
     precio_oferta,
     en_oferta
 }) => {
+    // ============================================================================
+    // HOOKS Y CONTEXTOS
+    // ============================================================================
+    const { estado } = useCarrito();
+    
     // ============================================================================
     // HOOK COMÚN - TODA LA LÓGICA CENTRALIZADA
     // ============================================================================
@@ -53,7 +59,38 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
         carritoLoading,
     } = logic;
 
+    // ============================================================================
+    // INDICADOR DE CARRITO INTEGRADO
+    // ============================================================================
+    const cartItem = useMemo(() => {
+        return estado.items.find(item => item.id_producto === id_producto);
+    }, [estado.items, id_producto]);
 
+    const isInCart = cartItem && cartItem.cantidad > 0;
+
+    // ============================================================================
+    // MANEJADOR DEL BOTÓN DE CARRITO PERSONALIZADO
+    // ============================================================================
+    const handleCartButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        if (isOutOfStock) {
+            // No hacer nada - botón deshabilitado
+            return;
+        }
+        
+        if (!logic.canAddMoreOfProduct(id_producto, stock)) {
+            // Navegar al carrito
+            window.location.href = '/carrito';
+            return;
+        }
+        
+        // Agregar al carrito normalmente
+        handleAddToCart();
+    };
 
     // ============================================================================
     // RENDERIZADO
@@ -96,9 +133,6 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                                 />
                             )}
 
-
-
-
                         {/* Overlay de producto agotado - Solo visible si no hay stock */}
                         {/* {isOutOfStock && (
                             <div className={styles.outOfStockOverlay}>
@@ -135,49 +169,20 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                         )}
                     </div>
 
-                    {/* LADO DERECHO: Información de stock y botón de carrito */}
+                    {/* LADO DERECHO: Columna de acciones organizada */}
                     <div className={styles.actionSection}>
-                        {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
-                        <CartIndicator productId={id_producto} className={styles.cartIndicator} />
-
-                        {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
-                        <FavoriteButtonReusable
-                            productId={id_producto}
-                            productName={nombre}
-                            size="small"
-                            position="absolute"
-                            variant="minimal"
-                            className={styles.favoriteButton}
-                        />
-
-                        {/* Botón de acción - Adaptativo según el estado */}
-                        <Button
-                            icon="shopping_cart"
-                            onClick={(e) => {
-                                if (e) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                }
-                                if (isOutOfStock) {
-                                    // No hacer nada - botón deshabilitado
-                                    return;
-                                }
-                                if (!logic.canAddMoreOfProduct(id_producto, stock)) {
-                                    // Navegar al carrito
-                                    window.location.href = '/carrito';
-                                    return;
-                                }
-                                // Agregar al carrito normalmente
-                                handleAddToCart();
-                            }}
-                            disabled={isOutOfStock || isAddingToCart || carritoLoading}
-                            variant={isOutOfStock ? "danger" : "primary"}
-                            size="xs"
-                            loading={isAddingToCart}
-                            fullWidth={true}
-                            className={styles.cartButton}
+                        {/* Botón de carrito - CENTRO - ANCHO COMPLETO */}
+                        <button
                             type="button"
-                            ariaLabel={
+                            onClick={handleCartButtonClick}
+                            disabled={isOutOfStock || isAddingToCart || carritoLoading}
+                            className={`
+                                ${styles.cartButton}
+                                ${isOutOfStock ? styles.cartButtonDisabled : ''}
+                                ${isAddingToCart || carritoLoading ? styles.cartButtonLoading : ''}
+                                ${showSuccess ? styles.cartButtonSuccess : ''}
+                            `}
+                            aria-label={
                                 isOutOfStock
                                     ? "Producto agotado"
                                     : (!logic.canAddMoreOfProduct(id_producto, stock)
@@ -185,16 +190,42 @@ const ProductCardExtensive: React.FC<ProductCardProps> = memo(({
                                         : "Agregar al carrito")
                             }
                         >
-                            {isOutOfStock
-                                ? "Agotado"
-                                : (!logic.canAddMoreOfProduct(id_producto, stock)
-                                    ? "Ver carrito"
-                                    : (!isAddingToCart && !showSuccess
-                                        ? "Agregar"
-                                        : "¡Agregado!"))
-                            }
-                        </Button>
+                            {/* Icono del carrito */}
+                            <span className={styles.cartButtonIcon}>
+                                {isAddingToCart || carritoLoading ? 'hourglass_empty' : 'shopping_cart'}
+                            </span>
+                            
+                            {/* Texto del botón */}
+                            <span className={styles.cartButtonText}>
+                                {isOutOfStock
+                                    ? "Agotado"
+                                    : (!logic.canAddMoreOfProduct(id_producto, stock)
+                                        ? "Ver carrito"
+                                        : (!isAddingToCart && !showSuccess
+                                            ? "Agregar"
+                                            : "¡Agregado!"))
+                                }
+                            </span>
+                        </button>
+
+                        {/* Indicador de carrito integrado - ESQUINA INFERIOR DERECHA */}
+                        {isInCart && (
+                            <div className={styles.cartIndicator}>
+                                <span className={styles.cartIndicatorQuantity}>{cartItem.cantidad}</span>
+                                <span className={styles.cartIndicatorLabel}>En carrito</span>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Botón de favoritos - POSICIONADO ABSOLUTAMENTE EN ESQUINA SUPERIOR DERECHA */}
+                    <FavoriteButtonReusable
+                        productId={id_producto}
+                        productName={nombre}
+                        size="small"
+                        position="absolute"
+                        variant="minimal"
+                        className={styles.favoriteButton}
+                    />
                 </article>
             </Link>
         </div>

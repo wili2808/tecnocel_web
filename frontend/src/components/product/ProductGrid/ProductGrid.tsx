@@ -1,11 +1,12 @@
 /**
  * Componente ProductGrid - Grid de productos con filtrado inteligente
- * Muestra productos en grid con soporte para filtros, búsqueda y estados de carga
+ * Muestra productos en grid responsive con soporte para filtros, búsqueda y estados de carga
  * Incluye funcionalidades para filtrado inteligente combinando contexto y filtros locales
  * Utiliza useProductActions para gestión de productos y lógica de filtrado optimizada
+ * Grid responsive que se adapta automáticamente a diferentes tamaños de pantalla
  */
 import React, { useMemo } from 'react';
-import ProductCardExtensive from '../ProductCardExtensive';
+import ProductCard from '../ProductCard';
 import styles from './ProductGrid.module.css';
 import { useProductActions } from '../../../hooks/useProductActions';
 import { filterProducts } from '../../../utils/productFiltering';
@@ -96,16 +97,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
     // RENDERIZADO
     // ============================================================================
 
-    // Grid de productos con ProductCardExtensive
+    // Grid responsive de productos con ProductCard
     return (
         <div className={styles.productsGrid}>
             {products.map((product: any) => (
-                <ProductCardExtensive
+                <ProductCard
                     key={product.id_producto}
                     id_producto={product.id_producto}
                     nombre={product.nombre}
                     descripcion={product.descripcion}
                     imagen_url={product.imagen_url}
+                    imagenes={product.imagenes || []}
                     precio_venta={String(product.precio_venta)}
                     stock={product.stock}
                     precio_oferta={product.precio_oferta}

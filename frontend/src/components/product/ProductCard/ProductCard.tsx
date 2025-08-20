@@ -54,8 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         priceInfo,
         handleCardClick,
         handleAddToCart,
-        carritoLoading,
-        stockText
+        carritoLoading
     } = logic;
 
     // ============================================================================

@@ -29,7 +29,7 @@ const Home = () => {
   // Función estable para cargar productos destacados
   const handleLoadFeaturedProducts = useCallback(() => {
     if (featuredProducts.length === 0 && !loading) {
-      loadFeaturedProducts(6);
+      loadFeaturedProducts(8);
     }
   }, [featuredProducts.length, loading, loadFeaturedProducts]);
 
