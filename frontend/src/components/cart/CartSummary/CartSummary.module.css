@@ -1,6 +1,6 @@
 /* Resumen de compra */
 .cartSummary {
-    background: var(--background-elevated);
+    background: var(--background-light);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-card);

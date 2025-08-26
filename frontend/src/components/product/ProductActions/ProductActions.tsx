@@ -2,13 +2,13 @@
  * Componente ProductActions - Acciones del producto en página de detalle
  * Maneja la adición al carrito, compra directa y selector de cantidad
  * Utiliza métodos del contexto del carrito para validaciones y estado
+ * Botones implementados nativamente sin dependencias externas
  */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import Button from '../../../components/common/Button';
 import IconButton from '../../../components/common/IconButton';
 import styles from './ProductActions.module.css';
 
@@ -257,46 +257,52 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                 {!isOutOfStock ? (
                     <>
                         {/* Botón de compra directa - Siempre habilitado si hay stock */}
-                        {/* Permite ir al carrito incluso si no se puede agregar más del producto */}
-                        <Button
-                            variant="primary"
-                            size="md"
+                        <button
+                            className={`${styles.actionButton} ${styles.buyNowButton}`}
                             onClick={handleBuyNow}
                             disabled={estado.cargando || isOutOfStock}
                             type="button"
-                            icon="shopping_cart_checkout"
-                            fullWidth
-                            elevated
+                            aria-label="Comprar ahora"
                         >
-                            Comprar ahora
-                        </Button>
+                            <span className="material-icons">shopping_cart_checkout</span>
+                            <span>Comprar ahora</span>
+                        </button>
 
                         {/* Botón de agregar al carrito */}
-                        <Button
-                            variant={showSuccess ? 'success' : 'secondary'}
-                            size="md"
+                        <button
+                            className={`${styles.actionButton} ${styles.addToCartButton} ${
+                                showSuccess ? styles.successButton : ''
+                            }`}
                             onClick={handleAddToCart}
                             disabled={isAddingToCart || estado.cargando || !canAddMore}
                             type="button"
-                            icon={isAddingToCart ? 'hourglass_empty' : showSuccess ? 'check_circle' : 'add_shopping_cart'}
-                            loading={isAddingToCart}
-                            fullWidth
-                            elevated
+                            aria-label={
+                                isAddingToCart 
+                                    ? 'Agregando al carrito...' 
+                                    : showSuccess 
+                                        ? 'Producto agregado al carrito' 
+                                        : 'Agregar al carrito'
+                            }
                         >
-                            {isAddingToCart ? 'Agregando...' : showSuccess ? '¡Agregado!' : 'Agregar al carrito'}
-                        </Button>
+                            <span className="material-icons">
+                                {isAddingToCart ? 'hourglass_empty' : showSuccess ? 'check_circle' : 'add_shopping_cart'}
+                            </span>
+                            <span>
+                                {isAddingToCart ? 'Agregando...' : showSuccess ? '¡Agregado!' : 'Agregar al carrito'}
+                            </span>
+                        </button>
                     </>
                 ) : (
                     /* Botón deshabilitado para productos agotados */
-                    <Button
-                        variant="ghost"
-                        size="lg"
+                    <button
+                        className={`${styles.actionButton} ${styles.disabledButton}`}
                         disabled
-                        icon="remove_shopping_cart"
-                        fullWidth
+                        type="button"
+                        aria-label="Producto agotado"
                     >
-                        Producto agotado
-                    </Button>
+                        <span className="material-icons">remove_shopping_cart</span>
+                        <span>Producto agotado</span>
+                    </button>
                 )}
             </div>
         </div>

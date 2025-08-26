@@ -8,10 +8,10 @@
 .productContent {
   max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--container-padding);
+  padding: var(--container-padding);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
 }
 
 /* Breadcrumb */
@@ -20,7 +20,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-md);
-  background-color: var(--background-elevated);
+  background-color: var(--background-light);
   border-radius: var(--border-radius-md);
   flex-wrap: wrap;
 }
@@ -29,7 +29,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
@@ -71,9 +71,9 @@
 /* Sección principal del producto */
 .productMainSection {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: var(--spacing-2xl);
-  align-items: center;
+  grid-template-columns: 35% auto 25%;
+  gap: var(--spacing-xl);
+  align-items: start;
   padding: var(--spacing-lg);
   background-color: var(--background-elevated);
   border-radius: var(--border-radius-lg);
@@ -158,7 +158,7 @@
 }
 
 .productActionsSection {
-  width: 320px;
+  width: 100%;
   position: sticky;
   top: calc(var(--navbar-height) + var(--spacing-xl));
 }
@@ -330,14 +330,17 @@
 /* Responsive */
 @media (max-width: 1200px) {
   .productActionsSection {
-    width: 280px;
   }
 }
 
 @media (max-width: 1024px) {
   .productMainSection {
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-xl);
+  }
+
+  .productContent {
+    padding: var(--spacing-md) 0;
+    gap: var(--spacing-md);
   }
 
   .productActionsSection {
@@ -350,8 +353,8 @@
 
 @media (max-width: 768px) {
   .productContent {
-    padding: var(--spacing-lg) var(--container-padding);
-    gap: var(--spacing-xl);
+    padding: var(--spacing-sm) 0;
+    gap: var(--spacing-sm);
   }
 
   .productMainSection {
@@ -380,17 +383,6 @@
 }
 
 @media (max-width: 480px) {
-  .productContent {
-    padding: var(--spacing-md) var(--container-padding);
-    gap: var(--spacing-lg);
-  }
-
-  .breadcrumb {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-  }
 
   .breadcrumbLink,
   .breadcrumbItem,

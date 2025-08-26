@@ -28,8 +28,8 @@
 
 .productCount {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
   gap: 4px;
 }
 
@@ -178,7 +178,7 @@
 /* Responsive */
 @media (max-width: 1200px) {
   .productsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
   }
 }
@@ -186,13 +186,6 @@
 @media (max-width: 768px) {
   .productsSection {
     margin-top: 32px;
-  }
-  
-  .sectionHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 24px;
   }
   
   .sectionTitle {
@@ -203,16 +196,12 @@
     font-size: 24px;
   }
   
-  .productCount {
-    align-items: flex-start;
-  }
-  
   .currentCount {
     font-size: 1.25rem;
   }
   
   .productsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
     margin-bottom: 32px;
   }
@@ -243,8 +232,7 @@
 
 @media (max-width: 480px) {
   .productsGrid {
-    grid-template-columns: 1fr;
-    margin: 0 -8px 24px -8px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
   
   .sectionTitle {

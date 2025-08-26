@@ -7,7 +7,7 @@
 .offersContainer {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: var(--container-padding);
   background: var(--background-primary);
 }
 
@@ -17,8 +17,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 48px;
-  padding: 32px;
-  background: var(--background-elevated);
+  padding: var(--spacing-md);
+  background: var(--background-light);
   border-radius: 20px;
   box-shadow: 0 8px 32px var(--color-black-light);
   border: 1px solid var(--border-color-light);
@@ -34,9 +34,8 @@
   gap: 16px;
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--text-primary);
   margin: 0 0 12px 0;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: linear-gradient(135deg, var(--text-primary), var(--color-secondary));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -96,13 +95,12 @@
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .offersContainer {
-    padding: 24px 20px;
+    padding: 0;
   }
   
   .pageHeader {
-    padding: 24px;
     margin-bottom: 40px;
   }
   
@@ -120,15 +118,10 @@
 }
 
 @media (max-width: 768px) {
-  .offersContainer {
-    padding: 20px 16px;
-  }
-  
   .pageHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
-    padding: 20px;
     margin-bottom: 32px;
   }
   
@@ -147,7 +140,7 @@
   
   .statsCard {
     width: 100%;
-    padding: 20px;
+    padding: var(--spacing-sm);
     gap: 20px;
   }
   
@@ -165,12 +158,7 @@
 }
 
 @media (max-width: 480px) {
-  .offersContainer {
-    padding: 16px 12px;
-  }
-  
   .pageHeader {
-    padding: 16px;
     margin-bottom: 24px;
   }
   
@@ -188,7 +176,7 @@
   }
   
   .statsCard {
-    padding: 16px;
+    padding: var(--spacing-xs);
     gap: 16px;
   }
   

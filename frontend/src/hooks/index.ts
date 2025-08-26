@@ -21,7 +21,7 @@ export { useFavoritos } from './useFavoritos';
 export { useFavoritosProductos } from './useFavoritosProductos';
 
 // Hooks de componentes
-export { useProductCardLogic } from './useProductCardLogic';
+// useProductCardLogic eliminado - lógica integrada en ProductCard.tsx
 
 // Hooks de utilidad
 export { useEscapeKey } from './useEscapeKey';

@@ -1,7 +1,7 @@
 /* === CONTENEDOR PRINCIPAL === */
 .userPanel {
   min-height: 100vh;
-  background-color: var(--background-secondary);
+  background-color: var(--background-primary);
   transition: var(--theme-transition);
   font-family: var(--font-family-primary);
   color: var(--text-primary);
@@ -19,7 +19,7 @@
   display: flex;
   max-width: var(--container-max-width);
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 80vh;
   padding: var(--spacing-lg);
   gap: var(--spacing-xl);
 }
@@ -27,7 +27,7 @@
 /* === SIDEBAR === */
 .sidebar {
   flex: 0 0 280px;
-  background-color: var(--background-elevated);
+  background-color: var(--background-light);
   transition: var(--theme-transition);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);

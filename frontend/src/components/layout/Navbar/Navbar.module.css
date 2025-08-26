@@ -40,7 +40,6 @@
   align-items: center;
   padding: var(--spacing-xs) var(--spacing-md);
   gap: var(--spacing-sm);
-  border-bottom: 1px solid var(--color-neutral-200);
   width: 100%;
   min-height: var(--navbar-height-mobile);
   box-sizing: border-box;
@@ -97,8 +96,7 @@
 }
 
 .logoImage {
-  width: var(--avatar-size-lg);
-  height: var(--avatar-size-lg);
+  height: 40px;
   border-radius: var(--border-radius-full);
   transition: transform var(--transition-normal) var(--transition-curve);
 }
@@ -134,13 +132,14 @@
   transition: all var(--transition-normal) var(--transition-curve);
 }
 
-.secondaryNavLink:hover{
-  color: var(--text-secondary);
-  transform: translateY(-1px);
-};
+.secondaryNavLink:hover {
+  color: var(--color-primary-light);
+  transform: scale(var(--scale-hover));
+}
 
 .secondaryNavLink.active {
   color: var(--color-primary);
+  transform: scale(var(--scale-active));
 }
 
 /* === BÚSQUEDA === */
@@ -204,7 +203,7 @@
 
 .authButton:hover {
   color: var(--text-secondary);
-  transform: translateY(-1px);
+  transform: scale(var(--scale-hover));
 }
 
 .authButtonText {
@@ -226,7 +225,7 @@
 
 .registerButton:hover {
   color: var(--text-secondary);
-  transform: translateY(-1px);
+  transform: scale(var(--scale-hover));
 }
 
 .cartBadge {
@@ -249,9 +248,9 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: var(--background-primary);
-  border: 1px solid var(--color-neutral-200);
-  border-radius: var(--border-radius-md);
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
   box-shadow: var(--shadow-lg);
   min-width: 280px;
   max-width: 320px;
@@ -279,6 +278,9 @@
 
 .mobileUserProfile {
   margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mobileUserInfo {
@@ -286,7 +288,7 @@
   align-items: center;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--background-secondary);
-  border: 1px solid var(--color-neutral-300);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   color: var(--text-primary);
 }
@@ -312,7 +314,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--color-neutral-300);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -328,7 +330,7 @@
 .mobileLogoutButton:hover {
   background: var(--background-elevated);
   border-color: var(--color-primary);
-  transform: translateY(-1px);
+  transform: scale(var(--scale-hover));
 }
 
 .mobileAuthText,
@@ -358,13 +360,13 @@
 .mobileLogoutButton:hover {
   background: #dc2626;
   border-color: #dc2626;
-  transform: translateY(-1px);
+  transform: scale(var(--scale-hover));
 }
 
 /* === SEPARADORES MÓVILES === */
 .mobileSeparator {
   height: 1px;
-  background: var(--color-neutral-200);
+  background: var(--border-color);
   margin: var(--spacing-md) 0;
 }
 
@@ -387,13 +389,15 @@
   transition: all var(--transition-normal) ease;
   background: transparent;
   border: 1px solid transparent;
+  justify-content: center;
 }
 
 .mobileDropdownLink:hover,
 .mobileDropdownLink.active {
   background: var(--background-secondary);
   color: var(--color-primary);
-  border-color: var(--color-primary-200);
+  border-color: var(--border-color);
+  transform: scale(var(--scale-active));
 }
 
 /* === SECCIÓN DE CERRAR SESIÓN === */
@@ -435,9 +439,6 @@
 
   .secondaryNavLinks {
     gap: var(--spacing-md);
-  }
-
-  .secondaryNavLink {
     font-size: var(--font-size-xs);
     padding: var(--spacing-xs);
   }
@@ -460,11 +461,6 @@
     display: flex;
   }
 
-  .mobileContainer .logoImage {
-    width: var(--avatar-size-md);
-    height: var(--avatar-size-md);
-  }
-  
   .mobileContainer .logoText {
     display: none;
   }
@@ -501,6 +497,10 @@
 }
 
 @media (max-width: 480px) {
+  .controlsGroup {
+    gap: 0;
+  }
+
   .mobileRow {
     width: 100%;
     padding: var(--spacing-xs) var(--spacing-sm);
@@ -508,8 +508,7 @@
   }
 
   .mobileContainer .logoImage {
-    width: var(--avatar-size-sm);
-    height: var(--avatar-size-sm);
+    height: 32px;
   }
 
   .mobileSearchSection {
@@ -553,4 +552,3 @@
 }
 
 /* === FINAL DEL ARCHIVO === */
-/* Los temas se manejan automáticamente a través de las variables CSS definidas en themes.css */ 

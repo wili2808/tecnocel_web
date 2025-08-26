@@ -20,8 +20,7 @@
   height: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding-top: var(--container-padding);
-  padding-bottom: var(--container-padding);
+  padding: var(--container-padding);
   animation: fadeIn var(--animation-duration-normal) var(--transition-curve);
   box-shadow: var(--shadow-md);
   z-index: var(--z-catalog);
@@ -32,7 +31,6 @@
   flex-direction: column;
   position: sticky;
   overflow: hidden;
-  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal) var(--transition-curve);
 }
@@ -78,17 +76,11 @@
   }
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 1200px) {
-  .catalogContainer {
-    grid-template-columns: var(--sidebar-width-tablet, 280px) 1fr;
-    gap: var(--spacing-md);
-  }
-}
-
 @media (max-width: 1024px) {
   .catalogContainer {
     grid-template-columns: var(--sidebar-width-tablet, 260px) 1fr;
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
   }
   
   .catalogFullscreen {
@@ -112,8 +104,8 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    gap: 0;
-    padding: 0;
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
     max-width: none;
     margin: 0;
     box-shadow: none;
@@ -126,13 +118,8 @@
     height: auto;
     max-height: none;
     overflow: visible;
-    border-radius: 0;
     border: none;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
     flex-shrink: 0;
-    background: var(--background-secondary);
-    padding: var(--spacing-sm) var(--container-padding);
   }
   
   .filtersSidebar:hover {
@@ -145,24 +132,17 @@
     min-height: 0;
     flex: 1;
     overflow: hidden;
-    padding: 0;
-    border-radius: 0;
     background: var(--background-primary);
   }
 }
 
 @media (max-width: 480px) {
   .catalogContainer {
-    gap: 0;
-    padding: 0;
-  }
-  
-  .filtersSidebar {
-    padding: var(--spacing-xs) var(--container-padding);
-    border-bottom: 1px solid var(--border-color-light);
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
   }
   
   .productsMainContent {
     padding: 0;
   }
-} 
+}

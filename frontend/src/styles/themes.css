@@ -43,6 +43,9 @@
   /* === COLORES DE TEXTO ADICIONALES === */
   --text-muted: var(--color-neutral-500);
   --text-disabled: var(--color-neutral-400);
+
+  /* === SOMBRAS ESPECÍFICAS === */
+  --shadow-card-hover: 0 3px 12px var(--color-neutral-400);
 }
 
 :root[data-theme="dark"] {
@@ -84,12 +87,15 @@
   
   /* === COLORES DE BORDE === */
   --border-color: var(--color-zinc-700);
-  --border-color-light: var(--color-zinc-800);
+  --border-color-light: var(--color-neutral-800);
   --border-color-dark: var(--color-zinc-600);
   
   /* === COLORES DE TEXTO ADICIONALES === */
   --text-muted: var(--color-neutral-400);
   --text-disabled: var(--color-neutral-600);
+
+  /* === SOMBRAS ESPECÍFICAS === */
+  --shadow-card-hover: 0 3px 12px var(--color-neutral-600);
 }
 
 /* === TRANSICIONES SUAVES PARA CAMBIOS DE TEMA === */

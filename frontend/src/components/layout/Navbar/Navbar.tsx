@@ -6,7 +6,7 @@
  */
 import { useState, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import logo from '../../../assets/logo2.svg';
+import logo from '../../../assets/tecnocel.svg';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useCarrito } from '../../../contexts/CarritoContext';
@@ -323,7 +323,6 @@ const Navbar: React.FC = () => {
                         <div className={navbarStyle.brandSection}>
                             <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
                                 <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
-                                <span className={navbarStyle.logoText}>TECNOCEL</span>
                             </Link>
                         </div>
 

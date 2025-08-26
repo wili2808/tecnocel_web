@@ -71,7 +71,7 @@ src/
 │   │   ├── BrandFilter/       # Filtro por marcas
 │   │   ├── CategoryFilters/   # Filtro por categorías
 │   │   ├── ProductSorting/    # Ordenamiento de productos
-│   │   ├── QuickSearch/       # Búsqueda rápida
+
 │   │   ├── FeaturedProducts/  # Productos destacados
 │   │   ├── OffersGrid/        # Grid de ofertas
 │   │   ├── OfferCard/         # Tarjeta de oferta

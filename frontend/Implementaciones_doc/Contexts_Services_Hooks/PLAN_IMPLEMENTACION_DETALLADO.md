@@ -139,7 +139,6 @@ Reorganizar la arquitectura de contextos, servicios y hooks para consolidar el e
 - **Estado**: Pendiente
 - **Componentes prioritarios**:
   - `ProductSearch.tsx`
-  - `QuickSearch.tsx`
 
 ---
 

@@ -1,8 +1,8 @@
 .productActions {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-xl);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
   background-color: var(--background-secondary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
@@ -12,14 +12,14 @@
 .quantitySection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   align-items: center;
 }
 
 .quantityLabel {
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
 }
 
 .quantityControls {
@@ -37,8 +37,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   background-color: var(--background-elevated);
   border: none;
   color: var(--text-primary);
@@ -57,13 +57,13 @@
 }
 
 .quantityInput {
-  width: 60px;
-  height: 40px;
+  width: 50px;
+  height: 32px;
   text-align: center;
   border: none;
   background-color: var(--background-primary);
   color: var(--text-primary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
 }
 
@@ -94,7 +94,7 @@
 .actionButtons {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .actionButton {
@@ -102,14 +102,26 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all var(--transition-normal) var(--transition-curve);
-  min-height: 48px;
+  min-height: 40px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.actionButton:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.actionButton:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .buyNowButton {
@@ -124,6 +136,11 @@
   transform: translateY(-1px);
 }
 
+.buyNowButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-button-primary);
+}
+
 .addToCartButton {
   background-color: transparent;
   border: var(--border-width-thick) solid var(--color-primary);
@@ -136,10 +153,19 @@
   transform: translateY(-1px);
 }
 
+.addToCartButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .successButton {
   background-color: var(--color-success) !important;
   border-color: var(--color-success) !important;
   color: var(--text-inverse) !important;
+}
+
+.successButton:hover:not(:disabled) {
+  background-color: var(--color-success-dark) !important;
+  transform: translateY(-1px);
 }
 
 .disabledButton {
@@ -147,40 +173,82 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
   border: var(--border-width-thick) solid var(--color-error);
   border-radius: var(--border-radius-md);
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--color-error);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: not-allowed;
-  min-height: 48px;
+  min-height: 40px;
+  width: 100%;
 }
 
 .actionButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
+  box-shadow: none !important;
+}
+
+.actionButton:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .actionButton .material-icons {
-  font-size: var(--icon-size-lg);
+  font-size: var(--icon-size-md);
+  transition: transform var(--transition-fast) var(--transition-curve);
+}
+
+.actionButton:hover:not(:disabled) .material-icons {
+  transform: scale(1.1);
 }
 
 .quantityButton .material-icons {
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-sm);
 }
 
 .disabledButton .material-icons {
-  font-size: var(--icon-size-lg);
+  font-size: var(--icon-size-md);
+}
+
+/* Estados de carga y animaciones */
+.actionButton:disabled {
+  position: relative;
+}
+
+/* Solo mostrar spinner cuando esté deshabilitado por carga, no por estar agotado */
+.actionButton:disabled:not(.disabledButton)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* El botón agotado no debe mostrar spinner */
+.disabledButton::after {
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .productActions {
-    padding: var(--spacing-lg);
-    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .actionButtons {
@@ -189,27 +257,74 @@
 
   .actionButton,
   .disabledButton {
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-sm);
+    min-height: 36px;
+  }
+
+  .quantityControls {
+    width: 100%;
+    max-width: 180px;
+  }
+
+  .quantityInput {
+    flex: 1;
+    min-width: 45px;
   }
 }
 
 @media (max-width: 480px) {
   .productActions {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
 
   .quantityControls {
     width: 100%;
+    max-width: none;
   }
 
   .quantityInput {
     flex: 1;
     width: auto;
+    min-width: 35px;
   }
 
   .actionButton,
   .disabledButton {
     width: 100%;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    min-height: 32px;
+  }
+
+  .quantitySection {
+    gap: var(--spacing-xs);
+  }
+
+  .quantityLabel {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Soporte para tema oscuro */
+@media (prefers-color-scheme: dark) {
+  .actionButton:focus {
+    outline-color: var(--color-primary-light);
+  }
+}
+
+/* Accesibilidad mejorada */
+@media (prefers-reduced-motion: reduce) {
+  .actionButton,
+  .quantityButton {
+    transition: none;
+  }
+  
+  .actionButton:hover:not(:disabled) .material-icons {
+    transform: none;
+  }
+  
+  .actionButton:disabled:not(.disabledButton)::after {
+    animation: none;
   }
 } 

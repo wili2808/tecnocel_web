@@ -155,8 +155,8 @@
   /* === SOMBRAS ESPECÍFICAS === */
   --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.1);
   --shadow-focus-error: 0 0 0 3px rgba(220, 38, 127, 0.1);
-  --shadow-card: 0 4px 12px var(--color-black-light);
-  --shadow-card-hover: 0 2px 4px var(--color-black-light);
+  --shadow-card: 0 2px 8px var(--color-black-light);
+  --shadow-card-hover: 0 3px 12px var(--color-primary-dark);
   --shadow-button-primary: 0 2px 4px rgba(59, 130, 246, 0.2);
   --shadow-button-primary-hover: 0 4px 8px rgba(59, 130, 246, 0.3);
 
@@ -168,9 +168,9 @@
   --section-spacing: 6rem;
 
   /* === COMPONENTES ESPECÍFICOS === */
-  --navbar-height: 60px;
-  --navbar-height-mobile: 60px; /* Altura específica para mobile con una fila optimizada */
-  --navbar-height-tablet: 60px;
+  --navbar-height: 70px;
+  --navbar-height-mobile: 70px; /* Altura específica para mobile con una fila optimizada */
+  --navbar-height-tablet: 70px;
   --search-input-height: 40px;
   
   /* === CATÁLOGO === */
@@ -223,8 +223,8 @@
   --breakpoint-2xl: 1536px;
 
   /* === ESCALAS === */
-  --scale-hover: 1.05;
-  --scale-active: 0.95;
+  --scale-hover: 1.01;
+  --scale-active: 0.98;
 }
 
 /* === MEDIA QUERIES RESPONSIVAS === */

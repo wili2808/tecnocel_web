@@ -170,14 +170,6 @@ components/
 - **Estado**: ✅ Implementado y en uso
 - **Ubicaciones de uso**: ProductCatalog
 
-#### 12. QuickSearch
-
-- **Archivo**: `product/QuickSearch/QuickSearch.tsx`
-- **Uso**: Búsqueda rápida con sugerencias
-- **Props**: `onSearch`, `suggestions`
-- **Estado**: ✅ Implementado y en uso
-- **Ubicaciones de uso**: Home, ProductCatalog
-
 #### 13. FeaturedProducts
 
 - **Archivo**: `product/FeaturedProducts/FeaturedProducts.tsx`

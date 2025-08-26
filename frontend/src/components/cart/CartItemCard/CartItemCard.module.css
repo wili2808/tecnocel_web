@@ -3,7 +3,7 @@
     display: flex;
     gap: var(--spacing-lg);
     padding: var(--spacing-lg);
-    background-color: var(--background-elevated);
+    background-color: var(--background-secondary);
     border-radius: var(--border-radius-lg);
     border: var(--border-width-thin) solid var(--border-color-light);
     transition: all var(--transition-normal) var(--transition-curve);

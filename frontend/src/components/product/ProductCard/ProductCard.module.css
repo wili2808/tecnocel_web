@@ -10,35 +10,24 @@
 }
 
 .productLink:hover {
-  transform: translateY(-8px);
+  transform: scale(var(--scale-hover));
 }
 
 .productLink:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 1px solid var(--color-primary-light);
   outline-offset: 4px;
-  border-radius: var(--border-radius-lg);
-}
-
-.outOfStockLink {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.outOfStockLink:hover {
-  transform: none;
 }
 
 /* === TARJETA PRINCIPAL === */
 .productCard {
-  background: var(--background-elevated);
+  background: var(--background-secondary);
   border: 1px solid var(--border-color-light);
-  border-radius: var(--border-radius-xl);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
   transition: all var(--transition-normal) var(--transition-curve);
   position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-card);
   height: 100%;
   padding: var(--spacing-sm);
 }
@@ -52,7 +41,7 @@
   position: relative;
   padding-top: 100%; /* Aspect ratio 1:1 */
   overflow: hidden;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   background: var(--background-secondary);
   margin-bottom: var(--spacing-sm);
 }
@@ -68,7 +57,7 @@
 }
 
 .productLink:hover .productImage {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 /* === BOTÓN DE FAVORITOS === */
@@ -135,7 +124,7 @@
   cursor: pointer;
   font-family: inherit;
   z-index: 1;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   color: white;
 }
 
@@ -307,23 +296,6 @@
 /* Hover específico del botón overlay */
 .addToCartOverlay:hover .overlayIcon {
   transform: scale(1.1);
-}
-
-/* === BADGE DE PRODUCTO AGOTADO === */
-.outOfStockBadge {
-  position: absolute;
-  top: var(--spacing-sm);
-  left: var(--spacing-sm);
-  background: var(--color-error);
-  color: white;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  z-index: var(--z-catalog);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: var(--shadow-md);
 }
 
 /* === ESTADOS DE PRODUCTO AGOTADO === */
@@ -529,7 +501,7 @@
   }
   
   .productCard {
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--border-radius-md);
   }
   
   .imageContainer {

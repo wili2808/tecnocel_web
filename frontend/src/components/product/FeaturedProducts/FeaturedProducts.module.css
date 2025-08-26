@@ -41,6 +41,10 @@
 
 /* Media Queries */
 @media (max-width: 1024px) {
+  .productsContainer {
+    padding: var(--spacing-md) 0;
+  }
+
   .productsGrid {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-md);
@@ -60,6 +64,10 @@
 }
 
 @media (max-width: 480px) {
+  .productsContainer {
+    padding: var(--spacing-xs) 0;
+  }
+
   .productsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm);

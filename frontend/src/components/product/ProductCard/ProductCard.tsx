@@ -2,15 +2,18 @@
  * Componente ProductCard - Tarjeta de producto para vista de cuadrícula
  * Muestra información resumida del producto con imagen, precios y acciones
  * Incluye indicadores de oferta, favoritos y estado del carrito
- * Utiliza hook común useProductCardLogic para toda la funcionalidad
+ * Lógica integrada directamente en el componente para mayor simplicidad
  */
-import React from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductImage from '../ProductImage';
 import CartIndicator from '../../cart/CartIndicator';
 import OfferIndicator from '../OfferIndicator';
 import FavoriteButtonReusable from '../FavoriteButtonReusable';
-import { useProductCardLogic } from '../../../hooks/useProductCardLogic';
+import { useCarrito } from '../../../contexts/CarritoContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNotification } from '../../../contexts/NotificationContext';
+import { useProductContext } from '../../../contexts/ProductContext';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
@@ -33,29 +36,134 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const navigate = useNavigate();
 
     // ============================================================================
-    // HOOK COMÚN - TODA LA LÓGICA CENTRALIZADA
+    // ESTADOS LOCALES
     // ============================================================================
-    const logic = useProductCardLogic({
-        id_producto,
-        precio_venta,
-        stock,
-        precio_original,
-        precio_oferta
-    });
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [isOutOfStock] = useState(stock <= 0);
 
     // ============================================================================
-    // DESTRUCTURING DE LA LÓGICA COMÚN
+    // CONTEXTOS Y HOOKS
     // ============================================================================
-    const {
-        isAddingToCart,
-        showSuccess,
-        isOutOfStock,
-        formatPrice,
-        priceInfo,
-        handleCardClick,
-        handleAddToCart,
-        carritoLoading
-    } = logic;
+    const { agregarItem, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
+    const { isAuthenticated } = useAuth();
+    const { showNotification } = useNotification();
+    const { loadImageWithCache } = useProductContext();
+
+    // ============================================================================
+    // FUNCIONES MEMOIZADAS
+    // ============================================================================
+    
+    /**
+     * Formatear precio con formato argentino
+     * Convierte números a formato de moneda local con símbolo ARS
+     */
+    const formatPrice = useCallback((price: number) => {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(price);
+    }, []);
+
+    /**
+     * Información de precios calculada y memoizada
+     * Incluye precios actuales, originales y cálculo de descuentos
+     */
+    const priceInfo = useMemo(() => {
+        const current = precio_oferta || Number(precio_venta);
+        const original = precio_original || Number(precio_venta);
+        const hasDiscount = precio_oferta && precio_oferta < Number(precio_venta);
+        
+        return {
+            current,
+            original,
+            hasDiscount,
+            discountPercentage: hasDiscount ? Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0
+        };
+    }, [precio_venta, precio_original, precio_oferta]);
+
+    /**
+     * Click en la tarjeta del producto
+     * La navegación se maneja automáticamente por el Link
+     * Solo registrar analytics si es necesario
+     */
+    const handleCardClick = useCallback(() => {
+        // La navegación se maneja automáticamente por el Link
+        // Solo registrar analytics si es necesario
+    }, []);
+
+    /**
+     * Agregar producto al carrito con validaciones completas
+     * Verifica autenticación, stock disponible y cantidad máxima
+     * Incluye manejo de errores y sincronización automática
+     */
+    const handleAddToCart = useCallback(async () => {
+        if (!isAuthenticated) {
+            showNotification('Debes iniciar sesión para agregar productos al carrito', 'warning', 3000);
+            return;
+        }
+
+        if (isOutOfStock) {
+            showNotification('Este producto está agotado', 'error', 3000);
+            return;
+        }
+
+        // Validar stock disponible antes de agregar
+        if (!canAddMoreOfProduct(id_producto, stock)) {
+            showNotification(`Ya tienes la cantidad máxima disponible (${stock}) en tu carrito`, 'warning', 3000);
+            return;
+        }
+
+        setIsAddingToCart(true);
+        try {
+            await agregarItem(id_producto, 1);
+            setShowSuccess(true);
+            showNotification('Producto agregado al carrito', 'success', 2000);
+            setTimeout(() => setShowSuccess(false), 2000);
+        } catch (error: any) {
+            // El error ya se maneja en el contexto, solo mostrar notificación genérica
+            if (error.message && error.message.includes('Stock insuficiente')) {
+                showNotification(error.message, 'error', 4000);
+                // Forzar sincronización después de error de stock
+                try {
+                    await sincronizarCarrito();
+                } catch (syncError) {
+                    console.error('Error al sincronizar después de error de stock:', syncError);
+                }
+            } else {
+                showNotification('Error al agregar al carrito', 'error', 3000);
+            }
+        } finally {
+            setIsAddingToCart(false);
+        }
+    }, [id_producto, isAuthenticated, isOutOfStock, stock, canAddMoreOfProduct, agregarItem, showNotification, sincronizarCarrito]);
+
+    /**
+     * Cargar imagen con caché optimizado
+     * Incluye manejo de errores y fallback a URL original
+     */
+    const loadImageWithCacheOptimized = useCallback(async (imageUrl: string) => {
+        try {
+            return await loadImageWithCache(imageUrl);
+        } catch (error) {
+            console.warn('Error al cargar imagen con caché:', error);
+            return imageUrl; // Fallback a URL original
+        }
+    }, [loadImageWithCache]);
+
+    // ============================================================================
+    // CÁLCULOS Y TEXTOS
+    // ============================================================================
+    
+    // Nota: stockText y overlayContent están comentados ya que no se usan actualmente
+    // Se pueden reactivar cuando se implementen las funcionalidades correspondientes
+
+    // ============================================================================
+    // ESTADOS DE CARGA
+    // ============================================================================
+    const carritoLoading = isAddingToCart;
 
     // ============================================================================
     // ESTADOS ADICIONALES PARA OVERLAY DE LÍMITE DE CARRITO
@@ -65,7 +173,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
      * Verificar si ya no se pueden agregar más productos al carrito
      * Determina si mostrar overlay rojo de límite alcanzado
      */
-    const cannotAddMore = !logic.canAddMoreOfProduct(id_producto, stock);
+    const cannotAddMore = !canAddMoreOfProduct(id_producto, stock);
 
     /**
      * Determinar el tipo de overlay a mostrar
@@ -81,7 +189,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     /**
      * Obtener la cantidad actual en el carrito para mostrar en el overlay
      */
-    const currentQuantity = logic.getProductQuantityInCart(id_producto);
+    const currentQuantity = getProductQuantityInCart(id_producto);
 
     // ============================================================================
     // FUNCIONES ESPECÍFICAS DE PRODUCTCARD
@@ -113,9 +221,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         className={styles.productImage}
                         onImageChange={(imageUrl) => {
                             // Usar cache de imágenes para evitar descargas repetidas
-                            if (logic.loadImageWithCache) {
-                                logic.loadImageWithCache(imageUrl);
-                            }
+                            loadImageWithCacheOptimized(imageUrl);
                         }}
                     />
 
@@ -238,13 +344,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 );
                         }
                     })()}
-
-                    {/* Badge de producto agotado - Solo visible si no hay stock */}
-                    {isOutOfStock && (
-                        <div className={styles.outOfStockBadge} role="status" aria-label="Producto agotado">
-                            Agotado
-                        </div>
-                    )}
                 </div>
 
                 {/* Información del producto debajo de la imagen */}
@@ -271,23 +370,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <p className={styles.productDescription} title={descripcion}>
                             {descripcion}
                         </p>
-                    )}
-
-                    {/* Pie de tarjeta con stock y contenedor de acciones futuras */}
-                    <div className={styles.productFooter}>
-                        {/* Contenedor de información de stock */}
-                        <div className={styles.stockContainer}>
-                            {/* <span className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : styles.inStock}`}>
-                                {stockText}
-                            </span> */}
-                        </div>
-
-                        {/* Contenedor de botones de acción - RESERVADO PARA FUNCIONES FUTURAS */}
-                        <div className={styles.actionContainer}>
-                            {/* Aquí se pueden agregar botones de funciones adicionales en el futuro */}
-                            {/* Por ejemplo: Comparar, Compartir, Ver especificaciones, etc. */}
-                        </div>
-                    </div>
+                    )}                    
                 </div>
             </article>
         </Link>
