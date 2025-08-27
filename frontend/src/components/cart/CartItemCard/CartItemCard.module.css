@@ -206,23 +206,12 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .card {
-        flex-direction: column;
-        gap: var(--spacing-md);
-    }
-
-    .imageLink {
-        width: 100%;
-        height: 200px;
-    }
-
-    .quantityControls {
-        align-self: flex-start;
-        margin-bottom: var(--spacing-sm);
+    .stockWarning {
+        display: none;
     }
 
     .removeButton {
         align-self: center;
-        margin-top: var(--spacing-md);
     }
+
 }

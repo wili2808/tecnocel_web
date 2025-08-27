@@ -11,9 +11,16 @@ import styles from './CartIndicator.module.css';
 interface CartIndicatorProps {
     productId: number;
     className?: string;
+    size?: 'small' | 'medium' | 'large'; // Tamaño del indicador
+    showQuantity?: boolean; // Mostrar badge de cantidad
 }
 
-const CartIndicator: React.FC<CartIndicatorProps> = ({ productId, className }) => {
+const CartIndicator: React.FC<CartIndicatorProps> = ({
+    productId,
+    className,
+    size = 'medium',
+    showQuantity = true
+}) => {
     // ============================================================================
     // HOOKS Y CONTEXTOS
     // ============================================================================
@@ -39,13 +46,22 @@ const CartIndicator: React.FC<CartIndicatorProps> = ({ productId, className }) =
     }
 
     // ============================================================================
+    // CLASES CSS DINÁMICAS
+    // ============================================================================
+
+    const sizeClass = styles[size];
+    const quantityClass = showQuantity ? styles.quantity : styles.quantityHidden;
+
+    // ============================================================================
     // RENDERIZADO
     // ============================================================================
 
     return (
-        <div className={`${styles.cartIndicator} ${className || ''}`}>
+        <div className={`${styles.cartIndicator} ${sizeClass} ${className || ''}`}>
             {/* Cantidad del producto en el carrito */}
-            <span className={styles.quantity}>{cartItem.cantidad}</span>
+            {showQuantity && (
+                <span className={quantityClass}>{cartItem.cantidad}</span>
+            )}
             {/* Etiqueta descriptiva del estado */}
             <span className={styles.label}>En carrito</span>
         </div>

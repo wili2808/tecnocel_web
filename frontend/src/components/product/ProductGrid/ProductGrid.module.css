@@ -149,17 +149,10 @@
 }
 
 /* Responsive Grid - Aumentado el número de columnas */
-@media (max-width: 1440px) {
-  .productsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: var(--spacing-md);
-  }
-}
-
 @media (max-width: 1024px) {
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
   
   .productsGrid::-webkit-scrollbar {
@@ -170,7 +163,7 @@
 @media (max-width: 768px) {
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     padding: var(--spacing-sm);
   }
   
@@ -197,6 +190,7 @@
 @media (max-width: 480px) {
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    padding: var(--spacing-xs);
     gap: var(--spacing-xs);
   }
   

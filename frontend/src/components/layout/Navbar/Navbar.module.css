@@ -121,25 +121,24 @@
 
 .secondaryNavLinks {
   display: flex;
-  gap: var(--spacing-lg);
+  font-size: var(--font-size-md);
 }
 
 .secondaryNavLink {
   color: var(--text-primary);
   text-decoration: none;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
   transition: all var(--transition-normal) var(--transition-curve);
+  padding: 5px var(--spacing-lg);
 }
 
 .secondaryNavLink:hover {
-  color: var(--color-primary-light);
+  color: var(--color-primary);
   transform: scale(var(--scale-hover));
 }
 
 .secondaryNavLink.active {
   color: var(--color-primary);
-  transform: scale(var(--scale-active));
+  transform: scale(var(--scale-hover));
 }
 
 /* === BÚSQUEDA === */
@@ -150,13 +149,6 @@
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-}
-
-/* === BOTONES ESPECIALIZADOS === */
-.themeToggle,
-.cartButton,
-.menuToggle {
-  /* Heredan estilos de .iconButton */
 }
 
 .menuToggle {
@@ -432,15 +424,25 @@
   .logoText {
     font-size: var(--font-size-md);
   }
+  
+  .secondaryNavLinks {
+    gap: 0;
+  }
+
+  .secondaryNavLink {
+    padding: 0 var(--spacing-md);
+  }
 
   .searchSection {
     max-width: 400px;
   }
 
-  .secondaryNavLinks {
-    gap: var(--spacing-md);
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs);
+  .allControls {
+    gap: var(--spacing-xs);
+  }
+
+  .controlsGroup {
+    gap: 0;
   }
 }
 

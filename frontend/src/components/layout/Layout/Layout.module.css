@@ -16,9 +16,9 @@
   flex: 1;
   width: 100%;
   max-width: var(--max-width);
-  margin: var(--navbar-height) auto;
+  margin: var(--navbar-height) auto 0 auto;
   animation: fadeIn var(--transition-normal) var(--transition-curve);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-card-hover);
   background-color: var(--background-primary);
 }
 

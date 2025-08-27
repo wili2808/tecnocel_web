@@ -1,0 +1,200 @@
+/* ============================================================================
+   CART INDICATOR DEMO - ESTILOS
+   ============================================================================ */
+
+.demoContainer {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: var(--font-family-primary);
+}
+
+.demoTitle {
+  text-align: center;
+  color: var(--color-text);
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* ============================================================================
+   EJEMPLOS DE TAMAÑOS
+   ============================================================================ */
+
+.sizeExamples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.exampleItem {
+  background: var(--color-background-alt);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.exampleItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.exampleItem h3 {
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.exampleItem p {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.exampleContainer {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  background: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: 2px dashed var(--color-border);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================================
+   VARIANTES DE CANTIDAD
+   ============================================================================ */
+
+.variantsExamples {
+  background: var(--color-background-alt);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  margin-bottom: 3rem;
+  border: 1px solid var(--color-border);
+}
+
+.variantsExamples h3 {
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.variantItem {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.variantItem:last-child {
+  margin-bottom: 0;
+}
+
+.variantItem h4 {
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   INFORMACIÓN DE USO
+   ============================================================================ */
+
+.usageInfo {
+  background: var(--color-background-alt);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+}
+
+.usageInfo h3 {
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.codeExample {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  white-space: pre-wrap;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .demoContainer {
+    padding: 1rem;
+  }
+  
+  .demoTitle {
+    font-size: 1.5rem;
+  }
+  
+  .sizeExamples {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .exampleItem {
+    padding: 1rem;
+  }
+  
+  .exampleContainer {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .usageInfo,
+  .variantsExamples {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .demoContainer {
+    padding: 0.5rem;
+  }
+  
+  .demoTitle {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .exampleItem {
+    padding: 0.8rem;
+  }
+  
+  .exampleContainer {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .usageInfo,
+  .variantsExamples {
+    padding: 1rem;
+  }
+  
+  .codeExample {
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+}

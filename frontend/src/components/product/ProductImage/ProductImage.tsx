@@ -1,6 +1,6 @@
 /**
  * Componente ProductImage - Visualización de imágenes del producto
- * Maneja la galería de imágenes con navegación, miniaturas y estados de carga
+ * Maneja la galería de imágenes con navegación y estados de carga
  * Incluye precarga de imágenes y manejo de errores para mejor UX
  */
 import React, { useState, useEffect } from 'react';
@@ -13,8 +13,7 @@ interface ProductImageProps {
     defaultImage?: string | null;
     alt: string;
     className?: string;
-    showThumbnails?: boolean;
-    onImageChange?: (imageUrl: string) => void;
+    mode?: 'simple' | 'gallery'; // 'simple': solo imagen principal, 'gallery': galería completa
 }
 
 const ProductImage: React.FC<ProductImageProps> = ({
@@ -22,8 +21,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
     defaultImage,
     alt,
     className,
-    showThumbnails = false,
-    onImageChange
+    mode = 'simple'
 }) => {
     // ============================================================================
     // ESTADOS LOCALES
@@ -35,7 +33,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
     // ============================================================================
     // CÁLCULOS Y PREPARACIÓN DE DATOS
     // ============================================================================
-    
+
     // Ordenar imágenes: principales primero, luego por orden
     const sortedImages = [...images].sort((a, b) => {
         if (a.es_principal && !b.es_principal) return -1;
@@ -51,22 +49,22 @@ const ProductImage: React.FC<ProductImageProps> = ({
     // ============================================================================
     // EFECTOS Y PRECARGA
     // ============================================================================
-    
+
     /**
      * Precarga la siguiente imagen para navegación fluida
      * Mejora la experiencia del usuario al cambiar entre imágenes
      */
     useEffect(() => {
-        if (sortedImages.length > currentImageIndex + 1) {
+        if (mode === 'gallery' && sortedImages.length > currentImageIndex + 1) {
             const nextImage = new Image();
             nextImage.src = sortedImages[currentImageIndex + 1].url;
         }
-    }, [currentImageIndex, sortedImages]);
+    }, [currentImageIndex, sortedImages, mode]);
 
     // ============================================================================
     // MANEJADORES DE EVENTOS
     // ============================================================================
-    
+
     /**
      * Maneja errores de carga de imagen
      * Establece fallback y registra error solo en desarrollo
@@ -85,17 +83,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
      */
     const handleImageLoad = () => {
         setIsLoading(false);
-    };
-
-    /**
-     * Cambia la imagen actual y notifica al componente padre
-     * Permite sincronización con otros componentes
-     */
-    const handleImageChange = (index: number) => {
-        setCurrentImageIndex(index);
-        if (onImageChange) {
-            onImageChange(sortedImages[index].url);
-        }
     };
 
     /**
@@ -121,7 +108,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <div className={`${styles.imageContainer} ${className || ''}`}>
             {/* Contenedor de imagen principal con controles de navegación */}
@@ -132,7 +119,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
                         <div className={styles.loadingSpinner} />
                     </div>
                 )}
-                
+
                 {/* Imagen principal del producto */}
                 <img
                     src={currentImage}
@@ -143,8 +130,8 @@ const ProductImage: React.FC<ProductImageProps> = ({
                     loading="lazy"
                 />
 
-                {/* Controles de navegación - Solo visibles si hay múltiples imágenes */}
-                {sortedImages.length > 1 && (
+                {/* Controles de navegación - Solo visibles en modo galería y si hay múltiples imágenes */}
+                {mode === 'gallery' && sortedImages.length > 1 && (
                     <>
                         {/* Botón de imagen anterior */}
                         <button
@@ -154,7 +141,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
                         >
                             ‹
                         </button>
-                        
+
                         {/* Botón de siguiente imagen */}
                         <button
                             className={`${styles.navButton} ${styles.nextButton}`}
@@ -163,30 +150,14 @@ const ProductImage: React.FC<ProductImageProps> = ({
                         >
                             ›
                         </button>
+
+                        {/* Indicador de múltiples imágenes */}
+                        <div className={styles.imageCounter}>
+                            {currentImageIndex + 1} / {sortedImages.length}
+                        </div>
                     </>
                 )}
             </div>
-
-            {/* Galería de miniaturas - Solo visible si está habilitada y hay múltiples imágenes */}
-            {showThumbnails && sortedImages.length > 1 && (
-                <div className={styles.thumbnailContainer}>
-                    {sortedImages.map((image, index) => (
-                        <button
-                            key={`thumb-${index}`}
-                            className={`${styles.thumbnail} ${index === currentImageIndex ? styles.activeThumbnail : ''
-                                }`}
-                            onClick={() => handleImageChange(index)}
-                            aria-label={`Ver imagen ${index + 1}`}
-                        >
-                            <img
-                                src={image.url}
-                                alt={`Miniatura ${index + 1}`}
-                                loading="lazy"
-                            />
-                        </button>
-                    ))}
-                </div>
-            )}
         </div>
     );
 };

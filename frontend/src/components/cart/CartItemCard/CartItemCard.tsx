@@ -117,6 +117,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                     defaultImage={images.length > 0 ? images[0].url : undefined}
                     alt={productInfo.nombre}
                     className={styles.productImage}
+                    mode="simple"
                 />
             </Link>
 

@@ -13,7 +13,7 @@ import FavoriteButtonReusable from '../FavoriteButtonReusable';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useProductContext } from '../../../contexts/ProductContext';
+
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types/product';
 
@@ -48,12 +48,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const { agregarItem, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
     const { isAuthenticated } = useAuth();
     const { showNotification } = useNotification();
-    const { loadImageWithCache } = useProductContext();
+
 
     // ============================================================================
     // FUNCIONES MEMOIZADAS
     // ============================================================================
-    
+
     /**
      * Formatear precio con formato argentino
      * Convierte números a formato de moneda local con símbolo ARS
@@ -75,7 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         const current = precio_oferta || Number(precio_venta);
         const original = precio_original || Number(precio_venta);
         const hasDiscount = precio_oferta && precio_oferta < Number(precio_venta);
-        
+
         return {
             current,
             original,
@@ -140,23 +140,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
     }, [id_producto, isAuthenticated, isOutOfStock, stock, canAddMoreOfProduct, agregarItem, showNotification, sincronizarCarrito]);
 
-    /**
-     * Cargar imagen con caché optimizado
-     * Incluye manejo de errores y fallback a URL original
-     */
-    const loadImageWithCacheOptimized = useCallback(async (imageUrl: string) => {
-        try {
-            return await loadImageWithCache(imageUrl);
-        } catch (error) {
-            console.warn('Error al cargar imagen con caché:', error);
-            return imageUrl; // Fallback a URL original
-        }
-    }, [loadImageWithCache]);
+
 
     // ============================================================================
     // CÁLCULOS Y TEXTOS
     // ============================================================================
-    
+
     // Nota: stockText y overlayContent están comentados ya que no se usan actualmente
     // Se pueden reactivar cuando se implementen las funcionalidades correspondientes
 
@@ -213,16 +202,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <article className={`${styles.productCard} ${className || ''}`}>
                 {/* Contenedor de imagen con indicadores superpuestos */}
                 <div className={styles.imageContainer}>
-                    {/* Imagen principal del producto con galería */}
+                    {/* Imagen principal del producto */}
                     <ProductImage
                         images={imagenes}
                         defaultImage={imagen_url}
                         alt={`Imagen de ${nombre}`}
                         className={styles.productImage}
-                        onImageChange={(imageUrl) => {
-                            // Usar cache de imágenes para evitar descargas repetidas
-                            loadImageWithCacheOptimized(imageUrl);
-                        }}
+                        mode="simple"
                     />
 
                     {/* Indicador de oferta reutilizable - Solo visible si hay descuento */}
@@ -240,7 +226,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         )}
 
                     {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
-                    <CartIndicator productId={id_producto} />
+                    <CartIndicator
+                        productId={id_producto}
+                        size="small"
+                        showQuantity={true}
+                    />
 
                     {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
                     <FavoriteButtonReusable
@@ -370,7 +360,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <p className={styles.productDescription} title={descripcion}>
                             {descripcion}
                         </p>
-                    )}                    
+                    )}
                 </div>
             </article>
         </Link>

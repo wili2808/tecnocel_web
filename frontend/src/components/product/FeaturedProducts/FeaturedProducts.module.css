@@ -54,7 +54,7 @@
 @media (max-width: 768px) {
   .productsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .sectionTitle {
@@ -70,7 +70,7 @@
 
   .productsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
   }
   
   .sectionTitle {

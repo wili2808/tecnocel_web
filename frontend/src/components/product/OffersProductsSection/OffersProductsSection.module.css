@@ -48,7 +48,7 @@
 .productsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: var(--spacing-md);
   margin-bottom: 40px;
 }
 
@@ -176,10 +176,9 @@
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
   }
 }
 
@@ -202,7 +201,7 @@
   
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    gap: var(--spacing-sm);
     margin-bottom: 32px;
   }
   
@@ -233,6 +232,7 @@
 @media (max-width: 480px) {
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-xs);
   }
   
   .sectionTitle {

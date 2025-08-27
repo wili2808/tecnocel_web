@@ -180,12 +180,12 @@ const ProductPage: React.FC = () => {
                                     variant="outlined"
                                 />
                             </div>
-                            {/* Galería de imágenes con miniaturas */}
+                            {/* Galería de imágenes del producto */}
                             <ProductImage
                                 images={product.imagenes || []}
                                 defaultImage={product.imagen_url}
                                 alt={product.nombre}
-                                showThumbnails={true}
+                                mode="gallery"
                             />
 
                             {/* Indicador de oferta reutilizable - Posicionado en esquina superior izquierda */}

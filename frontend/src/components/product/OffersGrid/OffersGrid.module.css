@@ -47,8 +47,9 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: var(--spacing-lg);
   align-items: stretch;
+  justify-content: space-between;
 }
 
 /* Estados de carga y error */
@@ -176,6 +177,10 @@
 }
 
 @media (max-width: 480px) {
+  .grid {
+    gap: var(--spacing-xs);
+  }
+
   .sectionTitle {
     font-size: 1.25rem;
   }

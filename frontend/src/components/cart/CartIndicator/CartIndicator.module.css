@@ -22,12 +22,83 @@
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   pointer-events: none; /* No interferir con clicks */
+  transition: all 0.3s ease;
 }
+
+/* ============================================================================
+   TAMAÑOS DEL INDICADOR
+   ============================================================================ */
+
+/* Tamaño pequeño - Para tarjetas compactas */
+.small {
+  padding: 3px 6px;
+  font-size: 9px;
+  min-width: 24px;
+  border-radius: 8px;
+  gap: 1px;
+}
+
+.small .quantity {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.small .label {
+  font-size: 8px;
+  font-weight: 500;
+}
+
+/* Tamaño mediano - Por defecto */
+.medium {
+  padding: 4px 8px;
+  font-size: 10px;
+  min-width: 32px;
+  border-radius: 12px;
+  gap: 2px;
+}
+
+.medium .quantity {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.medium .label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Tamaño grande - Para vistas destacadas */
+.large {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-width: 40px;
+  border-radius: 16px;
+  gap: 3px;
+}
+
+.large .quantity {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.large .label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   ELEMENTOS DEL INDICADOR
+   ============================================================================ */
 
 .quantity {
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.quantityHidden {
+  display: none;
 }
 
 .label {
@@ -35,7 +106,12 @@
   font-weight: 500;
   opacity: 0.9;
   line-height: 1;
+  transition: opacity 0.2s ease;
 }
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
 
 /* Animación de entrada */
 .cartIndicator {
@@ -53,21 +129,77 @@
   }
 }
 
-/* Responsive */
+/* Hover effects para tamaños grandes */
+.large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .large {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-width: 36px;
+  }
+  
+  .large .quantity {
+    font-size: 13px;
+  }
+  
+  .large .label {
+    font-size: 10px;
+  }
+}
+
 @media (max-width: 480px) {
   .cartIndicator {
     bottom: 6px;
     right: 6px;
+  }
+  
+  .small {
+    padding: 2px 5px;
+    font-size: 8px;
+    min-width: 20px;
+  }
+  
+  .small .quantity {
+    font-size: 9px;
+  }
+  
+  .small .label {
+    font-size: 7px;
+  }
+  
+  .medium {
     padding: 3px 6px;
-    font-size: 11px;
+    font-size: 9px;
     min-width: 28px;
   }
   
-  .quantity {
+  .medium .quantity {
+    font-size: 11px;
+  }
+  
+  .medium .label {
+    font-size: 9px;
+  }
+  
+  .large {
+    padding: 4px 8px;
+    font-size: 10px;
+    min-width: 32px;
+  }
+  
+  .large .quantity {
     font-size: 12px;
   }
   
-  .label {
+  .large .label {
     font-size: 9px;
   }
 }

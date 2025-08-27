@@ -94,6 +94,8 @@
 .actionButtons {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: var(--spacing-sm);
 }
 
@@ -103,14 +105,11 @@
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
-  border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all var(--transition-normal) var(--transition-curve);
-  min-height: 40px;
-  width: 100%;
   position: relative;
   overflow: hidden;
 }
@@ -245,13 +244,15 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .actionButtons {
+    flex-direction: row;
+  }
+}
+
 @media (max-width: 768px) {
   .productActions {
     padding: var(--spacing-md);
-    gap: var(--spacing-sm);
-  }
-
-  .actionButtons {
     gap: var(--spacing-sm);
   }
 
@@ -278,11 +279,6 @@
     padding: var(--spacing-sm);
   }
 
-  .quantityControls {
-    width: 100%;
-    max-width: none;
-  }
-
   .quantityInput {
     flex: 1;
     width: auto;
@@ -303,6 +299,10 @@
 
   .quantityLabel {
     font-size: var(--font-size-xs);
+  }
+
+  .actionButtons {
+    flex-direction: column;
   }
 }
 

@@ -68,6 +68,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({
                             nombre={product.nombre}
                             descripcion={product.descripcion}
                             imagen_url={product.imagen_url}
+                            imagenes={product.imagenes}
                             precio_venta={String(product.precio_venta)}
                             stock={product.stock}
                             precio_oferta={product.precio_oferta}

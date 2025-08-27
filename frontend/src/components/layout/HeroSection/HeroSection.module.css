@@ -65,7 +65,7 @@
 .secondaryCta {
   color: var(--text-secondary);
   background-color: var(--background-light);
-  border: 1px solid var(--text-primary);
+  border: 1px solid var(--border-color-light);
   padding: 0.8rem 1.8rem;
   border-radius: var(--border-radius-lg);
   font-weight: 600;
@@ -74,7 +74,6 @@
   text-align: center;
   font-size: 0.95rem;
   letter-spacing: 0.2px;
-  box-shadow: 0 1px 2px var(--text-secondary);
 }
 
 .primaryCta:hover,
@@ -83,7 +82,7 @@
   background-color: var(--background-primary);
   border: 1px solid var(--color-primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 3px 5px var(--color-primary-dark);
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* Animaciones */
