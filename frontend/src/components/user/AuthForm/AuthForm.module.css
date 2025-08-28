@@ -1,11 +1,11 @@
 /* Tarjeta del formulario de login */
 .loginCard {
-    background: var(--background-elevated);
-    border-radius: var(--border-radius-xl);
-    padding: var(--spacing-2xl);
+    background: var(--background-secondary);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-xl);
     box-shadow: var(--shadow-xl);
     animation: slideInLeft 0.6s ease-out;
-    max-width: 600px;
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
@@ -610,33 +610,3 @@ input[type="password"]::-ms-reveal {
 .loginForm.loading .submitButton {
     opacity: 0.8;
 }
-
-/* ===== PANTALLAS GRANDES ===== */
-@media (min-width: 1400px) {
-    .loginCard {
-        max-width: 680px;
-        padding: var(--spacing-xl);
-    }
-    
-    .authHeader {
-        margin-bottom: var(--spacing-2xl);
-    }
-    
-    .logo {
-        height: 72px;
-    }
-    
-    .title {
-        font-size: var(--font-size-3xl);
-    }
-    
-    .subtitle {
-        font-size: var(--font-size-lg);
-    }
-}
-
-@media (min-width: 1800px) {
-    .loginCard {
-        max-width: 750px;
-    }
-} 

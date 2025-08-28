@@ -133,7 +133,7 @@ const AuthForm = () => {
             <div className={styles.authHeader}>
                 <div className={styles.logoContainer}>
                     <img
-                        src="/src/assets/logo2.svg"
+                        src="/src/assets/tecnocel.svg"
                         alt="Tecnocel Logo"
                         className={styles.logo}
                     />

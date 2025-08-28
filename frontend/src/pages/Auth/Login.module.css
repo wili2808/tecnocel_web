@@ -1,6 +1,5 @@
 /* Página principal de login */
 .loginPage {
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -11,10 +10,9 @@
 /* Contenedor principal */
 .loginContainer {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+    grid-template-columns: 1fr .5fr;
     gap: var(--container-padding);
     width: 100%;
-    max-width: 1200px;
     margin: 0 auto;
     align-items: center;
     box-sizing: border-box;
@@ -30,16 +28,15 @@
 }
 
 .infoCard {
-    border-radius: var(--border-radius-xl);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
     padding: var(--spacing-xl);
     text-align: center;
     box-shadow: var(--shadow-xl);
-    width: 100%;
-    max-width: 420px;
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
-    background: var(--background-elevated);
+    background: var(--background-secondary);
 }
 
 /* Añadir efecto visual sutil */
@@ -139,8 +136,12 @@
 @media (max-width: 1024px) {
     .loginContainer {
         grid-template-columns: 1fr;
-        gap: var(--spacing-2xl);
+        gap: var(--spacing-md);
         max-width: 600px;
+    }
+
+    .loginPage {
+        padding: 0;
     }
     
     .loginInfo {
@@ -159,7 +160,7 @@
 /* Responsividad para móviles */
 @media (max-width: 768px) {
     .loginPage {
-        padding: var(--spacing-md);
+        padding: 0;
         align-items: flex-start;
         padding-top: var(--spacing-2xl);
     }
@@ -191,7 +192,7 @@
 /* Responsividad para pantallas pequeñas */
 @media (max-width: 480px) {
     .loginPage {
-        padding: var(--spacing-sm);
+        padding: 0;
         padding-top: var(--spacing-xl);
     }
     
@@ -206,18 +207,6 @@
     
     .infoCard h3 {
         font-size: var(--font-size-md);
-    }
-}
-
-/* Responsividad para pantallas muy pequeñas */
-@media (max-width: 320px) {
-    .loginContainer {
-        max-width: 300px;
-        gap: var(--spacing-md);
-    }
-    
-    .infoCard {
-        padding: var(--spacing-md);
     }
 }
 
@@ -243,33 +232,3 @@
         border: 2px solid transparent;
     }
 }
-
-/* Ajustes para pantallas muy anchas */
-@media (min-width: 1400px) {
-    .loginContainer {
-        max-width: 1400px;
-    }
-    
-    .infoCard {
-        max-width: 500px;
-    }
-    
-    .infoCard h3 {
-        font-size: var(--font-size-3xl);
-    }
-    
-    .infoCard p {
-        font-size: var(--font-size-lg);
-    }
-}
-
-/* Ajustes para pantallas ultra anchas */
-@media (min-width: 1800px) {
-    .loginContainer {
-        max-width: 1600px;
-    }
-    
-    .infoCard {
-        max-width: 600px;
-    }
-} 
