@@ -5,7 +5,7 @@ import { useProductActions } from '../../hooks/useProductActions';
 import { useOfertasGlobal } from '../../hooks/useOfertasGlobal';
 import { useSearch } from '../../contexts/SearchContext';
 import { filterProducts } from '../../utils/productFiltering';
-import type { ProductUIFilters } from '../../types/product';
+import type { ProductUIFilters } from '../../types';
 import styles from './ProductCatalog.module.css';
 
 const ProductCatalog: React.FC = () => {
@@ -33,7 +33,6 @@ const ProductCatalog: React.FC = () => {
     // ============================================================================
     const {
         debouncedSearchQuery, // ✅ Búsqueda global con debounce
-        isSearching
     } = useSearch();
 
     // ============================================================================

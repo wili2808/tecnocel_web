@@ -91,3 +91,7 @@ El componente utiliza las siguientes variables del sistema de diseño:
 - `--icon-size-sm`, `--icon-size-md`, `--icon-size-lg`, `--icon-size-xl`
 - `--shadow-sm`, `--shadow-button-primary`, `--shadow-button-primary-hover`
 - `--theme-transition`
+
+---
+
+**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../../../docs/README.md)** | **[🏠 Inicio](../../../../../README.md)**

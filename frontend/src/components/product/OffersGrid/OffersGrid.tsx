@@ -8,7 +8,7 @@ import React, { useMemo } from 'react';
 import OfferCard from '../OfferCard';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import { useOfertasGlobal } from '../../../hooks/useOfertasGlobal';
-import type { Oferta } from '../../../types/product';
+import type { Oferta } from '../../../types';
 import styles from './OffersGrid.module.css';
 
 interface OffersGridProps {

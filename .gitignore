@@ -15,12 +15,22 @@ build/
 *.tsbuildinfo
 
 # Logs
-logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de análisis
+*-analysis*.json
+*-analysis*.log
+frontend-analysis.log
 
 # Archivos temporales
 .tmp/
 .temp/
+*.tmp
+*.tmp.md
 
 # Archivos del sistema
 .DS_Store
@@ -39,3 +49,14 @@ coverage/
 # Archivos de cache
 .cache/
 .parcel-cache/
+
+# Backups de base de datos (solo en local, no commitear)
+database/backups/*.sql
+!database/backups/.gitkeep
+
+# Documentación temporal
+# docs/temp/
+
+# Archivos locales
+# .cursor/
+# note/

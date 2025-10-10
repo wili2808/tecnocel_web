@@ -1,5 +1,5 @@
 // ============================================================================
-// TIPOS DE PRODUCTOS Y ENTIDADES PRINCIPALES
+// TIPOS DE PRODUCTOS Y CATÁLOGO
 // ============================================================================
 
 /**
@@ -26,21 +26,6 @@ export interface Category {
 }
 
 /**
- * Interfaz para Tipos de Características - Tabla tb_tipos_caracteristicas
- */
-export interface TipoCaracteristica {
-  id_tipo: number;
-  nombre_tipo: string;
-  descripcion?: string | null;
-  tipo_dato: 'texto' | 'numero' | 'booleano' | 'seleccion';
-  unidad_medida?: string | null;
-  opciones_seleccion?: string[] | null;
-  activo: boolean;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-}
-
-/**
  * Interfaz para Características de Productos - Tabla tb_producto_caracteristicas
  */
 export interface ProductoCaracteristica {
@@ -50,7 +35,15 @@ export interface ProductoCaracteristica {
   valor: string;
   fyh_creacion: string;
   fyh_actualizacion: string;
-  tipo?: TipoCaracteristica;
+  tipo?: {
+    id_tipo: number;
+    nombre_tipo: string;
+    descripcion?: string | null;
+    tipo_dato: 'texto' | 'numero' | 'booleano' | 'seleccion';
+    unidad_medida?: string | null;
+    opciones_seleccion?: string[] | null;
+    activo: boolean;
+  };
 }
 
 /**
@@ -71,37 +64,6 @@ export interface Oferta {
   uso_actual: number;
   fyh_creacion: string;
   fyh_actualizacion: string;
-}
-
-/**
- * Interfaz para Productos en Oferta - Tabla tb_productos_ofertas
- */
-export interface ProductoOferta {
-  id_producto_oferta: number;
-  id_producto: number;
-  id_oferta: number;
-  precio_oferta: number;
-  fyh_creacion: string;
-}
-
-/**
- * Interfaz para resumen de ofertas
- */
-export interface OfertasResumen {
-  total: number;
-  activas: number;
-  expiradas: number;
-  productosEnOferta: number;
-}
-
-/**
- * Interfaz para oferta con productos incluidos
- */
-export interface OfertaConProductos extends Oferta {
-  productos?: Product[];
-  productosCount?: number;
-  isActive?: boolean;
-  timeRemaining?: string;
 }
 
 /**
@@ -126,129 +88,6 @@ export interface ImageData {
   es_principal: boolean;
   orden: number;
 }
-
-/**
- * Interfaz para Direcciones - Tabla tb_direcciones
- */
-export interface Direccion {
-  id_direccion: number;
-  id_cliente: number;
-  nombre_direccion: string;
-  calle: string;
-  numero: string;
-  piso?: string | null;
-  departamento?: string | null;
-  barrio?: string | null;
-  ciudad: string;
-  provincia: string;
-  codigo_postal?: string | null;
-  pais: string;
-  referencia?: string | null;
-  es_predeterminada: boolean;
-  es_facturacion: boolean;
-  telefono_contacto?: string | null;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-}
-
-/**
- * Interfaz para Clientes - Tabla tb_clientes
- */
-export interface Cliente {
-  id_cliente: number;
-  nombre_cliente: string;
-  apellido_cliente: string;
-  nit_ci_cliente: string;
-  celular_cliente: string;
-  email_cliente: string;
-  password_hash?: string | null;
-  is_web_enabled: boolean;
-  last_login?: string | null;
-  email_verified: boolean;
-  verification_token?: string | null;
-  reset_token?: string | null;
-  reset_token_expires?: string | null;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  google_id?: string | null;
-}
-
-/**
- * Interfaz para Usuarios - Tabla tb_usuarios
- */
-export interface Usuario {
-  id_usuario: number;
-  nombres: string;
-  email: string;
-  password_user: string;
-  token: string;
-  id_rol: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-}
-
-/**
- * Interfaz para Roles - Tabla tb_roles
- */
-export interface Rol {
-  id_rol: number;
-  rol: string;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-}
-
-/**
- * Interfaz para Comentarios - Tabla tb_comentarios_productos
- */
-export interface Comentario {
-  id_comentario: number;
-  id_producto: number;
-  id_cliente: number;
-  comentario: string;
-  calificacion?: number | null;
-  es_verificado: boolean;
-  estado: 'activo' | 'oculto' | 'eliminado';
-  respuesta_admin?: string | null;
-  fecha_respuesta_admin?: string | null;
-  id_admin_respuesta?: number | null;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  cliente?: Cliente;
-  imagenes?: ComentarioImagen[];
-}
-
-/**
- * Interfaz para Imágenes de Comentarios - Tabla tb_comentario_imagenes
- */
-export interface ComentarioImagen {
-  id_imagen: number;
-  id_comentario: number;
-  url_imagen: string;
-  alt_text?: string | null;
-  fyh_creacion: string;
-}
-
-/**
- * Interfaz para Favoritos - Tabla tb_favoritos
- */
-export interface Favorito {
-  id_favorito: number;
-  id_cliente: number;
-  id_producto: number;
-  fyh_creacion: string;
-  producto?: {
-    id_producto: number;
-    nombre: string;
-    descripcion: string | null;
-    precio_venta: string;
-    imagen_url?: string | null;
-    stock: number;
-  };
-}
-
-// ============================================================================
-// INTERFACES PRINCIPALES DE PRODUCTOS
-// ============================================================================
 
 /**
  * Interfaz completa del producto según el modelo tb_almacen
@@ -276,7 +115,11 @@ export interface Product {
   
   // Relaciones incluidas en las consultas
   Categoria?: Category;
-  Usuario?: Usuario;
+  Usuario?: {
+    id_usuario: number;
+    nombres: string;
+    email: string;
+  };
   marca?: Marca;
   caracteristicas?: ProductoCaracteristica[];
   productosCaracteristicas?: ProductoCaracteristica[];
@@ -336,7 +179,7 @@ export interface ProductFilters {
   solo_ofertas?: boolean;
   caracteristicas?: { [key: string]: string };
   es_destacado?: boolean;
-  order?: string; // Agregado para soporte de ordenamiento
+  order?: string;
 }
 
 /**
@@ -348,262 +191,4 @@ export interface ProductUIFilters {
   selectedDropdownBrand: string;
   order: string;
   onlyStock: boolean;
-}
-
-/**
- * Interfaz para respuesta de la API de productos
- */
-export interface ProductsResponse {
-  productos: Product[];
-  total: number;
-  pagina: number;
-  por_pagina: number;
-}
-
-// ============================================================================
-// INTERFACES PARA VENTAS
-// ============================================================================
-
-/**
- * Interfaz para Ventas - Tabla tb_ventas
- */
-export interface Venta {
-  id_venta: number;
-  nro_venta: number;
-  id_cliente: number;
-  total_pagado: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  observaciones?: string | null;
-  valor_dolar?: number | null;
-  moneda?: string | null;
-  id_carrito?: number | null;
-  cliente?: Cliente;
-}
-
-/**
- * Interfaz para Carrito de Venta - Tabla tb_carrito
- */
-export interface CarritoVenta {
-  id_carrito: number;
-  nro_venta: number;
-  id_producto: number;
-  cantidad: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  producto?: Product;
-}
-
-// ============================================================================
-// INTERFACES PARA PRESUPUESTOS
-// ============================================================================
-
-/**
- * Interfaz para Presupuestos - Tabla tb_presupuestos
- */
-export interface Presupuesto {
-  id_presupuesto: number;
-  nro_presupuesto?: number | null;
-  id_cliente?: number | null;
-  total_pagado?: number | null;
-  fyh_creacion?: string | null;
-  moneda?: string | null;
-  valor_dolar?: number | null;
-  observaciones?: string | null;
-  estado?: string | null;
-  cliente?: Cliente;
-}
-
-/**
- * Interfaz para Detalles de Presupuesto - Tabla tb_presupuesto_detalles
- */
-export interface PresupuestoDetalle {
-  id_detalle: number;
-  nro_presupuesto?: number | null;
-  id_producto?: number | null;
-  cantidad?: number | null;
-  fyh_creacion?: string | null;
-  fyh_actualizacion?: string | null;
-  producto?: Product;
-}
-
-// ============================================================================
-// INTERFACES PARA DEVOLUCIONES
-// ============================================================================
-
-/**
- * Interfaz para Devoluciones - Tabla tb_devoluciones
- */
-export interface Devolucion {
-  id_devolucion: number;
-  id_cliente: number;
-  total_a_devolver: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  motivo_devolucion: string;
-  estado_devolucion: string;
-  tipo_devolucion: string;
-  nro_venta?: string | null;
-  cliente?: Cliente;
-}
-
-/**
- * Interfaz para Detalles de Devolución - Tabla tb_detalle_devoluciones
- */
-export interface DetalleDevolucion {
-  id_detalle: number;
-  id_devolucion?: number | null;
-  id_producto?: number | null;
-  cantidad?: number | null;
-  fyh_creacion?: string | null;
-  fyh_actualizacion?: string | null;
-  producto?: Product;
-}
-
-// ============================================================================
-// INTERFACES PARA COMPRAS
-// ============================================================================
-
-/**
- * Interfaz para Compras - Tabla tb_compras
- */
-export interface Compra {
-  id_compra: number;
-  nro_compra: number;
-  fecha_compra: string;
-  id_proveedor: number;
-  comprobante: string;
-  id_usuario: number;
-  precio_total: string;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  usuario?: Usuario;
-}
-
-/**
- * Interfaz para Detalles de Compra - Tabla tb_detalle_compras
- */
-export interface DetalleCompra {
-  id_detalle_compra: number;
-  nro_compra: number;
-  id_producto: number;
-  cantidad: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  producto?: Product;
-}
-
-// ============================================================================
-// INTERFACES PARA PROVEEDORES
-// ============================================================================
-
-/**
- * Interfaz para Proveedores - Tabla tb_proveedores
- */
-export interface Proveedor {
-  id_proveedor: number;
-  nombre_proveedor: string;
-  celular: string;
-  telefono?: string | null;
-  empresa: string;
-  email?: string | null;
-  direccion: string;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-}
-
-// ============================================================================
-// TIPOS DE UTILIDAD
-// ============================================================================
-
-/**
- * Tipo para respuestas de API genéricas
- */
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-  error?: string;
-}
-
-/**
- * Tipo para respuestas paginadas
- */
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  pagina: number;
-  por_pagina: number;
-  total_paginas: number;
-}
-
-/**
- * Tipo para estadísticas
- */
-export interface Estadisticas {
-  total_productos: number;
-  total_clientes: number;
-  total_ventas: number;
-  ventas_mes: number;
-  productos_destacados: number;
-  productos_oferta: number;
-}
-
-// ============================================================================
-// TIPOS PARA AUTENTICACIÓN
-// ============================================================================
-
-/**
- * Tipo para datos de autenticación
- */
-export interface AuthData {
-  token: string;
-  user: Cliente;
-  expires_at: string;
-}
-
-/**
- * Tipo para login
- */
-export interface LoginData {
-  email: string;
-  password: string;
-}
-
-/**
- * Tipo para registro
- */
-export interface RegisterData {
-  nombre_cliente: string;
-  apellido_cliente: string;
-  email_cliente: string;
-  celular_cliente: string;
-  nit_ci_cliente: string;
-  password: string;
-  confirmPassword: string;
-}
-
-/**
- * Tipo para cambio de contraseña
- */
-export interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-/**
- * Tipo para recuperación de contraseña
- */
-export interface ResetPasswordData {
-  email: string;
-}
-
-/**
- * Tipo para nueva contraseña
- */
-export interface NewPasswordData {
-  token: string;
-  password: string;
-  confirmPassword: string;
 }

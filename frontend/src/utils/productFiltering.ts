@@ -1,5 +1,4 @@
-import type { Product } from '../types/product';
-import type { ProductUIFilters } from '../types/product';
+import type { Product, ProductUIFilters } from '../types';
 
 export const ORDER_OPTIONS = [
   { value: '', label: 'Sin ordenar' },

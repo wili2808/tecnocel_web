@@ -237,8 +237,17 @@ class AlmacenController {
         await ProductoImagen.bulkCreate(imagenesData);
       }
 
-      res.locals.skipHttpLog = true;
+      // Guardar el ID original de req.params (si existe)
+      const originalId = req.params.id;
       
+      // Asignar el ID del producto recién creado para reutilizar getProductById
+      req.params.id = producto.id_producto.toString();
+      
+      // Reutilizar getProductById para obtener el producto completo
+      // Este método maneja la respuesta HTTP internamente
+      await this.getProductById(req, res);
+      
+      // Log de creación exitosa después de la respuesta (para evitar duplicación)
       logger.info('Producto creado exitosamente', {
         operacion: 'crear_producto',
         producto_id: producto.getDataValue('id_producto'),
@@ -247,9 +256,11 @@ class AlmacenController {
         imagenes: imagenes?.length || 0,
         success: true
       });
-
-      const productoCompleto = await this.getProductById(req, res);
-      return productoCompleto;
+      
+      // Restaurar el ID original (opcional, para mantener consistencia)
+      if (originalId !== undefined) {
+        req.params.id = originalId;
+      }
     } catch (error) {
       logger.error('Error al crear producto en almacén:', {
         data: req.body,

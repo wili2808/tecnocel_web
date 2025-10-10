@@ -15,7 +15,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 
 import styles from './ProductCard.module.css';
-import type { ProductCardProps } from '../../../types/product';
+import type { ProductCardProps } from '../../../types';
 
 const ProductCard: React.FC<ProductCardProps> = ({
     id_producto,

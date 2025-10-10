@@ -4,7 +4,7 @@
  */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ofertaService } from '../services/ofertaService';
-import type { Oferta, Product } from '../types/product';
+import type { Oferta, Product } from '../types';
 
 // Constantes
 const OFERTAS_CACHE_KEY = import.meta.env.VITE_OFERTAS_CACHE_KEY || 'ofertas_cache';

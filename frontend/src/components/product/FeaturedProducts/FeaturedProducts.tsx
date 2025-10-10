@@ -7,7 +7,7 @@
 import React, { memo } from 'react';
 import ProductCard from '../ProductCard';
 import styles from './FeaturedProducts.module.css';
-import type { Product } from '../../../types/product';
+import type { Product } from '../../../types';
 
 interface FeaturedProductsProps {
     products: Product[];

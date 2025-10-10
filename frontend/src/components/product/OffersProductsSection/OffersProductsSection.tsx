@@ -8,7 +8,7 @@ import React, { useMemo } from 'react';
 import ProductCard from '../ProductCard';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import { useOfertasGlobal } from '../../../hooks/useOfertasGlobal';
-import type { Product } from '../../../types/product';
+import type { Product } from '../../../types';
 import styles from './OffersProductsSection.module.css';
 
 interface OffersProductsSectionProps {

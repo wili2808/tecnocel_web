@@ -1,11 +1,16 @@
 import axiosInstance from '../api/axiosConfig';
 
-// Interfaces para upload
+/**
+ * Estructura de una imagen subida exitosamente
+ */
 export interface UploadedImage {
   url_imagen: string;
   alt_text: string;
 }
 
+/**
+ * Respuesta del servidor al subir imágenes exitosamente
+ */
 export interface UploadResponse {
   mensaje: string;
   datos: {
@@ -13,16 +18,24 @@ export interface UploadResponse {
   };
 }
 
+/**
+ * Estructura de error al subir imágenes
+ */
 export interface UploadError {
   mensaje: string;
   error: string;
 }
 
+/**
+ * Servicio para manejar la subida de imágenes de comentarios
+ * Incluye validación, procesamiento y gestión de archivos
+ */
 class UploadService {
   /**
-   * Subir imágenes de comentario al servidor
-   * @param files - Array de archivos File a subir
-   * @returns Promise con las imágenes procesadas
+   * Sube múltiples imágenes de comentario al servidor
+   * Realiza validaciones del lado cliente antes de la subida
+   * @param files - Array de archivos File a subir (máximo 5)
+   * @returns Promise con las imágenes procesadas y sus URLs
    */
   async uploadCommentImages(files: File[]): Promise<UploadedImage[]> {
     try {
@@ -66,8 +79,10 @@ class UploadService {
   }
 
   /**
-   * Validar archivos antes de subir
+   * Valida archivos antes de subir al servidor
+   * Verifica tipo, tamaño y cantidad de archivos
    * @param files - Array de archivos a validar
+   * @throws Error si la validación falla
    */
   private validateFiles(files: File[]): void {
     if (!files || files.length === 0) {
@@ -100,9 +115,10 @@ class UploadService {
   }
 
   /**
-   * Generar preview de imagen para mostrar antes de subir
-   * @param file - Archivo de imagen
-   * @returns Promise con URL de preview
+   * Genera una vista previa de imagen para mostrar antes de subir
+   * Convierte el archivo a una URL de datos para preview
+   * @param file - Archivo de imagen a previsualizar
+   * @returns Promise con la URL de preview de la imagen
    */
   async generatePreview(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -125,8 +141,9 @@ class UploadService {
   }
 
   /**
-   * Formatear tamaño de archivo para mostrar al usuario
-   * @param bytes - Tamaño en bytes
+   * Formatea el tamaño de archivo en bytes a una representación legible
+   * Convierte bytes a KB, MB, GB según corresponda
+   * @param bytes - Tamaño del archivo en bytes
    * @returns String formateado (ej: "2.5 MB")
    */
   formatFileSize(bytes: number): string {
@@ -140,9 +157,10 @@ class UploadService {
   }
 
   /**
-   * Validar si un tipo de archivo es una imagen válida
-   * @param fileType - Tipo MIME del archivo
-   * @returns boolean indicando si es válido
+   * Valida si un tipo de archivo MIME es una imagen válida
+   * Verifica contra la lista de tipos de imagen permitidos
+   * @param fileType - Tipo MIME del archivo a validar
+   * @returns boolean indicando si el tipo es válido
    */
   isValidImageType(fileType: string): boolean {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -150,9 +168,10 @@ class UploadService {
   }
 
   /**
-   * Obtener extensión de archivo recomendada basada en el tipo MIME
+   * Obtiene la extensión de archivo recomendada basada en el tipo MIME
+   * Mapea tipos MIME a extensiones de archivo estándar
    * @param fileType - Tipo MIME del archivo
-   * @returns Extensión recomendada
+   * @returns Extensión recomendada para el archivo
    */
   getRecommendedExtension(fileType: string): string {
     const typeMap: { [key: string]: string } = {

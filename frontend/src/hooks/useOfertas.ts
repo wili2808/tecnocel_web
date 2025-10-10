@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ofertaService } from '../services/ofertaService';
-import type { Product, Oferta } from '../types/product';
+import type { Product, Oferta } from '../types';
 
 interface UseOfertasReturn {
   ofertas: Oferta[];

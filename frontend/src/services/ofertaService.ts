@@ -1,18 +1,25 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Product, Oferta } from '../types/product';
+import type { Product, Oferta } from '../types';
 
-// Constantes de configuración
+/**
+ * Constantes de configuración para el servicio de ofertas
+ */
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 segundo
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
-// Interfaces de respuesta
+/**
+ * Respuesta del servidor al obtener ofertas con conteo
+ */
 export interface OfertaResponse {
   success: boolean;
   data: Oferta[];
   count: number;
 }
 
+/**
+ * Respuesta del servidor al obtener productos en oferta con paginación
+ */
 export interface ProductosOfertaResponse {
   success: boolean;
   data: Product[];
@@ -24,6 +31,9 @@ export interface ProductosOfertaResponse {
   };
 }
 
+/**
+ * Respuesta del servidor con detalle completo de una oferta
+ */
 export interface OfertaDetalleResponse {
   success: boolean;
   data: Oferta & {
@@ -32,6 +42,9 @@ export interface OfertaDetalleResponse {
   };
 }
 
+/**
+ * Respuesta del servidor con estadísticas generales de ofertas
+ */
 export interface OfertasEstadisticasResponse {
   success: boolean;
   data: {
@@ -43,13 +56,18 @@ export interface OfertasEstadisticasResponse {
   };
 }
 
-// Interfaces para cache
+/**
+ * Estructura de entrada en el cache con timestamp de expiración
+ */
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
   expiresAt: number;
 }
 
+/**
+ * Interfaz para el gestor de cache del servicio
+ */
 interface CacheManager {
   get<T>(key: string): T | null;
   set<T>(key: string, data: T, duration?: number): void;
@@ -57,10 +75,18 @@ interface CacheManager {
   isExpired(key: string): boolean;
 }
 
-// Implementación del cache manager
+/**
+ * Implementación del gestor de cache local para ofertas
+ * Almacena datos en memoria con expiración automática
+ */
 class LocalCacheManager implements CacheManager {
   private cache = new Map<string, CacheEntry<any>>();
 
+  /**
+   * Obtiene datos del cache si no han expirado
+   * @param key - Clave del cache
+   * @returns Datos almacenados o null si no existen o han expirado
+   */
   get<T>(key: string): T | null {
     const entry = this.cache.get(key);
     if (!entry || Date.now() > entry.expiresAt) {
@@ -70,6 +96,12 @@ class LocalCacheManager implements CacheManager {
     return entry.data;
   }
 
+  /**
+   * Almacena datos en el cache con duración de expiración
+   * @param key - Clave del cache
+   * @param data - Datos a almacenar
+   * @param duration - Duración en milisegundos (por defecto: 5 minutos)
+   */
   set<T>(key: string, data: T, duration: number = CACHE_DURATION): void {
     const now = Date.now();
     this.cache.set(key, {
@@ -79,6 +111,10 @@ class LocalCacheManager implements CacheManager {
     });
   }
 
+  /**
+   * Limpia entradas específicas o todo el cache
+   * @param key - Clave específica a limpiar (opcional)
+   */
   clear(key?: string): void {
     if (key) {
       this.cache.delete(key);
@@ -87,15 +123,35 @@ class LocalCacheManager implements CacheManager {
     }
   }
 
+  /**
+   * Verifica si una entrada del cache ha expirado
+   * @param key - Clave del cache a verificar
+   * @returns true si la entrada ha expirado o no existe
+   */
   isExpired(key: string): boolean {
     const entry = this.cache.get(key);
     return !entry || Date.now() > entry.expiresAt;
   }
 }
 
-// Utilidades para retry logic
+/**
+ * Utilidades para implementar lógica de reintentos con backoff exponencial
+ */
+
+/**
+ * Función de utilidad para crear delays asíncronos
+ * @param ms - Milisegundos a esperar
+ * @returns Promise que se resuelve después del delay
+ */
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * Implementa lógica de reintentos con backoff exponencial
+ * @param fn - Función a ejecutar con reintentos
+ * @param maxRetries - Número máximo de reintentos (por defecto: 3)
+ * @param baseDelay - Delay base en milisegundos (por defecto: 1 segundo)
+ * @returns Promise con el resultado de la función o el último error
+ */
 const retryWithBackoff = async <T>(
   fn: () => Promise<T>,
   maxRetries: number = MAX_RETRIES,
@@ -126,7 +182,9 @@ const retryWithBackoff = async <T>(
 // Instancia del cache manager
 const cacheManager = new LocalCacheManager();
 
-// Claves de cache
+/**
+ * Claves utilizadas para organizar el cache del servicio
+ */
 const CACHE_KEYS = {
   OFERTAS_ACTIVAS: 'ofertas_activas',
   PRODUCTOS_OFERTA: 'productos_oferta',
@@ -134,11 +192,32 @@ const CACHE_KEYS = {
   ESTADISTICAS: 'ofertas_estadisticas'
 } as const;
 
+/**
+ * Servicio principal para manejar todas las operaciones relacionadas con ofertas
+ * Incluye gestión de cache, reintentos automáticos y utilidades de cálculo
+ */
 export const ofertaService = {
-  // Cache management
+  /**
+   * Gestión del cache del servicio
+   */
   cache: {
+    /**
+     * Limpia entradas específicas o todo el cache
+     * @param key - Clave específica a limpiar (opcional)
+     */
     clear: (key?: string) => cacheManager.clear(key),
+    
+    /**
+     * Verifica si una entrada del cache ha expirado
+     * @param key - Clave del cache a verificar
+     * @returns true si la entrada ha expirado
+     */
     isExpired: (key: string) => cacheManager.isExpired(key),
+    
+    /**
+     * Obtiene estadísticas del cache (implementación simplificada)
+     * @returns Estadísticas básicas del cache
+     */
     getStats: () => {
       const stats = {
         totalEntries: 0,
@@ -152,7 +231,11 @@ export const ofertaService = {
     }
   },
 
-  // Obtener ofertas activas con cache
+  /**
+   * Obtiene ofertas activas con soporte de cache
+   * @param useCache - Indica si se debe usar cache (por defecto: true)
+   * @returns Promise con array de ofertas activas
+   */
   async getOfertasActivas(useCache: boolean = true): Promise<Oferta[]> {
     const cacheKey = CACHE_KEYS.OFERTAS_ACTIVAS;
     
@@ -183,7 +266,13 @@ export const ofertaService = {
     }
   },
 
-  // Obtener productos en oferta con cache y paginación
+  /**
+   * Obtiene productos en oferta con paginación y soporte de cache
+   * @param limit - Número máximo de productos por página (por defecto: 20)
+   * @param offset - Número de productos a omitir (por defecto: 0)
+   * @param useCache - Indica si se debe usar cache (por defecto: true)
+   * @returns Promise con productos en oferta y metadatos de paginación
+   */
   async getProductosEnOferta(
     limit: number = 20, 
     offset: number = 0, 
@@ -222,7 +311,11 @@ export const ofertaService = {
     }
   },
 
-  // Obtener detalle de una oferta específica
+  /**
+   * Obtiene el detalle completo de una oferta específica
+   * @param ofertaId - ID de la oferta a obtener
+   * @returns Promise con el detalle completo de la oferta
+   */
   async getOfertaDetalle(ofertaId: number): Promise<OfertaDetalleResponse['data']> {
     const cacheKey = `${CACHE_KEYS.OFERTA_DETALLE}_${ofertaId}`;
     
@@ -251,7 +344,10 @@ export const ofertaService = {
     }
   },
 
-  // Obtener estadísticas de ofertas
+  /**
+   * Obtiene estadísticas generales de todas las ofertas
+   * @returns Promise con estadísticas de ofertas (totales, activas, expiradas, etc.)
+   */
   async getEstadisticas(): Promise<OfertasEstadisticasResponse['data']> {
     const cacheKey = CACHE_KEYS.ESTADISTICAS;
     
@@ -280,7 +376,11 @@ export const ofertaService = {
     }
   },
 
-  // Buscar ofertas por criterios
+  /**
+   * Busca ofertas según criterios específicos
+   * @param criterios - Criterios de búsqueda (nombre, tipo de descuento, estado, etc.)
+   * @returns Promise con ofertas que coinciden con los criterios
+   */
   async buscarOfertas(criterios: {
     nombre?: string;
     tipoDescuento?: 'porcentaje' | 'monto_fijo';
@@ -309,7 +409,11 @@ export const ofertaService = {
     }
   },
 
-  // Verificar si un producto está en oferta
+  /**
+   * Verifica si un producto específico está en oferta
+   * @param productId - ID del producto a verificar
+   * @returns Promise con información sobre el estado de oferta del producto
+   */
   async verificarProductoEnOferta(productId: number): Promise<{
     enOferta: boolean;
     oferta?: Oferta;
@@ -327,7 +431,11 @@ export const ofertaService = {
     }
   },
 
-  // Obtener ofertas próximas a expirar
+  /**
+   * Obtiene ofertas que están próximas a expirar
+   * @param dias - Número de días para considerar "próximas a expirar" (por defecto: 7)
+   * @returns Promise con ofertas próximas a expirar
+   */
   async getOfertasProximasAExpirar(dias: number = 7): Promise<Oferta[]> {
     try {
       const response = await retryWithBackoff(async () => {
@@ -342,7 +450,10 @@ export const ofertaService = {
     }
   },
 
-  // Limpiar cache específico o completo
+  /**
+   * Limpia el cache del servicio según un patrón específico
+   * @param pattern - Patrón para limpiar cache específico (opcional)
+   */
   clearCache(pattern?: string): void {
     if (pattern) {
       // Limpiar cache que coincida con el patrón
@@ -358,9 +469,15 @@ export const ofertaService = {
     console.log('Cache de ofertas limpiado');
   },
 
-  // Métodos de utilidad
+  /**
+   * Métodos de utilidad para cálculos y verificaciones
+   */
   utils: {
-    // Calcular tiempo restante de una oferta
+    /**
+     * Calcula el tiempo restante de una oferta en formato legible
+     * @param oferta - Oferta para calcular tiempo restante
+     * @returns String con el tiempo restante (ej: "2 días", "5 horas")
+     */
     calculateTimeRemaining(oferta: Oferta): string {
       const now = new Date();
       const fin = new Date(oferta.fecha_fin);
@@ -380,7 +497,11 @@ export const ofertaService = {
       }
     },
 
-    // Verificar si una oferta está activa
+    /**
+     * Verifica si una oferta está actualmente activa
+     * @param oferta - Oferta a verificar
+     * @returns true si la oferta está activa y dentro de su período válido
+     */
     isOfertaActive(oferta: Oferta): boolean {
       const now = new Date();
       const inicio = new Date(oferta.fecha_inicio);
@@ -388,7 +509,12 @@ export const ofertaService = {
       return now >= inicio && now <= fin && oferta.activo;
     },
 
-    // Calcular descuento aplicado
+    /**
+     * Calcula el descuento aplicado en una oferta
+     * @param precioOriginal - Precio original del producto
+     * @param precioOferta - Precio con oferta aplicada
+     * @returns Objeto con monto y porcentaje de descuento
+     */
     calculateDiscount(precioOriginal: number, precioOferta: number): {
       monto: number;
       porcentaje: number;

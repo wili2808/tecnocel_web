@@ -7,7 +7,7 @@
  */
 import React from 'react';
 import styles from './ProductFilters.module.css';
-import type { ProductUIFilters } from '../../../types/product';
+import type { ProductUIFilters } from '../../../types';
 import { useProductActions } from '../../../hooks/useProductActions';
 import { ORDER_OPTIONS } from '../../../utils/productFiltering';
 

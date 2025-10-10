@@ -3,7 +3,7 @@
  * Proporciona acceso simplificado a todas las funcionalidades de ofertas
  */
 import { useOfertasGlobal as useOfertasContext } from '../contexts/OfertasGlobalContext';
-import type { Oferta } from '../types/product';
+import type { Oferta } from '../types';
 
 /**
  * Hook optimizado para ProductCard - SOLO se re-renderiza cuando cambia la oferta del producto específico

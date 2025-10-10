@@ -1,17 +1,26 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Direccion } from '../types/product';
+import type { Direccion } from '../types';
 
+/**
+ * Respuesta del servidor al obtener múltiples direcciones
+ */
 export interface DireccionResponse {
   success: boolean;
   data: Direccion[];
   count: number;
 }
 
+/**
+ * Respuesta del servidor al obtener una dirección específica
+ */
 export interface DireccionSingleResponse {
   success: boolean;
   data: Direccion;
 }
 
+/**
+ * Datos necesarios para crear una nueva dirección
+ */
 export interface CreateDireccionData {
   nombre_direccion: string;
   calle: string;
@@ -29,8 +38,16 @@ export interface CreateDireccionData {
   telefono_contacto?: string;
 }
 
+/**
+ * Servicio para manejar todas las operaciones relacionadas con direcciones
+ * Incluye CRUD de direcciones, gestión de direcciones predeterminadas y facturación
+ */
 export const direccionService = {
-  // Obtener direcciones de un cliente
+  /**
+   * Obtiene todas las direcciones asociadas a un cliente específico
+   * @param idCliente - ID del cliente cuyas direcciones se quieren obtener
+   * @returns Promise con array de direcciones del cliente
+   */
   async getDirecciones(idCliente: number): Promise<Direccion[]> {
     try {
       const response = await axiosInstance.get<DireccionResponse>(
@@ -43,7 +60,11 @@ export const direccionService = {
     }
   },
 
-  // Obtener dirección predeterminada
+  /**
+   * Obtiene la dirección predeterminada de un cliente
+   * @param idCliente - ID del cliente
+   * @returns Promise con la dirección predeterminada o null si no existe
+   */
   async getDireccionPredeterminada(idCliente: number): Promise<Direccion | null> {
     try {
       const response = await axiosInstance.get<DireccionSingleResponse>(
@@ -56,7 +77,11 @@ export const direccionService = {
     }
   },
 
-  // Obtener dirección por ID
+  /**
+   * Obtiene una dirección específica por su ID único
+   * @param id - ID único de la dirección a obtener
+   * @returns Promise con los datos completos de la dirección
+   */
   async getDireccionById(id: number): Promise<Direccion> {
     try {
       const response = await axiosInstance.get<DireccionSingleResponse>(`/direcciones/${id}`);
@@ -67,7 +92,12 @@ export const direccionService = {
     }
   },
 
-  // Crear nueva dirección
+  /**
+   * Crea una nueva dirección para un cliente específico
+   * @param idCliente - ID del cliente para quien se crea la dirección
+   * @param data - Datos de la nueva dirección
+   * @returns Promise con la dirección creada
+   */
   async createDireccion(idCliente: number, data: CreateDireccionData): Promise<Direccion> {
     try {
       const response = await axiosInstance.post<DireccionSingleResponse>(
@@ -81,7 +111,12 @@ export const direccionService = {
     }
   },
 
-  // Actualizar dirección
+  /**
+   * Actualiza una dirección existente
+   * @param id - ID de la dirección a actualizar
+   * @param data - Datos a actualizar en la dirección
+   * @returns Promise con la dirección actualizada
+   */
   async updateDireccion(id: number, data: Partial<CreateDireccionData>): Promise<Direccion> {
     try {
       const response = await axiosInstance.put<DireccionSingleResponse>(
@@ -95,7 +130,11 @@ export const direccionService = {
     }
   },
 
-  // Establecer como predeterminada
+  /**
+   * Establece una dirección como predeterminada para el cliente
+   * @param id - ID de la dirección a establecer como predeterminada
+   * @returns Promise con la dirección actualizada
+   */
   async setPredeterminada(id: number): Promise<Direccion> {
     try {
       const response = await axiosInstance.put<DireccionSingleResponse>(
@@ -108,7 +147,11 @@ export const direccionService = {
     }
   },
 
-  // Eliminar dirección
+  /**
+   * Elimina una dirección específica del sistema
+   * @param id - ID de la dirección a eliminar
+   * @returns Promise que se resuelve cuando la dirección es eliminada
+   */
   async deleteDireccion(id: number): Promise<void> {
     try {
       await axiosInstance.delete(`/direcciones/${id}`);

@@ -1,109 +1,111 @@
-# 🛍️ TecnoCel Web - Tienda en Línea
+# 🛍️ TecnoCel Web
 
-Plataforma de comercio electrónico completa desarrollada con **React + TypeScript** en el frontend y **Node.js + Express + MySQL** en el backend.
+> Plataforma de e-commerce moderna para productos tecnológicos con React 18, TypeScript, Node.js y MySQL.
 
-## 🚀 Inicio Rápido
+---
+
+## Tabla de Contenidos
+
+- [Inicio Rápido](#inicio-rápido)
+- [Características Principales](#características-principales)
+- [Requisitos del Sistema](#requisitos-del-sistema)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Documentación](#documentación)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
+
+---
+
+## Inicio Rápido
 
 ```bash
-# Clonar repositorio
+# 1. Clonar y configurar
 git clone https://github.com/wili2808/tecnocel_web.git
 cd tecnocel_web
 
-# Configurar backend
-cd backend
-cp env.example .env
-# Editar .env con tus credenciales
-npm install
-npm run dev
+# 2. Backend (Terminal 1)
+cd backend && cp .env.example .env
+npm install && npm run dev
 
-# Configurar frontend (nueva terminal)
-cd ../frontend
-cp env.example .env
-# Editar .env con VITE_API_URL=http://localhost:3000/api
-npm install
-npm run dev
+# 3. Frontend (Terminal 2)
+cd frontend && cp .env.example .env
+npm install && npm run dev
 ```
 
-## 📋 Funcionalidades
+**URLs:** Frontend [`localhost:5173`](http://localhost:5173) | Backend [`localhost:3000`](http://localhost:3000) | API [`localhost:3000/api`](http://localhost:3000/api)
 
-- 🛒 **Carrito de compras** funcional
-- 🔍 **Búsqueda y filtros** por categorías y marcas
-- ⭐ **Sistema de comentarios** con imágenes
-- 👤 **Autenticación** JWT + Google OAuth
-- 📱 **Diseño responsive** mobile-first
-- 🎨 **Tema claro/oscuro** personalizable
-- 📧 **Notificaciones** en tiempo real
-- 🗺️ **Google Maps** integrado
+---
 
-## 🏗️ Arquitectura
+## Características Principales
+
+- 🛒 **Carrito** - Gestión completa de compras
+- 🔍 **Búsqueda** - Filtros avanzados y búsqueda en tiempo real
+- ⭐ **Comentarios** - Sistema de reseñas con imágenes
+- 👤 **Auth** - JWT + Google OAuth 2.0
+- 💝 **Favoritos** - Productos destacados por usuario
+- 🏷️ **Ofertas** - Sistema de descuentos y promociones
+- 🎨 **Temas** - Modo claro/oscuro
+- 📱 **Responsive** - Diseño mobile-first
+
+---
+
+## Documentación
+
+Para acceder a la documentación completa del proyecto:
+
+**[📚 Ver Documentación Completa](docs/README.md)**
+
+### Accesos Rápidos
+
+- [Guía de Instalación](docs/guides/GETTING_STARTED.md) - Instalación paso a paso
+- [Guía de desarrollo](docs/guides/DEVELOPMENT.md) - Guia para desarrolladores
+- [Guía de Autenticación](docs/api/guides/AUTHENTICATION.md) - JWT y Google OAuth
+- [API Endpoints](docs/api/ENDPOINTS.md) - Documentación de la API REST
+- [Base de Datos](docs/database/SCHEMA.md) - Esquema y modelos
+- [Stack Tecnológico](docs/project/TECNOLOGIAS.md) - Tecnologías utilizadas
+- [Configuración](docs/deployment/ENVIRONMENT.md) - Variables de entorno
+
+---
+
+## Requisitos del Sistema
+
+| Requisito | Versión Mínima |
+| --------- | -------------- |
+| Node.js   | 18.x           |
+| MySQL     | 8.0            |
+| npm/yarn  | 9.x/1.22.x     |
+
+---
+
+## Estructura del Proyecto
 
 ```
 tecnocel_web/
-├── backend/          # API REST Node.js + Express + MySQL
-├── frontend/         # React 18 + TypeScript + Vite
-└── database/         # Scripts y migraciones
+├── backend/     # 🌐 Web Service REST API (Node.js + Express + TypeScript)
+├── frontend/    # ⚛️ Aplicación Web (React 18 + TypeScript + Vite)
+├── database/    # 🗄️ Esquemas SQL y backups
+└── docs/        # 📚 Documentación completa del proyecto
 ```
 
-## 🛠️ Tecnologías
+---
 
-### Backend
+## Contribuir
 
-- Node.js + Express + TypeScript
-- MySQL + Sequelize ORM
-- JWT + Google OAuth
-- Multer + Sharp (imágenes)
-- Winston (logging)
+Consulta la documentación completa para conocer las convenciones y el flujo de trabajo del proyecto.
 
-### Frontend
+---
 
-- React 18 + TypeScript
-- Vite + CSS Modules
-- React Router + Axios
-- Context API (estado global)
+## Licencia
 
-## 📚 Documentación Detallada
+© 2025 TecnoCel Web - Todos los derechos reservados
 
-- **[Backend](./backend/README_BACKEND.md)** - Configuración y API
-- **[Frontend](./frontend/README_FRONTEND.md)** - Componentes y estructura
-- **[API](./note/DOCUMENTACION_BACKEND_API.md)** - Endpoints completos
+---
 
-## 🔧 Requisitos
+**Última actualización**: 7 de Octubre, 2025
+**Versión**: 1.0
+**Estado**: En desarrollo
+**Stack**: React 18 + TypeScript + Node.js + Express + MySQL
 
-- Node.js 18+
-- MySQL 8.0+
-- npm o yarn
+---
 
-## 🚀 URLs de Desarrollo
-
-- **Backend**: http://localhost:3000
-- **Frontend**: http://localhost:5173
-- **API**: http://localhost:3000/api
-
-## 📝 Variables de Entorno
-
-### Backend (.env)
-
-```env
-DB_NAME=tecnocel_db_v3
-DB_USER=root
-DB_PASSWORD=tu_password
-JWT_SECRET=clave_secreta_aqui
-```
-
-### Frontend (.env)
-
-```env
-VITE_API_URL=http://localhost:3000/api
-```
-
-## 🐛 Problemas Comunes
-
-1. **Base de datos**: Crear `tecnocel_db_v3` en MySQL
-2. **CORS**: Verificar `FRONTEND_URL` en backend
-3. **Imágenes**: Configurar rutas en `IMAGES_PATH`
-
-## 📖 Más Información
-
-- Ver `.cursorrules` para reglas de desarrollo
-- Consultar `note/` para documentación técnica
-- Revisar `scripts_test/` para mantenimiento de BD
+**[📚 Documentación](docs/README.md)**

@@ -5,7 +5,7 @@
  * Utiliza lógica de tiempo para determinar si la oferta está activa o expirada
  */
 import React from 'react';
-import type { Oferta } from '../../../types/product';
+import type { Oferta } from '../../../types';
 import styles from './OfferCard.module.css';
 
 interface OfferCardProps {

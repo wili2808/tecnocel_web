@@ -5,7 +5,7 @@
  * Utiliza datos del producto para mostrar información estructurada en secciones
  */
 import React from 'react';
-import type { Product, ProductoCaracteristica } from '../../../types/product';
+import type { Product, ProductoCaracteristica } from '../../../types';
 import styles from './ProductFeatures.module.css';
 
 interface ProductFeaturesProps {

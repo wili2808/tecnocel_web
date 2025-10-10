@@ -89,28 +89,4 @@ export type AccionCarrito =
   | { type: 'ESTABLECER_ERROR'; payload: string | null }
   | { type: 'ACTUALIZAR_TOTAL'; payload: number };
 
-// ============================================================================
-// TIPOS DE LEGACY (para compatibilidad)
-// ============================================================================
 
-/**
- * @deprecated Usar ItemCarritoCompleto en su lugar
- */
-export interface ItemCarrito {
-  id_item: number;
-  id_carrito: number;
-  id_producto: number;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  producto?: {
-    id_producto: number;
-    nombre: string;
-    descripcion: string;
-    precio_venta: string;
-    imagen: string;
-    stock: number;
-  };
-}

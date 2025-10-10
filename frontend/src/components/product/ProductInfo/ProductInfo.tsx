@@ -4,7 +4,7 @@
  * Incluye formateo de precios argentinos y cálculo de descuentos
  */
 import React from 'react';
-import type { Product } from '../../../types/product';
+import type { Product } from '../../../types';
 import styles from './ProductInfo.module.css';
 
 interface ProductInfoProps {
@@ -55,7 +55,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         original: precio_original || Number(precio_venta),
         current: precio_oferta || Number(precio_venta),
         hasDiscount: en_oferta && precio_oferta && precio_oferta < Number(precio_venta),
-        discountPercentage: descuento_porcentaje || (en_oferta && precio_oferta ? 
+        discountPercentage: descuento_porcentaje || (en_oferta && precio_oferta ?
             Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100) : 0)
     };
 
@@ -65,7 +65,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     // ============================================================================
     // LOGS DE DESARROLLO
     // ============================================================================
-    
+
     // Log de desarrollo para verificar datos de ofertas
     if (process.env.NODE_ENV === 'development' && en_oferta) {
         console.log('🛍️ ProductInfo - Producto en oferta:', {
@@ -81,7 +81,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
-    
+
     return (
         <div className={styles.productInfo}>
             {/* Información básica del producto */}
@@ -96,7 +96,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                                 {Categoria.nombre_categoria}
                             </span>
                         )}
-                        
+
                         {/* Badge de descuento - Solo visible si hay oferta */}
                         {priceInfo.hasDiscount && (
                             <span className={styles.discountBadge}>
@@ -109,7 +109,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                 {/* Metadatos del producto */}
                 <div className={styles.metadata}>
                     <span className={styles.productCode}>Código: {codigo}</span>
-                    
+
                     {/* Nombre de la oferta activa */}
                     {activeOffer && (
                         <span className={styles.offerName}>
@@ -127,7 +127,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                                 <span className={styles.priceOriginal}>
                                     {formatPrice(priceInfo.original)}
                                 </span>
-                                
+
                                 {/* Precio actual con descuento */}
                                 <span className={styles.priceCurrent}>
                                     {formatPrice(priceInfo.current)}

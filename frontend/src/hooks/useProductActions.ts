@@ -1,5 +1,5 @@
 import { useProductContext } from '../contexts/ProductContext';
-import type { ProductFilters, Category, Marca } from '../types/product';
+import type { ProductFilters, Category, Marca } from '../types';
 
 /**
  * Hook personalizado que proporciona una API limpia para interactuar con el ProductContext

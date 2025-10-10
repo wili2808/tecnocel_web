@@ -1,7 +1,7 @@
 {
-  "name": "macwil-web-backend",
+  "name": "tecnocel-web-backend",
   "version": "1.0.0",
-  "description": "Backend para la tienda en línea MacWil",
+  "description": "Backend para la tienda en línea TecnoCel Web",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {

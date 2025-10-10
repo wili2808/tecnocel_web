@@ -10,7 +10,7 @@ import ProductCard from '../ProductCard';
 import styles from './ProductGrid.module.css';
 import { useProductActions } from '../../../hooks/useProductActions';
 import { filterProducts } from '../../../utils/productFiltering';
-import type { ProductUIFilters } from '../../../types/product';
+import type { ProductUIFilters } from '../../../types';
 
 interface ProductGridProps {
     filters?: ProductUIFilters;

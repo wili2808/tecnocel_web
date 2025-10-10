@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ProductImage.module.css';
 
-import type { ImageData } from '../../../types/product';
+import type { ImageData } from '../../../types';
 
 interface ProductImageProps {
     images?: ImageData[];

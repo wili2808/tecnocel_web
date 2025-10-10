@@ -8,11 +8,13 @@ import type {
 } from '../types/carrito';
 
 /**
- * Servicio para manejar todas las operaciones del carrito
+ * Servicio para manejar todas las operaciones del carrito de compras
+ * Incluye gestión de items, cantidades, confirmación de compra y conversión a venta
  */
 export class CarritoService {
   /**
-   * Obtiene el carrito activo del cliente
+   * Obtiene el carrito activo del cliente autenticado
+   * @returns Promise con la información completa del carrito y sus items
    */
   static async obtenerCarrito(): Promise<CarritoResponse> {
     const response = await axiosInstance.get('/carrito/');
@@ -20,7 +22,10 @@ export class CarritoService {
   }
 
   /**
-   * Agrega un producto al carrito
+   * Agrega un producto al carrito con la cantidad especificada
+   * @param id_producto - ID del producto a agregar
+   * @param cantidad - Cantidad del producto (debe ser mayor a 0)
+   * @returns Promise con la confirmación del item agregado
    */
   static async agregarItem(
     id_producto: number, 
@@ -34,7 +39,10 @@ export class CarritoService {
   }
 
   /**
-   * Actualiza la cantidad de un item en el carrito
+   * Actualiza la cantidad de un item específico en el carrito
+   * @param id_item - ID del item del carrito a actualizar
+   * @param cantidad - Nueva cantidad del item
+   * @returns Promise con la confirmación del item actualizado
    */
   static async actualizarCantidad (id_item: number, cantidad: number): Promise <ItemResponse> {
     const response = await axiosInstance.put(`/carrito/items/${id_item}`, {
@@ -44,7 +52,9 @@ export class CarritoService {
   }
 
   /**
-   * Elimina un item del carrito
+   * Elimina un item específico del carrito
+   * @param id_item - ID del item del carrito a eliminar
+   * @returns Promise con la confirmación de la eliminación
    */
   static async eliminarItem (id_item: number): Promise <EliminarItemResponse> {
     const response = await axiosInstance.delete(`/carrito/items/${id_item}`);
@@ -52,7 +62,9 @@ export class CarritoService {
   }
 
   /**
-   * Vacía completamente el carrito
+   * Vacía completamente el carrito del cliente
+   * Elimina todos los items y reinicia el carrito
+   * @returns Promise con mensaje de confirmación
    */
   static async vaciarCarrito(): Promise<{ mensaje: string }> {
     const response = await axiosInstance.delete('/carrito/');
@@ -60,7 +72,10 @@ export class CarritoService {
   }
 
   /**
-   * Confirma la compra y convierte el carrito en venta
+   * Confirma la compra y convierte el carrito en una venta
+   * Procesa el pago y genera la orden de compra
+   * @param datosCompra - Información necesaria para procesar la compra
+   * @returns Promise con los datos de la venta confirmada
    */
   static async confirmarCompra(datosCompra: DatosCompra): Promise<{ venta: VentaConfirmada }> {
     const response = await axiosInstance.post('/carrito/confirmar-compra', datosCompra);
@@ -69,32 +84,23 @@ export class CarritoService {
 }
 
 // ============================================================================
-// EXPORTAR TIPOS PARA COMPATIBILIDAD
+// EXPORTAR TIPOS
 // ============================================================================
 
-// Re-exportar tipos para mantener compatibilidad con código existente
+/**
+ * Re-exportar tipos modernos para mantener API consistente
+ * Todos los tipos están centralizados en types/carrito.ts
+ * 
+ * Tipos disponibles:
+ * - CarritoResponse, ItemResponse, EliminarItemResponse
+ * - ItemCarritoCompleto, EstadoCarrito, DatosCompra, VentaConfirmada
+ */
 export type {
   CarritoResponse,
   ItemResponse,
-  EliminarItemResponse
+  EliminarItemResponse,
+  ItemCarritoCompleto,
+  EstadoCarrito,
+  DatosCompra,
+  VentaConfirmada
 } from '../types/carrito';
-
-// Mantener tipos legacy para compatibilidad gradual
-export interface ItemCarrito {
-  id_item: number;
-  id_carrito: number;
-  id_producto: number;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  producto?: {
-    id_producto: number;
-    nombre: string;
-    descripcion: string;
-    precio_venta: string;
-    imagen: string;
-    stock: number;
-  };
-}

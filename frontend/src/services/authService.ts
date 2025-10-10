@@ -1,32 +1,48 @@
 import axiosInstance from '../api/axiosConfig';
 import type { ClienteUser } from '../contexts/AuthContext';
 
-// Constantes
+/**
+ * Claves utilizadas para almacenar datos de autenticación en localStorage
+ */
 const TOKEN_KEY = 'token';
 const AUTH_TIMESTAMP_KEY = 'auth_timestamp';
 const AUTH_USER_KEY = 'auth_user';
 
-// Tipos
+/**
+ * Estructura de datos de autenticación
+ */
 interface AuthData {
   user: ClienteUser;
   token: string;
 }
 
+/**
+ * Estructura de error de autenticación estandarizada
+ */
 interface AuthError {
   code: string;
   message: string;
   details?: any;
 }
 
-// Servicio de autenticación
+/**
+ * Servicio de autenticación para manejar login, registro y gestión de sesiones
+ * Incluye autenticación tradicional y con Google OAuth
+ */
 export const authService = {
-  // Configurar token de autenticación
+  /**
+   * Configura el token de autenticación en axios y localStorage
+   * @param token - Token JWT de autenticación
+   */
   setAuthToken: (token: string) => {
     localStorage.setItem(TOKEN_KEY, token);
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   },
 
-  // Limpiar token de autenticación
+  /**
+   * Limpia todos los datos de autenticación del localStorage y axios
+   * Utilizado para logout y limpieza de sesión
+   */
   clearAuthToken: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
@@ -34,7 +50,10 @@ export const authService = {
     delete axiosInstance.defaults.headers.common['Authorization'];
   },
 
-  // Guardar datos de autenticación completos
+  /**
+   * Guarda todos los datos de autenticación en localStorage y configura axios
+   * @param data - Datos completos de autenticación (usuario y token)
+   */
   saveAuthData: (data: AuthData) => {
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
@@ -42,7 +61,11 @@ export const authService = {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
   },
 
-  // Obtener datos de autenticación
+  /**
+   * Obtiene los datos de autenticación almacenados en localStorage
+   * Verifica la expiración automáticamente (24 horas)
+   * @returns Datos de autenticación o null si no existen o han expirado
+   */
   getAuthData: (): AuthData | null => {
     const token = localStorage.getItem(TOKEN_KEY);
     const user = localStorage.getItem(AUTH_USER_KEY);
@@ -65,7 +88,11 @@ export const authService = {
     };
   },
 
-  // Verificar token en el servidor
+  /**
+   * Verifica la validez del token en el servidor
+   * Si el token es inválido, limpia la sesión automáticamente
+   * @returns Promise con los datos del cliente autenticado
+   */
   verifyToken: async (): Promise<ClienteUser> => {
     try {
       const response = await axiosInstance.get('/clientes/verify-token');
@@ -82,7 +109,12 @@ export const authService = {
     }
   },
 
-  // Login con email y contraseña
+  /**
+   * Autentica un usuario con email y contraseña
+   * @param email - Email del cliente
+   * @param password - Contraseña del cliente
+   * @returns Promise con los datos de autenticación (usuario y token)
+   */
   login: async (email: string, password: string): Promise<AuthData> => {
     try {
       const response = await axiosInstance.post('/clientes/login', {
@@ -102,7 +134,11 @@ export const authService = {
     }
   },
 
-  // Registro de usuario
+  /**
+   * Registra un nuevo usuario en el sistema
+   * @param data - Datos del nuevo cliente
+   * @returns Promise con los datos de autenticación del usuario registrado
+   */
   register: async (data: {
     nombre_cliente: string;
     apellido_cliente: string;
@@ -125,7 +161,11 @@ export const authService = {
     }
   },
 
-  // Login con Google
+  /**
+   * Autentica un usuario usando Google OAuth
+   * @param accessToken - Token de acceso de Google
+   * @returns Promise con los datos de autenticación del usuario
+   */
   googleLogin: async (accessToken: string): Promise<AuthData> => {
     try {
       const response = await axiosInstance.post('/clientes/google-login', {
@@ -144,7 +184,12 @@ export const authService = {
     }
   },
 
-  // Manejo centralizado de errores
+  /**
+   * Maneja centralizadamente los errores de autenticación
+   * Convierte errores HTTP en errores estandarizados con códigos
+   * @param error - Error capturado de la petición HTTP
+   * @returns Error estandarizado con código y mensaje descriptivo
+   */
   handleAuthError: (error: any): AuthError => {
     if (error.response?.status === 401) {
       return {
@@ -185,19 +230,28 @@ export const authService = {
     };
   },
 
-  // Verificar si el usuario está autenticado
+  /**
+   * Verifica si el usuario está autenticado actualmente
+   * @returns true si hay datos de autenticación válidos, false en caso contrario
+   */
   isAuthenticated: (): boolean => {
     const authData = authService.getAuthData();
     return !!authData;
   },
 
-  // Obtener usuario actual
+  /**
+   * Obtiene el usuario actualmente autenticado
+   * @returns Datos del usuario autenticado o null si no hay sesión
+   */
   getCurrentUser: (): ClienteUser | null => {
     const authData = authService.getAuthData();
     return authData?.user || null;
   },
 
-  // Obtener token actual
+  /**
+   * Obtiene el token de autenticación actual
+   * @returns Token JWT actual o null si no hay sesión
+   */
   getCurrentToken: (): string | null => {
     const authData = authService.getAuthData();
     return authData?.token || null;

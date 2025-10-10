@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { direccionService } from '../services/direccionService';
 import type { CreateDireccionData } from '../services/direccionService';
-import type { Direccion } from '../types/product';
+import type { Direccion } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 interface UseDireccionesReturn {

@@ -1,6 +1,8 @@
 import axiosInstance from '../api/axiosConfig';
 
-// Tipos de datos
+/**
+ * Estructura de una imagen asociada a un comentario
+ */
 export interface ComentarioImagen {
   id_imagen: number;
   nombre_archivo: string;
@@ -9,15 +11,24 @@ export interface ComentarioImagen {
   alt_text?: string;
 }
 
+/**
+ * Información básica del cliente que realizó el comentario
+ */
 export interface Cliente {
   nombre_cliente: string;
   apellido_cliente: string;
 }
 
+/**
+ * Información del administrador que respondió al comentario
+ */
 export interface AdminRespuesta {
   nombres: string;
 }
 
+/**
+ * Estructura completa de un comentario con toda su información
+ */
 export interface Comentario {
   id_comentario: number;
   id_producto: number;
@@ -35,6 +46,9 @@ export interface Comentario {
   adminRespuesta?: AdminRespuesta;
 }
 
+/**
+ * Estadísticas generales de comentarios de un producto
+ */
 export interface EstadisticasComentarios {
   total_comentarios: number;
   total_calificaciones: number;
@@ -49,6 +63,9 @@ export interface EstadisticasComentarios {
   total_imagenes: number;
 }
 
+/**
+ * Respuesta del servidor al obtener comentarios con paginación y estadísticas
+ */
 export interface ComentariosResponse {
   mensaje: string;
   datos: {
@@ -63,6 +80,9 @@ export interface ComentariosResponse {
   };
 }
 
+/**
+ * Datos necesarios para crear un nuevo comentario
+ */
 export interface CrearComentarioData {
   id_producto: number;
   id_cliente: number;
@@ -77,6 +97,9 @@ export interface CrearComentarioData {
   }[];
 }
 
+/**
+ * Datos que se pueden actualizar en un comentario existente
+ */
 export interface ActualizarComentarioData {
   comentario?: string;
   calificacion?: number;
@@ -89,14 +112,26 @@ export interface ActualizarComentarioData {
   }[];
 }
 
+/**
+ * Parámetros para obtener comentarios con filtros y ordenamiento
+ */
 export interface ObtenerComentariosParams {
   limite?: number;
   offset?: number;
   orden?: 'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion';
 }
 
+/**
+ * Servicio para manejar todas las operaciones relacionadas con comentarios
+ * Incluye CRUD de comentarios, gestión de imágenes y utilidades de formato
+ */
 const commentService = {
-  // Obtener comentarios de un producto
+  /**
+   * Obtiene comentarios de un producto específico con paginación y ordenamiento
+   * @param idProducto - ID del producto cuyos comentarios se quieren obtener
+   * @param params - Parámetros de paginación y ordenamiento
+   * @returns Promise con comentarios paginados y estadísticas del producto
+   */
   getComentariosProducto: async (
     idProducto: number, 
     params: ObtenerComentariosParams = {}
@@ -117,7 +152,12 @@ const commentService = {
     }
   },
 
-  // Obtener estadísticas de comentarios de un producto
+  /**
+   * Obtiene estadísticas de comentarios de un producto específico
+   * Incluye totales, promedios y distribución de calificaciones
+   * @param idProducto - ID del producto para obtener estadísticas
+   * @returns Promise con estadísticas completas de comentarios
+   */
   getEstadisticasProducto: async (idProducto: number): Promise<EstadisticasComentarios> => {
     try {
       const response = await axiosInstance.get(`/comentarios/producto/${idProducto}/estadisticas`);
@@ -128,7 +168,11 @@ const commentService = {
     }
   },
 
-  // Crear nuevo comentario
+  /**
+   * Crea un nuevo comentario para un producto
+   * @param data - Datos del comentario a crear
+   * @returns Promise con el comentario creado
+   */
   crearComentario: async (data: CrearComentarioData): Promise<Comentario> => {
     try {
       const response = await axiosInstance.post('/comentarios', data);
@@ -139,7 +183,12 @@ const commentService = {
     }
   },
 
-  // Actualizar comentario existente
+  /**
+   * Actualiza un comentario existente
+   * @param idComentario - ID del comentario a actualizar
+   * @param data - Datos a actualizar en el comentario
+   * @returns Promise con el comentario actualizado
+   */
   actualizarComentario: async (
     idComentario: number, 
     data: ActualizarComentarioData
@@ -153,7 +202,11 @@ const commentService = {
     }
   },
 
-  // Eliminar comentario
+  /**
+   * Elimina un comentario específico del sistema
+   * @param idComentario - ID del comentario a eliminar
+   * @returns Promise que se resuelve cuando el comentario es eliminado
+   */
   eliminarComentario: async (idComentario: number): Promise<void> => {
     try {
       await axiosInstance.delete(`/comentarios/${idComentario}`);
@@ -163,7 +216,12 @@ const commentService = {
     }
   },
 
-  // Eliminar imagen de comentario
+  /**
+   * Elimina una imagen específica de un comentario
+   * @param idComentario - ID del comentario
+   * @param idImagen - ID de la imagen a eliminar
+   * @returns Promise que se resuelve cuando la imagen es eliminada
+   */
   eliminarImagenComentario: async (idComentario: number, idImagen: number): Promise<void> => {
     try {
       console.log('🔍 Intentando eliminar imagen:', { idComentario, idImagen });
@@ -182,7 +240,11 @@ const commentService = {
     }
   },
 
-  // Subir imagen para comentario
+  /**
+   * Sube una imagen para asociar a un comentario
+   * @param file - Archivo de imagen a subir
+   * @returns Promise con la información de la imagen subida
+   */
   subirImagenComentario: async (file: File): Promise<{ ruta_imagen: string; nombre_archivo: string }> => {
     try {
       const formData = new FormData();
@@ -201,7 +263,12 @@ const commentService = {
     }
   },
 
-  // Validar archivo de imagen
+  /**
+   * Valida un archivo de imagen antes de subirlo
+   * Verifica tipo, tamaño y otros criterios de validación
+   * @param file - Archivo de imagen a validar
+   * @returns Objeto con resultado de validación y mensaje de error si aplica
+   */
   validarImagenComentario: (file: File): { valid: boolean; error?: string } => {
     const maxSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -223,7 +290,12 @@ const commentService = {
     return { valid: true };
   },
 
-  // Formatear fecha de comentario
+  /**
+   * Formatea una fecha de comentario en formato relativo legible
+   * Convierte timestamps a texto como "Hace 2 horas", "Hace 3 días"
+   * @param fecha - Fecha en formato string o Date
+   * @returns String formateado con tiempo relativo
+   */
   formatearFechaComentario: (fecha: string): string => {
     try {
       const fechaObj = new Date(fecha);
@@ -250,7 +322,11 @@ const commentService = {
     }
   },
 
-  // Generar texto de calificación
+  /**
+   * Genera texto descriptivo para una calificación numérica
+   * @param calificacion - Calificación numérica (1-5)
+   * @returns String descriptivo de la calificación
+   */
   generarTextoCalificacion: (calificacion: number): string => {
     const textos = {
       1: 'Muy malo',
@@ -262,7 +338,12 @@ const commentService = {
     return textos[calificacion as keyof typeof textos] || 'Sin calificación';
   },
 
-  // Validar datos de comentario
+  /**
+   * Valida los datos de un comentario antes de enviarlo al servidor
+   * Verifica longitud, calificación y cantidad de imágenes
+   * @param datos - Datos del comentario a validar
+   * @returns Objeto con resultado de validación y lista de errores
+   */
   validarDatosComentario: (datos: Partial<CrearComentarioData>): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 

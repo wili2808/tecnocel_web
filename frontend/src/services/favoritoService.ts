@@ -1,6 +1,9 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Favorito } from '../types/product';
+import type { Favorito } from '../types';
 
+/**
+ * Respuesta del servidor al obtener favoritos con paginación
+ */
 export interface FavoritoResponse {
   success: boolean;
   data: Favorito[];
@@ -12,6 +15,9 @@ export interface FavoritoResponse {
   };
 }
 
+/**
+ * Respuesta del servidor al alternar el estado de favorito
+ */
 export interface FavoritoToggleResponse {
   success: boolean;
   message: string;
@@ -20,6 +26,9 @@ export interface FavoritoToggleResponse {
   data?: any;
 }
 
+/**
+ * Respuesta del servidor con estadísticas de favoritos
+ */
 export interface EstadisticasFavoritosResponse {
   success: boolean;
   data: {
@@ -28,8 +37,18 @@ export interface EstadisticasFavoritosResponse {
   };
 }
 
+/**
+ * Servicio para manejar todas las operaciones relacionadas con favoritos
+ * Incluye gestión de favoritos, verificación de estado y estadísticas
+ */
 export const favoritoService = {
-  // Obtener favoritos de un cliente
+  /**
+   * Obtiene la lista de productos favoritos de un cliente específico
+   * @param idCliente - ID del cliente cuyos favoritos se quieren obtener
+   * @param limit - Número máximo de favoritos a retornar (por defecto: 20)
+   * @param offset - Número de favoritos a omitir para paginación (por defecto: 0)
+   * @returns Promise con la lista paginada de favoritos
+   */
   async getFavoritos(idCliente: number, limit = 20, offset = 0): Promise<FavoritoResponse> {
     try {
       const response = await axiosInstance.get<FavoritoResponse>(
@@ -42,7 +61,12 @@ export const favoritoService = {
     }
   },
 
-  // Verificar si un producto es favorito
+  /**
+   * Verifica si un producto específico está en la lista de favoritos de un cliente
+   * @param idCliente - ID del cliente
+   * @param idProducto - ID del producto a verificar
+   * @returns Promise con true si es favorito, false en caso contrario
+   */
   async verificarFavorito(idCliente: number, idProducto: number): Promise<boolean> {
     try {
       const response = await axiosInstance.get<{ success: boolean; esFavorito: boolean }>(
@@ -55,7 +79,12 @@ export const favoritoService = {
     }
   },
 
-  // Alternar favorito (agregar/quitar)
+  /**
+   * Alterna el estado de favorito de un producto (agregar/quitar)
+   * @param idCliente - ID del cliente
+   * @param idProducto - ID del producto a alternar
+   * @returns Promise con la confirmación de la acción realizada
+   */
   async toggleFavorito(idCliente: number, idProducto: number): Promise<FavoritoToggleResponse> {
     try {
       const response = await axiosInstance.put<FavoritoToggleResponse>(
@@ -68,7 +97,12 @@ export const favoritoService = {
     }
   },
 
-  // Agregar a favoritos
+  /**
+   * Agrega un producto específico a la lista de favoritos de un cliente
+   * @param idCliente - ID del cliente
+   * @param idProducto - ID del producto a agregar a favoritos
+   * @returns Promise con la confirmación de la operación
+   */
   async addFavorito(idCliente: number, idProducto: number): Promise<any> {
     try {
       const response = await axiosInstance.post(`/favoritos/cliente/${idCliente}`, {
@@ -81,7 +115,12 @@ export const favoritoService = {
     }
   },
 
-  // Remover de favoritos
+  /**
+   * Remueve un producto específico de la lista de favoritos de un cliente
+   * @param idCliente - ID del cliente
+   * @param idProducto - ID del producto a remover de favoritos
+   * @returns Promise con la confirmación de la operación
+   */
   async removeFavorito(idCliente: number, idProducto: number): Promise<any> {
     try {
       const response = await axiosInstance.delete(
@@ -94,7 +133,12 @@ export const favoritoService = {
     }
   },
 
-  // Obtener estadísticas de favoritos
+  /**
+   * Obtiene estadísticas de favoritos de un cliente específico
+   * Incluye total de favoritos y distribución por categorías
+   * @param idCliente - ID del cliente
+   * @returns Promise con las estadísticas de favoritos
+   */
   async getEstadisticas(idCliente: number): Promise<EstadisticasFavoritosResponse> {
     try {
       const response = await axiosInstance.get<EstadisticasFavoritosResponse>(

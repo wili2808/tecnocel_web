@@ -63,13 +63,13 @@ const Home = () => {
         loading={loading}
         error={error}
       />
-      {/* <CTASection
+      <CTASection
         title="¿Listo para personalizar tu pedido?"
         description="Contáctanos para obtener una cotización personalizada para tu proyecto."
         buttonText="Solicitar Cotización"
         buttonLink="/contacto"
       />
-      <LocationSection /> */}
+      <LocationSection />
     </>
   );
 };

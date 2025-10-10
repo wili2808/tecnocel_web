@@ -6,7 +6,7 @@
  */
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import type { Product, Category, Marca, ProductFilters } from '../types/product';
+import type { Product, Category, Marca, ProductFilters } from '../types';
 import productService from '../services/productService';
 import { useOfertasGlobal } from './OfertasGlobalContext';
 
