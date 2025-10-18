@@ -11,9 +11,33 @@ import ProductoImagen from '../models/ProductoImagen.js';
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
 
+/**
+ * Controlador para gestión del catálogo de productos del almacén
+ *
+ * Maneja todas las operaciones CRUD de productos, búsqueda, filtrado,
+ * y transformación de URLs de imágenes mediante el servicio de imágenes.
+ *
+ * @class AlmacenController
+ */
 class AlmacenController {
-  
-  // Método helper para transformar productos con URLs de imágenes
+
+  /**
+   * Transforma una lista de productos agregando URLs completas de imágenes
+   *
+   * Método helper privado que procesa un array de productos y enriquece cada uno
+   * con URLs de imágenes completas usando el servicio de imágenes. Maneja
+   * gracefully la ausencia del servicio de imágenes retornando productos sin
+   * transformar en caso de error.
+   *
+   * @private
+   * @param productos - Array de productos Sequelize a transformar
+   * @returns Promise que resuelve con array de productos transformados con URLs de imágenes
+   *
+   * @example
+   * const productos = await Almacen.findAll();
+   * const conImagenes = await this.transformProductsWithImages(productos);
+   * // conImagenes[0].imagen_url = "http://localhost:3000/api/uploads/productos/imagen.jpg"
+   */
   private async transformProductsWithImages(productos: any[]): Promise<any[]> {
     try {
       if (!productos || productos.length === 0) {
@@ -38,7 +62,22 @@ class AlmacenController {
     }
   }
 
-  // Método helper para transformar un producto individual con URL de imagen
+  /**
+   * Transforma un producto individual agregando URLs completas de imágenes
+   *
+   * Similar a transformProductsWithImages pero para un solo producto.
+   * Agrega URLs completas de imágenes usando el servicio de imágenes.
+   * Si el servicio no está disponible, retorna el producto sin transformar.
+   *
+   * @private
+   * @param producto - Producto Sequelize individual a transformar
+   * @returns Promise que resuelve con el producto transformado con URLs de imágenes
+   *
+   * @example
+   * const producto = await Almacen.findByPk(1);
+   * const conImagen = await this.transformProductWithImage(producto);
+   * // conImagen.imagen_url = "http://localhost:3000/api/uploads/productos/imagen.jpg"
+   */
   private async transformProductWithImage(producto: any): Promise<any> {
     try {
       const imageService = getImageService();
@@ -58,7 +97,29 @@ class AlmacenController {
     }
   }
 
-  // Obtener todos los productos
+  /**
+   * Obtiene todos los productos del almacén con información relacionada
+   *
+   * Endpoint público que retorna el catálogo completo de productos incluyendo:
+   * - Información de categoría
+   * - Usuario creador
+   * - Marca con logo
+   * - Características del producto
+   * - Ofertas activas vigentes
+   * - Imágenes del producto
+   *
+   * Las URLs de imágenes son transformadas a URLs completas mediante imageService.
+   * Las ofertas son filtradas por fecha actual y estado activo.
+   *
+   * @param req - Express Request object
+   * @param res - Express Response object
+   * @returns 200 con array de productos transformados
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/almacen/productos
+   * Response: [{ id_producto: 1, nombre: "iPhone 13", imagen_url: "...", ofertas: [...] }]
+   */
   async getProducts(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo lista de productos del almacén');
@@ -130,7 +191,27 @@ class AlmacenController {
     }
   }
 
-  // Obtener un producto específico por ID
+  /**
+   * Obtiene un producto específico por su ID con todos los detalles
+   *
+   * Endpoint público que retorna información detallada de un producto incluyendo:
+   * - Categoría completa
+   * - Usuario creador
+   * - Marca con logo y descripción
+   * - Características detalladas con tipos y opciones
+   * - Ofertas activas vigentes con precios especiales
+   * - Todas las imágenes del producto con metadatos
+   *
+   * @param req - Express Request con params.id (ID del producto)
+   * @param res - Express Response object
+   * @returns 200 con objeto del producto transformado
+   * @returns 404 si el producto no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/almacen/productos/123
+   * Response: { id_producto: 123, nombre: "iPhone 13", marca: {...}, ofertas: [...] }
+   */
   async getProductById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -212,7 +293,33 @@ class AlmacenController {
     }
   }
 
-  // Crear un nuevo producto
+  /**
+   * Crea un nuevo producto en el almacén
+   *
+   * Endpoint protegido que crea un producto con toda su información y opcionalmente
+   * sus imágenes. Después de crear el producto, automáticamente crea registros de
+   * ProductoImagen si se proporcionan URLs de imágenes en el body.
+   *
+   * Tras la creación exitosa, reutiliza getProductById para retornar el producto
+   * completo con todas sus relaciones cargadas.
+   *
+   * @param req - Express Request con body conteniendo datos del producto e imagenes[]
+   * @param req.body.imagenes - Array opcional de {url_imagen, alt_text} para el producto
+   * @param res - Express Response object
+   * @returns 200 con el producto creado completo (via getProductById)
+   * @returns 500 si ocurre error en la creación
+   *
+   * @example
+   * POST /api/almacen/productos
+   * Body: {
+   *   nombre: "iPhone 13",
+   *   precio_venta: 999,
+   *   stock: 10,
+   *   imagenes: [
+   *     { url_imagen: "iphone13.jpg", alt_text: "iPhone 13 frontal" }
+   *   ]
+   * }
+   */
   async createProduct(req: Request, res: Response) {
     try {
       const { imagenes, ...productoData } = req.body;
@@ -270,7 +377,30 @@ class AlmacenController {
     }
   }
 
-  // Actualizar un producto existente
+  /**
+   * Actualiza un producto existente en el almacén
+   *
+   * Endpoint protegido que actualiza los datos de un producto y opcionalmente
+   * reemplaza todas sus imágenes. Si se proporciona un array de imagenes,
+   * primero elimina todas las imágenes existentes y luego crea las nuevas.
+   *
+   * La primera imagen del array siempre se marca como principal (es_principal=true).
+   *
+   * @param req - Express Request con params.id y body con datos a actualizar
+   * @param req.body.imagenes - Array opcional de {url_imagen, alt_text} para reemplazar imágenes
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si la actualización es exitosa
+   * @returns 404 si el producto no existe
+   * @returns 500 si ocurre error en la actualización
+   *
+   * @example
+   * PUT /api/almacen/productos/123
+   * Body: {
+   *   nombre: "iPhone 13 Pro",
+   *   precio_venta: 1099,
+   *   imagenes: [{ url_imagen: "nueva.jpg" }]
+   * }
+   */
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -328,7 +458,25 @@ class AlmacenController {
     }
   }
 
-  // Eliminar un producto
+  /**
+   * Elimina un producto del almacén
+   *
+   * Endpoint protegido que elimina permanentemente un producto y todas sus
+   * imágenes asociadas de la base de datos. Esta operación es irreversible.
+   *
+   * NOTA: No elimina archivos físicos de imágenes del servidor, solo los
+   * registros de la base de datos.
+   *
+   * @param req - Express Request con params.id (ID del producto a eliminar)
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si la eliminación es exitosa
+   * @returns 404 si el producto no existe
+   * @returns 500 si ocurre error en la eliminación
+   *
+   * @example
+   * DELETE /api/almacen/productos/123
+   * Response: { message: "Producto eliminado correctamente" }
+   */
   async deleteProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -366,7 +514,24 @@ class AlmacenController {
     }
   }
 
-  // Buscar productos
+  /**
+   * Busca productos por término de búsqueda
+   *
+   * Endpoint público que busca productos cuyo nombre o código coincidan
+   * parcialmente con el término proporcionado (búsqueda LIKE %término%).
+   *
+   * Incluye información de categoría, usuario creador e imágenes en los resultados.
+   *
+   * @param req - Express Request con query.termino (término de búsqueda)
+   * @param res - Express Response object
+   * @returns 200 con array de productos que coinciden con la búsqueda
+   * @returns 400 si no se proporciona término de búsqueda
+   * @returns 500 si ocurre error en la búsqueda
+   *
+   * @example
+   * GET /api/almacen/productos/buscar?termino=iphone
+   * Response: [{ id_producto: 1, nombre: "iPhone 13", ... }]
+   */
   async searchProducts(req: Request, res: Response) {
     try {
       const { termino } = req.query;
@@ -408,7 +573,21 @@ class AlmacenController {
     }
   }
 
-  // Obtener productos por categoría
+  /**
+   * Obtiene todos los productos de una categoría específica
+   *
+   * Endpoint público que filtra productos por ID de categoría.
+   * Incluye información de categoría, usuario creador e imágenes.
+   *
+   * @param req - Express Request con params.categoriaId (ID de la categoría)
+   * @param res - Express Response object
+   * @returns 200 con array de productos de la categoría especificada
+   * @returns 500 si ocurre error en la consulta
+   *
+   * @example
+   * GET /api/almacen/productos/categoria/5
+   * Response: [{ id_producto: 1, nombre: "iPhone 13", Categoria: { nombre_categoria: "Smartphones" } }]
+   */
   async getProductsByCategory(req: Request, res: Response) {
     try {
       const { categoriaId } = req.params;
@@ -440,7 +619,24 @@ class AlmacenController {
     }
   }
 
-  // Actualizar stock
+  /**
+   * Actualiza el stock de un producto
+   *
+   * Endpoint protegido que actualiza únicamente la cantidad de stock disponible
+   * de un producto específico. Útil para actualizaciones rápidas de inventario
+   * sin necesidad de enviar todos los datos del producto.
+   *
+   * @param req - Express Request con params.id y body.stock (nuevo stock)
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si la actualización es exitosa
+   * @returns 404 si el producto no existe
+   * @returns 500 si ocurre error en la actualización
+   *
+   * @example
+   * PATCH /api/almacen/productos/123/stock
+   * Body: { stock: 50 }
+   * Response: { message: "Stock actualizado correctamente" }
+   */
   async updateStock(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -479,7 +675,25 @@ class AlmacenController {
     }
   }
 
-  // Obtener productos destacados
+  /**
+   * Obtiene los productos destacados del catálogo
+   *
+   * Endpoint público que retorna productos marcados como destacados (es_destacado=true)
+   * que tengan stock disponible. Los resultados son ordenados por orden_destacado
+   * (ascendente) y fecha de actualización (descendente).
+   *
+   * Por defecto retorna 6 productos, pero se puede especificar un límite diferente
+   * mediante query parameter.
+   *
+   * @param req - Express Request con query.limit opcional (default: 6)
+   * @param res - Express Response object
+   * @returns 200 con array de productos destacados con imágenes transformadas
+   * @returns 500 si ocurre error en la consulta
+   *
+   * @example
+   * GET /api/almacen/productos/destacados?limit=10
+   * Response: [{ id_producto: 1, nombre: "iPhone 13", es_destacado: true, ... }]
+   */
   async getFeaturedProducts(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo productos destacados');
@@ -529,7 +743,26 @@ class AlmacenController {
     }
   }
 
-  // Obtener todas las categorías
+  /**
+   * Obtiene todas las categorías disponibles
+   *
+   * Endpoint público que retorna la lista completa de categorías de productos
+   * registradas en el sistema. Solo retorna ID y nombre de cada categoría.
+   *
+   * Útil para poblar filtros y selectores de categoría en el frontend.
+   *
+   * @param req - Express Request object
+   * @param res - Express Response object
+   * @returns 200 con array de categorías {id_categoria, nombre_categoria}
+   * @returns 500 si ocurre error en la consulta
+   *
+   * @example
+   * GET /api/almacen/categorias
+   * Response: [
+   *   { id_categoria: 1, nombre_categoria: "Smartphones" },
+   *   { id_categoria: 2, nombre_categoria: "Laptops" }
+   * ]
+   */
   async getAllCategories(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo todas las categorías');
@@ -554,7 +787,41 @@ class AlmacenController {
     }
   }
 
-  // Método de diagnóstico
+  /**
+   * Ejecuta diagnóstico completo del sistema de productos
+   *
+   * Endpoint de debugging que ejecuta una serie de pruebas paso a paso para
+   * diagnosticar problemas en el sistema de productos. Prueba:
+   * - Consultas básicas sin includes
+   * - Includes de Categoria
+   * - Includes de Usuario
+   * - Ambos includes combinados
+   * - Transformación de imágenes
+   * - Carga de imágenes desde ProductoImagen
+   *
+   * Cada paso es ejecutado independientemente y los errores son capturados
+   * individualmente para identificar exactamente dónde falla el sistema.
+   *
+   * IMPORTANTE: Este endpoint es solo para desarrollo/debugging.
+   * Debe estar deshabilitado o protegido en producción.
+   *
+   * @param req - Express Request object
+   * @param res - Express Response object
+   * @returns 200 con objeto de diagnóstico detallado con resultados de cada paso
+   * @returns 500 si ocurre error general en el diagnóstico
+   *
+   * @example
+   * GET /api/almacen/diagnostico
+   * Response: {
+   *   success: true,
+   *   message: "Todos los pasos exitosos",
+   *   diagnostics: {
+   *     step1_basic_query: { success: true, count: 5 },
+   *     step2_categoria_include: { success: true, count: 5 },
+   *     ...
+   *   }
+   * }
+   */
   async diagnosticProducts(req: Request, res: Response) {
     const diagnostics: any = {
       step1_basic_query: null,

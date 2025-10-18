@@ -9,9 +9,65 @@ import logger from '../services/loggerService.js';
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
 const JWT_EXPIRES_IN = '7d';
 
+/**
+ * Controlador para gestión de clientes y autenticación
+ *
+ * Maneja todas las operaciones relacionadas con clientes incluyendo:
+ * - Registro y login
+ * - Autenticación JWT
+ * - Recuperación de contraseña
+ * - Verificación de email
+ * - Gestión de sesiones
+ *
+ * @class ClienteController
+ */
 export default class ClienteController {
   /**
-   * Registro de cliente
+   * Registra un nuevo cliente en la plataforma
+   *
+   * Crea un cliente con contraseña hasheada usando bcrypt (10 rounds),
+   * marca el email como verificado automáticamente y retorna un JWT
+   * para login inmediato sin necesidad de verificación por email.
+   *
+   * El cliente es habilitado automáticamente para acceso web.
+   * La contraseña debe cumplir requisitos mínimos de seguridad.
+   *
+   * @param req - Express Request con body conteniendo datos del cliente
+   * @param req.body.nombre_cliente - Nombre del cliente (requerido)
+   * @param req.body.apellido_cliente - Apellido del cliente (requerido)
+   * @param req.body.email_cliente - Email único del cliente (requerido)
+   * @param req.body.celular_cliente - Número de celular (requerido)
+   * @param req.body.nit_ci_cliente - NIT o CI del cliente (requerido)
+   * @param req.body.contrasena - Contraseña en texto plano (será hasheada)
+   * @param res - Express Response object
+   * @returns 201 con { mensaje, token, cliente } si el registro es exitoso
+   * @returns 400 si faltan campos obligatorios
+   * @returns 409 si el email ya está registrado
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/clientes/register
+   * Body: {
+   *   "nombre_cliente": "Juan",
+   *   "apellido_cliente": "Pérez",
+   *   "email_cliente": "juan@example.com",
+   *   "celular_cliente": "70123456",
+   *   "nit_ci_cliente": "1234567",
+   *   "contrasena": "MiPassword123"
+   * }
+   *
+   * Response 201: {
+   *   "mensaje": "Registro exitoso. ¡Bienvenido a TecnoCell!",
+   *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+   *   "cliente": {
+   *     "id_cliente": 5,
+   *     "nombre_cliente": "Juan",
+   *     "apellido_cliente": "Pérez",
+   *     "email_cliente": "juan@example.com",
+   *     "celular_cliente": "70123456",
+   *     "nit_ci_cliente": "1234567"
+   *   }
+   * }
    */
   static async register(req: Request, res: Response) {
     try {
@@ -82,7 +138,26 @@ export default class ClienteController {
   }
 
   /**
-   * Verificación de email
+   * Verifica el email de un cliente mediante token de verificación
+   *
+   * Procesa el token de verificación enviado por email y marca el email
+   * del cliente como verificado. También habilita el acceso web del cliente.
+   *
+   * NOTA: En la implementación actual, los clientes se verifican automáticamente
+   * al registrarse, por lo que este endpoint es opcional.
+   *
+   * @param req - Express Request con query.token (token de verificación)
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si la verificación es exitosa
+   * @returns 400 si el token no se proporciona, es inválido o expiró
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/clientes/verify-email?token=abc-123-def-456
+   *
+   * Response 200: {
+   *   "mensaje": "Email verificado correctamente. Ya puedes iniciar sesión."
+   * }
    */
   static async verifyEmail(req: Request, res: Response) {
     try {
@@ -113,7 +188,41 @@ export default class ClienteController {
   }
 
   /**
-   * Login de cliente
+   * Autentica un cliente y genera token JWT
+   *
+   * Valida las credenciales del cliente (email y contraseña) y genera un JWT
+   * válido por 7 días. La contraseña es comparada con el hash almacenado
+   * usando bcrypt. Actualiza la fecha de último login del cliente.
+   *
+   * Solo pueden hacer login clientes habilitados para web (is_web_enabled=true).
+   *
+   * @param req - Express Request con body conteniendo credenciales
+   * @param req.body.email_cliente - Email del cliente (requerido)
+   * @param req.body.contrasena - Contraseña en texto plano (requerido)
+   * @param res - Express Response object
+   * @returns 200 con { token, cliente } si el login es exitoso
+   * @returns 400 si faltan email o contraseña
+   * @returns 401 si la contraseña es incorrecta
+   * @returns 403 si el cliente no tiene contraseña establecida
+   * @returns 404 si el cliente no existe o no está habilitado para web
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/clientes/login
+   * Body: {
+   *   "email_cliente": "juan@example.com",
+   *   "contrasena": "MiPassword123"
+   * }
+   *
+   * Response 200: {
+   *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+   *   "cliente": {
+   *     "id_cliente": 5,
+   *     "nombre_cliente": "Juan",
+   *     "apellido_cliente": "Pérez",
+   *     "email_cliente": "juan@example.com"
+   *   }
+   * }
    */
   static async login(req: Request, res: Response) {
     try {
@@ -150,7 +259,31 @@ export default class ClienteController {
   }
 
   /**
-   * Solicitud de recuperación de contraseña
+   * Inicia el proceso de recuperación de contraseña
+   *
+   * Genera un token único de recuperación (UUID v4) con validez de 1 hora
+   * y envía un email al cliente con instrucciones para restablecer su contraseña.
+   *
+   * El token se almacena en la base de datos junto con su fecha de expiración.
+   * El cliente debe usar este token para completar el restablecimiento.
+   *
+   * @param req - Express Request con body.email_cliente
+   * @param req.body.email_cliente - Email del cliente que olvidó su contraseña
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si el email se envió
+   * @returns 400 si no se proporciona email
+   * @returns 404 si el cliente no existe o no está habilitado para web
+   * @returns 500 si ocurre error en el servidor o al enviar email
+   *
+   * @example
+   * POST /api/clientes/forgot-password
+   * Body: {
+   *   "email_cliente": "juan@example.com"
+   * }
+   *
+   * Response 200: {
+   *   "mensaje": "Se ha enviado un correo para restablecer la contraseña"
+   * }
    */
   static async forgotPassword(req: Request, res: Response) {
     try {
@@ -180,7 +313,32 @@ export default class ClienteController {
   }
 
   /**
-   * Restablecimiento de contraseña
+   * Completa el proceso de restablecimiento de contraseña
+   *
+   * Valida el token de recuperación (debe ser válido y no expirado), hashea
+   * la nueva contraseña con bcrypt (10 rounds) y actualiza la contraseña del cliente.
+   *
+   * El token tiene validez de 1 hora desde su generación. Una vez usado, el token
+   * se invalida automáticamente para evitar reutilización.
+   *
+   * @param req - Express Request con body conteniendo token y nueva contraseña
+   * @param req.body.reset_token - Token de recuperación (UUID generado en forgotPassword)
+   * @param req.body.nueva_contrasena - Nueva contraseña en texto plano (será hasheada)
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si el restablecimiento es exitoso
+   * @returns 400 si faltan datos, el token es inválido o expiró
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/clientes/reset-password
+   * Body: {
+   *   "reset_token": "abc-123-def-456",
+   *   "nueva_contrasena": "NuevaPassword123"
+   * }
+   *
+   * Response 200: {
+   *   "mensaje": "Contraseña restablecida correctamente. Ya puedes iniciar sesión."
+   * }
    */
   static async resetPassword(req: Request, res: Response) {
     try {
@@ -210,7 +368,40 @@ export default class ClienteController {
   }
 
   /**
-   * Verificación de token JWT para mantener sesión activa
+   * Verifica validez del token JWT y retorna datos del cliente
+   *
+   * Endpoint protegido que valida el token JWT del cliente y retorna sus datos
+   * actualizados. Útil para mantener la sesión activa y sincronizar datos del
+   * cliente entre frontend y backend.
+   *
+   * El middleware verificarTokenCliente debe ejecutarse antes de este método
+   * para validar el token y agregar los datos del cliente a req.usuario.
+   *
+   * Solo retorna clientes que estén habilitados para web y con email verificado.
+   *
+   * @param req - Express Request (con req.usuario agregado por middleware)
+   * @param res - Express Response object
+   * @returns 200 con objeto cliente si el token es válido
+   * @returns 401 si el token es inválido o no se proporcionó
+   * @returns 403 si el cliente no está habilitado o no tiene email verificado
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/clientes/verify-token
+   * Headers: {
+   *   "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+   * }
+   *
+   * Response 200: {
+   *   "cliente": {
+   *     "id_cliente": 5,
+   *     "nombre_cliente": "Juan",
+   *     "apellido_cliente": "Pérez",
+   *     "email_cliente": "juan@example.com",
+   *     "celular_cliente": "70123456",
+   *     "nit_ci_cliente": "1234567"
+   *   }
+   * }
    */
   static async verifyToken(req: Request, res: Response) {
     try {

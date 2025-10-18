@@ -4,8 +4,39 @@ import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
 import Almacen from '../models/Almacen.js';
 import logger from '../services/loggerService.js';
 
+/**
+ * Controlador para gestión de características de productos
+ *
+ * Maneja las operaciones CRUD de características de productos y sus tipos.
+ * Permite asociar características dinámicas a productos (ej: RAM, Almacenamiento, Color)
+ * mediante un sistema flexible de tipos y valores.
+ *
+ * @class CaracteristicaController
+ */
 export class CaracteristicaController {
-  // Obtener todos los tipos de características
+  /**
+   * Obtiene todos los tipos de características activos
+   *
+   * Endpoint público que retorna la lista de tipos de características disponibles
+   * para asignar a productos (ej: RAM, Pantalla, Procesador). Solo retorna tipos
+   * activos ordenados alfabéticamente.
+   *
+   * @param req - Express Request object
+   * @param res - Express Response object
+   * @returns 200 con { success, data, count } array de tipos de características
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/caracteristicas/tipos
+   * Response: {
+   *   success: true,
+   *   data: [
+   *     { id_tipo: 1, nombre_tipo: "RAM", tipo_dato: "numero", unidad_medida: "GB" },
+   *     { id_tipo: 2, nombre_tipo: "Color", tipo_dato: "texto" }
+   *   ],
+   *   count: 2
+   * }
+   */
   static async getTiposCaracteristicas(req: Request, res: Response) {
     try {
       const tipos = await TipoCaracteristica.findAll({
@@ -28,7 +59,31 @@ export class CaracteristicaController {
     }
   }
 
-  // Obtener características de un producto específico
+  /**
+   * Obtiene todas las características de un producto específico
+   *
+   * Endpoint público que retorna las características asociadas a un producto,
+   * incluyendo información del tipo de característica (nombre, tipo de dato, unidad).
+   *
+   * @param req - Express Request con params.id_producto
+   * @param res - Express Response object
+   * @returns 200 con { success, data, count } array de características del producto
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/caracteristicas/producto/123
+   * Response: {
+   *   success: true,
+   *   data: [
+   *     {
+   *       id_caracteristica: 1,
+   *       valor: "8",
+   *       tipo: { nombre_tipo: "RAM", tipo_dato: "numero", unidad_medida: "GB" }
+   *     }
+   *   ],
+   *   count: 1
+   * }
+   */
   static async getCaracteristicasProducto(req: Request, res: Response) {
     try {
       const { id_producto } = req.params;
@@ -60,7 +115,29 @@ export class CaracteristicaController {
     }
   }
 
-  // Agregar característica a un producto
+  /**
+   * Agrega una característica a un producto
+   *
+   * Endpoint protegido que asocia un tipo de característica con un valor específico
+   * a un producto. Verifica que tanto el producto como el tipo de característica existan
+   * antes de crear la asociación.
+   *
+   * @param req - Express Request con params.id_producto y body {id_tipo, valor}
+   * @param res - Express Response object
+   * @returns 201 con { success, message, data } característica creada con tipo incluido
+   * @returns 400 si faltan datos requeridos o ya existe la característica en el producto
+   * @returns 404 si el producto o tipo de característica no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/caracteristicas/producto/123
+   * Body: { id_tipo: 1, valor: "8" }
+   * Response: {
+   *   success: true,
+   *   message: "Característica agregada exitosamente",
+   *   data: { id_caracteristica: 5, id_producto: 123, valor: "8", tipo: {...} }
+   * }
+   */
   static async addCaracteristicaProducto(req: Request, res: Response) {
     try {
       const { id_producto } = req.params;
@@ -136,7 +213,28 @@ export class CaracteristicaController {
     }
   }
 
-  // Actualizar característica de un producto
+  /**
+   * Actualiza el valor de una característica de producto
+   *
+   * Endpoint protegido que modifica el valor de una característica existente.
+   * Solo actualiza el campo valor, no permite cambiar el tipo de característica.
+   *
+   * @param req - Express Request con params.id_caracteristica y body {valor}
+   * @param res - Express Response object
+   * @returns 200 con { success, message, data } característica actualizada con tipo
+   * @returns 400 si no se proporciona el valor
+   * @returns 404 si la característica no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PUT /api/caracteristicas/5
+   * Body: { valor: "16" }
+   * Response: {
+   *   success: true,
+   *   message: "Característica actualizada exitosamente",
+   *   data: { id_caracteristica: 5, valor: "16", tipo: {...} }
+   * }
+   */
   static async updateCaracteristicaProducto(req: Request, res: Response) {
     try {
       const { id_caracteristica } = req.params;
@@ -187,7 +285,25 @@ export class CaracteristicaController {
     }
   }
 
-  // Eliminar característica de un producto
+  /**
+   * Elimina una característica de un producto
+   *
+   * Endpoint protegido que elimina permanentemente la asociación de una característica
+   * con un producto. Esta operación es irreversible.
+   *
+   * @param req - Express Request con params.id_caracteristica
+   * @param res - Express Response object
+   * @returns 200 con { success, message } si la eliminación es exitosa
+   * @returns 404 si la característica no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/caracteristicas/5
+   * Response: {
+   *   success: true,
+   *   message: "Característica eliminada exitosamente"
+   * }
+   */
   static async deleteCaracteristicaProducto(req: Request, res: Response) {
     try {
       const { id_caracteristica } = req.params;
@@ -219,7 +335,33 @@ export class CaracteristicaController {
     }
   }
 
-  // Crear nuevo tipo de característica (admin)
+  /**
+   * Crea un nuevo tipo de característica (requiere admin)
+   *
+   * Endpoint protegido que crea un nuevo tipo de característica que luego puede
+   * ser asignado a productos. Permite definir el tipo de dato (texto, numero, booleano),
+   * unidades de medida y opciones de selección para características categóricas.
+   *
+   * @param req - Express Request con body {nombre_tipo, descripcion?, tipo_dato?, unidad_medida?, opciones_seleccion?}
+   * @param res - Express Response object
+   * @returns 201 con { success, message, data } tipo de característica creado
+   * @returns 400 si falta nombre_tipo o ya existe un tipo con ese nombre
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/caracteristicas/tipos
+   * Body: {
+   *   nombre_tipo: "Almacenamiento",
+   *   tipo_dato: "numero",
+   *   unidad_medida: "GB",
+   *   descripcion: "Capacidad de almacenamiento interno"
+   * }
+   * Response: {
+   *   success: true,
+   *   message: "Tipo de característica creado exitosamente",
+   *   data: { id_tipo: 3, nombre_tipo: "Almacenamiento", ... }
+   * }
+   */
   static async createTipoCaracteristica(req: Request, res: Response) {
     try {
       const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion } = req.body;

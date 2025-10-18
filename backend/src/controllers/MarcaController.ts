@@ -2,8 +2,25 @@ import { Request, Response } from 'express';
 import Marca from '../models/Marca.js';
 import logger from '../services/loggerService.js';
 
+/**
+ * Controlador para gestión de marcas de productos
+ *
+ * Maneja el catálogo de marcas permitiendo:
+ * - CRUD completo de marcas
+ * - Activar/desactivar marcas (soft delete)
+ * - Listado de marcas activas
+ *
+ * Endpoints públicos para lectura, protegidos para escritura.
+ *
+ * @class MarcaController
+ */
 export class MarcaController {
-  // Obtener todas las marcas activas
+  /**
+   * Obtiene todas las marcas activas ordenadas alfabéticamente
+   * @param req - Express Request
+   * @param res - Express Response
+   * @returns 200 con { success, data, count }
+   */
   static async getAllMarcas(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo todas las marcas activas');
@@ -40,7 +57,11 @@ export class MarcaController {
     }
   }
 
-  // Obtener marca por ID
+  /**
+   * Obtiene una marca específica por ID
+   * @param req - Express Request con params.id
+   * @returns 200 con { success, data } o 404 si no existe
+   */
   static async getMarcaById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -89,7 +110,12 @@ export class MarcaController {
     }
   }
 
-  // Crear nueva marca (admin)
+  /**
+   * Crea una nueva marca (requiere admin)
+   * @param req - Express Request con body {nombre_marca, logo_marca?, descripcion_marca?}
+   * @returns 201 con { success, message, data }
+   * @returns 400 si falta nombre_marca o ya existe
+   */
   static async createMarca(req: Request, res: Response) {
     try {
       const { nombre_marca, logo_marca, descripcion_marca } = req.body;
@@ -151,7 +177,12 @@ export class MarcaController {
     }
   }
 
-  // Actualizar marca (admin)
+  /**
+   * Actualiza una marca existente (requiere admin)
+   * @param req - Express Request con params.id y body con campos a actualizar
+   * @returns 200 con { success, message, data }
+   * @returns 404 si la marca no existe
+   */
   static async updateMarca(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -209,7 +240,15 @@ export class MarcaController {
     }
   }
 
-  // Eliminar marca (desactivar)
+  /**
+   * Desactiva una marca (soft delete) (requiere admin)
+   *
+   * No elimina la marca de la BD, solo marca activo=false.
+   *
+   * @param req - Express Request con params.id
+   * @returns 200 con { success, message }
+   * @returns 404 si la marca no existe
+   */
   static async deleteMarca(req: Request, res: Response) {
     try {
       const { id } = req.params;

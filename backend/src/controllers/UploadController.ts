@@ -8,16 +8,37 @@ import logger from '../services/loggerService.js';
 import { config } from '../config/config.js';
 import { ImageType } from '../services/imageService.js';
 
-// Interfaces
+/**
+ * Archivo subido por Multer extendido con buffer
+ */
 interface UploadedFile extends Express.Multer.File {
   buffer: Buffer;
 }
 
+/**
+ * Imagen procesada lista para almacenar en BD
+ */
 interface ProcessedImage {
   url_imagen: string;
   alt_text: string;
 }
 
+/**
+ * Controlador para gestión de subida y procesamiento de imágenes
+ *
+ * Maneja todo el ciclo de vida de imágenes en el sistema:
+ * - Subida de imágenes de productos y comentarios con Multer
+ * - Validación de tipos de archivo y tamaños (max 10MB, 5-10 archivos)
+ * - Procesamiento y optimización con Sharp (redimensionar, comprimir)
+ * - Almacenamiento en sistema de archivos con nombres únicos (UUID + timestamp)
+ * - Eliminación de archivos físicos
+ * - Estadísticas de uso de almacenamiento
+ *
+ * Tipos de archivo permitidos: JPEG, JPG, PNG, WebP, GIF
+ * Las imágenes se optimizan a máximo 1200x1200px (excepto GIFs animados).
+ *
+ * @class UploadController
+ */
 class UploadController {
   private productImagesPath: string;
   private commentImagesPath: string;
@@ -28,7 +49,14 @@ class UploadController {
     this.ensureDirectoriesExist();
   }
 
-  // Asegurar que los directorios existen
+  /**
+   * Asegura que los directorios de imágenes existen
+   *
+   * Crea los directorios de productos y comentarios si no existen.
+   * Se ejecuta automáticamente en el constructor.
+   *
+   * @private
+   */
   private ensureDirectoriesExist(): void {
     const directories = [this.productImagesPath, this.commentImagesPath];
     
@@ -46,7 +74,18 @@ class UploadController {
     });
   }
 
-  // Configuración de multer para memoria (no guardamos directo a disco)
+  /**
+   * Obtiene configuración de Multer para subida de archivos
+   *
+   * Configura Multer para almacenamiento en memoria (no guarda directo a disco)
+   * con validaciones de:
+   * - Tamaño máximo: 10MB por archivo
+   * - Cantidad máxima: 5 archivos
+   * - Tipos permitidos: image/jpeg, image/jpg, image/png, image/webp, image/gif
+   *
+   * @public
+   * @returns Instancia configurada de Multer
+   */
   public getMulterConfig() {
     return multer({
       storage: multer.memoryStorage(),
@@ -67,7 +106,20 @@ class UploadController {
     });
   }
 
-  // Procesar y guardar imagen de comentario
+  /**
+   * Procesa y guarda una imagen de comentario
+   *
+   * Procesa el archivo con Sharp para optimización:
+   * - Genera nombre único: comment_{timestamp}_{uuid}.{ext}
+   * - GIFs: mantiene sin procesar para preservar animación
+   * - Otros: redimensiona a max 1200x1200px, comprime a JPEG 85% calidad
+   * - Guarda en directorio de comentarios
+   *
+   * @private
+   * @param file - Archivo subido por Multer
+   * @returns Promise con {url_imagen, alt_text}
+   * @throws Error si falla el procesamiento
+   */
   private async processCommentImage(file: UploadedFile): Promise<ProcessedImage> {
     try {
       // Generar nombre único para comentario
@@ -114,7 +166,22 @@ class UploadController {
     }
   }
 
-  // Procesar y guardar imagen de producto
+  /**
+   * Procesa y guarda una imagen de producto
+   *
+   * Procesa el archivo con Sharp para optimización:
+   * - Genera nombre único: {productName}_{timestamp}_{uuid}.{ext}
+   * - GIFs: mantiene sin procesar para preservar animación
+   * - Otros: redimensiona a max 1200x1200px, comprime a JPEG 85% calidad
+   * - Guarda en directorio de productos
+   *
+   * @private
+   * @param file - Archivo subido por Multer
+   * @param orden - Orden de la imagen en el set
+   * @param productName - Nombre del producto para el nombre del archivo (opcional)
+   * @returns Promise con {url_imagen, alt_text}
+   * @throws Error si falla el procesamiento
+   */
   private async processProductImage(file: UploadedFile, orden: number, productName?: string): Promise<ProcessedImage> {
     try {
       // Generar nombre único para producto
@@ -162,7 +229,33 @@ class UploadController {
     }
   }
 
-  // Endpoint para subir múltiples imágenes de comentarios
+  /**
+   * Endpoint para subir múltiples imágenes de comentarios
+   *
+   * Endpoint protegido que permite subir hasta 5 imágenes para un comentario.
+   * Procesa las imágenes en paralelo y retorna los nombres de archivo generados.
+   *
+   * @public
+   * @param req - Express Request con req.files (array de archivos de Multer)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { imagenes, tipo } }
+   * @returns 400 si no se proporcionan archivos o hay demasiados
+   * @returns 500 si ocurre error en el procesamiento
+   *
+   * @example
+   * POST /api/upload/comment-images
+   * Content-Type: multipart/form-data
+   * Body: files[] = [imagen1.jpg, imagen2.png]
+   * Response: {
+   *   mensaje: "Imágenes de comentario subidas exitosamente",
+   *   datos: {
+   *     imagenes: [
+   *       { url_imagen: "comment_1234567890_uuid.jpg", alt_text: "Imagen del comentario" }
+   *     ],
+   *     tipo: "comment"
+   *   }
+   * }
+   */
   public uploadCommentImages = async (req: Request, res: Response): Promise<void> => {
     try {
       const files = req.files as UploadedFile[];
@@ -213,7 +306,34 @@ class UploadController {
     }
   };
 
-  // Endpoint para subir múltiples imágenes de productos
+  /**
+   * Endpoint para subir múltiples imágenes de productos
+   *
+   * Endpoint protegido que permite subir hasta 10 imágenes para un producto.
+   * Procesa las imágenes en paralelo y retorna los nombres de archivo generados.
+   * Opcionalmente acepta productName para nombres de archivo más descriptivos.
+   *
+   * @public
+   * @param req - Express Request con req.files y req.body.productName o req.query.productName
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { imagenes, tipo } }
+   * @returns 400 si no se proporcionan archivos o hay demasiados
+   * @returns 500 si ocurre error en el procesamiento
+   *
+   * @example
+   * POST /api/upload/product-images?productName=iPhone13
+   * Content-Type: multipart/form-data
+   * Body: files[] = [frontal.jpg, trasera.jpg]
+   * Response: {
+   *   mensaje: "Imágenes de producto subidas exitosamente",
+   *   datos: {
+   *     imagenes: [
+   *       { url_imagen: "iPhone13_1234567890_uuid.jpg", alt_text: "Imagen de iPhone13" }
+   *     ],
+   *     tipo: "product"
+   *   }
+   * }
+   */
   public uploadProductImages = async (req: Request, res: Response): Promise<void> => {
     try {
       const files = req.files as UploadedFile[];
@@ -266,7 +386,19 @@ class UploadController {
     }
   };
 
-  // Eliminar imagen de comentario
+  /**
+   * Elimina físicamente una imagen de comentario del servidor
+   *
+   * Método público que elimina el archivo físico de una imagen de comentario.
+   * Se utiliza cuando se elimina un comentario o una imagen específica.
+   *
+   * @public
+   * @param imagePath - Nombre del archivo (solo basename, no ruta completa)
+   * @returns Promise<boolean> true si se eliminó exitosamente, false si no existe o falla
+   *
+   * @example
+   * await deleteCommentImage("comment_1234567890_uuid.jpg");
+   */
   public deleteCommentImage = async (imagePath: string): Promise<boolean> => {
     try {
       const fullPath = path.join(this.commentImagesPath, path.basename(imagePath));
@@ -287,7 +419,19 @@ class UploadController {
     }
   };
 
-  // Eliminar imagen de producto
+  /**
+   * Elimina físicamente una imagen de producto del servidor
+   *
+   * Método público que elimina el archivo físico de una imagen de producto.
+   * Se utiliza cuando se elimina un producto o se actualizan sus imágenes.
+   *
+   * @public
+   * @param imagePath - Nombre del archivo (solo basename, no ruta completa)
+   * @returns Promise<boolean> true si se eliminó exitosamente, false si no existe o falla
+   *
+   * @example
+   * await deleteProductImage("iPhone13_1234567890_uuid.jpg");
+   */
   public deleteProductImage = async (imagePath: string): Promise<boolean> => {
     try {
       const fullPath = path.join(this.productImagesPath, path.basename(imagePath));
@@ -308,7 +452,15 @@ class UploadController {
     }
   };
 
-  // Limpiar imágenes huérfanas
+  /**
+   * Limpia imágenes huérfanas del sistema de archivos
+   *
+   * Función placeholder para implementación futura de limpieza de imágenes
+   * que no tienen registros asociados en la base de datos.
+   *
+   * @public
+   * @returns Promise<void>
+   */
   public cleanOrphanImages = async (): Promise<void> => {
     try {
       logger.info('Función de limpieza de imágenes huérfanas disponible', {
@@ -320,7 +472,35 @@ class UploadController {
     }
   };
 
-  // Obtener información de directorios
+  /**
+   * Obtiene información y estadísticas de directorios de imágenes
+   *
+   * Endpoint que retorna rutas de directorios y estadísticas de uso:
+   * - Rutas completas de directorios
+   * - Cantidad de imágenes de productos
+   * - Cantidad de imágenes de comentarios
+   * - Total de imágenes
+   *
+   * @public
+   * @param req - Express Request object
+   * @param res - Express Response object
+   * @returns 200 con { directorios, estadisticas }
+   * @returns 500 si ocurre error al leer directorios
+   *
+   * @example
+   * GET /api/upload/directories-info
+   * Response: {
+   *   directorios: {
+   *     productos: "/path/to/productos",
+   *     comentarios: "/path/to/comentarios"
+   *   },
+   *   estadisticas: {
+   *     imagenes_productos: 145,
+   *     imagenes_comentarios: 78,
+   *     total: 223
+   *   }
+   * }
+   */
   public getDirectoriesInfo = async (req: Request, res: Response): Promise<void> => {
     try {
       const productFiles = fs.existsSync(this.productImagesPath) 

@@ -1,4 +1,4 @@
-**[Documentación](../api/README.md#organización-de-la-documentación)** | **[Inicio](../../README.md)**
+**[Documentación](../README.md#-api-backend)** | **[Inicio](../../README.md)**
 
 ---
 
@@ -445,8 +445,8 @@ Ver [Upload API](./endpoints/upload.md) para detalles de carga y procesamiento.
 
 - [Guía de Inicio Rápido](../guides/GETTING_STARTED.md) - Configuración inicial
 - [Esquema de Base de Datos](../database/SCHEMA.md) - Estructura de datos
-- [Guía de Autenticación](./AUTHENTICATION.md) - Detalles de autenticación _(próximamente)_
-- [Volver al índice](./README.md)
+- [Guía de Autenticación](./guides/AUTHENTICATION.md) - Detalles de autenticación
+- [Volver al índice de documentación](../README.md)
 
 **Última actualización**: 7 de Octubre, 2025
 **Versión**: 1.1

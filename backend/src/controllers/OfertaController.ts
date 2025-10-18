@@ -9,8 +9,50 @@ import ProductoImagen from '../models/ProductoImagen.js';
 import { getImageService } from '../services/imageService.js';
 import logger from '../services/loggerService.js';
 
+/**
+ * Controlador para gestión de ofertas y descuentos de productos
+ *
+ * Maneja el sistema completo de ofertas y promociones:
+ * - CRUD de ofertas con validación de fechas
+ * - Asignación de productos a ofertas (relación muchos a muchos)
+ * - Cálculo de precios con descuento (porcentaje o monto fijo)
+ * - Filtrado de ofertas activas por fechas
+ * - Listado de productos en oferta con precios calculados
+ *
+ * Las ofertas pueden tener descuento por porcentaje o monto fijo,
+ * y se pueden asignar múltiples productos con precios de oferta específicos.
+ *
+ * @class OfertaController
+ */
 export class OfertaController {
-  // Obtener ofertas activas
+  /**
+   * Obtiene todas las ofertas activas vigentes
+   *
+   * Endpoint público que retorna ofertas activas cuya fecha actual esté entre
+   * fecha_inicio y fecha_fin. Las ofertas se ordenan por fecha de creación descendente.
+   *
+   * @param req - Express Request object
+   * @param res - Express Response object
+   * @returns 200 con { success, data, count } array de ofertas activas
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/ofertas/activas
+   * Response: {
+   *   success: true,
+   *   data: [
+   *     {
+   *       id_oferta: 1,
+   *       nombre_oferta: "Black Friday 2024",
+   *       tipo_descuento: "porcentaje",
+   *       valor_descuento: 20,
+   *       fecha_inicio: "2024-11-25",
+   *       fecha_fin: "2024-11-30"
+   *     }
+   *   ],
+   *   count: 1
+   * }
+   */
   static async getOfertasActivas(req: Request, res: Response) {
     try {
       const now = new Date();
@@ -47,7 +89,43 @@ export class OfertaController {
     }
   }
 
-  // Obtener productos en oferta
+  /**
+   * Obtiene productos que están en oferta activa con precios calculados
+   *
+   * Endpoint público que retorna productos asociados a ofertas vigentes con:
+   * - Información completa del producto (categoría, marca, imágenes)
+   * - Precio original y precio de oferta calculado
+   * - Porcentaje de descuento
+   * - Paginación (limit y offset)
+   * - URLs de imágenes transformadas
+   *
+   * El precio de oferta se calcula automáticamente según el tipo de descuento
+   * (porcentaje o monto fijo), o se usa el precio específico si está definido
+   * en ProductoOferta.
+   *
+   * @param req - Express Request con query {limit?, offset?}
+   * @param res - Express Response object
+   * @returns 200 con { success, data, pagination } productos en oferta con precios calculados
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/ofertas/productos?limit=20&offset=0
+   * Response: {
+   *   success: true,
+   *   data: [
+   *     {
+   *       id_producto: 123,
+   *       nombre: "iPhone 13",
+   *       precio_original: 999,
+   *       precio_oferta: 799.2,
+   *       descuento_porcentaje: "20.0",
+   *       en_oferta: true,
+   *       ofertas: [...]
+   *     }
+   *   ],
+   *   pagination: { total: 45, limit: 20, offset: 0, pages: 3 }
+   * }
+   */
   static async getProductosEnOferta(req: Request, res: Response) {
     try {
       const { limit = 20, offset = 0 } = req.query;
@@ -159,7 +237,37 @@ export class OfertaController {
     }
   }
 
-  // Crear nueva oferta (admin)
+  /**
+   * Crea una nueva oferta (requiere admin)
+   *
+   * Endpoint protegido que crea una nueva oferta/promoción. Valida campos requeridos
+   * y permite configurar:
+   * - Tipo de descuento (porcentaje o monto fijo)
+   * - Valor del descuento
+   * - Fechas de vigencia (inicio y fin)
+   * - Precios mínimo/máximo aplicables (opcional)
+   * - Límite de uso (opcional)
+   *
+   * La oferta se crea con estado activo=true y uso_actual=0.
+   *
+   * @param req - Express Request con body {nombre_oferta, descripcion?, tipo_descuento, valor_descuento, fecha_inicio, fecha_fin, precio_minimo?, precio_maximo?, limite_uso?}
+   * @param res - Express Response object
+   * @returns 201 con { success, message, data } oferta creada
+   * @returns 400 si faltan campos requeridos
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/ofertas
+   * Body: {
+   *   nombre_oferta: "Cyber Monday 2024",
+   *   descripcion: "Descuentos increíbles en toda la tienda",
+   *   tipo_descuento: "porcentaje",
+   *   valor_descuento: 25,
+   *   fecha_inicio: "2024-12-01T00:00:00Z",
+   *   fecha_fin: "2024-12-02T23:59:59Z",
+   *   precio_minimo: 100
+   * }
+   */
   static async createOferta(req: Request, res: Response) {
     try {
       const {
@@ -216,7 +324,40 @@ export class OfertaController {
     }
   }
 
-  // Asignar productos a una oferta
+  /**
+   * Asigna productos a una oferta existente (requiere admin)
+   *
+   * Endpoint protegido que asocia múltiples productos a una oferta mediante
+   * la tabla intermedia ProductoOferta. Para cada producto:
+   * - Verifica que el producto existe
+   * - Calcula el precio de oferta si no se especifica
+   * - Crea la asociación en ProductoOferta
+   * - Maneja duplicados gracefully (ignora y continúa)
+   *
+   * El precio de oferta se calcula automáticamente según el tipo de descuento
+   * de la oferta, o se puede especificar un precio_oferta personalizado.
+   *
+   * @param req - Express Request con params.id_oferta y body {productos: Array<{id_producto, precio_oferta?}>}
+   * @param res - Express Response object
+   * @returns 200 con { success, message, data } productos asignados exitosamente
+   * @returns 400 si no se proporciona array de productos válido
+   * @returns 404 si la oferta no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/ofertas/5/productos
+   * Body: {
+   *   productos: [
+   *     { id_producto: 123, precio_oferta: 799 },
+   *     { id_producto: 124 }  // Se calcula automáticamente
+   *   ]
+   * }
+   * Response: {
+   *   success: true,
+   *   message: "2 productos asignados a la oferta",
+   *   data: [...]
+   * }
+   */
   static async asignarProductosOferta(req: Request, res: Response) {
     try {
       const { id_oferta } = req.params;
@@ -298,7 +439,26 @@ export class OfertaController {
     }
   }
 
-  // Actualizar oferta
+  /**
+   * Actualiza una oferta existente (requiere admin)
+   *
+   * Endpoint protegido que permite modificar cualquier campo de una oferta.
+   * Actualiza automáticamente la fecha de actualización (fyh_actualizacion).
+   *
+   * @param req - Express Request con params.id y body con campos a actualizar
+   * @param res - Express Response object
+   * @returns 200 con { success, message, data } oferta actualizada
+   * @returns 404 si la oferta no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PUT /api/ofertas/5
+   * Body: {
+   *   nombre_oferta: "Black Friday Extended",
+   *   fecha_fin: "2024-12-05T23:59:59Z",
+   *   valor_descuento: 30
+   * }
+   */
   static async updateOferta(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -334,7 +494,26 @@ export class OfertaController {
     }
   }
 
-  // Desactivar oferta
+  /**
+   * Desactiva una oferta (soft delete) (requiere admin)
+   *
+   * Endpoint protegido que marca una oferta como inactiva (activo=false)
+   * sin eliminarla permanentemente de la BD. Los productos asociados
+   * a la oferta no se eliminan, solo la oferta deja de estar vigente.
+   *
+   * @param req - Express Request con params.id
+   * @param res - Express Response object
+   * @returns 200 con { success, message }
+   * @returns 404 si la oferta no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/ofertas/5
+   * Response: {
+   *   success: true,
+   *   message: "Oferta eliminada exitosamente"
+   * }
+   */
   static async deleteOferta(req: Request, res: Response) {
     try {
       const { id } = req.params;

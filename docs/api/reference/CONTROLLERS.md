@@ -1,4 +1,4 @@
-**[Documentación](../README.md#organización-de-la-documentación)** | **[Inicio](../../README.md)**
+**[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
 
 ---
 
@@ -151,4 +151,4 @@ Enlaces útiles:
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**

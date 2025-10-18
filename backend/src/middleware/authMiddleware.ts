@@ -1,6 +1,15 @@
 /**
- * Middleware de autenticación y autorización para la aplicación Tecnocel
- * Este archivo contiene las funciones necesarias para verificar tokens JWT y roles de usuario
+ * @file Middleware de autenticación y autorización JWT
+ *
+ * Proporciona middleware para proteger rutas y verificar autenticación mediante
+ * tokens JWT (JSON Web Tokens). Soporta autenticación dual:
+ * - Usuarios del sistema (administradores, empleados)
+ * - Clientes web (usuarios finales de la tienda)
+ *
+ * Todos los middleware verifican tokens en el header Authorization: "Bearer <token>"
+ * y adjuntan información del usuario/cliente a req.usuario para uso posterior.
+ *
+ * @module authMiddleware
  */
 
 import { Request, Response, NextFunction } from 'express';
@@ -9,11 +18,20 @@ import Usuario from '../models/Usuario.js';
 import logger from '../services/loggerService.js';
 import Cliente from '../models/Cliente.js';
 
-// Clave secreta para firmar y verificar tokens JWT
+/**
+ * Clave secreta para firmar y verificar tokens JWT
+ * Debe configurarse en variable de entorno JWT_SECRET
+ * @private
+ */
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
 
 /**
- * Interfaz que define la estructura del payload del token JWT
+ * Estructura del payload decodificado del token JWT para usuarios del sistema
+ *
+ * @interface TokenPayload
+ * @property {number} id_usuario - ID único del usuario
+ * @property {string} email - Email del usuario
+ * @property {number} id_rol - ID del rol (1=admin, 2=empleado, etc.)
  */
 export interface TokenPayload {
   id_usuario: number;
@@ -22,7 +40,10 @@ export interface TokenPayload {
 }
 
 /**
- * Extensión de la interfaz Request de Express para incluir el usuario autenticado
+ * Extensión de la interfaz Request de Express para incluir datos de autenticación
+ *
+ * Agrega propiedad `usuario` al objeto Request que contiene información del
+ * usuario/cliente autenticado después de pasar por middleware de autenticación.
  */
 declare global {
   namespace Express {
@@ -33,11 +54,28 @@ declare global {
 }
 
 /**
- * Middleware para verificar la autenticación mediante token JWT
- * @param req - Objeto Request de Express
- * @param res - Objeto Response de Express
- * @param next - Función Next de Express
- * @returns void
+ * Middleware para verificar autenticación de usuarios del sistema vía JWT
+ *
+ * Verifica el token JWT en el header Authorization y valida que:
+ * - El token sea válido y no haya expirado
+ * - El usuario existe en la base de datos
+ * - Adjunta información del usuario a req.usuario para uso en controladores
+ *
+ * @async
+ * @param req - Express Request con header Authorization: "Bearer <token>"
+ * @param res - Express Response object
+ * @param next - Express NextFunction para continuar al siguiente middleware
+ * @returns {void}
+ * @returns 401 si el token no se proporciona o es inválido
+ * @returns 404 si el token es válido pero el usuario no existe
+ *
+ * @example
+ * // En rutas protegidas
+ * router.get('/admin/users', verificarToken, verificarRol([1]), obtenerUsuarios);
+ *
+ * // En controladores, acceder a req.usuario
+ * const userId = req.usuario.id_usuario;
+ * const userRole = req.usuario.id_rol;
  */
 export const verificarToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -85,9 +123,26 @@ export const verificarToken = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
- * Middleware para verificar los roles de usuario
- * @param roles - Array de roles permitidos para acceder a la ruta
- * @returns Middleware que verifica si el usuario tiene el rol adecuado
+ * Factory de middleware para verificar autorización basada en roles
+ *
+ * Crea un middleware que verifica si el usuario autenticado tiene uno de los
+ * roles permitidos. Debe usarse después de verificarToken.
+ *
+ * Roles comunes del sistema:
+ * - 1: Administrador (acceso total)
+ * - 2: Empleado (acceso limitado)
+ *
+ * @param roles - Array de IDs de roles permitidos para acceder a la ruta
+ * @returns Middleware function que verifica autorización
+ * @returns 401 si el usuario no está autenticado
+ * @returns 403 si el usuario no tiene rol autorizado
+ *
+ * @example
+ * // Solo administradores
+ * router.delete('/productos/:id', verificarToken, verificarRol([1]), eliminarProducto);
+ *
+ * // Administradores y empleados
+ * router.get('/ventas', verificarToken, verificarRol([1, 2]), obtenerVentas);
  */
 export const verificarRol = (roles: number[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -104,7 +159,32 @@ export const verificarRol = (roles: number[]) => {
 };
 
 /**
- * Middleware para verificar la autenticación de clientes mediante token JWT
+ * Middleware para verificar autenticación de clientes web vía JWT
+ *
+ * Similar a verificarToken pero específico para clientes (usuarios finales de la tienda).
+ * Verifica que:
+ * - El token JWT sea válido
+ * - El cliente existe en la base de datos
+ * - El cliente tiene acceso web habilitado (is_web_enabled=true)
+ * - El cliente ha verificado su email (email_verified=true)
+ *
+ * Adjunta información del cliente a req.usuario con estructura diferente a usuarios del sistema.
+ *
+ * @async
+ * @param req - Express Request con header Authorization: "Bearer <token>"
+ * @param res - Express Response object
+ * @param next - Express NextFunction para continuar al siguiente middleware
+ * @returns 401 si el token no se proporciona o es inválido
+ * @returns 403 si el cliente no está habilitado o email no verificado
+ *
+ * @example
+ * // En rutas de clientes
+ * router.post('/carrito/items', verificarTokenCliente, agregarItemCarrito);
+ * router.get('/mis-pedidos', verificarTokenCliente, obtenerPedidos);
+ *
+ * // En controladores
+ * const clienteId = req.usuario.id_cliente;
+ * const nombreCliente = req.usuario.nombre_cliente;
  */
 export const verificarTokenCliente = async (req: Request, res: Response, next: NextFunction) => {
   try {

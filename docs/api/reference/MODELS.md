@@ -1,4 +1,4 @@
-**[Documentación](../README.md)** | **[Inicio](../../README.md)**
+**[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
 
 ---
 
@@ -95,4 +95,4 @@ Archivo: `backend/src/models/relaciones.ts`
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**

@@ -3,8 +3,50 @@ import Direccion from '../models/Direccion.js';
 import Cliente from '../models/Cliente.js';
 import logger from '../services/loggerService.js';
 
+/**
+ * Controlador para gestión de direcciones de envío
+ *
+ * Maneja las direcciones de entrega de los clientes permitiendo:
+ * - CRUD completo de direcciones
+ * - Establecer dirección predeterminada
+ * - Gestión automática de dirección única predeterminada
+ * - Direcciones de facturación
+ *
+ * Todos los endpoints requieren autenticación de cliente.
+ *
+ * @class DireccionController
+ */
 export class DireccionController {
-  // Obtener direcciones de un cliente
+  /**
+   * Obtiene todas las direcciones de un cliente
+   *
+   * Endpoint protegido que retorna las direcciones ordenadas por:
+   * 1. Predeterminada primero
+   * 2. Más recientes primero
+   *
+   * @param req - Express Request con params.id_cliente
+   * @param res - Express Response object
+   * @returns 200 con { success, data, count }
+   * @returns 404 si el cliente no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/direcciones/cliente/5
+   * Response: {
+   *   "success": true,
+   *   "data": [
+   *     {
+   *       "id_direccion": 1,
+   *       "nombre_direccion": "Casa",
+   *       "calle": "Av. Siempre Viva",
+   *       "numero": "742",
+   *       "ciudad": "Santa Cruz",
+   *       "es_predeterminada": true
+   *     }
+   *   ],
+   *   "count": 3
+   * }
+   */
   static async getDireccionesCliente(req: Request, res: Response) {
     try {
       const { id_cliente } = req.params;
@@ -41,7 +83,13 @@ export class DireccionController {
     }
   }
 
-  // Obtener dirección por ID
+  /**
+   * Obtiene una dirección específica por ID
+   * @param req - Express Request con params.id
+   * @param res - Express Response object
+   * @returns 200 con { success, data } si se encuentra
+   * @returns 404 si la dirección no existe
+   */
   static async getDireccionById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -77,7 +125,23 @@ export class DireccionController {
     }
   }
 
-  // Crear nueva dirección
+  /**
+   * Crea una nueva dirección para el cliente
+   *
+   * Si es_predeterminada=true, automáticamente remueve el flag de otras direcciones.
+   * País por defecto: "Argentina" si no se especifica.
+   *
+   * @param req - Express Request con params.id_cliente y body con datos de dirección
+   * @param req.body.nombre_direccion - Nombre identificador (requerido)
+   * @param req.body.calle - Nombre de la calle (requerido)
+   * @param req.body.numero - Número de domicilio (requerido)
+   * @param req.body.ciudad - Ciudad (requerido)
+   * @param req.body.provincia - Provincia/Estado (requerido)
+   * @param req.body.es_predeterminada - Marcar como dirección predeterminada
+   * @returns 201 con { success, message, data }
+   * @returns 400 si faltan campos requeridos
+   * @returns 404 si el cliente no existe
+   */
   static async createDireccion(req: Request, res: Response) {
     try {
       const { id_cliente } = req.params;
@@ -162,7 +226,15 @@ export class DireccionController {
     }
   }
 
-  // Actualizar dirección
+  /**
+   * Actualiza una dirección existente
+   *
+   * Si se marca como predeterminada, remueve el flag de otras direcciones del cliente.
+   *
+   * @param req - Express Request con params.id y body con campos a actualizar
+   * @returns 200 con { success, message, data }
+   * @returns 404 si la dirección no existe
+   */
   static async updateDireccion(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -214,7 +286,16 @@ export class DireccionController {
     }
   }
 
-  // Establecer dirección como predeterminada
+  /**
+   * Establece una dirección como predeterminada
+   *
+   * Automáticamente remueve es_predeterminada=true de otras direcciones del cliente
+   * para asegurar que solo haya una dirección predeterminada.
+   *
+   * @param req - Express Request con params.id (ID de la dirección)
+   * @returns 200 con { success, message, data }
+   * @returns 404 si la dirección no existe
+   */
   static async setPredeterminada(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -264,7 +345,16 @@ export class DireccionController {
     }
   }
 
-  // Eliminar dirección
+  /**
+   * Elimina una dirección permanentemente
+   *
+   * Si la dirección eliminada era predeterminada, automáticamente establece
+   * otra dirección del cliente como predeterminada (la más antigua).
+   *
+   * @param req - Express Request con params.id (ID de la dirección)
+   * @returns 200 con { success, message }
+   * @returns 404 si la dirección no existe
+   */
   static async deleteDireccion(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -313,7 +403,15 @@ export class DireccionController {
     }
   }
 
-  // Obtener dirección predeterminada de un cliente
+  /**
+   * Obtiene la dirección predeterminada de un cliente
+   *
+   * Endpoint de conveniencia para checkout y procesos de compra.
+   *
+   * @param req - Express Request con params.id_cliente
+   * @returns 200 con { success, data }
+   * @returns 404 si no hay dirección predeterminada
+   */
   static async getDireccionPredeterminada(req: Request, res: Response) {
     try {
       const { id_cliente } = req.params;

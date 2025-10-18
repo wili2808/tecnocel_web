@@ -8,8 +8,66 @@ import logger from '../services/loggerService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { getImageService } from '../services/imageService.js';
 
+/**
+ * Controlador para gestión de productos favoritos
+ *
+ * Maneja la lista de deseos (wishlist) de los clientes permitiendo:
+ * - Obtener favoritos con paginación
+ * - Agregar/remover productos de favoritos
+ * - Alternar estado de favorito (toggle)
+ * - Verificar si un producto es favorito
+ * - Obtener estadísticas de favoritos
+ *
+ * Todos los endpoints requieren autenticación de cliente.
+ *
+ * @class FavoritoController
+ */
 export class FavoritoController {
-  // Obtener favoritos de un cliente
+  /**
+   * Obtiene la lista de productos favoritos de un cliente
+   *
+   * Endpoint protegido que retorna los favoritos del cliente con información
+   * completa de productos, incluyendo imágenes transformadas, categoría y marca.
+   * Soporta paginación para listas grandes.
+   *
+   * @param req - Express Request con params.id_cliente y query params
+   * @param req.params.id_cliente - ID del cliente (requerido)
+   * @param req.query.limit - Límite de resultados por página (default: 20)
+   * @param req.query.offset - Offset para paginación (default: 0)
+   * @param res - Express Response object
+   * @returns 200 con { success, data, pagination }
+   * @returns 404 si el cliente no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/favoritos/cliente/5?limit=10&offset=0
+   *
+   * Response 200: {
+   *   "success": true,
+   *   "data": [
+   *     {
+   *       "id_favorito": 1,
+   *       "id_cliente": 5,
+   *       "id_producto": 10,
+   *       "fyh_creacion": "2025-10-14T...",
+   *       "producto": {
+   *         "id_producto": 10,
+   *         "nombre": "iPhone 13",
+   *         "precio_venta": 999.99,
+   *         "imagen_url": "http://localhost:3000/api/images/iphone13.jpg",
+   *         "Categoria": { "nombre_categoria": "Smartphones" },
+   *         "marca": { "nombre_marca": "Apple" }
+   *       }
+   *     }
+   *   ],
+   *   "pagination": {
+   *     "total": 25,
+   *     "limit": 10,
+   *     "offset": 0,
+   *     "pages": 3
+   *   }
+   * }
+   */
   static async getFavoritosCliente(req: Request, res: Response) {
     try {
       const { id_cliente } = req.params;
@@ -136,7 +194,28 @@ export class FavoritoController {
     }
   }
 
-  // Verificar si un producto es favorito
+  /**
+   * Verifica si un producto específico es favorito de un cliente
+   *
+   * Endpoint útil para el frontend para mostrar el estado correcto
+   * del botón/ícono de favorito en la UI.
+   *
+   * @param req - Express Request con params
+   * @param req.params.id_cliente - ID del cliente
+   * @param req.params.id_producto - ID del producto a verificar
+   * @param res - Express Response object
+   * @returns 200 con { success, esFavorito, data }
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/favoritos/cliente/5/producto/10
+   *
+   * Response 200: {
+   *   "success": true,
+   *   "esFavorito": true,
+   *   "data": { "id_favorito": 1, ... }
+   * }
+   */
   static async verificarFavorito(req: Request, res: Response) {
     try {
       const { id_cliente, id_producto } = req.params;
@@ -160,7 +239,34 @@ export class FavoritoController {
     }
   }
 
-  // Agregar producto a favoritos
+  /**
+   * Agrega un producto a la lista de favoritos del cliente
+   *
+   * Endpoint protegido que añade un producto a favoritos con validaciones:
+   * - Cliente debe existir
+   * - Producto debe existir
+   * - No permite duplicados (409 si ya es favorito)
+   *
+   * @param req - Express Request con params y body
+   * @param req.params.id_cliente - ID del cliente
+   * @param req.body.id_producto - ID del producto a agregar (requerido)
+   * @param res - Express Response object
+   * @returns 201 con { success, message, data } si se agrega exitosamente
+   * @returns 400 si falta id_producto
+   * @returns 404 si cliente o producto no existen
+   * @returns 409 si el producto ya está en favoritos
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/favoritos/cliente/5
+   * Body: { "id_producto": 10 }
+   *
+   * Response 201: {
+   *   "success": true,
+   *   "message": "Producto agregado a favoritos",
+   *   "data": { ... }
+   * }
+   */
   static async addFavorito(req: Request, res: Response) {
     try {
       const { id_cliente } = req.params;
@@ -247,7 +353,27 @@ export class FavoritoController {
     }
   }
 
-  // Eliminar producto de favoritos
+  /**
+   * Elimina un producto de la lista de favoritos del cliente
+   *
+   * Endpoint protegido que remueve un producto específico de favoritos.
+   *
+   * @param req - Express Request con params
+   * @param req.params.id_cliente - ID del cliente
+   * @param req.params.id_producto - ID del producto a remover
+   * @param res - Express Response object
+   * @returns 200 con { success, message } si se elimina exitosamente
+   * @returns 404 si el producto no está en favoritos
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/favoritos/cliente/5/producto/10
+   *
+   * Response 200: {
+   *   "success": true,
+   *   "message": "Producto removido de favoritos"
+   * }
+   */
   static async removeFavorito(req: Request, res: Response) {
     try {
       const { id_cliente, id_producto } = req.params;
@@ -289,7 +415,40 @@ export class FavoritoController {
     }
   }
 
-  // Alternar favorito (agregar/quitar)
+  /**
+   * Alterna el estado de favorito de un producto (toggle)
+   *
+   * Endpoint de conveniencia que agrega o remueve un producto de favoritos
+   * en una sola operación. Si está en favoritos lo remueve, si no lo agrega.
+   *
+   * Útil para implementar botones de favorito con un solo clic.
+   *
+   * @param req - Express Request con params
+   * @param req.params.id_cliente - ID del cliente
+   * @param req.params.id_producto - ID del producto a alternar
+   * @param res - Express Response object
+   * @returns 200 con { success, message, action: 'removed', esFavorito: false } si remueve
+   * @returns 201 con { success, message, action: 'added', esFavorito: true } si agrega
+   * @returns 404 si cliente o producto no existen (al agregar)
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/favoritos/cliente/5/producto/10/toggle
+   *
+   * Response 200 (removido): {
+   *   "success": true,
+   *   "message": "Producto removido de favoritos",
+   *   "action": "removed",
+   *   "esFavorito": false
+   * }
+   *
+   * Response 201 (agregado): {
+   *   "success": true,
+   *   "message": "Producto agregado a favoritos",
+   *   "action": "added",
+   *   "esFavorito": true
+   * }
+   */
   static async toggleFavorito(req: Request, res: Response) {
     try {
       const { id_cliente, id_producto } = req.params;
@@ -352,7 +511,35 @@ export class FavoritoController {
     }
   }
 
-  // Obtener estadísticas de favoritos
+  /**
+   * Obtiene estadísticas de los favoritos de un cliente
+   *
+   * Endpoint que retorna métricas útiles sobre los favoritos:
+   * - Total de productos en favoritos
+   * - Distribución por categorías
+   *
+   * Útil para dashboards o analíticas del cliente.
+   *
+   * @param req - Express Request con params.id_cliente
+   * @param res - Express Response object
+   * @returns 200 con { success, data: { total, porCategoria } }
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/favoritos/cliente/5/estadisticas
+   *
+   * Response 200: {
+   *   "success": true,
+   *   "data": {
+   *     "total": 25,
+   *     "porCategoria": {
+   *       "Smartphones": 10,
+   *       "Laptops": 8,
+   *       "Accesorios": 7
+   *     }
+   *   }
+   * }
+   */
   static async getEstadisticasFavoritos(req: Request, res: Response) {
     try {
       const { id_cliente } = req.params;

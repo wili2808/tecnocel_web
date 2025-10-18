@@ -1,4 +1,4 @@
-**[Documentación](../README.md)** | **[Inicio](../../README.md)**
+**[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
 
 ---
 
@@ -265,4 +265,4 @@ GOOGLE_CLIENT_ID=tu_client_id_de_google
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**

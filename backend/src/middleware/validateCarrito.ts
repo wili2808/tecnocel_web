@@ -1,3 +1,22 @@
+/**
+ * @file Middleware de validación y seguridad para operaciones del carrito de compras
+ *
+ * Proporciona validación completa y middleware de seguridad para el sistema de carrito web:
+ * - Validación de entradas con express-validator
+ * - Verificación de límites de carrito (items, valor total)
+ * - Validación de disponibilidad de stock
+ * - Rate limiting específico para operaciones de carrito
+ * - Logging detallado de operaciones
+ *
+ * Límites configurados:
+ * - Máximo 50 unidades por producto
+ * - Máximo 100 items totales en el carrito
+ * - Valor máximo de carrito: 50,000 BOB
+ * - Rate limit: 30 operaciones/minuto, 10 burst/10seg
+ *
+ * @module validateCarrito
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
 import logger from '../services/loggerService.js';
@@ -6,7 +25,23 @@ import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
 
 /**
- * Middleware para manejar errores de validación
+ * Middleware para manejar errores de validación de express-validator
+ *
+ * Intercepta y formatea errores de validación generados por las reglas
+ * de express-validator. Si hay errores, retorna 400 con detalles.
+ *
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 400 con array de errores de validación si hay errores
+ *
+ * @example
+ * // Usar al final de arrays de validación
+ * export const validateAgregarItem = [
+ *   body('id_producto').isInt(),
+ *   body('cantidad').isInt({ min: 1 }),
+ *   handleValidationErrors  // <-- Maneja los errores
+ * ];
  */
 export const handleValidationErrors = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
@@ -30,6 +65,21 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 
 /**
  * Validaciones para agregar items al carrito
+ *
+ * Valida los datos de entrada al agregar un producto al carrito:
+ * - id_producto: entero positivo requerido
+ * - cantidad: entre 1 y 999 unidades
+ * - detalles_personalizacion: objeto JSON opcional
+ *
+ * @constant
+ * @type {ValidationChain[]}
+ *
+ * @example
+ * router.post('/carrito/items',
+ *   verificarTokenCliente,
+ *   validateAgregarItem,
+ *   agregarItemCarrito
+ * );
  */
 export const validateAgregarItem = [
   body('id_producto')
@@ -49,7 +99,20 @@ export const validateAgregarItem = [
 ];
 
 /**
- * Validaciones para actualizar cantidad de item
+ * Validaciones para actualizar cantidad de un item del carrito
+ *
+ * Valida parámetros al modificar la cantidad de un producto ya en el carrito:
+ * - id_item (param): ID del item en el carrito
+ * - cantidad (body): nueva cantidad entre 1 y 999
+ *
+ * @constant
+ *
+ * @example
+ * router.put('/carrito/items/:id_item',
+ *   verificarTokenCliente,
+ *   validateActualizarCantidad,
+ *   actualizarCantidadItem
+ * );
  */
 export const validateActualizarCantidad = [
   param('id_item')
@@ -64,7 +127,18 @@ export const validateActualizarCantidad = [
 ];
 
 /**
- * Validaciones para eliminar item del carrito
+ * Validaciones para eliminar un item del carrito
+ *
+ * Valida que el ID del item sea un entero positivo válido.
+ *
+ * @constant
+ *
+ * @example
+ * router.delete('/carrito/items/:id_item',
+ *   verificarTokenCliente,
+ *   validateEliminarItem,
+ *   eliminarItemCarrito
+ * );
  */
 export const validateEliminarItem = [
   param('id_item')
@@ -75,7 +149,21 @@ export const validateEliminarItem = [
 ];
 
 /**
- * Validaciones para confirmar compra
+ * Validaciones para confirmar/finalizar compra del carrito
+ *
+ * Valida datos opcionales al confirmar una compra:
+ * - observaciones: texto hasta 500 caracteres
+ * - moneda: BOB, USD o EUR
+ * - metodo_pago: efectivo, tarjeta, transferencia o qr
+ *
+ * @constant
+ *
+ * @example
+ * router.post('/carrito/confirmar',
+ *   verificarTokenCliente,
+ *   validateConfirmarCompra,
+ *   confirmarCompra
+ * );
  */
 export const validateConfirmarCompra = [
   body('observaciones')
@@ -100,6 +188,21 @@ export const validateConfirmarCompra = [
 
 /**
  * Validaciones para obtener historial de carritos
+ *
+ * Valida query parameters para filtrar y paginar el historial:
+ * - estado: activo, completado o abandonado
+ * - limit: cantidad de resultados (1-100)
+ * - offset: desplazamiento para paginación
+ * - fecha_desde/fecha_hasta: filtros de fecha en formato ISO8601
+ *
+ * @constant
+ *
+ * @example
+ * router.get('/carrito/historial',
+ *   verificarTokenCliente,
+ *   validateObtenerHistorial,
+ *   obtenerHistorialCarritos
+ * );
  */
 export const validateObtenerHistorial = [
   query('estado')
@@ -131,7 +234,31 @@ export const validateObtenerHistorial = [
 ];
 
 /**
- * Middleware para verificar límites de carrito
+ * Middleware para verificar límites de carrito y prevenir abusos
+ *
+ * Verifica que las operaciones del carrito no excedan límites configurados:
+ * - Máximo 50 unidades por producto individual
+ * - Máximo 100 items totales en el carrito
+ * - Valor total del carrito no mayor a 50,000 BOB
+ *
+ * Calcula el impacto de la operación actual sobre los límites existentes
+ * y rechaza la operación si excede algún límite.
+ *
+ * @async
+ * @param req - Express Request con body {id_producto, cantidad}
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 400 si se excede algún límite con detalles específicos
+ * @returns 401 si el cliente no está autenticado
+ * @returns 500 si ocurre error en el servidor
+ *
+ * @example
+ * router.post('/carrito/items',
+ *   verificarTokenCliente,
+ *   validateAgregarItem,
+ *   verificarLimitesCarrito,  // <-- Verifica límites antes de agregar
+ *   agregarItemCarrito
+ * );
  */
 export const verificarLimitesCarrito = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -228,7 +355,26 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
 
 
 /**
- * Middleware para logging de operaciones del carrito
+ * Factory de middleware para logging detallado de operaciones del carrito
+ *
+ * Crea un middleware que intercepta respuestas y registra información detallada
+ * de operaciones del carrito (agregar, obtener, actualizar, eliminar).
+ *
+ * Características:
+ * - Calcula duración de la operación
+ * - Registra metadata relevante (cliente, status, datos)
+ * - Previene logs duplicados con otros middleware
+ * - Diferentes niveles de log según éxito/fallo
+ *
+ * @param operacion - Nombre descriptivo de la operación (ej: "agregar_item", "obtener_carrito")
+ * @returns Middleware function que intercepta y loguea la operación
+ *
+ * @example
+ * router.post('/carrito/items',
+ *   logCarritoOperation('agregar_item'),
+ *   verificarTokenCliente,
+ *   agregarItemCarrito
+ * );
  */
 export const logCarritoOperation = (operacion: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -287,7 +433,33 @@ export const logCarritoOperation = (operacion: string) => {
 };
 
 /**
- * Middleware para verificar disponibilidad de productos
+ * Middleware para verificar disponibilidad de stock de productos
+ *
+ * Verifica que el producto exista y tenga stock suficiente antes de agregarlo
+ * al carrito. Considera la cantidad ya existente en el carrito del cliente.
+ *
+ * Validaciones:
+ * - Producto existe en la base de datos
+ * - Producto tiene stock disponible (stock > 0)
+ * - Cantidad total (carrito + nueva) no excede stock disponible
+ *
+ * Adjunta el producto a req.producto para uso posterior en controladores.
+ *
+ * @async
+ * @param req - Express Request con body {id_producto, cantidad}
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 404 si el producto no existe
+ * @returns 400 si no hay stock o la cantidad excede disponibilidad
+ * @returns 500 si ocurre error en el servidor
+ *
+ * @example
+ * router.post('/carrito/items',
+ *   verificarTokenCliente,
+ *   validateAgregarItem,
+ *   verificarDisponibilidadProducto,  // <-- Verifica stock
+ *   agregarItemCarrito
+ * );
  */
 export const verificarDisponibilidadProducto = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -372,16 +544,46 @@ export const verificarDisponibilidadProducto = async (req: Request, res: Respons
   }
 };
 
-// Almacén temporal para rate limiting (en producción usar Redis)
-const rateLimitStore = new Map<string, { 
-  count: number; 
-  window: number; 
+/**
+ * Almacén en memoria para rate limiting del carrito
+ *
+ * IMPORTANTE: En producción usar Redis para compartir estado entre instancias
+ * del servidor y evitar memory leaks en aplicaciones de alta escala.
+ *
+ * @private
+ */
+const rateLimitStore = new Map<string, {
+  count: number;
+  window: number;
   burstCount: number;
   burstWindow: number;
 }>();
 
 /**
- * Middleware para rate limiting específico del carrito - Versión mejorada y más flexible
+ * Middleware de rate limiting específico para operaciones de carrito
+ *
+ * Protege contra abuso implementando límites de tasa con dos niveles:
+ * - Límite principal: 30 operaciones por minuto
+ * - Límite burst: 10 operaciones en 10 segundos (picos cortos)
+ *
+ * Previene:
+ * - Ataques de denegación de servicio (DoS)
+ * - Scripts automatizados de scraping
+ * - Uso excesivo accidental del cliente
+ *
+ * Auto-limpia entradas antiguas para prevenir memory leaks.
+ *
+ * @param req - Express Request con req.usuario.id_cliente
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 429 si se exceden los límites con tiempo de espera
+ *
+ * @example
+ * router.post('/carrito/items',
+ *   verificarTokenCliente,
+ *   carritoRateLimit,  // <-- Protege contra abuso
+ *   agregarItemCarrito
+ * );
  */
 export const carritoRateLimit = (req: Request, res: Response, next: NextFunction) => {
   const id_cliente = req.usuario?.id_cliente;
@@ -472,8 +674,24 @@ export const carritoRateLimit = (req: Request, res: Response, next: NextFunction
 };
 
 /**
- * Middleware para rate limiting diferenciado según el tipo de operación
- * Permite límites más permisivos para consultas y más restrictivos para modificaciones
+ * Middleware de rate limiting diferenciado por tipo de operación
+ *
+ * Versión avanzada de rate limiting que aplica límites diferentes según
+ * el tipo de operación HTTP:
+ * - GET (consultas): 60 operaciones/minuto - Más permisivo
+ * - POST/PUT/DELETE (modificaciones): 30 operaciones/minuto - Más restrictivo
+ *
+ * Útil cuando se quiere permitir más consultas frecuentes del estado del carrito
+ * pero limitar operaciones que modifican datos.
+ *
+ * @param req - Express Request con método HTTP y req.usuario.id_cliente
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 429 si se exceden los límites específicos de la operación
+ *
+ * @example
+ * // Aplicar a todas las rutas del carrito
+ * router.use('/carrito', carritoRateLimitDiferenciado);
  */
 export const carritoRateLimitDiferenciado = (req: Request, res: Response, next: NextFunction) => {
   const id_cliente = req.usuario?.id_cliente;
@@ -558,7 +776,12 @@ export const carritoRateLimitDiferenciado = (req: Request, res: Response, next: 
   next();
 };
 
-// Extender la interfaz Request para incluir el producto
+/**
+ * Extensión de la interfaz Request de Express para incluir datos del producto
+ *
+ * Permite que verificarDisponibilidadProducto adjunte información del producto
+ * a la request para uso en controladores posteriores, evitando consultas duplicadas.
+ */
 declare global {
   namespace Express {
     interface Request {

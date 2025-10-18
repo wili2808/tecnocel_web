@@ -10,10 +10,39 @@ import { Op } from 'sequelize';
 import { getImageService } from '../services/imageService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 
+/**
+ * Controlador para gestión del carrito de compras
+ *
+ * Maneja todas las operaciones del carrito incluyendo:
+ * - Obtener carrito activo del cliente
+ * - Agregar/actualizar/eliminar items
+ * - Cálculo de precios con ofertas
+ * - Transformación de URLs de imágenes
+ * - Confirmar compra (conversión a venta)
+ * - Historial de carritos
+ *
+ * Todos los endpoints requieren autenticación de cliente (verificarTokenCliente).
+ *
+ * @class CarritoController
+ */
 export default class CarritoController {
 
   /**
-   * Método helper para obtener includes comunes del carrito
+   * Retorna configuración de includes de Sequelize para carrito completo
+   *
+   * Helper method que define qué relaciones cargar al consultar un carrito:
+   * - Items del carrito con sus productos
+   * - Imágenes de cada producto
+   * - Ofertas activas vigentes de cada producto
+   *
+   * @static
+   * @returns Array de configuración de includes para Sequelize
+   *
+   * @example
+   * const carrito = await CarritoWeb.findOne({
+   *   where: { id_cliente: 5 },
+   *   include: CarritoController.getCarritoIncludes()
+   * });
    */
   static getCarritoIncludes(): any[] {
     return [
@@ -53,7 +82,25 @@ export default class CarritoController {
   }
 
   /**
-   * Método helper para calcular precio con ofertas
+   * Calcula el precio final de un producto aplicando ofertas activas
+   *
+   * Determina el precio a pagar considerando ofertas vigentes. Soporta
+   * tres tipos de descuento:
+   * - Precio fijo en oferta (precio_oferta en ProductoOferta)
+   * - Descuento porcentual (ej: 15% descuento)
+   * - Descuento monto fijo (ej: Bs. 50 de descuento)
+   *
+   * @static
+   * @param producto - Producto con precio_venta
+   * @param ofertas - Array de ofertas activas del producto
+   * @returns Objeto con precio_original, precio_oferta, descuento_porcentaje, en_oferta
+   *
+   * @example
+   * const resultado = CarritoController.calcularPrecioConOferta(
+   *   { precio_venta: 100 },
+   *   [{ tipo_descuento: 'porcentaje', valor_descuento: 20 }]
+   * );
+   * // resultado: { precio_original: 100, precio_oferta: 80, descuento_porcentaje: 20, en_oferta: true }
    */
   static calcularPrecioConOferta(producto: any, ofertas: any[]): {
     precio_original: number;
@@ -84,7 +131,25 @@ export default class CarritoController {
   }
 
   /**
-   * Método helper para transformar producto con imágenes y ofertas
+   * Transforma un producto agregando URLs completas de imágenes y datos de ofertas
+   *
+   * Enriquece un producto con:
+   * - URLs completas de imágenes vía imageService
+   * - Precios calculados con ofertas aplicadas
+   * - Información de descuentos
+   * - Datos simplificados de ofertas (sin referencias circulares)
+   *
+   * @static
+   * @param producto - Producto Sequelize con imagenes
+   * @param ofertas - Array de ofertas activas del producto
+   * @returns Promise con producto transformado incluyendo imagen_url y precios con oferta
+   *
+   * @example
+   * const productoTransformado = await CarritoController.transformarProductoConImagenes(
+   *   producto,
+   *   ofertas
+   * );
+   * // productoTransformado incluye: imagen_url, precio_oferta, descuento_porcentaje, etc.
    */
   static async transformarProductoConImagenes(producto: any, ofertas: any[]): Promise<any> {
           const { precio_original, precio_oferta, descuento_porcentaje, en_oferta } = 
@@ -129,7 +194,18 @@ export default class CarritoController {
   }
 
   /**
-   * Método helper para transformar items del carrito
+   * Transforma un array de items del carrito con productos completos
+   *
+   * Procesa cada item del carrito aplicando transformación de imágenes y ofertas
+   * a sus productos asociados. Maneja arrays vacíos o undefined gracefully.
+   *
+   * @static
+   * @param items - Array de items del carrito (CarritoWebItems) o undefined
+   * @returns Promise con array de items transformados con productos enriquecidos
+   *
+   * @example
+   * const itemsTransformados = await CarritoController.transformarItemsCarrito(carrito.items);
+   * // Cada item tendrá su producto con imagen_url, precio_oferta, etc.
    */
   static async transformarItemsCarrito(items: any[] | undefined): Promise<any[]> {
     if (!items || items.length === 0) {
@@ -170,7 +246,51 @@ export default class CarritoController {
   }
 
   /**
-   * Obtener el carrito activo del cliente autenticado
+   * Obtiene el carrito activo del cliente autenticado
+   *
+   * Endpoint protegido que retorna el carrito activo del cliente con todos sus items,
+   * productos, imágenes y ofertas aplicadas. Si no existe carrito activo, crea uno nuevo.
+   *
+   * Funcionalidades:
+   * - Crea carrito automáticamente si no existe
+   * - Transforma URLs de imágenes de productos
+   * - Calcula precios con ofertas aplicadas
+   * - Recalcula y sincroniza totales
+   *
+   * @param req - Express Request con req.usuario.id_cliente del middleware
+   * @param res - Express Response object
+   * @returns 200 con { carrito: {...} } incluyendo items transformados
+   * @returns 401 si el cliente no está autenticado
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/carrito
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   *
+   * Response 200: {
+   *   "carrito": {
+   *     "id_carrito": 5,
+   *     "id_cliente": 3,
+   *     "estado": "activo",
+   *     "items": [
+   *       {
+   *         "id_item": 1,
+   *         "cantidad": 2,
+   *         "precio_unitario": 999.99,
+   *         "subtotal": 1999.98,
+   *         "producto": {
+   *           "id_producto": 10,
+   *           "nombre": "iPhone 13",
+   *           "imagen_url": "http://...",
+   *           "precio_oferta": 899.99,
+   *           "en_oferta": true
+   *         }
+   *       }
+   *     ],
+   *     "total_carrito": 1999.98,
+   *     "cantidad_items": 1
+   *   }
+   * }
    */
   static async obtenerCarrito(req: Request, res: Response) {
     try {
@@ -265,7 +385,41 @@ export default class CarritoController {
   }
 
   /**
-   * Agregar un producto al carrito
+   * Agrega un producto al carrito del cliente autenticado
+   *
+   * Endpoint protegido que agrega un producto al carrito activo o actualiza
+   * la cantidad si el producto ya existe en el carrito.
+   *
+   * Funcionalidades:
+   * - Verifica stock disponible antes de agregar
+   * - Aplica precios con ofertas si están disponibles
+   * - Crea carrito automáticamente si no existe
+   * - Actualiza cantidad si el producto ya está en el carrito
+   * - Recalcula totales automáticamente
+   *
+   * @param req - Express Request con body y req.usuario.id_cliente
+   * @param req.body.id_producto - ID del producto a agregar (requerido)
+   * @param req.body.cantidad - Cantidad a agregar (requerido, min: 1)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, item, total_carrito } si se agrega exitosamente
+   * @returns 400 si datos inválidos o stock insuficiente
+   * @returns 401 si el cliente no está autenticado
+   * @returns 404 si el producto no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/carrito/items
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   * Body: {
+   *   "id_producto": 10,
+   *   "cantidad": 2
+   * }
+   *
+   * Response 200: {
+   *   "mensaje": "Producto agregado al carrito",
+   *   "item": { ... },
+   *   "total_carrito": 1999.98
+   * }
    */
   static async agregarItem(req: Request, res: Response) {
     try {
@@ -447,7 +601,31 @@ export default class CarritoController {
   }
 
   /**
-   * Actualizar la cantidad de un item en el carrito
+   * Actualiza la cantidad de un item específico en el carrito
+   *
+   * Endpoint protegido que modifica la cantidad de un producto ya existente
+   * en el carrito. Verifica stock disponible y recalcula precios con ofertas.
+   *
+   * @param req - Express Request con params.id_item, body.cantidad y req.usuario
+   * @param req.params.id_item - ID del item del carrito a actualizar
+   * @param req.body.cantidad - Nueva cantidad (requerido, min: 1)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, item, total_carrito } si la actualización es exitosa
+   * @returns 400 si la cantidad es inválida o hay stock insuficiente
+   * @returns 401 si el cliente no está autenticado
+   * @returns 404 si el item no existe en el carrito del cliente
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PUT /api/carrito/items/5
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   * Body: { "cantidad": 3 }
+   *
+   * Response 200: {
+   *   "mensaje": "Cantidad actualizada exitosamente",
+   *   "item": { ... },
+   *   "total_carrito": 2999.97
+   * }
    */
   static async actualizarCantidad(req: Request, res: Response) {
     try {
@@ -585,7 +763,27 @@ export default class CarritoController {
   }
 
   /**
-   * Eliminar un item del carrito
+   * Elimina un item específico del carrito
+   *
+   * Endpoint protegido que remueve completamente un producto del carrito activo
+   * y recalcula el total. El item solo puede ser eliminado por su dueño.
+   *
+   * @param req - Express Request con params.id_item y req.usuario.id_cliente
+   * @param req.params.id_item - ID del item del carrito a eliminar
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, total_carrito } si la eliminación es exitosa
+   * @returns 401 si el cliente no está autenticado
+   * @returns 404 si el item no existe en el carrito del cliente
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/carrito/items/5
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   *
+   * Response 200: {
+   *   "mensaje": "Producto eliminado del carrito",
+   *   "total_carrito": 999.99
+   * }
    */
   static async eliminarItem(req: Request, res: Response) {
     try {
@@ -651,7 +849,26 @@ export default class CarritoController {
   }
 
   /**
-   * Vaciar el carrito completo
+   * Vacía el carrito eliminando todos sus items
+   *
+   * Endpoint protegido que elimina todos los items del carrito activo del cliente
+   * y establece el total en 0. El carrito permanece en estado "activo".
+   *
+   * @param req - Express Request con req.usuario.id_cliente
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, total_carrito: 0 } si se vacía exitosamente
+   * @returns 401 si el cliente no está autenticado
+   * @returns 404 si no hay carrito activo
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/carrito
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   *
+   * Response 200: {
+   *   "mensaje": "Carrito vaciado exitosamente",
+   *   "total_carrito": 0.00
+   * }
    */
   static async vaciarCarrito(req: Request, res: Response) {
     try {
@@ -708,7 +925,44 @@ export default class CarritoController {
   }
 
   /**
-   * Confirmar compra - Convertir carrito en venta
+   * Confirma la compra convirtiendo el carrito en una venta
+   *
+   * Endpoint protegido que procesa la compra final:
+   * - Verifica stock disponible de todos los productos
+   * - Crea un registro de venta (Venta)
+   * - Actualiza el stock de productos
+   * - Marca el carrito como "completado"
+   * - Genera número de venta consecutivo
+   *
+   * IMPORTANTE: Esta operación es irreversible y afecta el inventario.
+   *
+   * @param req - Express Request con body y req.usuario.id_cliente
+   * @param req.body.observaciones - Notas opcionales sobre la compra
+   * @param req.body.moneda - Moneda de la transacción (default: "BOB")
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, venta, carrito_id } si la compra es exitosa
+   * @returns 400 si el carrito está vacío o hay stock insuficiente
+   * @returns 401 si el cliente no está autenticado
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/carrito/confirmar-compra
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   * Body: {
+   *   "observaciones": "Entrega a domicilio",
+   *   "moneda": "BOB"
+   * }
+   *
+   * Response 200: {
+   *   "mensaje": "Compra realizada exitosamente",
+   *   "venta": {
+   *     "id_venta": 45,
+   *     "nro_venta": 1001,
+   *     "total_pagado": 1999.98,
+   *     "fyh_creacion": "2025-10-14T..."
+   *   },
+   *   "carrito_id": 10
+   * }
    */
   static async confirmarCompra(req: Request, res: Response) {
     try {
@@ -823,7 +1077,41 @@ export default class CarritoController {
   }
 
   /**
-   * Obtener historial de carritos del cliente
+   * Obtiene el historial de carritos del cliente autenticado
+   *
+   * Endpoint protegido que retorna los carritos previos del cliente con paginación.
+   * Incluye carritos en todos los estados (activo, completado, abandonado).
+   *
+   * @param req - Express Request con query params y req.usuario.id_cliente
+   * @param req.query.estado - Filtrar por estado opcional ("activo", "completado")
+   * @param req.query.limit - Límite de resultados (default: 10)
+   * @param req.query.offset - Offset para paginación (default: 0)
+   * @param res - Express Response object
+   * @returns 200 con { carritos, total, limit, offset }
+   * @returns 401 si el cliente no está autenticado
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/carrito/historial?estado=completado&limit=5&offset=0
+   * Headers: { "Authorization": "Bearer TOKEN" }
+   *
+   * Response 200: {
+   *   "carritos": [
+   *     {
+   *       "id_carrito": 8,
+   *       "estado": "completado",
+   *       "total_carrito": 1999.98,
+   *       "items": [...],
+   *       "venta": {
+   *         "nro_venta": 1001,
+   *         "fyh_creacion": "2025-10-14T..."
+   *       }
+   *     }
+   *   ],
+   *   "total": 15,
+   *   "limit": 5,
+   *   "offset": 0
+   * }
    */
   static async obtenerHistorial(req: Request, res: Response) {
     try {

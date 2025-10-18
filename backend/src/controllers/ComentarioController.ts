@@ -40,9 +40,34 @@ interface ActualizarComentarioData {
   }[]; // Nuevas imágenes a agregar
 }
 
+/**
+ * Controlador para gestión de comentarios y reseñas de productos
+ *
+ * Maneja el sistema completo de comentarios de clientes sobre productos, incluyendo:
+ * - CRUD de comentarios con calificaciones (1-5 estrellas)
+ * - Gestión de imágenes adjuntas a comentarios (hasta 5 por comentario)
+ * - Cálculo de estadísticas y promedios de calificaciones
+ * - Paginación y ordenamiento de comentarios
+ * - Soft delete de comentarios
+ * - Respuestas de administradores a comentarios
+ *
+ * Todos los endpoints transforman URLs de imágenes a URLs completas mediante imageService.
+ *
+ * @class ComentarioController
+ */
 class ComentarioController {
-  
-  // Método helper para transformar comentarios con URLs de imágenes
+
+  /**
+   * Transforma comentarios agregando URLs completas de imágenes
+   *
+   * Método helper privado que procesa un array de comentarios y enriquece cada uno
+   * con URLs completas de imágenes usando el servicio de imágenes. Maneja
+   * gracefully la ausencia del servicio retornando comentarios sin transformar.
+   *
+   * @private
+   * @param comentarios - Array de comentarios Sequelize a transformar
+   * @returns Promise que resuelve con array de comentarios transformados con URLs de imágenes
+   */
   private async transformComentariosWithImages(comentarios: any[]): Promise<any[]> {
     try {
       if (!comentarios || comentarios.length === 0) {
@@ -68,7 +93,34 @@ class ComentarioController {
     }
   }
 
-  // Obtener comentarios de un producto
+  /**
+   * Obtiene comentarios de un producto con paginación y ordenamiento
+   *
+   * Endpoint público que retorna comentarios activos de un producto con:
+   * - Paginación (limite y offset)
+   * - Ordenamiento configurable (recientes, antiguos, mejor/peor calificación)
+   * - Información del cliente autor
+   * - Imágenes adjuntas transformadas con URLs completas
+   * - Respuestas de administradores si existen
+   * - Estadísticas del producto (promedio, distribución de calificaciones)
+   *
+   * @param req - Express Request con params.id_producto y query {limite?, offset?, orden?}
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { comentarios, paginacion, estadisticas } }
+   * @returns 400 si el ID del producto es inválido
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/comentarios/producto/123?limite=10&offset=0&orden=recientes
+   * Response: {
+   *   mensaje: "Comentarios obtenidos exitosamente",
+   *   datos: {
+   *     comentarios: [...],
+   *     paginacion: { total: 45, limite: 10, offset: 0, paginas: 5 },
+   *     estadisticas: { total_comentarios: 45, calificacion_promedio: 4.5, ... }
+   *   }
+   * }
+   */
   async obtenerComentariosProducto(req: Request, res: Response): Promise<void> {
     try {
       const { id_producto } = req.params;
@@ -167,7 +219,35 @@ class ComentarioController {
     }
   }
 
-  // Crear nuevo comentario
+  /**
+   * Crea un nuevo comentario con calificación e imágenes opcionales
+   *
+   * Endpoint protegido que permite a clientes autenticados crear comentarios sobre productos.
+   * Valida:
+   * - Existencia del producto y cliente
+   * - Comentario entre 10 y 2000 caracteres
+   * - Calificación entre 1 y 5 (opcional)
+   * - Máximo 5 imágenes adjuntas
+   *
+   * El comentario se crea con estado 'activo' y es_verificado=false por defecto.
+   *
+   * @param req - Express Request con body {id_producto, id_cliente, comentario, calificacion?, imagenes?}
+   * @param res - Express Response object
+   * @returns 201 con { mensaje, datos: { comentario } } comentario creado con imágenes transformadas
+   * @returns 400 si faltan datos, datos inválidos o demasiadas imágenes
+   * @returns 404 si el producto o cliente no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/comentarios
+   * Body: {
+   *   id_producto: 123,
+   *   id_cliente: 45,
+   *   comentario: "Excelente producto, superó mis expectativas",
+   *   calificacion: 5,
+   *   imagenes: [{ url_imagen: "foto1.jpg", alt_text: "Producto en uso" }]
+   * }
+   */
   async crearComentario(req: Request, res: Response): Promise<void> {
     try {
       const { id_producto, id_cliente, comentario, calificacion, imagenes }: ComentarioCreateData & { imagenes?: ComentarioImagenData[] } = req.body;
@@ -290,7 +370,32 @@ class ComentarioController {
     }
   }
 
-  // Actualizar comentario
+  /**
+   * Actualiza un comentario existente
+   *
+   * Endpoint protegido que permite modificar el texto, calificación e imágenes de un comentario.
+   * Permite:
+   * - Actualizar texto del comentario (10-2000 caracteres)
+   * - Modificar calificación (1-5)
+   * - Eliminar imágenes específicas por ID
+   * - Agregar nuevas imágenes
+   *
+   * @param req - Express Request con params.id_comentario y body {comentario?, calificacion?, imagenes_a_eliminar?, imagenes?}
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { comentario } } comentario actualizado
+   * @returns 400 si el ID o datos son inválidos
+   * @returns 404 si el comentario no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PUT /api/comentarios/5
+   * Body: {
+   *   comentario: "Actualizo mi opinión: el producto es excelente",
+   *   calificacion: 5,
+   *   imagenes_a_eliminar: [1, 2],
+   *   imagenes: [{ ruta_imagen: "nueva.jpg", alt_text: "Nueva foto" }]
+   * }
+   */
   async actualizarComentario(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario } = req.params;
@@ -416,7 +521,29 @@ class ComentarioController {
     }
   }
 
-  // Eliminar comentario (soft delete)
+  /**
+   * Elimina un comentario (soft delete) junto con sus imágenes
+   *
+   * Endpoint protegido que marca un comentario como 'eliminado' (estado='eliminado')
+   * sin borrarlo permanentemente de la BD. También:
+   * - Elimina archivos físicos de imágenes del servidor
+   * - Elimina registros de imágenes de la BD (hard delete)
+   * - Registra cuántos archivos fueron eliminados exitosamente
+   *
+   * @param req - Express Request con params.id_comentario
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { imagenes_eliminadas, archivos_eliminados } }
+   * @returns 400 si el ID es inválido
+   * @returns 404 si el comentario no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/comentarios/5
+   * Response: {
+   *   mensaje: "Comentario eliminado exitosamente",
+   *   datos: { imagenes_eliminadas: 3, archivos_eliminados: 3 }
+   * }
+   */
   async eliminarComentario(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario } = req.params;
@@ -502,7 +629,33 @@ class ComentarioController {
     }
   }
 
-  // Eliminar imagen de comentario
+  /**
+   * Elimina una imagen específica de un comentario
+   *
+   * Endpoint protegido que permite a clientes eliminar imágenes individuales de sus propios comentarios.
+   * Verifica que:
+   * - El usuario está autenticado
+   * - El comentario pertenece al usuario autenticado
+   * - La imagen existe y pertenece al comentario
+   *
+   * Elimina tanto el archivo físico como el registro de la BD.
+   *
+   * @param req - Express Request con params {id_comentario, id_imagen} y req.usuario
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { id_imagen, archivo_eliminado } }
+   * @returns 400 si los IDs son inválidos
+   * @returns 401 si el usuario no está autenticado
+   * @returns 403 si el comentario no pertenece al usuario
+   * @returns 404 si el comentario o imagen no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/comentarios/5/imagenes/12
+   * Response: {
+   *   mensaje: "Imagen eliminada exitosamente",
+   *   datos: { id_imagen: 12, archivo_eliminado: true }
+   * }
+   */
   async eliminarImagenComentario(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario, id_imagen } = req.params;
@@ -628,7 +781,36 @@ class ComentarioController {
     }
   }
 
-  // Obtener estadísticas de comentarios de un producto
+  /**
+   * Obtiene estadísticas de comentarios de un producto
+   *
+   * Endpoint público que calcula y retorna estadísticas agregadas de todos los
+   * comentarios activos de un producto:
+   * - Total de comentarios
+   * - Total de calificaciones
+   * - Calificación promedio (redondeado a 1 decimal)
+   * - Distribución de calificaciones (cuántos de cada estrella)
+   * - Total de imágenes adjuntas
+   *
+   * @param req - Express Request con params.id_producto
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: estadisticas }
+   * @returns 400 si el ID del producto es inválido
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/comentarios/producto/123/estadisticas
+   * Response: {
+   *   mensaje: "Estadísticas obtenidas exitosamente",
+   *   datos: {
+   *     total_comentarios: 45,
+   *     total_calificaciones: 40,
+   *     calificacion_promedio: 4.3,
+   *     distribucion_calificaciones: { 1: 2, 2: 3, 3: 5, 4: 15, 5: 15 },
+   *     total_imagenes: 78
+   *   }
+   * }
+   */
   async obtenerEstadisticasProducto(req: Request, res: Response): Promise<void> {
     try {
       const { id_producto } = req.params;
@@ -663,7 +845,16 @@ class ComentarioController {
     }
   }
 
-  // Método helper para calcular estadísticas
+  /**
+   * Calcula estadísticas agregadas de comentarios de un producto
+   *
+   * Método helper privado que procesa todos los comentarios activos de un producto
+   * y calcula estadísticas detalladas. Incluye manejo de comentarios sin calificación.
+   *
+   * @private
+   * @param id_producto - ID del producto para calcular estadísticas
+   * @returns Promise con objeto de estadísticas {total_comentarios, calificacion_promedio, distribucion_calificaciones, total_imagenes}
+   */
   private async calcularEstadisticasProducto(id_producto: number) {
     const comentarios = await Comentario.findAll({
       where: {

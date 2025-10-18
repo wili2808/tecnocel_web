@@ -1135,9 +1135,8 @@ mysqldump -u root -p --no-data db_tecnocel_v4 > schema_only.sql
 
 - [DIAGRAMS.md](./DIAGRAMS.md) - 5 Diagramas ER completos en Mermaid
 - [IMPROVEMENTS_PLAN.md](./IMPROVEMENTS_PLAN.md) - Plan de mejoras de la BD
-- [Documentación de API](../api/README.md)
-- [README Database](./README.md)
+- [Documentación de API](../README.md#-api-backend-64-endpoints)
 
 ---
 
-[Volver arriba](#-esquema-de-base-de-datos) | [Base de Datos](README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
+[Volver arriba](#-esquema-de-base-de-datos) | [Documentación](../README.md) | [Inicio](../../README.md)

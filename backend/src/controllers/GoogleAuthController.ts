@@ -7,9 +7,60 @@ import logger from '../services/loggerService.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+/**
+ * Controlador para autenticación con Google OAuth 2.0
+ *
+ * Maneja el flujo de login social con Google permitiendo a los usuarios:
+ * - Autenticarse usando su cuenta de Google
+ * - Crear cuenta automáticamente si es primera vez
+ * - Vincular cuenta Google con cuenta existente por email
+ * - Obtener JWT para acceso a la aplicación
+ *
+ * Usa Google OAuth 2.0 con access tokens del frontend.
+ *
+ * @class GoogleAuthController
+ */
 export default class GoogleAuthController {
   /**
-   * Autenticación con Google OAuth
+   * Autentica un cliente usando Google OAuth 2.0
+   *
+   * Flujo completo de autenticación social:
+   * 1. Recibe access_token de Google desde el frontend
+   * 2. Consulta API de Google (userinfo) para obtener datos del usuario
+   * 3. Busca cliente existente por google_id o email
+   * 4. Si no existe, crea nuevo cliente con datos de Google
+   * 5. Si existe por email pero sin google_id, vincula la cuenta
+   * 6. Genera JWT de la aplicación (válido 7 días)
+   * 7. Actualiza fecha de último login
+   *
+   * NOTA: Los clientes creados vía Google tienen email_verified=true automáticamente
+   * y reciben valores temporales para campos obligatorios (celular, nit_ci).
+   *
+   * @param req - Express Request con body.access_token de Google
+   * @param req.body.access_token - Access token de Google OAuth (requerido)
+   * @param res - Express Response object
+   * @returns 200 con { token, cliente } si la autenticación es exitosa
+   * @returns 400 si falta el access_token o el email no está disponible
+   * @returns 401 si el token de Google es inválido o expiró
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/clientes/google-login
+   * Body: {
+   *   "access_token": "ya29.a0AfH6SMBx..."
+   * }
+   *
+   * Response 200: {
+   *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+   *   "cliente": {
+   *     "id_cliente": 10,
+   *     "nombre_cliente": "Juan",
+   *     "apellido_cliente": "Pérez",
+   *     "email_cliente": "juan@gmail.com",
+   *     "celular_cliente": "000000000",
+   *     "nit_ci_cliente": "GOOGLE_12345678"
+   *   }
+   * }
    */
   static async googleLogin(req: Request, res: Response) {
     try {

@@ -1,6 +1,19 @@
 /**
- * Middleware de validación para el registro de usuarios
- * Este archivo contiene las funciones necesarias para validar los datos de registro
+ * @file Middleware de validación para registro de usuarios y clientes
+ *
+ * Proporciona validación completa de datos de registro con reglas de negocio estrictas:
+ * - Validación de campos requeridos
+ * - Formato de email (RFC 5322)
+ * - Complejidad de contraseña (mínimo 8 caracteres, letras + números)
+ * - Formato de nombre/apellido (solo letras y espacios, mínimo 2 caracteres)
+ * - Formato de teléfono/celular (8-15 dígitos)
+ * - Unicidad de email en base de datos (solo validateClienteRegistration)
+ *
+ * Includes dos middleware:
+ * - validateRegistration: Validación general de usuarios (legacy)
+ * - validateClienteRegistration: Validación específica para clientes web con verificación de duplicados
+ *
+ * @module validateRegistration
  */
 
 import { Request, Response, NextFunction } from 'express';
@@ -8,7 +21,14 @@ import logger from '../services/loggerService.js';
 import Cliente from '../models/Cliente.js';
 
 /**
- * Interfaz que define la estructura de los datos de registro
+ * Estructura de datos de registro general de usuarios
+ *
+ * @interface RegistrationData
+ * @property {string} email - Correo electrónico del usuario
+ * @property {string} contrasena - Contraseña (mínimo 8 caracteres, letras + números)
+ * @property {string} nombre - Nombre (mínimo 2 caracteres, solo letras)
+ * @property {string} apellido - Apellido (mínimo 2 caracteres, solo letras)
+ * @property {string} [telefono] - Teléfono opcional (8-15 dígitos)
  */
 interface RegistrationData {
   email: string;
@@ -19,18 +39,29 @@ interface RegistrationData {
 }
 
 /**
- * Middleware para validar los datos de registro de usuarios
- * Realiza validaciones de:
- * - Campos requeridos
- * - Formato de email
- * - Longitud y complejidad de contraseña
- * - Longitud y formato de nombre y apellido
- * - Formato de teléfono (opcional)
- * 
- * @param req - Objeto Request de Express
- * @param res - Objeto Response de Express
- * @param next - Función Next de Express
- * @returns void
+ * Middleware para validar datos de registro de usuarios (general/legacy)
+ *
+ * Valida todos los campos de entrada del registro de usuarios verificando:
+ * - Presencia de campos requeridos (email, contrasena, nombre, apellido)
+ * - Formato de email válido (pattern: nombre@dominio.ext)
+ * - Contraseña fuerte (mín. 8 caracteres con letras y números)
+ * - Nombre y apellido válidos (mín. 2 caracteres, solo letras en español)
+ * - Teléfono opcional válido (8-15 dígitos, permite +, espacios, guiones)
+ *
+ * **NOTA**: Este middleware NO verifica unicidad de email en la BD.
+ * Para clientes web, usar validateClienteRegistration que sí verifica duplicados.
+ *
+ * @param req - Express Request con body {email, contrasena, nombre, apellido, telefono?}
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 400 con detalles de errores de validación
+ * @returns 500 si ocurre error en el servidor
+ *
+ * @example
+ * router.post('/registro/usuario',
+ *   validateRegistration,
+ *   registrarUsuario
+ * );
  */
 export const validateRegistration = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -129,6 +160,38 @@ export const validateRegistration = (req: Request, res: Response, next: NextFunc
   }
 };
 
+/**
+ * Middleware para validar registro de clientes web con verificación de unicidad
+ *
+ * Validación completa y específica para clientes de la tienda web que incluye:
+ * - Validación de todos los campos requeridos específicos de cliente
+ * - Formato de email válido
+ * - **Verificación de unicidad de email en la base de datos**
+ * - Contraseña fuerte (mín. 8 caracteres con letras y números)
+ * - Nombre y apellido válidos (solo letras en español, mín. 2 caracteres)
+ * - Formato de celular válido (8-15 dígitos)
+ * - Validación de NIT/CI (requerido, no vacío)
+ *
+ * **Campos específicos de cliente**:
+ * - nombre_cliente, apellido_cliente (en vez de nombre, apellido)
+ * - email_cliente (en vez de email)
+ * - celular_cliente (requerido, en vez de telefono opcional)
+ * - nit_ci_cliente (requerido, documento de identidad)
+ *
+ * @async
+ * @param req - Express Request con body {nombre_cliente, apellido_cliente, email_cliente, celular_cliente, nit_ci_cliente, contrasena}
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns 400 con detalles de errores de validación
+ * @returns 409 si el email ya está registrado (conflict)
+ * @returns 500 si ocurre error en el servidor
+ *
+ * @example
+ * router.post('/registro/cliente',
+ *   validateClienteRegistration,  // <-- Verifica email duplicado
+ *   registrarCliente
+ * );
+ */
 export const validateClienteRegistration = async (req: Request, res: Response, next: NextFunction) => {
   try {
     logger.debug('Iniciando validación de registro de cliente', req.body);
