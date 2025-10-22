@@ -1,7 +1,5 @@
 # 🛠️ Stack Tecnológico - TecnoCel Web
 
-**Última actualización**: 7 de Octubre, 2025
-
 Documentación completa de todas las tecnologías, librerías y herramientas utilizadas.
 
 ---
@@ -23,18 +21,18 @@ Documentación completa de todas las tecnologías, librerías y herramientas uti
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  CLIENTE / NAVEGADOR                     │
-│                   React 18 + TypeScript                  │
+│                  CLIENTE / NAVEGADOR                    │
+│                   React 18 + TypeScript                 │
 └─────────────────────┬───────────────────────────────────┘
                       │ HTTP/JSON
                       │ REST API
 ┌─────────────────────▼───────────────────────────────────┐
-│                  WEB SERVICE - BACKEND                   │
-│              Node.js + Express + TypeScript              │
+│                  WEB SERVICE - BACKEND                  │
+│              Node.js + Express + TypeScript             │
 └─────────────────────┬───────────────────────────────────┘
                       │ Sequelize ORM
                       │
-┌─────────────────────▼───────────────────────────────────┐
+┌─────────────────────▼────────────────────────────────────┐
 │                   BASE DE DATOS                          │
 │                     MySQL 8.0+                           │
 └──────────────────────────────────────────────────────────┘
@@ -425,4 +423,4 @@ npm audit fix
 
 ---
 
-[Volver arriba](#stack-tecnológico---tecnocel-web) | [Proyecto](./README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
+[Volver arriba](#stack-tecnológico---tecnocel-web) | [Documentación](../README.md) | [Inicio](../../README.md)

@@ -1,7 +1,3 @@
-**[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
----
-
 # Controladores del Backend (Referencia)
 
 > Referencia técnica de los controladores Express. Incluye responsabilidades, dependencias clave y enlaces a documentación de endpoints.
@@ -33,8 +29,8 @@ Enlaces útiles:
 
 - [Índice de Endpoints](../ENDPOINTS.md)
 - [Endpoints por módulo](../endpoints/)
-- [Middleware de Autenticación](../reference/MIDDLEWARE.md)
 - [Servicio de Imágenes](./IMAGES_SERVICE.md)
+- [Modelos de Base de Datos](./MODELS.md)
 
 ---
 
@@ -145,9 +141,9 @@ Enlaces útiles:
 
 **Relacionado con**:
 
-- [Análisis de Rutas](./ROUTES_ANALYSIS.md)
 - [Referencia de Modelos](./MODELS.md)
-- [Middlewares](./MIDDLEWARE.md)
+- [Servicio de Imágenes](./IMAGES_SERVICE.md)
+- [Índice de Endpoints](../ENDPOINTS.md)
 
 ---
 

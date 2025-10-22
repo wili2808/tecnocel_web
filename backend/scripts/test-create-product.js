@@ -35,15 +35,8 @@ async function login() {
   log.step('Paso 1: Haciendo login...');
 
   // Opciones de login - MODIFICA ESTAS CREDENCIALES
+  // IMPORTANTE: Para crear productos se requiere login como USUARIO/ADMIN, no como cliente
   const loginOptions = [
-    {
-      type: 'cliente',
-      endpoint: '/clientes/login',
-      credentials: {
-        email_cliente: 'cliente@example.com',
-        contrasena: 'password123'
-      }
-    },
     {
       type: 'usuario/admin',
       endpoint: '/usuarios/login',
@@ -54,7 +47,7 @@ async function login() {
     }
   ];
 
-  // Intentar primero con cliente, luego con usuario/admin
+  // Intentar login como usuario/admin
   for (const option of loginOptions) {
     try {
       log.info(`Intentando login como ${option.type}...`);
@@ -72,6 +65,9 @@ async function login() {
       if (response.ok && data.token) {
         log.success(`Login exitoso como ${option.type}`);
         log.info(`Token obtenido: ${data.token.substring(0, 20)}...`);
+        if (data.usuario) {
+          log.info(`Usuario: ${data.usuario.nombres} (ID: ${data.usuario.id_usuario})`);
+        }
         return { token: data.token, type: option.type };
       } else {
         log.warn(`Login como ${option.type} falló: ${data.mensaje || 'Error desconocido'}`);
@@ -81,52 +77,15 @@ async function login() {
     }
   }
 
-  // Si ninguno funcionó, intentar registro
-  log.warn('Ningún login funcionó, intentando registrar nuevo cliente...');
-  return await registerAndLogin();
+  // Si el login falló, mostrar mensaje de error
+  log.error('No se pudo hacer login como usuario/admin');
+  log.warn('Asegúrate de que:');
+  log.warn('1. Existe un usuario en la tabla tb_usuarios con el email configurado');
+  log.warn('2. La contraseña es correcta');
+  log.warn('3. El servidor está corriendo en http://localhost:3000');
+  return null;
 }
 
-/**
- * Función para registrar un nuevo cliente si no existe
- */
-async function registerAndLogin() {
-  log.step('Registrando nuevo cliente...');
-
-  const registroData = {
-    nombre_cliente: 'Test',
-    apellido_cliente: 'Usuario',
-    email_cliente: `test${Date.now()}@example.com`,
-    celular_cliente: '70000000',
-    nit_ci_cliente: '0000000',
-    contrasena: 'Test123456'
-  };
-
-  try {
-    const response = await fetch(`${BASE_URL}/clientes/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(registroData)
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.token) {
-      log.success('Cliente registrado exitosamente');
-      log.info(`Email: ${registroData.email_cliente}`);
-      log.info(`Contraseña: ${registroData.contrasena}`);
-      log.info(`Token obtenido: ${data.token.substring(0, 20)}...`);
-      return { token: data.token, type: 'cliente (nuevo)' };
-    } else {
-      log.error(`Error en registro: ${data.mensaje || 'Error desconocido'}`);
-      return null;
-    }
-  } catch (error) {
-    log.error(`Error al registrar: ${error.message}`);
-    return null;
-  }
-}
 
 /**
  * Función para crear un producto usando el token
@@ -135,15 +94,18 @@ async function createProduct(token) {
   log.step('Paso 2: Creando producto...');
 
   // Datos del producto a crear
+  // NOTA: Ya NO se envía id_usuario en el body
+  // El id_usuario se toma automáticamente del token JWT en el backend
   const productoData = {
     codigo: `TEST-${Date.now()}`,
     nombre: 'Producto de Prueba',
     descripcion: 'Este es un producto creado mediante script de prueba',
-    precio_venta: 999.99,
-    stock: 100,
-    id_categoria: 1,  // Asegúrate de que esta categoría exista
-    id_marca: 1,      // Asegúrate de que esta marca exista
-    id_usuario: 1,    // Usuario que crea el producto
+    precio_compra: 799.99,    // Campo obligatorio
+    precio_venta: 999.99,     // Campo obligatorio
+    stock: 100,               // Campo obligatorio
+    fecha_ingreso: new Date().toISOString().split('T')[0], // Formato: YYYY-MM-DD
+    id_categoria: 1,          // Categoría: CELULAR - SAMSUNG
+    id_marca: 1,              // Marca: Samsung
     es_destacado: false,
     imagenes: [
       {

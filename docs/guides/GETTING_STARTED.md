@@ -1,7 +1,5 @@
 # Guía de Instalación - TecnoCel Web
 
-**Última actualización**: 7 de Octubre, 2025
-
 Guía paso a paso para configurar el entorno de desarrollo completo.
 
 ---
@@ -431,4 +429,4 @@ Después de completar la instalación:
 
 ---
 
-[Volver arriba](#guía-de-instalación---tecnocel-web) | [Guías](./README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
+[Volver arriba](#guía-de-instalación---tecnocel-web) | [Documentación](../README.md) | [Inicio](../../README.md)

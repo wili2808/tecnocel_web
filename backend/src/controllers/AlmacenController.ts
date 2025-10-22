@@ -323,9 +323,12 @@ class AlmacenController {
   async createProduct(req: Request, res: Response) {
     try {
       const { imagenes, ...productoData } = req.body;
-      
+
+      // Tomar id_usuario del token autenticado (req.usuario)
+      // Esto previene que se falsifique el campo id_usuario en el body
       const producto = await Almacen.create({
         ...productoData,
+        id_usuario: req.usuario?.id_usuario, // Siempre usar el usuario autenticado
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });

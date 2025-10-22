@@ -13,6 +13,7 @@ import caracteristicaRoutes from './routes/caracteristicaRoutes.js';
 import ofertaRoutes from './routes/ofertaRoutes.js';
 import favoritoRoutes from './routes/favoritoRoutes.js';
 import direccionRoutes from './routes/direccionRoutes.js';
+import usuarioRoutes from './routes/usuarioRoutes.js';
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
 import logger from './services/loggerService.js';
@@ -136,6 +137,9 @@ app.use('/api/almacen', almacenRoutes);
 
 // Rutas de clientes
 app.use('/api/clientes', clienteRoutes);
+
+// Rutas de usuarios
+app.use('/api/usuarios', usuarioRoutes);
 
 // Rutas de carrito
 app.use('/api/carrito', carritoRoutes);
