@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import Direccion from '../models/Direccion.js';
 import Cliente from '../models/Cliente.js';
 import logger from '../services/loggerService.js';
@@ -93,6 +94,7 @@ export class DireccionController {
   static async getDireccionById(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const clienteAutenticado = req.usuario?.id_cliente;
 
       const direccion = await Direccion.findByPk(id, {
         include: [
@@ -108,6 +110,19 @@ export class DireccionController {
         return res.status(404).json({
           success: false,
           message: 'Dirección no encontrada'
+        });
+      }
+
+      // SEGURIDAD: Verificar que la dirección pertenece al cliente autenticado
+      if (direccion.id_cliente !== clienteAutenticado) {
+        logger.warn('Intento de acceder a dirección de otro cliente', {
+          id_cliente_token: clienteAutenticado,
+          id_cliente_direccion: direccion.id_cliente,
+          id_direccion: id
+        });
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permiso para ver esta dirección'
         });
       }
 
@@ -239,12 +254,26 @@ export class DireccionController {
     try {
       const { id } = req.params;
       const datosActualizacion = req.body;
+      const clienteAutenticado = req.usuario?.id_cliente;
 
       const direccion = await Direccion.findByPk(id);
       if (!direccion) {
         return res.status(404).json({
           success: false,
           message: 'Dirección no encontrada'
+        });
+      }
+
+      // SEGURIDAD: Verificar que la dirección pertenece al cliente autenticado
+      if (direccion.id_cliente !== clienteAutenticado) {
+        logger.warn('Intento de actualizar dirección de otro cliente', {
+          id_cliente_token: clienteAutenticado,
+          id_cliente_direccion: direccion.id_cliente,
+          id_direccion: id
+        });
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permiso para actualizar esta dirección'
         });
       }
 
@@ -258,7 +287,7 @@ export class DireccionController {
             where: { 
               id_cliente: direccion.id_cliente,
               es_predeterminada: true,
-              id_direccion: { [require('sequelize').Op.ne]: id }
+              id_direccion: { [Op.ne]: id }
             }
           }
         );
@@ -299,12 +328,26 @@ export class DireccionController {
   static async setPredeterminada(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const clienteAutenticado = req.usuario?.id_cliente;
 
       const direccion = await Direccion.findByPk(id);
       if (!direccion) {
         return res.status(404).json({
           success: false,
           message: 'Dirección no encontrada'
+        });
+      }
+
+      // SEGURIDAD: Verificar que la dirección pertenece al cliente autenticado
+      if (direccion.id_cliente !== clienteAutenticado) {
+        logger.warn('Intento de establecer como predeterminada dirección de otro cliente', {
+          id_cliente_token: clienteAutenticado,
+          id_cliente_direccion: direccion.id_cliente,
+          id_direccion: id
+        });
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permiso para modificar esta dirección'
         });
       }
 
@@ -317,7 +360,7 @@ export class DireccionController {
           where: { 
             id_cliente: direccion.id_cliente,
             es_predeterminada: true,
-            id_direccion: { [require('sequelize').Op.ne]: id }
+            id_direccion: { [Op.ne]: id }
           }
         }
       );
@@ -358,6 +401,7 @@ export class DireccionController {
   static async deleteDireccion(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const clienteAutenticado = req.usuario?.id_cliente;
 
       const direccion = await Direccion.findByPk(id);
       if (!direccion) {
@@ -367,12 +411,25 @@ export class DireccionController {
         });
       }
 
+      // SEGURIDAD: Verificar que la dirección pertenece al cliente autenticado
+      if (direccion.id_cliente !== clienteAutenticado) {
+        logger.warn('Intento de eliminar dirección de otro cliente', {
+          id_cliente_token: clienteAutenticado,
+          id_cliente_direccion: direccion.id_cliente,
+          id_direccion: id
+        });
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permiso para eliminar esta dirección'
+        });
+      }
+
       // Si era la dirección predeterminada, establecer otra como predeterminada
       if (direccion.es_predeterminada) {
         const otraDireccion = await Direccion.findOne({
           where: {
             id_cliente: direccion.id_cliente,
-            id_direccion: { [require('sequelize').Op.ne]: id }
+            id_direccion: { [Op.ne]: id }
           },
           order: [['fyh_creacion', 'ASC']]
         });

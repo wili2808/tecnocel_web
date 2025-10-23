@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { direccionService, type CreateDireccionData } from '../../../services/direccionService';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
-import DireccionModal, { type DireccionFormData } from './DireccionModal';
+import LoadingSpinner from '../../common/LoadingSpinner';
+import DireccionModal, { type DireccionFormData } from '../DireccionModal/DireccionModal';
 import styles from './Direcciones.module.css';
 
 interface Direccion extends DireccionFormData {

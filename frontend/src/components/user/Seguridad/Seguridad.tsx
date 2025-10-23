@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { authService } from '../../../services/authService';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './Seguridad.module.css';
 
 const Seguridad = () => {

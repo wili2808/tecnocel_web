@@ -15,6 +15,9 @@ Gestión de autenticación y cuentas de clientes.
   - [POST /clientes/login](#post-clienteslogin)
   - [POST /clientes/google-login](#post-clientesgoogle-login)
   - [GET /clientes/verify-token](#get-clientesverify-token)
+  - [GET /clientes/perfil](#get-clientesperfil) 🔒
+  - [PUT /clientes/perfil](#put-clientesperfil) 🔒
+  - [PUT /clientes/cambiar-contrasena](#put-clientescambiar-contrasena) 🔒
   - [GET /clientes/verify-email](#get-clientesverify-email)
   - [POST /clientes/forgot-password](#post-clientesforgot-password)
   - [POST /clientes/reset-password](#post-clientesreset-password)
@@ -259,6 +262,188 @@ curl -X GET "http://localhost:3000/api/clientes/verify-token" \
 
 ---
 
+## GET /clientes/perfil
+
+Obtener perfil completo del cliente autenticado.
+
+**Autenticación**: ✅ Requerida (JWT Cliente)
+
+**Response 200**:
+```json
+{
+  "id_cliente": 15,
+  "nombre_cliente": "Juan",
+  "apellido_cliente": "Pérez",
+  "email_cliente": "juan.perez@example.com",
+  "celular_cliente": "70123456",
+  "nit_ci_cliente": "1234567",
+  "is_google_account": false,
+  "email_verified": true,
+  "fyh_creacion": "2025-01-15T10:30:00.000Z",
+  "last_login": "2025-10-22T14:20:00.000Z"
+}
+```
+
+**Campos retornados**:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id_cliente` | number | ID único del cliente |
+| `nombre_cliente` | string | Nombre del cliente |
+| `apellido_cliente` | string | Apellido del cliente |
+| `email_cliente` | string | Email del cliente |
+| `celular_cliente` | string \| null | Número de celular |
+| `nit_ci_cliente` | string \| null | NIT o CI |
+| `is_google_account` | boolean | Si es cuenta de Google OAuth |
+| `email_verified` | boolean | Si el email está verificado |
+| `fyh_creacion` | string | Fecha de creación de cuenta |
+| `last_login` | string \| null | Último inicio de sesión |
+
+**Comportamiento**:
+- Retorna datos completos del perfil
+- Incluye información de cuenta (tipo, fechas)
+- Solo accesible por el cliente autenticado
+
+**Errores**:
+- `401`: Token inválido o expirado
+- `404`: Cliente no encontrado
+- `500`: Error del servidor
+
+**Ejemplo curl**:
+```bash
+curl -X GET "http://localhost:3000/api/clientes/perfil" \
+  -H "Authorization: Bearer {tu_token}"
+```
+
+---
+
+## PUT /clientes/perfil
+
+Actualizar datos personales del cliente autenticado.
+
+**Autenticación**: ✅ Requerida (JWT Cliente)
+
+**Body**:
+```json
+{
+  "nombre_cliente": "Juan Carlos",
+  "apellido_cliente": "Pérez López",
+  "celular_cliente": "70987654",
+  "nit_ci_cliente": "7654321"
+}
+```
+
+**Campos actualizables**:
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `nombre_cliente` | string | Sí | Nombre del cliente (2-50 caracteres) |
+| `apellido_cliente` | string | Sí | Apellido del cliente (2-50 caracteres) |
+| `celular_cliente` | string | No | Celular (8-15 dígitos numéricos) |
+| `nit_ci_cliente` | string | No | NIT o CI (5-20 caracteres) |
+
+**Response 200**:
+```json
+{
+  "mensaje": "Perfil actualizado correctamente",
+  "cliente": {
+    "id_cliente": 15,
+    "nombre_cliente": "Juan Carlos",
+    "apellido_cliente": "Pérez López",
+    "email_cliente": "juan.perez@example.com",
+    "celular_cliente": "70987654",
+    "nit_ci_cliente": "7654321"
+  }
+}
+```
+
+**Comportamiento**:
+- Solo actualiza campos permitidos (no email ni contraseña)
+- Valida formato de celular (solo números)
+- Trim automático de espacios
+- Solo el cliente autenticado puede actualizar su propio perfil
+
+**Errores**:
+- `400`: Validación fallida (campos requeridos, formato inválido)
+- `401`: Token inválido o expirado
+- `404`: Cliente no encontrado
+- `500`: Error del servidor
+
+**Ejemplo curl**:
+```bash
+curl -X PUT "http://localhost:3000/api/clientes/perfil" \
+  -H "Authorization: Bearer {tu_token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre_cliente": "Juan Carlos",
+    "apellido_cliente": "Pérez López",
+    "celular_cliente": "70987654",
+    "nit_ci_cliente": "7654321"
+  }'
+```
+
+---
+
+## PUT /clientes/cambiar-contrasena
+
+Cambiar contraseña del cliente autenticado (solo para cuentas normales, no Google).
+
+**Autenticación**: ✅ Requerida (JWT Cliente)
+
+**Body**:
+```json
+{
+  "contrasenaActual": "MiPassword123!",
+  "nuevaContrasena": "NuevaPassword456!"
+}
+```
+
+**Campos**:
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `contrasenaActual` | string | Sí | Contraseña actual del cliente |
+| `nuevaContrasena` | string | Sí | Nueva contraseña (min 8 caracteres) |
+
+**Response 200**:
+```json
+{
+  "mensaje": "Contraseña actualizada correctamente"
+}
+```
+
+**Comportamiento**:
+- Valida que la contraseña actual sea correcta
+- Solo permite cambio en cuentas normales (no Google OAuth)
+- Hashea la nueva contraseña con bcrypt
+- Requiere que el cliente tenga contraseña establecida
+
+**Errores**:
+- `400`: Campos faltantes o validación fallida
+- `401`: Token inválido, contraseña actual incorrecta
+- `403`: No permitido para cuentas de Google OAuth o sin contraseña
+- `404`: Cliente no encontrado
+- `500`: Error del servidor
+
+**Mensajes de error específicos**:
+- `"No puedes cambiar la contraseña de una cuenta de Google"`: Cuenta OAuth
+- `"No tienes una contraseña establecida"`: Cuenta sin contraseña
+- `"La contraseña actual es incorrecta"`: Contraseña actual no coincide
+- `"La nueva contraseña debe tener al menos 8 caracteres"`: Validación de longitud
+
+**Ejemplo curl**:
+```bash
+curl -X PUT "http://localhost:3000/api/clientes/cambiar-contrasena" \
+  -H "Authorization: Bearer {tu_token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contrasenaActual": "MiPassword123!",
+    "nuevaContrasena": "NuevaPassword456!"
+  }'
+```
+
+---
+
 ## GET /clientes/verify-email
 
 Verificar email del cliente mediante token (legacy - actualmente no se usa).
@@ -440,7 +625,7 @@ curl -X POST "http://localhost:3000/api/clientes/reset-password" \
 
 ---
 
-**Última actualización**: 6 de Octubre, 2025
+**Última actualización**: 22 de Octubre, 2025
 
 ---
 

@@ -4,7 +4,7 @@
 
 # 💻 Componentes del Frontend - TecnoCel Web
 
-**Última actualización**: 7 de Octubre, 2025 | **Versión**: 1.0
+**Última actualización**: 22 de Octubre, 2025 | **Versión**: 1.1
 
 ---
 
@@ -37,13 +37,14 @@ El frontend de TecnoCel Web está construido con **React 18** + **TypeScript** u
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de componentes** | 39 |
+| **Total de componentes** | 46 |
 | **Componentes comunes** | 6 |
 | **Componentes de productos** | 14 |
 | **Componentes de carrito** | 3 |
 | **Componentes de layout** | 4 |
-| **Componentes de usuario** | 2 |
+| **Componentes de usuario** | 9 |
 | **Componentes de ubicación** | 4 |
+| **Páginas especiales** | 6 |
 
 ---
 
@@ -89,9 +90,16 @@ frontend/src/components/
 │   ├── Footer/               # Pie de página
 │   └── HeroSection/          # Sección hero de homepage
 │
-├── user/                      # Componentes de autenticación
+├── user/                      # Componentes de usuario y autenticación
 │   ├── AuthForm/             # Formulario de login
-│   └── RegisterForm/         # Formulario de registro
+│   ├── RegisterForm/         # Formulario de registro
+│   ├── InformacionPersonal/  # Formulario de datos personales
+│   ├── DatosCuenta/          # Información de cuenta (solo lectura)
+│   ├── Seguridad/            # Cambio de contraseña
+│   ├── Direcciones/          # Gestión de direcciones
+│   ├── DireccionModal/       # Modal de dirección
+│   ├── MisCompras/           # Historial de compras
+│   └── Soporte/              # Centro de ayuda
 │
 └── location/                  # Componentes de ubicación
     ├── Location/             # Página de ubicación
@@ -1159,6 +1167,265 @@ interface RegisterData {
 
 ---
 
+### InformacionPersonal
+
+**Ubicación**: [`frontend/src/components/user/InformacionPersonal/`](../../frontend/src/components/user/InformacionPersonal/)
+
+Formulario editable para actualizar datos personales del usuario autenticado.
+
+#### Props
+
+Este componente no recibe props, utiliza el contexto `AuthContext` para obtener los datos del usuario.
+
+#### Características
+
+- Edición de nombre y apellido (requeridos)
+- Edición de celular (validación 8-15 dígitos)
+- Edición de NIT/CI (mínimo 5 caracteres)
+- Validación en tiempo real de todos los campos
+- Detección automática de cambios
+- Sincronización con localStorage y contexto
+- Indicador visual de cambios sin guardar
+- Botones de cancelar y guardar con estados
+- Recarga automática tras actualización exitosa
+
+#### Ejemplo de Uso
+
+```tsx
+import InformacionPersonal from '@/components/user/InformacionPersonal';
+
+// Uso en UserPanel
+<InformacionPersonal />
+```
+
+---
+
+### DatosCuenta
+
+**Ubicación**: [`frontend/src/components/user/DatosCuenta/`](../../frontend/src/components/user/DatosCuenta/)
+
+Componente de solo lectura que muestra información general de la cuenta del usuario.
+
+#### Características
+
+- Muestra email del cliente (no editable)
+- Tipo de cuenta: Google OAuth o cuenta normal
+- ID de cliente único
+- Estado de la cuenta (activo)
+- Fecha de registro formateada
+- Último acceso formateado
+- Carga automática de datos del perfil
+- Estados de carga y error
+- Badge visual para tipo de cuenta
+
+#### Datos Mostrados
+
+| Campo | Descripción | Editable |
+|-------|-------------|----------|
+| **Email** | Correo electrónico | No |
+| **Tipo de cuenta** | Google/Normal | No |
+| **ID Cliente** | Identificador único | No |
+| **Estado** | Activo/Inactivo | No |
+| **Fecha de registro** | Creación de cuenta | No |
+| **Último acceso** | Última sesión | No |
+
+---
+
+### Seguridad
+
+**Ubicación**: [`frontend/src/components/user/Seguridad/`](../../frontend/src/components/user/Seguridad/)
+
+Componente para cambio de contraseña y gestión de seguridad de la cuenta.
+
+#### Características
+
+- Cambio de contraseña para cuentas normales
+- Bloqueo automático para cuentas de Google OAuth
+- Validación de contraseña actual
+- Validación de nueva contraseña:
+  - Mínimo 8 caracteres
+  - Confirmación de contraseña
+  - Match entre nueva contraseña y confirmación
+- Toggle de mostrar/ocultar contraseñas
+- Mensajes de error específicos por campo
+- Recomendaciones de seguridad
+- Estados de carga durante el proceso
+
+#### Ejemplo de Uso
+
+```tsx
+import Seguridad from '@/components/user/Seguridad';
+
+<Seguridad />
+```
+
+---
+
+### Direcciones
+
+**Ubicación**: [`frontend/src/components/user/Direcciones/`](../../frontend/src/components/user/Direcciones/)
+
+Componente CRUD completo para gestión de direcciones de envío del usuario.
+
+#### Características
+
+- Listado de todas las direcciones del cliente
+- Grid responsive de tarjetas de dirección
+- Creación de nueva dirección con modal
+- Edición de direcciones existentes
+- Eliminación con modal de confirmación
+- Badges visuales:
+  - Dirección predeterminada
+  - Dirección de facturación
+- Información completa de cada dirección:
+  - Nombre identificador
+  - Calle, número, piso, departamento
+  - Barrio, ciudad, provincia
+  - Código postal, referencia
+  - Teléfono de contacto
+- Estado vacío con call-to-action
+- Sincronización con backend
+- Validaciones de datos
+
+#### Estructura de Dirección
+
+```typescript
+interface Direccion {
+  id_direccion: number;
+  nombre_direccion: string;
+  calle: string;
+  numero: string;
+  piso?: string;
+  departamento?: string;  // Apartamento
+  barrio: string;
+  ciudad: string;
+  provincia: string;
+  codigo_postal?: string;
+  referencia?: string;
+  telefono_contacto: string;
+  es_predeterminada: boolean;
+  es_facturacion: boolean;
+}
+```
+
+---
+
+### DireccionModal
+
+**Ubicación**: [`frontend/src/components/user/DireccionModal/`](../../frontend/src/components/user/DireccionModal/)
+
+Modal reutilizable para crear y editar direcciones.
+
+#### Props
+
+```typescript
+interface DireccionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (formData: DireccionFormData) => Promise<void>;
+  direccion?: Direccion;  // Para modo edición
+  title?: string;
+}
+```
+
+#### Características
+
+- Formulario completo con todos los campos de dirección
+- Validación en tiempo real:
+  - Nombre de dirección (requerido)
+  - Calle y número (requeridos)
+  - Barrio, ciudad, provincia (requeridos)
+  - Teléfono de contacto con validación
+- Campos opcionales bien indicados
+- Checkboxes para:
+  - Dirección predeterminada
+  - Dirección de facturación
+- Modos: crear nueva o editar existente
+- Precarga de datos en modo edición
+- Botones de cancelar y guardar
+- Estado de guardando con spinner
+- Cierre con overlay o botón X
+
+#### Ejemplo de Uso
+
+```tsx
+import DireccionModal from '@/components/user/DireccionModal';
+
+<DireccionModal
+  isOpen={modalOpen}
+  onClose={() => setModalOpen(false)}
+  onSave={handleGuardarDireccion}
+  direccion={editingDireccion}
+  title="Editar Dirección"
+/>
+```
+
+---
+
+### MisCompras
+
+**Ubicación**: [`frontend/src/components/user/MisCompras/`](../../frontend/src/components/user/MisCompras/)
+
+Componente para mostrar el historial de compras del usuario.
+
+#### Características
+
+- Lista completa de órdenes/ventas del usuario
+- Información de cada venta:
+  - Número de orden
+  - Fecha de compra
+  - Estado del pedido
+  - Total de la compra
+- Detalles expandibles de productos:
+  - Nombre del producto
+  - Cantidad comprada
+  - Precio unitario
+  - Subtotal
+- Estado vacío si no hay compras
+- Ordenamiento por fecha (más reciente primero)
+- Estados de carga y error
+- Navegación a detalle de orden
+- Información de envío y pago
+
+---
+
+### Soporte
+
+**Ubicación**: [`frontend/src/components/user/Soporte/`](../../frontend/src/components/user/Soporte/)
+
+Centro de ayuda y soporte al usuario con FAQ y contacto.
+
+#### Características
+
+- Sección de preguntas frecuentes (FAQ)
+  - Acordeón interactivo
+  - Categorías de preguntas
+  - Búsqueda de preguntas
+- Información de contacto:
+  - Teléfono de soporte
+  - Email de atención al cliente
+  - WhatsApp Business
+  - Horarios de atención
+- Formulario de contacto (opcional)
+- Enlaces útiles:
+  - Políticas de devolución
+  - Términos y condiciones
+  - Política de privacidad
+- Iconos Material Design
+- Diseño responsive
+
+#### FAQ Incluidas
+
+| Categoría | Preguntas |
+|-----------|-----------|
+| **Pedidos** | ¿Cómo rastrear mi pedido? |
+| **Pagos** | ¿Qué métodos de pago aceptan? |
+| **Envíos** | ¿Cuánto tarda la entrega? |
+| **Devoluciones** | ¿Cómo devolver un producto? |
+| **Cuenta** | ¿Cómo cambio mi contraseña? |
+
+---
+
 ## Componentes de Ubicación
 
 ### Location
@@ -1567,12 +1834,19 @@ const { products, loading } = useProducts();
 | Footer | Pie de página | Baja |
 | HeroSection | Hero de homepage | Media |
 
-### Componentes de Usuario (2)
+### Componentes de Usuario (9)
 
 | Componente | Descripción | Complejidad |
 |------------|-------------|-------------|
 | AuthForm | Login | Media |
 | RegisterForm | Registro | Media |
+| InformacionPersonal | Datos personales editables | Media |
+| DatosCuenta | Información de cuenta | Baja |
+| Seguridad | Cambio de contraseña | Media |
+| Direcciones | CRUD de direcciones | Alta |
+| DireccionModal | Modal de dirección | Media |
+| MisCompras | Historial de compras | Media |
+| Soporte | Centro de ayuda | Baja |
 
 ### Componentes de Ubicación (4)
 

@@ -3,7 +3,7 @@
  * Formulario completo de dirección con validación
  */
 import { useState, useEffect } from 'react';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './DireccionModal.module.css';
 
 export interface DireccionFormData {

@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { CarritoService } from '../../../services/carritoService';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './MisCompras.module.css';
 
 interface ItemVenta {

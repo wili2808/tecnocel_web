@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { authService } from '../../../services/authService';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './InformacionPersonal.module.css';
 
 interface DatosPersonales {

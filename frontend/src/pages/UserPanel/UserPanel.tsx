@@ -12,12 +12,12 @@ import { useFavoritosGlobal } from '../../contexts/FavoritosGlobalContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import ProductCard from '../../components/product/ProductCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import DatosCuenta from './components/DatosCuenta';
-import InformacionPersonal from './components/InformacionPersonal';
-import Seguridad from './components/Seguridad';
-import MisCompras from './components/MisCompras';
-import Direcciones from './components/Direcciones';
-import Soporte from './components/Soporte';
+import DatosCuenta from '../../components/user/DatosCuenta';
+import InformacionPersonal from '../../components/user/InformacionPersonal';
+import Seguridad from '../../components/user/Seguridad';
+import MisCompras from '../../components/user/MisCompras';
+import Direcciones from '../../components/user/Direcciones';
+import Soporte from '../../components/user/Soporte';
 import userPanelStyles from './UserPanel.module.css';
 
 // ============================================================================
