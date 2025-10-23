@@ -12,6 +12,12 @@ import { useFavoritosGlobal } from '../../contexts/FavoritosGlobalContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import ProductCard from '../../components/product/ProductCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import DatosCuenta from './components/DatosCuenta';
+import InformacionPersonal from './components/InformacionPersonal';
+import Seguridad from './components/Seguridad';
+import MisCompras from './components/MisCompras';
+import Direcciones from './components/Direcciones';
+import Soporte from './components/Soporte';
 import userPanelStyles from './UserPanel.module.css';
 
 // ============================================================================
@@ -263,7 +269,7 @@ const FavoritesSection = () => {
  * Renderiza diferentes secciones según la opción activa del menú
  * Cada sección tiene su propia lógica y presentación
  */
-const ContentSection = ({ activeSection, user }: { activeSection: string; user: any }) => {
+const ContentSection = ({ activeSection }: { activeSection: string }) => {
     /**
      * Renderiza el contenido específico de cada sección del panel
      * Utiliza switch statement para manejar múltiples opciones de menú
@@ -271,72 +277,22 @@ const ContentSection = ({ activeSection, user }: { activeSection: string; user: 
     const renderContent = () => {
         switch (activeSection) {
             case 'profile':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Información Personal</h2>
-                        <div className={userPanelStyles.profileInfo}>
-                            <div className={userPanelStyles.profileCard}>
-                                <div className={userPanelStyles.profileHeader}>
-                                    <span className="material-icons">account_circle</span>
-                                    <h3>{user?.nombre_cliente} {user?.apellido_cliente}</h3>
-                                </div>
-                                <div className={userPanelStyles.profileDetails}>
-                                    <p><strong>Email:</strong> {user?.email_cliente}</p>
-                                    <p><strong>Teléfono:</strong> {user?.celular_cliente || 'No especificado'}</p>
-                                    <p><strong>Fecha de registro:</strong> {user?.fecha_registro ? new Date(user.fecha_registro).toLocaleDateString() : 'No disponible'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
+                return <InformacionPersonal />;
+
             case 'account':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Datos de Cuenta</h2>
-                        <div className={userPanelStyles.accountInfo}>
-                            <p>Configuración de cuenta en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+                return <DatosCuenta />;
+
             case 'security':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Seguridad</h2>
-                        <div className={userPanelStyles.securityInfo}>
-                            <p>Configuración de seguridad en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+                return <Seguridad />;
             case 'purchases':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Mis Compras</h2>
-                        <div className={userPanelStyles.purchasesInfo}>
-                            <p>Historial de compras en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+                return <MisCompras />;
 
             case 'favorites':
                 return <FavoritesSection />;
             case 'addresses':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Direcciones</h2>
-                        <div className={userPanelStyles.addressesInfo}>
-                            <p>Gestión de direcciones en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+                return <Direcciones />;
             case 'support':
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Soporte</h2>
-                        <div className={userPanelStyles.supportInfo}>
-                            <p>Centro de soporte en desarrollo...</p>
-                        </div>
-                    </div>
-                );
+                return <Soporte />;
             default:
                 return (
                     <div className={userPanelStyles.contentSection}>
@@ -478,7 +434,7 @@ const UserPanel = () => {
 
                 {/* Área de contenido principal del panel */}
                 <main className={userPanelStyles.mainContent}>
-                    <ContentSection activeSection={activeSection} user={user} />
+                    <ContentSection activeSection={activeSection} />
                 </main>
             </div>
         </div>

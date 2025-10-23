@@ -256,4 +256,94 @@ export const authService = {
     const authData = authService.getAuthData();
     return authData?.token || null;
   },
+
+  /**
+   * Obtiene el perfil completo del cliente autenticado desde el servidor
+   * Incluye metadatos como fecha de registro, última sesión y tipo de cuenta
+   * @returns Promise con el perfil completo del cliente
+   */
+  obtenerPerfil: async (): Promise<ClienteUser & {
+    fyh_creacion?: Date;
+    last_login?: Date;
+    is_google_account?: boolean;
+    email_verified?: boolean;
+  }> => {
+    try {
+      const response = await axiosInstance.get('/clientes/perfil');
+      const cliente = response.data?.cliente;
+
+      if (!cliente) {
+        throw new Error('Datos de perfil no encontrados');
+      }
+
+      return cliente;
+    } catch (error) {
+      throw authService.handleAuthError(error);
+    }
+  },
+
+  /**
+   * Actualiza el perfil del cliente autenticado
+   * Permite actualizar nombre, apellido, celular y NIT/CI
+   * @param data - Campos del perfil a actualizar
+   * @returns Promise con los datos del cliente actualizado
+   */
+  actualizarPerfil: async (data: {
+    nombre_cliente?: string;
+    apellido_cliente?: string;
+    celular_cliente?: string;
+    nit_ci_cliente?: string;
+  }): Promise<ClienteUser> => {
+    try {
+      const response = await axiosInstance.put('/clientes/perfil', data);
+      const cliente = response.data?.cliente;
+
+      if (!cliente) {
+        throw new Error('Datos del cliente actualizados no encontrados');
+      }
+
+      // Actualizar localStorage con los nuevos datos
+      const currentAuthData = authService.getAuthData();
+      if (currentAuthData) {
+        authService.saveAuthData({
+          user: cliente,
+          token: currentAuthData.token
+        });
+      }
+
+      return cliente;
+    } catch (error) {
+      throw authService.handleAuthError(error);
+    }
+  },
+
+  /**
+   * Cambia la contraseña del cliente autenticado
+   * Solo disponible para cuentas con autenticación normal (no Google OAuth)
+   * @param contrasenaActual - Contraseña actual del cliente
+   * @param contrasenaNueva - Nueva contraseña deseada
+   * @returns Promise que se resuelve cuando la contraseña se cambia exitosamente
+   */
+  cambiarContrasena: async (
+    contrasenaActual: string,
+    contrasenaNueva: string
+  ): Promise<{ mensaje: string }> => {
+    try {
+      const response = await axiosInstance.put('/clientes/cambiar-contrasena', {
+        contrasena_actual: contrasenaActual,
+        contrasena_nueva: contrasenaNueva
+      });
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw {
+          code: 'GOOGLE_ACCOUNT',
+          message: 'No puedes cambiar la contraseña de una cuenta de Google',
+          details: error.response.data
+        };
+      }
+      throw authService.handleAuthError(error);
+    }
+  },
 };

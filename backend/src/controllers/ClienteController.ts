@@ -251,7 +251,17 @@ export default class ClienteController {
       cliente.last_login = new Date();
       await cliente.save();
       logger.info(`Login exitoso para: ${cliente.email_cliente}`);
-      return res.json({ token, cliente: { id_cliente: cliente.id_cliente, nombre_cliente: cliente.nombre_cliente, apellido_cliente: cliente.apellido_cliente, email_cliente: cliente.email_cliente } });
+      return res.json({
+        token,
+        cliente: {
+          id_cliente: cliente.id_cliente,
+          nombre_cliente: cliente.nombre_cliente,
+          apellido_cliente: cliente.apellido_cliente,
+          email_cliente: cliente.email_cliente,
+          celular_cliente: cliente.celular_cliente,
+          nit_ci_cliente: cliente.nit_ci_cliente
+        }
+      });
     } catch (error) {
       logger.error('Error en el login de cliente', { error });
       return res.status(500).json({ mensaje: 'Error en el login', error });
@@ -408,19 +418,19 @@ export default class ClienteController {
       logger.info('Llamada a verifyToken iniciada');
       // El middleware verificarTokenCliente ya validó el token y añadió el usuario a req.usuario
       const cliente = req.usuario;
-      
+
       if (!cliente) {
         logger.warn('Verificación fallida: datos de cliente no encontrados en request');
         return res.status(401).json({ mensaje: 'Token inválido' });
       }
 
       // Buscar datos completos del cliente en la base de datos para asegurar que sigue activo
-      const clienteCompleto = await Cliente.findOne({ 
-        where: { 
+      const clienteCompleto = await Cliente.findOne({
+        where: {
           id_cliente: cliente.id_cliente,
           is_web_enabled: true,
-          email_verified: true 
-        } 
+          email_verified: true
+        }
       });
 
       if (!clienteCompleto) {
@@ -429,27 +439,303 @@ export default class ClienteController {
       }
 
       res.locals.skipHttpLog = true;
-      
+
       logger.info('Token verificado exitosamente', {
         operacion: 'verificar_token',
         cliente_id: clienteCompleto.id_cliente,
         email: clienteCompleto.email_cliente,
         success: true
       });
-      
-      return res.json({ 
-        cliente: { 
-          id_cliente: clienteCompleto.id_cliente, 
+
+      return res.json({
+        cliente: {
+          id_cliente: clienteCompleto.id_cliente,
           nombre_cliente: clienteCompleto.nombre_cliente,
           apellido_cliente: clienteCompleto.apellido_cliente,
           email_cliente: clienteCompleto.email_cliente,
           celular_cliente: clienteCompleto.celular_cliente,
           nit_ci_cliente: clienteCompleto.nit_ci_cliente
-        } 
+        }
       });
     } catch (error) {
       logger.error('Error al verificar token de cliente', { error });
       return res.status(500).json({ mensaje: 'Error al verificar token', error });
+    }
+  }
+
+  /**
+   * Obtiene el perfil completo del cliente autenticado
+   *
+   * Retorna información completa del perfil incluyendo metadatos como
+   * fecha de registro, última sesión, tipo de autenticación (Google/normal).
+   *
+   * @param req - Express Request con req.usuario del middleware de autenticación
+   * @param res - Express Response object
+   * @returns 200 con perfil completo del cliente
+   * @returns 401 si el token es inválido
+   * @returns 404 si el cliente no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * GET /api/clientes/perfil
+   * Headers: { "Authorization": "Bearer <token>" }
+   *
+   * Response 200: {
+   *   "cliente": {
+   *     "id_cliente": 5,
+   *     "nombre_cliente": "Juan",
+   *     "apellido_cliente": "Pérez",
+   *     "email_cliente": "juan@example.com",
+   *     "celular_cliente": "70123456",
+   *     "nit_ci_cliente": "1234567",
+   *     "fyh_creacion": "2025-01-15T10:30:00.000Z",
+   *     "last_login": "2025-01-22T14:20:00.000Z",
+   *     "is_google_account": true,
+   *     "email_verified": true
+   *   }
+   * }
+   */
+  static async obtenerPerfil(req: Request, res: Response) {
+    try {
+      const cliente = req.usuario;
+
+      if (!cliente) {
+        logger.warn('Obtener perfil fallido: cliente no autenticado');
+        return res.status(401).json({ mensaje: 'Cliente no autenticado' });
+      }
+
+      const clienteCompleto = await Cliente.findOne({
+        where: {
+          id_cliente: cliente.id_cliente,
+          is_web_enabled: true
+        }
+      });
+
+      if (!clienteCompleto) {
+        logger.warn(`Obtener perfil fallido: cliente no encontrado (${cliente.id_cliente})`);
+        return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+      }
+
+      logger.info('Perfil obtenido exitosamente', {
+        cliente_id: clienteCompleto.id_cliente,
+        email: clienteCompleto.email_cliente
+      });
+
+      return res.json({
+        cliente: {
+          id_cliente: clienteCompleto.id_cliente,
+          nombre_cliente: clienteCompleto.nombre_cliente,
+          apellido_cliente: clienteCompleto.apellido_cliente,
+          email_cliente: clienteCompleto.email_cliente,
+          celular_cliente: clienteCompleto.celular_cliente,
+          nit_ci_cliente: clienteCompleto.nit_ci_cliente,
+          fyh_creacion: clienteCompleto.fyh_creacion,
+          last_login: clienteCompleto.last_login,
+          is_google_account: !!clienteCompleto.google_id,
+          email_verified: clienteCompleto.email_verified
+        }
+      });
+    } catch (error) {
+      logger.error('Error al obtener perfil de cliente', { error });
+      return res.status(500).json({ mensaje: 'Error al obtener perfil', error });
+    }
+  }
+
+  /**
+   * Actualiza el perfil del cliente autenticado
+   *
+   * Permite actualizar nombre, apellido, celular y NIT/CI del cliente.
+   * Solo el cliente propietario puede actualizar su propio perfil.
+   * No permite cambiar email ni contraseña (usar endpoints específicos).
+   *
+   * @param req - Express Request con req.usuario y body con datos a actualizar
+   * @param req.body.nombre_cliente - Nuevo nombre (opcional)
+   * @param req.body.apellido_cliente - Nuevo apellido (opcional)
+   * @param req.body.celular_cliente - Nuevo celular (opcional)
+   * @param req.body.nit_ci_cliente - Nuevo NIT/CI (opcional)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, cliente } si la actualización es exitosa
+   * @returns 400 si no se proporciona ningún campo para actualizar
+   * @returns 401 si el token es inválido
+   * @returns 403 si intenta actualizar un perfil que no le pertenece
+   * @returns 404 si el cliente no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PUT /api/clientes/perfil
+   * Headers: { "Authorization": "Bearer <token>" }
+   * Body: {
+   *   "nombre_cliente": "Juan Carlos",
+   *   "celular_cliente": "70987654"
+   * }
+   *
+   * Response 200: {
+   *   "mensaje": "Perfil actualizado exitosamente",
+   *   "cliente": {
+   *     "id_cliente": 5,
+   *     "nombre_cliente": "Juan Carlos",
+   *     "apellido_cliente": "Pérez",
+   *     "email_cliente": "juan@example.com",
+   *     "celular_cliente": "70987654",
+   *     "nit_ci_cliente": "1234567"
+   *   }
+   * }
+   */
+  static async actualizarPerfil(req: Request, res: Response) {
+    try {
+      const cliente = req.usuario;
+      const { nombre_cliente, apellido_cliente, celular_cliente, nit_ci_cliente } = req.body;
+
+      if (!cliente) {
+        logger.warn('Actualizar perfil fallido: cliente no autenticado');
+        return res.status(401).json({ mensaje: 'Cliente no autenticado' });
+      }
+
+      // Validar que al menos un campo esté presente
+      if (!nombre_cliente && !apellido_cliente && !celular_cliente && !nit_ci_cliente) {
+        logger.warn('Actualizar perfil fallido: no se proporcionaron campos para actualizar');
+        return res.status(400).json({ mensaje: 'Debe proporcionar al menos un campo para actualizar' });
+      }
+
+      const clienteCompleto = await Cliente.findOne({
+        where: {
+          id_cliente: cliente.id_cliente,
+          is_web_enabled: true
+        }
+      });
+
+      if (!clienteCompleto) {
+        logger.warn(`Actualizar perfil fallido: cliente no encontrado (${cliente.id_cliente})`);
+        return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+      }
+
+      // Actualizar solo los campos proporcionados
+      if (nombre_cliente) clienteCompleto.nombre_cliente = nombre_cliente;
+      if (apellido_cliente) clienteCompleto.apellido_cliente = apellido_cliente;
+      if (celular_cliente) clienteCompleto.celular_cliente = celular_cliente;
+      if (nit_ci_cliente) clienteCompleto.nit_ci_cliente = nit_ci_cliente;
+
+      clienteCompleto.fyh_actualizacion = new Date();
+      await clienteCompleto.save();
+
+      logger.info('Perfil actualizado exitosamente', {
+        cliente_id: clienteCompleto.id_cliente,
+        email: clienteCompleto.email_cliente
+      });
+
+      return res.json({
+        mensaje: 'Perfil actualizado exitosamente',
+        cliente: {
+          id_cliente: clienteCompleto.id_cliente,
+          nombre_cliente: clienteCompleto.nombre_cliente,
+          apellido_cliente: clienteCompleto.apellido_cliente,
+          email_cliente: clienteCompleto.email_cliente,
+          celular_cliente: clienteCompleto.celular_cliente,
+          nit_ci_cliente: clienteCompleto.nit_ci_cliente
+        }
+      });
+    } catch (error) {
+      logger.error('Error al actualizar perfil de cliente', { error });
+      return res.status(500).json({ mensaje: 'Error al actualizar perfil', error });
+    }
+  }
+
+  /**
+   * Cambia la contraseña del cliente autenticado
+   *
+   * Permite cambiar la contraseña validando primero la contraseña actual.
+   * Solo disponible para cuentas con autenticación normal (no Google OAuth).
+   *
+   * @param req - Express Request con req.usuario y body con contraseñas
+   * @param req.body.contrasena_actual - Contraseña actual (requerida)
+   * @param req.body.contrasena_nueva - Nueva contraseña (requerida)
+   * @param res - Express Response object
+   * @returns 200 con mensaje de confirmación si el cambio es exitoso
+   * @returns 400 si faltan campos o la nueva contraseña es igual a la actual
+   * @returns 401 si la contraseña actual es incorrecta
+   * @returns 403 si la cuenta usa Google OAuth
+   * @returns 404 si el cliente no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PUT /api/clientes/cambiar-contrasena
+   * Headers: { "Authorization": "Bearer <token>" }
+   * Body: {
+   *   "contrasena_actual": "MiPassword123",
+   *   "contrasena_nueva": "NuevaPassword456"
+   * }
+   *
+   * Response 200: {
+   *   "mensaje": "Contraseña cambiada exitosamente"
+   * }
+   */
+  static async cambiarContrasena(req: Request, res: Response) {
+    try {
+      const cliente = req.usuario;
+      const { contrasena_actual, contrasena_nueva } = req.body;
+
+      if (!cliente) {
+        logger.warn('Cambiar contraseña fallido: cliente no autenticado');
+        return res.status(401).json({ mensaje: 'Cliente no autenticado' });
+      }
+
+      // Validar campos requeridos
+      if (!contrasena_actual || !contrasena_nueva) {
+        logger.warn('Cambiar contraseña fallido: campos faltantes');
+        return res.status(400).json({ mensaje: 'Contraseña actual y nueva son requeridas' });
+      }
+
+      // Validar que la nueva contraseña sea diferente
+      if (contrasena_actual === contrasena_nueva) {
+        logger.warn('Cambiar contraseña fallido: contraseñas iguales');
+        return res.status(400).json({ mensaje: 'La nueva contraseña debe ser diferente a la actual' });
+      }
+
+      const clienteCompleto = await Cliente.findOne({
+        where: {
+          id_cliente: cliente.id_cliente,
+          is_web_enabled: true
+        }
+      });
+
+      if (!clienteCompleto) {
+        logger.warn(`Cambiar contraseña fallido: cliente no encontrado (${cliente.id_cliente})`);
+        return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+      }
+
+      // Verificar que no sea cuenta de Google
+      if (clienteCompleto.google_id) {
+        logger.warn(`Cambiar contraseña fallido: cuenta de Google (${cliente.id_cliente})`);
+        return res.status(403).json({ mensaje: 'No puedes cambiar la contraseña de una cuenta de Google' });
+      }
+
+      // Verificar que tenga contraseña establecida
+      if (!clienteCompleto.password_hash) {
+        logger.warn(`Cambiar contraseña fallido: sin contraseña establecida (${cliente.id_cliente})`);
+        return res.status(403).json({ mensaje: 'No tienes una contraseña establecida' });
+      }
+
+      // Verificar contraseña actual
+      const passwordValida = await bcrypt.compare(contrasena_actual, clienteCompleto.password_hash);
+      if (!passwordValida) {
+        logger.warn(`Cambiar contraseña fallido: contraseña actual incorrecta (${cliente.id_cliente})`);
+        return res.status(401).json({ mensaje: 'La contraseña actual es incorrecta' });
+      }
+
+      // Hashear nueva contraseña y guardar
+      clienteCompleto.password_hash = await bcrypt.hash(contrasena_nueva, 10);
+      clienteCompleto.fyh_actualizacion = new Date();
+      await clienteCompleto.save();
+
+      logger.info('Contraseña cambiada exitosamente', {
+        cliente_id: clienteCompleto.id_cliente,
+        email: clienteCompleto.email_cliente
+      });
+
+      return res.json({ mensaje: 'Contraseña cambiada exitosamente' });
+    } catch (error) {
+      logger.error('Error al cambiar contraseña de cliente', { error });
+      return res.status(500).json({ mensaje: 'Error al cambiar contraseña', error });
     }
   }
 } 

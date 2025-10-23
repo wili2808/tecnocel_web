@@ -14,6 +14,7 @@ import ofertaRoutes from './routes/ofertaRoutes.js';
 import favoritoRoutes from './routes/favoritoRoutes.js';
 import direccionRoutes from './routes/direccionRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
+import ventaRoutes from './routes/ventaRoutes.js';
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
 import logger from './services/loggerService.js';
@@ -156,6 +157,7 @@ app.use('/api/caracteristicas', caracteristicaRoutes);
 app.use('/api/ofertas', ofertaRoutes);
 app.use('/api/favoritos', favoritoRoutes);
 app.use('/api/direcciones', direccionRoutes);
+app.use('/api/ventas', ventaRoutes);
 
 // Manejo de errores global
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

@@ -43,6 +43,16 @@
   /* === COLORES DE TEXTO ADICIONALES === */
   --text-muted: var(--color-neutral-500);
   --text-disabled: var(--color-neutral-400);
+  --text-tertiary: var(--color-neutral-500);
+  --text-placeholder: var(--color-neutral-400);
+
+  /* === COLORES DE FONDO ADICIONALES === */
+  --background-disabled: var(--color-neutral-200);
+  --background-hover: var(--color-neutral-100);
+
+  /* === ALIAS DE COLORES === */
+  --color-primary-hover: var(--color-primary-dark);
+  --color-secondary-rgb: 6, 182, 212; /* RGB del cyan-500 */
 
   /* === SOMBRAS ESPECÍFICAS === */
   --shadow-card-hover: 0 3px 12px var(--color-neutral-400);
@@ -93,6 +103,16 @@
   /* === COLORES DE TEXTO ADICIONALES === */
   --text-muted: var(--color-neutral-400);
   --text-disabled: var(--color-neutral-600);
+  --text-tertiary: var(--color-neutral-600);
+  --text-placeholder: var(--color-neutral-600);
+
+  /* === COLORES DE FONDO ADICIONALES === */
+  --background-disabled: var(--color-zinc-800);
+  --background-hover: var(--color-zinc-700);
+
+  /* === ALIAS DE COLORES === */
+  --color-primary-hover: var(--color-primary-dark);
+  --color-secondary-rgb: 34, 211, 238; /* RGB del cyan-400 */
 
   /* === SOMBRAS ESPECÍFICAS === */
   --shadow-card-hover: 0 3px 12px var(--color-neutral-600);

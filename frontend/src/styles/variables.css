@@ -91,12 +91,22 @@
 
 
 
+  /* === COLORES BÁSICOS === */
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+
   /* === COLORES COMUNES CON TRANSPARENCIAS === */
   --color-black-light: rgba(0, 0, 0, 0.1);
   --color-black-medium: rgba(0, 0, 0, 0.4);
   --color-white-overlay: rgba(255, 255, 255, 0.2);
   --color-white-overlay-medium: rgba(255, 255, 255, 0.3);
   --color-primary-alpha: rgba(59, 130, 246, 0.1);
+
+  /* === RGB PARA TRANSPARENCIAS === */
+  --color-error-rgb: 239, 68, 68;
+  --color-success-rgb: 16, 185, 129;
+  --color-warning-rgb: 245, 158, 11;
+  --color-info-rgb: 59, 130, 246;
 
   /* === TIPOGRAFÍA === */
   --font-family-primary: 'Poppins', system-ui, -apple-system, sans-serif;
@@ -132,6 +142,7 @@
   --spacing-2xl: 3rem;     /* 48px */
   --spacing-3xl: 4rem;     /* 64px */
   --spacing-4xl: 6rem;     /* 96px */
+  --spacing-xxl: var(--spacing-3xl); /* Alias para compatibilidad */
 
   /* === BORDES === */
   --border-radius-xs: 4px;
@@ -183,12 +194,20 @@
   --icon-size-md: 18px;
   --icon-size-lg: 20px;
   --icon-size-xl: 24px;
+  --icon-size-2xl: 48px;
+  --icon-size-3xl: 64px;
+  --icon-size-4xl: 80px;
 
   /* === AVATARES === */
   --avatar-size-sm: 24px;
   --avatar-size-md: 28px;
   --avatar-size-lg: 32px;
   --avatar-size-xl: 48px;
+
+  /* === BOTONES === */
+  --button-size-sm: 2rem;    /* 32px */
+  --button-size-md: 2.5rem;  /* 40px */
+  --button-size-lg: 3rem;    /* 48px */
 
   /* === Z-INDEX === */
   --z-dropdown: 1000;

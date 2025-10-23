@@ -374,12 +374,12 @@
   position: absolute;
   top: var(--spacing-sm);
   right: var(--spacing-sm);
-  width: 2rem;
-  height: 2rem;
+  width: var(--button-size-sm);
+  height: var(--button-size-sm);
   border: none;
   border-radius: 50%;
   background-color: var(--color-error);
-  color: white;
+  color: var(--color-white);
   cursor: pointer;
   display: flex;
   align-items: center;

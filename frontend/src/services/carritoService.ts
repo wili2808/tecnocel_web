@@ -81,6 +81,23 @@ export class CarritoService {
     const response = await axiosInstance.post('/carrito/confirmar-compra', datosCompra);
     return response.data;
   }
+
+  /**
+   * Obtiene el historial de compras (ventas confirmadas) del cliente autenticado
+   * Incluye detalles de productos, precios y fechas de cada compra
+   * @param limit - Número máximo de compras a obtener (default: 10, max: 50)
+   * @param offset - Número de compras a saltar para paginación (default: 0)
+   * @returns Promise con el array de ventas realizadas
+   */
+  static async obtenerHistorial(limit?: number, offset?: number): Promise<any> {
+    const params: any = {};
+    if (limit !== undefined) params.limit = limit;
+    if (offset !== undefined) params.offset = offset;
+
+    // NUEVO: Usar endpoint de ventas en lugar de carritos
+    const response = await axiosInstance.get('/ventas/historial', { params });
+    return response.data;
+  }
 }
 
 // ============================================================================

@@ -295,3 +295,50 @@ input:focus, textarea:focus, select:focus {
 .transition-fast { transition: all var(--transition-fast) var(--transition-curve); }
 .transition-normal { transition: all var(--transition-normal) var(--transition-curve); }
 .transition-slow { transition: all var(--transition-slow) var(--transition-curve); }
+
+/* === ANIMACIONES GLOBALES === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Clases utilitarias de animación */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
