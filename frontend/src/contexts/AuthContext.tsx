@@ -8,6 +8,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import type { ReactNode } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { authService } from '../services/authService';
+import { adminService } from '../services/adminService';
 
 // ============================================================================
 // CONSTANTES Y CONFIGURACIÓN
@@ -36,11 +37,32 @@ export interface ClienteUser {
 }
 
 /**
+ * Estructura de un usuario administrador o empleado
+ * Define los campos para usuarios del sistema (no clientes)
+ */
+export interface AdminUser {
+  id_usuario: number;
+  nombres: string;
+  email: string;
+  id_rol: number;
+}
+
+/**
+ * Tipo de usuario en el sistema
+ * - cliente: Usuario final de la tienda web
+ * - admin: Administrador del sistema (acceso completo)
+ * - empleado: Empleado del sistema (acceso limitado)
+ */
+export type UserType = 'cliente' | 'admin' | 'empleado' | null;
+
+/**
  * Estado interno del contexto de autenticación
  * Mantiene información del usuario, token y estados de operación
+ * Soporta tanto clientes como usuarios del sistema (admin/empleado)
  */
 interface AuthState {
-  user: ClienteUser | null;
+  user: ClienteUser | AdminUser | null;
+  userType: UserType;
   token: string | null;
   isVerifying: boolean;
   isInitialized: boolean;
@@ -63,15 +85,21 @@ interface RegisterData {
 /**
  * Métodos y propiedades del contexto de autenticación
  * Define la API pública del contexto para componentes consumidores
+ * Incluye autenticación para clientes y usuarios del sistema
  */
 interface AuthContextType {
-  user: ClienteUser | null;
+  user: ClienteUser | AdminUser | null;
+  userType: UserType;
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  isEmpleado: boolean;
+  isCliente: boolean;
   token: string | null;
   isVerifying: boolean;
   isInitialized: boolean;
   error: string | null;
   login: (email_cliente: string, contrasena: string) => Promise<void>;
+  loginAdmin: (email: string, contrasena: string) => Promise<void>;
   register: (data: RegisterData) => Promise<any>;
   logout: () => void;
   googleLogin: (overrideConfig?: any) => void;
@@ -85,6 +113,7 @@ interface AuthContextType {
 // Estado inicial del contexto
 const initialState: AuthState = {
   user: null,
+  userType: null,
   token: null,
   isVerifying: false,
   isInitialized: false,
@@ -210,6 +239,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const cliente = await authService.verifyToken();
       updateState({
         user: cliente,
+        userType: 'cliente',
         token: storedToken,
         isVerifying: false,
         isInitialized: true,
@@ -220,6 +250,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearAuthData();
       updateState({
         user: null,
+        userType: null,
         token: null,
         isVerifying: false,
         isInitialized: true,
@@ -253,6 +284,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       saveAuthData(authData.user, authData.token);
       updateState({
         user: authData.user,
+        userType: 'cliente',
         token: authData.token,
         error: null,
       });
@@ -260,6 +292,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearAuthData();
       updateState({
         user: null,
+        userType: null,
         token: null,
         error: error.message || 'Error al iniciar sesión',
       });
@@ -279,6 +312,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       saveAuthData(authData.user, authData.token);
       updateState({
         user: authData.user,
+        userType: 'cliente',
         token: authData.token,
         error: null,
       });
@@ -297,8 +331,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    */
   const logout = useCallback(() => {
     clearAuthData();
+    adminService.clearAuthToken();
     updateState({
       user: null,
+      userType: null,
       token: null,
       error: null,
     });
@@ -317,6 +353,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         saveAuthData(authData.user, authData.token);
         updateState({
           user: authData.user,
+          userType: 'cliente',
           token: authData.token,
           error: null,
         });
@@ -324,6 +361,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         clearAuthData();
         updateState({
           user: null,
+          userType: null,
           token: null,
           error: error.message || 'Error al autenticarse con Google',
         });
@@ -340,6 +378,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   });
 
   /**
+   * Login de administrador o empleado
+   * Autentica usuarios del sistema (no clientes)
+   */
+  const loginAdmin = useCallback(async (email: string, contrasena: string) => {
+    try {
+      updateState({ error: null });
+
+      const { token, usuario } = await adminService.loginAdmin(email, contrasena);
+
+      // Determinar tipo de usuario basado en id_rol
+      const userType: UserType = usuario.id_rol === 1 ? 'admin' : 'empleado';
+
+      updateState({
+        user: usuario,
+        userType,
+        token,
+        error: null,
+      });
+    } catch (error: any) {
+      adminService.clearAuthToken();
+      updateState({
+        user: null,
+        userType: null,
+        token: null,
+        error: error.message || 'Error al iniciar sesión como administrador',
+      });
+      throw error;
+    }
+  }, [updateState]);
+
+  /**
    * Limpiar error del contexto
    * Permite a los componentes limpiar mensajes de error
    */
@@ -354,23 +423,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Valor del contexto memoizado para evitar re-renders innecesarios
   const contextValue = useMemo(() => ({
     user: state.user,
+    userType: state.userType,
     token: state.token,
     isAuthenticated: !!state.user,
+    isAdmin: state.userType === 'admin',
+    isEmpleado: state.userType === 'empleado',
+    isCliente: state.userType === 'cliente',
     isVerifying: state.isVerifying,
     isInitialized: state.isInitialized,
     error: state.error,
     login,
+    loginAdmin,
     register,
     logout,
     googleLogin,
     clearError,
   }), [
     state.user,
+    state.userType,
     state.token,
     state.isVerifying,
     state.isInitialized,
     state.error,
     login,
+    loginAdmin,
     register,
     logout,
     googleLogin,

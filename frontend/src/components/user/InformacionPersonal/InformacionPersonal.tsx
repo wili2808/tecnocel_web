@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import type { ClienteUser } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { authService } from '../../../services/authService';
 import LoadingSpinner from '../../common/LoadingSpinner';
@@ -18,41 +19,43 @@ interface DatosPersonales {
 
 const InformacionPersonal = () => {
     const { user } = useAuth();
+    // Type guard: asegurar que user es ClienteUser
+    const clienteUser = user as ClienteUser;
     const { showNotification } = useNotification();
     const [guardando, setGuardando] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
     const [formData, setFormData] = useState<DatosPersonales>({
-        nombre_cliente: user?.nombre_cliente || '',
-        apellido_cliente: user?.apellido_cliente || '',
-        celular_cliente: user?.celular_cliente || '',
-        nit_ci_cliente: user?.nit_ci_cliente || ''
+        nombre_cliente: clienteUser?.nombre_cliente || '',
+        apellido_cliente: clienteUser?.apellido_cliente || '',
+        celular_cliente: clienteUser?.celular_cliente || '',
+        nit_ci_cliente: clienteUser?.nit_ci_cliente || ''
     });
 
     const [errors, setErrors] = useState<Partial<DatosPersonales>>({});
 
     // Sincronizar formData cuando el usuario se actualice en el contexto
     useEffect(() => {
-        if (user) {
+        if (clienteUser) {
             setFormData({
-                nombre_cliente: user.nombre_cliente || '',
-                apellido_cliente: user.apellido_cliente || '',
-                celular_cliente: user.celular_cliente || '',
-                nit_ci_cliente: user.nit_ci_cliente || ''
+                nombre_cliente: clienteUser.nombre_cliente || '',
+                apellido_cliente: clienteUser.apellido_cliente || '',
+                celular_cliente: clienteUser.celular_cliente || '',
+                nit_ci_cliente: clienteUser.nit_ci_cliente || ''
             });
         }
-    }, [user]);
+    }, [clienteUser]);
 
     // Detectar cambios
     useEffect(() => {
         const hasChanged =
-            formData.nombre_cliente !== (user?.nombre_cliente || '') ||
-            formData.apellido_cliente !== (user?.apellido_cliente || '') ||
-            formData.celular_cliente !== (user?.celular_cliente || '') ||
-            formData.nit_ci_cliente !== (user?.nit_ci_cliente || '');
+            formData.nombre_cliente !== (clienteUser?.nombre_cliente || '') ||
+            formData.apellido_cliente !== (clienteUser?.apellido_cliente || '') ||
+            formData.celular_cliente !== (clienteUser?.celular_cliente || '') ||
+            formData.nit_ci_cliente !== (clienteUser?.nit_ci_cliente || '');
 
         setHasChanges(hasChanged);
-    }, [formData, user]);
+    }, [formData, clienteUser]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -133,10 +136,10 @@ const InformacionPersonal = () => {
 
     const handleCancel = () => {
         setFormData({
-            nombre_cliente: user?.nombre_cliente || '',
-            apellido_cliente: user?.apellido_cliente || '',
-            celular_cliente: user?.celular_cliente || '',
-            nit_ci_cliente: user?.nit_ci_cliente || ''
+            nombre_cliente: clienteUser?.nombre_cliente || '',
+            apellido_cliente: clienteUser?.apellido_cliente || '',
+            celular_cliente: clienteUser?.celular_cliente || '',
+            nit_ci_cliente: clienteUser?.nit_ci_cliente || ''
         });
         setErrors({});
         setHasChanges(false);

@@ -169,9 +169,17 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
 
     /**
      * Sincroniza el cache con el estado actual
+     * ✅ FIX: También limpia el cache cuando no hay favoritos
      */
     const syncCache = useCallback(() => {
-        if (isAuthenticated && user?.id_cliente && state.favoritos.size > 0) {
+        if (!isAuthenticated || !user?.id_cliente) {
+            // Usuario no autenticado, limpiar cache
+            localStorage.removeItem(FAVORITOS_CACHE_KEY);
+            return;
+        }
+
+        if (state.favoritos.size > 0) {
+            // Hay favoritos, guardar en cache
             const cacheData = {
                 userId: user.id_cliente,
                 favoritosIds: Array.from(state.favoritos.keys()),
@@ -179,6 +187,9 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 timestamp: Date.now()
             };
             localStorage.setItem(FAVORITOS_CACHE_KEY, JSON.stringify(cacheData));
+        } else {
+            // ✅ FIX: No hay favoritos, limpiar el cache
+            localStorage.removeItem(FAVORITOS_CACHE_KEY);
         }
     }, [isAuthenticated, user?.id_cliente, state.favoritos, state.favoritosCompletos]);
 
@@ -297,8 +308,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     };
                 });
 
-                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
-                setTimeout(() => syncCache(), 0);
+                // ✅ El syncCache se ejecutará automáticamente por el useEffect
 
                 showNotificationRef.current('Producto agregado a favoritos', 'success');
                 return true;
@@ -319,8 +329,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     return { ...prev, favoritos: newFavoritos };
                 });
 
-                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
-                setTimeout(() => syncCache(), 0);
+                // ✅ El syncCache se ejecutará automáticamente por el useEffect
 
                 return true; // Considerar como éxito ya que el objetivo se logró
             } else if (error.response?.status === 404) {
@@ -331,7 +340,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 return false;
             }
         }
-    }, [isAuthenticated, user?.id_cliente, syncCache]); // ✅ INCLUIR syncCache
+    }, [isAuthenticated, user?.id_cliente]);
 
     /**
      * Remueve un producto de favoritos
@@ -358,8 +367,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     };
                 });
 
-                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
-                setTimeout(() => syncCache(), 0);
+                // ✅ El syncCache se ejecutará automáticamente por el useEffect
 
                 showNotificationRef.current('Producto removido de favoritos', 'success');
                 return true;
@@ -380,8 +388,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                     return { ...prev, favoritos: newFavoritos };
                 });
 
-                // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
-                setTimeout(() => syncCache(), 0);
+                // ✅ El syncCache se ejecutará automáticamente por el useEffect
 
                 return true; // Considerar como éxito ya que el objetivo se logró
             } else {
@@ -389,7 +396,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 return false;
             }
         }
-    }, [isAuthenticated, user?.id_cliente, syncCache]); // ✅ INCLUIR syncCache
+    }, [isAuthenticated, user?.id_cliente]);
 
     /**
      * Toggle de favorito (agregar/quitar)
@@ -436,6 +443,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
     /**
      * ✅ NUEVO: Elimina múltiples favoritos de manera eficiente
      * Usado para sincronizar cuando se eliminan todos desde UserPanel
+     * ✅ FIX: Mejor manejo de sincronización de cache
      */
     const removeAllFavoritos = useCallback(async (productIds: number[]): Promise<boolean> => {
         if (!isAuthenticated || !user?.id_cliente || productIds.length === 0) {
@@ -448,7 +456,14 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 favoritoService.removeFavorito(user.id_cliente, productId)
             );
 
-            await Promise.all(removePromises);
+            const results = await Promise.allSettled(removePromises);
+
+            // Verificar si todas las eliminaciones fueron exitosas
+            const allSuccess = results.every(result => result.status === 'fulfilled');
+
+            if (!allSuccess) {
+                console.warn('Algunas eliminaciones fallaron, sincronizando con backend...');
+            }
 
             // ✅ ACTUALIZAR ESTADO GLOBAL INMEDIATAMENTE
             setState(prev => {
@@ -465,15 +480,15 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 };
             });
 
-            // ✅ SINCRONIZAR CACHE INMEDIATAMENTE
-            setTimeout(() => syncCache(), 0);
+            // ✅ FIX: El syncCache se ejecutará automáticamente por el useEffect
+            // No necesitamos setTimeout ya que tenemos useEffect que observa state.favoritos
 
             return true;
         } catch (error) {
             console.error('Error al eliminar múltiples favoritos:', error);
             return false;
         }
-    }, [isAuthenticated, user?.id_cliente, syncCache]);
+    }, [isAuthenticated, user?.id_cliente]);
 
     /**
      * ✅ NUEVO: Sincroniza el estado local con el backend
@@ -501,8 +516,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 error: null
             }));
 
-            // Sincronizar cache
-            syncCache();
+            // ✅ El syncCache se ejecutará automáticamente por el useEffect
 
             console.log('Estado de favoritos sincronizado con backend');
         } catch (error) {
@@ -512,7 +526,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 error: 'Error al sincronizar favoritos'
             }));
         }
-    }, [isAuthenticated, user?.id_cliente, syncCache]);
+    }, [isAuthenticated, user?.id_cliente]);
 
     /**
      * Obtiene el conteo de favoritos

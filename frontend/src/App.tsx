@@ -24,6 +24,9 @@ const UserPanel = lazy(() => import('./pages/UserPanel'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Offers = lazy(() => import('./pages/Offers/Offers'));
 const Brands = lazy(() => import('./pages/Brands/Brands'));
+// Componentes de administración
+const AdminLogin = lazy(() => import('./pages/AdminLogin/AdminLogin'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel'));
 
 // Componente de carga
 const LoadingFallback = () => (
@@ -75,6 +78,9 @@ function App() {
                                 <Route path="/productos" element={<ProductCatalog />} />
                                 <Route path="/productos/:id" element={<ProductPage />} />
                               </Route>
+                              {/* Rutas de administración (sin layout) */}
+                              <Route path="/admin-login" element={<AdminLogin />} />
+                              <Route path="/admin-panel" element={<AdminPanel />} />
                             </Routes>
                           </Suspense>
                           <NotificationContainer />

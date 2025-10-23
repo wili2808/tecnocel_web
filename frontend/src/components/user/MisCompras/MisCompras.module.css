@@ -1,5 +1,5 @@
 /* === CONTENEDOR PRINCIPAL === */
-.misComprasContainer {
+.container {
   width: 100%;
   padding: var(--spacing-md);
   animation: fadeIn 0.3s ease-in;
@@ -10,20 +10,27 @@
   margin-bottom: var(--spacing-xl);
 }
 
-.sectionTitle {
+.title {
   font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-lg);
+  margin: 0;
 }
 
-.statsContainer {
+.subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: var(--spacing-xs) 0 0 0;
+}
+
+.stats {
   display: flex;
   gap: var(--spacing-lg);
   flex-wrap: wrap;
+  margin-bottom: var(--spacing-xl);
 }
 
-.stat {
+.statCard {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -35,12 +42,12 @@
   min-width: 200px;
 }
 
-.stat .material-icons {
+.statCard .material-icons {
   font-size: var(--font-size-2xl);
   color: var(--color-primary);
 }
 
-.stat > div {
+.statCard > div {
   display: flex;
   flex-direction: column;
 }
@@ -49,22 +56,49 @@
   font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .statLabel {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
+  margin: 0;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btnPrimary:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btnPrimary .material-icons {
+  font-size: var(--font-size-xl);
 }
 
 /* === LISTA DE COMPRAS === */
-.comprasList {
+.ventasList {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
 }
 
 /* === TARJETA DE COMPRA === */
-.compraCard {
+.ventaCard {
   background-color: var(--background-light);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
@@ -73,11 +107,11 @@
   overflow: hidden;
 }
 
-.compraCard:hover {
+.ventaCard:hover {
   box-shadow: var(--shadow-md);
 }
 
-.compraHeader {
+.ventaHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -86,62 +120,51 @@
   transition: background-color var(--transition-normal);
 }
 
-.compraHeader:hover {
+.ventaHeader:hover {
   background-color: var(--background-hover);
 }
 
-.compraInfo {
+.ventaInfo {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xl);
+  flex-direction: column;
+  gap: var(--spacing-xs);
   flex: 1;
 }
 
-.compraNumber {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.compraNumber .material-icons {
-  font-size: var(--font-size-2xl);
-  color: var(--color-primary);
-}
-
-.compraNumber > div {
-  display: flex;
-  flex-direction: column;
-}
-
-.orderNumber {
+.ventaNumero {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
 }
 
-.orderDate {
+.ventaFecha {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
+  margin: 0;
 }
 
-.compraTotal {
+.ventaTotal {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: var(--spacing-xs);
 }
 
 .totalLabel {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
+  margin: 0;
 }
 
 .totalValue {
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--color-primary);
+  margin: 0;
 }
 
-.expandButton {
+.expandBtn {
   background: none;
   border: none;
   cursor: pointer;
@@ -154,128 +177,89 @@
   border-radius: var(--border-radius-full);
 }
 
-.expandButton:hover {
+.expandBtn:hover {
   background-color: var(--background-hover);
   color: var(--color-primary);
 }
 
-.expandButton .material-icons {
+.expandBtn .material-icons {
   font-size: var(--font-size-2xl);
 }
 
 /* === DETALLES DE LA COMPRA === */
-.compraDetails {
+.ventaDetails {
   padding: var(--spacing-lg);
   border-top: 1px solid var(--border-color);
   background-color: var(--background-primary);
   animation: slideDown 0.3s ease-out;
 }
 
-.productosList {
-  margin-bottom: var(--spacing-lg);
-}
-
-.productosList h4 {
+.ventaDetails h4 {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
+  margin: 0 0 var(--spacing-md) 0;
   padding-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--border-color);
 }
 
-.productoItem {
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-md);
   border-radius: var(--border-radius-md);
-  margin-bottom: var(--spacing-sm);
   transition: background-color var(--transition-normal);
 }
 
-.productoItem:hover {
+.item:hover {
   background-color: var(--background-light);
 }
 
-.productoInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  flex: 1;
-}
-
-.productoImagen {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
-}
-
-.productoTexto {
+.itemInfo {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  flex: 1;
 }
 
-.productoNombre {
+.itemName {
   font-size: var(--font-size-md);
   font-weight: 500;
   color: var(--text-primary);
+  margin: 0;
 }
 
-.productoCantidad {
+.itemCantidad {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
+  margin: 0;
 }
 
-.productoPrecios {
+.itemPrecios {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: var(--spacing-xs);
 }
 
-.precioUnitario {
+.itemPrecio {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
+  margin: 0;
 }
 
-.subtotal {
+.itemSubtotal {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
-}
-
-.noItems {
-  text-align: center;
-  color: var(--text-tertiary);
-  padding: var(--spacing-lg);
-  font-size: var(--font-size-sm);
-}
-
-.compraFooter {
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border-color);
-}
-
-.totalResumen {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--font-size-lg);
-}
-
-.totalResumen > span:first-child {
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.totalFinal {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--color-primary);
+  margin: 0;
 }
 
 /* === ESTADO VACÍO === */
@@ -311,30 +295,6 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.exploreButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-xl);
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  text-decoration: none;
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
-  font-weight: 500;
-  transition: all var(--transition-normal);
-  box-shadow: var(--shadow-sm);
-}
-
-.exploreButton:hover {
-  background-color: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.exploreButton .material-icons {
-  font-size: var(--font-size-lg);
-}
 
 /* === ESTADO DE CARGA === */
 .loadingContainer {
@@ -355,70 +315,55 @@
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .misComprasContainer {
+  .container {
     padding: var(--spacing-sm);
   }
 
-  .sectionTitle {
+  .title {
     font-size: var(--font-size-xl);
   }
 
-  .statsContainer {
+  .stats {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
 
-  .stat {
+  .statCard {
     min-width: unset;
   }
 
-  .compraHeader {
+  .ventaHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-md);
   }
 
-  .compraInfo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
+  .ventaInfo {
     width: 100%;
   }
 
-  .compraTotal {
+  .ventaTotal {
     align-items: flex-start;
   }
 
-  .productoItem {
+  .item {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
   }
 
-  .productoPrecios {
+  .itemPrecios {
     align-items: flex-start;
     width: 100%;
-  }
-
-  .totalResumen {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
   }
 }
 
 @media (max-width: 480px) {
-  .productoImagen {
-    width: 50px;
-    height: 50px;
-  }
-
-  .productoNombre {
+  .itemName {
     font-size: var(--font-size-sm);
   }
 
-  .totalValue,
-  .totalFinal {
+  .totalValue {
     font-size: var(--font-size-lg);
   }
 }

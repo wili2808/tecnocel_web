@@ -1,5 +1,5 @@
 /* === MODAL OVERLAY === */
-.modalOverlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -15,7 +15,7 @@
 }
 
 /* === CONTENIDO DEL MODAL === */
-.modalContent {
+.modal {
   background-color: var(--background-primary);
   border-radius: var(--border-radius-lg);
   max-width: 600px;
@@ -27,7 +27,7 @@
 }
 
 /* === HEADER DEL MODAL === */
-.modalHeader {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,14 +39,14 @@
   z-index: 10;
 }
 
-.modalHeader h2 {
+.header h2 {
   font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
 
-.closeButton {
+.closeBtn {
   background: none;
   border: none;
   cursor: pointer;
@@ -59,17 +59,17 @@
   border-radius: var(--border-radius-full);
 }
 
-.closeButton:hover:not(:disabled) {
+.closeBtn:hover:not(:disabled) {
   background-color: var(--background-hover);
   color: var(--text-primary);
 }
 
-.closeButton:disabled {
+.closeBtn:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-.closeButton .material-icons {
+.closeBtn .material-icons {
   font-size: var(--font-size-xl);
 }
 
@@ -87,7 +87,7 @@
   gap: var(--spacing-xs);
 }
 
-.formGroup label {
+.label {
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-secondary);
@@ -103,9 +103,8 @@
   font-style: italic;
 }
 
-.formGroup input,
-.formGroup select,
-.formGroup textarea {
+.input,
+.textarea {
   padding: var(--spacing-sm);
   font-size: var(--font-size-md);
   color: var(--text-primary);
@@ -116,36 +115,30 @@
   font-family: inherit;
 }
 
-.formGroup input:focus,
-.formGroup select:focus,
-.formGroup textarea:focus {
+.input:focus,
+.textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
 }
 
-.formGroup input:disabled,
-.formGroup select:disabled,
-.formGroup textarea:disabled {
+.input:disabled,
+.textarea:disabled {
   background-color: var(--background-disabled);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.formGroup textarea {
+.textarea {
   resize: vertical;
   min-height: 80px;
 }
 
-.formGroup input.inputError,
-.formGroup select.inputError,
-.formGroup textarea.inputError {
+.inputError {
   border-color: var(--color-error);
 }
 
-.formGroup input.inputError:focus,
-.formGroup select.inputError:focus,
-.formGroup textarea.inputError:focus {
+.inputError:focus {
   box-shadow: 0 0 0 3px rgba(var(--color-error-rgb), 0.1);
 }
 
@@ -159,10 +152,14 @@
 }
 
 /* === FILA DE FORMULARIO === */
-.formRow {
+.formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-md);
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
 }
 
 /* === GRUPO DE CHECKBOXES === */
@@ -176,7 +173,7 @@
   border: 1px solid var(--border-color);
 }
 
-.checkbox {
+.checkboxLabel {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -185,23 +182,23 @@
   color: var(--text-secondary);
 }
 
-.checkbox input[type="checkbox"] {
+.checkboxLabel input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
   margin: 0;
 }
 
-.checkbox:hover {
+.checkboxLabel:hover {
   color: var(--text-primary);
 }
 
-.checkbox input[type="checkbox"]:disabled {
+.checkboxLabel input[type="checkbox"]:disabled {
   cursor: not-allowed;
 }
 
 /* === ACCIONES DEL FORMULARIO === */
-.formActions {
+.actions {
   display: flex;
   gap: var(--spacing-sm);
   justify-content: flex-end;
@@ -210,8 +207,8 @@
   margin-top: var(--spacing-md);
 }
 
-.cancelButton,
-.submitButton {
+.btnSecondary,
+.btnPrimary {
   padding: var(--spacing-sm) var(--spacing-xl);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-md);
@@ -226,74 +223,74 @@
   justify-content: center;
 }
 
-.cancelButton {
+.btnSecondary {
   background-color: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
 }
 
-.cancelButton:hover:not(:disabled) {
+.btnSecondary:hover:not(:disabled) {
   background-color: var(--background-hover);
 }
 
-.submitButton {
+.btnPrimary {
   background-color: var(--color-primary);
   color: var(--color-white);
 }
 
-.submitButton:hover:not(:disabled) {
+.btnPrimary:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
-.cancelButton:disabled,
-.submitButton:disabled {
+.btnSecondary:disabled,
+.btnPrimary:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.submitButton:disabled {
+.btnPrimary:disabled {
   background-color: var(--background-disabled);
   color: var(--text-disabled);
 }
 
-.submitButton .material-icons {
+.btnPrimary .material-icons {
   font-size: var(--font-size-lg);
 }
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .modalOverlay {
+  .overlay {
     padding: 0;
   }
 
-  .modalContent {
+  .modal {
     max-width: 100%;
     max-height: 100vh;
     border-radius: 0;
   }
 
-  .formRow {
+  .formGrid {
     grid-template-columns: 1fr;
   }
 
-  .formActions {
+  .actions {
     flex-direction: column-reverse;
   }
 
-  .cancelButton,
-  .submitButton {
+  .btnSecondary,
+  .btnPrimary {
     width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .modalHeader {
+  .header {
     padding: var(--spacing-md);
   }
 
-  .modalHeader h2 {
+  .header h2 {
     font-size: var(--font-size-lg);
   }
 
@@ -301,9 +298,8 @@
     padding: var(--spacing-md);
   }
 
-  .formGroup input,
-  .formGroup select,
-  .formGroup textarea {
+  .input,
+  .textarea {
     font-size: var(--font-size-sm);
   }
 }

@@ -1,5 +1,5 @@
 /* === CONTENEDOR PRINCIPAL === */
-.direccionesContainer {
+.container {
   width: 100%;
   padding: var(--spacing-md);
   animation: fadeIn 0.3s ease-in;
@@ -13,13 +13,20 @@
   margin-bottom: var(--spacing-xl);
 }
 
-.sectionTitle {
+.title {
   font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
 }
 
-.addButton {
+.subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: var(--spacing-xs) 0 0 0;
+}
+
+.btnAdd {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -34,14 +41,39 @@
   transition: all var(--transition-normal);
 }
 
-.addButton:hover {
+.btnAdd:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
-.addButton .material-icons {
+.btnAdd .material-icons {
   font-size: var(--font-size-lg);
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btnPrimary:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btnPrimary .material-icons {
+  font-size: var(--font-size-xl);
 }
 
 /* === GRID DE DIRECCIONES === */
@@ -69,7 +101,7 @@
   transform: translateY(-2px);
 }
 
-.direccionHeader {
+.cardHeader {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
@@ -90,8 +122,7 @@
   flex-wrap: wrap;
 }
 
-.badgePredeterminada,
-.badgeFacturacion {
+.badge {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -101,26 +132,26 @@
   font-weight: 500;
 }
 
-.badgePredeterminada {
+.badgePrimary {
   background-color: var(--color-success-light);
   color: var(--color-success);
 }
 
-.badgePredeterminada .material-icons {
+.badgePrimary .material-icons {
   font-size: var(--font-size-sm);
 }
 
-.badgeFacturacion {
+.badgeSecondary {
   background-color: var(--color-info-light);
   color: var(--color-info);
 }
 
-.badgeFacturacion .material-icons {
+.badgeSecondary .material-icons {
   font-size: var(--font-size-sm);
 }
 
 /* === CONTENIDO DE DIRECCIÓN === */
-.direccionContent {
+.cardBody {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -147,18 +178,40 @@
   line-height: 1.5;
 }
 
-.detalle {
+.referencia {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-style: italic;
   color: var(--text-tertiary);
   font-size: var(--font-size-xs);
 }
 
-.referencia {
-  font-style: italic;
-  color: var(--text-tertiary);
+.referencia .material-icons {
+  font-size: var(--font-size-sm);
+}
+
+.contactoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.contactoItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.contactoItem .material-icons {
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
 }
 
 /* === ACCIONES === */
-.direccionActions {
+.cardActions {
   display: flex;
   gap: var(--spacing-xs);
   flex-wrap: wrap;
@@ -166,7 +219,7 @@
   border-top: 1px solid var(--border-color);
 }
 
-.actionButton {
+.btnEdit {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -180,19 +233,38 @@
   transition: all var(--transition-normal);
 }
 
-.actionButton:hover {
+.btnEdit:hover {
   background-color: var(--background-hover);
   color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-.actionButton .material-icons {
+.btnEdit .material-icons {
   font-size: var(--font-size-md);
 }
 
-.deleteButton:hover {
+.btnDelete {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btnDelete:hover {
+  background-color: var(--background-hover);
   color: var(--color-error);
   border-color: var(--color-error);
+}
+
+.btnDelete .material-icons {
+  font-size: var(--font-size-md);
 }
 
 /* === ESTADO VACÍO === */
@@ -227,33 +299,8 @@
   margin-bottom: var(--spacing-xl);
 }
 
-.addButtonLarge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.addButtonLarge:hover {
-  background-color: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.addButtonLarge .material-icons {
-  font-size: var(--font-size-xl);
-}
-
 /* === MODAL DE CONFIRMACIÓN === */
-.modalOverlay {
+.deleteModal {
   position: fixed;
   top: 0;
   left: 0;
@@ -267,55 +314,59 @@
   padding: var(--spacing-md);
 }
 
-.confirmModal {
+.deleteModalContent {
   background-color: var(--background-primary);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
   max-width: 400px;
   width: 100%;
   box-shadow: var(--shadow-lg);
+  text-align: center;
 }
 
-.confirmHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+.deleteModalContent .material-icons {
+  color: var(--color-warning);
+  font-size: var(--icon-size-4xl);
   margin-bottom: var(--spacing-md);
 }
 
-.confirmHeader .material-icons {
-  color: var(--color-warning);
-  font-size: var(--font-size-2xl);
-}
-
-.confirmHeader h3 {
+.deleteModalContent h3 {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 var(--spacing-sm) 0;
 }
 
-.confirmModal > p {
+.deleteModalContent > p {
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
   line-height: 1.5;
-}
-
-.warning {
-  color: var(--color-error);
   font-size: var(--font-size-sm);
-  font-weight: 500;
 }
 
-.confirmActions {
+.deleteModalActions {
   display: flex;
   gap: var(--spacing-sm);
-  justify-content: flex-end;
-  margin-top: var(--spacing-lg);
+  justify-content: center;
 }
 
-.cancelButton,
-.confirmButton {
+.btnSecondary {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btnSecondary:hover {
+  background-color: var(--background-hover);
+}
+
+.btnDanger {
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-md);
@@ -323,24 +374,11 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   border: none;
-}
-
-.cancelButton {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-}
-
-.cancelButton:hover {
-  background-color: var(--background-hover);
-}
-
-.confirmButton {
   background-color: var(--color-error);
   color: var(--color-white);
 }
 
-.confirmButton:hover {
+.btnDanger:hover {
   background-color: var(--color-error-dark);
 }
 
@@ -361,7 +399,7 @@
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .direccionesContainer {
+  .container {
     padding: var(--spacing-sm);
   }
 
@@ -371,7 +409,7 @@
     gap: var(--spacing-md);
   }
 
-  .addButton {
+  .btnAdd {
     width: 100%;
     justify-content: center;
   }
@@ -380,7 +418,7 @@
     grid-template-columns: 1fr;
   }
 
-  .sectionTitle {
+  .title {
     font-size: var(--font-size-xl);
   }
 }

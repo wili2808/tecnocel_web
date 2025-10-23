@@ -1,18 +1,26 @@
 /* === CONTENEDOR PRINCIPAL === */
-.infoPersonalContainer {
+.container {
   width: 100%;
   padding: var(--spacing-md);
   animation: fadeIn 0.3s ease-in;
 }
 
-/* === TÍTULO DE SECCIÓN === */
-.sectionTitle {
+/* === HEADER === */
+.header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.title {
   font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid var(--border-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.subtitle {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* === FORMULARIO === */
@@ -25,6 +33,13 @@
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-sm);
+}
+
+/* === GRID DEL FORMULARIO === */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
 }
 
 /* === GRUPOS DE FORMULARIO === */
@@ -100,7 +115,7 @@
 }
 
 /* === ACCIONES DEL FORMULARIO === */
-.formActions {
+.actions {
   display: flex;
   gap: var(--spacing-md);
   justify-content: flex-end;
@@ -109,8 +124,8 @@
   border-top: 1px solid var(--border-color);
 }
 
-.submitButton,
-.cancelButton {
+.btnPrimary,
+.btnSecondary {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,50 +140,50 @@
   min-width: 150px;
 }
 
-.submitButton {
+.btnPrimary {
   background-color: var(--color-primary);
   color: var(--color-white);
 }
 
-.submitButton:hover:not(:disabled) {
+.btnPrimary:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
-.submitButton:disabled {
+.btnPrimary:disabled {
   background-color: var(--background-disabled);
   color: var(--text-disabled);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.cancelButton {
+.btnSecondary {
   background-color: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
 }
 
-.cancelButton:hover:not(:disabled) {
+.btnSecondary:hover:not(:disabled) {
   background-color: var(--background-hover);
   border-color: var(--color-error);
   color: var(--color-error);
 }
 
-.cancelButton:disabled {
+.btnSecondary:disabled {
   background-color: transparent;
   color: var(--text-disabled);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.submitButton .material-icons,
-.cancelButton .material-icons {
+.btnPrimary .material-icons,
+.btnSecondary .material-icons {
   font-size: var(--font-size-lg);
 }
 
 /* === INDICADOR DE CAMBIOS === */
-.changeIndicator {
+.warningBox {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -177,25 +192,51 @@
   color: var(--color-warning-dark);
   border-radius: var(--border-radius-md);
   border-left: 4px solid var(--color-warning);
+  margin-bottom: var(--spacing-lg);
 }
 
-.changeIndicator .material-icons {
+.warningBox .material-icons {
   font-size: var(--font-size-xl);
 }
 
-.changeIndicator p {
+.warningBox p {
   margin: 0;
   font-size: var(--font-size-sm);
   font-weight: 500;
 }
 
+/* === CAJA DE INFORMACIÓN === */
+.infoBox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-lg);
+}
+
+.infoBox .material-icons {
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.infoBox p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .infoPersonalContainer {
+  .container {
     padding: var(--spacing-sm);
   }
 
-  .sectionTitle {
+  .title {
     font-size: var(--font-size-xl);
   }
 
@@ -203,13 +244,18 @@
     padding: var(--spacing-md);
   }
 
-  .formActions {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .actions {
     flex-direction: column-reverse;
     gap: var(--spacing-sm);
   }
 
-  .submitButton,
-  .cancelButton {
+  .btnPrimary,
+  .btnSecondary {
     width: 100%;
     min-width: unset;
   }
@@ -225,8 +271,8 @@
     padding: var(--spacing-xs) var(--spacing-sm);
   }
 
-  .submitButton,
-  .cancelButton {
+  .btnPrimary,
+  .btnSecondary {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-sm);
   }
