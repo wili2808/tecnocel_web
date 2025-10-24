@@ -1,16 +1,78 @@
 import { Router } from 'express';
 import { MarcaController } from '../controllers/MarcaController.js';
+import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
+import {
+  validateCreateMarca,
+  validateUpdateMarca,
+  validateDeleteMarca,
+  validateGetMarcaById
+} from '../middleware/validateMarca.js';
 
 const router = Router();
 
-// Rutas públicas
-router.get('/', MarcaController.getAllMarcas);
-router.get('/:id', MarcaController.getMarcaById);
+// ============================================================================
+// RUTAS PÚBLICAS - No requieren autenticación
+// ============================================================================
 
-// Rutas de administración (requieren autenticación de admin)
-// TODO: Agregar middleware de autenticación de admin
-router.post('/', MarcaController.createMarca);
-router.put('/:id', MarcaController.updateMarca);
-router.delete('/:id', MarcaController.deleteMarca);
+/**
+ * GET /marcas
+ * Obtiene todas las marcas activas del sistema
+ * Acceso: Público
+ */
+router.get('/', MarcaController.getAllMarcas);
+
+/**
+ * GET /marcas/:id
+ * Obtiene una marca específica por su ID
+ * Acceso: Público
+ * Validación: ID debe ser número entero positivo
+ */
+router.get('/:id', validateGetMarcaById, MarcaController.getMarcaById);
+
+// ============================================================================
+// RUTAS DE ADMINISTRACIÓN - Requieren autenticación de admin (rol 1)
+// ============================================================================
+
+/**
+ * POST /marcas
+ * Crea una nueva marca en el sistema
+ * Acceso: Solo administradores
+ * Validación: nombre_marca requerido (2-100 chars), logo y descripción opcionales
+ */
+router.post(
+  '/',
+  verificarToken,
+  verificarRol([1]),
+  validateCreateMarca,
+  MarcaController.createMarca
+);
+
+/**
+ * PUT /marcas/:id
+ * Actualiza una marca existente
+ * Acceso: Solo administradores
+ * Validación: ID requerido, campos opcionales
+ */
+router.put(
+  '/:id',
+  verificarToken,
+  verificarRol([1]),
+  validateUpdateMarca,
+  MarcaController.updateMarca
+);
+
+/**
+ * DELETE /marcas/:id
+ * Elimina (soft delete) una marca del sistema
+ * Acceso: Solo administradores
+ * Validación: ID debe ser número entero positivo
+ */
+router.delete(
+  '/:id',
+  verificarToken,
+  verificarRol([1]),
+  validateDeleteMarca,
+  MarcaController.deleteMarca
+);
 
 export default router;

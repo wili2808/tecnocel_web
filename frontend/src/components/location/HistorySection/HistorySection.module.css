@@ -1,36 +1,230 @@
-/* Sección de Historia */
+/* ============================================================================
+   HISTORY SECTION - HISTORIA Y CONTACTO
+   ============================================================================ */
+
+/* Contenedor principal */
 .historySection {
-  margin-bottom: var(--spacing-3xl);
-  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
 }
 
-.historySection h2 {
-  font-size: var(--font-size-4xl);
-  color: var(--text-primary);
+/* Header (Título y descripción) */
+.header {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.title {
   margin-bottom: var(--spacing-lg);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  transition: var(--theme-transition);
 }
 
-.historySection p {
-  font-size: 1.1rem;
-  line-height: 1.6;
+.description {
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%;
+  transition: var(--theme-transition);
 }
 
-/* Responsive */
+/* ============================================================================
+   INFORMACIÓN DE CONTACTO
+   ============================================================================ */
+
+.contactInfo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-neutral-200);
+  transition: all var(--transition-normal) var(--transition-curve);
+  cursor: default;
+}
+
+.contactItem:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-sky-300);
+}
+
+/* Icono wrapper */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  background: linear-gradient(135deg, var(--color-sky-500), var(--color-cyan-500));
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.contactItem:hover .iconWrapper {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-white);
+}
+
+/* Texto de contacto */
+.contactText {
+  flex: 1;
+}
+
+.contactText h3 {
+  margin-bottom: var(--spacing-xs);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  transition: var(--theme-transition);
+}
+
+.contactText p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+  transition: var(--theme-transition);
+}
+
+.contactText p + p {
+  margin-top: var(--spacing-xs);
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   TEMA OSCURO
+   ============================================================================ */
+
+:global([data-theme="dark"]) .contactItem {
+  background: var(--color-zinc-900);
+  border-color: var(--color-zinc-700);
+}
+
+:global([data-theme="dark"]) .contactItem:hover {
+  border-color: var(--color-sky-600);
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet */
 @media (max-width: 768px) {
-  .historySection h2 {
-    font-size: 2rem;
+  .title {
+    font-size: var(--font-size-2xl);
   }
 
-  .historySection p {
-    font-size: 1rem;
+  .description {
+    font-size: var(--font-size-sm);
+  }
+
+  .contactInfo {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .contactItem {
+    padding: var(--spacing-md);
+  }
+
+  .iconWrapper {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .contactText h3 {
+    font-size: var(--font-size-sm);
+  }
+
+  .contactText p {
+    font-size: var(--font-size-xs);
   }
 }
 
+/* Mobile */
 @media (max-width: 480px) {
-  .historySection h2 {
-    font-size: 1.75rem;
+  .historySection {
+    gap: var(--spacing-xl);
   }
-} 
+
+  .title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .description {
+    font-size: var(--font-size-xs);
+  }
+
+  .contactInfo {
+    gap: var(--spacing-sm);
+  }
+
+  .contactItem {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Reducción de movimiento para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .contactInfo {
+    animation: none;
+  }
+
+  .contactItem,
+  .iconWrapper {
+    transition: none;
+  }
+
+  .contactItem:hover {
+    transform: none;
+  }
+
+  .contactItem:hover .iconWrapper {
+    transform: none;
+  }
+}

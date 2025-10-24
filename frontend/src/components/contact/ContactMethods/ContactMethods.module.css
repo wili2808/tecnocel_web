@@ -1,0 +1,306 @@
+/* ============================================================================
+   CONTACT METHODS - MÉTODOS DE CONTACTO
+   ============================================================================ */
+
+/* Contenedor principal */
+.contactMethods {
+  width: 100%;
+  animation: fadeIn 0.6s ease-out 0.2s both;
+}
+
+/* Header */
+.header {
+  margin-bottom: var(--spacing-3xl);
+  text-align: center;
+}
+
+.title {
+  margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  transition: var(--theme-transition);
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  transition: var(--theme-transition);
+}
+
+/* Grid de métodos */
+.methodsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-3xl);
+}
+
+/* Tarjeta de método */
+.methodCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background: var(--background-elevated);
+  border: 2px solid var(--color-neutral-200);
+  border-radius: var(--border-radius-xl);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-normal) var(--transition-curve);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.methodCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--method-color, var(--color-sky-500));
+  transform: scaleY(0);
+  transition: transform var(--transition-normal) var(--transition-curve);
+}
+
+.methodCard:hover::before {
+  transform: scaleY(1);
+}
+
+.methodCard:hover {
+  transform: translateY(-4px) translateX(4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--method-color, var(--color-sky-500));
+}
+
+/* Icono wrapper */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  background: var(--method-color, var(--color-sky-500));
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.methodCard:hover .iconWrapper {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-white);
+}
+
+/* Contenido del método */
+.methodContent {
+  flex: 1;
+}
+
+.methodTitle {
+  margin-bottom: var(--spacing-xs);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  transition: var(--theme-transition);
+}
+
+.methodDescription {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  transition: var(--theme-transition);
+}
+
+.methodValue {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--method-color, var(--color-sky-500));
+}
+
+/* Flecha */
+.arrow {
+  font-size: var(--font-size-2xl);
+  color: var(--method-color, var(--color-sky-500));
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.methodCard:hover .arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Footer */
+.footer {
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-sky-50), var(--color-cyan-50));
+  border-radius: var(--border-radius-lg);
+  text-align: center;
+  border: 1px solid var(--color-sky-200);
+  transition: var(--theme-transition);
+}
+
+.footerText {
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.footerText strong {
+  color: var(--color-sky-600);
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   TEMA OSCURO
+   ============================================================================ */
+
+:global([data-theme="dark"]) .methodCard {
+  background: var(--color-zinc-900);
+  border-color: var(--color-zinc-700);
+}
+
+:global([data-theme="dark"]) .methodCard:hover {
+  border-color: var(--method-color, var(--color-sky-500));
+}
+
+:global([data-theme="dark"]) .footer {
+  background: linear-gradient(135deg, var(--color-zinc-900), var(--color-zinc-800));
+  border-color: var(--color-zinc-700);
+}
+
+:global([data-theme="dark"]) .footerText strong {
+  color: var(--color-sky-400);
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-md);
+  }
+
+  .methodsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .methodCard {
+    padding: var(--spacing-lg);
+  }
+
+  .iconWrapper {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .header {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .methodCard {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .methodTitle {
+    font-size: var(--font-size-md);
+  }
+
+  .methodDescription {
+    font-size: var(--font-size-xs);
+  }
+
+  .methodValue {
+    font-size: var(--font-size-sm);
+  }
+
+  .arrow {
+    font-size: var(--font-size-xl);
+  }
+
+  .footer {
+    padding: var(--spacing-md);
+  }
+
+  .footerText {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .contactMethods {
+    animation: none;
+  }
+
+  .methodCard,
+  .iconWrapper,
+  .arrow {
+    transition: none;
+  }
+
+  .methodCard:hover {
+    transform: none;
+  }
+
+  .methodCard:hover .iconWrapper {
+    transform: none;
+  }
+
+  .methodCard::before {
+    transition: none;
+  }
+}

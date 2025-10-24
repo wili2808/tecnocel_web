@@ -68,6 +68,10 @@ const Home = () => {
         description="Contáctanos para obtener una cotización personalizada para tu proyecto."
         buttonText="Solicitar Cotización"
         buttonLink="/contacto"
+        variant="gradient"
+        icon="mail"
+        secondaryButtonText="Ver Catálogo"
+        secondaryButtonLink="/catalogo"
       />
       <LocationSection />
     </>

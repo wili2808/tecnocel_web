@@ -1,0 +1,38 @@
+/* Contenedor del mapa */
+.mapContainer {
+  width: 100%;
+  height: 450px;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+/* Mapa de Leaflet */
+.map {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Ajustes para el tema oscuro */
+:global([data-theme="dark"]) .map {
+  filter: invert(90%) hue-rotate(180deg);
+}
+
+:global([data-theme="dark"]) .map :global(.leaflet-tile-pane) {
+  filter: invert(100%) hue-rotate(180deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mapContainer {
+    height: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mapContainer {
+    height: 300px;
+  }
+}

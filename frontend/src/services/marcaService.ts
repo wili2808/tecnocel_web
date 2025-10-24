@@ -13,8 +13,9 @@ const marcaService = {
    */
   getMarcas: async (): Promise<Marca[]> => {
     try {
-      const response = await axiosInstance.get('/almacen/marcas');
-      return response.data;
+      const response = await axiosInstance.get('/marcas');
+      // El backend retorna { success: true, data: [...], count: N }
+      return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching brands:', error);
       throw error;
@@ -29,8 +30,9 @@ const marcaService = {
    */
   getMarcaById: async (id: number): Promise<Marca> => {
     try {
-      const response = await axiosInstance.get(`/almacen/marcas/${id}`);
-      return response.data;
+      const response = await axiosInstance.get(`/marcas/${id}`);
+      // El backend retorna { success: true, data: {...} }
+      return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching brand by ID:', error);
       throw error;

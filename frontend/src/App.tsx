@@ -24,6 +24,7 @@ const UserPanel = lazy(() => import('./pages/UserPanel'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Offers = lazy(() => import('./pages/Offers/Offers'));
 const Brands = lazy(() => import('./pages/Brands/Brands'));
+const Contacto = lazy(() => import('./pages/Contacto'));
 // Componentes de administración
 const AdminLogin = lazy(() => import('./pages/AdminLogin/AdminLogin'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel'));
@@ -72,6 +73,7 @@ function App() {
                                 <Route path="/carrito" element={<Cart />} />
                                 <Route path="/ofertas" element={<Offers />} />
                                 <Route path="/marcas" element={<Brands />} />
+                                <Route path="/contacto" element={<Contacto />} />
                               </Route>
                               {/* Rutas sin footer */}
                               <Route element={<Layout hideFooter />}>

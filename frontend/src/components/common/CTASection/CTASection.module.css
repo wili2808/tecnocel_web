@@ -1,71 +1,421 @@
-/* Sección Call to Action */
-.section {
-  background: var(--background-secondary);
-  padding: var(--spacing-3xl) 0;
+/* ============================================================================
+   CTA SECTION - CALL TO ACTION OPTIMIZADO
+   ============================================================================ */
+
+/* Contenedor principal de la sección */
+.ctaSection {
+  position: relative;
+  padding: var(--spacing-4xl) 0;
+  overflow: hidden;
+  transition: var(--theme-transition);
 }
 
+/* Container responsivo */
 .container {
+  position: relative;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+  z-index: 2;
 }
 
-.ctaCard {
-  background: var(--background-elevated);
-  max-width: 768px;
-  margin: 0 auto;
-  border-radius: var(--border-radius-2xl);
+/* Contenido principal */
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xl);
   padding: var(--spacing-3xl);
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-xl);
   text-align: center;
+  animation: fadeInUp 0.6s ease-out;
+  transition: var(--theme-transition);
 }
 
+/* Contenido de texto */
+.textContent {
+  max-width: 700px;
+}
+
+/* Título principal */
 .title {
   margin-bottom: var(--spacing-lg);
-  font-size: var(--font-size-3xl);
-  font-weight: 600;
-  color: var(--color-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  animation: fadeInDown 0.6s ease-out 0.1s both;
 }
 
+/* Descripción */
 .description {
-  margin-bottom: var(--spacing-2xl);
   font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
+  animation: fadeInDown 0.6s ease-out 0.2s both;
 }
 
+/* ============================================================================
+   BOTONES
+   ============================================================================ */
+
+/* Grupo de botones */
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+  align-items: center;
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+/* Estilos base del botón */
 .button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-md) var(--spacing-xl);
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-2xl);
+  font-family: var(--font-family-primary);
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  border-radius: var(--border-radius-lg);
   cursor: pointer;
-  transition: all var(--transition-normal) ease;
   text-decoration: none;
+  overflow: hidden;
+  transition: all var(--transition-normal) var(--transition-curve);
 }
 
-.button:hover {
-  background-color: var(--color-secondary);
+/* Botón primario */
+.button.primary {
+  background: var(--color-sky-500);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.button.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.button.primary:hover {
+  background: var(--color-sky-600);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+}
+
+.button.primary:hover::before {
+  left: 100%;
+}
+
+.button.primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Botón secundario */
+.button.secondary {
+  background: transparent;
+  color: var(--color-sky-500);
+  border: 2px solid var(--color-sky-500);
+}
+
+.button.secondary:hover {
+  background: var(--color-sky-50);
+  color: var(--color-sky-600);
+  border-color: var(--color-sky-600);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
 }
 
-.button:active {
+.button.secondary:active {
   transform: translateY(0);
 }
 
-/* Responsive */
+/* Icono del botón */
+.buttonIcon {
+  width: 20px;
+  height: 20px;
+  transition: transform var(--transition-normal) var(--transition-curve);
+}
+
+.button:hover .buttonIcon {
+  transform: translateX(4px);
+}
+
+/* ============================================================================
+   VARIANTES DE ESTILO
+   ============================================================================ */
+
+/* Variante Primary (azul cielo) */
+.ctaSection.primary .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-sky-50) 0%,
+    var(--color-cyan-50) 100%
+  );
+  border: 1px solid var(--color-sky-200);
+}
+
+.ctaSection.primary .title {
+  background: linear-gradient(135deg, var(--color-sky-600), var(--color-cyan-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Variante Secondary (púrpura) */
+.ctaSection.secondary .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-purple-50) 0%,
+    var(--color-purple-100) 100%
+  );
+  border: 1px solid var(--color-purple-200);
+}
+
+.ctaSection.secondary .title {
+  color: var(--color-purple-600);
+}
+
+.ctaSection.secondary .button.primary {
+  background: var(--color-purple-600);
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+}
+
+.ctaSection.secondary .button.primary:hover {
+  background: var(--color-purple-700);
+  box-shadow: 0 8px 20px rgba(107, 70, 193, 0.4);
+}
+
+/* Variante Accent (cyan) */
+.ctaSection.accent .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-cyan-50) 0%,
+    var(--color-sky-100) 100%
+  );
+  border: 1px solid var(--color-cyan-200);
+}
+
+.ctaSection.accent .title {
+  color: var(--color-cyan-600);
+}
+
+.ctaSection.accent .button.primary {
+  background: var(--color-cyan-500);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.ctaSection.accent .button.primary:hover {
+  background: var(--color-cyan-600);
+  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+}
+
+/* Variante Gradient (gradiente dinámico) */
+.ctaSection.gradient .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-sky-500) 0%,
+    var(--color-purple-500) 50%,
+    var(--color-cyan-500) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+  border: none;
+}
+
+.ctaSection.gradient .title,
+.ctaSection.gradient .description {
+  color: var(--color-white);
+}
+
+.ctaSection.gradient .button.primary {
+  background: var(--color-white);
+  color: var(--color-sky-600);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.ctaSection.gradient .button.primary:hover {
+  background: var(--color-neutral-100);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.5);
+}
+
+.ctaSection.gradient .button.secondary {
+  background: transparent;
+  color: var(--color-white);
+  border-color: var(--color-white);
+}
+
+.ctaSection.gradient .button.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-white);
+}
+
+/* ============================================================================
+   ELEMENTOS DECORATIVOS
+   ============================================================================ */
+
+.decorativeCircle,
+.decorativeCircle2 {
+  position: absolute;
+  border-radius: var(--border-radius-full);
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.decorativeCircle {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--color-sky-400), transparent 70%);
+  top: -200px;
+  right: -100px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.decorativeCircle2 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--color-cyan-400), transparent 70%);
+  bottom: -150px;
+  left: -50px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ============================================================================
+   TEMA OSCURO
+   ============================================================================ */
+
+:global([data-theme="dark"]) .content {
+  background: var(--color-zinc-900);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme="dark"]) .ctaSection.primary .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-zinc-900) 0%,
+    var(--color-zinc-800) 100%
+  );
+  border-color: var(--color-sky-800);
+}
+
+:global([data-theme="dark"]) .ctaSection.secondary .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-zinc-900) 0%,
+    var(--color-zinc-800) 100%
+  );
+  border-color: var(--color-purple-800);
+}
+
+:global([data-theme="dark"]) .ctaSection.accent .content {
+  background: linear-gradient(
+    135deg,
+    var(--color-zinc-900) 0%,
+    var(--color-zinc-800) 100%
+  );
+  border-color: var(--color-cyan-800);
+}
+
+:global([data-theme="dark"]) .button.secondary {
+  background: transparent;
+  border-color: var(--color-sky-400);
+  color: var(--color-sky-400);
+}
+
+:global([data-theme="dark"]) .button.secondary:hover {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: var(--color-sky-300);
+  color: var(--color-sky-300);
+}
+
+:global([data-theme="dark"]) .decorativeCircle,
+:global([data-theme="dark"]) .decorativeCircle2 {
+  opacity: 0.04;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet */
 @media (max-width: 768px) {
-  .ctaCard {
+  .ctaSection {
+    padding: var(--spacing-3xl) 0;
+  }
+
+  .content {
     padding: var(--spacing-2xl);
+    gap: var(--spacing-xl);
   }
 
   .title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
   }
 
   .description {
@@ -73,22 +423,91 @@
   }
 
   .button {
-    padding: var(--spacing-sm) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-xl);
     font-size: var(--font-size-md);
+  }
+
+  .decorativeCircle {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -75px;
+  }
+
+  .decorativeCircle2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -50px;
   }
 }
 
+/* Mobile */
 @media (max-width: 480px) {
-  .ctaCard {
+  .ctaSection {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .content {
     padding: var(--spacing-xl);
+    gap: var(--spacing-lg);
   }
 
   .title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .description {
+    font-size: var(--font-size-sm);
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-sm);
   }
 
   .button {
     width: 100%;
     padding: var(--spacing-md);
+    font-size: var(--font-size-md);
   }
-} 
+
+  .decorativeCircle {
+    width: 200px;
+    height: 200px;
+    top: -100px;
+    right: -50px;
+  }
+
+  .decorativeCircle2 {
+    width: 150px;
+    height: 150px;
+    bottom: -75px;
+    left: -25px;
+  }
+}
+
+/* Reducción de movimiento para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .content,
+  .title,
+  .description,
+  .buttonGroup {
+    animation: none;
+  }
+
+  .decorativeCircle,
+  .decorativeCircle2 {
+    animation: none;
+  }
+
+  .button {
+    transition: none;
+  }
+
+  .ctaSection.gradient .content {
+    animation: none;
+  }
+}

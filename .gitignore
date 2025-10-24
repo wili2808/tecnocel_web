@@ -59,5 +59,6 @@ database/backups/*.sql
 
 # Archivos locales
 # .cursor/
+# .claude/
 # note/
 # CLAUDE.md

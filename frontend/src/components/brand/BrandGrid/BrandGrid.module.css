@@ -1,0 +1,263 @@
+/**
+ * Estilos del componente BrandGrid
+ * Sistema de diseño: Mobile-first responsive grid
+ * Usa variables CSS del sistema definidas en variables.css y themes.css
+ */
+
+/* ============================================================================
+   CONTENEDOR PRINCIPAL DEL GRID
+   ============================================================================ */
+
+.gridContainer {
+  display: grid;
+  gap: var(--spacing-lg);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-md) 0;
+}
+
+/* ============================================================================
+   RESPONSIVE GRID LAYOUT - MOBILE FIRST
+   ============================================================================ */
+
+/* Mobile (por defecto - hasta 480px) */
+.gridContainer {
+  grid-template-columns: 1fr;
+  max-width: 100%;
+}
+
+/* Mobile grande / Tablet pequeña (481px - 768px) */
+@media (min-width: 481px) {
+  .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xl);
+  }
+}
+
+/* Tablet / Desktop pequeño (769px - 1024px) */
+@media (min-width: 769px) {
+  .gridContainer {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xl);
+    max-width: 1200px;
+  }
+}
+
+/* Desktop (1025px - 1440px) */
+@media (min-width: 1025px) {
+  .gridContainer {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-2xl);
+    max-width: 1400px;
+  }
+}
+
+/* Large Desktop (1441px+) */
+@media (min-width: 1441px) {
+  .gridContainer {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    max-width: 1600px;
+  }
+}
+
+/* ============================================================================
+   SKELETON LOADERS - ESTADO DE CARGA
+   ============================================================================ */
+
+.skeletonCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-height: 280px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLogo {
+  width: 120px;
+  height: 120px;
+  background: var(--skeleton-bg, #e0e0e0);
+  border-radius: var(--border-radius-sm);
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, #e0e0e0) 25%,
+    var(--skeleton-highlight, #f0f0f0) 50%,
+    var(--skeleton-bg, #e0e0e0) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeletonTitle {
+  width: 60%;
+  height: 24px;
+  background: var(--skeleton-bg, #e0e0e0);
+  border-radius: var(--border-radius-xs);
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, #e0e0e0) 25%,
+    var(--skeleton-highlight, #f0f0f0) 50%,
+    var(--skeleton-bg, #e0e0e0) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeletonDescription {
+  width: 80%;
+  height: 40px;
+  background: var(--skeleton-bg, #e0e0e0);
+  border-radius: var(--border-radius-xs);
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, #e0e0e0) 25%,
+    var(--skeleton-highlight, #f0f0f0) 50%,
+    var(--skeleton-bg, #e0e0e0) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeletonCount {
+  width: 40%;
+  height: 32px;
+  background: var(--skeleton-bg, #e0e0e0);
+  border-radius: var(--border-radius-full);
+  margin-top: auto;
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, #e0e0e0) 25%,
+    var(--skeleton-highlight, #f0f0f0) 50%,
+    var(--skeleton-bg, #e0e0e0) 75%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* ============================================================================
+   ESTADO VACÍO - SIN MARCAS
+   ============================================================================ */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4xl) var(--spacing-xl);
+  text-align: center;
+  min-height: 400px;
+}
+
+.emptyIcon {
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-xl);
+  opacity: 0.5;
+}
+
+.emptyIcon svg {
+  width: 120px;
+  height: 120px;
+}
+
+.emptyTitle {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.emptyDescription {
+  font-family: var(--font-secondary);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+/* Responsive para estado vacío */
+@media (max-width: 480px) {
+  .emptyState {
+    padding: var(--spacing-2xl) var(--spacing-md);
+    min-height: 300px;
+  }
+
+  .emptyIcon svg {
+    width: 80px;
+    height: 80px;
+  }
+
+  .emptyTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .emptyDescription {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ============================================================================
+   TEMA OSCURO
+   ============================================================================ */
+
+[data-theme="dark"] .skeletonLogo,
+[data-theme="dark"] .skeletonTitle,
+[data-theme="dark"] .skeletonDescription,
+[data-theme="dark"] .skeletonCount {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ============================================================================
+   ACCESIBILIDAD
+   ============================================================================ */
+
+/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonCard,
+  .skeletonLogo,
+  .skeletonTitle,
+  .skeletonDescription,
+  .skeletonCount {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+   UTILIDADES ADICIONALES
+   ============================================================================ */
+
+/* Asegurar que el grid no se rompa con contenido largo */
+.gridContainer > * {
+  min-width: 0;
+  word-wrap: break-word;
+}

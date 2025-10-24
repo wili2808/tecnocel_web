@@ -1,65 +1,416 @@
-/* Sección de ubicación */
-.section {
+/* ============================================================================
+   LOCATION SECTION - UBICACIÓN Y CONTACTO
+   ============================================================================ */
+
+/* Contenedor principal de la sección */
+.locationSection {
+  position: relative;
+  padding: var(--spacing-4xl) 0;
   background: var(--background-secondary);
-  padding: var(--spacing-3xl) 0;
+  overflow: hidden;
+  transition: var(--theme-transition);
 }
 
+/* Container responsivo */
 .container {
+  position: relative;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+  z-index: 2;
 }
 
-.title {
+/* ============================================================================
+   HEADER DE LA SECCIÓN
+   ============================================================================ */
+
+.sectionHeader {
   margin-bottom: var(--spacing-3xl);
   text-align: center;
-  font-size: var(--font-size-4xl);
-  font-weight: 600;
-  color: var(--text-primary);
+  animation: fadeInDown 0.6s ease-out;
 }
 
-.locationCard {
-  max-width: 600px;
-  margin: 0 auto;
-  border-radius: var(--border-radius-xl);
-  background: var(--background-elevated);
-  padding: var(--spacing-3xl);
-  text-align: center;
-  box-shadow: var(--shadow-lg);
-}
-
-.locationCard h3 {
-  margin-bottom: var(--spacing-lg);
-  font-size: var(--font-size-2xl);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.locationCard p {
+.sectionTitle {
   margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--color-sky-600), var(--color-cyan-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: var(--theme-transition);
+}
+
+.sectionSubtitle {
   font-size: var(--font-size-lg);
   color: var(--text-secondary);
+  transition: var(--theme-transition);
 }
 
-.locationCard p:last-child {
-  margin-bottom: 0;
+/* ============================================================================
+   GRID PRINCIPAL (MAPA + INFO)
+   ============================================================================ */
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-3xl);
+  align-items: start;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 
-/* Responsive */
+/* ============================================================================
+   MAPA WRAPPER
+   ============================================================================ */
+
+.mapWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.mapContainer {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-neutral-200);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.mapContainer:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-sky-300);
+}
+
+/* Etiqueta del mapa */
+.mapLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-neutral-200);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.mapLabel:hover {
+  transform: translateX(4px);
+  border-color: var(--color-sky-400);
+}
+
+.mapLabelIcon {
+  font-size: var(--font-size-2xl);
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.mapLabelText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  transition: var(--theme-transition);
+}
+
+/* ============================================================================
+   INFO WRAPPER
+   ============================================================================ */
+
+.infoWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-2xl);
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-neutral-200);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.infoWrapper:hover {
+  box-shadow: var(--shadow-xl);
+  border-color: var(--color-sky-300);
+}
+
+/* ============================================================================
+   ELEMENTOS DECORATIVOS
+   ============================================================================ */
+
+.decorativeShape1,
+.decorativeShape2 {
+  position: absolute;
+  border-radius: var(--border-radius-full);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.decorativeShape1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--color-sky-500), transparent 70%);
+  top: -300px;
+  right: -200px;
+  animation: float 10s ease-in-out infinite;
+}
+
+.decorativeShape2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--color-cyan-500), transparent 70%);
+  bottom: -200px;
+  left: -100px;
+  animation: float 12s ease-in-out infinite reverse;
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(10deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ============================================================================
+   TEMA OSCURO
+   ============================================================================ */
+
+:global([data-theme="dark"]) .locationSection {
+  background: var(--color-zinc-950);
+}
+
+:global([data-theme="dark"]) .sectionTitle {
+  background: linear-gradient(135deg, var(--color-sky-400), var(--color-cyan-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:global([data-theme="dark"]) .mapContainer {
+  border-color: var(--color-zinc-700);
+}
+
+:global([data-theme="dark"]) .mapContainer:hover {
+  border-color: var(--color-sky-600);
+}
+
+:global([data-theme="dark"]) .mapLabel {
+  background: var(--color-zinc-900);
+  border-color: var(--color-zinc-700);
+}
+
+:global([data-theme="dark"]) .mapLabel:hover {
+  border-color: var(--color-sky-600);
+}
+
+:global([data-theme="dark"]) .infoWrapper {
+  background: var(--color-zinc-900);
+  border-color: var(--color-zinc-700);
+}
+
+:global([data-theme="dark"]) .infoWrapper:hover {
+  border-color: var(--color-sky-600);
+}
+
+:global([data-theme="dark"]) .decorativeShape1,
+:global([data-theme="dark"]) .decorativeShape2 {
+  opacity: 0.03;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet Large (768px - 1024px) */
+@media (max-width: 1024px) {
+  .gridContainer {
+    gap: var(--spacing-2xl);
+  }
+
+  .mapContainer {
+    height: 400px;
+  }
+}
+
+/* Tablet (max-width: 768px) */
 @media (max-width: 768px) {
-  .title {
+  .locationSection {
+    padding: var(--spacing-3xl) 0;
+  }
+
+  .sectionHeader {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .sectionTitle {
     font-size: var(--font-size-3xl);
   }
 
-  .locationCard {
-    padding: var(--spacing-2xl);
+  .sectionSubtitle {
+    font-size: var(--font-size-md);
   }
 
-  .locationCard h3 {
+  .gridContainer {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+
+  .mapContainer {
+    height: 350px;
+  }
+
+  .infoWrapper {
+    padding: var(--spacing-xl);
+  }
+
+  .decorativeShape1 {
+    width: 400px;
+    height: 400px;
+    top: -200px;
+    right: -150px;
+  }
+
+  .decorativeShape2 {
+    width: 300px;
+    height: 300px;
+    bottom: -150px;
+    left: -75px;
+  }
+}
+
+/* Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .locationSection {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .sectionHeader {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .sectionSubtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .gridContainer {
+    gap: var(--spacing-lg);
+  }
+
+  .mapWrapper {
+    gap: var(--spacing-sm);
+  }
+
+  .mapContainer {
+    height: 300px;
+    border-radius: var(--border-radius-lg);
+  }
+
+  .mapLabel {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .mapLabelIcon {
     font-size: var(--font-size-xl);
   }
 
-  .locationCard p {
-    font-size: var(--font-size-md);
+  .mapLabelText {
+    font-size: var(--font-size-sm);
   }
-} 
+
+  .infoWrapper {
+    padding: var(--spacing-lg);
+  }
+
+  .decorativeShape1 {
+    width: 250px;
+    height: 250px;
+    top: -125px;
+    right: -75px;
+  }
+
+  .decorativeShape2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -50px;
+  }
+}
+
+/* Reducción de movimiento para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .sectionHeader,
+  .gridContainer {
+    animation: none;
+  }
+
+  .decorativeShape1,
+  .decorativeShape2 {
+    animation: none;
+  }
+
+  .mapLabelIcon {
+    animation: none;
+  }
+
+  .mapContainer,
+  .mapLabel,
+  .infoWrapper {
+    transition: none;
+  }
+
+  .mapContainer:hover,
+  .mapLabel:hover {
+    transform: none;
+  }
+}
