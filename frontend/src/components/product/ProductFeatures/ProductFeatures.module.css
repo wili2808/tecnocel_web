@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--spacing-2xl);
   padding: var(--spacing-xl);
-  background-color: var(--background-elevated);
+  background-color: var(--background-secondary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
   transition: var(--theme-transition);
@@ -30,26 +30,6 @@
 .sectionTitle .material-icons {
   font-size: var(--icon-size-lg);
   color: var(--color-primary);
-}
-
-.featuresGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-lg);
-}
-
-.featureItem {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: var(--background-secondary);
-  border-radius: var(--border-radius-md);
-  transition: var(--theme-transition);
-}
-
-.featureItem:hover {
-  background-color: var(--color-primary-50);
 }
 
 .featureIcon {
@@ -135,20 +115,12 @@
 
 /* Grid responsivo para pantallas más grandes */
 @media (min-width: 768px) {
-  .featuresGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
   .specificationsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .featuresGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
   .specificationsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
@@ -172,12 +144,10 @@
     gap: var(--spacing-md);
   }
 
-  .featuresGrid,
   .specificationsGrid {
     gap: var(--spacing-md);
   }
 
-  .featureItem,
   .specificationItem {
     padding: var(--spacing-sm);
   }
@@ -216,7 +186,6 @@
     align-items: flex-start;
   }
 
-  .featureItem,
   .specificationItem {
     gap: var(--spacing-sm);
     padding: var(--spacing-xs);

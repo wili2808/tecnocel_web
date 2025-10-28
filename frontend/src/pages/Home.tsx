@@ -59,7 +59,7 @@ const Home = () => {
       <HeroSection />
       <FeaturedProducts
         products={featuredProducts}
-        title="Productos Destacados"
+        title=""
         loading={loading}
         error={error}
       />
@@ -71,7 +71,7 @@ const Home = () => {
         variant="gradient"
         icon="mail"
         secondaryButtonText="Ver Catálogo"
-        secondaryButtonLink="/catalogo"
+        secondaryButtonLink="/productos"
       />
       <LocationSection />
     </>

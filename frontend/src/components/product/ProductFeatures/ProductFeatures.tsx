@@ -1,8 +1,8 @@
 /**
- * Componente ProductFeatures - Características y especificaciones del producto
- * Muestra información básica, especificaciones técnicas y datos adicionales del producto
- * Incluye funcionalidades para formateo de fechas, renderizado de características y mapeo de iconos
- * Utiliza datos del producto para mostrar información estructurada en secciones
+ * Componente ProductFeatures - Especificaciones técnicas del producto
+ * Muestra especificaciones técnicas del producto
+ * Incluye funcionalidades para renderizado de características y mapeo de iconos
+ * Utiliza datos del producto para mostrar información estructurada
  */
 import React from 'react';
 import type { Product, ProductoCaracteristica } from '../../../types';
@@ -18,13 +18,6 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
     // ============================================================================
 
     const {
-        codigo,
-        stock,
-        stock_minimo,
-        fecha_ingreso,
-        Categoria,
-        Usuario,
-        marca,
         caracteristicas,
         productosCaracteristicas
     } = product;
@@ -35,22 +28,6 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
     // ============================================================================
     // FUNCIONES DE FORMATEO Y UTILIDADES
     // ============================================================================
-
-    /**
-     * Formatear fecha en formato legible para el usuario
-     * Convierte string de fecha a formato localizado en español argentino
-     */
-    const formatDate = (dateString: string) => {
-        try {
-            return new Date(dateString).toLocaleDateString('es-AR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        } catch {
-            return 'Fecha no disponible';
-        }
-    };
 
     /**
      * Renderizar valor de característica según su tipo de dato
@@ -107,91 +84,11 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
     };
 
     // ============================================================================
-    // CONSTRUCCIÓN DE DATOS PARA RENDERIZADO
-    // ============================================================================
-
-    // Información básica del producto
-    const basicInfo = [
-        {
-            icon: 'qr_code',
-            label: 'Código',
-            value: codigo
-        },
-        {
-            icon: 'inventory_2',
-            label: 'Stock actual',
-            value: `${stock} unidades`
-        }
-    ];
-
-    // Agregar marca si existe
-    if (marca) {
-        basicInfo.push({
-            icon: 'business',
-            label: 'Marca',
-            value: marca.nombre_marca
-        });
-    }
-
-    // Agregar categoría si existe
-    if (Categoria) {
-        basicInfo.push({
-            icon: 'category',
-            label: 'Categoría',
-            value: Categoria.nombre_categoria
-        });
-    }
-
-    // Información adicional
-    const additionalInfo = [
-        {
-            icon: 'trending_down',
-            label: 'Stock mínimo',
-            value: stock_minimo ? `${stock_minimo} unidades` : 'No definido'
-        },
-        {
-            icon: 'event',
-            label: 'Fecha de ingreso',
-            value: formatDate(fecha_ingreso)
-        }
-    ];
-
-    if (Usuario) {
-        additionalInfo.push({
-            icon: 'person',
-            label: 'Registrado por',
-            value: Usuario.nombres
-        });
-    }
-
-    // ============================================================================
     // RENDERIZADO
     // ============================================================================
 
     return (
         <div className={styles.productFeatures}>
-            {/* Información básica del producto */}
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>
-                    <span className="material-icons">info</span>
-                    Información básica
-                </h3>
-                <div className={styles.featuresGrid}>
-                    {basicInfo.map((feature, index) => (
-                        <div key={index} className={styles.featureItem}>
-                            <div className={styles.featureIcon}>
-                                <span className="material-icons">{feature.icon}</span>
-                            </div>
-                            <div className={styles.featureContent}>
-                                <span className={styles.featureLabel}>{feature.label}</span>
-                                <span className={styles.featureValue}>{feature.value}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Especificaciones técnicas del producto */}
             {specs && specs.length > 0 && (
                 <div className={styles.section}>
                     <h3 className={styles.sectionTitle}>
@@ -227,27 +124,6 @@ const ProductFeatures: React.FC<ProductFeaturesProps> = ({ product }) => {
                     </div>
                 </div>
             )}
-
-            {/* Información adicional del producto */}
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>
-                    <span className="material-icons">more_horiz</span>
-                    Información adicional
-                </h3>
-                <div className={styles.featuresGrid}>
-                    {additionalInfo.map((feature, index) => (
-                        <div key={index} className={styles.featureItem}>
-                            <div className={styles.featureIcon}>
-                                <span className="material-icons">{feature.icon}</span>
-                            </div>
-                            <div className={styles.featureContent}>
-                                <span className={styles.featureLabel}>{feature.label}</span>
-                                <span className={styles.featureValue}>{feature.value}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
         </div>
     );
 };

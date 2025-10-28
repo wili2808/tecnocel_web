@@ -12,6 +12,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  animation: fadeInUp var(--animation-duration-slow) ease-out;
 }
 
 /* Breadcrumb */
@@ -75,10 +76,11 @@
   gap: var(--spacing-xl);
   align-items: start;
   padding: var(--spacing-lg);
-  background-color: var(--background-elevated);
+  background-color: var(--background-secondary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
   transition: var(--theme-transition);
+  animation: fadeInUp var(--animation-duration-slow) ease-out;
 }
 
 .productImageSection {
@@ -166,6 +168,7 @@
 .productDetailsSection,
 .productCommentsSection {
   width: 100%;
+  animation: fadeInUp var(--animation-duration-slow) ease-out var(--animation-duration-normal) both;
 }
 
 /* Botón de volver */
@@ -319,6 +322,30 @@
   font-size: var(--font-size-lg);
   color: var(--text-secondary);
   margin: 0;
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
 }
 
 @keyframes spin {

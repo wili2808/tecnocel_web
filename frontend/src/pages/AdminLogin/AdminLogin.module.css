@@ -16,7 +16,7 @@
 }
 
 .loginCard {
-  background-color: var(--background-elevated);
+  background-color: var(--background-secondary);
   border-radius: var(--border-radius-xl);
   padding: var(--spacing-2xl);
   box-shadow: var(--shadow-elevated);
@@ -165,8 +165,8 @@
   display: flex;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
-  background-color: var(--background-elevated);
-  border-radius: var(--border-radius-lg);
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-card);
 }

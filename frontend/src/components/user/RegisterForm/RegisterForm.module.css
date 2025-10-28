@@ -1,16 +1,16 @@
 /* Tarjeta del formulario de registro */
 .registerCard {
-    background: var(--background-elevated);
-    border-radius: var(--border-radius-xl);
-    padding: var(--spacing-2xl);
+    background: var(--background-secondary);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-sizing: border-box;
     box-shadow: var(--shadow-xl);
-    animation: slideInLeft 0.6s ease-out;
-    max-width: 600px;
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
-    box-sizing: border-box;
     position: relative;
+    animation: fadeInUp var(--animation-duration-slow) ease-out;
 }
 
 /* Añadir efecto visual sutil */
@@ -116,7 +116,7 @@ input[type="password"]::-ms-reveal {
     display: flex;
     align-items: center;
     background: var(--background-primary);
-    border: 2px solid var(--color-neutral-300);
+    border: 1px solid var(--color-neutral-300);
     border-radius: var(--border-radius-lg);
     transition: all var(--transition-fast) ease;
     overflow: hidden;
@@ -265,7 +265,7 @@ input[type="password"]::-ms-reveal {
     gap: var(--spacing-sm);
     padding: var(--spacing-lg) var(--spacing-xl);
     background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-    color: white;
+    color: var(--color-white);
     border: none;
     border-radius: var(--border-radius-lg);
     font-size: var(--font-size-md);
@@ -355,7 +355,7 @@ input[type="password"]::-ms-reveal {
     justify-content: center;
     gap: var(--spacing-md);
     padding: var(--spacing-lg) var(--spacing-xl);
-    background: white;
+    background: var(--background-primary);
     border: 2px solid var(--color-neutral-300);
     border-radius: var(--border-radius-lg);
     font-size: var(--font-size-md);
@@ -418,9 +418,42 @@ input[type="password"]::-ms-reveal {
     animation: spin 1s linear infinite;
 }
 
+/* ===== ANIMACIONES ===== */
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
 }
 
 /* ===== ENLACES DE AUTENTICACIÓN ===== */
@@ -580,36 +613,17 @@ input[type="password"]::-ms-reveal {
     .registerCard {
         animation: none;
     }
-    
+
     .submitButton:hover {
         transform: none;
     }
-    
+
     .googleButton:hover {
         transform: none;
     }
-    
+
     .submitButton::before {
         display: none;
-    }
-}
-
-@media (prefers-contrast: high) {
-    .registerCard {
-        border-width: 2px;
-        border-color: var(--text-primary);
-    }
-    
-    .submitButton {
-        border: 2px solid transparent;
-    }
-    
-    .googleButton {
-        border-width: 2px;
-    }
-    
-    .errorMessage {
-        border-width: 2px;
     }
 }
 
@@ -622,30 +636,3 @@ input[type="password"]::-ms-reveal {
     opacity: 0.8;
 }
 
-/* ===== PANTALLAS GRANDES ===== */
-@media (min-width: 1400px) {
-    .registerCard {
-        max-width: 680px;
-        padding: var(--spacing-xl);
-    }
-    
-    .authHeader {
-        margin-bottom: var(--spacing-2xl);
-    }
-    
-    .logo {
-        height: 72px;
-    }
-    
-    .title {
-        font-size: var(--font-size-3xl);
-    }
-    
-    .subtitle {
-        font-size: var(--font-size-lg);
-    }
-    
-    .formRow {
-        gap: var(--spacing-lg);
-    }
-}

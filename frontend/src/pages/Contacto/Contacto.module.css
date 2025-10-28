@@ -2,7 +2,6 @@
    PÁGINA DE CONTACTO
    ============================================================================ */
 
-/* Contenedor principal de la página */
 .contactoPage {
   min-height: 100vh;
   background: var(--background-primary);
@@ -15,50 +14,51 @@
 
 .hero {
   position: relative;
-  padding: var(--spacing-4xl) 0 var(--spacing-3xl);
-  background: linear-gradient(135deg, var(--color-sky-500), var(--color-cyan-500));
   overflow: hidden;
+  padding: var(--container-padding);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSJ0cmFuc3BhcmVudCIgLz48ZyBmaWxsPSIjMTcxNzE3Ij48Y2lyY2xlIHI9IjEiIGN4PSIzIiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI3IiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIxMyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iMTciIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjIzIiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIyNyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iMzMiIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjM3IiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI0MyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iNDciIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjUzIiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI1NyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iNjMiIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjY3IiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI3MyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iNzciIGN5PSIzIiAvPjwvZz48ZyBmaWxsPSIjMTExMTExIj48Y2lyY2xlIHI9IjEiIGN4PSIzIiBjeT0iNyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI3IiBjeT0iNyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIxMyIgY3k9IjciIC8+PGNpcmNsZSByPSIxIiBjeD0iMTciIGN5PSIxMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIzIiBjeT0iMTMiIC8+PC9nPjwvc3ZnPg==');
+  opacity: 0.3;
+  animation: float 20s ease-in-out infinite;
 }
 
 .heroContainer {
-  position: relative;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
-  z-index: 2;
-}
-
-.heroContent {
+  padding: 0 var(--spacing-md);
+  position: relative;
+  z-index: 1;
   text-align: center;
-  animation: fadeInDown 0.6s ease-out;
+  animation: fadeInUp var(--animation-duration-slow) ease-out;
 }
 
 .heroTitle {
-  margin-bottom: var(--spacing-md);
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-5xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  color: var(--color-white);
+  font-size: var(--font-title);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-shadow: 0 4px 30px var(--color-black-medium);
+  animation: fadeInUp 0.6s ease-out;
+  background: linear-gradient(135deg, var(--color-primary-dark) 60%, var(--color-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .heroSubtitle {
   font-size: var(--font-size-xl);
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
-}
-
-/* Decoración del hero */
-.heroDecoration {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%);
-  border-radius: var(--border-radius-full);
-  top: -250px;
-  right: -100px;
-  animation: float 8s ease-in-out infinite;
+  line-height: var(--line-height-relaxed);
+  transition: var(--theme-transition);
 }
 
 /* ============================================================================
@@ -66,27 +66,26 @@
    ============================================================================ */
 
 .mainContent {
-  padding: var(--spacing-4xl) 0;
-  background: var(--background-secondary);
+  background: var(--background-primary);
   transition: var(--theme-transition);
 }
 
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
+  padding: var(--container-padding);  
 }
 
 .contentGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-2xl);
   align-items: start;
 }
 
 .formWrapper,
 .methodsWrapper {
-  animation: fadeInUp 0.6s ease-out 0.2s both;
+  animation: fadeInUp var(--animation-duration-slow) ease-out var(--animation-delay-normal) both;
 }
 
 /* ============================================================================
@@ -94,7 +93,7 @@
    ============================================================================ */
 
 .faqSection {
-  padding: var(--spacing-4xl) 0;
+  padding: var(--spacing-md) 0;
   background: var(--background-primary);
   transition: var(--theme-transition);
 }
@@ -102,20 +101,21 @@
 .faqHeader {
   margin-bottom: var(--spacing-3xl);
   text-align: center;
-  animation: fadeInDown 0.6s ease-out;
+  animation: fadeInUp var(--animation-duration-slow) ease-out;
 }
 
 .faqTitle {
-  margin-bottom: var(--spacing-md);
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--color-sky-600), var(--color-cyan-600));
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: -0.025em;
+  text-shadow: 0 4px 30px var(--color-black-medium);
+  animation: fadeInUp 0.6s ease-out;
+  background: linear-gradient(135deg, var(--color-primary-dark) 60%, var(--color-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  transition: var(--theme-transition);
 }
 
 .faqSubtitle {
@@ -130,21 +130,21 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-xl);
-  animation: fadeInUp 0.6s ease-out 0.2s both;
+  animation: fadeInUp var(--animation-duration-slow) ease-out var(--animation-delay-normal) both;
 }
 
 .faqItem {
   padding: var(--spacing-xl);
   background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
-  border: 1px solid var(--color-neutral-200);
+  border: var(--border-width-thin) solid var(--border-color-light);
   transition: all var(--transition-normal) var(--transition-curve);
 }
 
 .faqItem:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: var(--color-sky-300);
+  border-color: var(--color-accent);
 }
 
 .faqQuestion {
@@ -152,7 +152,7 @@
   font-family: var(--font-family-primary);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-sky-600);
+  color: var(--color-primary);
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-sm);
@@ -178,21 +178,10 @@
    ANIMACIONES
    ============================================================================ */
 
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -202,64 +191,25 @@
 
 @keyframes float {
   0%, 100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-30px) rotate(10deg);
+    transform: translateY(-10px) scale(1.05);
   }
-}
-
-/* ============================================================================
-   TEMA OSCURO
-   ============================================================================ */
-
-:global([data-theme="dark"]) .mainContent {
-  background: var(--color-zinc-950);
-}
-
-:global([data-theme="dark"]) .faqSection {
-  background: var(--color-zinc-900);
-}
-
-:global([data-theme="dark"]) .faqTitle {
-  background: linear-gradient(135deg, var(--color-sky-400), var(--color-cyan-400));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-:global([data-theme="dark"]) .faqItem {
-  background: var(--color-zinc-800);
-  border-color: var(--color-zinc-700);
-}
-
-:global([data-theme="dark"]) .faqItem:hover {
-  border-color: var(--color-sky-600);
-}
-
-:global([data-theme="dark"]) .faqQuestion {
-  color: var(--color-sky-400);
 }
 
 /* ============================================================================
    RESPONSIVE DESIGN
    ============================================================================ */
 
-/* Tablet Large (768px - 1024px) */
-@media (max-width: 1024px) {
-  .contentGrid {
-    gap: var(--spacing-2xl);
-  }
-}
-
 /* Tablet (max-width: 768px) */
 @media (max-width: 768px) {
   .hero {
-    padding: var(--spacing-3xl) 0 var(--spacing-2xl);
+    padding: var(--spacing-3xl) var(--container-padding) var(--spacing-2xl);
   }
 
   .heroTitle {
-    font-size: var(--font-size-4xl);
+    font-size: clamp(2rem, 4vw, 3rem);
   }
 
   .heroSubtitle {
@@ -271,46 +221,30 @@
     padding: var(--spacing-3xl) 0;
   }
 
-  .contentGrid {
+  .contentGrid,
+  .faqGrid {
     grid-template-columns: 1fr;
     gap: var(--spacing-xl);
   }
 
-  .faqGrid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
-  }
-
-  .faqTitle {
-    font-size: var(--font-size-3xl);
-  }
-
-  .faqSubtitle {
-    font-size: var(--font-size-md);
-  }
-
   .faqItem {
     padding: var(--spacing-lg);
-  }
-
-  .faqQuestion {
-    font-size: var(--font-size-md);
-  }
-
-  .faqAnswer {
-    font-size: var(--font-size-sm);
   }
 }
 
 /* Mobile (max-width: 480px) */
 @media (max-width: 480px) {
   .hero {
-    padding: var(--spacing-2xl) 0 var(--spacing-xl);
+    padding: var(--spacing-2xl) var(--container-padding) var(--spacing-xl);
+  }
+
+  .heroContainer {
+    padding: 0 var(--spacing-sm);
   }
 
   .heroTitle {
-    font-size: var(--font-size-3xl);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
   }
 
   .heroSubtitle {
@@ -322,16 +256,16 @@
     padding: var(--spacing-2xl) 0;
   }
 
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+
+  .contentGrid {
+    gap: var(--spacing-lg);
+  }
+
   .faqHeader {
     margin-bottom: var(--spacing-2xl);
-  }
-
-  .faqTitle {
-    font-size: var(--font-size-2xl);
-  }
-
-  .faqSubtitle {
-    font-size: var(--font-size-sm);
   }
 
   .faqGrid {
@@ -342,30 +276,14 @@
     padding: var(--spacing-md);
   }
 
-  .faqQuestion {
-    font-size: var(--font-size-sm);
-  }
-
-  .faqQuestion::before {
-    font-size: var(--font-size-lg);
-  }
-
   .faqAnswer {
-    font-size: var(--font-size-xs);
     padding-left: var(--spacing-xl);
-  }
-
-  .heroDecoration {
-    width: 300px;
-    height: 300px;
-    top: -150px;
-    right: -75px;
   }
 }
 
 /* Reducción de movimiento */
 @media (prefers-reduced-motion: reduce) {
-  .heroContent,
+  .heroContainer,
   .formWrapper,
   .methodsWrapper,
   .faqHeader,
@@ -373,7 +291,7 @@
     animation: none;
   }
 
-  .heroDecoration {
+  .hero::before {
     animation: none;
   }
 

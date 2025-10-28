@@ -350,8 +350,8 @@
 }
 
 .mobileLogoutButton:hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--color-error-dark);
+  border-color: var(--color-error-dark);
   transform: scale(var(--scale-hover));
 }
 

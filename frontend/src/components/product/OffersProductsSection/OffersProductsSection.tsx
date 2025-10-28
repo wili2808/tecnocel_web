@@ -20,6 +20,7 @@ interface OffersProductsSectionProps {
     onLoadMore?: () => void;
     onRetry?: () => void;
     useGlobalContext?: boolean; // Nueva prop para controlar si usar contexto global
+    filterControls?: React.ReactNode; // Controles de filtrado para mostrar en el header
 }
 
 const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
@@ -30,7 +31,8 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
     hasMore = false,
     onLoadMore,
     onRetry,
-    useGlobalContext = true // Por defecto usar contexto global
+    useGlobalContext = true, // Por defecto usar contexto global
+    filterControls // Controles de filtrado
 }) => {
     // ============================================================================
     // HOOKS Y CONTEXTOS
@@ -128,14 +130,21 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
     return (
         <section className={styles.productsSection}>
             <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                    <span className="material-icons">local_offer</span>
-                    Productos en Oferta
-                </h2>
-                <div className={styles.productCount}>
-                    <span className={styles.currentCount}>{products.length}</span>
-                    <span className={styles.totalCount}>de {totalProducts} productos</span>
+                <div className={styles.headerLeft}>
+                    <h2 className={styles.sectionTitle}>
+                        <span className="material-icons">local_offer</span>
+                        Productos en Oferta
+                    </h2>
+                    <div className={styles.productCount}>
+                        <span className={styles.currentCount}>{products.length}</span>
+                        <span className={styles.totalCount}>de {totalProducts} productos</span>
+                    </div>
                 </div>
+                {filterControls && (
+                    <div className={styles.headerRight}>
+                        {filterControls}
+                    </div>
+                )}
             </div>
 
             <div className={styles.productsGrid}>

@@ -4,10 +4,11 @@
  * Incluye funcionalidades para estadísticas, grid de ofertas y productos en oferta
  * Utiliza useOfertasPagination para gestión de datos paginados y contexto global
  */
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useOfertasPagination } from '../../hooks/useOfertasPagination';
 import OffersGrid from '../../components/product/OffersGrid';
 import OffersProductsSection from '../../components/product/OffersProductsSection';
+import ProductsOfferFilter, { type ProductOfferFilter } from '../../components/product/ProductsOfferFilter';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Offers.module.css';
@@ -52,6 +53,13 @@ const Offers: React.FC = () => {
     } = useOfertasPagination({ itemsPerPage: 20 });
 
     // ============================================================================
+    // ESTADO LOCAL
+    // ============================================================================
+
+    // Estado del filtro de productos por oferta
+    const [productOfferFilter, setProductOfferFilter] = useState<ProductOfferFilter>('todas');
+
+    // ============================================================================
     // PROCESAMIENTO DE DATOS
     // ============================================================================
 
@@ -70,6 +78,21 @@ const Offers: React.FC = () => {
 
         return counts;
     }, [productosEnOferta]);
+
+    // Filtrar productos por oferta seleccionada
+    const productosFiltrados = useMemo(() => {
+        let filtered = [...productosEnOferta];
+
+        // Aplicar filtro por oferta
+        if (productOfferFilter !== 'todas') {
+            filtered = filtered.filter(producto => {
+                // Verificar si el producto tiene la oferta seleccionada
+                return producto.ofertas?.some(oferta => oferta.id_oferta === productOfferFilter);
+            });
+        }
+
+        return filtered;
+    }, [productosEnOferta, productOfferFilter]);
 
     // ============================================================================
     // RENDERIZADO
@@ -120,13 +143,24 @@ const Offers: React.FC = () => {
 
                 {/* Sección de productos en oferta con paginación */}
                 <OffersProductsSection
-                    products={productosEnOferta}
+                    products={productosFiltrados}
                     loading={loading}
                     error={error}
-                    totalProducts={totalItems}
+                    totalProducts={productosFiltrados.length}
                     hasMore={hasNextPage}
                     onLoadMore={loadMore}
                     onRetry={refreshOfertas}
+                    useGlobalContext={false}
+                    filterControls={
+                        !loading && ofertas.length > 0 && productosEnOferta.length > 0 ? (
+                            <ProductsOfferFilter
+                                currentFilter={productOfferFilter}
+                                ofertas={ofertas}
+                                onFilterChange={setProductOfferFilter}
+                                disabled={loading}
+                            />
+                        ) : undefined
+                    }
                 />
             </div>
         </div>

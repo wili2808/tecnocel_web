@@ -23,7 +23,6 @@ body {
 /* Tipografía base */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  line-height: var(--line-height-tight);
   margin-bottom: var(--spacing-md);
   color: var(--text-primary);
 }
@@ -123,13 +122,6 @@ input:focus, textarea:focus, select:focus {
   max-width: var(--max-width);
 }
 
-/* Media queries */
-@media (max-width: 768px) {
-  .section {
-    padding: var(--spacing-2xl) 0;
-  }
-}
-
 /* Utilidades de texto */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
@@ -185,7 +177,7 @@ input:focus, textarea:focus, select:focus {
 /* Grid */
 .grid {
   display: grid;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
 }
 
 /* Utilidades de flexbox */
@@ -295,40 +287,6 @@ input:focus, textarea:focus, select:focus {
 .transition-fast { transition: all var(--transition-fast) var(--transition-curve); }
 .transition-normal { transition: all var(--transition-normal) var(--transition-curve); }
 .transition-slow { transition: all var(--transition-slow) var(--transition-curve); }
-
-/* === ANIMACIONES GLOBALES === */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    max-height: 1000px;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* Clases utilitarias de animación */
 .animate-fade-in {

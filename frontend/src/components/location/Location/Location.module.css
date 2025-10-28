@@ -1,3 +1,7 @@
+/* ============================================================================
+   LOCATION - PÁGINA DE UBICACIÓN
+   ============================================================================ */
+
 /* Contenedor principal de la página Location */
 .locationContainer {
   background: var(--background-primary);
@@ -13,24 +17,35 @@
 }
 
 .mapSection h3 {
-  font-size: 1.8rem;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-xl);
 }
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet */
 @media (max-width: 768px) {
   .locationContainer {
-    padding: 1.5rem 1rem;
+    padding: var(--spacing-lg) var(--spacing-md);
   }
 
   .mapSection h3 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
   }
 }
 
+/* Mobile */
 @media (max-width: 480px) {
   .locationContainer {
-    padding: 1rem 0.75rem;
+    padding: var(--spacing-md) var(--spacing-sm);
   }
-} 
+
+  .mapSection h3 {
+    font-size: var(--font-size-lg);
+  }
+}

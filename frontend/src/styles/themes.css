@@ -1,3 +1,8 @@
+/* ============================================================================
+   TEMA CLARO (light)
+   Variables semánticas que se adaptan al tema activo
+   ============================================================================ */
+
 :root[data-theme="light"] {
   /* === COLORES PRINCIPALES === */
   --color-primary: var(--color-sky-600);
@@ -6,26 +11,35 @@
   --color-secondary: var(--color-cyan-500);
   --color-accent: var(--color-sky-400);
 
-  /* === COLORES PRINCIPALES RGB (para transparencias) === */
-  --color-primary-rgb: 2, 132, 199; /* RGB del sky-600 */
+  /* === RGB DINÁMICO (cambia según tema) === */
+  --color-primary-rgb: 2, 132, 199;         /* sky-600 */
+  --color-secondary-rgb: 6, 182, 212;       /* cyan-500 */
+  --text-primary-rgb: 45, 45, 45;           /* #2d2d2d */
+  --background-primary-rgb: 255, 255, 255;  /* #ffffff */
 
-  /* === COLORES CON TRANSPARENCIAS === */
+  /* === COLORES CON TRANSPARENCIAS DINÁMICAS === */
+  --color-primary-25: rgba(var(--color-primary-rgb), 0.025);
   --color-primary-50: rgba(var(--color-primary-rgb), 0.05);
   --color-primary-100: rgba(var(--color-primary-rgb), 0.1);
   --color-primary-200: rgba(var(--color-primary-rgb), 0.2);
   --color-primary-300: rgba(var(--color-primary-rgb), 0.3);
   --color-primary-400: rgba(var(--color-primary-rgb), 0.4);
 
-  /* === SOMBRAS DINÁMICAS === */
-  --shadow-focus: 0 0 0 3px var(--color-primary-100);
-  --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
-  --shadow-button-primary-hover: 0 4px 10px rgba(var(--color-primary-rgb), 0.3);
-
   /* === COLORES DE TEXTO === */
   --text-primary: var(--color-text-light-primary);
   --text-secondary: var(--color-text-light-secondary);
   --text-light: var(--color-neutral-100);
   --text-inverse: var(--color-bg-light-primary);
+  --text-muted: var(--color-neutral-500);
+  --text-disabled: var(--color-neutral-400);
+  --text-tertiary: var(--color-neutral-500);
+  --text-placeholder: var(--color-neutral-400);
+
+  /* === COLORES DE TEXTO POR ESTADO (NUEVO) === */
+  --text-error: var(--color-error-dark);
+  --text-success: var(--color-success-dark);
+  --text-warning: var(--color-warning-dark);
+  --text-info: var(--color-info-dark);
 
   /* === COLORES DE FONDO === */
   --background-primary: var(--color-bg-light-primary);
@@ -34,29 +48,46 @@
   --background-neutral: var(--color-bg-light-neutral);
   --background-light: var(--color-neutral-50);
   --background-dark: var(--color-neutral-200);
-  
+  --background-disabled: var(--color-neutral-200);
+  --background-hover: var(--color-neutral-100);
+
+  /* === COLORES DE FONDO POR ESTADO (NUEVO) === */
+  --background-error: var(--color-error-light);
+  --background-success: var(--color-success-light);
+  --background-warning: var(--color-warning-light);
+  --background-info: var(--color-info-light);
+
   /* === COLORES DE BORDE === */
   --border-color: var(--color-neutral-500);
   --border-color-light: var(--color-neutral-400);
   --border-color-dark: var(--color-neutral-800);
-  
-  /* === COLORES DE TEXTO ADICIONALES === */
-  --text-muted: var(--color-neutral-500);
-  --text-disabled: var(--color-neutral-400);
-  --text-tertiary: var(--color-neutral-500);
-  --text-placeholder: var(--color-neutral-400);
 
-  /* === COLORES DE FONDO ADICIONALES === */
-  --background-disabled: var(--color-neutral-200);
-  --background-hover: var(--color-neutral-100);
+  /* === TRANSPARENCIAS DE ESTADOS (NUEVO) === */
+  --color-error-100: rgba(var(--color-error-rgb), 0.1);
+  --color-success-100: rgba(var(--color-success-rgb), 0.1);
+  --color-warning-100: rgba(var(--color-warning-rgb), 0.1);
+  --color-info-100: rgba(var(--color-info-rgb), 0.1);
 
-  /* === ALIAS DE COLORES === */
-  --color-primary-hover: var(--color-primary-dark);
-  --color-secondary-rgb: 6, 182, 212; /* RGB del cyan-500 */
+  /* === ALIAS DE COLORES (NUEVO - para compatibilidad) === */
+  --color-background: var(--background-primary);
+  --color-background-alt: var(--background-secondary);
+  --color-border: var(--border-color);
+  --color-text: var(--text-primary);
 
-  /* === SOMBRAS ESPECÍFICAS === */
+  /* === SOMBRAS DINÁMICAS === */
+  --shadow-focus: 0 0 0 3px var(--color-primary-100);
+  --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
+  --shadow-button-primary-hover: 0 4px 10px rgba(var(--color-primary-rgb), 0.3);
   --shadow-card-hover: 0 3px 12px var(--color-neutral-400);
+
+  /* === ALIAS ADICIONALES === */
+  --color-primary-hover: var(--color-primary-dark);
 }
+
+/* ============================================================================
+   TEMA OSCURO (dark)
+   Variables semánticas adaptadas para tema oscuro
+   ============================================================================ */
 
 :root[data-theme="dark"] {
   /* === COLORES PRINCIPALES === */
@@ -66,26 +97,35 @@
   --color-secondary: var(--color-cyan-400);
   --color-accent: var(--color-sky-300);
 
-  /* === COLORES PRINCIPALES RGB (para transparencias) === */
-  --color-primary-rgb: 14, 165, 233; /* RGB del sky-500 */
+  /* === RGB DINÁMICO (cambia según tema) === */
+  --color-primary-rgb: 14, 165, 233;        /* sky-500 - más claro en dark */
+  --color-secondary-rgb: 34, 211, 238;      /* cyan-400 - más claro en dark */
+  --text-primary-rgb: 248, 250, 252;        /* #F8FAFC */
+  --background-primary-rgb: 24, 24, 27;     /* #18181B */
 
-  /* === COLORES CON TRANSPARENCIAS === */
+  /* === COLORES CON TRANSPARENCIAS DINÁMICAS === */
+  --color-primary-25: rgba(var(--color-primary-rgb), 0.025);
   --color-primary-50: rgba(var(--color-primary-rgb), 0.05);
   --color-primary-100: rgba(var(--color-primary-rgb), 0.1);
   --color-primary-200: rgba(var(--color-primary-rgb), 0.2);
   --color-primary-300: rgba(var(--color-primary-rgb), 0.3);
   --color-primary-400: rgba(var(--color-primary-rgb), 0.4);
 
-  /* === SOMBRAS DINÁMICAS === */
-  --shadow-focus: 0 0 0 3px var(--color-primary-100);
-  --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
-  --shadow-button-primary-hover: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
-
   /* === COLORES DE TEXTO === */
   --text-primary: var(--color-text-dark-primary);
   --text-secondary: var(--color-text-dark-secondary);
   --text-light: var(--color-neutral-200);
   --text-inverse: var(--color-neutral-900);
+  --text-muted: var(--color-neutral-400);
+  --text-disabled: var(--color-neutral-600);
+  --text-tertiary: var(--color-neutral-600);
+  --text-placeholder: var(--color-neutral-600);
+
+  /* === COLORES DE TEXTO POR ESTADO (NUEVO) === */
+  --text-error: var(--color-error-light);
+  --text-success: var(--color-success-light);
+  --text-warning: var(--color-warning-light);
+  --text-info: var(--color-info-light);
 
   /* === COLORES DE FONDO === */
   --background-primary: var(--color-bg-dark-primary);
@@ -94,40 +134,73 @@
   --background-neutral: var(--color-bg-dark-neutral);
   --background-light: var(--color-neutral-900);
   --background-dark: var(--color-zinc-950);
-  
+  --background-disabled: var(--color-zinc-800);
+  --background-hover: var(--color-zinc-700);
+
+  /* === COLORES DE FONDO POR ESTADO (NUEVO) === */
+  --background-error: rgba(var(--color-error-rgb), 0.15);
+  --background-success: rgba(var(--color-success-rgb), 0.15);
+  --background-warning: rgba(var(--color-warning-rgb), 0.15);
+  --background-info: rgba(var(--color-info-rgb), 0.15);
+
   /* === COLORES DE BORDE === */
   --border-color: var(--color-zinc-700);
   --border-color-light: var(--color-neutral-800);
   --border-color-dark: var(--color-zinc-600);
-  
-  /* === COLORES DE TEXTO ADICIONALES === */
-  --text-muted: var(--color-neutral-400);
-  --text-disabled: var(--color-neutral-600);
-  --text-tertiary: var(--color-neutral-600);
-  --text-placeholder: var(--color-neutral-600);
 
-  /* === COLORES DE FONDO ADICIONALES === */
-  --background-disabled: var(--color-zinc-800);
-  --background-hover: var(--color-zinc-700);
+  /* === TRANSPARENCIAS DE ESTADOS (NUEVO) === */
+  --color-error-100: rgba(var(--color-error-rgb), 0.1);
+  --color-success-100: rgba(var(--color-success-rgb), 0.1);
+  --color-warning-100: rgba(var(--color-warning-rgb), 0.1);
+  --color-info-100: rgba(var(--color-info-rgb), 0.1);
 
-  /* === ALIAS DE COLORES === */
-  --color-primary-hover: var(--color-primary-dark);
-  --color-secondary-rgb: 34, 211, 238; /* RGB del cyan-400 */
+  /* === ALIAS DE COLORES (NUEVO - para compatibilidad) === */
+  --color-background: var(--background-primary);
+  --color-background-alt: var(--background-secondary);
+  --color-border: var(--border-color);
+  --color-text: var(--text-primary);
 
-  /* === SOMBRAS ESPECÍFICAS === */
+  /* === SOMBRAS DINÁMICAS === */
+  --shadow-focus: 0 0 0 3px var(--color-primary-100);
+  --shadow-button-primary: 0 8px 25px rgba(var(--color-primary-rgb), 0.4);
+  --shadow-button-primary-hover: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
   --shadow-card-hover: 0 3px 12px var(--color-neutral-600);
+
+  /* === ALIAS ADICIONALES === */
+  --color-primary-hover: var(--color-primary-dark);
 }
 
-/* === TRANSICIONES SUAVES PARA CAMBIOS DE TEMA === */
+/* ============================================================================
+   CLASES UTILITARIAS DE TRANSICIÓN DE TEMA
+   ============================================================================ */
+
 .theme-transition {
   transition: var(--theme-transition);
 }
 
-/* === CLASES PARA ELEMENTOS QUE NECESITAN TRANSICIONES === */
 .theme-aware {
   transition: var(--theme-transition);
 }
 
 .theme-aware-all {
   transition: all var(--transition-normal) var(--transition-curve);
+}
+
+/* ============================================================================
+   FALLBACK PARA PREFERS-COLOR-SCHEME (sin data-theme)
+   Si el usuario no ha seleccionado tema explícitamente
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* Aplicar variables de tema oscuro */
+    --color-primary: var(--color-sky-500);
+    --color-primary-rgb: 14, 165, 233;
+    --text-primary: var(--color-text-dark-primary);
+    --text-secondary: var(--color-text-dark-secondary);
+    --background-primary: var(--color-bg-dark-primary);
+    --background-secondary: var(--color-bg-dark-secondary);
+    --background-elevated: var(--color-bg-dark-elevated);
+    --border-color: var(--color-zinc-700);
+  }
 }

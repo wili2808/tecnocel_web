@@ -25,7 +25,7 @@
 
 /* === FORMULARIO === */
 .form {
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
@@ -230,7 +230,7 @@
 
 /* === RECOMENDACIONES DE SEGURIDAD === */
 .securityTips {
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);

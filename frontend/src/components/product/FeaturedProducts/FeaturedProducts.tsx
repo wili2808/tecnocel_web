@@ -19,7 +19,7 @@ interface FeaturedProductsProps {
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(({
     products,
-    title = 'Productos Destacados',
+    title = '',
     className,
     loading = false,
     error = null

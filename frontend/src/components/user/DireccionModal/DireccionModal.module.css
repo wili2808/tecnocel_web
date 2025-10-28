@@ -9,14 +9,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: var(--spacing-md);
   animation: fadeIn 0.2s ease-out;
 }
 
 /* === CONTENIDO DEL MODAL === */
 .modal {
-  background-color: var(--background-primary);
+  background-color: var(--background-secondary);
   border-radius: var(--border-radius-lg);
   max-width: 600px;
   width: 100%;
@@ -35,7 +35,7 @@
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
-  background-color: var(--background-primary);
+  background-color: var(--background-secondary);
   z-index: 10;
 }
 
@@ -108,7 +108,7 @@
   padding: var(--spacing-sm);
   font-size: var(--font-size-md);
   color: var(--text-primary);
-  background-color: var(--background-light);
+  background-color: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   transition: all var(--transition-normal);

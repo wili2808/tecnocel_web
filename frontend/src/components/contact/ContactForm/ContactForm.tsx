@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
-import { FiSend, FiUser, FiMail, FiMessageSquare, FiPhone } from 'react-icons/fi';
+/**
+ * Componente ContactForm - Formulario de contacto con validación
+ * Maneja envío de mensajes con validación completa
+ * Incluye validación de campos, manejo de errores y feedback visual
+ */
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import Button from '../../common/Button';
 import styles from './ContactForm.module.css';
 
 /**
@@ -29,6 +35,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     onSubmitSuccess,
     className = ''
 }) => {
+    // ============================================================================
+    // ESTADOS DEL FORMULARIO
+    // ============================================================================
     const [formData, setFormData] = useState({
         nombre: '',
         email: '',
@@ -39,41 +48,86 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [focusedField, setFocusedField] = useState<string | null>(null);
 
-    // Validación de campos
+    // ============================================================================
+    // MANEJADORES DE EVENTOS
+    // ============================================================================
+
+    /**
+     * Maneja los cambios en los campos del formulario
+     * Actualiza el estado local y limpia errores automáticamente
+     */
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+
+        // ✅ LIMPIAR ERROR del campo cuando el usuario empiece a escribir
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    /**
+     * Maneja el focus de los inputs para efectos visuales
+     * Activa el estado de campo enfocado para estilos CSS
+     */
+    const handleFocus = (fieldName: string) => {
+        setFocusedField(fieldName);
+    };
+
+    /**
+     * Maneja el blur de los inputs para efectos visuales
+     * Desactiva el estado de campo enfocado
+     */
+    const handleBlur = () => {
+        setFocusedField(null);
+    };
+
+    // ============================================================================
+    // VALIDACIÓN Y MANEJO DE FORMULARIO
+    // ============================================================================
+
+    /**
+     * Valida todos los campos del formulario de contacto
+     * Retorna true si el formulario es válido, false si hay errores
+     */
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
 
-        // Nombre
+        // ✅ VALIDAR NOMBRE con longitud mínima
         if (!formData.nombre.trim()) {
             newErrors.nombre = 'El nombre es requerido';
         } else if (formData.nombre.trim().length < 3) {
             newErrors.nombre = 'El nombre debe tener al menos 3 caracteres';
         }
 
-        // Email
+        // ✅ VALIDAR EMAIL con formato correcto
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email.trim()) {
             newErrors.email = 'El email es requerido';
         } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Email inválido';
+            newErrors.email = 'El formato del email no es válido';
         }
 
-        // Teléfono (opcional pero si se ingresa debe ser válido)
+        // ✅ VALIDAR TELÉFONO (opcional pero si se ingresa debe ser válido)
         if (formData.telefono.trim()) {
             const phoneRegex = /^[0-9\s\-\+\(\)]+$/;
             if (!phoneRegex.test(formData.telefono)) {
-                newErrors.telefono = 'Teléfono inválido';
+                newErrors.telefono = 'El formato del teléfono no es válido';
+            } else if (formData.telefono.trim().length < 7) {
+                newErrors.telefono = 'El teléfono debe tener al menos 7 dígitos';
             }
         }
 
-        // Asunto
+        // ✅ VALIDAR ASUNTO
         if (!formData.asunto.trim()) {
             newErrors.asunto = 'El asunto es requerido';
         }
 
-        // Mensaje
+        // ✅ VALIDAR MENSAJE con longitud mínima
         if (!formData.mensaje.trim()) {
             newErrors.mensaje = 'El mensaje es requerido';
         } else if (formData.mensaje.trim().length < 10) {
@@ -84,43 +138,21 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    // Manejo de cambios en inputs
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-
-        // Limpiar error del campo cuando el usuario empieza a escribir
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
-
-        // Resetear status de envío si hay cambios
-        if (submitStatus !== 'idle') {
-            setSubmitStatus('idle');
-        }
-    };
-
-    // Manejo del envío del formulario
+    /**
+     * Maneja el envío del formulario de contacto
+     * Valida datos, ejecuta envío y maneja feedback automático
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
         setIsSubmitting(true);
-        setSubmitStatus('idle');
 
         try {
+            // ✅ VALIDAR FORMULARIO antes de procesar
+            if (!validateForm()) {
+                toast.error('Por favor corrija los errores en el formulario');
+                return;
+            }
+
             // TODO: Implementar llamada a API real
             // const response = await fetch('/api/contacto', {
             //     method: 'POST',
@@ -128,12 +160,15 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             //     body: JSON.stringify(formData)
             // });
 
-            // Simulación de envío (reemplazar con API real)
+            // ✅ SIMULACIÓN de envío (reemplazar con API real)
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             console.log('Datos del formulario:', formData);
 
-            setSubmitStatus('success');
+            // ✅ MOSTRAR MENSAJE DE ÉXITO y limpiar formulario
+            toast.success('¡Mensaje enviado exitosamente! Te responderemos pronto.');
+
+            // ✅ LIMPIAR FORMULARIO completo después de éxito
             setFormData({
                 nombre: '',
                 email: '',
@@ -141,35 +176,188 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 asunto: '',
                 mensaje: ''
             });
+            setErrors({});
 
+            // ✅ CALLBACK de éxito si existe
             if (onSubmitSuccess) {
                 onSubmitSuccess();
             }
 
-            // Resetear mensaje de éxito después de 5 segundos
-            setTimeout(() => {
-                setSubmitStatus('idle');
-            }, 5000);
-
-        } catch (error) {
-            console.error('Error al enviar formulario:', error);
-            setSubmitStatus('error');
-
-            // Resetear mensaje de error después de 5 segundos
-            setTimeout(() => {
-                setSubmitStatus('idle');
-            }, 5000);
+        } catch (error: any) {
+            // ✅ MANEJO DE ERRORES con mensajes descriptivos
+            const errorMessage = error.response?.data?.mensaje ||
+                error.response?.data?.message ||
+                error.message ||
+                'Error al enviar el mensaje';
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    // ============================================================================
+    // RENDERIZADO DE CAMPOS
+    // ============================================================================
+
+    /**
+     * Renderiza un campo de input personalizado con validación
+     * Incluye iconos, estados de error y feedback visual
+     */
+    const renderInput = (
+        id: string,
+        name: string,
+        type: string,
+        label: string,
+        value: string,
+        icon: string,
+        autoComplete?: string,
+        error?: string,
+        placeholder?: string,
+        required?: boolean
+    ) => {
+        return (
+            <div className={styles.formGroup}>
+                <label htmlFor={id} className={styles.label}>
+                    {label}
+                    {required && <span className={styles.required}>*</span>}
+                </label>
+                <div className={`${styles.inputContainer} ${focusedField === id ? styles.focused : ''} ${error ? styles.error : ''}`}>
+                    <span className={styles.iconLeft}>
+                        <span className="material-icons">{icon}</span>
+                    </span>
+                    <input
+                        id={id}
+                        name={name}
+                        type={type}
+                        value={value}
+                        onChange={handleInputChange}
+                        onFocus={() => handleFocus(id)}
+                        onBlur={handleBlur}
+                        required={required}
+                        disabled={isSubmitting}
+                        className={styles.input}
+                        autoComplete={autoComplete}
+                        placeholder={placeholder}
+                    />
+                </div>
+                {error && (
+                    <div className={styles.errorMessage}>
+                        <span className="material-icons">error</span>
+                        <span>{error}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    /**
+     * Renderiza un campo de select personalizado con validación
+     * Incluye iconos, estados de error y feedback visual
+     */
+    const renderSelect = (
+        id: string,
+        name: string,
+        label: string,
+        value: string,
+        icon: string,
+        options: { value: string; label: string }[],
+        error?: string,
+        required?: boolean
+    ) => {
+        return (
+            <div className={styles.formGroup}>
+                <label htmlFor={id} className={styles.label}>
+                    {label}
+                    {required && <span className={styles.required}>*</span>}
+                </label>
+                <div className={`${styles.inputContainer} ${focusedField === id ? styles.focused : ''} ${error ? styles.error : ''}`}>
+                    <span className={styles.iconLeft}>
+                        <span className="material-icons">{icon}</span>
+                    </span>
+                    <select
+                        id={id}
+                        name={name}
+                        value={value}
+                        onChange={handleInputChange}
+                        onFocus={() => handleFocus(id)}
+                        onBlur={handleBlur}
+                        required={required}
+                        disabled={isSubmitting}
+                        className={styles.input}
+                    >
+                        {options.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {error && (
+                    <div className={styles.errorMessage}>
+                        <span className="material-icons">error</span>
+                        <span>{error}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    /**
+     * Renderiza un campo de textarea personalizado con validación
+     * Incluye iconos, estados de error y feedback visual
+     */
+    const renderTextarea = (
+        id: string,
+        name: string,
+        label: string,
+        value: string,
+        icon: string,
+        error?: string,
+        placeholder?: string,
+        required?: boolean,
+        rows?: number
+    ) => {
+        return (
+            <div className={styles.formGroup}>
+                <label htmlFor={id} className={styles.label}>
+                    {label}
+                    {required && <span className={styles.required}>*</span>}
+                </label>
+                <div className={`${styles.textareaContainer} ${focusedField === id ? styles.focused : ''} ${error ? styles.error : ''}`}>
+                    <span className={styles.iconLeft}>
+                        <span className="material-icons">{icon}</span>
+                    </span>
+                    <textarea
+                        id={id}
+                        name={name}
+                        value={value}
+                        onChange={handleInputChange}
+                        onFocus={() => handleFocus(id)}
+                        onBlur={handleBlur}
+                        required={required}
+                        disabled={isSubmitting}
+                        className={styles.textarea}
+                        placeholder={placeholder}
+                        rows={rows || 6}
+                    />
+                </div>
+                {error && (
+                    <div className={styles.errorMessage}>
+                        <span className="material-icons">error</span>
+                        <span>{error}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ============================================================================
+    // RENDERIZADO PRINCIPAL
+    // ============================================================================
+
     return (
-        <form
-            onSubmit={handleSubmit}
-            className={`${styles.contactForm} ${className}`}
-            noValidate
-        >
+        <div className={`${styles.contactCard} ${className}`}>
+            {/* Encabezado integrado con título y descripción */}
             <div className={styles.formHeader}>
                 <h3 className={styles.formTitle}>Envíanos un mensaje</h3>
                 <p className={styles.formSubtitle}>
@@ -177,155 +365,104 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 </p>
             </div>
 
-            <div className={styles.formGrid}>
-                {/* Nombre */}
-                <div className={styles.formGroup}>
-                    <label htmlFor="nombre" className={styles.label}>
-                        <FiUser className={styles.labelIcon} />
-                        Nombre completo *
-                    </label>
-                    <input
-                        type="text"
-                        id="nombre"
-                        name="nombre"
-                        value={formData.nombre}
-                        onChange={handleChange}
-                        className={`${styles.input} ${errors.nombre ? styles.inputError : ''}`}
-                        placeholder="Juan Pérez"
-                        disabled={isSubmitting}
-                    />
-                    {errors.nombre && (
-                        <span className={styles.errorMessage}>{errors.nombre}</span>
+            {/* Formulario de contacto con validación y estados */}
+            <form onSubmit={handleSubmit} className={styles.contactForm}>
+                {/* Fila 1: Nombre y Email en layout horizontal */}
+                <div className={styles.formRow}>
+                    {renderInput(
+                        'nombre',
+                        'nombre',
+                        'text',
+                        'Nombre completo',
+                        formData.nombre,
+                        'person',
+                        'name',
+                        errors.nombre,
+                        'Juan Pérez',
+                        true
+                    )}
+
+                    {renderInput(
+                        'email',
+                        'email',
+                        'email',
+                        'Correo Electrónico',
+                        formData.email,
+                        'email',
+                        'email',
+                        errors.email,
+                        'juan@ejemplo.com',
+                        true
                     )}
                 </div>
 
-                {/* Email */}
-                <div className={styles.formGroup}>
-                    <label htmlFor="email" className={styles.label}>
-                        <FiMail className={styles.labelIcon} />
-                        Email *
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-                        placeholder="juan@ejemplo.com"
-                        disabled={isSubmitting}
-                    />
-                    {errors.email && (
-                        <span className={styles.errorMessage}>{errors.email}</span>
+                {/* Fila 2: Teléfono y Asunto en layout horizontal */}
+                <div className={styles.formRow}>
+                    {renderInput(
+                        'telefono',
+                        'telefono',
+                        'tel',
+                        'Teléfono',
+                        formData.telefono,
+                        'phone',
+                        'tel',
+                        errors.telefono,
+                        '+591 XXX-XXXX',
+                        false
+                    )}
+
+                    {renderSelect(
+                        'asunto',
+                        'asunto',
+                        'Asunto',
+                        formData.asunto,
+                        'subject',
+                        [
+                            { value: '', label: 'Selecciona un asunto' },
+                            { value: 'consulta', label: 'Consulta general' },
+                            { value: 'cotizacion', label: 'Solicitar cotización' },
+                            { value: 'soporte', label: 'Soporte técnico' },
+                            { value: 'garantia', label: 'Garantía' },
+                            { value: 'reclamo', label: 'Reclamo' },
+                            { value: 'otro', label: 'Otro' }
+                        ],
+                        errors.asunto,
+                        true
                     )}
                 </div>
 
-                {/* Teléfono */}
-                <div className={styles.formGroup}>
-                    <label htmlFor="telefono" className={styles.label}>
-                        <FiPhone className={styles.labelIcon} />
-                        Teléfono (opcional)
-                    </label>
-                    <input
-                        type="tel"
-                        id="telefono"
-                        name="telefono"
-                        value={formData.telefono}
-                        onChange={handleChange}
-                        className={`${styles.input} ${errors.telefono ? styles.inputError : ''}`}
-                        placeholder="+54 362 XXX-XXXX"
-                        disabled={isSubmitting}
-                    />
-                    {errors.telefono && (
-                        <span className={styles.errorMessage}>{errors.telefono}</span>
-                    )}
-                </div>
-
-                {/* Asunto */}
-                <div className={styles.formGroup}>
-                    <label htmlFor="asunto" className={styles.label}>
-                        <FiMessageSquare className={styles.labelIcon} />
-                        Asunto *
-                    </label>
-                    <select
-                        id="asunto"
-                        name="asunto"
-                        value={formData.asunto}
-                        onChange={handleChange}
-                        className={`${styles.select} ${errors.asunto ? styles.inputError : ''}`}
-                        disabled={isSubmitting}
-                    >
-                        <option value="">Selecciona un asunto</option>
-                        <option value="consulta">Consulta general</option>
-                        <option value="cotizacion">Solicitar cotización</option>
-                        <option value="soporte">Soporte técnico</option>
-                        <option value="garantia">Garantía</option>
-                        <option value="reclamo">Reclamo</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                    {errors.asunto && (
-                        <span className={styles.errorMessage}>{errors.asunto}</span>
-                    )}
-                </div>
-            </div>
-
-            {/* Mensaje */}
-            <div className={styles.formGroup}>
-                <label htmlFor="mensaje" className={styles.label}>
-                    <FiMessageSquare className={styles.labelIcon} />
-                    Mensaje *
-                </label>
-                <textarea
-                    id="mensaje"
-                    name="mensaje"
-                    value={formData.mensaje}
-                    onChange={handleChange}
-                    className={`${styles.textarea} ${errors.mensaje ? styles.inputError : ''}`}
-                    placeholder="Escribe tu mensaje aquí..."
-                    rows={6}
-                    disabled={isSubmitting}
-                />
-                {errors.mensaje && (
-                    <span className={styles.errorMessage}>{errors.mensaje}</span>
+                {/* Fila 3: Mensaje en ancho completo */}
+                {renderTextarea(
+                    'mensaje',
+                    'mensaje',
+                    'Mensaje',
+                    formData.mensaje,
+                    'message',
+                    errors.mensaje,
+                    'Escribe tu mensaje aquí...',
+                    true,
+                    6
                 )}
-            </div>
 
-            {/* Mensajes de estado */}
-            {submitStatus === 'success' && (
-                <div className={styles.successMessage}>
-                    ✅ ¡Mensaje enviado exitosamente! Te responderemos pronto.
-                </div>
-            )}
+                {/* Botón de envío principal usando componente Button personalizado */}
+                <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    loading={isSubmitting}
+                    icon="send"
+                    iconPosition="left"
+                    className={styles.submitButton}
+                >
+                    {isSubmitting ? 'Enviando mensaje...' : 'Enviar Mensaje'}
+                </Button>
 
-            {submitStatus === 'error' && (
-                <div className={styles.errorMessageBox}>
-                    ❌ Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.
-                </div>
-            )}
-
-            {/* Botón de envío */}
-            <button
-                type="submit"
-                className={styles.submitButton}
-                disabled={isSubmitting}
-            >
-                {isSubmitting ? (
-                    <>
-                        <span className={styles.spinner} />
-                        Enviando...
-                    </>
-                ) : (
-                    <>
-                        <FiSend className={styles.buttonIcon} />
-                        Enviar mensaje
-                    </>
-                )}
-            </button>
-
-            <p className={styles.formFooter}>
-                * Campos requeridos
-            </p>
-        </form>
+                <p className={styles.formFooter}>
+                    * Campos requeridos
+                </p>
+            </form>
+        </div>
     );
 };
 

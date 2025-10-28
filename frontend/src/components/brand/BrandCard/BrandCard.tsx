@@ -1,7 +1,7 @@
 /**
  * Componente BrandCard - Tarjeta de marca para vista de cuadrícula
  * Muestra logo, nombre y descripción de la marca
- * Incluye contador de productos y navegación al catálogo filtrado
+ * Navegación al catálogo filtrado por marca
  */
 import React, { useState } from 'react';
 import styles from './BrandCard.module.css';
@@ -9,19 +9,16 @@ import type { Marca } from '../../../types';
 
 interface BrandCardProps {
   brand: Marca;
-  productCount?: number;
   onClick?: (brandId: number) => void;
 }
 
 /**
  * Componente que renderiza una tarjeta individual de marca
  * @param brand - Datos de la marca a mostrar
- * @param productCount - Cantidad de productos de esta marca (opcional)
  * @param onClick - Callback al hacer clic en la tarjeta
  */
 const BrandCard: React.FC<BrandCardProps> = ({
   brand,
-  productCount,
   onClick
 }) => {
   // ============================================================================
@@ -114,21 +111,20 @@ const BrandCard: React.FC<BrandCardProps> = ({
             {getTruncatedDescription()}
           </p>
         )}
-
-        {/* Contador de productos */}
-        {productCount !== undefined && (
-          <div className={styles.productCount}>
-            <span className={styles.countNumber}>{productCount}</span>
-            <span className={styles.countText}>
-              {productCount === 1 ? 'producto' : 'productos'}
-            </span>
-          </div>
-        )}
       </div>
 
-      {/* Indicador visual de hover */}
+      {/* Overlay de hover mejorado */}
       <div className={styles.hoverOverlay}>
-        <span className={styles.viewText}>Ver productos</span>
+        <div className={styles.overlayContent}>
+          <span className="material-icons" style={{ fontSize: '48px', color: 'white' }}>
+            storefront
+          </span>
+          <span className={styles.viewText}>Ver Productos</span>
+          <div className={styles.viewButton}>
+            <span>Explorar</span>
+            <span className="material-icons">arrow_forward</span>
+          </div>
+        </div>
       </div>
     </div>
   );

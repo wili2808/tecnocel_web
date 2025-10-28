@@ -1,22 +1,38 @@
 .productsSection {
-  margin-top: 48px;
+  margin-top: var(--spacing-3xl);
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-md);
   border-bottom: 2px solid var(--border-color-light);
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 250px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .sectionTitle {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 1.75rem;
-  font-weight: 700;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0;
 }
@@ -30,19 +46,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-xs);
 }
 
 .currentCount {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: var(--color-error);
 }
 
 .totalCount {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .productsGrid {
@@ -55,22 +71,22 @@
 .loadMoreContainer {
   display: flex;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: var(--spacing-2xl);
 }
 
 .loadMoreButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px 32px;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) var(--spacing-2xl);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: var(--text-light);
   border: none;
-  border-radius: 16px;
-  font-weight: 600;
-  font-size: 1rem;
+  border-radius: var(--border-radius-xl);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal) ease;
   box-shadow: var(--shadow-button-primary);
   min-width: 200px;
   justify-content: center;
@@ -109,10 +125,10 @@
 }
 
 .loadingText {
-  margin-top: 16px;
+  margin-top: var(--spacing-md);
   color: var(--text-secondary);
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
 }
 
 .errorContent,
@@ -121,7 +137,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .errorContent .material-icons,
@@ -132,8 +148,8 @@
 
 .errorContent h3,
 .emptyContent h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
 }
@@ -141,29 +157,29 @@
 .errorContent p,
 .emptyContent p {
   color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
   margin: 0;
 }
 
 .retryButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
   background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
   color: var(--text-light);
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
+  border-radius: var(--border-radius-lg);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  transition: all var(--transition-normal) ease;
+  box-shadow: var(--shadow-md);
 }
 
 .retryButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  box-shadow: var(--shadow-lg);
   background: linear-gradient(135deg, var(--color-error-dark) 0%, var(--color-error-dark) 100%);
 }
 
@@ -184,72 +200,97 @@
 
 @media (max-width: 768px) {
   .productsSection {
-    margin-top: 32px;
+    margin-top: var(--spacing-2xl);
   }
-  
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .headerLeft {
+    width: 100%;
+    flex-wrap: wrap;
+    min-width: auto;
+  }
+
+  .headerRight {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
   .sectionTitle {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
   }
-  
+
   .sectionTitle .material-icons {
     font-size: 24px;
   }
-  
+
   .currentCount {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
-  
+
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: var(--spacing-sm);
-    margin-bottom: 32px;
+    margin-bottom: var(--spacing-2xl);
   }
-  
+
   .loadMoreButton {
-    padding: 14px 28px;
-    font-size: 0.9rem;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-md);
     min-width: 180px;
   }
-  
+
   .loadingContainer,
   .errorContainer,
   .emptyContainer {
-    padding: 32px 16px;
+    padding: var(--spacing-2xl) var(--spacing-md);
     min-height: 300px;
   }
-  
+
   .errorContent .material-icons,
   .emptyContent .material-icons {
     font-size: 48px;
   }
-  
+
   .errorContent h3,
   .emptyContent h3 {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 }
 
 @media (max-width: 480px) {
+  .sectionHeader {
+    gap: var(--spacing-sm);
+  }
+
+  .headerLeft {
+    gap: var(--spacing-sm);
+  }
+
   .productsGrid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: var(--spacing-xs);
   }
-  
+
   .sectionTitle {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
-  
+
   .currentCount {
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
   }
-  
+
   .totalCount {
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
   }
-  
+
   .loadMoreButton {
-    padding: 12px 24px;
-    font-size: 0.875rem;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-sm);
     min-width: 160px;
   }
 }

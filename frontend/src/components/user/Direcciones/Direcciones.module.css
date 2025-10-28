@@ -85,7 +85,7 @@
 
 /* === TARJETA DE DIRECCIÓN === */
 .direccionCard {
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
@@ -274,7 +274,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xxl);
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   text-align: center;

@@ -129,52 +129,70 @@ const OffersGrid: React.FC<OffersGridProps> = ({
     // RENDERIZADO
     // ============================================================================
 
+    // Si ya hay ofertas filtradas desde props, mostrarlas directamente sin separación
+    const shouldShowSeparatedSections = useGlobalContext || (!propsOfertas || propsOfertas.length === 0);
+
     return (
         <div className={styles.offersGrid}>
-            {/* Ofertas activas */}
-            {ofertasActivasFiltered.length > 0 && (
-                <section className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <span className="material-icons">local_fire_department</span>
-                            Ofertas Activas
-                        </h2>
-                        <span className={styles.badge}>{ofertasActivasFiltered.length}</span>
-                    </div>
+            {shouldShowSeparatedSections ? (
+                <>
+                    {/* Ofertas activas */}
+                    {ofertasActivasFiltered.length > 0 && (
+                        <section className={styles.section}>
+                            <div className={styles.sectionHeader}>
+                                <h2 className={styles.sectionTitle}>
+                                    <span className="material-icons">local_fire_department</span>
+                                    Ofertas Activas
+                                </h2>
+                                <span className={styles.badge}>{ofertasActivasFiltered.length}</span>
+                            </div>
 
-                    <div className={styles.grid}>
-                        {ofertasActivasFiltered.map((oferta) => (
-                            <OfferCard
-                                key={oferta.id_oferta}
-                                oferta={oferta}
-                                productCount={productCounts[oferta.id_oferta] || 0}
-                            />
-                        ))}
-                    </div>
-                </section>
-            )}
+                            <div className={styles.grid}>
+                                {ofertasActivasFiltered.map((oferta) => (
+                                    <OfferCard
+                                        key={oferta.id_oferta}
+                                        oferta={oferta}
+                                        productCount={productCounts[oferta.id_oferta] || 0}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
-            {/* Ofertas expiradas */}
-            {ofertasExpiradasFiltered.length > 0 && (
-                <section className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <span className="material-icons">schedule</span>
-                            Ofertas Expiradas
-                        </h2>
-                        <span className={styles.badge}>{ofertasExpiradasFiltered.length}</span>
-                    </div>
+                    {/* Ofertas expiradas */}
+                    {ofertasExpiradasFiltered.length > 0 && (
+                        <section className={styles.section}>
+                            <div className={styles.sectionHeader}>
+                                <h2 className={styles.sectionTitle}>
+                                    <span className="material-icons">schedule</span>
+                                    Ofertas Expiradas
+                                </h2>
+                                <span className={styles.badge}>{ofertasExpiradasFiltered.length}</span>
+                            </div>
 
-                    <div className={styles.grid}>
-                        {ofertasExpiradasFiltered.map((oferta) => (
-                            <OfferCard
-                                key={oferta.id_oferta}
-                                oferta={oferta}
-                                productCount={productCounts[oferta.id_oferta] || 0}
-                            />
-                        ))}
-                    </div>
-                </section>
+                            <div className={styles.grid}>
+                                {ofertasExpiradasFiltered.map((oferta) => (
+                                    <OfferCard
+                                        key={oferta.id_oferta}
+                                        oferta={oferta}
+                                        productCount={productCounts[oferta.id_oferta] || 0}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                </>
+            ) : (
+                // Mostrar ofertas filtradas sin separación por sección
+                <div className={styles.grid}>
+                    {ofertas.map((oferta) => (
+                        <OfferCard
+                            key={oferta.id_oferta}
+                            oferta={oferta}
+                            productCount={productCounts[oferta.id_oferta] || 0}
+                        />
+                    ))}
+                </div>
             )}
         </div>
     );

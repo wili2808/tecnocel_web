@@ -65,9 +65,9 @@
    ============================================================================ */
 
 .skeletonCard {
-  background: var(--card-bg);
+  background: var(--background-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-card);
+  border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
@@ -80,14 +80,14 @@
 .skeletonLogo {
   width: 120px;
   height: 120px;
-  background: var(--skeleton-bg, #e0e0e0);
+  background: var(--color-neutral-200);
   border-radius: var(--border-radius-sm);
   animation: shimmer 2s infinite linear;
   background: linear-gradient(
     90deg,
-    var(--skeleton-bg, #e0e0e0) 25%,
-    var(--skeleton-highlight, #f0f0f0) 50%,
-    var(--skeleton-bg, #e0e0e0) 75%
+    var(--color-neutral-200) 25%,
+    var(--color-neutral-100) 50%,
+    var(--color-neutral-200) 75%
   );
   background-size: 200% 100%;
 }
@@ -95,14 +95,14 @@
 .skeletonTitle {
   width: 60%;
   height: 24px;
-  background: var(--skeleton-bg, #e0e0e0);
+  background: var(--color-neutral-200);
   border-radius: var(--border-radius-xs);
   animation: shimmer 2s infinite linear;
   background: linear-gradient(
     90deg,
-    var(--skeleton-bg, #e0e0e0) 25%,
-    var(--skeleton-highlight, #f0f0f0) 50%,
-    var(--skeleton-bg, #e0e0e0) 75%
+    var(--color-neutral-200) 25%,
+    var(--color-neutral-100) 50%,
+    var(--color-neutral-200) 75%
   );
   background-size: 200% 100%;
 }
@@ -110,30 +110,14 @@
 .skeletonDescription {
   width: 80%;
   height: 40px;
-  background: var(--skeleton-bg, #e0e0e0);
+  background: var(--color-neutral-200);
   border-radius: var(--border-radius-xs);
   animation: shimmer 2s infinite linear;
   background: linear-gradient(
     90deg,
-    var(--skeleton-bg, #e0e0e0) 25%,
-    var(--skeleton-highlight, #f0f0f0) 50%,
-    var(--skeleton-bg, #e0e0e0) 75%
-  );
-  background-size: 200% 100%;
-}
-
-.skeletonCount {
-  width: 40%;
-  height: 32px;
-  background: var(--skeleton-bg, #e0e0e0);
-  border-radius: var(--border-radius-full);
-  margin-top: auto;
-  animation: shimmer 2s infinite linear;
-  background: linear-gradient(
-    90deg,
-    var(--skeleton-bg, #e0e0e0) 25%,
-    var(--skeleton-highlight, #f0f0f0) 50%,
-    var(--skeleton-bg, #e0e0e0) 75%
+    var(--color-neutral-200) 25%,
+    var(--color-neutral-100) 50%,
+    var(--color-neutral-200) 75%
   );
   background-size: 200% 100%;
 }
@@ -183,7 +167,7 @@
 }
 
 .emptyTitle {
-  font-family: var(--font-primary);
+  font-family: var(--font-family-primary);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
@@ -191,7 +175,7 @@
 }
 
 .emptyDescription {
-  font-family: var(--font-secondary);
+  font-family: var(--font-family-secondary);
   font-size: var(--font-size-md);
   color: var(--text-secondary);
   margin: 0;
@@ -226,8 +210,7 @@
 
 [data-theme="dark"] .skeletonLogo,
 [data-theme="dark"] .skeletonTitle,
-[data-theme="dark"] .skeletonDescription,
-[data-theme="dark"] .skeletonCount {
+[data-theme="dark"] .skeletonDescription {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.05) 25%,
@@ -246,8 +229,7 @@
   .skeletonCard,
   .skeletonLogo,
   .skeletonTitle,
-  .skeletonDescription,
-  .skeletonCount {
+  .skeletonDescription {
     animation: none;
   }
 }

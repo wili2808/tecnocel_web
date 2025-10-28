@@ -1,6 +1,6 @@
 /**
  * Página Brands - Catálogo de marcas disponibles
- * Muestra un grid de marcas con logos y contadores de productos
+ * Muestra un grid de marcas con logos y descripciones
  * Permite navegar al catálogo de productos filtrado por marca seleccionada
  */
 import React, { useCallback } from 'react';
@@ -39,7 +39,7 @@ const Brands = () => {
   // ============================================================================
 
   const navigate = useNavigate();
-  const { brands, loading, error, productCounts } = useBrands();
+  const { brands, loading, error } = useBrands();
 
   // ============================================================================
   // HANDLERS
@@ -140,7 +140,6 @@ const Brands = () => {
           brands={brands}
           loading={loading}
           onBrandClick={handleBrandClick}
-          productCounts={productCounts}
         />
       </div>
     </div>

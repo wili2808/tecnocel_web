@@ -2,305 +2,388 @@
    CONTACT METHODS - MÉTODOS DE CONTACTO
    ============================================================================ */
 
-/* Contenedor principal */
-.contactMethods {
-  width: 100%;
-  animation: fadeIn 0.6s ease-out 0.2s both;
+/* Tarjeta principal de métodos de contacto */
+.methodsCard {
+    background: var(--background-secondary);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-sizing: border-box;
+    box-shadow: var(--shadow-xl);
+    animation: slideInUp 0.6s ease-out;
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
 }
 
-/* Header */
+/* Añadir efecto visual sutil - barra superior con gradiente */
+.methodsCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+}
+
+/* ===== ESTILOS PARA HEADER INTEGRADO ===== */
 .header {
-  margin-bottom: var(--spacing-3xl);
-  text-align: center;
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    padding-top: var(--spacing-sm);
 }
 
 .title {
-  margin-bottom: var(--spacing-md);
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  transition: var(--theme-transition);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+    line-height: 1.2;
 }
 
 .subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-  transition: var(--theme-transition);
+    font-size: var(--font-size-md);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
 }
 
-/* Grid de métodos */
+/* ===== GRID DE MÉTODOS ===== */
 .methodsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-3xl);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
 }
 
-/* Tarjeta de método */
+/* ===== TARJETA DE MÉTODO ===== */
 .methodCard {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-  background: var(--background-elevated);
-  border: 2px solid var(--color-neutral-200);
-  border-radius: var(--border-radius-xl);
-  text-decoration: none;
-  color: inherit;
-  transition: all var(--transition-normal) var(--transition-curve);
-  cursor: pointer;
-  overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--background-elevated);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--border-radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-normal) ease;
+    cursor: pointer;
+    overflow: hidden;
 }
 
+/* Barra lateral izquierda con color del método */
 .methodCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: var(--method-color, var(--color-sky-500));
-  transform: scaleY(0);
-  transition: transform var(--transition-normal) var(--transition-curve);
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--method-color, var(--color-primary));
+    transform: scaleY(0);
+    transition: transform var(--transition-normal) ease;
+    transform-origin: bottom;
 }
 
 .methodCard:hover::before {
-  transform: scaleY(1);
+    transform: scaleY(1);
+    transform-origin: top;
 }
 
 .methodCard:hover {
-  transform: translateY(-4px) translateX(4px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--method-color, var(--color-sky-500));
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--method-color, var(--color-primary));
 }
 
-/* Icono wrapper */
+/* ===== ICONO WRAPPER ===== */
 .iconWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
-  background: var(--method-color, var(--color-sky-500));
-  border-radius: var(--border-radius-lg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all var(--transition-normal) var(--transition-curve);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    background: var(--method-color, var(--color-primary));
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal) ease;
 }
 
 .methodCard:hover .iconWrapper {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: var(--shadow-lg);
 }
 
-.icon {
-  width: 28px;
-  height: 28px;
-  color: var(--color-white);
+.iconWrapper .material-icons {
+    font-size: 28px;
+    color: var(--color-white);
 }
 
-/* Contenido del método */
+/* React Icons en iconWrapper */
+.iconWrapper .reactIcon {
+    width: 28px;
+    height: 28px;
+    color: var(--color-white);
+}
+
+/* ===== CONTENIDO DEL MÉTODO ===== */
 .methodContent {
-  flex: 1;
-}
-
-.methodTitle {
-  margin-bottom: var(--spacing-xs);
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  transition: var(--theme-transition);
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
 }
 
 .methodDescription {
-  margin-bottom: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  transition: var(--theme-transition);
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    transition: color var(--transition-fast) ease;
+}
+
+.methodCard:hover .methodDescription {
+    color: var(--method-color, var(--color-primary));
 }
 
 .methodValue {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-  color: var(--method-color, var(--color-sky-500));
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--method-color, var(--color-primary));
+    transition: all var(--transition-fast) ease;
 }
 
-/* Flecha */
-.arrow {
-  font-size: var(--font-size-2xl);
-  color: var(--method-color, var(--color-sky-500));
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all var(--transition-normal) var(--transition-curve);
+/* Flecha de navegación */
+.methodCard .material-icons:last-child {
+    font-size: var(--icon-size-lg);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all var(--transition-normal) ease;
 }
 
-.methodCard:hover .arrow {
-  opacity: 1;
-  transform: translateX(0);
+.methodCard:hover .material-icons:last-child {
+    opacity: 1;
+    transform: translateX(0);
 }
 
-/* Footer */
+/* ===== FOOTER CON HORARIO ===== */
 .footer {
-  padding: var(--spacing-xl);
-  background: linear-gradient(135deg, var(--color-sky-50), var(--color-cyan-50));
-  border-radius: var(--border-radius-lg);
-  text-align: center;
-  border: 1px solid var(--color-sky-200);
-  transition: var(--theme-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    background: var(--background-primary);
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+    border: 1px solid var(--color-neutral-300);
+    transition: all var(--transition-fast) ease;
+}
+
+.footer:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.footer .material-icons {
+    color: var(--color-primary);
+    margin-right: var(--spacing-sm);
 }
 
 .footerText {
-  font-size: var(--font-size-md);
-  color: var(--text-primary);
-  margin: 0;
+    font-size: var(--font-size-md);
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.5;
 }
 
 .footerText strong {
-  color: var(--color-sky-600);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
 }
 
-/* ============================================================================
-   ANIMACIONES
-   ============================================================================ */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ===== ANIMACIONES ===== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* ============================================================================
-   TEMA OSCURO
-   ============================================================================ */
+/* ===== RESPONSIVIDAD ===== */
+@media (max-width: 1024px) {
+    .methodsCard {
+        max-width: 580px;
+        padding: var(--spacing-2xl);
+    }
 
-:global([data-theme="dark"]) .methodCard {
-  background: var(--color-zinc-900);
-  border-color: var(--color-zinc-700);
+    .header {
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .methodsGrid {
+        gap: var(--spacing-sm);
+    }
 }
 
-:global([data-theme="dark"]) .methodCard:hover {
-  border-color: var(--method-color, var(--color-sky-500));
-}
-
-:global([data-theme="dark"]) .footer {
-  background: linear-gradient(135deg, var(--color-zinc-900), var(--color-zinc-800));
-  border-color: var(--color-zinc-700);
-}
-
-:global([data-theme="dark"]) .footerText strong {
-  color: var(--color-sky-400);
-}
-
-/* ============================================================================
-   RESPONSIVE DESIGN
-   ============================================================================ */
-
-/* Tablet */
 @media (max-width: 768px) {
-  .title {
-    font-size: var(--font-size-2xl);
-  }
+    .methodsCard {
+        max-width: 520px;
+        padding: var(--spacing-xl);
+    }
 
-  .subtitle {
-    font-size: var(--font-size-md);
-  }
+    .header {
+        margin-bottom: var(--spacing-lg);
+        padding-top: var(--spacing-sm);
+    }
 
-  .methodsGrid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-  }
+    .title {
+        font-size: var(--font-size-xl);
+    }
 
-  .methodCard {
-    padding: var(--spacing-lg);
-  }
+    .subtitle {
+        font-size: var(--font-size-sm);
+    }
 
-  .iconWrapper {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-  }
+    .methodsGrid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
 
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
+    .methodCard {
+        padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+
+    .iconWrapper {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+    }
+
+    .iconWrapper .material-icons {
+        font-size: 24px;
+    }
+
+    .iconWrapper .reactIcon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .methodDescription {
+        font-size: var(--font-size-sm);
+    }
+
+    .methodValue {
+        font-size: var(--font-size-sm);
+    }
+
+    .footer {
+        padding: var(--spacing-md);
+    }
+
+    .footerText {
+        font-size: var(--font-size-sm);
+    }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
-  .header {
-    margin-bottom: var(--spacing-2xl);
-  }
+    .methodsCard {
+        max-width: 460px;
+        padding: var(--spacing-lg);
+    }
 
-  .title {
-    font-size: var(--font-size-xl);
-  }
+    .header {
+        margin-bottom: var(--spacing-md);
+    }
 
-  .subtitle {
-    font-size: var(--font-size-sm);
-  }
+    .title {
+        font-size: var(--font-size-lg);
+    }
 
-  .methodCard {
-    padding: var(--spacing-md);
-    gap: var(--spacing-md);
-  }
+    .methodsGrid {
+        gap: var(--spacing-sm);
+    }
 
-  .methodTitle {
-    font-size: var(--font-size-md);
-  }
+    .methodCard {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-xs);
+    }
 
-  .methodDescription {
-    font-size: var(--font-size-xs);
-  }
+    .iconWrapper {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
 
-  .methodValue {
-    font-size: var(--font-size-sm);
-  }
+    .iconWrapper .material-icons {
+        font-size: 20px;
+    }
 
-  .arrow {
-    font-size: var(--font-size-xl);
-  }
+    .iconWrapper .reactIcon {
+        width: 20px;
+        height: 20px;
+    }
 
-  .footer {
-    padding: var(--spacing-md);
-  }
+    .methodDescription {
+        font-size: var(--font-size-sm);
+    }
 
-  .footerText {
-    font-size: var(--font-size-sm);
-  }
+    .methodValue {
+        font-size: var(--font-size-xs);
+    }
+
+    .methodCard .material-icons:last-child {
+        font-size: var(--icon-size-md);
+    }
+
+    .footer {
+        padding: var(--spacing-sm);
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .footer .material-icons {
+        margin-right: 0;
+    }
+
+    .footerText {
+        font-size: var(--font-size-xs);
+    }
 }
 
-/* Reducción de movimiento */
+/* ===== ACCESIBILIDAD ===== */
 @media (prefers-reduced-motion: reduce) {
-  .contactMethods {
-    animation: none;
-  }
+    .methodsCard {
+        animation: none;
+    }
 
-  .methodCard,
-  .iconWrapper,
-  .arrow {
-    transition: none;
-  }
+    .methodCard,
+    .iconWrapper,
+    .methodCard .material-icons:last-child {
+        transition: none;
+    }
 
-  .methodCard:hover {
-    transform: none;
-  }
+    .methodCard:hover {
+        transform: none;
+    }
 
-  .methodCard:hover .iconWrapper {
-    transform: none;
-  }
+    .methodCard:hover .iconWrapper {
+        transform: none;
+    }
 
-  .methodCard::before {
-    transition: none;
-  }
+    .methodCard::before {
+        transition: none;
+    }
 }

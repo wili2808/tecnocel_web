@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-md);
@@ -99,7 +99,7 @@
 
 /* === TARJETA DE COMPRA === */
 .ventaCard {
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
@@ -121,7 +121,7 @@
 }
 
 .ventaHeader:hover {
-  background-color: var(--background-hover);
+  background-color: var(--background-light);
 }
 
 .ventaInfo {
@@ -190,7 +190,7 @@
 .ventaDetails {
   padding: var(--spacing-lg);
   border-top: 1px solid var(--border-color);
-  background-color: var(--background-primary);
+  background-color: var(--background-secondary);
   animation: slideDown 0.3s ease-out;
 }
 
@@ -270,7 +270,7 @@
   justify-content: center;
   padding: var(--spacing-xxl) var(--spacing-lg);
   text-align: center;
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   margin-top: var(--spacing-xl);

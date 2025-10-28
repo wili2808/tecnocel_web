@@ -24,14 +24,11 @@ const Contacto: React.FC = () => {
             {/* Hero Section */}
             <section className={styles.hero}>
                 <div className={styles.heroContainer}>
-                    <div className={styles.heroContent}>
-                        <h1 className={styles.heroTitle}>Contáctanos</h1>
+                        <h1 className={styles.heroTitle}>Hablanos</h1>
                         <p className={styles.heroSubtitle}>
                             ¿Tienes alguna pregunta o necesitas ayuda? Estamos aquí para ti
                         </p>
-                    </div>
                 </div>
-                <div className={styles.heroDecoration} aria-hidden="true" />
             </section>
 
             {/* Main Content - Form + Methods */}

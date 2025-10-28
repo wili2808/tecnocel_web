@@ -5,11 +5,11 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
     background: var(--background-light);
     border-radius: var(--border-radius-md);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-xs);
     height: 100%;
     border: 1px solid var(--border-color-light);
 }
@@ -18,14 +18,14 @@
 .filtersRow {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-lg);
 }
 
 /* Sección de filtro individual */
 .filterSection {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--spacing-sm);
 }
 
 /* Título de la sección */
@@ -66,7 +66,7 @@
 .filterSelect:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+    box-shadow: var(--shadow-focus);
 }
 
 .filterSelect:disabled {
@@ -79,7 +79,7 @@
 .toggleLabel {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--spacing-sm);
     cursor: pointer;
     user-select: none;
 }
@@ -113,7 +113,7 @@
 }
 
 .toggleCheckbox:checked + .toggleSlider {
-    background: var(--color-accent);
+    background: var(--color-success);
 }
 
 .toggleCheckbox:checked + .toggleSlider::before {
@@ -121,14 +121,14 @@
 }
 
 .toggleCheckbox:focus + .toggleSlider {
-    box-shadow: 0 0 0 3px rgba(60, 18, 160, 0.1);
+    box-shadow: var(--shadow-focus);
 }
 
 /* Texto del toggle */
 .toggleText {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--spacing-2xs);
 }
 
 .toggleTextFull {
@@ -138,32 +138,32 @@
 }
 
 .toggleTextShort {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     display: none;
 }
 
 /* Contador de resultados */
 .resultsCounter {
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
     border-top: 1px solid var(--color-neutral-200);
 }
 
 .resultsCounterContent {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
     justify-content: center;
 }
 
 .resultsNumber {
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
     font-weight: 700;
-    color: var(--color-primary-light);
+    color: var(--color-primary);
 }
 
 .resultsText {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-neutral-600);
 }
 
@@ -172,24 +172,24 @@
 /* === TABLET - TRANSICIÓN A LAYOUT HORIZONTAL === */
 @media (max-width: 1024px) {
     .filtersContainer {
-        padding: 1.25rem;
-        gap: 1.25rem;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-lg);
     }
-    
+
     .filtersRow {
-        gap: 1.25rem;
+        gap: var(--spacing-lg);
     }
-    
+
     .filterSection {
-        gap: 0.625rem;
+        gap: var(--spacing-sm);
     }
-    
+
     .filterSectionTitle {
         font-size: var(--font-size-sm);
     }
-    
+
     .filterSelect {
-        padding: 0.75rem;
+        padding: var(--spacing-sm);
         font-size: var(--font-size-xs);
     }
 }
@@ -197,46 +197,46 @@
 /* === SMARTPHONE - LAYOUT HORIZONTAL ULTRA-COMPACTO === */
 @media (max-width: 767px) {
     .filtersContainer {
-        padding: 0.5rem;
-        gap: 0.5rem;
+        padding: var(--spacing-xs);
+        gap: var(--spacing-xs);
         height: auto;
         min-height: auto;
     }
-    
+
     .filtersRow {
         /* Layout horizontal ultra-compacto para móvil */
         flex-direction: row;
-        gap: 0.5rem;
+        gap: var(--spacing-xs);
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: flex-start;
     }
-    
+
     .filterSection {
         /* Cada filtro ultra-compacto */
         flex: 1;
         min-width: 100px;
-        gap: 0.25rem;
+        gap: var(--spacing-2xs);
     }
     
     .filterSectionTitle {
         font-size: 0.625rem;
         text-align: center;
-        margin-bottom: 0.125rem;
+        margin-bottom: var(--spacing-2xs);
         font-weight: 500;
     }
-    
+
     .filterSelect {
-        padding: 0.25rem;
+        padding: var(--spacing-2xs);
         font-size: 0.625rem;
         text-align: center;
         min-height: 28px;
     }
-    
+
     /* Toggle ultra-compacto para móvil */
     .toggleLabel {
         justify-content: center;
-        gap: 0.25rem;
+        gap: var(--spacing-2xs);
     }
     
     .toggleSlider {

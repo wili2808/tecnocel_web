@@ -69,8 +69,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
                         </div>
                         <div className={styles.contactText}>
                             <h3>Horarios</h3>
-                            <p>Lun - Vie: 9:00 - 20:00</p>
-                            <p>Sáb: 9:00 - 13:00</p>
+                            <p>Lun - Vie: 9:00 - 20:00 / Sáb: 9:00 - 13:00</p>
                         </div>
                     </div>
 

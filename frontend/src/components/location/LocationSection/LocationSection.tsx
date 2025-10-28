@@ -94,10 +94,6 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
                         />
                     </div>
                 </div>
-
-                {/* Decoración de fondo */}
-                <div className={styles.decorativeShape1} aria-hidden="true" />
-                <div className={styles.decorativeShape2} aria-hidden="true" />
             </div>
         </section>
     );

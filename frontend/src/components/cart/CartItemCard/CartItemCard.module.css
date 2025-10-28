@@ -80,7 +80,7 @@
 }
 
 .discountBadge {
-    background-color: var(--color-red-500);
+    background-color: var(--color-error);
     color: var(--color-white);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--border-radius-sm);
@@ -111,7 +111,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    color: var(--color-blue-500);
+    color: var(--color-primary);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     animation: pulse 1.5s ease-in-out infinite;

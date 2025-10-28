@@ -25,7 +25,7 @@
 
 /* === CONTENIDO === */
 .content {
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
@@ -107,7 +107,7 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   margin-top: var(--spacing-lg);

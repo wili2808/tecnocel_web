@@ -1,3 +1,7 @@
+/* ============================================================================
+   OPEN STREET MAP - MAPA INTEGRADO
+   ============================================================================ */
+
 /* Contenedor del mapa */
 .mapContainer {
   width: 100%;
@@ -15,7 +19,10 @@
   z-index: 1;
 }
 
-/* Ajustes para el tema oscuro */
+/* ============================================================================
+   TEMA OSCURO
+   ============================================================================ */
+
 :global([data-theme="dark"]) .map {
   filter: invert(90%) hue-rotate(180deg);
 }
@@ -24,13 +31,18 @@
   filter: invert(100%) hue-rotate(180deg);
 }
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet */
 @media (max-width: 768px) {
   .mapContainer {
     height: 350px;
   }
 }
 
+/* Mobile */
 @media (max-width: 480px) {
   .mapContainer {
     height: 300px;

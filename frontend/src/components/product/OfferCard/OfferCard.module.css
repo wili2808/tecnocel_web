@@ -1,173 +1,213 @@
 .offerCard {
-  background-color: var(--background-elevated);
-  border-radius: 16px;
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color-light);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal) var(--transition-curve);
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid var(--border-color-light);
 }
 
 .offerCard:hover {
-  transform: scale(var(--scale-hover));
+  transform: scale(1.02);
   box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-primary);
+}
+
+.offerCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .offerCard.inactive {
   opacity: 0.7;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, var(--color-neutral-200) 0%, var(--color-neutral-300) 100%);
 }
 
 .offerCard.inactive:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  transform: scale(1.01);
+  box-shadow: var(--shadow-md);
 }
 
-/* Badge de descuento */
+/* === BADGE DE DESCUENTO === */
 .discountBadge {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.875rem;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
+  color: var(--color-white);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-lg);
   z-index: 2;
-  animation: pulse 2s infinite;
+  animation: discountPulse 2s ease-in-out infinite;
+  transition: transform var(--transition-normal) var(--transition-curve);
+  transform: rotate(-2deg);
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+.discountBadge:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+@keyframes discountPulse {
+  0%, 100% {
+    box-shadow: var(--shadow-lg);
+  }
+  50% {
+    box-shadow: 0 10px 25px -5px rgba(var(--color-error-rgb), 0.4);
+  }
 }
 
 .discountText {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
 }
 
-/* Badge de estado */
+/* === BADGE DE ESTADO === */
 .statusBadge {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   z-index: 2;
+  transition: all var(--transition-normal) var(--transition-curve);
 }
 
 .statusBadge.active {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.statusBadge.active:hover {
+  box-shadow: 0 4px 12px rgba(var(--color-success-rgb), 0.3);
 }
 
 .statusBadge.expired {
-  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+  background: linear-gradient(135deg, var(--color-neutral-500) 0%, var(--color-neutral-600) 100%);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
 }
 
 .statusBadge .material-icons {
-  font-size: 16px;
+  font-size: var(--icon-size-sm);
 }
 
-/* Contenido principal */
+/* === CONTENIDO PRINCIPAL === */
 .cardContent {
-  padding: 24px;
+  padding: var(--spacing-lg);
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 40px; /* Espacio para los badges */
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-2xl);
 }
 
 .offerTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.3;
+  line-height: var(--line-height-tight);
   text-align: center;
+  transition: color var(--transition-normal) var(--transition-curve);
+}
+
+.offerCard:hover .offerTitle {
+  color: var(--color-primary);
 }
 
 .offerDescription {
+  font-family: var(--font-family-secondary);
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
   margin: 0;
   flex: 1;
 }
 
-/* Información de productos */
+/* === INFORMACIÓN DE PRODUCTOS === */
 .productInfo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: var(--background-light);
-  border-radius: 12px;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--background-primary);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color-light);
+  transition: all var(--transition-normal) var(--transition-curve);
+}
+
+.offerCard:hover .productInfo {
+  background: linear-gradient(135deg, var(--color-primary-100) 0%, var(--color-secondary-100) 100%);
+  border-color: var(--color-primary);
 }
 
 .productInfo .material-icons {
   color: var(--text-secondary);
-  font-size: 20px;
+  font-size: var(--icon-size-lg);
+  transition: color var(--transition-normal) var(--transition-curve);
+}
+
+.offerCard:hover .productInfo .material-icons {
+  color: var(--color-primary);
 }
 
 .productCount {
   color: var(--text-primary);
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
 }
 
-/* Información de fechas */
+/* === INFORMACIÓN DE FECHAS === */
 .dateInfo {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .dateRange,
 .timeRemaining {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
 }
 
 .dateRange .material-icons,
 .timeRemaining .material-icons {
   color: var(--text-secondary);
-  font-size: 18px;
+  font-size: var(--icon-size-md);
 }
 
 .dateText {
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .timeText {
   color: var(--color-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
-/* Footer */
+/* === FOOTER === */
 .cardFooter {
-  padding: 20px 24px;
+  padding: var(--spacing-md) var(--spacing-lg);
   border-top: 1px solid var(--border-color-light);
-  background: var(--background-secondary);
+  background: var(--background-primary);
+  transition: background var(--transition-normal) var(--transition-curve);
 }
 
 .viewButton {
@@ -175,32 +215,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-white);
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all var(--transition-normal) var(--transition-curve);
+  box-shadow: var(--shadow-button-primary);
 }
 
 .viewButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-button-primary-hover);
 }
 
 .viewButton:active {
   transform: translateY(0);
+  box-shadow: var(--shadow-button-primary);
+}
+
+.viewButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .viewButton.disabled {
-  background: #9ca3af;
-  color: #6b7280;
+  background: var(--color-neutral-400);
+  color: var(--color-neutral-600);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -208,39 +254,144 @@
 .viewButton.disabled:hover {
   transform: none;
   box-shadow: none;
-  background: #9ca3af;
 }
 
 .viewButton .material-icons {
-  font-size: 20px;
+  font-size: var(--icon-size-lg);
 }
 
-/* Responsive */
+/* === RESPONSIVE DESIGN - DESKTOP FIRST === */
+
+/* Tablets grandes y laptops pequeñas (1024px) */
+@media (max-width: 1024px) {
+  .cardContent {
+    padding: var(--spacing-md);
+  }
+
+  .offerTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .cardFooter {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* Tablets y móviles en landscape (768px) */
 @media (max-width: 768px) {
   .cardContent {
-    padding: 20px;
-    margin-top: 28px;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+    gap: var(--spacing-sm);
   }
-  
+
   .offerTitle {
-    font-size: 1.25rem;
+    font-size: var(--font-size-md);
   }
-  
+
+  .offerDescription {
+    font-size: var(--font-size-sm);
+  }
+
   .discountBadge {
-    top: 12px;
-    right: 12px;
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
-  
+
   .statusBadge {
-    top: 12px;
-    left: 12px;
-    padding: 5px 10px;
-    font-size: 0.75rem;
+    padding: 4px var(--spacing-xs);
   }
-  
+
+  .productInfo {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .productCount {
+    font-size: var(--font-size-sm);
+  }
+
+  .viewButton {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Móviles en portrait (480px) */
+@media (max-width: 480px) {
+  .cardContent {
+    padding: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+  }
+
+  .offerTitle {
+    font-size: var(--font-size-md);
+  }
+
+  .discountBadge {
+    padding: 4px var(--spacing-xs);
+    font-size: 0.625rem;
+  }
+
+  .statusBadge {
+    padding: 4px var(--spacing-xs);
+    font-size: 0.625rem;
+  }
+
+  .dateText,
+  .timeText {
+    font-size: var(--font-size-xs);
+  }
+
+  .viewButton {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
   .cardFooter {
-    padding: 16px 20px;
+    padding: var(--spacing-sm);
+  }
+}
+
+/* === ACCESIBILIDAD === */
+
+/* Mejoras para usuarios de teclado */
+.offerCard:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .offerCard,
+  .offerTitle,
+  .productInfo,
+  .productInfo .material-icons,
+  .discountBadge,
+  .statusBadge,
+  .viewButton,
+  .cardFooter {
+    transition: none;
+    animation: none;
+  }
+
+  .offerCard:hover {
+    transform: none;
+  }
+
+  .discountBadge {
+    transform: none;
+  }
+
+  .discountBadge:hover {
+    transform: none;
+  }
+
+  .viewButton:hover {
+    transform: none;
+  }
+
+  @keyframes discountPulse {
+    0%, 100% {
+      box-shadow: var(--shadow-lg);
+    }
   }
 }

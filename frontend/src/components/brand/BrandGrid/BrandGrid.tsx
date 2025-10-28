@@ -12,7 +12,6 @@ interface BrandGridProps {
   brands: Marca[];
   loading?: boolean;
   onBrandClick?: (brandId: number) => void;
-  productCounts?: Map<number, number>;
 }
 
 /**
@@ -20,13 +19,11 @@ interface BrandGridProps {
  * @param brands - Array de marcas a mostrar
  * @param loading - Indica si se están cargando las marcas
  * @param onBrandClick - Callback al hacer clic en una marca
- * @param productCounts - Map con el conteo de productos por marca (opcional)
  */
 const BrandGrid: React.FC<BrandGridProps> = ({
   brands,
   loading = false,
-  onBrandClick,
-  productCounts
+  onBrandClick
 }) => {
   // ============================================================================
   // RENDERIZADO DE ESTADOS
@@ -43,7 +40,6 @@ const BrandGrid: React.FC<BrandGridProps> = ({
             <div className={styles.skeletonLogo}></div>
             <div className={styles.skeletonTitle}></div>
             <div className={styles.skeletonDescription}></div>
-            <div className={styles.skeletonCount}></div>
           </div>
         ))}
       </div>
@@ -80,13 +76,6 @@ const BrandGrid: React.FC<BrandGridProps> = ({
     );
   }
 
-  /**
-   * Obtiene el contador de productos para una marca
-   */
-  const getProductCount = (brandId: number): number | undefined => {
-    return productCounts?.get(brandId);
-  };
-
   // ============================================================================
   // RENDERIZADO PRINCIPAL
   // ============================================================================
@@ -97,7 +86,6 @@ const BrandGrid: React.FC<BrandGridProps> = ({
         <BrandCard
           key={brand.id_marca}
           brand={brand}
-          productCount={getProductCount(brand.id_marca)}
           onClick={onBrandClick}
         />
       ))}

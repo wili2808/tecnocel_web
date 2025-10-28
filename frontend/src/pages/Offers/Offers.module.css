@@ -16,11 +16,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 48px;
+  margin-bottom: var(--spacing-3xl);
   padding: var(--spacing-md);
   background: var(--background-light);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px var(--color-black-light);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-xl);
   border: 1px solid var(--border-color-light);
 }
 
@@ -31,10 +31,10 @@
 .pageTitle {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin: 0 0 12px 0;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  margin: 0 0 var(--spacing-sm) 0;
   background: linear-gradient(135deg, var(--text-primary), var(--color-secondary));
   background-clip: text;
   -webkit-background-clip: text;
@@ -48,9 +48,9 @@
 }
 
 .pageSubtitle {
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed);
   margin: 0;
   max-width: 600px;
 }
@@ -59,10 +59,10 @@
 .statsCard {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 24px;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  border-radius: 16px;
+  border-radius: var(--border-radius-xl);
   color: var(--text-light);
   box-shadow: var(--shadow-button-primary);
 }
@@ -71,19 +71,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-xs);
 }
 
 .statNumber {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
 .statLabel {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   opacity: 0.9;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -99,21 +99,21 @@
   .offersContainer {
     padding: 0;
   }
-  
+
   .pageHeader {
-    margin-bottom: 40px;
+    margin-bottom: var(--spacing-2xl);
   }
-  
+
   .pageTitle {
-    font-size: 2.25rem;
+    font-size: var(--font-size-3xl);
   }
-  
+
   .pageTitle .material-icons {
     font-size: 36px;
   }
-  
+
   .pageSubtitle {
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
   }
 }
 
@@ -121,37 +121,37 @@
   .pageHeader {
     flex-direction: column;
     align-items: flex-start;
-    gap: 24px;
-    margin-bottom: 32px;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
   }
-  
+
   .pageTitle {
-    font-size: 1.875rem;
-    gap: 12px;
+    font-size: var(--font-size-2xl);
+    gap: var(--spacing-sm);
   }
-  
+
   .pageTitle .material-icons {
     font-size: 32px;
   }
-  
+
   .pageSubtitle {
-    font-size: 1rem;
+    font-size: var(--font-size-md);
   }
-  
+
   .statsCard {
     width: 100%;
     padding: var(--spacing-sm);
-    gap: 20px;
+    gap: var(--spacing-lg);
   }
-  
+
   .statNumber {
-    font-size: 1.75rem;
+    font-size: var(--font-size-2xl);
   }
-  
+
   .statLabel {
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
   }
-  
+
   .statDivider {
     height: 32px;
   }
@@ -159,41 +159,44 @@
 
 @media (max-width: 480px) {
   .pageHeader {
-    margin-bottom: 24px;
+    margin-bottom: var(--spacing-lg);
   }
-  
+
   .pageTitle {
-    font-size: 1.5rem;
-    gap: 8px;
+    font-size: var(--font-size-xl);
+    gap: var(--spacing-xs);
   }
-  
+
   .pageTitle .material-icons {
     font-size: 28px;
   }
-  
+
   .pageSubtitle {
-    font-size: 0.9rem;
+    font-size: var(--font-size-md);
   }
-  
+
   .statsCard {
     padding: var(--spacing-xs);
-    gap: 16px;
+    gap: var(--spacing-md);
   }
-  
+
   .statNumber {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
   }
-  
+
   .statLabel {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
   }
-  
+
   .statDivider {
     height: 28px;
   }
 }
 
-/* Animations */
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -208,10 +211,3 @@
 .pageHeader {
   animation: fadeIn 0.6s ease-out;
 }
-
-.statsCard {
-  animation: fadeIn 0.8s ease-out;
-}
-
-/* Dark mode support - Ahora manejado por el sistema de temas */
-/* Las variables CSS ya se adaptan automáticamente al cambiar el atributo data-theme */

@@ -1,52 +1,67 @@
-/**
- * Estilos de la p·gina Brands
- * Sistema de diseÒo: Mobile-first responsive
- * Usa variables CSS del sistema definidas en variables.css y themes.css
- */
-
 /* ============================================================================
-   CONTENEDOR PRINCIPAL DE LA P¡GINA
+   P√ÅGINA DE MARCAS
    ============================================================================ */
 
 .brandsPage {
   min-height: 100vh;
-  background: var(--page-bg);
-  padding: var(--spacing-xl) var(--spacing-md);
+  background: var(--background-primary);
+  transition: var(--theme-transition);
 }
 
 /* ============================================================================
-   HEADER DE LA P¡GINA
+   HEADER SECTION
    ============================================================================ */
 
 .header {
-  margin-bottom: var(--spacing-3xl);
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: var(--container-padding);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSJ0cmFuc3BhcmVudCIgLz48ZyBmaWxsPSIjMTcxNzE3Ij48Y2lyY2xlIHI9IjEiIGN4PSIzIiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI3IiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIxMyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iMTciIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjIzIiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIyNyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iMzMiIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjM3IiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI0MyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iNDciIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjUzIiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI1NyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iNjMiIGN5PSIzIiAvPjxjaXJjbGUgcj0iMSIgY3g9IjY3IiBjeT0iMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI3MyIgY3k9IjMiIC8+PGNpcmNsZSByPSIxIiBjeD0iNzciIGN5PSIzIiAvPjwvZz48ZyBmaWxsPSIjMTExMTExIj48Y2lyY2xlIHI9IjEiIGN4PSIzIiBjeT0iNyIgLz48Y2lyY2xlIHI9IjEiIGN4PSI3IiBjeT0iNyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIxMyIgY3k9IjciIC8+PGNpcmNsZSByPSIxIiBjeD0iMTciIGN5PSIxMyIgLz48Y2lyY2xlIHI9IjEiIGN4PSIzIiBjeT0iMTMiIC8+PC9nPjwvc3ZnPg==');
+  opacity: 0.3;
+  animation: float 20s ease-in-out infinite;
 }
 
 .headerContent {
-  max-width: 800px;
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  animation: fadeInUp var(--animation-duration-slow) ease-out;
 }
 
 .title {
-  font-family: var(--font-primary);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-md) 0;
-  line-height: 1.2;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-title);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-shadow: 0 4px 30px var(--color-black-medium);
+  background: linear-gradient(135deg, var(--color-primary-dark) 60%, var(--color-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
-  font-family: var(--font-secondary);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-xl) 0;
-  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto var(--spacing-xl);
+  line-height: var(--line-height-relaxed);
+  transition: var(--theme-transition);
 }
 
 /* ============================================================================
-   BARRA DE ESTADÕSTICAS
+   BARRA DE ESTAD√çSTICAS
    ============================================================================ */
 
 .statsBar {
@@ -54,26 +69,29 @@
   justify-content: center;
   gap: var(--spacing-xl);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--card-bg);
+  background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
-  border: 1px solid var(--border-color);
+  border: var(--border-width-thin) solid var(--border-color-light);
   margin-top: var(--spacing-lg);
+  transition: all var(--transition-normal) var(--transition-curve);
 }
 
 .stat {
-  font-family: var(--font-secondary);
+  font-family: var(--font-family-secondary);
   font-size: var(--font-size-md);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  transition: var(--theme-transition);
 }
 
 .stat strong {
-  font-family: var(--font-primary);
+  font-family: var(--font-family-primary);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
+  color: var(--color-primary);
+  transition: var(--theme-transition);
 }
 
 /* ============================================================================
@@ -81,8 +99,10 @@
    ============================================================================ */
 
 .brandsContainer {
-  max-width: 1600px;
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: var(--container-padding);
+  animation: fadeInUp var(--animation-duration-slow) ease-out var(--animation-delay-normal) both;
 }
 
 /* ============================================================================
@@ -112,43 +132,45 @@
 }
 
 .errorIcon {
-  color: var(--error-color, #ef4444);
+  color: var(--color-error, #ef4444);
   margin-bottom: var(--spacing-xl);
   opacity: 0.8;
 }
 
 .errorTitle {
-  font-family: var(--font-primary);
+  font-family: var(--font-family-primary);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0 0 var(--spacing-md) 0;
+  transition: var(--theme-transition);
 }
 
 .errorMessage {
-  font-family: var(--font-secondary);
+  font-family: var(--font-family-secondary);
   font-size: var(--font-size-md);
   color: var(--text-secondary);
   margin: 0 0 var(--spacing-xl) 0;
   max-width: 500px;
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed);
+  transition: var(--theme-transition);
 }
 
 .retryButton {
-  font-family: var(--font-primary);
+  font-family: var(--font-family-primary);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-  color: white;
-  background: var(--primary-color);
+  color: var(--color-white);
+  background: var(--color-primary);
   border: none;
   border-radius: var(--border-radius-md);
   padding: var(--spacing-md) var(--spacing-2xl);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal) var(--transition-curve);
 }
 
 .retryButton:hover {
-  background: var(--primary-color-dark, #0284c7);
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -157,134 +179,16 @@
   transform: translateY(0);
 }
 
-.retryButton:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* ============================================================================
-   RESPONSIVE - MOBILE FIRST
-   ============================================================================ */
-
-/* Mobile (por defecto - hasta 480px) */
-.brandsPage {
-  padding: var(--spacing-lg) var(--spacing-sm);
-}
-
-.title {
-  font-size: var(--font-size-2xl);
-}
-
-.subtitle {
-  font-size: var(--font-size-md);
-}
-
-.statsBar {
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-}
-
-.stat {
-  justify-content: center;
-}
-
-/* Tablet pequeÒa (481px - 768px) */
-@media (min-width: 481px) {
-  .brandsPage {
-    padding: var(--spacing-xl) var(--spacing-md);
-  }
-
-  .title {
-    font-size: var(--font-size-3xl);
-  }
-
-  .subtitle {
-    font-size: var(--font-size-lg);
-  }
-
-  .statsBar {
-    flex-direction: row;
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-}
-
-/* Tablet / Desktop pequeÒo (769px - 1024px) */
-@media (min-width: 769px) {
-  .brandsPage {
-    padding: var(--spacing-2xl) var(--spacing-lg);
-  }
-
-  .header {
-    margin-bottom: var(--spacing-4xl);
-  }
-
-  .title {
-    font-size: var(--font-size-4xl);
-  }
-}
-
-/* Desktop (1025px+) */
-@media (min-width: 1025px) {
-  .brandsPage {
-    padding: var(--spacing-3xl) var(--spacing-2xl);
-  }
-
-  .statsBar {
-    gap: var(--spacing-2xl);
-  }
-}
-
-/* Large Desktop (1441px+) */
-@media (min-width: 1441px) {
-  .brandsPage {
-    padding: var(--spacing-4xl) var(--spacing-3xl);
-  }
-}
-
-/* ============================================================================
-   ACCESIBILIDAD
-   ============================================================================ */
-
-/* Mejoras para usuarios de teclado */
 .retryButton:focus-visible {
-  outline: 3px solid var(--primary-color);
+  outline: 3px solid var(--color-primary);
   outline-offset: 3px;
-}
-
-/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
-@media (prefers-reduced-motion: reduce) {
-  .retryButton {
-    transition: none;
-  }
-
-  .retryButton:hover {
-    transform: none;
-  }
-
-  .retryButton:active {
-    transform: none;
-  }
-}
-
-/* ============================================================================
-   TEMA OSCURO - Ajustes adicionales
-   ============================================================================ */
-
-[data-theme="dark"] .statsBar {
-  background: var(--card-bg-dark, rgba(255, 255, 255, 0.05));
-  border-color: var(--border-color-dark, rgba(255, 255, 255, 0.1));
-}
-
-[data-theme="dark"] .errorIcon {
-  color: var(--error-color-light, #f87171);
 }
 
 /* ============================================================================
    ANIMACIONES
    ============================================================================ */
 
-@keyframes fadeIn {
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -295,18 +199,128 @@
   }
 }
 
-.header {
-  animation: fadeIn 0.6s ease-out;
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
 }
 
-.brandsContainer {
-  animation: fadeIn 0.6s ease-out 0.2s both;
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet (max-width: 768px) */
+@media (max-width: 768px) {
+  .header {
+    padding: var(--spacing-3xl) var(--container-padding) var(--spacing-2xl);
+  }
+
+  .title {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .statsBar {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .stat {
+    justify-content: center;
+  }
+
+  .brandsContainer {
+    padding: var(--spacing-3xl) var(--container-padding);
+  }
 }
 
-/* Desactivar animaciones en prefers-reduced-motion */
+/* Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .header {
+    padding: var(--spacing-2xl) var(--container-padding) var(--spacing-xl);
+  }
+
+  .headerContent {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .title {
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .statsBar {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .stat {
+    font-size: var(--font-size-sm);
+  }
+
+  .stat strong {
+    font-size: var(--font-size-lg);
+  }
+
+  .brandsContainer {
+    padding: var(--spacing-2xl) var(--container-padding);
+  }
+
+  .errorContainer {
+    padding: var(--spacing-3xl) var(--spacing-sm);
+  }
+
+  .errorIcon svg {
+    width: 60px;
+    height: 60px;
+  }
+
+  .errorTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .retryButton {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ============================================================================
+   ACCESIBILIDAD
+   ============================================================================ */
+
+/* Reducci√≥n de movimiento */
 @media (prefers-reduced-motion: reduce) {
-  .header,
+  .headerContent,
   .brandsContainer {
     animation: none;
+  }
+
+  .header::before {
+    animation: none;
+  }
+
+  .retryButton {
+    transition: none;
+  }
+
+  .retryButton:hover {
+    transform: none;
+  }
+
+  .retryButton:active {
+    transform: none;
   }
 }

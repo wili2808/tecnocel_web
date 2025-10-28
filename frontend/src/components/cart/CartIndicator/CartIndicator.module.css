@@ -4,25 +4,25 @@
 
 .cartIndicator {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: var(--spacing-xs);
+  right: var(--spacing-xs);
   background: var(--color-primary-dark);
-  color: white;
-  border-radius: 12px;
-  padding: 4px 8px;
-  font-size: 10px;
-  font-weight: 600;
+  color: var(--text-inverse);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
   z-index: 15;
   min-width: 32px;
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   pointer-events: none; /* No interferir con clicks */
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal) var(--transition-curve);
 }
 
 /* ============================================================================
@@ -32,58 +32,58 @@
 /* Tamaño pequeño - Para tarjetas compactas */
 .small {
   padding: 3px 6px;
-  font-size: 9px;
+  font-size: var(--font-size-xs);
   min-width: 24px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   gap: 1px;
 }
 
 .small .quantity {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
 .small .label {
   font-size: 8px;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 /* Tamaño mediano - Por defecto */
 .medium {
-  padding: 4px 8px;
-  font-size: 10px;
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-xs);
   min-width: 32px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   gap: 2px;
 }
 
 .medium .quantity {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 
 .medium .label {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
 }
 
 /* Tamaño grande - Para vistas destacadas */
 .large {
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: var(--spacing-sm) var(--spacing-sm);
+  font-size: var(--font-size-sm);
   min-width: 40px;
-  border-radius: 16px;
+  border-radius: var(--border-radius-xl);
   gap: 3px;
 }
 
 .large .quantity {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
 }
 
 .large .label {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
 }
 
 /* ============================================================================
@@ -91,10 +91,10 @@
    ============================================================================ */
 
 .quantity {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-fast) var(--transition-curve);
 }
 
 .quantityHidden {
@@ -102,11 +102,11 @@
 }
 
 .label {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   opacity: 0.9;
   line-height: 1;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--transition-fast) var(--transition-curve);
 }
 
 /* ============================================================================
@@ -132,7 +132,7 @@
 /* Hover effects para tamaños grandes */
 .large:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 /* ============================================================================
@@ -141,24 +141,24 @@
 
 @media (max-width: 768px) {
   .large {
-    padding: 5px 10px;
-    font-size: 11px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
     min-width: 36px;
   }
-  
+
   .large .quantity {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
-  
+
   .large .label {
-    font-size: 10px;
+    font-size: var(--font-size-xs);
   }
 }
 
 @media (max-width: 480px) {
   .cartIndicator {
-    bottom: 6px;
-    right: 6px;
+    bottom: var(--spacing-xs);
+    right: var(--spacing-xs);
   }
   
   .small {

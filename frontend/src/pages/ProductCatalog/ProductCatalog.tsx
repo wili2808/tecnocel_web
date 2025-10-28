@@ -1,19 +1,28 @@
 import React, { useEffect, useCallback, useState, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ProductFilters from '../../components/product/ProductFilters';
 import ProductGrid from '../../components/product/ProductGrid';
 import { useProductActions } from '../../hooks/useProductActions';
 import { useOfertasGlobal } from '../../hooks/useOfertasGlobal';
 import { useSearch } from '../../contexts/SearchContext';
+import { useUrlFilters, filtersToQueryString } from '../../hooks/useUrlFilters';
 import { filterProducts } from '../../utils/productFiltering';
 import type { ProductUIFilters } from '../../types';
 import styles from './ProductCatalog.module.css';
 
 const ProductCatalog: React.FC = () => {
     // ============================================================================
+    // NAVEGACIÓN Y LOCATION
+    // ============================================================================
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // ============================================================================
     // ESTADO LOCAL PARA CONTROLAR CARGA - MEJORADO PARA STRICT MODE
     // ============================================================================
     const [hasInitialized, setHasInitialized] = useState(false);
     const [initializationLogsShown, setInitializationLogsShown] = useState(false);
+    const [urlFiltersApplied, setUrlFiltersApplied] = useState(false);
 
     // ============================================================================
     // CONTEXTO DE PRODUCTOS - CARGA PRINCIPAL
@@ -34,6 +43,11 @@ const ProductCatalog: React.FC = () => {
     const {
         debouncedSearchQuery, // ✅ Búsqueda global con debounce
     } = useSearch();
+
+    // ============================================================================
+    // FILTROS DESDE URL - PARA DEEP LINKING Y NAVEGACIÓN DESDE OTRAS PÁGINAS
+    // ============================================================================
+    const urlFilters = useUrlFilters();
 
     // ============================================================================
     // CONTEXTO DE OFERTAS - CARGA PARA PRODUCTCARDS
@@ -90,6 +104,89 @@ const ProductCatalog: React.FC = () => {
             console.log('ℹ️ ProductCatalog: Ofertas ya cargadas, usando cache');
         }
     }, [ofertas.length, loadOfertas, initializationLogsShown]);
+
+    // ============================================================================
+    // APLICAR FILTROS DESDE URL - DEEP LINKING SUPPORT
+    // ============================================================================
+    useEffect(() => {
+        // Solo aplicar filtros de URL una vez, después de que se hayan cargado los datos
+        if (hasInitialized && !urlFiltersApplied && (urlFilters.marca || urlFilters.categoria)) {
+            const filtersToApply: any = {};
+
+            // Aplicar filtro de marca si existe en URL
+            if (urlFilters.marca) {
+                filtersToApply.marca = urlFilters.marca;
+                if (process.env.NODE_ENV === 'development') {
+                    console.log('🔍 ProductCatalog: Aplicando filtro de marca desde URL:', urlFilters.marca);
+                }
+            }
+
+            // Aplicar filtro de categoría si existe en URL
+            if (urlFilters.categoria) {
+                filtersToApply.categoria = urlFilters.categoria;
+                if (process.env.NODE_ENV === 'development') {
+                    console.log('🔍 ProductCatalog: Aplicando filtro de categoría desde URL:', urlFilters.categoria);
+                }
+            }
+
+            // Aplicar filtro de ordenamiento si existe en URL
+            if (urlFilters.order) {
+                filtersToApply.order = urlFilters.order;
+            }
+
+            // Aplicar filtro de stock si existe en URL
+            if (urlFilters.solo_con_stock !== undefined) {
+                filtersToApply.solo_con_stock = urlFilters.solo_con_stock;
+            }
+
+            // Aplicar todos los filtros de una vez
+            if (Object.keys(filtersToApply).length > 0) {
+                updateFilters(filtersToApply);
+                setUrlFiltersApplied(true);
+            }
+        }
+    }, [hasInitialized, urlFiltersApplied, urlFilters, updateFilters]);
+
+    // ============================================================================
+    // SINCRONIZACIÓN BIDIRECCIONAL: FILTROS → URL
+    // ============================================================================
+    useEffect(() => {
+        // Solo sincronizar después de que los filtros iniciales de URL hayan sido aplicados
+        if (!urlFiltersApplied && !hasInitialized) {
+            return; // Esperar a que se inicialice
+        }
+
+        // Construir query string desde los filtros actuales
+        const queryString = filtersToQueryString({
+            marca: filters.marca,
+            categoria: filters.categoria,
+            busqueda: debouncedSearchQuery || '',
+            order: filters.order,
+            solo_con_stock: filters.solo_con_stock
+        });
+
+        // Construir nueva URL
+        const newSearch = queryString ? `?${queryString}` : '';
+
+        // Solo actualizar si la URL cambió (evitar loops infinitos)
+        if (newSearch !== location.search) {
+            navigate({ search: newSearch }, { replace: true });
+
+            if (process.env.NODE_ENV === 'development') {
+                console.log('🔄 ProductCatalog: Sincronizando filtros con URL:', newSearch);
+            }
+        }
+    }, [
+        filters.marca,
+        filters.categoria,
+        filters.order,
+        filters.solo_con_stock,
+        debouncedSearchQuery,
+        location.search,
+        navigate,
+        urlFiltersApplied,
+        hasInitialized
+    ]);
 
     // ============================================================================
     // MAPEO DE FILTROS PARA COMPATIBILIDAD - MEMOIZADO
