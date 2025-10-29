@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
 // Obtener la URL base desde las variables de entorno
@@ -11,6 +12,48 @@ const axiosInstance: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
+  }
+});
+
+// ============================================================================
+// CONFIGURACIÓN DE RETRY AUTOMÁTICO
+// ============================================================================
+// Configura reintentos automáticos para mejorar resiliencia en redes inestables
+axiosRetry(axiosInstance, {
+  retries: 3, // Número de reintentos antes de fallar
+  retryDelay: axiosRetry.exponentialDelay, // Delay exponencial: 1s, 2s, 4s
+
+  // Condiciones para reintentar
+  retryCondition: (error: AxiosError) => {
+    // Reintentar si:
+    // 1. Error de red (sin respuesta del servidor)
+    // 2. Error 5xx (error del servidor)
+    // 3. Request timeout
+    // 4. Solo métodos idempotentes (GET, PUT, DELETE, HEAD, OPTIONS)
+
+    // Si es error de red o timeout, reintentar
+    if (axiosRetry.isNetworkError(error) || error.code === 'ECONNABORTED') {
+      return true;
+    }
+
+    // Si es error 5xx del servidor, reintentar
+    if (error.response && error.response.status >= 500) {
+      return true;
+    }
+
+    // NO reintentar errores 4xx (cliente), 401, 403, 404
+    if (error.response && error.response.status >= 400 && error.response.status < 500) {
+      return false;
+    }
+
+    return false;
+  },
+
+  // Log de reintentos en desarrollo
+  onRetry: (retryCount, error, requestConfig) => {
+    if (import.meta.env.DEV) {
+      console.log(`🔄 Reintento ${retryCount} para ${requestConfig.url} debido a:`, error.message);
+    }
   }
 });
 

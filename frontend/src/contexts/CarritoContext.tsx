@@ -6,6 +6,7 @@
  */
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+import { useNotification } from './NotificationContext';
 import { useCarritoOperations } from '../hooks/useCarritoOperations';
 import type {
   EstadoCarrito,
@@ -41,18 +42,37 @@ const estadoInicial: EstadoCarrito = {
  * Implementa lógica inmutable para todas las operaciones del carrito
  * Calcula automáticamente totales y cantidades basados en los items
  */
+/**
+ * Función auxiliar para calcular el total del carrito
+ * Excluye items sin stock del cálculo
+ * @param items - Array de items del carrito
+ * @returns Total calculado solo con items que tienen stock
+ */
+function calcularTotalConStock(items: any[]): number {
+  return items
+    .filter(item => item.tiene_stock !== false)
+    .reduce((total, item) => total + item.subtotal, 0);
+}
+
 function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCarrito {
   switch (accion.type) {
     case 'INICIALIZAR_CARRITO':
+      // Calcular total excluyendo items sin stock
+      const itemsIniciales = accion.payload.items || [];
+      const totalCalculado = calcularTotalConStock(itemsIniciales);
+
       return {
         ...estado,
         id_carrito: accion.payload.id_carrito,
         estado: accion.payload.estado || 'activo',
-        items: accion.payload.items || [],
-        total_carrito: accion.payload.total_carrito || 0,
-        cantidad_items: accion.payload.items?.length || 0,
+        items: itemsIniciales,
+        total_carrito: totalCalculado,
+        cantidad_items: itemsIniciales.length,
         cargando: false,
-        error: null
+        error: null,
+        // Mantener la información de stock validation del backend
+        tiene_items_sin_stock: accion.payload.tiene_items_sin_stock,
+        items_sin_stock: accion.payload.items_sin_stock
       };
     case 'INICIALIZAR_CARRITO_VACIO':
       return {
@@ -61,7 +81,7 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
       };
     case 'AGREGAR_ITEM':
       const itemsConNuevo = [...estado.items, accion.payload];
-      const nuevoTotalAgregar = itemsConNuevo.reduce((total, item) => total + item.subtotal, 0);
+      const nuevoTotalAgregar = calcularTotalConStock(itemsConNuevo);
       return {
         ...estado,
         items: itemsConNuevo,
@@ -75,7 +95,7 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
           ? accion.payload
           : item
       );
-      const nuevoTotalActualizar = itemsActualizados.reduce((total, item) => total + item.subtotal, 0);
+      const nuevoTotalActualizar = calcularTotalConStock(itemsActualizados);
       return {
         ...estado,
         items: itemsActualizados,
@@ -84,7 +104,7 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
       };
     case 'ELIMINAR_ITEM':
       const itemsRestantes = estado.items.filter(item => item.id_item !== accion.payload);
-      const nuevoTotalEliminar = itemsRestantes.reduce((total, item) => total + item.subtotal, 0);
+      const nuevoTotalEliminar = calcularTotalConStock(itemsRestantes);
       return {
         ...estado,
         items: itemsRestantes,
@@ -167,6 +187,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [estado, dispatch] = useReducer(carritoReducer, estadoInicial);
   const { isAuthenticated } = useAuth();
+  const { showNotification } = useNotification();
 
   // ============================================================================
   // HOOKS DE OPERACIONES
@@ -191,6 +212,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
    * Obtiene el carrito activo del cliente desde el servidor
    * Inicializa el estado del carrito con datos del backend
    * Incluye manejo de errores y estados de carga
+   * ✅ FASE 1: Valida stock y notifica al usuario si hay problemas
    */
   const obtenerCarrito = useCallback(async () => {
     if (!isAuthenticated) {
@@ -203,6 +225,75 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'ESTABLECER_ERROR', payload: null });
 
       const carrito = await obtenerCarritoService();
+
+      // ✅ VALIDAR STOCK: Detectar items sin stock suficiente (Fase 1)
+      if (carrito.tiene_items_sin_stock && carrito.items_sin_stock && carrito.items_sin_stock.length > 0) {
+        const itemsSinStock = carrito.items_sin_stock;
+        const count = itemsSinStock.length;
+
+        // Crear mensaje detallado
+        let mensaje = count === 1
+          ? `"${itemsSinStock[0].nombre_producto}" ya no tiene stock suficiente.`
+          : `${count} productos en tu carrito ya no tienen stock suficiente.`;
+
+        // Agregar sugerencia si hay stock parcial
+        const itemsConStockParcial = itemsSinStock.filter(i => i.stock_disponible > 0);
+        if (itemsConStockParcial.length > 0) {
+          mensaje += ` Algunas unidades aún están disponibles.`;
+        }
+
+        // Mostrar notificación con duración extendida
+        showNotification(
+          mensaje,
+          'warning',
+          8000  // 8 segundos para que el usuario pueda leer
+        );
+
+        console.warn('Items sin stock detectados:', itemsSinStock);
+      }
+
+      // ✅ VALIDAR PRECIOS: Detectar cambios de precio (Fase 2)
+      if (carrito.tiene_cambios_precio && carrito.items_con_cambio_precio && carrito.items_con_cambio_precio.length > 0) {
+        const itemsConCambio = carrito.items_con_cambio_precio;
+        const count = itemsConCambio.length;
+
+        // Determinar si son aumentos o disminuciones
+        const aumentos = itemsConCambio.filter(i => i.diferencia_precio > 0);
+        const disminuciones = itemsConCambio.filter(i => i.diferencia_precio < 0);
+
+        let mensaje = '';
+        if (aumentos.length > 0 && disminuciones.length === 0) {
+          mensaje = count === 1
+            ? `El precio de "${itemsConCambio[0].nombre_producto}" aumentó.`
+            : `Los precios de ${count} productos aumentaron.`;
+        } else if (disminuciones.length > 0 && aumentos.length === 0) {
+          mensaje = count === 1
+            ? `El precio de "${itemsConCambio[0].nombre_producto}" bajó.`
+            : `Los precios de ${count} productos bajaron.`;
+        } else {
+          mensaje = `Los precios de ${count} productos cambiaron.`;
+        }
+
+        // Agregar información del total
+        if (carrito.diferencia_total) {
+          const diferenciaAbs = Math.abs(carrito.diferencia_total);
+          mensaje += carrito.diferencia_total > 0
+            ? ` Total aumentó en ${diferenciaAbs.toFixed(2)} BOB.`
+            : ` Total disminuyó en ${diferenciaAbs.toFixed(2)} BOB.`;
+        }
+
+        // Tipo de notificación según el cambio
+        const tipoNotificacion = carrito.diferencia_total && carrito.diferencia_total > 0 ? 'warning' : 'info';
+
+        showNotification(
+          mensaje,
+          tipoNotificacion,
+          10000  // 10 segundos para leer
+        );
+
+        console.warn('Items con precio cambiado:', itemsConCambio);
+      }
+
       dispatch({ type: 'INICIALIZAR_CARRITO', payload: carrito });
     } catch (error: any) {
       console.error('Error al obtener carrito:', error);
@@ -211,7 +302,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated, obtenerCarritoService]);
+  }, [isAuthenticated, obtenerCarritoService, showNotification]);
 
   /**
    * Agrega un producto al carrito
@@ -358,12 +449,26 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return venta;
     } catch (error: any) {
       console.error('Error al confirmar compra:', error);
+
+      // ✅ MANEJAR ERROR DE CAMBIO DE PRECIO (Fase 2)
+      if (error.response?.data?.codigo === 'PRECIOS_CAMBIARON') {
+        dispatch({
+          type: 'ESTABLECER_ERROR',
+          payload: error.response.data.mensaje
+        });
+
+        // Re-obtener carrito para actualizar precios
+        await obtenerCarrito();
+
+        throw error; // Re-lanzar para que el componente pueda manejarlo
+      }
+
       dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
       throw error;
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated, confirmarCompraService]);
+  }, [isAuthenticated, confirmarCompraService, obtenerCarrito]);
 
   // ============================================================================
   // EFECTOS

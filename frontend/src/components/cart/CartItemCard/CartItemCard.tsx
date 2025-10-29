@@ -105,7 +105,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
     // ============================================================================
 
     return (
-        <div className={`${styles.card} ${isUpdating ? styles.updating : ''}`}>
+        <div className={`${styles.card} ${isUpdating ? styles.updating : ''} ${item.tiene_stock === false ? styles.sinStock : ''}`}>
             {/* Enlace a la imagen del producto con navegación a detalles */}
             <Link
                 to={`/productos/${item.id_producto}`}
@@ -126,7 +126,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                 {/* Título y descripción del producto */}
                 <h3 className={styles.productTitle}>{productInfo.nombre}</h3>
 
-                {/* Información de precios con soporte para ofertas */}
+                {/* Información de precios con soporte para ofertas y cambios de precio */}
                 <div className={styles.priceInfo}>
                     {isUpdating && (
                         <div className={styles.updatingPrices}>
@@ -134,7 +134,49 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                             <span>Actualizando precios...</span>
                         </div>
                     )}
-                    {productInfo.en_oferta && productInfo.precio_oferta ? (
+
+                    {/* ✅ MOSTRAR CAMBIO DE PRECIO SI EXISTE (Fase 2) */}
+                    {item.precio_cambio && item.precio_guardado !== undefined && item.precio_actual !== undefined ? (
+                        <>
+                            {/* Badge de cambio de precio */}
+                            <div className={styles.priceChangeBadge}>
+                                <span className="material-icons">
+                                    {item.diferencia_precio && item.diferencia_precio > 0 ? 'trending_up' : 'trending_down'}
+                                </span>
+                                <span>Precio actualizado</span>
+                            </div>
+
+                            {/* Comparación de precios */}
+                            <div className={styles.priceComparison}>
+                                <div className={styles.priceRow}>
+                                    <span className={styles.oldPriceLabel}>Antes:</span>
+                                    <span className={styles.oldPrice}>
+                                        $ {item.precio_guardado.toLocaleString('es-ES')}
+                                    </span>
+                                </div>
+                                <div className={styles.priceRow}>
+                                    <span className={styles.newPriceLabel}>Ahora:</span>
+                                    <span className={item.diferencia_precio && item.diferencia_precio > 0 ? styles.priceUp : styles.priceDown}>
+                                        $ {item.precio_actual.toLocaleString('es-ES')}
+                                        {item.porcentaje_cambio !== undefined && (
+                                            <span className={styles.percentageChange}>
+                                                ({item.porcentaje_cambio > 0 ? '+' : ''}{item.porcentaje_cambio.toFixed(1)}%)
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Subtotal con precio actual */}
+                            <div className={styles.subtotalInfo}>
+                                <span className={styles.subtotalLabel}>Subtotal:</span>
+                                <span className={styles.subtotalAmount}>
+                                    $ {(item.subtotal_actual || item.subtotal).toLocaleString('es-ES')}
+                                </span>
+                            </div>
+                        </>
+                    ) : productInfo.en_oferta && productInfo.precio_oferta ? (
+                        /* Mostrar oferta normal sin cambio de precio */
                         <>
                             <div className={styles.priceRow}>
                                 <span className={styles.originalPrice}>
@@ -157,6 +199,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                             </div>
                         </>
                     ) : (
+                        /* Precio normal sin oferta ni cambio */
                         <>
                             <span className={styles.currentPrice}>
                                 $ {Number(productInfo.precio_venta).toLocaleString('es-ES')}

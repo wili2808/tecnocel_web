@@ -9,6 +9,7 @@ import logger from '../services/loggerService.js';
 import { Op } from 'sequelize';
 import { getImageService } from '../services/imageService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
+import { calcularPrecioOferta, calcularPorcentajeDescuento } from '../services/ofertaService.js';
 
 /**
  * Controlador para gestión del carrito de compras
@@ -70,7 +71,7 @@ export default class CarritoController {
                 },
                 required: false,
                 through: {
-                  attributes: ['precio_oferta']
+                  attributes: ['precio_oferta', 'es_precio_personalizado']
                 },
                 attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
               }
@@ -84,11 +85,10 @@ export default class CarritoController {
   /**
    * Calcula el precio final de un producto aplicando ofertas activas
    *
-   * Determina el precio a pagar considerando ofertas vigentes. Soporta
-   * tres tipos de descuento:
-   * - Precio fijo en oferta (precio_oferta en ProductoOferta)
-   * - Descuento porcentual (ej: 15% descuento)
-   * - Descuento monto fijo (ej: Bs. 50 de descuento)
+   * Determina el precio a pagar considerando ofertas vigentes usando lógica híbrida.
+   * Soporta dos modos:
+   * - Precio personalizado (si es_precio_personalizado = true)
+   * - Cálculo dinámico con descuento porcentual o monto fijo
    *
    * @static
    * @param producto - Producto con precio_venta
@@ -105,29 +105,130 @@ export default class CarritoController {
   static calcularPrecioConOferta(producto: any, ofertas: any[]): {
     precio_original: number;
     precio_oferta: number | null;
-    descuento_porcentaje: number | null;
+    descuento_porcentaje: string | null;
     en_oferta: boolean;
   } {
     const ofertaActiva = ofertas.length > 0 ? ofertas[0] : null;
-    let precio_original = parseFloat(producto.precio_venta);
-    let precio_oferta = null;
-    let descuento_porcentaje = null;
-    let en_oferta = false;
-    
-    if (ofertaActiva) {
-      en_oferta = true;
-      if (ofertaActiva.ProductoOferta?.precio_oferta) {
-        precio_oferta = ofertaActiva.ProductoOferta.precio_oferta;
-      } else if (ofertaActiva.tipo_descuento === 'porcentaje') {
-        precio_oferta = precio_original * (1 - ofertaActiva.valor_descuento / 100);
-        descuento_porcentaje = ofertaActiva.valor_descuento;
-      } else if (ofertaActiva.tipo_descuento === 'monto_fijo') {
-        precio_oferta = Math.max(0, precio_original - ofertaActiva.valor_descuento);
-        descuento_porcentaje = ((ofertaActiva.valor_descuento / precio_original) * 100).toFixed(1);
+    const precio_original = parseFloat(producto.precio_venta);
+
+    if (!ofertaActiva) {
+      return {
+        precio_original,
+        precio_oferta: null,
+        descuento_porcentaje: null,
+        en_oferta: false
+      };
+    }
+
+    // Usar servicio de ofertas para calcular precio con lógica híbrida
+    const productoOferta = ofertaActiva.ProductoOferta || null;
+    const precio_final = calcularPrecioOferta(
+      precio_original,
+      {
+        tipo_descuento: ofertaActiva.tipo_descuento,
+        valor_descuento: parseFloat(ofertaActiva.valor_descuento)
+      },
+      productoOferta
+    );
+
+    const descuento_porcentaje = calcularPorcentajeDescuento(precio_original, precio_final);
+
+    return {
+      precio_original,
+      precio_oferta: precio_final,
+      descuento_porcentaje,
+      en_oferta: true
+    };
+  }
+
+  /**
+   * Calcula el precio actual completo de un producto con ofertas vigentes
+   * Retorna información completa para auditoría de precios (Fase 2)
+   *
+   * Esta función extiende calcularPrecioConOferta para incluir:
+   * - ID de la oferta aplicada
+   * - Nombre de la oferta
+   * - Precio final numérico (no string)
+   * - Descuento numérico (no string)
+   *
+   * @static
+   * @param producto - Producto de Almacen con ofertas incluidas
+   * @returns Objeto con información completa de precios para auditoría
+   *
+   * @example
+   * const preciosActuales = await CarritoController.calcularPrecioActualCompleto(producto);
+   * // {
+   * //   precio_original: 999.99,
+   * //   precio_oferta: 799.99,
+   * //   precio_final: 799.99,
+   * //   descuento_porcentaje: 20.00,
+   * //   en_oferta: true,
+   * //   id_oferta_aplicada: 5,
+   * //   nombre_oferta: "Black Friday 20%"
+   * // }
+   */
+  static calcularPrecioActualCompleto(producto: any): {
+    precio_original: number;
+    precio_oferta: number | null;
+    precio_final: number;
+    descuento_porcentaje: number;
+    en_oferta: boolean;
+    id_oferta_aplicada: number | null;
+    nombre_oferta: string | null;
+  } {
+    const precio_original = parseFloat(producto.precio_venta);
+    const ofertas = producto.ofertas || [];
+
+    if (ofertas.length === 0) {
+      return {
+        precio_original,
+        precio_oferta: null,
+        precio_final: precio_original,
+        descuento_porcentaje: 0,
+        en_oferta: false,
+        id_oferta_aplicada: null,
+        nombre_oferta: null
+      };
+    }
+
+    // Buscar la mejor oferta (mayor descuento)
+    let mejorOferta = null;
+    let mejorPrecioFinal = precio_original;
+
+    for (const oferta of ofertas) {
+      const { precio_oferta } = CarritoController.calcularPrecioConOferta(producto, [oferta]);
+
+      if (precio_oferta && precio_oferta < mejorPrecioFinal) {
+        mejorPrecioFinal = precio_oferta;
+        mejorOferta = oferta;
       }
     }
-    
-    return { precio_original, precio_oferta, descuento_porcentaje, en_oferta };
+
+    if (!mejorOferta) {
+      return {
+        precio_original,
+        precio_oferta: null,
+        precio_final: precio_original,
+        descuento_porcentaje: 0,
+        en_oferta: false,
+        id_oferta_aplicada: null,
+        nombre_oferta: null
+      };
+    }
+
+    const descuento_porcentaje = parseFloat(
+      calcularPorcentajeDescuento(precio_original, mejorPrecioFinal)
+    );
+
+    return {
+      precio_original,
+      precio_oferta: mejorPrecioFinal,
+      precio_final: mejorPrecioFinal,
+      descuento_porcentaje,
+      en_oferta: true,
+      id_oferta_aplicada: mejorOferta.id_oferta,
+      nombre_oferta: mejorOferta.nombre_oferta
+    };
   }
 
   /**
@@ -199,28 +300,108 @@ export default class CarritoController {
    * Procesa cada item del carrito aplicando transformación de imágenes y ofertas
    * a sus productos asociados. Maneja arrays vacíos o undefined gracefully.
    *
+   * ACTUALIZACIÓN: Ahora valida stock disponible y agrega información de disponibilidad
+   * FASE 2: Revalida precios y detecta cambios desde que se agregaron al carrito
+   *
    * @static
    * @param items - Array de items del carrito (CarritoWebItems) o undefined
-   * @returns Promise con array de items transformados con productos enriquecidos
+   * @returns Promise con array de items transformados con productos enriquecidos y validación de stock y precios
    *
    * @example
    * const itemsTransformados = await CarritoController.transformarItemsCarrito(carrito.items);
-   * // Cada item tendrá su producto con imagen_url, precio_oferta, etc.
+   * // Cada item tendrá: imagen_url, precio_oferta, stock_disponible, tiene_stock, precio_actual, precio_cambio, etc.
    */
   static async transformarItemsCarrito(items: any[] | undefined): Promise<any[]> {
     if (!items || items.length === 0) {
       return [];
     }
-    
+
     return await Promise.all(items.map(async item => {
       const producto = item.producto as any;
       const ofertas = producto?.ofertas || [];
-      
+
       const productoTransformado = await CarritoController.transformarProductoConImagenes(producto, ofertas);
-      
+
+      // ✅ VALIDACIÓN DE STOCK (Fase 1)
+      const stock_disponible = producto?.stock || 0;
+      const cantidad_solicitada = item.cantidad;
+      const tiene_stock = stock_disponible >= cantidad_solicitada;
+
+      // Calcular sugerencia de cantidad si no hay stock suficiente
+      const sugerencia_cantidad = tiene_stock ? null : (stock_disponible > 0 ? stock_disponible : null);
+
+      // ✅ REVALIDACIÓN DE PRECIOS (Fase 2)
+      const preciosActuales = CarritoController.calcularPrecioActualCompleto(producto);
+
+      // Comparar precio guardado vs precio actual
+      const precio_guardado = parseFloat(item.precio_unitario.toString());
+      const precio_actual = preciosActuales.precio_final;
+      const diferencia_precio = precio_actual - precio_guardado;
+      const porcentaje_cambio = precio_guardado > 0 ? (diferencia_precio / precio_guardado) * 100 : 0;
+
+      // Flag de cambio significativo (> 1%)
+      const precio_cambio_significativo = Math.abs(porcentaje_cambio) > 1;
+
+      // Calcular subtotales
+      const subtotal_guardado = parseFloat(item.subtotal.toString());
+      const subtotal_actual = precio_actual * cantidad_solicitada;
+
+      // ✅ ACTUALIZAR PRECIOS EN BD SI HAY CAMBIO SIGNIFICATIVO (Fase 2)
+      // La actualización ocurre automáticamente al detectar el cambio
+      // Esto mantiene la BD sincronizada sin requerir acción del usuario
+      if (precio_cambio_significativo) {
+        try {
+          await item.update({
+            precio_unitario: precio_actual,
+            subtotal: subtotal_actual,
+            precio_base_original: preciosActuales.precio_original,
+            precio_con_oferta_original: preciosActuales.precio_oferta,
+            descuento_porcentaje_original: preciosActuales.descuento_porcentaje,
+            id_oferta_aplicada: preciosActuales.id_oferta_aplicada,
+            fyh_precio_validado: new Date(),
+            precio_ha_cambiado: false  // Resetear flag porque ya se actualizó
+          });
+
+          logger.info(`Precio actualizado automáticamente para item ${item.id_item}: ${precio_guardado} → ${precio_actual}`);
+
+          // NOTA: NO modificamos las variables precio_guardado/subtotal_guardado
+          // para que el frontend RECIBA la información del cambio en esta carga
+          // En la próxima carga del carrito, ya no habrá diferencia porque la BD está actualizada
+        } catch (error) {
+          logger.error('Error al actualizar precio en BD:', error);
+          // Continuar aunque falle la actualización
+        }
+      }
+
       return {
         ...item.toJSON(),
-        producto: productoTransformado
+        producto: productoTransformado,
+        // Información de stock (Fase 1)
+        stock_disponible,
+        tiene_stock,
+        sugerencia_cantidad,
+        cantidad_faltante: tiene_stock ? 0 : (cantidad_solicitada - stock_disponible),
+        // ✅ INFORMACIÓN DE PRECIOS (Fase 2)
+        precio_guardado,
+        precio_actual,
+        diferencia_precio,
+        porcentaje_cambio,
+        precio_cambio: precio_cambio_significativo,
+        subtotal_guardado,
+        subtotal_actual,
+        // Información de oferta guardada
+        oferta_guardada: {
+          id_oferta: item.id_oferta_aplicada,
+          descuento_porcentaje: item.descuento_porcentaje_original,
+          precio_oferta: item.precio_con_oferta_original
+        },
+        // Información de oferta actual
+        oferta_actual: {
+          id_oferta: preciosActuales.id_oferta_aplicada,
+          nombre_oferta: preciosActuales.nombre_oferta,
+          descuento_porcentaje: preciosActuales.descuento_porcentaje,
+          precio_oferta: preciosActuales.precio_oferta
+        }
       };
     }));
   }
@@ -336,16 +517,38 @@ export default class CarritoController {
         });
       }
 
-      // Transformar items del carrito con ofertas e imágenes
+      // Transformar items del carrito con ofertas, imágenes y validación de stock y precios
       const itemsTransformados = await CarritoController.transformarItemsCarrito(carrito.items);
 
-      // Recalcular total del carrito para asegurar consistencia
-      const totalRecalculado = itemsTransformados.reduce((sum, item) => sum + parseFloat(item.subtotal.toString()), 0);
+      // ✅ VERIFICAR si hay items sin stock suficiente (Fase 1)
+      const itemsSinStock = itemsTransformados.filter(item => !item.tiene_stock);
+      const tiene_items_sin_stock = itemsSinStock.length > 0;
 
-      // Actualizar el total en la base de datos si es diferente
-      if (Math.abs(totalRecalculado - parseFloat(carrito.total_carrito.toString())) > 0.01) {
+      // ✅ VERIFICAR si hay items con precio cambiado (Fase 2)
+      const itemsConPrecioCambiado = itemsTransformados.filter(item => item.precio_cambio);
+      const tiene_cambios_precio = itemsConPrecioCambiado.length > 0;
+
+      // Calcular totales
+      const totalConPreciosGuardados = itemsTransformados.reduce(
+        (sum, item) => sum + item.subtotal_guardado,
+        0
+      );
+
+      const totalConPreciosActuales = itemsTransformados.reduce(
+        (sum, item) => sum + item.subtotal_actual,
+        0
+      );
+
+      const diferencia_total = totalConPreciosActuales - totalConPreciosGuardados;
+
+      // ✅ ACTUALIZAR TOTAL DEL CARRITO CON PRECIOS ACTUALES (Fase 2)
+      // Si hubo cambios de precio, los items ya se actualizaron en transformarItemsCarrito
+      // Por lo tanto, debemos usar el total con precios ACTUALES
+      const totalParaActualizar = tiene_cambios_precio ? totalConPreciosActuales : totalConPreciosGuardados;
+
+      if (Math.abs(totalParaActualizar - parseFloat(carrito.total_carrito.toString())) > 0.01) {
         await carrito.update({
-          total_carrito: totalRecalculado,
+          total_carrito: totalParaActualizar,
           fyh_actualizacion: new Date()
         });
       }
@@ -356,19 +559,50 @@ export default class CarritoController {
         id_cliente: carrito.id_cliente,
         estado: carrito.estado,
         items: itemsTransformados,
-        total_carrito: totalRecalculado,
+        total_carrito: totalConPreciosGuardados,  // Total guardado (por compatibilidad)
+        total_actual: totalConPreciosActuales,     // ✅ Total actualizado
+        diferencia_total,                          // ✅ Diferencia en totales
         cantidad_items: itemsTransformados.length,
         cargando: false,
-        error: null
+        error: null,
+        // Información de stock (Fase 1)
+        tiene_items_sin_stock,
+        items_sin_stock: itemsSinStock.map(item => ({
+          id_item: item.id_item,
+          id_producto: item.id_producto,
+          nombre_producto: item.producto?.nombre,
+          cantidad_solicitada: item.cantidad,
+          stock_disponible: item.stock_disponible,
+          sugerencia_cantidad: item.sugerencia_cantidad
+        })),
+        // ✅ INFORMACIÓN DE PRECIOS (Fase 2)
+        tiene_cambios_precio,
+        items_con_cambio_precio: itemsConPrecioCambiado.map(item => ({
+          id_item: item.id_item,
+          id_producto: item.id_producto,
+          nombre_producto: item.producto?.nombre,
+          precio_guardado: item.precio_guardado,
+          precio_actual: item.precio_actual,
+          diferencia_precio: item.diferencia_precio,
+          porcentaje_cambio: item.porcentaje_cambio,
+          subtotal_guardado: item.subtotal_guardado,
+          subtotal_actual: item.subtotal_actual
+        }))
       };
 
       res.locals.skipHttpLog = true;
-      
+
       logger.info('Carrito obtenido exitosamente', {
         operacion: 'obtener_carrito',
         cliente_id: id_cliente,
         cantidad_items: itemsTransformados.length,
-        total_carrito: totalRecalculado,
+        total_guardado: totalConPreciosGuardados,
+        total_actual: totalConPreciosActuales,
+        diferencia_total,
+        tiene_items_sin_stock,
+        items_sin_stock_count: itemsSinStock.length,
+        tiene_cambios_precio,
+        items_con_cambio_precio_count: itemsConPrecioCambiado.length,
         success: true
       });
 
@@ -482,13 +716,11 @@ export default class CarritoController {
         });
       }
 
-      // Calcular precio con oferta aplicada
-      const ofertas = (producto as any).ofertas || [];
-      const { precio_original, precio_oferta, en_oferta } = 
-        CarritoController.calcularPrecioConOferta(producto, ofertas);
-      
-      // Usar precio con oferta si está disponible, sino precio original
-      const precio_unitario = precio_oferta || precio_original;
+      // ✅ CALCULAR PRECIOS COMPLETOS (Fase 2 - Revalidación de Precios)
+      const preciosActuales = CarritoController.calcularPrecioActualCompleto(producto);
+
+      // Usar precio final calculado
+      const precio_unitario = preciosActuales.precio_final;
       const subtotal = precio_unitario * cantidad;
 
       // Verificar si el producto ya está en el carrito
@@ -518,6 +750,14 @@ export default class CarritoController {
           cantidad: nuevaCantidad,
           subtotal: nuevoSubtotal,
           precio_unitario, // Actualizar también el precio unitario por si cambió la oferta
+          // ✅ ACTUALIZAR CAMPOS DE AUDITORÍA (Fase 2)
+          precio_base_original: preciosActuales.precio_original,
+          precio_con_oferta_original: preciosActuales.precio_oferta,
+          descuento_porcentaje_original: preciosActuales.descuento_porcentaje,
+          id_oferta_aplicada: preciosActuales.id_oferta_aplicada,
+          precio_es_manual: false,
+          fyh_precio_validado: new Date(),
+          precio_ha_cambiado: false,  // Resetear flag al actualizar
           fyh_actualizacion: new Date()
         });
       } else {
@@ -528,6 +768,14 @@ export default class CarritoController {
           cantidad,
           precio_unitario,
           subtotal,
+          // ✅ GUARDAR CAMPOS DE AUDITORÍA (Fase 2 - Revalidación de Precios)
+          precio_base_original: preciosActuales.precio_original,
+          precio_con_oferta_original: preciosActuales.precio_oferta,
+          descuento_porcentaje_original: preciosActuales.descuento_porcentaje,
+          id_oferta_aplicada: preciosActuales.id_oferta_aplicada,
+          precio_es_manual: false,
+          fyh_precio_validado: new Date(),
+          precio_ha_cambiado: false,
           fyh_creacion: new Date(),
           fyh_actualizacion: new Date()
         });
@@ -563,7 +811,7 @@ export default class CarritoController {
                 },
                 required: false,
                 through: {
-                  attributes: ['precio_oferta']
+                  attributes: ['precio_oferta', 'es_precio_personalizado']
                 },
                 attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
               }
@@ -671,7 +919,7 @@ export default class CarritoController {
                 },
                 required: false,
                 through: {
-                  attributes: ['precio_oferta']
+                  attributes: ['precio_oferta', 'es_precio_personalizado']
                 },
                 attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
               }
@@ -692,20 +940,26 @@ export default class CarritoController {
         });
       }
 
-      // Calcular precio con oferta aplicada para recalcular el subtotal
-      const ofertas = (item.producto as any).ofertas || [];
-      const { precio_original, precio_oferta, descuento_porcentaje, en_oferta } = 
-        CarritoController.calcularPrecioConOferta(item.producto!, ofertas);
-      
-      // Usar precio con oferta si está disponible, sino precio original
-      const precio_unitario = precio_oferta || precio_original;
-      
+      // ✅ CALCULAR PRECIOS ACTUALES (Fase 2 - Revalidación de Precios)
+      const preciosActuales = CarritoController.calcularPrecioActualCompleto(item.producto!);
+
+      // Usar precio final calculado
+      const precio_unitario = preciosActuales.precio_final;
+
       // Actualizar cantidad y subtotal con el precio correcto
       const nuevoSubtotal = precio_unitario * cantidad;
       await item.update({
         cantidad,
         subtotal: nuevoSubtotal,
         precio_unitario, // Actualizar también el precio unitario por si cambió la oferta
+        // ✅ ACTUALIZAR CAMPOS DE AUDITORÍA (Fase 2)
+        precio_base_original: preciosActuales.precio_original,
+        precio_con_oferta_original: preciosActuales.precio_oferta,
+        descuento_porcentaje_original: preciosActuales.descuento_porcentaje,
+        id_oferta_aplicada: preciosActuales.id_oferta_aplicada,
+        precio_es_manual: false,
+        fyh_precio_validado: new Date(),
+        precio_ha_cambiado: false,  // Resetear flag al actualizar
         fyh_actualizacion: new Date()
       });
 
@@ -966,14 +1220,14 @@ export default class CarritoController {
    */
   static async confirmarCompra(req: Request, res: Response) {
     try {
-      const { observaciones, moneda = 'BOB' } = req.body;
+      const { observaciones, moneda = 'BOB', aceptar_cambio_precio = false } = req.body;
       const id_cliente = req.usuario?.id_cliente;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
       }
 
-      logger.debug(`Confirmando compra - Cliente: ${id_cliente}`);
+      logger.debug(`Confirmando compra - Cliente: ${id_cliente}, Acepta cambios: ${aceptar_cambio_precio}`);
 
       // Buscar carrito activo con items
       const carrito = await CarritoWeb.findOne({
@@ -1008,18 +1262,101 @@ export default class CarritoController {
         }
       }
 
+      // ✅ REVALIDAR PRECIOS ANTES DE CONFIRMAR (Fase 2)
+      const itemsConPreciosActuales = await Promise.all(
+        carrito.items.map(async (item) => {
+          const productoActual = await Almacen.findByPk(item.id_producto, {
+            include: [
+              {
+                model: Oferta,
+                as: 'ofertas',
+                where: {
+                  activo: true,
+                  fecha_inicio: { [Op.lte]: new Date() },
+                  fecha_fin: { [Op.gte]: new Date() }
+                },
+                required: false,
+                through: {
+                  attributes: ['precio_oferta', 'es_precio_personalizado']
+                },
+                attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento']
+              }
+            ]
+          });
+
+          const preciosActuales = CarritoController.calcularPrecioActualCompleto(productoActual!);
+
+          return {
+            item,
+            precio_guardado: parseFloat(item.precio_unitario.toString()),
+            precio_actual: preciosActuales.precio_final,
+            diferencia: preciosActuales.precio_final - parseFloat(item.precio_unitario.toString()),
+            cambio_significativo: Math.abs(
+              ((preciosActuales.precio_final - parseFloat(item.precio_unitario.toString())) / parseFloat(item.precio_unitario.toString())) * 100
+            ) > 1  // Cambio > 1%
+          };
+        })
+      );
+
+      // Detectar items con cambios de precio significativos
+      const itemsConCambio = itemsConPreciosActuales.filter(i => i.cambio_significativo);
+
+      if (itemsConCambio.length > 0 && !aceptar_cambio_precio) {
+        // ✅ RECHAZAR COMPRA SI HAY CAMBIOS Y NO SE ACEPTARON
+        const detallesCambios = itemsConCambio.map(i => ({
+          id_item: i.item.id_item,
+          nombre_producto: i.item.producto?.nombre,
+          precio_anterior: i.precio_guardado,
+          precio_nuevo: i.precio_actual,
+          diferencia: i.diferencia,
+          porcentaje_cambio: ((i.diferencia / i.precio_guardado) * 100).toFixed(2)
+        }));
+
+        logger.warn('Compra rechazada por cambio de precios', {
+          cliente_id: id_cliente,
+          items_con_cambio: detallesCambios
+        });
+
+        return res.status(400).json({
+          codigo: 'PRECIOS_CAMBIARON',
+          mensaje: 'Los precios de algunos productos han cambiado. Por favor, revisa tu carrito y confirma nuevamente.',
+          items_con_cambio: detallesCambios,
+          requiere_confirmacion: true
+        });
+      }
+
+      // ✅ ACTUALIZAR ITEMS CON PRECIOS ACTUALES
+      for (const itemConPrecio of itemsConPreciosActuales) {
+        if (itemConPrecio.cambio_significativo) {
+          await CarritoWebItems.update({
+            precio_unitario: itemConPrecio.precio_actual,
+            subtotal: itemConPrecio.precio_actual * itemConPrecio.item.cantidad,
+            precio_ha_cambiado: true,
+            fyh_actualizacion: new Date()
+          }, {
+            where: { id_item: itemConPrecio.item.id_item }
+          });
+        }
+      }
+
+      // Recalcular total con precios actuales
+      const totalActualizado = itemsConPreciosActuales.reduce(
+        (sum, i) => sum + (i.precio_actual * i.item.cantidad),
+        0
+      );
+
       // Generar número de venta
       const ultimaVenta = await Venta.findOne({
         order: [['nro_venta', 'DESC']]
       });
       const nroVenta = ultimaVenta ? ultimaVenta.nro_venta + 1 : 1;
 
-      // Crear la venta
+      // ✅ CREAR VENTA CON TOTAL ACTUALIZADO (Fase 2)
       const venta = await Venta.create({
         nro_venta: nroVenta,
         id_cliente,
         id_carrito: carrito.id_carrito,
-        total_pagado: parseFloat(carrito.total_carrito.toString()),
+        total_pagado: totalActualizado,  // ← Precio ACTUAL validado
         observaciones,
         moneda,
         fyh_creacion: new Date(),
@@ -1048,9 +1385,11 @@ export default class CarritoController {
       logger.info('Compra confirmada exitosamente', {
         operacion: 'confirmar_compra',
         cliente_id: id_cliente,
+        id_venta: venta.id_venta,
         nro_venta: nroVenta,
         items_comprados: carrito.items.length,
-        total: carrito.total_carrito,
+        total_pagado: totalActualizado,
+        items_con_cambio_precio: itemsConCambio.length,
         success: true
       });
       

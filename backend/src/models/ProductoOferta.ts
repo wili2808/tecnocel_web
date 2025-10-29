@@ -5,7 +5,8 @@ class ProductoOferta extends Model {
   declare id_producto_oferta: number;
   declare id_producto: number;
   declare id_oferta: number;
-  declare precio_oferta: number;
+  declare precio_oferta: number | null;
+  declare es_precio_personalizado: boolean;
   declare fyh_creacion: Date;
 }
 
@@ -33,7 +34,14 @@ ProductoOferta.init({
   },
   precio_oferta: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
+    allowNull: true,
+    comment: 'Precio con oferta aplicada. NULL = calcular dinámicamente, valor = precio personalizado'
+  },
+  es_precio_personalizado: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Indica si el precio_oferta es personalizado (true) o debe calcularse dinámicamente (false)'
   },
   fyh_creacion: {
     type: DataTypes.DATE,

@@ -15,6 +15,16 @@ class CarritoWebItems extends Model {
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 
+  // ✅ NUEVOS CAMPOS (Fase 1 - Revalidación de Precios)
+  // Snapshot histórico de precios al momento de agregar al carrito
+  declare precio_base_original: number;
+  declare precio_con_oferta_original: number | null;
+  declare descuento_porcentaje_original: number | null;
+  declare id_oferta_aplicada: number | null;
+  declare precio_es_manual: boolean;
+  declare fyh_precio_validado: Date;
+  declare precio_ha_cambiado: boolean;
+
   // Asociaciones
   declare carrito?: CarritoWeb;
   declare producto?: Almacen;
@@ -82,6 +92,57 @@ CarritoWebItems.init({
     validate: {
       min: 0
     }
+  },
+  // ✅ NUEVOS CAMPOS (Fase 1 - Revalidación de Precios)
+  // Snapshot histórico de precios al momento de agregar al carrito
+  precio_base_original: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    validate: {
+      min: 0
+    },
+    comment: 'Precio de catalogo SIN descuento al momento de agregar al carrito'
+  },
+  precio_con_oferta_original: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    comment: 'Precio CON oferta aplicada al momento de agregar (NULL si no habia oferta)'
+  },
+  descuento_porcentaje_original: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true,
+    validate: {
+      min: 0,
+      max: 100
+    },
+    comment: 'Porcentaje de descuento que se aplico originalmente'
+  },
+  id_oferta_aplicada: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tb_ofertas',
+      key: 'id_oferta'
+    },
+    comment: 'FK a la oferta que se uso (NULL si no hubo oferta)'
+  },
+  precio_es_manual: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'TRUE si fue un precio personalizado manualmente'
+  },
+  fyh_precio_validado: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+    comment: 'Ultima vez que se valido/verifico el precio contra el catalogo actual'
+  },
+  precio_ha_cambiado: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'TRUE si el precio actual del producto difiere del original'
   },
   fyh_creacion: {
     type: DataTypes.DATE,

@@ -68,11 +68,12 @@ const Offers: React.FC = () => {
         const counts: Record<number, number> = {};
 
         // Contar productos por oferta usando datos del contexto
+        // IMPORTANTE: Solo contar la primera oferta de cada producto para evitar duplicaciones
         productosEnOferta.forEach((producto: any) => {
-            if (producto.ofertas) {
-                producto.ofertas.forEach((oferta: any) => {
-                    counts[oferta.id_oferta] = (counts[oferta.id_oferta] || 0) + 1;
-                });
+            if (producto.ofertas && producto.ofertas.length > 0) {
+                // Solo contar la primera oferta activa del producto
+                const ofertaActiva = producto.ofertas[0];
+                counts[ofertaActiva.id_oferta] = (counts[ofertaActiva.id_oferta] || 0) + 1;
             }
         });
 
@@ -146,13 +147,13 @@ const Offers: React.FC = () => {
                     products={productosFiltrados}
                     loading={loading}
                     error={error}
-                    totalProducts={productosFiltrados.length}
+                    totalProducts={productosEnOferta.length}
                     hasMore={hasNextPage}
                     onLoadMore={loadMore}
                     onRetry={refreshOfertas}
                     useGlobalContext={false}
                     filterControls={
-                        !loading && ofertas.length > 0 && productosEnOferta.length > 0 ? (
+                        !loading && ofertas.length > 0 ? (
                             <ProductsOfferFilter
                                 currentFilter={productOfferFilter}
                                 ofertas={ofertas}

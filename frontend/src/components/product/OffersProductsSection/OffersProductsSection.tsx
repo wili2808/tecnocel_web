@@ -109,26 +109,13 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
         );
     }
 
-    if (products.length === 0) {
-        return (
-            <section className={styles.productsSection}>
-                <div className={styles.emptyContainer}>
-                    <div className={styles.emptyContent}>
-                        <span className="material-icons">shopping_bag</span>
-                        <h3>No hay productos en oferta</h3>
-                        <p>En este momento no tenemos productos con ofertas especiales. ¡Vuelve pronto!</p>
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
     // ============================================================================
     // RENDERIZADO
     // ============================================================================
 
     return (
         <section className={styles.productsSection}>
+            {/* Header siempre visible con título, contador y controles de filtro */}
             <div className={styles.sectionHeader}>
                 <div className={styles.headerLeft}>
                     <h2 className={styles.sectionTitle}>
@@ -147,47 +134,66 @@ const OffersProductsSection: React.FC<OffersProductsSectionProps> = ({
                 )}
             </div>
 
-            <div className={styles.productsGrid}>
-                {memoizedProducts.map((product) => (
-                    <ProductCard
-                        key={product.id_producto}
-                        id_producto={product.id_producto}
-                        nombre={product.nombre}
-                        descripcion={product.descripcion}
-                        imagen_url={product.imagen_url}
-                        imagenes={product.imagenes}
-                        precio_venta={product.precio_venta}
-                        stock={product.stock}
-                        precio_original={product.precio_original}
-                        precio_oferta={product.precio_oferta}
-                        descuento_porcentaje={product.descuento_porcentaje}
-                        en_oferta={product.en_oferta}
-                        ofertas={product.ofertas}
-                    />
-                ))}
-            </div>
-
-            {/* Botón cargar más */}
-            {hasMore && onLoadMore && (
-                <div className={styles.loadMoreContainer}>
-                    <button
-                        onClick={onLoadMore}
-                        className={styles.loadMoreButton}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <>
-                                <LoadingSpinner size="sm" />
-                                <span>Cargando...</span>
-                            </>
-                        ) : (
-                            <>
-                                <span className="material-icons">expand_more</span>
-                                <span>Cargar más productos</span>
-                            </>
-                        )}
-                    </button>
+            {/* Mostrar mensaje de estado vacío si no hay productos */}
+            {products.length === 0 ? (
+                <div className={styles.emptyContainer}>
+                    <div className={styles.emptyContent}>
+                        <span className="material-icons">shopping_bag</span>
+                        <h3>No hay productos en esta oferta</h3>
+                        <p>
+                            {filterControls
+                                ? 'La oferta seleccionada no tiene productos disponibles. Intenta con otra oferta.'
+                                : 'En este momento no tenemos productos con ofertas especiales. ¡Vuelve pronto!'
+                            }
+                        </p>
+                    </div>
                 </div>
+            ) : (
+                <>
+                    {/* Grid de productos */}
+                    <div className={styles.productsGrid}>
+                        {memoizedProducts.map((product) => (
+                            <ProductCard
+                                key={product.id_producto}
+                                id_producto={product.id_producto}
+                                nombre={product.nombre}
+                                descripcion={product.descripcion}
+                                imagen_url={product.imagen_url}
+                                imagenes={product.imagenes}
+                                precio_venta={product.precio_venta}
+                                stock={product.stock}
+                                precio_original={product.precio_original}
+                                precio_oferta={product.precio_oferta}
+                                descuento_porcentaje={product.descuento_porcentaje}
+                                en_oferta={product.en_oferta}
+                                ofertas={product.ofertas}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Botón cargar más */}
+                    {hasMore && onLoadMore && (
+                        <div className={styles.loadMoreContainer}>
+                            <button
+                                onClick={onLoadMore}
+                                className={styles.loadMoreButton}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <LoadingSpinner size="sm" />
+                                        <span>Cargando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="material-icons">expand_more</span>
+                                        <span>Cargar más productos</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </section>
     );

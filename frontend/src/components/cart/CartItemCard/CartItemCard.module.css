@@ -19,6 +19,35 @@
     pointer-events: none;
 }
 
+/* Estado sin stock - Indicador visual sutil */
+.card.sinStock {
+    position: relative;
+    opacity: 0.85;
+    border-color: var(--color-error-light, #fca5a5);
+    background: linear-gradient(
+        135deg,
+        var(--background-secondary) 0%,
+        var(--background-secondary) 93%,
+        rgba(220, 38, 38, 0.05) 93%,
+        rgba(220, 38, 38, 0.05) 100%
+    );
+}
+
+.card.sinStock:hover {
+    border-color: var(--color-error, #dc2626);
+}
+
+/* Reducir énfasis visual en elementos de items sin stock */
+.card.sinStock .productImage {
+    opacity: 0.7;
+    filter: grayscale(0.3);
+}
+
+.card.sinStock .currentPrice,
+.card.sinStock .subtotalAmount {
+    color: var(--text-secondary);
+}
+
 .imageLink {
     flex-shrink: 0;
     width: 120px;
@@ -204,6 +233,74 @@
     margin-left: auto;
 }
 
+/* ✅ ESTILOS PARA CAMBIO DE PRECIO (Fase 2) */
+.priceChangeBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: #3b82f6;
+    margin-bottom: var(--spacing-xs);
+    width: fit-content;
+}
+
+.priceChangeBadge .material-icons {
+    font-size: 16px;
+}
+
+.priceComparison {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background-color: var(--background-primary);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color-light);
+}
+
+.oldPriceLabel,
+.newPriceLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+    min-width: 50px;
+}
+
+.oldPrice {
+    font-size: var(--font-size-md);
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+}
+
+.priceUp {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-error);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.priceDown {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-success);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.percentageChange {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    opacity: 0.9;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .stockWarning {
@@ -214,4 +311,25 @@
         align-self: center;
     }
 
+    .priceChangeBadge {
+        font-size: var(--font-size-xs);
+        padding: 4px 8px;
+    }
+
+    .priceChangeBadge .material-icons {
+        font-size: 14px;
+    }
+
+    .priceComparison {
+        padding: var(--spacing-xs);
+    }
+
+    .priceUp,
+    .priceDown {
+        font-size: var(--font-size-md);
+    }
+
+    .oldPrice {
+        font-size: var(--font-size-sm);
+    }
 }

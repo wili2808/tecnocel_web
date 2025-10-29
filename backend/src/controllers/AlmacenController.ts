@@ -10,6 +10,7 @@ import Oferta from '../models/Oferta.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
+import { enriquecerProductoConOferta } from '../services/ofertaService.js';
 
 /**
  * Controlador para gestión del catálogo de productos del almacén
@@ -158,7 +159,7 @@ class AlmacenController {
             },
             required: false,
             through: {
-              attributes: ['precio_oferta']
+              attributes: ['precio_oferta', 'es_precio_personalizado']
             },
             attributes: ['nombre_oferta', 'tipo_descuento', 'valor_descuento']
           },
@@ -254,7 +255,7 @@ class AlmacenController {
             },
             required: false,
             through: {
-              attributes: ['precio_oferta']
+              attributes: ['precio_oferta', 'es_precio_personalizado']
             },
             attributes: ['nombre_oferta', 'tipo_descuento', 'valor_descuento', 'descripcion']
           },

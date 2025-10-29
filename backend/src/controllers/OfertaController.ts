@@ -8,6 +8,7 @@ import Categoria from '../models/Categoria.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { getImageService } from '../services/imageService.js';
 import logger from '../services/loggerService.js';
+import { enriquecerProductoConOferta, prepararDatosProductoOferta } from '../services/ofertaService.js';
 
 /**
  * Controlador para gestión de ofertas y descuentos de productos
@@ -142,7 +143,7 @@ export class OfertaController {
               fecha_fin: { [Op.gte]: now }
             },
             through: {
-              attributes: ['precio_oferta']
+              attributes: ['precio_oferta', 'es_precio_personalizado']
             }
           },
           {
@@ -171,40 +172,20 @@ export class OfertaController {
         logger.warn('Servicio de imágenes no disponible para productos en oferta');
       }
 
-      // Calcular precios con descuento y transformar imágenes
+      // Calcular precios con descuento y transformar imágenes usando servicio de ofertas
       const productosConDescuento = await Promise.all(productosEnOferta.rows.map(async producto => {
         const productoJson = producto.toJSON() as any;
-        
-        // Agregar la información de ofertas primero
-        if (productoJson.ofertas && productoJson.ofertas.length > 0) {
-          const oferta = productoJson.ofertas[0];
-          const precioOriginal = parseFloat(productoJson.precio_venta);
-          let precioFinal = precioOriginal;
-          
-          if (oferta.ProductoOferta?.precio_oferta) {
-            precioFinal = parseFloat(oferta.ProductoOferta.precio_oferta);
-          } else {
-            // Calcular descuento según tipo
-            if (oferta.tipo_descuento === 'porcentaje') {
-              precioFinal = precioOriginal * (1 - parseFloat(oferta.valor_descuento) / 100);
-            } else {
-              precioFinal = precioOriginal - parseFloat(oferta.valor_descuento);
-            }
-          }
-          
-          productoJson.precio_original = precioOriginal;
-          productoJson.precio_oferta = Math.max(0, precioFinal);
-          productoJson.descuento_porcentaje = ((precioOriginal - precioFinal) / precioOriginal * 100).toFixed(1);
-          productoJson.en_oferta = true;
-        }
-        
-        // Luego transformar las imágenes usando el imageService
+
+        // Enriquecer producto con información de oferta usando lógica híbrida
+        const productoConOferta = enriquecerProductoConOferta(productoJson);
+
+        // Transformar las imágenes usando el imageService
         if (imageService) {
-          const productoConImagenes = await imageService.transformProductWithImageUrls(productoJson);
+          const productoConImagenes = await imageService.transformProductWithImageUrls(productoConOferta);
           return productoConImagenes;
         }
-        
-        return productoJson;
+
+        return productoConOferta;
       }));
 
       res.locals.skipHttpLog = true;
@@ -383,7 +364,7 @@ export class OfertaController {
 
       for (const prod of productos) {
         const { id_producto, precio_oferta } = prod;
-        
+
         // Verificar que el producto existe
         const producto = await Almacen.findByPk(id_producto);
         if (!producto) {
@@ -391,27 +372,22 @@ export class OfertaController {
           continue;
         }
 
-        let precioFinalOferta = precio_oferta;
-        
-        // Si no se especifica precio_oferta, calcularlo
-        if (!precio_oferta) {
-          const precioOriginal = parseFloat(producto.precio_venta);
-          if (oferta.tipo_descuento === 'porcentaje') {
-            precioFinalOferta = precioOriginal * (1 - oferta.valor_descuento / 100);
-          } else {
-            precioFinalOferta = precioOriginal - oferta.valor_descuento;
-          }
-          precioFinalOferta = Math.max(0, precioFinalOferta);
-        }
+        // Preparar datos usando lógica híbrida del servicio
+        const datosProductoOferta = prepararDatosProductoOferta(
+          parseFloat(producto.precio_venta),
+          oferta,
+          precio_oferta
+        );
 
         try {
           const productoOferta = await ProductoOferta.create({
             id_producto,
             id_oferta: parseInt(id_oferta),
-            precio_oferta: precioFinalOferta,
+            precio_oferta: datosProductoOferta.precio_oferta,
+            es_precio_personalizado: datosProductoOferta.es_precio_personalizado,
             fyh_creacion: now
           });
-          
+
           productosAsignados.push(productoOferta);
         } catch (error: any) {
           if (error.message?.includes('Duplicate entry')) {

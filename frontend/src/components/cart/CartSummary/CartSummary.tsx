@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
+import PriceChangeAlert from '../PriceChangeAlert/PriceChangeAlert';
 import styles from './CartSummary.module.css';
 import type { ItemCarritoCompleto } from '../../../types/carrito';
 
@@ -15,34 +16,45 @@ interface CartSummaryProps {
     items: ItemCarritoCompleto[];
 }
 
-const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
+const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
     // ============================================================================
     // HOOKS DE NAVEGACIÓN Y CONTEXTO
     // ============================================================================
     const navigate = useNavigate();
-    const { confirmarCompra } = useCarrito();
+    const { estado, confirmarCompra } = useCarrito();
     const [isProcessing, setIsProcessing] = useState(false);
+    const [mostrarAlertaPrecio, setMostrarAlertaPrecio] = useState(false);
 
     // ============================================================================
     // CÁLCULOS DE PRECIOS Y DESCUENTOS
     // ============================================================================
 
     /**
-     * Calcular subtotal de productos usando precios ya calculados por el backend
-     * El backend ahora calcula correctamente los subtotales con ofertas aplicadas
+     * Filtrar items con stock disponible
+     * Excluir items sin stock de todos los cálculos de totales
      */
-    const subtotalProducts = items.reduce((sum, item) => {
-        // Usar directamente el subtotal calculado por el backend
-        // que ya incluye las ofertas aplicadas
-        const itemSubtotal = parseFloat(item.subtotal.toString());
+    const itemsConStock = items.filter(item => item.tiene_stock !== false);
+    const itemCountConStock = itemsConStock.reduce((sum, item) => sum + item.cantidad, 0);
+
+    /**
+     * ✅ CALCULAR TOTALES CON PRECIOS ACTUALES (Fase 2)
+     * Usar subtotal_actual cuando está disponible (precio revalidado)
+     * Si no hay revalidación, usar subtotal normal
+     */
+    const subtotalProducts = itemsConStock.reduce((sum, item) => {
+        // Usar subtotal_actual si existe (precio revalidado), sino usar subtotal normal
+        const itemSubtotal = item.subtotal_actual !== undefined
+            ? parseFloat(item.subtotal_actual.toString())
+            : parseFloat(item.subtotal.toString());
         return sum + itemSubtotal;
     }, 0);
 
     /**
      * Calcular subtotal original sin descuentos para mostrar el ahorro
      * Si hay oferta, usa precio_original; si no, usa precio_venta
+     * SOLO incluye items con stock disponible
      */
-    const subtotalOriginal = items.reduce((sum, item) => {
+    const subtotalOriginal = itemsConStock.reduce((sum, item) => {
         const productInfo = item.producto;
         let itemOriginalPrice = 0;
 
@@ -65,10 +77,18 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
     const discount = subtotalOriginal - subtotalProducts;
 
     /**
-     * Calcular el total final con descuentos aplicados
-     * Usa directamente el subtotal de productos (ya incluye descuentos)
+     * ✅ USAR TOTAL ACTUAL DEL ESTADO SI ESTÁ DISPONIBLE (Fase 2)
+     * El estado.total_actual viene del backend con precios revalidados
      */
-    const totalFinal = subtotalProducts;
+    const totalFinal = estado.total_actual !== undefined
+        ? estado.total_actual
+        : subtotalProducts;
+
+    /**
+     * Detectar si hay items sin stock excluidos del cálculo
+     */
+    const itemsSinStock = items.filter(item => item.tiene_stock === false);
+    const hayItemsSinStock = itemsSinStock.length > 0;
 
     // ============================================================================
     // MANEJO DE OPERACIONES DE COMPRA
@@ -77,6 +97,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
     /**
      * Procesar la compra del carrito completo
      * Confirma la venta y redirige al usuario al inicio
+     * ✅ FASE 2: Detecta cambios de precio y muestra alerta
      */
     const handleContinuePurchase = async () => {
         if (items.length === 0) {
@@ -96,10 +117,51 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
             navigate('/'); // Redirigir al inicio
         } catch (error: any) {
             console.error('Error al procesar la compra:', error);
+
+            // ✅ MANEJAR ERROR DE CAMBIO DE PRECIO (Fase 2)
+            if (error.response?.data?.codigo === 'PRECIOS_CAMBIARON') {
+                // Mostrar alerta de cambio de precio
+                setMostrarAlertaPrecio(true);
+            } else {
+                alert(error.message || 'Error al procesar la compra. Intente nuevamente.');
+            }
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    /**
+     * Aceptar cambios de precio y continuar con la compra
+     * ✅ FASE 2: Confirma compra con flag aceptar_cambio_precio
+     */
+    const handleAceptarCambioPrecio = async () => {
+        setMostrarAlertaPrecio(false);
+        setIsProcessing(true);
+
+        try {
+            const venta = await confirmarCompra({
+                observaciones: 'Compra realizada desde la web',
+                moneda: 'BOB',
+                aceptar_cambio_precio: true  // ✅ Aceptar precios actualizados
+            });
+
+            // Mostrar mensaje de éxito y redirigir
+            alert(`¡Compra realizada exitosamente! Número de venta: ${venta.nro_venta}`);
+            navigate('/');
+        } catch (error: any) {
+            console.error('Error al procesar la compra:', error);
             alert(error.message || 'Error al procesar la compra. Intente nuevamente.');
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    /**
+     * Cancelar alerta de cambio de precio
+     * Cierra la alerta sin procesar la compra
+     */
+    const handleCancelarCambioPrecio = () => {
+        setMostrarAlertaPrecio(false);
     };
 
     // ============================================================================
@@ -115,11 +177,24 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
 
             {/* Contenido principal del resumen */}
             <div className={styles.summaryContent}>
+                {/* Alerta si hay items sin stock excluidos del total */}
+                {hayItemsSinStock && (
+                    <div className={styles.stockAlert}>
+                        <span className="material-icons">info</span>
+                        <span>
+                            {itemsSinStock.length === 1
+                                ? '1 producto sin stock no está incluido en el total'
+                                : `${itemsSinStock.length} productos sin stock no están incluidos en el total`
+                            }
+                        </span>
+                    </div>
+                )}
+
                 {/* Sección de desglose de precios */}
                 <div className={styles.summarySection}>
                     {/* Línea de productos con cantidad y precio original */}
                     <div className={styles.summaryRow}>
-                        <span>Productos ({itemCount})</span>
+                        <span>Productos ({itemCountConStock})</span>
                         <span>$ {subtotalOriginal.toLocaleString('es-ES')}</span>
                     </div>
 
@@ -136,6 +211,21 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
                             <span className={styles.discount}>-$ {discount.toLocaleString('es-ES')}</span>
                         </div>
                     )}
+
+                    {/* ✅ MOSTRAR AJUSTE POR CAMBIO DE PRECIO (Fase 2) */}
+                    {estado.tiene_cambios_precio && estado.diferencia_total !== undefined && estado.diferencia_total !== 0 && (
+                        <div className={styles.summaryRow}>
+                            <span className={styles.priceAdjustmentLabel}>
+                                <span className="material-icons">
+                                    {estado.diferencia_total > 0 ? 'trending_up' : 'trending_down'}
+                                </span>
+                                Ajuste de precio
+                            </span>
+                            <span className={estado.diferencia_total > 0 ? styles.priceAdjustmentUp : styles.priceAdjustmentDown}>
+                                {estado.diferencia_total > 0 ? '+' : ''}$ {Math.abs(estado.diferencia_total).toLocaleString('es-ES')}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Sección del total final */}
@@ -150,7 +240,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
                 <div className={styles.checkoutSection}>
                     <button
                         onClick={handleContinuePurchase}
-                        disabled={isProcessing}
+                        disabled={isProcessing || totalFinal === 0}
                         className={styles.checkoutButton}
                     >
                         {isProcessing ? (
@@ -158,6 +248,8 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
                                 <div className={styles.spinner}></div>
                                 Procesando...
                             </>
+                        ) : totalFinal === 0 ? (
+                            'No hay productos disponibles'
                         ) : (
                             'Continuar compra'
                         )}
@@ -191,6 +283,18 @@ const CartSummary: React.FC<CartSummaryProps> = ({ itemCount, items }) => {
                     </ul>
                 </div>
             </div>
+
+            {/* ✅ ALERTA DE CAMBIO DE PRECIO (Fase 2) */}
+            {mostrarAlertaPrecio && estado.items_con_cambio_precio && estado.items_con_cambio_precio.length > 0 && (
+                <div className={styles.priceAlertOverlay}>
+                    <PriceChangeAlert
+                        itemsConCambio={estado.items_con_cambio_precio}
+                        diferencia_total={estado.diferencia_total || 0}
+                        onAceptar={handleAceptarCambioPrecio}
+                        onCancelar={handleCancelarCambioPrecio}
+                    />
+                </div>
+            )}
         </div>
     );
 };

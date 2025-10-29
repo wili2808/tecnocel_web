@@ -27,19 +27,6 @@ interface CacheData {
   filters: ProductFilters;
   searchQuery: string;
 }
-
-/**
- * Estructura de datos del caché de imágenes
- * Almacena URLs y timestamps de imágenes para evitar descargas repetidas
- */
-interface ImageCacheData {
-  [key: string]: {
-    url: string;
-    timestamp: number;
-    blob?: string;
-  };
-}
-
 // ============================================================================
 // ESTADO DEL CONTEXTO
 // ============================================================================
@@ -383,10 +370,11 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   // CONSTANTES CONSOLIDADAS
   // ============================================================================
 
-  const CACHE_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutos
-  const IMAGE_CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutos
-  const PRODUCT_CACHE_KEY = 'tecnocel_product_cache';
-  const IMAGE_CACHE_KEY = 'tecnocel_image_cache';
+  // Configuración de cache desde variables de entorno
+  const CACHE_EXPIRY_TIME = parseInt(import.meta.env.VITE_PRODUCTS_CACHE_DURATION || '180000'); // 3 minutos por defecto
+  const IMAGE_CACHE_EXPIRY = parseInt(import.meta.env.VITE_IMAGES_CACHE_DURATION || '1800000'); // 30 minutos por defecto
+  const PRODUCT_CACHE_KEY = import.meta.env.VITE_PRODUCT_CACHE_KEY || 'tecnocel_product_cache';
+  const IMAGE_CACHE_KEY = import.meta.env.VITE_IMAGE_CACHE_KEY || 'tecnocel_image_cache';
 
   // ============================================================================
   // FUNCIONES UTILITARIAS CONSOLIDADAS
@@ -570,7 +558,8 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
   /**
    * Cargar imagen con sistema de caché optimizado
-   * Combina caché en memoria y localStorage para máxima eficiencia
+   * Usa caché en memoria + aprovecha caché HTTP del navegador (backend sirve con Cache-Control 24h)
+   * NOTA: Se eliminó el cache de blob URLs en localStorage porque no persisten entre sesiones
    */
   const loadImageWithCache = useCallback(async (imageUrl: string): Promise<string> => {
     try {
@@ -579,29 +568,16 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         const cachedData = state.imageCache.get(imageUrl)!;
         if (isCacheFresh(cachedData.timestamp, IMAGE_CACHE_EXPIRY)) {
           return cachedData.url;
+        } else {
+          // Limpiar entrada expirada
+          const newCache = new Map(state.imageCache);
+          newCache.delete(imageUrl);
+          dispatch({ type: 'SET_IMAGE_CACHE', payload: newCache });
         }
       }
 
-      // Verificar localStorage
-      const existingImageCache = localStorage.getItem(IMAGE_CACHE_KEY);
-      if (existingImageCache) {
-        const cacheData: ImageCacheData = JSON.parse(existingImageCache);
-        const cachedImage = cacheData[imageUrl];
-
-        if (cachedImage && isCacheFresh(cachedImage.timestamp, IMAGE_CACHE_EXPIRY)) {
-          // Sincronizar con estado en memoria
-          const newImageCache = new Map(state.imageCache);
-          newImageCache.set(imageUrl, {
-            url: cachedImage.url,
-            timestamp: cachedImage.timestamp
-          });
-          dispatch({ type: 'SET_IMAGE_CACHE', payload: newImageCache });
-
-          return cachedImage.url;
-        }
-      }
-
-      // Descargar imagen si no está en caché
+      // Descargar imagen (el navegador usará su caché HTTP si está disponible)
+      // El backend sirve imágenes con Cache-Control: max-age=86400 (24 horas)
       const response = await fetch(imageUrl);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -610,22 +586,13 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
 
-      // Guardar en ambos caches
+      // Guardar SOLO en cache de memoria (no localStorage)
       const newImageCache = new Map(state.imageCache);
       newImageCache.set(imageUrl, {
         url: objectUrl,
         timestamp: Date.now()
       });
       dispatch({ type: 'SET_IMAGE_CACHE', payload: newImageCache });
-
-      // Guardar en localStorage
-      const currentImageCache = localStorage.getItem(IMAGE_CACHE_KEY);
-      const cacheData: ImageCacheData = currentImageCache ? JSON.parse(currentImageCache) : {};
-      cacheData[imageUrl] = {
-        url: objectUrl,
-        timestamp: Date.now()
-      };
-      localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify(cacheData));
 
       return objectUrl;
     } catch (error) {
@@ -637,22 +604,23 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   }, [state.imageCache, isCacheFresh, IMAGE_CACHE_EXPIRY]);
 
   /**
-   * Limpiar caché de imágenes
-   * Revoca URLs de objetos y libera memoria del navegador
+   * Limpiar caché de imágenes en memoria
+   * Revoca URLs de objetos blob para liberar memoria del navegador
    */
   const clearImageCache = useCallback(() => {
     try {
-      const imageCache = localStorage.getItem(IMAGE_CACHE_KEY);
-      if (imageCache) {
-        const cacheData: ImageCacheData = JSON.parse(imageCache);
+      // Revocar todas las blob URLs en memoria para liberar recursos
+      state.imageCache.forEach((imageData) => {
+        if (imageData.url.startsWith('blob:')) {
+          URL.revokeObjectURL(imageData.url);
+        }
+      });
 
-        // Revocar URLs de objetos para liberar memoria
-        Object.values(cacheData).forEach(imageData => {
-          if (imageData.url.startsWith('blob:')) {
-            URL.revokeObjectURL(imageData.url);
-          }
-        });
+      // Limpiar el cache en memoria
+      dispatch({ type: 'SET_IMAGE_CACHE', payload: new Map() });
 
+      // Limpiar cualquier cache legacy de localStorage (migración)
+      if (localStorage.getItem(IMAGE_CACHE_KEY)) {
         localStorage.removeItem(IMAGE_CACHE_KEY);
       }
     } catch (error) {
@@ -660,7 +628,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         console.warn('Error al limpiar caché de imágenes:', error);
       }
     }
-  }, []);
+  }, [state.imageCache]);
 
   // ============================================================================
   // FUNCIÓN UNIFICADA DE LIMPIEZA
