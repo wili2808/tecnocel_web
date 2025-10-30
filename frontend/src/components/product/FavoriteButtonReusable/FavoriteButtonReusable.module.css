@@ -196,3 +196,20 @@
     font-size: 0.75rem;
   }
 }
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .favoriteButton,
+  .icon {
+    transition: none;
+  }
+
+  .favoriteButton:hover:not(:disabled),
+  .favoriteButton:active:not(:disabled) {
+    transform: none;
+  }
+
+  .favoriteButton.active .icon {
+    animation: none;
+  }
+}

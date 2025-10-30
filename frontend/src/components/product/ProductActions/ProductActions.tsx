@@ -272,23 +272,37 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                         <button
                             className={`${styles.actionButton} ${styles.addToCartButton} ${
                                 showSuccess ? styles.successButton : ''
-                            }`}
+                            } ${!canAddMore ? styles.maxStockButton : ''}`}
                             onClick={handleAddToCart}
                             disabled={isAddingToCart || estado.cargando || !canAddMore}
                             type="button"
                             aria-label={
-                                isAddingToCart 
-                                    ? 'Agregando al carrito...' 
-                                    : showSuccess 
-                                        ? 'Producto agregado al carrito' 
-                                        : 'Agregar al carrito'
+                                !canAddMore
+                                    ? 'Máximo stock en carrito'
+                                    : isAddingToCart
+                                        ? 'Agregando al carrito...'
+                                        : showSuccess
+                                            ? 'Producto agregado al carrito'
+                                            : 'Agregar al carrito'
                             }
                         >
                             <span className="material-icons">
-                                {isAddingToCart ? 'hourglass_empty' : showSuccess ? 'check_circle' : 'add_shopping_cart'}
+                                {!canAddMore
+                                    ? 'block'
+                                    : isAddingToCart
+                                        ? 'hourglass_empty'
+                                        : showSuccess
+                                            ? 'check_circle'
+                                            : 'add_shopping_cart'}
                             </span>
                             <span>
-                                {isAddingToCart ? 'Agregando...' : showSuccess ? '¡Agregado!' : 'Agregar al carrito'}
+                                {!canAddMore
+                                    ? 'Máximo en carrito'
+                                    : isAddingToCart
+                                        ? 'Agregando...'
+                                        : showSuccess
+                                            ? '¡Agregado!'
+                                            : 'Agregar al carrito'}
                             </span>
                         </button>
                     </>

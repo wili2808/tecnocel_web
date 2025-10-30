@@ -11,6 +11,7 @@ import { FavoritosGlobalProvider } from './contexts/FavoritosGlobalContext';
 import { OfertasGlobalProvider } from './contexts/OfertasGlobalContext';
 import { ProductProvider } from './contexts/ProductContext';
 import NotificationContainer from './components/common/NotificationContainer';
+import SearchSync from './components/common/SearchSync';
 import { useAutoLogout } from './hooks/useAutoLogout';
 import './styles/global.css';
 
@@ -62,6 +63,8 @@ function App() {
                     <Router>
                       <SearchProvider>
                         <CarritoProvider>
+                          {/* Sincronización global entre SearchContext y ProductContext */}
+                          <SearchSync />
                           <Suspense fallback={<LoadingFallback />}>
                             <Routes>
                               {/* Rutas que usan Layout normal */}

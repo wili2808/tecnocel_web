@@ -688,3 +688,34 @@
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
 }
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .commentCard,
+  .imageContainer,
+  .editTextarea,
+  .actionButton,
+  .deleteImageButton,
+  .saveEdit,
+  .modalDelete {
+    transition: none;
+    animation: none;
+  }
+
+  .imageContainer:hover,
+  .deleteImageButton:hover,
+  .modalDelete:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .editStar:hover:not(:disabled),
+  .editStar.active {
+    transform: none;
+  }
+
+  .spinner,
+  .deleteImageButton .spinner,
+  .modalDelete .spinner {
+    animation: none;
+  }
+}

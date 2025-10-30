@@ -40,6 +40,7 @@
     overflow: hidden;
     box-shadow: var(--shadow-card);
     border: 1px solid var(--border-color-light);
+    animation: fadeInUp 0.6s ease-out;
 }
 
 .cartItemsHeader {
@@ -213,6 +214,7 @@
 .cartSummary {
     position: sticky;
     top: var(--spacing-lg);
+    animation: fadeInUp var(--animation-duration-slow) ease-out var(--animation-duration-normal) both;
 }
 
 /* Carrito vacío */
@@ -476,4 +478,41 @@
         padding: var(--spacing-xs);
         gap: var(--spacing-xs);
     }
-} 
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .moreProductsButton,
+  .clearCartButton,
+  .continueShoppingButton,
+  .offersButton,
+  .retryButton {
+    transition: none;
+  }
+
+  .moreProductsButton:hover,
+  .clearCartButton:hover:not(:disabled),
+  .moreProductsButton:active,
+  .clearCartButton:active:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

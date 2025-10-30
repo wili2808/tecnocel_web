@@ -332,3 +332,28 @@
         font-size: 20px;
     }
 }
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .star,
+  .textarea,
+  .uploadButton,
+  .cancelButton,
+  .submitButton,
+  .removeImage {
+    transition: none;
+  }
+
+  .star:hover:not(:disabled),
+  .star.active {
+    transform: none;
+  }
+
+  .submitButton:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}

@@ -1,12 +1,13 @@
 /**
  * Componente ProductSearch - Campo de búsqueda de productos reutilizable
  * Proporciona funcionalidad de búsqueda con indicadores visuales y navegación
- * Incluye botón de limpiar, indicador de búsqueda activa y manejo de teclas
+ * Incluye botón de limpiar, indicador de búsqueda activa, manejo de teclas e historial
  * Se integra con el SearchContext global para estado centralizado de búsqueda
  */
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSearch } from '../../../contexts/SearchContext';
+import { useSearchHistory } from '../../../hooks/useSearchHistory';
 import styles from './ProductSearch.module.css';
 
 // ============================================================================
@@ -26,6 +27,12 @@ interface ProductSearchProps {
     className?: string;
     /** Callback ejecutado cuando se realiza una búsqueda */
     onSearch?: () => void;
+    /** Cantidad de resultados encontrados (opcional) */
+    resultCount?: number;
+    /** Si se debe mostrar el contador de resultados */
+    showResultCount?: boolean;
+    /** Si se debe mostrar el historial de búsquedas */
+    showHistory?: boolean;
 }
 
 // ============================================================================
@@ -41,7 +48,10 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     placeholder = "Buscar productos, marcas y mas ...",
     showClearButton = true,
     className = '',
-    onSearch
+    onSearch,
+    resultCount,
+    showResultCount = false,
+    showHistory = false
 }) => {
     // ============================================================================
     // HOOKS Y CONTEXTOS
@@ -71,6 +81,57 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
      */
     const navigate = useNavigate();
 
+    /**
+     * Hook de historial de búsquedas
+     * Proporciona funcionalidad para guardar y recuperar búsquedas recientes
+     */
+    const { history, addToHistory } = useSearchHistory({
+        enabled: showHistory
+    });
+
+    // ============================================================================
+    // ESTADO LOCAL
+    // ============================================================================
+
+    /**
+     * Estado para controlar la visualización del dropdown de historial
+     */
+    const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+
+    /**
+     * Referencia al contenedor del componente para detectar clics fuera
+     */
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // ============================================================================
+    // EFECTOS
+    // ============================================================================
+
+    /**
+     * Detectar clics fuera del componente para cerrar el dropdown
+     */
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setShowHistoryDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    /**
+     * Cerrar historial cuando el usuario empieza a escribir
+     */
+    useEffect(() => {
+        if (searchQuery && showHistoryDropdown) {
+            setShowHistoryDropdown(false);
+        }
+    }, [searchQuery, showHistoryDropdown]);
+
     // ============================================================================
     // MANEJADORES DE EVENTOS
     // ============================================================================
@@ -87,27 +148,65 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
         if (location.pathname === '/productos') {
             navigate('/productos', { replace: true });
         }
+
+        // Cerrar dropdown de historial
+        setShowHistoryDropdown(false);
     };
 
     /**
      * Manejar eventos de teclado en el campo de búsqueda
-     * Permite limpiar con Escape y navegar con Enter
-     * 
+     * Permite cerrar historial y limpiar con Escape, navegar con Enter
+     *
      * @param e - Evento de teclado del input
      */
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        // Permitir limpiar con Escape
-        if (e.key === 'Escape' && searchQuery) {
-            handleClear();
+        // Escape: primero cierra el historial, luego limpia la búsqueda
+        if (e.key === 'Escape') {
+            if (showHistoryDropdown) {
+                // Si el historial está abierto, solo cerrarlo
+                setShowHistoryDropdown(false);
+            } else if (searchQuery) {
+                // Si no hay historial abierto, limpiar búsqueda
+                handleClear();
+            }
         }
 
         // Redireccionar con Enter
         if (e.key === 'Enter' && searchQuery) {
+            // Agregar al historial si está habilitado
+            if (showHistory) {
+                addToHistory(searchQuery);
+            }
             // Usar la función del contexto global para navegación
             navigateToProducts();
             // Llamar al callback onSearch si existe
             onSearch?.();
+            // Cerrar dropdown de historial
+            setShowHistoryDropdown(false);
         }
+    };
+
+    /**
+     * Manejar el foco en el input
+     * Muestra el dropdown de historial si hay elementos
+     */
+    const handleFocus = () => {
+        if (showHistory && history.length > 0 && !searchQuery) {
+            setShowHistoryDropdown(true);
+        }
+    };
+
+    /**
+     * Manejar la selección de un elemento del historial
+     * Aplica la búsqueda seleccionada
+     *
+     * @param query - Búsqueda seleccionada del historial
+     */
+    const handleHistorySelect = (query: string) => {
+        setSearchQuery(query);
+        setShowHistoryDropdown(false);
+        navigateToProducts(query);
+        onSearch?.();
     };
 
     // ============================================================================
@@ -115,7 +214,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     // ============================================================================
 
     return (
-        <div className={`${styles.searchContainer} ${className}`}>
+        <div className={`${styles.searchContainer} ${className}`} ref={containerRef}>
             <div className={styles.searchInputGroup}>
                 {/* Campo de entrada principal */}
                 <input
@@ -123,17 +222,26 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onFocus={handleFocus}
                     placeholder={placeholder}
                     className={`${styles.searchInput} ${isSearching ? styles.searching : ''}`}
                     aria-label="Buscar productos, marcas y mas ..."
                 />
 
-                {/* Indicador de búsqueda activa */}
-                {isSearching && (
+                {/* Indicador de búsqueda activa o contador de resultados */}
+                {searchQuery && (
                     <div className={styles.searchIndicator}>
-                        <span className={`material-icons ${styles.searchIcon}`}>
-                            hourglass_empty
-                        </span>
+                        {isSearching ? (
+                            // Mientras busca, mostrar hourglass
+                            <span className={`material-icons ${styles.searchIcon}`}>
+                                hourglass_empty
+                            </span>
+                        ) : showResultCount && resultCount !== undefined ? (
+                            // Cuando termina de buscar, mostrar contador
+                            <span className={styles.resultCountBadge}>
+                                {resultCount}
+                            </span>
+                        ) : null}
                     </div>
                 )}
 
@@ -150,6 +258,28 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                     </button>
                 )}
             </div>
+
+            {/* Dropdown de historial de búsquedas */}
+            {showHistory && showHistoryDropdown && history.length > 0 && (
+                <div className={styles.historyDropdown}>
+                    <div className={styles.historyHeader}>
+                        <span className="material-icons">history</span>
+                        <span>Búsquedas recientes</span>
+                    </div>
+                    <ul className={styles.historyList}>
+                        {history.map((item, index) => (
+                            <li
+                                key={index}
+                                className={styles.historyItem}
+                                onClick={() => handleHistorySelect(item)}
+                            >
+                                <span className="material-icons">search</span>
+                                <span className={styles.historyText}>{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 };

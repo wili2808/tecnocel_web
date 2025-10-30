@@ -25,6 +25,7 @@ export { useFavoritosProductos } from './useFavoritosProductos';
 
 // Hooks de utilidad
 export { useEscapeKey } from './useEscapeKey';
+export { useSearchHistory } from './useSearchHistory';
 
 // Hooks de direcciones
 export { useDirecciones } from './useDirecciones'; 

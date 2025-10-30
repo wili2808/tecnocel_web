@@ -207,4 +207,15 @@
   .featureDescription {
     font-size: var(--font-size-xs);
   }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .specificationItem {
+    transition: none;
+  }
+
+  .specificationItem:hover {
+    transform: none;
+  }
 } 

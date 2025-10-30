@@ -114,10 +114,13 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     });
 
     /**
-     * Estado de búsqueda activa - para indicadores visuales
-     * Controla la visualización de spinners y estados de carga
+     * Estado de búsqueda activa - calculado dinámicamente
+     * Se considera activa cuando hay diferencia entre query actual y debounced
+     * Esto proporciona feedback visual preciso al usuario
      */
-    const [isSearching, setIsSearching] = useState<boolean>(false);
+    const isSearching = useMemo(() => {
+        return searchQuery !== debouncedSearchQuery && searchQuery.length > 0;
+    }, [searchQuery, debouncedSearchQuery]);
 
     // ============================================================================
     // FUNCIONES DEBOUNDED Y OPTIMIZADAS
@@ -131,7 +134,6 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     const debouncedUpdateSearch = useCallback(
         debounce((query: string) => {
             setDebouncedSearchQuery(query);
-            setIsSearching(false);
         }, 300),
         []
     );
@@ -153,23 +155,21 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
         if (searchFromUrl !== searchQuery) {
             setSearchQueryState(searchFromUrl);
             setDebouncedSearchQuery(searchFromUrl);
-            setIsSearching(false);
+            // isSearching se calculará automáticamente en el próximo render
         }
     }, [location.search]); // Solo depende de la URL, no del estado
 
     /**
      * Aplicar debounce a la búsqueda cuando el usuario escribe
-     * Controla el estado de búsqueda y aplica el delay para optimizar performance
+     * El estado isSearching se calcula automáticamente durante el delay
      */
     useEffect(() => {
         // Solo aplicar debounce si el query no está vacío
         if (searchQuery) {
-            setIsSearching(true);
             debouncedUpdateSearch(searchQuery);
         } else {
             // Si está vacío, actualizar inmediatamente
             setDebouncedSearchQuery('');
-            setIsSearching(false);
         }
     }, [searchQuery, debouncedUpdateSearch]);
 
@@ -190,11 +190,11 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     /**
      * Función para limpiar completamente la búsqueda
      * Resetea todos los estados relacionados con la búsqueda
+     * El estado isSearching se calculará automáticamente como false
      */
     const clearSearch = useCallback(() => {
         setSearchQueryState('');
         setDebouncedSearchQuery('');
-        setIsSearching(false);
     }, []);
 
     /**

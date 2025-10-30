@@ -50,13 +50,14 @@
   display: inline-flex;
   align-items: center;
   padding: var(--spacing-xs) var(--spacing-md);
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: var(--color-success-100);
   color: var(--color-success);
   border-radius: var(--border-radius-full);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   width: fit-content;
   animation: pulse 2s infinite;
+  border: var(--border-width-thin) solid rgba(var(--color-success-rgb), 0.2);
 }
 
 @keyframes pulse {
@@ -85,12 +86,12 @@
   display: inline-flex;
   align-items: center;
   padding: var(--spacing-xs) var(--spacing-sm);
-  background-color: rgba(245, 158, 11, 0.1);
+  background-color: var(--color-warning-100);
   color: var(--color-warning);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  border: var(--border-width-thin) solid rgba(var(--color-warning-rgb), 0.2);
 }
 
 .priceSection {
@@ -138,13 +139,15 @@
 }
 
 .inStock {
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: var(--color-success-100);
   color: var(--color-success);
+  border: var(--border-width-thin) solid rgba(var(--color-success-rgb), 0.2);
 }
 
 .outOfStock {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: var(--color-error-100);
   color: var(--color-error);
+  border: var(--border-width-thin) solid rgba(var(--color-error-rgb), 0.2);
 }
 
 .descriptionSection {
@@ -259,5 +262,12 @@
   .stockBadge {
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: var(--font-size-xs);
+  }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .discountBadge {
+    animation: none;
   }
 } 

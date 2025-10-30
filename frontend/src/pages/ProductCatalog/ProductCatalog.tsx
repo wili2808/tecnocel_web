@@ -38,7 +38,7 @@ const ProductCatalog: React.FC = () => {
     } = useProductActions();
 
     // ============================================================================
-    // CONTEXTO GLOBAL DE BÚSQUEDA - SINCRONIZACIÓN PRINCIPAL
+    // CONTEXTO GLOBAL DE BÚSQUEDA - PARA SINCRONIZACIÓN CON URL
     // ============================================================================
     const {
         debouncedSearchQuery, // ✅ Búsqueda global con debounce
@@ -55,21 +55,9 @@ const ProductCatalog: React.FC = () => {
     const { loadOfertas, ofertas } = useOfertasGlobal();
 
     // ============================================================================
-    // SINCRONIZACIÓN DE BÚSQUEDA - PRODUCTCONTEXT CON SEARCHCONTEXT
+    // NOTA: La sincronización entre SearchContext y ProductContext
+    // ahora se maneja globalmente con el componente SearchSync en App.tsx
     // ============================================================================
-    useEffect(() => {
-        // Sincronizar la búsqueda global con el contexto de productos
-        if (debouncedSearchQuery !== productSearchQuery) {
-            // Solo actualizar si son diferentes para evitar loops infinitos
-            if (debouncedSearchQuery) {
-                // Si hay búsqueda global, actualizar el contexto de productos
-                updateFilters({ busqueda: debouncedSearchQuery });
-            } else if (productSearchQuery) {
-                // Si se limpió la búsqueda global, limpiar también en productos
-                updateFilters({ busqueda: '' });
-            }
-        }
-    }, [debouncedSearchQuery, productSearchQuery, updateFilters]);
 
     // ============================================================================
     // CARGA CONTROLADA - SOLO UNA VEZ AL MONTAR - OPTIMIZADO
@@ -168,8 +156,10 @@ const ProductCatalog: React.FC = () => {
         // Construir nueva URL
         const newSearch = queryString ? `?${queryString}` : '';
 
-        // Solo actualizar si la URL cambió (evitar loops infinitos)
-        if (newSearch !== location.search) {
+        // Solo actualizar si la URL es realmente diferente (evitar loops infinitos)
+        // Normalizamos para comparación exacta
+        const currentSearch = location.search || '';
+        if (newSearch !== currentSearch) {
             navigate({ search: newSearch }, { replace: true });
 
             if (process.env.NODE_ENV === 'development') {
@@ -182,7 +172,7 @@ const ProductCatalog: React.FC = () => {
         filters.order,
         filters.solo_con_stock,
         debouncedSearchQuery,
-        location.search,
+        // Removido location.search de las dependencias para evitar loop
         navigate,
         urlFiltersApplied,
         hasInitialized

@@ -10,6 +10,8 @@ import logo from '../../../assets/tecnocel.svg';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useCarrito } from '../../../contexts/CarritoContext';
+import { useSearch } from '../../../contexts/SearchContext';
+import { useProductActions } from '../../../hooks/useProductActions';
 import ProductSearch from '../../product/ProductSearch';
 import IconButton from '../../common/IconButton';
 import navbarStyle from './Navbar.module.css';
@@ -42,6 +44,8 @@ const Navbar: React.FC = () => {
     const { user, isAuthenticated, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const { estado } = useCarrito();
+    const { debouncedSearchQuery, isSearching } = useSearch();
+    const { filteredProducts } = useProductActions();
 
     // ============================================================================
     // ESTADOS LOCALES
@@ -59,6 +63,29 @@ const Navbar: React.FC = () => {
     const cartItemCount = useMemo(() => {
         return estado?.items?.reduce((total, item) => total + item.cantidad, 0) || 0;
     }, [estado?.items]);
+
+    /**
+     * Contador de resultados de búsqueda - MEMOIZADO
+     * Funciona en todas las páginas gracias a SearchSync global
+     * Se oculta durante isSearching para evitar race conditions
+     */
+    const searchResultCount = useMemo(() => {
+        // No mostrar si no hay búsqueda activa
+        if (!debouncedSearchQuery) return undefined;
+
+        // CRÍTICO: No mostrar mientras está buscando (durante debounce de 300ms)
+        // Esto evita mostrar números incorrectos durante la sincronización
+        if (isSearching) return undefined;
+
+        // No mostrar si no hay productos filtrados disponibles
+        if (!filteredProducts || filteredProducts.length === 0) {
+            // Si hay búsqueda pero no productos, mostrar 0
+            return 0;
+        }
+
+        // Retornar el conteo de productos filtrados
+        return filteredProducts.length;
+    }, [debouncedSearchQuery, isSearching, filteredProducts]);
 
     // ============================================================================
     // MANEJADORES DE EVENTOS
@@ -298,16 +325,22 @@ const Navbar: React.FC = () => {
     /**
      * Componente de búsqueda global memoizado
      * Evita re-renders innecesarios del componente de búsqueda
+     * Incluye contador de resultados e historial de búsquedas
      */
-    const globalSearch = useMemo(() => (
-        <div className={navbarStyle.searchSection}>
-            <ProductSearch
-                placeholder="Buscar productos, marcas y mas ..."
-                showClearButton={true}
-                onSearch={() => handleLinkClick()}
-            />
-        </div>
-    ), [handleLinkClick]);
+    const globalSearch = useMemo(() => {
+        return (
+            <div className={navbarStyle.searchSection}>
+                <ProductSearch
+                    placeholder="Buscar productos, marcas y mas ..."
+                    showClearButton={true}
+                    showResultCount={true}
+                    showHistory={true}
+                    resultCount={searchResultCount}
+                    onSearch={() => handleLinkClick()}
+                />
+            </div>
+        );
+    }, [handleLinkClick, searchResultCount]);
 
     // ============================================================================
     // RENDERIZADO PRINCIPAL

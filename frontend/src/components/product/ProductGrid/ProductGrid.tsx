@@ -40,7 +40,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
         if (!filters) return allProducts;
 
         // Si hay búsqueda activa, usar productos ya filtrados del contexto
-        let baseProducts = filters.search.trim() ? filteredProducts : allProducts;
+        // Fallback a array vacío para evitar errores si filteredProducts es undefined
+        let baseProducts = filters.search.trim() ? (filteredProducts || []) : allProducts;
 
         // Aplicar filtros adicionales del frontend
         return filterProducts(baseProducts, filters);

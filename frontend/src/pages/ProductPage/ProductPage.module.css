@@ -231,13 +231,14 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: var(--color-error-100);
   color: var(--color-error);
   border-radius: var(--border-radius-full);
+  border: var(--border-width-thin) solid rgba(var(--color-error-rgb), 0.2);
 }
 
 .errorIcon .material-icons {
-  font-size: 40px;
+  font-size: var(--icon-size-3xl);
 }
 
 .errorTitle {
@@ -434,5 +435,29 @@
   .backButton {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .productContent,
+  .productMainSection,
+  .productDetailsSection,
+  .productCommentsSection {
+    animation: none;
+  }
+
+  .offerBadge {
+    animation: none;
+  }
+
+  .loadingSpinner {
+    animation: none;
+  }
+
+  .backButton:hover,
+  .primaryButton:hover,
+  .secondaryButton:hover {
+    transform: none;
   }
 } 

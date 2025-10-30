@@ -174,3 +174,14 @@
     font-size: 7px;
   }
 }
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .offerIndicator {
+    transition: none;
+  }
+
+  .offerIndicator:hover {
+    transform: rotate(-2deg);
+  }
+}

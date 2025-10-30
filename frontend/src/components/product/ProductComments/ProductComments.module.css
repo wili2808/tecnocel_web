@@ -219,3 +219,11 @@
         padding: var(--spacing-sm);
     }
 }
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .addCommentButton:hover:not(:disabled),
+  .pageButton:hover:not(:disabled) {
+    transform: none;
+  }
+}

@@ -203,3 +203,20 @@
     font-size: 9px;
   }
 }
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .cartIndicator {
+    animation: none;
+    transition: none;
+  }
+
+  .quantity,
+  .label {
+    transition: none;
+  }
+
+  .large:hover {
+    transform: none;
+  }
+}

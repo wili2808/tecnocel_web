@@ -1,117 +1,119 @@
-/* Comment Filters Styles */
+/* === FILTROS DE COMENTARIOS === */
 .commentFilters {
   background-color: var(--background-secondary);
-  border: 1px solid var(--border-color-light);
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: var(--border-width-thin) solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  transition: var(--theme-transition);
 }
 
 .filtersHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .totalCount {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #6b7280;
-  font-size: 14px;
-  font-weight: 500;
+  gap: var(--spacing-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .totalCount .material-icons {
-  font-size: 18px;
+  font-size: var(--icon-size-md);
   color: var(--text-secondary);
 }
 
 .orderSection {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .orderLabel {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
   color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   margin: 0;
   cursor: default;
 }
 
 .orderLabel .material-icons {
-  font-size: 18px;
-  color: #6b7280;
+  font-size: var(--icon-size-md);
+  color: var(--text-secondary);
 }
 
 .orderOptions {
   display: flex;
-  gap: 4px;
-  border: 1px solid var(--border-color-light);
-  border-radius: 6px;
+  gap: var(--spacing-xs);
+  border: var(--border-width-thin) solid var(--border-color-light);
+  border-radius: var(--border-radius-sm);
   padding: 2px;
+  background: var(--background-primary);
 }
 
 .orderButton {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-xs);
   color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
-.orderButton:hover {
+.orderButton:hover:not(.active) {
   background: var(--background-elevated);
   color: var(--text-primary);
 }
 
 .orderButton.active {
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.3);
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
 }
 
 .orderButton .material-icons {
-  font-size: 16px;
+  font-size: var(--icon-size-sm);
 }
 
 .orderText {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .separator {
   width: 100%;
-  height: 1px;
-  background: #e5e7eb;
-  margin-top: 16px;
+  height: var(--border-width-thin);
+  background: var(--border-color-light);
+  margin-top: var(--spacing-md);
 }
 
-/* Responsive Design */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .filtersHeader {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: var(--spacing-sm);
   }
 
   .orderSection {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: var(--spacing-xs);
   }
 
   .orderLabel {
@@ -121,12 +123,12 @@
   .orderOptions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px;
+    gap: var(--spacing-xs);
   }
 
   .orderButton {
     justify-content: center;
-    padding: 8px 12px;
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 
   .orderText {
@@ -134,45 +136,45 @@
   }
 
   .orderButton .material-icons {
-    font-size: 18px;
+    font-size: var(--icon-size-md);
   }
 }
 
 @media (max-width: 480px) {
   .commentFilters {
-    padding: 12px;
-    margin-bottom: 12px;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
   }
 
   .totalCount {
     justify-content: center;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .orderButton {
-    padding: 6px 8px;
+    padding: var(--spacing-xs);
   }
 
   .orderButton .material-icons {
-    font-size: 16px;
+    font-size: var(--icon-size-sm);
   }
 }
 
-/* Estados de interacción */
-.orderButton:focus {
-  outline: 2px solid #93c5fd;
+/* === ESTADOS DE INTERACCIÓN === */
+.orderButton:focus-visible {
+  outline: 2px solid var(--color-primary-300);
   outline-offset: 2px;
 }
 
-.orderButton:active {
+.orderButton:active:not(.active) {
   transform: translateY(1px);
 }
 
 .orderButton.active:hover {
-  background: #1d4ed8;
+  background: var(--color-primary-dark);
 }
 
-/* Animaciones */
+/* === ANIMACIONES === */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -185,42 +187,21 @@
 }
 
 .commentFilters {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn var(--animation-duration-normal) ease-out;
 }
 
-/* Modo oscuro */
-@media (prefers-color-scheme: dark) {
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
   .commentFilters {
-    border-color: #374151;
+    animation: none;
   }
 
-  .totalCount {
-    color: #9ca3af;
-  }
-
-  .totalCount .material-icons {
-    color: #6b7280;
-  }
-
+  .orderButton,
   .orderOptions {
-    border-color: #374151;
+    transition: none;
   }
 
-  .orderButton {
-    color: #9ca3af;
-  }
-
-  .orderButton:hover {
-    background: #374151;
-    color: #e5e7eb;
-  }
-
-  .orderButton.active {
-    background: #2563eb;
-    color: #ffffff;
-  }
-
-  .separator {
-    background: #374151;
+  .orderButton:active {
+    transform: none;
   }
 }
