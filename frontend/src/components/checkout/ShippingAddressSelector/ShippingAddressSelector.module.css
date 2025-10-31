@@ -1,0 +1,351 @@
+/* === CONTENEDOR PRINCIPAL === */
+.container {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color-light);
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* === HEADER === */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.title .material-icons {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+}
+
+.btnAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--theme-transition);
+}
+
+.btnAdd:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.btnAdd .material-icons {
+  font-size: 18px;
+}
+
+/* === LOADING === */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  gap: var(--spacing-md);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color-light);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* === ESTADO VACÍO === */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  text-align: center;
+  background: var(--background-primary);
+  border-radius: var(--border-radius-md);
+  border: 1px dashed var(--border-color-light);
+}
+
+.emptyState .material-icons {
+  font-size: var(--icon-size-4xl);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-md);
+}
+
+.emptyState p {
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.emptySubtext {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--theme-transition);
+  box-shadow: var(--shadow-button-primary);
+}
+
+.btnPrimary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.btnPrimary .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+/* === LISTA DE DIRECCIONES === */
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* === TARJETA DE DIRECCIÓN === */
+.addressCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--background-primary);
+  border: 2px solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--theme-transition);
+  position: relative;
+}
+
+.addressCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.addressCard.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-25);
+}
+
+/* === RADIO BUTTON (oculto visualmente) === */
+.radio {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* === CONTENIDO DE LA DIRECCIÓN === */
+.addressContent {
+  flex: 1;
+}
+
+.addressHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.addressHeader strong {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--color-primary-100);
+  color: var(--color-primary);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.addressDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.addressDetails p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.reference,
+.phone {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.reference .material-icons,
+.phone .material-icons {
+  font-size: 14px;
+}
+
+/* === ÍCONO DE CHECK (seleccionado) === */
+.checkIcon {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* === MENSAJE DE ERROR === */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  background: var(--color-error-100);
+  border: 1px solid rgba(var(--color-error-rgb), 0.2);
+  border-radius: var(--border-radius-md);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+.errorMessage .material-icons {
+  font-size: var(--icon-size-lg);
+  flex-shrink: 0;
+}
+
+/* === ANIMACIÓN === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .btnAdd {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+
+  .addressCard {
+    padding: var(--spacing-md);
+  }
+
+  .emptyState {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .addressList {
+    gap: var(--spacing-sm);
+  }
+
+  .addressCard {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .checkIcon {
+    font-size: var(--icon-size-lg);
+  }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    animation: none;
+  }
+
+  .addressCard {
+    transition: none;
+  }
+
+  .addressCard:hover {
+    transform: none;
+  }
+
+  .btnPrimary,
+  .btnAdd {
+    transition: none;
+  }
+
+  .btnPrimary:hover,
+  .btnAdd:hover {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}

@@ -1,0 +1,220 @@
+/* === CONTENEDOR PRINCIPAL === */
+.container {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color-light);
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* === TÍTULO === */
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.title .material-icons {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+}
+
+/* === TARJETA DE INFORMACIÓN === */
+.infoCard {
+  background: var(--background-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color-light);
+}
+
+.infoHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.storeIcon {
+  font-size: var(--icon-size-3xl);
+  color: var(--color-primary);
+}
+
+.storeName {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* === DETALLES === */
+.infoDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.infoRow {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+.infoRow .material-icons {
+  font-size: var(--icon-size-lg);
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.infoRow div {
+  flex: 1;
+}
+
+.infoRow strong {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.infoRow p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* === BOTÓN DE MAPA === */
+.mapButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: var(--theme-transition);
+  width: fit-content;
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-button-primary);
+}
+
+.mapButton:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.mapButton .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+/* === ALERTA INFORMATIVA === */
+.alert {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-info-100);
+  border: 1px solid rgba(var(--color-info-rgb), 0.2);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+}
+
+.alert .material-icons {
+  font-size: var(--icon-size-lg);
+  color: var(--color-info);
+  flex-shrink: 0;
+}
+
+.alert p {
+  font-size: var(--font-size-sm);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* === ANIMACIÓN === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+
+  .infoCard {
+    padding: var(--spacing-md);
+  }
+
+  .infoHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .storeIcon {
+    font-size: var(--icon-size-2xl);
+  }
+
+  .mapButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .infoDetails {
+    gap: var(--spacing-sm);
+  }
+
+  .infoRow {
+    gap: var(--spacing-sm);
+  }
+
+  .alert {
+    flex-direction: column;
+    padding: var(--spacing-sm);
+  }
+
+  .alert .material-icons {
+    margin-bottom: var(--spacing-xs);
+  }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    animation: none;
+  }
+
+  .mapButton {
+    transition: none;
+  }
+
+  .mapButton:hover {
+    transform: none;
+  }
+}

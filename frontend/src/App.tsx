@@ -23,6 +23,8 @@ const Login = lazy(() => import('./pages/Auth/Login'));
 const Register = lazy(() => import('./pages/Auth/Register'));
 const UserPanel = lazy(() => import('./pages/UserPanel'));
 const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
 const Offers = lazy(() => import('./pages/Offers/Offers'));
 const Brands = lazy(() => import('./pages/Brands/Brands'));
 const Contacto = lazy(() => import('./pages/Contacto'));
@@ -74,6 +76,8 @@ function App() {
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/panel" element={<UserPanel />} />
                                 <Route path="/carrito" element={<Cart />} />
+                                <Route path="/checkout" element={<Checkout />} />
+                                <Route path="/order-confirmation/:id_venta" element={<OrderConfirmation />} />
                                 <Route path="/ofertas" element={<Offers />} />
                                 <Route path="/marcas" element={<Brands />} />
                                 <Route path="/contacto" element={<Contacto />} />

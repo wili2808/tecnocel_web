@@ -1,0 +1,214 @@
+/* === CONTENEDOR PRINCIPAL === */
+.container {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color-light);
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* === TÍTULO === */
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.title .material-icons {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+}
+
+/* === LISTA DE OPCIONES === */
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* === TARJETA DE OPCIÓN === */
+.optionCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--background-primary);
+  border: 2px solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--theme-transition);
+  position: relative;
+}
+
+.optionCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.optionCard.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-25);
+}
+
+/* === RADIO BUTTON (oculto visualmente) === */
+.radio {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* === CONTENIDO DE LA OPCIÓN === */
+.optionContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.optionHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.optionIcon {
+  font-size: var(--icon-size-3xl);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.optionInfo {
+  flex: 1;
+}
+
+.optionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.optionDescription {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* === BADGE DE LA OPCIÓN === */
+.optionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-success-100);
+  color: var(--color-success);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  width: fit-content;
+}
+
+.optionBadge .material-icons {
+  font-size: 16px;
+}
+
+/* === ÍCONO DE CHECK (seleccionado) === */
+.checkIcon {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* === ANIMACIÓN === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+
+  .optionCard {
+    padding: var(--spacing-md);
+  }
+
+  .optionHeader {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .optionIcon {
+    font-size: var(--icon-size-2xl);
+  }
+
+  .optionTitle {
+    font-size: var(--font-size-md);
+  }
+
+  .optionDescription {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .optionsList {
+    gap: var(--spacing-sm);
+  }
+
+  .optionCard {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .optionHeader {
+    gap: var(--spacing-sm);
+  }
+
+  .optionIcon {
+    font-size: var(--icon-size-xl);
+  }
+
+  .optionBadge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .checkIcon {
+    font-size: var(--icon-size-lg);
+  }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    animation: none;
+  }
+
+  .optionCard {
+    transition: none;
+  }
+
+  .optionCard:hover {
+    transform: none;
+  }
+}

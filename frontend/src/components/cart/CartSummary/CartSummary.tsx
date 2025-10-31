@@ -4,10 +4,9 @@
  * Incluye funcionalidades para procesar compra y mostrar beneficios
  * Utiliza CarritoContext para confirmar compra y navegación
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
-import PriceChangeAlert from '../PriceChangeAlert/PriceChangeAlert';
 import styles from './CartSummary.module.css';
 import type { ItemCarritoCompleto } from '../../../types/carrito';
 
@@ -21,9 +20,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
     // HOOKS DE NAVEGACIÓN Y CONTEXTO
     // ============================================================================
     const navigate = useNavigate();
-    const { estado, confirmarCompra } = useCarrito();
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [mostrarAlertaPrecio, setMostrarAlertaPrecio] = useState(false);
+    const { estado } = useCarrito();
 
     // ============================================================================
     // CÁLCULOS DE PRECIOS Y DESCUENTOS
@@ -95,74 +92,19 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
     // ============================================================================
 
     /**
-     * Procesar la compra del carrito completo
-     * Confirma la venta y redirige al usuario al inicio
-     * ✅ FASE 2: Detecta cambios de precio y muestra alerta
+     * Redirigir a la página de checkout
+     * Ya no confirma la compra directamente desde aquí
      */
-    const handleContinuePurchase = async () => {
+    const handleContinuePurchase = () => {
         if (items.length === 0) {
             alert('No hay productos en el carrito');
             return;
         }
 
-        setIsProcessing(true);
-        try {
-            const venta = await confirmarCompra({
-                observaciones: 'Compra realizada desde la web',
-                moneda: 'BOB'
-            });
-
-            // Mostrar mensaje de éxito y redirigir
-            alert(`¡Compra realizada exitosamente! Número de venta: ${venta.nro_venta}`);
-            navigate('/'); // Redirigir al inicio
-        } catch (error: any) {
-            console.error('Error al procesar la compra:', error);
-
-            // ✅ MANEJAR ERROR DE CAMBIO DE PRECIO (Fase 2)
-            if (error.response?.data?.codigo === 'PRECIOS_CAMBIARON') {
-                // Mostrar alerta de cambio de precio
-                setMostrarAlertaPrecio(true);
-            } else {
-                alert(error.message || 'Error al procesar la compra. Intente nuevamente.');
-            }
-        } finally {
-            setIsProcessing(false);
-        }
+        // Redirigir a checkout
+        navigate('/checkout');
     };
 
-    /**
-     * Aceptar cambios de precio y continuar con la compra
-     * ✅ FASE 2: Confirma compra con flag aceptar_cambio_precio
-     */
-    const handleAceptarCambioPrecio = async () => {
-        setMostrarAlertaPrecio(false);
-        setIsProcessing(true);
-
-        try {
-            const venta = await confirmarCompra({
-                observaciones: 'Compra realizada desde la web',
-                moneda: 'BOB',
-                aceptar_cambio_precio: true  // ✅ Aceptar precios actualizados
-            });
-
-            // Mostrar mensaje de éxito y redirigir
-            alert(`¡Compra realizada exitosamente! Número de venta: ${venta.nro_venta}`);
-            navigate('/');
-        } catch (error: any) {
-            console.error('Error al procesar la compra:', error);
-            alert(error.message || 'Error al procesar la compra. Intente nuevamente.');
-        } finally {
-            setIsProcessing(false);
-        }
-    };
-
-    /**
-     * Cancelar alerta de cambio de precio
-     * Cierra la alerta sin procesar la compra
-     */
-    const handleCancelarCambioPrecio = () => {
-        setMostrarAlertaPrecio(false);
-    };
 
     // ============================================================================
     // RENDERIZADO
@@ -240,19 +182,10 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
                 <div className={styles.checkoutSection}>
                     <button
                         onClick={handleContinuePurchase}
-                        disabled={isProcessing || totalFinal === 0}
+                        disabled={totalFinal === 0}
                         className={styles.checkoutButton}
                     >
-                        {isProcessing ? (
-                            <>
-                                <div className={styles.spinner}></div>
-                                Procesando...
-                            </>
-                        ) : totalFinal === 0 ? (
-                            'No hay productos disponibles'
-                        ) : (
-                            'Continuar compra'
-                        )}
+                        {totalFinal === 0 ? 'No hay productos disponibles' : 'Continuar compra'}
                     </button>
                 </div>
 
@@ -284,17 +217,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
                 </div>
             </div>
 
-            {/* ✅ ALERTA DE CAMBIO DE PRECIO (Fase 2) */}
-            {mostrarAlertaPrecio && estado.items_con_cambio_precio && estado.items_con_cambio_precio.length > 0 && (
-                <div className={styles.priceAlertOverlay}>
-                    <PriceChangeAlert
-                        itemsConCambio={estado.items_con_cambio_precio}
-                        diferencia_total={estado.diferencia_total || 0}
-                        onAceptar={handleAceptarCambioPrecio}
-                        onCancelar={handleCancelarCambioPrecio}
-                    />
-                </div>
-            )}
         </div>
     );
 };

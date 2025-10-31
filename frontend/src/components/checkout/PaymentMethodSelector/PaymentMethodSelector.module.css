@@ -1,0 +1,183 @@
+/* === CONTENEDOR PRINCIPAL === */
+.container {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color-light);
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.title .material-icons {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+}
+
+.methodList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.methodCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--background-primary);
+  border: 2px solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--theme-transition);
+  position: relative;
+}
+
+.methodCard:not(.disabled):hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.methodCard.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-25);
+}
+
+.methodCard.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.methodContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.methodIcon {
+  font-size: var(--icon-size-3xl);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.methodInfo {
+  flex: 1;
+}
+
+.methodInfo strong {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.methodInfo p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.checkIcon {
+  font-size: var(--icon-size-xl);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.comingSoon {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-warning-100);
+  color: var(--color-warning);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  background: var(--color-error-100);
+  border: 1px solid rgba(var(--color-error-rgb), 0.2);
+  border-radius: var(--border-radius-md);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+.errorMessage .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+
+  .methodCard {
+    padding: var(--spacing-md);
+  }
+
+  .methodIcon {
+    font-size: var(--icon-size-2xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .methodCard {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .methodContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    animation: none;
+  }
+
+  .methodCard {
+    transition: none;
+  }
+
+  .methodCard:hover {
+    transform: none;
+  }
+}

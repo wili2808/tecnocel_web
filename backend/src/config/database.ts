@@ -4,6 +4,7 @@
  */
 
 import { Sequelize } from 'sequelize';
+import fs from 'fs';
 import logger from '../services/loggerService.js';
 import { config } from './config.js';
 
@@ -18,12 +19,35 @@ const sequelize = new Sequelize({
   host: config.database.host,
   port: config.database.port,
   dialect: 'mysql' as const,
+  
+  /*
   // Configuración de logging para desarrollo
   logging: (msg) => {
     if (config.server.env === 'development' && process.env.SEQUELIZE_DEBUG === 'true') {
       logger.debug(`[Sequelize] ${msg}`);
     }
   },
+  */
+
+
+  
+  // Configuración SSL para Aiven
+  dialectOptions: {
+    ssl: process.env.DB_SSL === 'true' ? {
+      rejectUnauthorized: true,
+      ca: process.env.DB_SSL_CA_PATH ?
+          fs.readFileSync(process.env.DB_SSL_CA_PATH, 'utf-8') :
+          undefined
+    } : undefined
+  },
+  logging: (msg) => {
+    if (config.server.env === 'development' && process.env.SEQUELIZE_DEBUG === 'true') {
+      logger.debug(`[Sequelize] ${msg}`);
+    }
+  },
+
+
+
   // Configuración del pool de conexiones
   pool: {
     max: 5,        // Máximo número de conexiones
@@ -126,13 +150,15 @@ export const initDatabase = async () => {
       port: config.database.port,
       database: config.database.name
     });
-    
-    // Sincronizar modelos con la base de datos
-    await sequelize.sync();
-    logger.info('Modelos sincronizados con la base de datos');
-    
-    // Crear datos iniciales si es necesario
-    await createInitialData();
+
+    // NOTA: No sincronizamos modelos porque la base de datos ya fue importada desde SQL
+    // await sequelize.sync();
+    // logger.info('Modelos sincronizados con la base de datos');
+
+    // NOTA: No creamos datos iniciales porque ya existen en la BD importada
+    // await createInitialData();
+
+    logger.info('Base de datos lista para usar (esquema ya importado)');
   } catch (error) {
     logger.error('Error al inicializar la base de datos:', error);
     process.exit(1);

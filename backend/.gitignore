@@ -17,6 +17,7 @@ build/
 # Variables de entorno
 .env
 .env.local
+.env.aiven
 .env.development.local
 .env.test.local
 .env.production.local
