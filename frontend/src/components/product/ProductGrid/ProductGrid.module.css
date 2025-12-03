@@ -10,12 +10,27 @@
   border-radius: var(--border-radius-md) 0 0 var(--border-radius-md);
   box-sizing: border-box;
   animation: fadeInUp var(--animation-duration-normal) ease-out var(--animation-delay-short) forwards;
-  opacity: 0;
-  
+
+  /* Optimizaciones de renderizado y aceleración por hardware */
+  /* Crear un nuevo layer de composición para evitar esperar a los hijos */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  /* Aislar el renderizado del contenedor de sus hijos */
+  contain: layout style paint;
+  /* Indicar al navegador que background-color cambiará (optimización GPU) */
+  will-change: background-color;
+
+  /* Transiciones de tema sincronizadas - background más rápido para compensar el layout thrashing */
+  transition: color var(--transition-normal) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-normal) var(--transition-curve),
+              box-shadow var(--transition-normal) var(--transition-curve);
+
   /* Personalización de scrollbar */
   overflow-y: auto;
   overscroll-behavior: contain;
-  
+
   /* Scrollbar para Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary) var(--background-light);
@@ -32,14 +47,19 @@
   box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
+  /* Transiciones para cambio de tema suave */
+  transition: background-color var(--transition-normal) var(--transition-curve),
+              border-color var(--transition-normal) var(--transition-curve);
 }
 
 .productsGrid::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   opacity: 0.6;
-  transition: all var(--transition-normal) var(--transition-curve);
   box-shadow: var(--shadow-xs);
   border-radius: var(--border-radius-md);
+  /* Transiciones para cambio de tema suave */
+  transition: background-color var(--transition-normal) var(--transition-curve),
+              opacity var(--transition-fast) var(--transition-curve);
 }
 
 .productsGrid::-webkit-scrollbar-thumb:hover {

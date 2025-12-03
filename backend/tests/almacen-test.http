@@ -1,0 +1,326 @@
+### ==========================================
+### VARIABLES GLOBALES
+### ==========================================
+@baseUrl = http://localhost:3000/api/almacen
+@usuarioUrl = http://localhost:3000/api/usuarios
+@clienteUrl = http://localhost:3000/api/clientes
+
+# Opción 1: Reemplaza este token manualmente después de hacer login
+@token = YOUR_TOKEN_HERE
+
+# Opción 2: Usa el token dinámico de la respuesta del login
+# @token = {{loginUsuario.response.body.token}}
+
+
+### ==========================================
+### IMPORTANTE: TIPOS DE AUTENTICACIÓN
+### ==========================================
+#
+# Este proyecto tiene 2 sistemas de autenticación separados:
+#
+# 1. USUARIOS DEL SISTEMA (Admin/Empleados):
+#    - Login en: /api/usuarios/login
+#    - Middleware: verificarToken
+#    - Body login: { "email", "contrasena" }
+#    - Roles: 1 = Admin, 2 = Empleado
+#    - Uso: Gestión de productos, ventas, administración
+#
+# 2. CLIENTES (Usuarios de la tienda web):
+#    - Login en: /api/clientes/login
+#    - Middleware: verificarTokenCliente
+#    - Body login: { "email", "password" }
+#    - Uso: Carrito, compras, favoritos, perfil
+#
+# ⚠️ PARA GESTIONAR PRODUCTOS (AlmacenController):
+# Necesitas un token de USUARIO (admin/empleado), NO de cliente
+#
+### ==========================================
+
+
+### ==========================================
+### AUTENTICACIÓN - USUARIOS DEL SISTEMA
+### ==========================================
+
+### Login de Usuario (Admin/Empleado) para gestionar productos
+# @name loginUsuario
+POST {{usuarioUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@tecnocel.com",
+  "contrasena": "admin123"
+}
+
+### Respuesta esperada:
+# {
+#   "token": "eyJhbGciOiJIUzI1NiIs...",
+#   "usuario": {
+#     "id_usuario": 1,
+#     "nombres": "Administrador",
+#     "email": "admin@tecnocel.com",
+#     "id_rol": 1
+#   }
+# }
+#
+# 📋 PASOS PARA USAR EL TOKEN:
+# 1. Copia el valor de "token" de la respuesta
+# 2. Pégalo en la variable @token arriba (línea 8)
+# 3. O descomenta la línea 11 para usar el token automáticamente
+
+
+### ==========================================
+### AUTENTICACIÓN - CLIENTES (solo referencia)
+### ==========================================
+
+### Login de Cliente (para referencia, NO se usa en AlmacenController)
+# @name loginCliente
+POST {{clienteUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "cliente@ejemplo.com",
+  "password": "password123"
+}
+
+### NOTA: Este token NO funciona para gestionar productos
+# Los endpoints de almacén requieren token de USUARIO, no de CLIENTE
+
+
+### ==========================================
+### ENDPOINTS PÚBLICOS (no requieren token)
+### ==========================================
+
+### 1. Diagnóstico del sistema (útil para debug)
+GET {{baseUrl}}/diagnostico
+
+
+### 2. Obtener todos los productos
+GET {{baseUrl}}/productos
+
+
+### 3. Obtener productos destacados (default: 6)
+GET {{baseUrl}}/productos/destacados
+
+
+### 4. Obtener productos destacados con límite personalizado
+GET {{baseUrl}}/productos/destacados?limit=10
+
+
+### 5. Obtener producto específico por ID
+# Cambia el ID según tus datos
+GET {{baseUrl}}/productos/1
+
+
+### 6. Buscar productos por término
+# NOTA: Si esta ruta no funciona, revisa el orden en almacenRoutes.ts
+GET {{baseUrl}}/productos/buscar?termino=samsung
+
+
+### 7. Buscar productos con término diferente
+GET {{baseUrl}}/productos/buscar?termino=iphone
+
+
+### 8. Obtener productos por categoría
+# Cambia el ID de categoría según tus datos
+GET {{baseUrl}}/productos/categoria/1
+
+
+### 9. Obtener todas las categorías disponibles
+GET {{baseUrl}}/categorias
+
+
+### ==========================================
+### ENDPOINTS PROTEGIDOS (requieren token JWT)
+### ==========================================
+
+### 10. Crear nuevo producto (básico)
+POST {{baseUrl}}/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Samsung Galaxy S23",
+  "codigo": "SGS23",
+  "descripcion": "Último modelo de Samsung con procesador Snapdragon",
+  "precio_compra": 700,
+  "precio_venta": 899,
+  "stock": 20,
+  "id_categoria": 1,
+  "id_marca": 2
+}
+
+
+### 11. Crear producto con imágenes
+POST {{baseUrl}}/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "iPhone 15 Pro",
+  "codigo": "IPH15PRO",
+  "descripcion": "iPhone 15 Pro con chip A17 Pro y titanio",
+  "precio_compra": 900,
+  "precio_venta": 1199,
+  "stock": 15,
+  "id_categoria": 1,
+  "id_marca": 1,
+  "es_destacado": true,
+  "orden_destacado": 1,
+  "imagenes": [
+    {
+      "url_imagen": "iphone15pro-frontal.jpg",
+      "alt_text": "iPhone 15 Pro vista frontal"
+    },
+    {
+      "url_imagen": "iphone15pro-trasera.jpg",
+      "alt_text": "iPhone 15 Pro vista trasera"
+    },
+    {
+      "url_imagen": "iphone15pro-lateral.jpg",
+      "alt_text": "iPhone 15 Pro vista lateral"
+    }
+  ]
+}
+
+
+### 12. Actualizar producto completo
+# Cambia el ID según el producto que creaste
+PUT {{baseUrl}}/productos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "iPhone 15 Pro Max",
+  "descripcion": "iPhone 15 Pro Max con pantalla más grande",
+  "precio_venta": 1299,
+  "stock": 25,
+  "es_destacado": true,
+  "orden_destacado": 1
+}
+
+
+### 13. Actualizar producto con nuevas imágenes
+PUT {{baseUrl}}/productos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "iPhone 15 Pro Max Actualizado",
+  "precio_venta": 1399,
+  "imagenes": [
+    {
+      "url_imagen": "iphone15pro-nueva1.jpg",
+      "alt_text": "Nueva imagen principal"
+    },
+    {
+      "url_imagen": "iphone15pro-nueva2.jpg",
+      "alt_text": "Nueva imagen secundaria"
+    }
+  ]
+}
+
+
+### 14. Actualizar solo el stock (más rápido que PUT)
+PATCH {{baseUrl}}/productos/1/stock
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stock": 100
+}
+
+
+### 15. Reducir stock (simular venta)
+PATCH {{baseUrl}}/productos/1/stock
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stock": 5
+}
+
+
+### 16. Eliminar producto
+# ⚠️ CUIDADO: Esta operación es irreversible
+DELETE {{baseUrl}}/productos/1
+Authorization: Bearer {{token}}
+
+
+### ==========================================
+### PRUEBAS DE VALIDACIÓN Y ERRORES
+### ==========================================
+
+### 17. Intentar crear producto sin token (debe fallar con 401)
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto Sin Auth",
+  "precio_venta": 100
+}
+
+
+### 18. Buscar con término vacío (debe fallar con 400)
+GET {{baseUrl}}/productos/buscar
+
+
+### 19. Obtener producto inexistente (debe fallar con 404)
+GET {{baseUrl}}/productos/99999
+
+
+### 20. Actualizar producto inexistente (debe fallar con 404)
+PUT {{baseUrl}}/productos/99999
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Producto Inexistente"
+}
+
+
+### ==========================================
+### FLUJO COMPLETO DE PRUEBA
+### ==========================================
+
+### PASO 1: Crear categoría nueva (si tienes el endpoint)
+# POST {{baseUrl}}/categorias
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# {
+#   "nombre_categoria": "Laptops Gaming"
+# }
+
+### PASO 2: Crear producto
+# @name nuevoProducto
+POST {{baseUrl}}/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Laptop ASUS ROG",
+  "codigo": "ASUSROG01",
+  "descripcion": "Laptop gaming de alta gama",
+  "precio_compra": 1200,
+  "precio_venta": 1599,
+  "stock": 10,
+  "id_categoria": 1,
+  "id_marca": 3,
+  "es_destacado": true,
+  "orden_destacado": 2
+}
+
+### PASO 3: Verificar que se creó (usa el ID de la respuesta anterior)
+GET {{baseUrl}}/productos/{{nuevoProducto.response.body.id_producto}}
+
+### PASO 4: Actualizar stock después de una "venta"
+PATCH {{baseUrl}}/productos/{{nuevoProducto.response.body.id_producto}}/stock
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stock": 9
+}
+
+### PASO 5: Verificar actualización
+GET {{baseUrl}}/productos/{{nuevoProducto.response.body.id_producto}}

@@ -4,8 +4,10 @@
  * Este script genera datos realistas de productos electrónicos modernos
  * basados en el mercado boliviano 2025.
  *
+ * PRECIOS EN DÓLARES (USD)
+ *
  * Requisitos:
- * - Base de datos db_tecnocel_v5 creada
+ * - Base de datos db_tecnocel_v6 creada
  * - Variables de entorno configuradas
  * - Usuario admin creado (id_usuario = 1)
  *
@@ -36,6 +38,51 @@ const dbConfig = {
 };
 
 // ===================================
+// CATEGORÍAS SIMPLIFICADAS
+// ===================================
+
+const categorias = [
+  { id: 1, nombre: 'Smartphones', descripcion: 'Teléfonos inteligentes de todas las marcas' },
+  { id: 2, nombre: 'Laptops', descripcion: 'Computadoras portátiles gaming y profesionales' },
+  { id: 3, nombre: 'Tablets', descripcion: 'Tablets iPad y Android' },
+  { id: 4, nombre: 'Smartwatches', descripcion: 'Relojes inteligentes' },
+  { id: 5, nombre: 'Auriculares', descripcion: 'Auriculares inalámbricos y con cable' },
+  { id: 6, nombre: 'Parlantes', descripcion: 'Altavoces portátiles y de escritorio' },
+  { id: 7, nombre: 'Consolas', descripcion: 'Consolas de videojuegos' },
+  { id: 8, nombre: 'Accesorios Gaming', descripcion: 'Controles y accesorios para gaming' },
+  { id: 9, nombre: 'Cargadores', descripcion: 'Cargadores y cables' },
+  { id: 10, nombre: 'Fundas y Protectores', descripcion: 'Fundas y protectores para dispositivos' },
+  { id: 11, nombre: 'Smart Bands', descripcion: 'Pulseras inteligentes fitness' }
+];
+
+// ===================================
+// MARCAS
+// ===================================
+
+const marcas = [
+  { id: 1, nombre: 'Samsung', logo: 'samsung.png', descripcion: 'Marca líder en smartphones y tecnología' },
+  { id: 2, nombre: 'Apple', logo: 'apple.png', descripcion: 'iPhone, iPad, MacBook y productos premium' },
+  { id: 3, nombre: 'Xiaomi', logo: 'xiaomi.png', descripcion: 'Smartphones con excelente relación precio-calidad' },
+  { id: 4, nombre: 'Motorola', logo: 'motorola.png', descripcion: 'Smartphones duraderos y confiables' },
+  { id: 5, nombre: 'Infinix', logo: null, descripcion: 'Smartphones accesibles con buenas prestaciones' },
+  { id: 6, nombre: 'Honor', logo: null, descripcion: 'Smartphones elegantes y potentes' },
+  { id: 7, nombre: 'Realme', logo: 'realme.png', descripcion: 'Smartphones jóvenes e innovadores' },
+  { id: 8, nombre: 'JBL', logo: 'jbl.png', descripcion: 'Altavoces y auriculares de alta calidad' },
+  { id: 9, nombre: 'Sony', logo: 'sony.png', descripcion: 'Audio profesional y consumer' },
+  { id: 10, nombre: 'Gamesir', logo: null, descripcion: 'Controles y accesorios gaming' },
+  { id: 11, nombre: 'PlayStation', logo: 'play-station.png', descripcion: 'Consolas y juegos Sony' },
+  { id: 12, nombre: 'Xbox', logo: 'xbox.png', descripcion: 'Consolas y juegos Microsoft' },
+  { id: 13, nombre: 'Nintendo', logo: 'nintendo.png', descripcion: 'Consolas portátiles y juegos' },
+  { id: 14, nombre: 'HP', logo: 'hp.png', descripcion: 'Computadoras y laptops empresariales' },
+  { id: 15, nombre: 'Asus', logo: 'asus.png', descripcion: 'Laptops gaming y profesionales' },
+  { id: 16, nombre: 'Dell', logo: 'dell.png', descripcion: 'Laptops y computadoras profesionales' },
+  { id: 17, nombre: 'Lenovo', logo: 'lenovo.png', descripcion: 'ThinkPad y laptops empresariales' },
+  { id: 18, nombre: 'Acer', logo: 'acer.png', descripcion: 'Laptops gaming y multimedia' },
+  { id: 19, nombre: 'MSI', logo: 'msi.png', descripcion: 'Laptops gaming de alto rendimiento' },
+  { id: 20, nombre: 'Razer', logo: 'razer.png', descripcion: 'Periféricos y laptops gaming premium' }
+];
+
+// ===================================
 // CATÁLOGO DE PRODUCTOS MODERNOS 2025
 // ===================================
 
@@ -49,12 +96,12 @@ const catalogoProductos = {
       nombre: 'iPhone 16 Pro Max 256GB Titanio Natural',
       modelo: 'iPhone 16 Pro Max',
       descripcion: 'El iPhone más avanzado hasta ahora. Pantalla Super Retina XDR de 6.9 pulgadas con ProMotion y Always-On. Chip A18 Pro con Neural Engine de 16 núcleos. Sistema de cámaras Pro con teleobjetivo Tetraprism 5x. Diseño de titanio con Ceramic Shield. Botón de Acción y Control de Cámara.',
-      precio_compra: '10800',
-      precio_venta: '12500',
+      precio_compra: '1551.72',
+      precio_venta: '1795.98',
       stock: 8,
       stock_minimo: 3,
       stock_maximo: 15,
-      id_categoria: 2, // CELULAR - IPHONE NUEVO
+      id_categoria: 1, // Smartphones
       id_marca: 2, // Apple
       es_destacado: true,
       orden_destacado: 1,
@@ -79,8 +126,8 @@ const catalogoProductos = {
       nombre: 'iPhone 16 Pro 128GB Titanio Negro',
       modelo: 'iPhone 16 Pro',
       descripcion: 'iPhone 16 Pro con pantalla Super Retina XDR de 6.3 pulgadas ProMotion. Chip A18 Pro. Sistema de cámaras Pro avanzado. Diseño premium de titanio con Ceramic Shield.',
-      precio_compra: '9100',
-      precio_venta: '10500',
+      precio_compra: '1307.47',
+      precio_venta: '1508.62',
       stock: 12,
       stock_minimo: 5,
       stock_maximo: 20,
@@ -109,8 +156,8 @@ const catalogoProductos = {
       nombre: 'iPhone 16 256GB Azul Ultramar',
       modelo: 'iPhone 16',
       descripcion: 'iPhone 16 con pantalla Super Retina XDR de 6.1 pulgadas. Chip A18. Cámara Fusion de 48MP. Diseño de aluminio aeroespacial con Ceramic Shield. Botón de Acción y Control de Cámara.',
-      precio_compra: '7700',
-      precio_venta: '8900',
+      precio_compra: '1106.32',
+      precio_venta: '1278.74',
       stock: 15,
       stock_minimo: 8,
       stock_maximo: 25,
@@ -139,8 +186,8 @@ const catalogoProductos = {
       nombre: 'Samsung Galaxy S24 Ultra 512GB Titanio Gris',
       modelo: 'Galaxy S24 Ultra',
       descripcion: 'El smartphone Galaxy más poderoso. Pantalla Dynamic AMOLED 2X de 6.8 pulgadas QHD+ con 120Hz. Snapdragon 8 Gen 3 for Galaxy. Cámara de 200MP con zoom óptico 5x y Space Zoom 100x. S Pen integrado. Diseño premium de titanio.',
-      precio_compra: '10200',
-      precio_venta: '11800',
+      precio_compra: '1465.52',
+      precio_venta: '1695.40',
       stock: 10,
       stock_minimo: 4,
       stock_maximo: 18,
@@ -169,13 +216,13 @@ const catalogoProductos = {
       nombre: 'Samsung Galaxy S24+ 256GB Violeta',
       modelo: 'Galaxy S24+',
       descripcion: 'Galaxy S24+ con pantalla Dynamic AMOLED 2X de 6.7 pulgadas QHD+. Snapdragon 8 Gen 3. Triple cámara de 50MP. Batería de 4900mAh con carga rápida.',
-      precio_compra: '7350',
-      precio_venta: '8500',
+      precio_compra: '1056.03',
+      precio_venta: '1221.26',
       stock: 15,
       stock_minimo: 6,
       stock_maximo: 25,
-      id_categoria: 1,
-      id_marca: 1,
+      id_categoria: 1, // Smartphones
+      id_marca: 1, // Samsung
       es_destacado: false,
       orden_destacado: 0,
       imagenes: ['s24_plus_violet_front.jpg', 's24_plus_violet_back.jpg'],
@@ -199,13 +246,13 @@ const catalogoProductos = {
       nombre: 'Samsung Galaxy Z Fold 6 512GB Negro',
       modelo: 'Galaxy Z Fold 6',
       descripcion: 'Smartphone plegable premium. Pantalla principal Dynamic AMOLED 2X de 7.6 pulgadas plegable. Pantalla externa de 6.3 pulgadas. Snapdragon 8 Gen 3. Triple cámara de 50MP. Diseño más delgado y ligero.',
-      precio_compra: '13400',
-      precio_venta: '15500',
+      precio_compra: '1925.29',
+      precio_venta: '2227.01',
       stock: 4,
       stock_minimo: 2,
       stock_maximo: 8,
-      id_categoria: 1,
-      id_marca: 1,
+      id_categoria: 1, // Smartphones
+      id_marca: 1, // Samsung
       es_destacado: true,
       orden_destacado: 4,
       imagenes: ['zfold6_closed.jpg', 'zfold6_open.jpg', 'zfold6_multitasking.jpg'],
@@ -232,12 +279,12 @@ const catalogoProductos = {
       nombre: 'Xiaomi 14T Pro 512GB Negro Titanio',
       modelo: '14T Pro',
       descripcion: 'Xiaomi 14T Pro con pantalla AMOLED de 6.67 pulgadas 144Hz. MediaTek Dimensity 9300+. Triple cámara Leica de 50MP. Carga HyperCharge de 120W.',
-      precio_compra: '4150',
-      precio_venta: '4800',
+      precio_compra: '596.26',
+      precio_venta: '689.66',
       stock: 25,
       stock_minimo: 10,
       stock_maximo: 40,
-      id_categoria: 22, // CELULAR - XIAOMI
+      id_categoria: 1, // Smartphones
       id_marca: 3, // Xiaomi
       es_destacado: true,
       orden_destacado: 5,
@@ -262,13 +309,13 @@ const catalogoProductos = {
       nombre: 'Xiaomi Redmi Note 13 Pro 256GB Púrpura',
       modelo: 'Redmi Note 13 Pro',
       descripcion: 'Redmi Note 13 Pro con cámara de 200MP. Pantalla AMOLED de 6.67 pulgadas 120Hz. Snapdragon 7s Gen 2. Batería de 5100mAh con carga de 67W.',
-      precio_compra: '1990',
-      precio_venta: '2300',
+      precio_compra: '285.92',
+      precio_venta: '330.46',
       stock: 40,
       stock_minimo: 15,
       stock_maximo: 60,
-      id_categoria: 22,
-      id_marca: 3,
+      id_categoria: 1, // Smartphones
+      id_marca: 3, // Xiaomi
       es_destacado: true,
       orden_destacado: 6,
       imagenes: ['redmi_note13pro_purple.jpg', 'redmi_note13pro_camera.jpg'],
@@ -292,12 +339,12 @@ const catalogoProductos = {
       nombre: 'Motorola Edge 50 Pro 512GB Azul Luxe',
       modelo: 'Edge 50 Pro',
       descripcion: 'Motorola Edge 50 Pro con pantalla pOLED de 6.7 pulgadas 144Hz. Snapdragon 7 Gen 3. Triple cámara de 50MP. Carga TurboPower de 125W. Diseño premium vegano.',
-      precio_compra: '3370',
-      precio_venta: '3900',
+      precio_compra: '484.20',
+      precio_venta: '560.34',
       stock: 20,
       stock_minimo: 8,
       stock_maximo: 35,
-      id_categoria: 15, // CELULAR - MOTOROLA
+      id_categoria: 1, // Smartphones
       id_marca: 4, // Motorola
       es_destacado: false,
       orden_destacado: 0,
@@ -322,13 +369,13 @@ const catalogoProductos = {
       nombre: 'Motorola Moto G84 256GB Verde Viva Magenta',
       modelo: 'Moto G84',
       descripcion: 'Moto G84 con pantalla pOLED de 6.5 pulgadas 120Hz. Snapdragon 695. Cámara de 50MP con OIS. Diseño delgado con certificación IP52.',
-      precio_compra: '1560',
-      precio_venta: '1800',
+      precio_compra: '224.14',
+      precio_venta: '258.62',
       stock: 35,
       stock_minimo: 12,
       stock_maximo: 50,
-      id_categoria: 15,
-      id_marca: 4,
+      id_categoria: 1, // Smartphones
+      id_marca: 4, // Motorola
       es_destacado: false,
       orden_destacado: 0,
       imagenes: ['motog84_magenta.jpg'],
@@ -355,12 +402,12 @@ const catalogoProductos = {
       nombre: 'Infinix Note 40 Pro 256GB Negro',
       modelo: 'Note 40 Pro',
       descripcion: 'Infinix Note 40 Pro con pantalla AMOLED de 6.78 pulgadas 120Hz. MediaTek Dimensity 7020. Cámara de 108MP. Batería de 5000mAh con carga de 45W.',
-      precio_compra: '1210',
-      precio_venta: '1400',
+      precio_compra: '173.85',
+      precio_venta: '201.15',
       stock: 30,
       stock_minimo: 10,
       stock_maximo: 50,
-      id_categoria: 16, // CELULAR - INFINIX
+      id_categoria: 1, // Smartphones
       id_marca: 5, // Infinix
       es_destacado: false,
       orden_destacado: 0,
@@ -385,13 +432,13 @@ const catalogoProductos = {
       nombre: 'Infinix Hot 40 Pro 128GB Dorado',
       modelo: 'Hot 40 Pro',
       descripcion: 'Infinix Hot 40 Pro con pantalla IPS de 6.78 pulgadas 120Hz. MediaTek Helio G99. Cámara de 108MP. Batería de 5000mAh.',
-      precio_compra: '780',
-      precio_venta: '900',
+      precio_compra: '112.07',
+      precio_venta: '129.31',
       stock: 50,
       stock_minimo: 20,
       stock_maximo: 80,
-      id_categoria: 16,
-      id_marca: 5,
+      id_categoria: 1, // Smartphones
+      id_marca: 5, // Infinix
       es_destacado: false,
       orden_destacado: 0,
       imagenes: ['infinix_hot40pro_gold.jpg'],
@@ -420,12 +467,12 @@ const catalogoProductos = {
       nombre: 'Asus ROG Strix G16 (2024) i7 RTX 4060 16GB 1TB',
       modelo: 'ROG Strix G16',
       descripcion: 'Laptop gaming Asus ROG Strix G16 con pantalla FHD de 16 pulgadas 165Hz. Intel Core i7-14650HX. NVIDIA GeForce RTX 4060 8GB. 16GB DDR5 RAM. 1TB SSD NVMe. Sistema de refrigeración ROG Intelligent Cooling.',
-      precio_compra: '12500',
-      precio_venta: '14500',
+      precio_compra: '1795.98',
+      precio_venta: '2083.33',
       stock: 5,
       stock_minimo: 2,
       stock_maximo: 10,
-      id_categoria: 17, // NOTEBOOKS
+      id_categoria: 2, // Laptops
       id_marca: 15, // Asus
       es_destacado: true,
       orden_destacado: 7,
@@ -446,12 +493,12 @@ const catalogoProductos = {
       nombre: 'MSI Katana 15 B13V i7 RTX 4060 16GB 1TB',
       modelo: 'Katana 15 B13V',
       descripcion: 'Laptop gaming MSI Katana 15 con pantalla FHD de 15.6 pulgadas 144Hz. Intel Core i7-13620H. NVIDIA GeForce RTX 4060 8GB. 16GB DDR5. 1TB SSD.',
-      precio_compra: '7950',
-      precio_venta: '9200',
+      precio_compra: '1142.24',
+      precio_venta: '1321.84',
       stock: 10,
       stock_minimo: 4,
       stock_maximo: 15,
-      id_categoria: 17,
+      id_categoria: 2, // Laptops
       id_marca: 19, // MSI
       es_destacado: false,
       orden_destacado: 0,
@@ -475,12 +522,12 @@ const catalogoProductos = {
       nombre: 'MacBook Pro 16" M3 Pro 12-core 18GB 512GB',
       modelo: 'MacBook Pro 16"',
       descripcion: 'MacBook Pro de 16 pulgadas con pantalla Liquid Retina XDR. Chip M3 Pro con CPU de 12 núcleos y GPU de 18 núcleos. 18GB de memoria unificada. SSD de 512GB. Batería de hasta 22 horas.',
-      precio_compra: '16850',
-      precio_venta: '19500',
+      precio_compra: '2421.26',
+      precio_venta: '2801.72',
       stock: 4,
       stock_minimo: 2,
       stock_maximo: 8,
-      id_categoria: 12, // MACBOOK
+      id_categoria: 2, // Laptops
       id_marca: 2, // Apple
       es_destacado: true,
       orden_destacado: 8,
@@ -501,13 +548,13 @@ const catalogoProductos = {
       nombre: 'MacBook Air 13" M2 8GB 256GB',
       modelo: 'MacBook Air 13"',
       descripcion: 'MacBook Air con pantalla Liquid Retina de 13.6 pulgadas. Chip M2 con CPU de 8 núcleos y GPU de 8 núcleos. 8GB de memoria unificada. SSD de 256GB. Diseño delgado sin ventilador.',
-      precio_compra: '7700',
-      precio_venta: '8900',
+      precio_compra: '1106.32',
+      precio_venta: '1278.74',
       stock: 12,
       stock_minimo: 5,
       stock_maximo: 20,
-      id_categoria: 12,
-      id_marca: 2,
+      id_categoria: 2, // Laptops
+      id_marca: 2, // Apple
       es_destacado: true,
       orden_destacado: 9,
       imagenes: ['mba13_m2.jpg'],
@@ -527,12 +574,12 @@ const catalogoProductos = {
       nombre: 'Lenovo IdeaPad 3 15 Ryzen 5 8GB 512GB',
       modelo: 'IdeaPad 3 15',
       descripcion: 'Laptop Lenovo IdeaPad 3 con pantalla FHD de 15.6 pulgadas. AMD Ryzen 5 7530U. 8GB DDR4. SSD de 512GB. Windows 11 Home.',
-      precio_compra: '3025',
-      precio_venta: '3500',
+      precio_compra: '434.63',
+      precio_venta: '502.87',
       stock: 25,
       stock_minimo: 10,
       stock_maximo: 40,
-      id_categoria: 17,
+      id_categoria: 2, // Laptops
       id_marca: 17, // Lenovo
       es_destacado: false,
       orden_destacado: 0,
@@ -558,12 +605,12 @@ const catalogoProductos = {
       nombre: 'iPad Pro 13" M4 256GB WiFi',
       modelo: 'iPad Pro 13"',
       descripcion: 'iPad Pro de 13 pulgadas con pantalla Ultra Retina XDR OLED. Chip M4. 256GB de almacenamiento. Compatible con Apple Pencil Pro y Magic Keyboard.',
-      precio_compra: '7350',
-      precio_venta: '8500',
+      precio_compra: '1056.03',
+      precio_venta: '1221.26',
       stock: 5,
       stock_minimo: 2,
       stock_maximo: 10,
-      id_categoria: 14, // IPAD
+      id_categoria: 3, // Tablets
       id_marca: 2,
       es_destacado: true,
       orden_destacado: 10,
@@ -583,13 +630,13 @@ const catalogoProductos = {
       nombre: 'iPad 10.9" 64GB WiFi',
       modelo: 'iPad 10.9"',
       descripcion: 'iPad con pantalla Liquid Retina de 10.9 pulgadas. Chip A14 Bionic. 64GB de almacenamiento. Compatible con Apple Pencil (1ra generación).',
-      precio_compra: '2420',
-      precio_venta: '2800',
+      precio_compra: '347.70',
+      precio_venta: '402.30',
       stock: 18,
       stock_minimo: 8,
       stock_maximo: 30,
-      id_categoria: 14,
-      id_marca: 2,
+      id_categoria: 3, // Tablets
+      id_marca: 2, // Apple
       es_destacado: false,
       orden_destacado: 0,
       imagenes: ['ipad_109.jpg'],
@@ -613,12 +660,12 @@ const catalogoProductos = {
       nombre: 'Apple AirPods Pro 2 (USB-C)',
       modelo: 'AirPods Pro (2da generación)',
       descripcion: 'AirPods Pro con cancelación activa de ruido, modo Ambiente adaptativo, Audio Espacial Personalizado. Chip H2. Estuche MagSafe con USB-C. Hasta 30 horas de batería total.',
-      precio_compra: '1560',
-      precio_venta: '1800',
+      precio_compra: '224.14',
+      precio_venta: '258.62',
       stock: 25,
       stock_minimo: 10,
       stock_maximo: 40,
-      id_categoria: 19, // AURICULAR - AIRPODS
+      id_categoria: 5, // Auriculares
       id_marca: 2,
       es_destacado: true,
       orden_destacado: 11,
@@ -634,12 +681,12 @@ const catalogoProductos = {
       nombre: 'JBL Tune 770NC Negro',
       modelo: 'Tune 770NC',
       descripcion: 'Auriculares inalámbricos JBL con cancelación activa de ruido. Bluetooth 5.3. Hasta 70 horas de batería. JBL Pure Bass Sound.',
-      precio_compra: '560',
-      precio_venta: '650',
+      precio_compra: '80.46',
+      precio_venta: '93.39',
       stock: 40,
       stock_minimo: 15,
       stock_maximo: 60,
-      id_categoria: 20, // AURICULAR - JBL
+      id_categoria: 5, // Auriculares
       id_marca: 8, // JBL
       es_destacado: false,
       orden_destacado: 0,
@@ -655,12 +702,12 @@ const catalogoProductos = {
       nombre: 'Sony WH-1000XM5 Negro',
       modelo: 'WH-1000XM5',
       descripcion: 'Auriculares premium con la mejor cancelación de ruido de la industria. Procesador V1. Audio de alta resolución con LDAC. 30 horas de batería. Diseño renovado.',
-      precio_compra: '2160',
-      precio_venta: '2500',
+      precio_compra: '310.34',
+      precio_venta: '359.20',
       stock: 12,
       stock_minimo: 5,
       stock_maximo: 20,
-      id_categoria: 24, // AURICULAR - OTROS
+      id_categoria: 5, // Auriculares
       id_marca: 9, // Sony
       es_destacado: true,
       orden_destacado: 12,
@@ -679,12 +726,12 @@ const catalogoProductos = {
       nombre: 'JBL Charge 5 Azul',
       modelo: 'Charge 5',
       descripcion: 'Parlante portátil JBL con certificación IP67. 40W de potencia. 20 horas de batería. Función powerbank. JBL PartyBoost.',
-      precio_compra: '850',
-      precio_venta: '980',
+      precio_compra: '122.13',
+      precio_venta: '140.80',
       stock: 35,
       stock_minimo: 15,
       stock_maximo: 50,
-      id_categoria: 23, // PARLANTE/BOCINA
+      id_categoria: 6, // Parlantes
       id_marca: 8,
       es_destacado: true,
       orden_destacado: 13,
@@ -701,13 +748,13 @@ const catalogoProductos = {
       nombre: 'JBL Flip 6 Rojo',
       modelo: 'Flip 6',
       descripcion: 'Parlante portátil compacto JBL con certificación IP67. 30W de potencia. 12 horas de batería. JBL PartyBoost.',
-      precio_compra: '620',
-      precio_venta: '720',
+      precio_compra: '89.08',
+      precio_venta: '103.45',
       stock: 45,
       stock_minimo: 20,
       stock_maximo: 70,
-      id_categoria: 23,
-      id_marca: 8,
+      id_categoria: 6, // Parlantes
+      id_marca: 8, // JBL
       es_destacado: false,
       orden_destacado: 0,
       imagenes: ['jbl_flip6_red.jpg'],
@@ -728,12 +775,12 @@ const catalogoProductos = {
       nombre: 'PlayStation 5 Slim Digital Edition',
       modelo: 'PS5 Slim',
       descripcion: 'Consola PlayStation 5 edición digital sin lector de discos. 1TB SSD. Ray Tracing. 4K a 120fps. Tempest 3D AudioTech. DualSense incluido.',
-      precio_compra: '3630',
-      precio_venta: '4200',
+      precio_compra: '521.55',
+      precio_venta: '603.45',
       stock: 12,
       stock_minimo: 5,
       stock_maximo: 20,
-      id_categoria: 30, // CONSOLAS
+      id_categoria: 7, // Consolas
       id_marca: 11, // PlayStation
       es_destacado: true,
       orden_destacado: 14,
@@ -749,13 +796,13 @@ const catalogoProductos = {
       nombre: 'Xbox Series X',
       modelo: 'Xbox Series X',
       descripcion: 'Consola Xbox Series X. 1TB SSD. 12 TFLOPS. 4K a 120fps. Ray Tracing. Quick Resume. Xbox Game Pass compatible.',
-      precio_compra: '4500',
-      precio_venta: '5200',
+      precio_compra: '646.55',
+      precio_venta: '747.13',
       stock: 8,
       stock_minimo: 3,
       stock_maximo: 15,
-      id_categoria: 30,
-      id_marca: 12, // Xbox
+      id_categoria: 7, // Consolas
+      id_marca: 12, // Xbox // Xbox
       es_destacado: true,
       orden_destacado: 15,
       imagenes: ['xbox_series_x.jpg'],
@@ -770,13 +817,13 @@ const catalogoProductos = {
       nombre: 'Nintendo Switch OLED Blanco',
       modelo: 'Switch OLED',
       descripcion: 'Nintendo Switch modelo OLED con pantalla de 7 pulgadas. 64GB de almacenamiento interno. Soporte ajustable mejorado. Dock con puerto LAN.',
-      precio_compra: '2510',
-      precio_venta: '2900',
+      precio_compra: '360.63',
+      precio_venta: '416.67',
       stock: 20,
       stock_minimo: 8,
       stock_maximo: 30,
-      id_categoria: 30,
-      id_marca: 13, // Nintendo
+      id_categoria: 7, // Consolas
+      id_marca: 13, // Nintendo // Nintendo
       es_destacado: true,
       orden_destacado: 16,
       imagenes: ['switch_oled_white.jpg'],
@@ -795,12 +842,12 @@ const catalogoProductos = {
       nombre: 'PlayStation 5 DualSense Blanco',
       modelo: 'DualSense',
       descripcion: 'Control inalámbrico DualSense para PS5 con Haptic Feedback, gatillos adaptativos, micrófono integrado y USB-C.',
-      precio_compra: '500',
-      precio_venta: '580',
+      precio_compra: '71.84',
+      precio_venta: '83.33',
       stock: 40,
       stock_minimo: 15,
       stock_maximo: 60,
-      id_categoria: 29, // JOYSTICK - PLAY STATION
+      id_categoria: 8, // Accesorios Gaming
       id_marca: 11,
       es_destacado: false,
       orden_destacado: 0,
@@ -815,12 +862,12 @@ const catalogoProductos = {
       nombre: 'Xbox Series X|S Controller Negro',
       modelo: 'Xbox Wireless Controller',
       descripcion: 'Control inalámbrico Xbox con textura antideslizante, botón Share, D-pad híbrido y USB-C. Compatible con Xbox y PC.',
-      precio_compra: '415',
-      precio_venta: '480',
+      precio_compra: '59.63',
+      precio_venta: '68.97',
       stock: 45,
       stock_minimo: 18,
       stock_maximo: 70,
-      id_categoria: 31, // JOYSTICK - XBOX
+      id_categoria: 8, // Accesorios Gaming
       id_marca: 12,
       es_destacado: false,
       orden_destacado: 0,
@@ -840,12 +887,12 @@ const catalogoProductos = {
       nombre: 'Apple Watch Series 10 GPS 46mm',
       modelo: 'Apple Watch Series 10',
       descripcion: 'Apple Watch Series 10 con pantalla Always-On Retina más grande y delgada. Chip S10. Detección de caídas y accidentes. watchOS 11. Hasta 18 horas de batería.',
-      precio_compra: '3025',
-      precio_venta: '3500',
+      precio_compra: '434.63',
+      precio_venta: '502.87',
       stock: 15,
       stock_minimo: 6,
       stock_maximo: 25,
-      id_categoria: 18, // SMARTWATCH - APPLE WATCH
+      id_categoria: 4, // Smartwatches
       id_marca: 2,
       es_destacado: true,
       orden_destacado: 17,
@@ -862,8 +909,8 @@ const catalogoProductos = {
       nombre: 'Samsung Galaxy Watch 7 44mm',
       modelo: 'Galaxy Watch 7',
       descripcion: 'Samsung Galaxy Watch 7 con pantalla Super AMOLED. Procesador Exynos W1000. Wear OS 5. Seguimiento de salud avanzado. GPS integrado.',
-      precio_compra: '2420',
-      precio_venta: '2800',
+      precio_compra: '347.70',
+      precio_venta: '402.30',
       stock: 20,
       stock_minimo: 8,
       stock_maximo: 35,
@@ -887,12 +934,12 @@ const catalogoProductos = {
       nombre: 'Xiaomi Smart Band 8 Pro Negro',
       modelo: 'Smart Band 8 Pro',
       descripcion: 'Xiaomi Smart Band 8 Pro con pantalla AMOLED de 1.74 pulgadas. GPS integrado. Hasta 14 días de batería. Más de 150 modos deportivos.',
-      precio_compra: '415',
-      precio_venta: '480',
+      precio_compra: '59.63',
+      precio_venta: '68.97',
       stock: 60,
       stock_minimo: 25,
       stock_maximo: 100,
-      id_categoria: 26, // SMARTBAND
+      id_categoria: 11, // Smart Bands
       id_marca: 3,
       es_destacado: false,
       orden_destacado: 0,
@@ -914,12 +961,12 @@ const catalogoProductos = {
       nombre: 'Cargador Apple MagSafe 15W',
       modelo: 'MagSafe Charger',
       descripcion: 'Cargador inalámbrico MagSafe de Apple con alineación magnética perfecta. 15W de carga rápida para iPhone 12 y posteriores.',
-      precio_compra: '240',
-      precio_venta: '280',
+      precio_compra: '34.48',
+      precio_venta: '40.23',
       stock: 50,
       stock_minimo: 20,
       stock_maximo: 80,
-      id_categoria: 27, // CARGADOR - APPLE
+      id_categoria: 9, // Cargadores
       id_marca: 2,
       es_destacado: false,
       orden_destacado: 0,
@@ -933,13 +980,13 @@ const catalogoProductos = {
       nombre: 'Cargador Apple USB-C 20W',
       modelo: 'USB-C Power Adapter 20W',
       descripcion: 'Adaptador de corriente USB-C de 20W de Apple. Ideal para iPhone, iPad y AirPods. Carga rápida compatible.',
-      precio_compra: '130',
-      precio_venta: '150',
+      precio_compra: '18.68',
+      precio_venta: '21.55',
       stock: 80,
       stock_minimo: 30,
       stock_maximo: 120,
-      id_categoria: 27,
-      id_marca: 2,
+      id_categoria: 9, // Cargadores
+      id_marca: 2, // Apple
       es_destacado: false,
       orden_destacado: 0,
       imagenes: ['apple_20w_charger.jpg'],
@@ -993,8 +1040,52 @@ async function generarDatosProduccion() {
     connection = await mysql.createConnection(dbConfig);
     console.log('✅ Conexión exitosa\n');
 
+    // ========== INSERTAR/ACTUALIZAR CATEGORÍAS ==========
+    console.log('📁 Configurando categorías...\n');
+
+    for (const cat of categorias) {
+      try {
+        await connection.query(`
+          INSERT INTO tb_categorias (id_categoria, nombre_categoria, fyh_creacion, fyh_actualizacion)
+          VALUES (?, ?, NOW(), NOW())
+          ON DUPLICATE KEY UPDATE
+            nombre_categoria = VALUES(nombre_categoria),
+            fyh_actualizacion = NOW()
+        `, [cat.id, cat.nombre]);
+
+        console.log(`  ✓ ${cat.nombre}`);
+      } catch (error) {
+        console.error(`  ❌ Error con categoría ${cat.nombre}:`, error.message);
+      }
+    }
+
+    console.log('\n✅ Categorías configuradas\n');
+
+    // ========== INSERTAR/ACTUALIZAR MARCAS ==========
+    console.log('🏷️  Configurando marcas...\n');
+
+    for (const marca of marcas) {
+      try {
+        await connection.query(`
+          INSERT INTO tb_marcas (id_marca, nombre_marca, logo_marca, descripcion_marca, activo, fyh_creacion, fyh_actualizacion)
+          VALUES (?, ?, ?, ?, 1, NOW(), NOW())
+          ON DUPLICATE KEY UPDATE
+            nombre_marca = VALUES(nombre_marca),
+            logo_marca = VALUES(logo_marca),
+            descripcion_marca = VALUES(descripcion_marca),
+            fyh_actualizacion = NOW()
+        `, [marca.id, marca.nombre, marca.logo, marca.descripcion]);
+
+        console.log(`  ✓ ${marca.nombre}`);
+      } catch (error) {
+        console.error(`  ❌ Error con marca ${marca.nombre}:`, error.message);
+      }
+    }
+
+    console.log('\n✅ Marcas configuradas\n');
+
     // ========== LIMPIAR DATOS EXISTENTES ==========
-    console.log('🗑️  Limpiando datos existentes...');
+    console.log('🗑️  Limpiando productos existentes...');
 
     await connection.query('SET FOREIGN_KEY_CHECKS = 0');
 

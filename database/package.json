@@ -1,0 +1,17 @@
+{
+  "name": "tecnocel-database-scripts",
+  "version": "1.0.0",
+  "description": "Scripts de base de datos para TecnoCel",
+  "type": "module",
+  "scripts": {
+    "generar-datos": "node scripts/generar_datos_produccion.js",
+    "generar-imagenes": "node scripts/generar_imagenes_placeholder.js"
+  },
+  "keywords": ["tecnocel", "database", "scripts"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^3.6.0",
+    "dotenv": "^16.3.1"
+  }
+}

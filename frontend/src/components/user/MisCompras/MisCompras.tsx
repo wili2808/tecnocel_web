@@ -60,7 +60,7 @@ const MisCompras = () => {
     };
 
     const formatearPrecio = (precio: number) => {
-        return `Bs. ${precio.toFixed(2)}`;
+        return `USD $. ${precio.toFixed(2)}`;
     };
 
     const toggleExpand = (idVenta: number) => {

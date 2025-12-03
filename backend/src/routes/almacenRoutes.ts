@@ -8,9 +8,9 @@ const router = Router();
 router.get('/diagnostico', almacenController.diagnosticProducts.bind(almacenController));
 router.get('/productos', almacenController.getProducts.bind(almacenController));
 router.get('/productos/destacados', almacenController.getFeaturedProducts.bind(almacenController));
-router.get('/productos/:id', almacenController.getProductById.bind(almacenController));
 router.get('/productos/buscar', almacenController.searchProducts.bind(almacenController));
 router.get('/productos/categoria/:categoriaId', almacenController.getProductsByCategory.bind(almacenController));
+router.get('/productos/:id', almacenController.getProductById.bind(almacenController));
 router.get('/categorias', almacenController.getAllCategories.bind(almacenController));
 
 // Rutas protegidas (requieren autenticación)

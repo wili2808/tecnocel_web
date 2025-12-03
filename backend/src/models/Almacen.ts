@@ -14,6 +14,8 @@ class Almacen extends Model {
   declare fecha_ingreso: Date;
   declare id_usuario: number;
   declare id_categoria: number;
+  declare modelo: string | null;
+  declare id_marca: number | null;
   declare es_destacado: boolean;
   declare orden_destacado: number;
   declare fyh_creacion: Date;
@@ -81,6 +83,18 @@ Almacen.init({
     references: {
       model: 'tb_categorias',
       key: 'id_categoria'
+    }
+  },
+  modelo: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  id_marca: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tb_marcas',
+      key: 'id_marca'
     }
   },
   es_destacado: {

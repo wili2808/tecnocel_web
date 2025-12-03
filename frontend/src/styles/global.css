@@ -7,9 +7,23 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* Transiciones consistentes con --theme-transition para sincronización perfecta */
   transition: color var(--transition-normal) var(--transition-curve),
               background-color var(--transition-normal) var(--transition-curve),
-              border-color var(--transition-normal) var(--transition-curve);
+              border-color var(--transition-normal) var(--transition-curve),
+              box-shadow var(--transition-normal) var(--transition-curve);
+}
+
+/* Deshabilitar TODAS las transiciones para usuarios con sensibilidad al movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 body {

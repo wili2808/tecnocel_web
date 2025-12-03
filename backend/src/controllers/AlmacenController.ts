@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
+// Modelos
 import Almacen from '../models/Almacen.js';
 import Categoria from '../models/Categoria.js';
 import Usuario from '../models/Usuario.js';
@@ -8,6 +9,7 @@ import TipoCaracteristica from '../models/TipoCaracteristica.js';
 import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
 import Oferta from '../models/Oferta.js';
 import ProductoImagen from '../models/ProductoImagen.js';
+// Servicios
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
 import { enriquecerProductoConOferta } from '../services/ofertaService.js';
@@ -540,7 +542,7 @@ class AlmacenController {
     try {
       const { termino } = req.query;
       logger.debug(`Buscando productos en almacén con término: ${termino}`);
-      
+
       if (!termino) {
         logger.warn('Búsqueda de productos sin término especificado');
         return res.status(400).json({ message: 'Término de búsqueda requerido' });
@@ -556,6 +558,11 @@ class AlmacenController {
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
           { model: Usuario, attributes: ['nombres'] },
+          {
+            model: Marca,
+            as: 'marca',
+            attributes: ['nombre_marca', 'logo_marca']
+          },
           {
             model: ProductoImagen,
             as: 'imagenes',
@@ -596,12 +603,17 @@ class AlmacenController {
     try {
       const { categoriaId } = req.params;
       logger.debug(`Obteniendo productos por categoría ID: ${categoriaId}`);
-      
+
       const productos = await Almacen.findAll({
         where: { id_categoria: categoriaId },
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
           { model: Usuario, attributes: ['nombres'] },
+          {
+            model: Marca,
+            as: 'marca',
+            attributes: ['nombre_marca', 'logo_marca']
+          },
           {
             model: ProductoImagen,
             as: 'imagenes',
@@ -702,7 +714,7 @@ class AlmacenController {
     try {
       logger.debug('Obteniendo productos destacados');
       const limit = parseInt(req.query.limit as string) || 6;
-      
+
       const productos = await Almacen.findAll({
         where: {
           stock: { [Op.gt]: 0 },
@@ -711,6 +723,11 @@ class AlmacenController {
         include: [
           { model: Categoria, attributes: ['nombre_categoria'] },
           { model: Usuario, attributes: ['nombres'] },
+          {
+            model: Marca,
+            as: 'marca',
+            attributes: ['nombre_marca', 'logo_marca']
+          },
           {
             model: ProductoImagen,
             as: 'imagenes',

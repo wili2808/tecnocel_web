@@ -11,6 +11,7 @@
   overflow: hidden;
   contain: layout style paint;
   will-change: transform;
+  transition: var(--theme-transition);
 }
 
 .catalogContainer {
@@ -32,7 +33,6 @@
   position: sticky;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal) var(--transition-curve);
 }
 
 
@@ -49,20 +49,24 @@
 .filtersSidebar::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   border-radius: var(--border-radius-full);
-  transition: background var(--transition-fast) ease;
 }
 
 .filtersSidebar::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary-dark);
 }
 
-  .productsMainContent {
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    background: var(--background-primary);
-  }
+.productsMainContent {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-primary);
+  /* Optimizaciones de renderizado para evitar bloqueo con muchos productos */
+  transform: translateZ(0);
+  will-change: background-color;
+  /* Transición rápida del background */
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
 
 /* === ANIMACIONES === */
 @keyframes fadeIn {
@@ -133,6 +137,10 @@
     flex: 1;
     overflow: hidden;
     background: var(--background-primary);
+    /* Mantener optimizaciones en mobile */
+    transform: translateZ(0);
+    will-change: background-color;
+    transition: background-color var(--transition-fast) var(--transition-curve);
   }
 }
 

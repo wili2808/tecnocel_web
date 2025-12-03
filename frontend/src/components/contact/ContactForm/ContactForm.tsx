@@ -48,7 +48,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [focusedField, setFocusedField] = useState<string | null>(null);
 
     // ============================================================================
     // MANEJADORES DE EVENTOS
@@ -68,22 +67,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
-    };
-
-    /**
-     * Maneja el focus de los inputs para efectos visuales
-     * Activa el estado de campo enfocado para estilos CSS
-     */
-    const handleFocus = (fieldName: string) => {
-        setFocusedField(fieldName);
-    };
-
-    /**
-     * Maneja el blur de los inputs para efectos visuales
-     * Desactiva el estado de campo enfocado
-     */
-    const handleBlur = () => {
-        setFocusedField(null);
     };
 
     // ============================================================================
@@ -201,7 +184,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
     /**
      * Renderiza un campo de input personalizado con validación
-     * Incluye iconos, estados de error y feedback visual
+     * Incluye iconos en el label, estados de error y feedback visual
      */
     const renderInput = (
         id: string,
@@ -218,33 +201,26 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         return (
             <div className={styles.formGroup}>
                 <label htmlFor={id} className={styles.label}>
-                    {label}
-                    {required && <span className={styles.required}>*</span>}
+                    <span className="material-icons">{icon}</span>
+                    {label} {required && '*'}
                 </label>
-                <div className={`${styles.inputContainer} ${focusedField === id ? styles.focused : ''} ${error ? styles.error : ''}`}>
-                    <span className={styles.iconLeft}>
-                        <span className="material-icons">{icon}</span>
-                    </span>
-                    <input
-                        id={id}
-                        name={name}
-                        type={type}
-                        value={value}
-                        onChange={handleInputChange}
-                        onFocus={() => handleFocus(id)}
-                        onBlur={handleBlur}
-                        required={required}
-                        disabled={isSubmitting}
-                        className={styles.input}
-                        autoComplete={autoComplete}
-                        placeholder={placeholder}
-                    />
-                </div>
+                <input
+                    id={id}
+                    name={name}
+                    type={type}
+                    value={value}
+                    onChange={handleInputChange}
+                    required={required}
+                    disabled={isSubmitting}
+                    className={`${styles.input} ${error ? styles.inputError : ''}`}
+                    autoComplete={autoComplete}
+                    placeholder={placeholder}
+                />
                 {error && (
-                    <div className={styles.errorMessage}>
+                    <span className={styles.error}>
                         <span className="material-icons">error</span>
-                        <span>{error}</span>
-                    </div>
+                        {error}
+                    </span>
                 )}
             </div>
         );
@@ -252,7 +228,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
     /**
      * Renderiza un campo de select personalizado con validación
-     * Incluye iconos, estados de error y feedback visual
+     * Incluye iconos en el label, estados de error y feedback visual
      */
     const renderSelect = (
         id: string,
@@ -267,36 +243,29 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         return (
             <div className={styles.formGroup}>
                 <label htmlFor={id} className={styles.label}>
-                    {label}
-                    {required && <span className={styles.required}>*</span>}
+                    <span className="material-icons">{icon}</span>
+                    {label} {required && '*'}
                 </label>
-                <div className={`${styles.inputContainer} ${focusedField === id ? styles.focused : ''} ${error ? styles.error : ''}`}>
-                    <span className={styles.iconLeft}>
-                        <span className="material-icons">{icon}</span>
-                    </span>
-                    <select
-                        id={id}
-                        name={name}
-                        value={value}
-                        onChange={handleInputChange}
-                        onFocus={() => handleFocus(id)}
-                        onBlur={handleBlur}
-                        required={required}
-                        disabled={isSubmitting}
-                        className={styles.input}
-                    >
-                        {options.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <select
+                    id={id}
+                    name={name}
+                    value={value}
+                    onChange={handleInputChange}
+                    required={required}
+                    disabled={isSubmitting}
+                    className={`${styles.input} ${error ? styles.inputError : ''}`}
+                >
+                    {options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
                 {error && (
-                    <div className={styles.errorMessage}>
+                    <span className={styles.error}>
                         <span className="material-icons">error</span>
-                        <span>{error}</span>
-                    </div>
+                        {error}
+                    </span>
                 )}
             </div>
         );
@@ -304,7 +273,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
     /**
      * Renderiza un campo de textarea personalizado con validación
-     * Incluye iconos, estados de error y feedback visual
+     * Incluye iconos en el label, estados de error y feedback visual
      */
     const renderTextarea = (
         id: string,
@@ -320,32 +289,25 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         return (
             <div className={styles.formGroup}>
                 <label htmlFor={id} className={styles.label}>
-                    {label}
-                    {required && <span className={styles.required}>*</span>}
+                    <span className="material-icons">{icon}</span>
+                    {label} {required && '*'}
                 </label>
-                <div className={`${styles.textareaContainer} ${focusedField === id ? styles.focused : ''} ${error ? styles.error : ''}`}>
-                    <span className={styles.iconLeft}>
-                        <span className="material-icons">{icon}</span>
-                    </span>
-                    <textarea
-                        id={id}
-                        name={name}
-                        value={value}
-                        onChange={handleInputChange}
-                        onFocus={() => handleFocus(id)}
-                        onBlur={handleBlur}
-                        required={required}
-                        disabled={isSubmitting}
-                        className={styles.textarea}
-                        placeholder={placeholder}
-                        rows={rows || 6}
-                    />
-                </div>
+                <textarea
+                    id={id}
+                    name={name}
+                    value={value}
+                    onChange={handleInputChange}
+                    required={required}
+                    disabled={isSubmitting}
+                    className={`${styles.textarea} ${error ? styles.inputError : ''}`}
+                    placeholder={placeholder}
+                    rows={rows || 6}
+                />
                 {error && (
-                    <div className={styles.errorMessage}>
+                    <span className={styles.error}>
                         <span className="material-icons">error</span>
-                        <span>{error}</span>
-                    </div>
+                        {error}
+                    </span>
                 )}
             </div>
         );
