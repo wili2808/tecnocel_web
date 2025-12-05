@@ -7,6 +7,7 @@ import Venta from '../models/Venta.js';
 import Oferta from '../models/Oferta.js';
 import logger from '../services/loggerService.js';
 import { Op } from 'sequelize';
+import sequelize from '../config/database.js';
 import { getImageService } from '../services/imageService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { calcularPrecioOferta, calcularPorcentajeDescuento } from '../services/ofertaService.js';
@@ -1219,6 +1220,9 @@ export default class CarritoController {
    * }
    */
   static async confirmarCompra(req: Request, res: Response) {
+    // Crear transacción para garantizar atomicidad de la operación
+    const transaction = await sequelize.transaction();
+
     try {
       const { observaciones, moneda = 'BOB', aceptar_cambio_precio = false } = req.body;
       const id_cliente = req.usuario?.id_cliente;
@@ -1334,7 +1338,8 @@ export default class CarritoController {
             precio_ha_cambiado: true,
             fyh_actualizacion: new Date()
           }, {
-            where: { id_item: itemConPrecio.item.id_item }
+            where: { id_item: itemConPrecio.item.id_item },
+            transaction
           });
         }
       }
@@ -1347,7 +1352,8 @@ export default class CarritoController {
 
       // Generar número de venta
       const ultimaVenta = await Venta.findOne({
-        order: [['nro_venta', 'DESC']]
+        order: [['nro_venta', 'DESC']],
+        transaction
       });
       const nroVenta = ultimaVenta ? ultimaVenta.nro_venta + 1 : 1;
 
@@ -1361,16 +1367,19 @@ export default class CarritoController {
         moneda,
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
-      });
+      }, { transaction });
 
       // Actualizar stock de productos
       for (const item of carrito.items) {
         await Almacen.update(
-          { 
+          {
             stock: item.producto!.stock - item.cantidad,
             fyh_actualizacion: new Date()
           },
-          { where: { id_producto: item.id_producto } }
+          {
+            where: { id_producto: item.id_producto },
+            transaction
+          }
         );
       }
 
@@ -1378,7 +1387,10 @@ export default class CarritoController {
       await carrito.update({
         estado: 'completado',
         fyh_actualizacion: new Date()
-      });
+      }, { transaction });
+
+      // Confirmar transacción - todas las operaciones fueron exitosas
+      await transaction.commit();
 
       res.locals.skipHttpLog = true;
       
@@ -1405,7 +1417,10 @@ export default class CarritoController {
       });
 
     } catch (error) {
-      logger.error('Error al confirmar compra:', {
+      // Revertir transacción en caso de error
+      await transaction.rollback();
+
+      logger.error('Error al confirmar compra (ROLLBACK ejecutado):', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
         cliente_id: req.usuario?.id_cliente,

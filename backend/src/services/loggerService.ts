@@ -5,17 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Singleton pattern para evitar múltiples instancias
-let loggerInstance: winston.Logger | null = null;
-
-const createLogger = (): winston.Logger => {
-  // Si ya existe una instancia, devolverla
-  if (loggerInstance) {
-    return loggerInstance;
-  }
-
-  // Formato personalizado para logs más limpios
-  // Interfaces para tipar los metadatos
+// Interfaces para tipar los metadatos
 interface LogMetadata {
   method?: string;
   path?: string;
@@ -25,7 +15,17 @@ interface LogMetadata {
   [key: string]: any;
 }
 
-const customFormat = winston.format.combine(
+// Patron Singleton para evitar múltiples instancias
+let loggerInstance: winston.Logger | null = null;
+
+const createLogger = (): winston.Logger => {
+  // Si ya existe una instancia, devolverla
+  if (loggerInstance) {
+    return loggerInstance;
+  }
+  
+  // Formato personalizado para logs más limpios
+  const customFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
     winston.format.printf((info: any) => {

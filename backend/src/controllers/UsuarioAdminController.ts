@@ -12,6 +12,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
+import { Op } from 'sequelize';
 import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
 import Cliente from '../models/Cliente.js';
@@ -694,8 +695,5 @@ class UsuarioAdminController {
     }
   }
 }
-
-// Fix para import de Op (añadir al inicio con los otros imports si es necesario)
-import { Op } from 'sequelize';
 
 export default UsuarioAdminController;
