@@ -4,21 +4,21 @@
  */
 import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { authService } from '../../../services/authService';
+import { clienteService } from '../../../services/clienteService';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './DatosCuenta.module.css';
 
 interface PerfilCompleto {
-    id_cliente: number;
-    email_cliente: string;
-    nombre_cliente: string;
-    apellido_cliente: string;
-    celular_cliente: string | null;
-    nit_ci_cliente: string | null;
-    is_google_account: boolean;
-    email_verified: boolean;
-    fyh_creacion: string;
-    last_login: string | null;
+    id: number;
+    email: string;
+    nombre: string;
+    apellido: string;
+    celular: string | null;
+    nitCi: string | null;
+    isGoogleAccount: boolean;
+    isEmailVerified: boolean;
+    miembroDesde: string | null;
+    ultimoIngreso: string | null;
 }
 
 const DatosCuenta = () => {
@@ -33,19 +33,18 @@ const DatosCuenta = () => {
     const cargarPerfil = async () => {
         try {
             setLoading(true);
-            const data = await authService.obtenerPerfil();
-            // Cast explícito para manejar la diferencia entre undefined y null
+            const data = await clienteService.obtenerPerfil();
             const perfilData: PerfilCompleto = {
-                id_cliente: data.id_cliente,
-                email_cliente: data.email_cliente,
-                nombre_cliente: data.nombre_cliente,
-                apellido_cliente: data.apellido_cliente,
-                celular_cliente: data.celular_cliente || null,
-                nit_ci_cliente: data.nit_ci_cliente || null,
-                is_google_account: data.is_google_account || false,
-                email_verified: data.email_verified || false,
-                fyh_creacion: data.fyh_creacion instanceof Date ? data.fyh_creacion.toISOString() : String(data.fyh_creacion),
-                last_login: data.last_login instanceof Date ? data.last_login.toISOString() : (data.last_login ? String(data.last_login) : null)
+                id: data.id,
+                email: data.email,
+                nombre: data.nombre,
+                apellido: data.apellido,
+                celular: data.celular || null,
+                nitCi: data.nitCi || null,
+                isGoogleAccount: data.isGoogleAccount || false,
+                isEmailVerified: data.isEmailVerified || false,
+                miembroDesde: data.miembroDesde || null,
+                ultimoIngreso: data.ultimoIngreso || null,
             };
             setPerfil(perfilData);
         } catch (error: any) {
@@ -97,7 +96,7 @@ const DatosCuenta = () => {
                         <span className="material-icons">email</span>
                         Email
                     </span>
-                    <span className={styles.value}>{perfil.email_cliente}</span>
+                    <span className={styles.value}>{perfil.email}</span>
                 </div>
 
                 {/* Tipo de cuenta */}
@@ -106,8 +105,8 @@ const DatosCuenta = () => {
                         <span className="material-icons">account_circle</span>
                         Tipo de cuenta
                     </span>
-                    <span className={`${styles.value} ${styles.badge} ${perfil.is_google_account ? styles.google : styles.normal}`}>
-                        {perfil.is_google_account ? 'Google OAuth' : 'Cuenta Normal'}
+                    <span className={`${styles.value} ${styles.badge} ${perfil.isGoogleAccount ? styles.google : styles.normal}`}>
+                        {perfil.isGoogleAccount ? 'Google OAuth' : 'Cuenta Normal'}
                     </span>
                 </div>
 
@@ -117,7 +116,7 @@ const DatosCuenta = () => {
                         <span className="material-icons">badge</span>
                         ID de Cliente
                     </span>
-                    <span className={styles.value}>#{perfil.id_cliente}</span>
+                    <span className={styles.value}>#{perfil.id}</span>
                 </div>
 
                 {/* Estado */}
@@ -137,7 +136,7 @@ const DatosCuenta = () => {
                         <span className="material-icons">calendar_today</span>
                         Fecha de registro
                     </span>
-                    <span className={styles.value}>{formatearFecha(perfil.fyh_creacion)}</span>
+                    <span className={styles.value}>{formatearFecha(perfil.miembroDesde)}</span>
                 </div>
 
                 {/* Último acceso */}
@@ -146,7 +145,7 @@ const DatosCuenta = () => {
                         <span className="material-icons">schedule</span>
                         Último acceso
                     </span>
-                    <span className={styles.value}>{formatearFecha(perfil.last_login)}</span>
+                    <span className={styles.value}>{formatearFecha(perfil.ultimoIngreso)}</span>
                 </div>
             </div>
 

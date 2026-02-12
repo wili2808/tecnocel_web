@@ -119,7 +119,7 @@ const AdminPanel = () => {
   // ============================================================================
   // HOOKS Y ESTADO
   // ============================================================================
-  const { user, userType, isAdmin, isEmpleado, logout } = useAuth();
+  const { user, isAdmin, isEmpleado, logout } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
 
@@ -174,7 +174,7 @@ const AdminPanel = () => {
   });
 
   // Obtener nombre del usuario según el tipo
-  const userName = 'nombres' in user ? user.nombres : `${user.nombre_cliente} ${user.apellido_cliente}`;
+  const userName = 'nombres' in user ? user.nombres : `${user.nombre} ${user.apellido}`;
   const userRole = isAdmin ? 'Administrador' : 'Empleado';
 
   // ============================================================================

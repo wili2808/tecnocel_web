@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { direccionService } from '../services/direccionService';
 import type { CreateDireccionData } from '../services/direccionService';
-import type { Direccion } from '../types';
+import type { Direccion } from '../types/cliente';
 import { useAuth } from '../contexts/AuthContext';
 
 interface UseDireccionesReturn {
@@ -21,12 +21,12 @@ export const useDirecciones = (): UseDireccionesReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchDirecciones = async () => {
-    if (!user?.id_cliente) return;
+    if (!user?.id) return;
     
     try {
       setLoading(true);
       setError(null);
-      const data = await direccionService.getDirecciones(user.id_cliente);
+      const data = await direccionService.getDirecciones(user.id);
       setDirecciones(data);
     } catch (error: any) {
       setError(error.response?.data?.message || error.message || 'Error al cargar las direcciones');
@@ -36,10 +36,10 @@ export const useDirecciones = (): UseDireccionesReturn => {
   };
 
   const createDireccion = async (data: CreateDireccionData) => {
-    if (!user?.id_cliente) throw new Error('Usuario no autenticado');
+    if (!user?.id) throw new Error('Usuario no autenticado');
     
     try {
-      await direccionService.createDireccion(user.id_cliente, data);
+      await direccionService.createDireccion(user.id, data);
       await fetchDirecciones();
     } catch (error: any) {
       setError(error.response?.data?.message || error.message || 'Error al crear la dirección');
@@ -69,7 +69,7 @@ export const useDirecciones = (): UseDireccionesReturn => {
 
   useEffect(() => {
     fetchDirecciones();
-  }, [user?.id_cliente]);
+  }, [user?.id]);
 
   return {
     direcciones,

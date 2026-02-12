@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
 import Cliente from '../models/Cliente.js';
 import logger from '../services/loggerService.js';
+import { ClienteResponse, AuthResponse } from '../types/cliente.types.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -21,6 +22,24 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
  * @class GoogleAuthController
  */
 export default class GoogleAuthController {
+  /**
+   * Mapea el modelo Cliente a la estructura de respuesta API
+   *
+   * @private
+   * @param cliente - Instancia del modelo Cliente de Sequelize
+   * @returns Objeto con estructura limpia para la respuesta API
+   */
+  private static mapearClienteRespuesta(cliente: Cliente): ClienteResponse {
+    return {
+      id: cliente.id_cliente,
+      nombre: cliente.nombre_cliente,
+      apellido: cliente.apellido_cliente,
+      email: cliente.email_cliente,
+      celular: cliente.celular_cliente,
+      nitCi: cliente.nit_ci_cliente
+    };
+  }
+
   /**
    * Autentica un cliente usando Google OAuth 2.0
    *
@@ -137,9 +156,9 @@ export default class GoogleAuthController {
         }
       }
 
-      // Generar JWT
+      // Generar JWT con estructura estándar (igual que ClienteController)
       const token = jwt.sign(
-        { id_cliente: cliente.id_cliente, email: cliente.email_cliente },
+        { sub: cliente.id_cliente, role: 'cliente' },
         process.env.JWT_SECRET || 'tu_clave_secreta',
         { expiresIn: '7d' }
       );
@@ -153,17 +172,12 @@ export default class GoogleAuthController {
         email: cliente.email_cliente
       });
 
-      return res.json({
+      const respuesta: AuthResponse = {
         token,
-        cliente: {
-          id_cliente: cliente.id_cliente,
-          nombre_cliente: cliente.nombre_cliente,
-          apellido_cliente: cliente.apellido_cliente,
-          email_cliente: cliente.email_cliente,
-          celular_cliente: cliente.celular_cliente,
-          nit_ci_cliente: cliente.nit_ci_cliente
-        }
-      });
+        cliente: GoogleAuthController.mapearClienteRespuesta(cliente)
+      };
+
+      return res.json(respuesta);
 
     } catch (error) {
       logger.error('Error en Google login:', error);

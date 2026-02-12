@@ -34,7 +34,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
       method: req.method,
       body: req.body,
       params: req.params,
-      usuario_id: req.usuario?.id_usuario
+      usuario_id: req.usuario?.id
     });
 
     return res.status(400).json({

@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import type { ClienteUser } from '../../contexts/AuthContext';
+import type { Cliente } from '../../types/cliente';
 import { useNavigate } from 'react-router-dom';
 import DatosCuenta from '../../components/user/DatosCuenta';
 import InformacionPersonal from '../../components/user/InformacionPersonal';
@@ -200,7 +200,7 @@ const UserPanel = () => {
                         </div>
                         <div className={userPanelStyles.userDetails}>
                             <h3 className={userPanelStyles.userName}>
-                                {(user as ClienteUser).nombre_cliente} {(user as ClienteUser).apellido_cliente}
+                                {(user as Cliente).nombre} {(user as Cliente).apellido}
                             </h3>
                         </div>
                     </div>

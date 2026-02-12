@@ -2,11 +2,14 @@
 // ARCHIVO PRINCIPAL DE EXPORTACIÓN DE TIPOS
 // ============================================================================
 
-// Exportar todos los tipos de productos
+// Exportar tipos de entidades
+export * from './cliente';
+export * from './usuario';
 export * from './product';
 
-// Exportar todos los tipos de autenticación
+// Exportar tipos de autenticación y sesión
 export * from './auth';
 
-// Exportar todos los tipos de carrito
+// Exportar tipos de carrito y checkout
 export * from './carrito';
+export * from './checkout';

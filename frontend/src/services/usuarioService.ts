@@ -1,12 +1,18 @@
 /**
- * @file Servicio de comunicación con API de administración
+ * @file Servicio de gestión de USUARIOS DEL SISTEMA (admin/empleado)
  *
- * Proporciona funciones para interactuar con endpoints del panel de administración
- * Incluye gestión de usuarios del sistema y clientes
- * Maneja autenticación y autorización de administradores y empleados
+ * Maneja autenticación, autorización y CRUD de usuarios del sistema
+ * Incluye gestión administrativa de clientes desde el panel de administración
+ * NO maneja autenticación de clientes (ver clienteService.ts)
  */
 
 import axios from 'axios';
+import type {
+  AdminUser,
+  CrearUsuarioData,
+  ActualizarUsuarioData,
+  ActualizarClienteAdmin
+} from '../types/usuario';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -14,81 +20,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const ADMIN_TOKEN_KEY = 'admin_token';
 const ADMIN_USER_KEY = 'admin_user';
 const ADMIN_TIMESTAMP_KEY = 'admin_timestamp';
-
-// ============================================================================
-// INTERFACES Y TIPOS
-// ============================================================================
-
-/**
- * Estructura de un usuario administrador o empleado
- */
-export interface AdminUser {
-  id_usuario: number;
-  nombres: string;
-  email: string;
-  id_rol: number;
-  rol?: string;
-}
-
-/**
- * Estructura de un usuario del sistema con rol incluido
- */
-export interface UsuarioConRol extends AdminUser {
-  Rol?: {
-    id_rol: number;
-    rol: string;
-  };
-  fyh_creacion?: Date;
-  fyh_actualizacion?: Date;
-}
-
-/**
- * Datos para crear nuevo usuario
- */
-export interface CrearUsuarioData {
-  nombres: string;
-  email: string;
-  password: string;
-  id_rol: number;
-}
-
-/**
- * Datos para actualizar usuario
- */
-export interface ActualizarUsuarioData {
-  nombres?: string;
-  email?: string;
-  password?: string;
-  id_rol?: number;
-}
-
-/**
- * Estructura de un cliente de la tienda
- */
-export interface ClienteData {
-  id_cliente: number;
-  nombre_cliente: string;
-  apellido_cliente: string;
-  email_cliente: string;
-  celular_cliente?: string;
-  nit_ci_cliente?: string;
-  is_web_enabled: boolean;
-  email_verified: boolean;
-  last_login?: Date;
-  fyh_creacion?: Date;
-}
-
-/**
- * Datos para actualizar cliente desde panel admin
- */
-export interface ActualizarClienteData {
-  nombre_cliente?: string;
-  apellido_cliente?: string;
-  celular_cliente?: string;
-  nit_ci_cliente?: string;
-  is_web_enabled?: boolean;
-  email_verified?: boolean;
-}
 
 // ============================================================================
 // CONFIGURACIÓN DE AXIOS
@@ -120,28 +51,20 @@ adminApi.interceptors.request.use(
 
 /**
  * Interceptor para manejar errores de autenticación
+ * Solo limpia tokens en 401, sin hacer redirect (AuthContext maneja la redirección)
  */
 adminApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       // Token expirado o inválido - limpiar sesión
-      adminService.clearAuthToken();
-      window.location.href = '/admin-login';
+      usuarioService.clearAuthToken();
     }
     return Promise.reject(error);
   }
 );
 
-// ============================================================================
-// SERVICIO DE ADMINISTRACIÓN
-// ============================================================================
-
-/**
- * Servicio principal para gestión de administración
- * Proporciona métodos para autenticación y CRUD de usuarios y clientes
- */
-export const adminService = {
+export const usuarioService = {
 
   // ==========================================================================
   // AUTENTICACIÓN
@@ -156,16 +79,23 @@ export const adminService = {
    * @throws Error si las credenciales son inválidas
    *
    * @example
-   * const { token, usuario } = await adminService.loginAdmin('admin@tecnocel.com', 'password');
+   * const { token, usuario } = await usuarioService.loginAdmin('admin@tecnocel.com', 'password');
    */
-  async loginAdmin(email: string, password: string) {
+  async loginAdmin(email: string, password: string): Promise<{ token: string; usuario: AdminUser }> {
     try {
       const response = await axios.post(`${API_URL}/usuarios/login`, {
         email,
         contrasena: password
       });
 
-      const { token, usuario } = response.data;
+      const { token } = response.data;
+      const rawUsuario = response.data.usuario;
+
+      // Agregar campo 'rol' derivado de idRol para facilitar type guards en el frontend
+      const usuario: AdminUser = {
+        ...rawUsuario,
+        rol: rawUsuario.idRol === 1 ? 'admin' as const : 'empleado' as const,
+      };
 
       // Guardar en localStorage
       this.saveAuthData({ user: usuario, token });
@@ -224,6 +154,35 @@ export const adminService = {
   getStoredUser(): AdminUser | null {
     const userStr = localStorage.getItem(ADMIN_USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
+  },
+
+  /**
+   * Obtiene los datos de autenticación almacenados en localStorage
+   * Verifica la expiración automáticamente (24 horas)
+   * @returns Datos de autenticación o null si no existen o han expirado
+   */
+  getAuthData(): { token: string; usuario: AdminUser } | null {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    const userStr = localStorage.getItem(ADMIN_USER_KEY);
+    const timestamp = localStorage.getItem(ADMIN_TIMESTAMP_KEY);
+
+    if (!token || !userStr || !timestamp) {
+      return null;
+    }
+
+    // Verificar expiración (24 horas)
+    const isExpired = Date.now() - parseInt(timestamp) > 86400000;
+    if (isExpired) {
+      this.clearAuthToken();
+      return null;
+    }
+
+    try {
+      return { token, usuario: JSON.parse(userStr) as AdminUser };
+    } catch {
+      this.clearAuthToken();
+      return null;
+    }
   },
 
   // ==========================================================================
@@ -354,7 +313,7 @@ export const adminService = {
    * @param data - Datos a actualizar
    * @returns Cliente actualizado
    */
-  async actualizarCliente(id: number, data: ActualizarClienteData) {
+  async actualizarCliente(id: number, data: ActualizarClienteAdmin) {
     try {
       const response = await adminApi.put(`/usuarios/admin/clientes/${id}`, data);
       return response.data;
@@ -371,20 +330,20 @@ export const adminService = {
    * Verificar si el usuario es administrador
    *
    * @param user - Usuario a verificar
-   * @returns true si es administrador (id_rol === 1)
+   * @returns true si es administrador (idRol === 1)
    */
   isAdmin(user: AdminUser | null): boolean {
-    return user?.id_rol === 1;
+    return user?.idRol === 1;
   },
 
   /**
    * Verificar si el usuario es empleado
    *
    * @param user - Usuario a verificar
-   * @returns true si es empleado (id_rol === 2)
+   * @returns true si es empleado (idRol === 2)
    */
   isEmpleado(user: AdminUser | null): boolean {
-    return user?.id_rol === 2;
+    return user?.idRol === 2;
   },
 
   /**
@@ -402,4 +361,4 @@ export const adminService = {
   }
 };
 
-export default adminService;
+export default usuarioService;

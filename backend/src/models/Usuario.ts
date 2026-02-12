@@ -8,8 +8,8 @@ class Usuario extends Model {
   declare password_user: string;
   declare token: string;
   declare id_rol: number;
-  declare fyh_creacion: Date;
-  declare fyh_actualizacion: Date;
+  declare readonly fyh_creacion: Date;
+  declare readonly fyh_actualizacion: Date;
 }
 
 Usuario.init({

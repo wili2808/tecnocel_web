@@ -4,12 +4,13 @@
  */
 import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { adminService, type ClienteData } from '../../../services/adminService';
+import { usuarioService } from '../../../services/usuarioService';
+import type { ClienteListItem } from '../../../types/usuario';
 import styles from './GestionClientes.module.css';
 
 const GestionClientes = () => {
   const { showNotification } = useNotification();
-  const [clientes, setClientes] = useState<ClienteData[]>([]);
+  const [clientes, setClientes] = useState<ClienteListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +23,7 @@ const GestionClientes = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await adminService.listarClientes(50, 0, searchTerm);
+      const data = await usuarioService.listarClientes(50, 0, searchTerm);
       setClientes(data.clientes || []);
     } catch (err: any) {
       setError(err.message || 'Error al cargar clientes');

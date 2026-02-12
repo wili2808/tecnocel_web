@@ -7,13 +7,16 @@
  * @module UsuarioController
  */
 
-import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
+import { Request, Response } from 'express';
 import logger from '../services/loggerService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+
+import { UsuarioSistemaResponse, AuthUsuarioResponse, UsuarioJWTPayload } from '../types/usuario.types.js';
 
 /**
  * Controlador para gestión de usuarios del sistema
@@ -24,13 +27,49 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
  *
  * @class UsuarioController
  */
-class UsuarioController {
+export default class UsuarioController {
+
+  /**
+   * Genera un token JWT para un usuario dado
+   * @private
+   * @param usuario - Instancia del modelo Usuario
+   * @returns Token JWT firmado con estructura estándar JWT
+   */
+  private static generarTokenJWT(usuario: Usuario): string {
+    // Payload con estructura estándar JWT (sub para ID)
+    const payload: Omit<UsuarioJWTPayload, 'iat' | 'exp'> = {
+      sub: usuario.id_usuario,
+      role: usuario.id_rol === 1 ? 'admin' : 'empleado',
+      idRol: usuario.id_rol
+    };
+
+    return jwt.sign(
+      payload,
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
+    );
+  }
+
+  /**
+   * Mapea una instancia de Usuario a un objeto de respuesta seguro
+   * @private
+   * @param usuario - Instancia del modelo Usuario
+   * @returns Objeto con datos públicos del usuario
+   */
+  private static mapearUsuarioResponse(usuario: Usuario): UsuarioSistemaResponse {
+    return {
+      id: usuario.id_usuario,
+      nombres: usuario.nombres,
+      email: usuario.email,
+      idRol: usuario.id_rol
+    };
+  }
 
   /**
    * Login de usuario del sistema (admin/empleado)
    *
    * Autentica a un usuario mediante email y contraseña, generando un token JWT
-   * que contiene id_usuario, email e id_rol para autorización posterior.
+   * que contiene sub (ID), role y idRol para autorización posterior.
    *
    * El token generado debe enviarse en requests subsecuentes como:
    * Authorization: Bearer <token>
@@ -62,9 +101,11 @@ class UsuarioController {
    *   }
    * }
    */
-  async login(req: Request, res: Response) {
+  static async login(req: Request, res: Response) {
     try {
       const { email, contrasena } = req.body;
+
+      logger.info('Intento de login de usuario', { email });
 
       // Validar que se proporcionen las credenciales
       if (!email || !contrasena) {
@@ -75,66 +116,40 @@ class UsuarioController {
       }
 
       // Buscar usuario por email
-      const usuario = await Usuario.findOne({
-        where: { email }
-      });
-
+      const usuario = await Usuario.findOne({ where: { email } });
+      const errorAuth = { mensaje: 'Credenciales inválidas' };
+      
+      // Validacion de seguridad: usuario existe
       if (!usuario) {
-        logger.warn('Intento de login con email no registrado', { email });
-        return res.status(401).json({
-          mensaje: 'Credenciales inválidas'
-        });
+        logger.warn('Login fallido: Usuario no encontrado', { email });
+        return res.status(401).json(errorAuth);
       }
 
       // Verificar contraseña
       const passwordValida = await bcrypt.compare(contrasena, usuario.password_user);
-
       if (!passwordValida) {
-        logger.warn('Intento de login con contraseña incorrecta', {
-          email,
-          id_usuario: usuario.id_usuario
-        });
-        return res.status(401).json({
-          mensaje: 'Credenciales inválidas'
-        });
+        logger.warn('Intento de login con contraseña incorrecta', { email });
+        return res.status(401).json(errorAuth);
       }
 
       // Generar token JWT
-      const token = jwt.sign(
-        {
-          id_usuario: usuario.id_usuario,
-          email: usuario.email,
-          id_rol: usuario.id_rol
-        },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
-
-      logger.info('Login de usuario exitoso', {
-        id_usuario: usuario.id_usuario,
-        email: usuario.email,
-        id_rol: usuario.id_rol
-      });
-
+      const token = this.generarTokenJWT(usuario);
+      
       // Responder con token y datos del usuario
-      res.json({
+      const response: AuthUsuarioResponse = {
         token,
-        usuario: {
-          id_usuario: usuario.id_usuario,
-          nombres: usuario.nombres,
-          email: usuario.email,
-          id_rol: usuario.id_rol
-        }
-      });
+        usuario: this.mapearUsuarioResponse(usuario)
+      };
+      
+      res.json(response);
 
+      logger.info('Login de usuario exitoso', { email: usuario.email, id_rol: usuario.id_rol})
     } catch (error) {
-      logger.error('Error en login de usuario:', {
+      logger.error('Error crítico en login de usuario:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined
       });
-      res.status(500).json({
-        mensaje: 'Error al procesar el login'
-      });
+      res.status(500).json({mensaje: 'Error al procesar el login'});
     }
   }
 
@@ -163,28 +178,20 @@ class UsuarioController {
    *   "id_rol": 1
    * }
    */
-  async getMe(req: Request, res: Response) {
+  static async getMe(req: Request, res: Response) {
     try {
       if (!req.usuario) {
-        return res.status(401).json({
-          mensaje: 'No autenticado'
-        });
+        return res.status(401).json({mensaje: 'No autenticado'});
       }
 
-      const usuario = await Usuario.findByPk(req.usuario.id_usuario);
+      // Buscar usuario en la base de datos
+      const usuario = await Usuario.findByPk(req.usuario.id);
 
       if (!usuario) {
-        return res.status(404).json({
-          mensaje: 'Usuario no encontrado'
-        });
+        return res.status(404).json({mensaje: 'Usuario no encontrado'});
       }
 
-      res.json({
-        id_usuario: usuario.id_usuario,
-        nombres: usuario.nombres,
-        email: usuario.email,
-        id_rol: usuario.id_rol
-      });
+      res.json(this.mapearUsuarioResponse(usuario));
 
     } catch (error) {
       logger.error('Error al obtener datos del usuario:', {
@@ -196,5 +203,3 @@ class UsuarioController {
     }
   }
 }
-
-export default new UsuarioController();

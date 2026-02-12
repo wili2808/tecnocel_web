@@ -34,7 +34,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
       method: req.method,
       params: req.params,
       query: req.query,
-      cliente_id: req.usuario?.id_cliente
+      cliente_id: req.usuario?.id
     });
 
     return res.status(400).json({
@@ -121,7 +121,7 @@ export const logVentaOperation = (operacion: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     logger.debug(`Iniciando operación de venta: ${operacion}`, {
       operacion,
-      cliente_id: req.usuario?.id_cliente,
+      cliente_id: req.usuario?.id,
       path: req.path,
       method: req.method,
       params: req.params,
@@ -167,7 +167,7 @@ export const ventasRateLimit = (req: Request, res: Response, next: NextFunction)
   const WINDOW_MS = 60 * 1000; // 1 minuto
   const MAX_REQUESTS = 20;
 
-  const clienteId = req.usuario?.id_cliente || 'anonymous';
+  const clienteId = req.usuario?.id || 'anonymous';
   const clienteKey = `${req.ip}-${clienteId}`;
   const now = Date.now();
 

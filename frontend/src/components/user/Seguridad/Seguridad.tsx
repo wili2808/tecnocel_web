@@ -4,7 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { authService } from '../../../services/authService';
+import { clienteService } from '../../../services/clienteService';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './Seguridad.module.css';
 
@@ -34,8 +34,8 @@ const Seguridad = () => {
         const cargarPerfil = async () => {
             try {
                 setLoadingProfile(true);
-                const perfil = await authService.obtenerPerfil();
-                setIsGoogleAccount(perfil.is_google_account || false);
+                const perfil = await clienteService.obtenerPerfil();
+                setIsGoogleAccount(perfil.isGoogleAccount || false);
             } catch (error) {
                 console.error('Error al cargar perfil:', error);
             } finally {
@@ -106,7 +106,7 @@ const Seguridad = () => {
 
         try {
             setLoading(true);
-            await authService.cambiarContrasena(
+            await clienteService.cambiarContrasena(
                 formData.contrasenaActual,
                 formData.contrasenaNueva
             );

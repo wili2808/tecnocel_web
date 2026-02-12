@@ -66,7 +66,7 @@ export default class VentaController {
    */
   static async obtenerHistorialCliente(req: Request, res: Response) {
     try {
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -145,7 +145,7 @@ export default class VentaController {
       logger.error('Error al obtener historial de ventas:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente,
+        cliente_id: req.usuario?.id,
         query: req.query
       });
       return res.status(500).json({
@@ -192,7 +192,7 @@ export default class VentaController {
    */
   static async obtenerDetalle(req: Request, res: Response) {
     try {
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
       const { id_venta } = req.params;
 
       if (!id_cliente) {
@@ -292,7 +292,7 @@ export default class VentaController {
       logger.error('Error al obtener detalle de venta:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente,
+        cliente_id: req.usuario?.id,
         params: req.params
       });
       return res.status(500).json({

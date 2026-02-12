@@ -94,7 +94,7 @@ export class DireccionController {
   static async getDireccionById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const clienteAutenticado = req.usuario?.id_cliente;
+      const clienteAutenticado = req.usuario?.id;
 
       const direccion = await Direccion.findByPk(id, {
         include: [
@@ -254,7 +254,7 @@ export class DireccionController {
     try {
       const { id } = req.params;
       const datosActualizacion = req.body;
-      const clienteAutenticado = req.usuario?.id_cliente;
+      const clienteAutenticado = req.usuario?.id;
 
       const direccion = await Direccion.findByPk(id);
       if (!direccion) {
@@ -328,7 +328,7 @@ export class DireccionController {
   static async setPredeterminada(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const clienteAutenticado = req.usuario?.id_cliente;
+      const clienteAutenticado = req.usuario?.id;
 
       const direccion = await Direccion.findByPk(id);
       if (!direccion) {
@@ -401,7 +401,7 @@ export class DireccionController {
   static async deleteDireccion(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const clienteAutenticado = req.usuario?.id_cliente;
+      const clienteAutenticado = req.usuario?.id;
 
       const direccion = await Direccion.findByPk(id);
       if (!direccion) {

@@ -5,13 +5,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { adminService, type UsuarioConRol } from '../../../services/adminService';
+import { usuarioService } from '../../../services/usuarioService';
+import type { UsuarioListItem } from '../../../types/usuario';
 import styles from './GestionUsuarios.module.css';
 
 const GestionUsuarios = () => {
   const { isAdmin } = useAuth();
   const { showNotification } = useNotification();
-  const [usuarios, setUsuarios] = useState<UsuarioConRol[]>([]);
+  const [usuarios, setUsuarios] = useState<UsuarioListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +24,7 @@ const GestionUsuarios = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await adminService.listarUsuarios();
+      const data = await usuarioService.listarUsuarios();
       setUsuarios(data.usuarios || []);
     } catch (err: any) {
       setError(err.message || 'Error al cargar usuarios');
@@ -44,7 +45,7 @@ const GestionUsuarios = () => {
     }
 
     try {
-      await adminService.eliminarUsuario(id);
+      await usuarioService.eliminarUsuario(id);
       showNotification('Usuario eliminado exitosamente', 'success');
       cargarUsuarios();
     } catch (err: any) {
@@ -115,7 +116,7 @@ const GestionUsuarios = () => {
                   <td>{usuario.email}</td>
                   <td>
                     <span className={`${styles.badge} ${usuario.id_rol === 1 ? styles.badgeAdmin : styles.badgeEmpleado}`}>
-                      {usuario.Rol?.rol || adminService.getRolName(usuario.id_rol)}
+                      {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol)}
                     </span>
                   </td>
                   <td>

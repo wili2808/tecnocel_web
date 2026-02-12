@@ -1,5 +1,5 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Favorito } from '../types';
+import type { Favorito } from '../types/cliente';
 
 /**
  * Respuesta del servidor al obtener favoritos con paginación

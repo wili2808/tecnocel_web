@@ -30,18 +30,18 @@ export const ShippingAddressSelector = memo<ShippingAddressSelectorProps>(({
 
   // Cargar direcciones
   const cargarDirecciones = useCallback(async () => {
-    if (!user?.id_cliente) return;
+    if (!user?.id) return;
 
     try {
       setLoading(true);
-      const data = await direccionService.getDirecciones(user.id_cliente);
+      const data = await direccionService.getDirecciones(user.id);
       setDirecciones(data as DireccionEnvio[]);
     } catch (error) {
       showNotification('Error al cargar direcciones', 'error');
     } finally {
       setLoading(false);
     }
-  }, [user?.id_cliente, showNotification]);
+  }, [user?.id, showNotification]);
 
   useEffect(() => {
     cargarDirecciones();
@@ -62,11 +62,11 @@ export const ShippingAddressSelector = memo<ShippingAddressSelectorProps>(({
 
   // Guardar nueva dirección
   const handleGuardarDireccion = useCallback(async (formData: DireccionFormData) => {
-    if (!user?.id_cliente) return;
+    if (!user?.id) return;
 
     try {
       const nuevaDireccion = await direccionService.createDireccion(
-        user.id_cliente,
+        user.id,
         formData
       );
       showNotification('Dirección agregada exitosamente', 'success');
@@ -81,7 +81,7 @@ export const ShippingAddressSelector = memo<ShippingAddressSelectorProps>(({
       showNotification('Error al guardar dirección', 'error');
       throw error;
     }
-  }, [user?.id_cliente, cargarDirecciones, onSelectDireccion, showNotification]);
+  }, [user?.id, cargarDirecciones, onSelectDireccion, showNotification]);
 
   // Memoizar si hay direcciones
   const hayDirecciones = useMemo(() => direcciones.length > 0, [direcciones.length]);

@@ -98,7 +98,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
 
             await commentService.crearComentario({
                 id_producto: productId,
-                id_cliente: user.id_cliente,
+                id_cliente: user.id,
                 comentario: datos.comentario,
                 calificacion: datos.calificacion,
                 imagenes: imagenesData
@@ -280,7 +280,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
                             <CommentCard
                                 key={comentario.id_comentario}
                                 comentario={comentario}
-                                currentUserId={user?.id_cliente}
+                                currentUserId={user?.id}
                                 onDelete={handleEliminarComentario}
                                 onEdit={handleEditarComentario}
                                 onImageDelete={handleEliminarImagenComentario}

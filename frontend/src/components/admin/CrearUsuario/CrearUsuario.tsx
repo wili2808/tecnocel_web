@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { adminService } from '../../../services/adminService';
+import { usuarioService } from '../../../services/usuarioService';
 import styles from './CrearUsuario.module.css';
 
 interface FormData {
@@ -69,7 +69,7 @@ const CrearUsuario = () => {
 
     try {
       setLoading(true);
-      await adminService.crearUsuario({
+      await usuarioService.crearUsuario({
         nombres: formData.nombres,
         email: formData.email,
         password: formData.password,

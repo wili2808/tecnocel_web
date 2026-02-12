@@ -1,82 +1,54 @@
 import { useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import type { RegisterData, RegisterResult } from '../types/auth';
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface RegisterData {
-  nombre_cliente: string;
-  apellido_cliente: string;
-  email_cliente: string;
-  contrasena: string;
-  celular_cliente: string;
-  nit_ci_cliente: string;
-}
-
 interface AuthActionResult {
   success: boolean;
   error?: string;
-  data?: any;
+  data?: RegisterResult;
 }
 
 export const useAuthActions = () => {
   const { login, register, logout, googleLogin, clearError } = useAuth();
 
-  // Login con manejo de errores mejorado
   const handleLogin = useCallback(async (credentials: LoginCredentials): Promise<AuthActionResult> => {
     try {
       clearError();
       await login(credentials.email, credentials.password);
       return { success: true };
-    } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Error al iniciar sesión' 
-      };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      return { success: false, error: message };
     }
   }, [login, clearError]);
 
-  // Registro con manejo de errores mejorado
   const handleRegister = useCallback(async (data: RegisterData): Promise<AuthActionResult> => {
     try {
       clearError();
       const result = await register(data);
       return { success: true, data: result };
-    } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Error al registrar usuario' 
-      };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al registrar usuario';
+      return { success: false, error: message };
     }
   }, [register, clearError]);
 
-  // Google login con manejo de errores mejorado
-  const handleGoogleLogin = useCallback(async (accessToken: string): Promise<AuthActionResult> => {
-    try {
-      clearError();
-      await googleLogin({ access_token: accessToken });
-      return { success: true };
-    } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Error al autenticarse con Google' 
-      };
-    }
+  /**
+   * Inicia el flujo de Google OAuth (popup)
+   * Los errores se manejan internamente en el callback onError de useGoogleLogin
+   */
+  const handleGoogleLogin = useCallback(() => {
+    clearError();
+    googleLogin();
   }, [googleLogin, clearError]);
 
-  // Logout con limpieza completa
   const handleLogout = useCallback(() => {
-    try {
-      logout();
-      return { success: true };
-    } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Error al cerrar sesión' 
-      };
-    }
+    logout();
   }, [logout]);
 
   return {

@@ -8,8 +8,6 @@ class Cliente extends Model {
   declare nit_ci_cliente: string;
   declare celular_cliente: string;
   declare email_cliente: string;
-  declare fyh_creacion: Date;
-  declare fyh_actualizacion: Date;
   declare password_hash: string | null;
   declare is_web_enabled: boolean;
   declare last_login: Date | null;
@@ -18,6 +16,9 @@ class Cliente extends Model {
   declare reset_token: string | null;
   declare reset_token_expires: Date | null;
   declare google_id: string | null;
+  // Sequelize gestiona estos campos automáticamente
+  declare readonly fyh_creacion: Date;
+  declare readonly fyh_actualizacion: Date;
 }
 
 Cliente.init({
@@ -36,23 +37,17 @@ Cliente.init({
   },
   nit_ci_cliente: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true // Se permite nulo si no se proporciona
   },
   celular_cliente: {
     type: DataTypes.STRING(50),
-    allowNull: false
+    allowNull: true // Se permite nulo si no se proporciona
   },
   email_cliente: {
     type: DataTypes.STRING(255),
-    allowNull: false
-  },
-  fyh_creacion: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  fyh_actualizacion: {
-    type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
+    unique: true,
+    validate: {isEmail: true}
   },
   password_hash: {
     type: DataTypes.STRING(255),
@@ -93,7 +88,9 @@ Cliente.init({
   sequelize,
   modelName: 'Cliente',
   tableName: 'tb_clientes',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'fyh_creacion',
+  updatedAt: 'fyh_actualizacion'
 });
 
 export default Cliente; 

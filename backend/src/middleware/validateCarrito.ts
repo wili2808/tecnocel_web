@@ -52,7 +52,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
       method: req.method,
       body: req.body,
       params: req.params,
-      cliente_id: req.usuario?.id_cliente
+      cliente_id: req.usuario?.id
     });
     
     return res.status(400).json({
@@ -262,7 +262,7 @@ export const validateObtenerHistorial = [
  */
 export const verificarLimitesCarrito = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id_cliente = req.usuario?.id_cliente;
+    const id_cliente = req.usuario?.id;
     
     if (!id_cliente) {
       return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -345,7 +345,7 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
   } catch (error) {
     logger.error('Error al verificar límites del carrito:', {
       error: error instanceof Error ? error.message : 'Error desconocido',
-      cliente_id: req.usuario?.id_cliente,
+      cliente_id: req.usuario?.id,
       body: req.body
     });
     return res.status(500).json({ mensaje: 'Error interno del servidor' });
@@ -378,7 +378,7 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
  */
 export const logCarritoOperation = (operacion: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const id_cliente = req.usuario?.id_cliente;
+    const id_cliente = req.usuario?.id;
     const startTime = Date.now();
     
     // Interceptar la respuesta para loggear el resultado
@@ -464,7 +464,7 @@ export const logCarritoOperation = (operacion: string) => {
 export const verificarDisponibilidadProducto = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id_producto, cantidad } = req.body;
-    const id_cliente = req.usuario?.id_cliente;
+    const id_cliente = req.usuario?.id;
     
     if (!id_producto) {
       return next(); // Si no hay id_producto, dejar que otras validaciones lo manejen
@@ -538,7 +538,7 @@ export const verificarDisponibilidadProducto = async (req: Request, res: Respons
     logger.error('Error al verificar disponibilidad del producto:', {
       error: error instanceof Error ? error.message : 'Error desconocido',
       id_producto: req.body.id_producto,
-      cliente_id: req.usuario?.id_cliente
+      cliente_id: req.usuario?.id
     });
     return res.status(500).json({ mensaje: 'Error al verificar disponibilidad del producto' });
   }
@@ -586,7 +586,7 @@ const rateLimitStore = new Map<string, {
  * );
  */
 export const carritoRateLimit = (req: Request, res: Response, next: NextFunction) => {
-  const id_cliente = req.usuario?.id_cliente;
+  const id_cliente = req.usuario?.id;
   const now = Date.now();
   
   // Configuración más flexible del rate limiting
@@ -694,7 +694,7 @@ export const carritoRateLimit = (req: Request, res: Response, next: NextFunction
  * router.use('/carrito', carritoRateLimitDiferenciado);
  */
 export const carritoRateLimitDiferenciado = (req: Request, res: Response, next: NextFunction) => {
-  const id_cliente = req.usuario?.id_cliente;
+  const id_cliente = req.usuario?.id;
   const now = Date.now();
   
   // Determinar el tipo de operación

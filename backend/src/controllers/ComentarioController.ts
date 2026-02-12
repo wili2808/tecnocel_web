@@ -699,7 +699,7 @@ class ComentarioController {
       }
 
       // Verificar que el usuario autenticado es el propietario del comentario
-      const userId = req.usuario?.id_cliente;
+      const userId = req.usuario?.id;
       
       // Log para debugging
       logger.info('Verificación de permisos', {

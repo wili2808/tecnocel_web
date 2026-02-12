@@ -1,86 +1,111 @@
 // ============================================================================
-// TIPOS DE AUTENTICACIÓN Y USUARIOS
+// TIPOS DE AUTENTICACIÓN Y SESIÓN
+// ============================================================================
+
+import type { OverridableTokenClientConfig } from '@react-oauth/google';
+
+// Re-exportar entidades para mantener compatibilidad con imports existentes
+export type { Cliente, Direccion, Favorito } from './cliente';
+export type { AdminUser } from './usuario';
+
+// Importar para uso interno en este archivo
+import type { Cliente } from './cliente';
+import type { AdminUser } from './usuario';
+
+/**
+ * Tipo de usuario en el sistema
+ * - cliente: Usuario final de la tienda web
+ * - admin: Administrador del sistema (acceso completo)
+ * - empleado: Empleado del sistema (acceso limitado)
+ */
+export type UserType = 'cliente' | 'admin' | 'empleado';
+
+/**
+ * Tipo union para cualquier usuario autenticado
+ */
+export type User = Cliente | AdminUser;
+
+// ============================================================================
+// ESTADO Y CONTEXTO DE AUTENTICACIÓN
 // ============================================================================
 
 /**
- * Interfaz para Clientes - Tabla tb_clientes
+ * Estado interno del contexto de autenticación
+ * Mantiene información del usuario, token y estados de operación
+ * Soporta tanto clientes como usuarios del sistema (admin/empleado)
  */
-export interface Cliente {
-  id_cliente: number;
-  nombre_cliente: string;
-  apellido_cliente: string;
-  nit_ci_cliente: string;
-  celular_cliente: string;
-  email_cliente: string;
-  password_hash?: string | null;
-  is_web_enabled: boolean;
-  last_login?: string | null;
-  email_verified: boolean;
-  verification_token?: string | null;
-  reset_token?: string | null;
-  reset_token_expires?: string | null;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-  google_id?: string | null;
+export interface AuthState {
+  user: User | null;
+  userType: UserType | null;
+  token: string | null;
+  isVerifying: boolean;
+  isInitialized: boolean;
+  error: string | null;
 }
 
 /**
- * Interfaz para Direcciones - Tabla tb_direcciones
+ * Métodos y propiedades del contexto de autenticación
+ * Define la API pública del contexto para componentes consumidores
+ * Incluye autenticación para clientes y usuarios del sistema
  */
-export interface Direccion {
-  id_direccion: number;
-  id_cliente: number;
-  nombre_direccion: string;
-  calle: string;
-  numero: string;
-  piso?: string | null;
-  departamento?: string | null;
-  barrio?: string | null;
-  ciudad: string;
-  provincia: string;
-  codigo_postal?: string | null;
-  pais: string;
-  referencia?: string | null;
-  es_predeterminada: boolean;
-  es_facturacion: boolean;
-  telefono_contacto?: string | null;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
-}
-
-/**
- * Interfaz para Favoritos - Tabla tb_favoritos
- */
-export interface Favorito {
-  id_favorito: number;
-  id_cliente: number;
-  id_producto: number;
-  fyh_creacion: string;
-  producto?: {
-    id_producto: number;
-    nombre: string;
-    descripcion: string | null;
-    precio_venta: string;
-    imagen_url?: string | null;
-    stock: number;
-  };
+export interface AuthContextType {
+  user: User | null;
+  userType: UserType | null;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isEmpleado: boolean;
+  isCliente: boolean;
+  token: string | null;
+  isVerifying: boolean;
+  isInitialized: boolean;
+  error: string | null;
+  login: (email: string, pass: string) => Promise<void>;
+  loginAdmin: (email: string, pass: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<RegisterResult>;
+  logout: () => void;
+  googleLogin: (overrideConfig?: OverridableTokenClientConfig) => void;
+  clearError: () => void;
 }
 
 // ============================================================================
-// TIPOS DE AUTENTICACIÓN
+// RESPUESTAS Y ERRORES DE AUTENTICACIÓN
 // ============================================================================
 
 /**
- * Tipo para datos de autenticación
+ * Respuesta de autenticación del servidor para endpoints de CLIENTES
+ * Estructura que devuelve el backend en login, register y googleLogin
  */
-export interface AuthData {
+export interface AuthResponse {
   token: string;
-  user: Cliente;
-  expires_at: string;
+  cliente?: Cliente;
+  mensaje?: string;
 }
 
 /**
- * Tipo para login
+ * Resultado del registro devuelto por AuthContext.register()
+ * Garantiza que cliente siempre existe (a diferencia de AuthResponse donde es opcional)
+ */
+export interface RegisterResult {
+  token: string;
+  cliente: Cliente;
+  mensaje?: string;
+}
+
+/**
+ * Estructura de errores de autenticación
+ */
+export interface AuthError {
+  code: string;
+  message: string;
+  details?: unknown;
+}
+
+// ============================================================================
+// DATOS DE FORMULARIOS DE AUTENTICACIÓN
+// ============================================================================
+
+/**
+ * Datos para login
  */
 export interface LoginData {
   email: string;
@@ -88,20 +113,20 @@ export interface LoginData {
 }
 
 /**
- * Tipo para registro
+ * Datos para registro de nuevo cliente
  */
 export interface RegisterData {
-  nombre_cliente: string;
-  apellido_cliente: string;
-  email_cliente: string;
-  celular_cliente: string;
-  nit_ci_cliente: string;
+  nombre: string;
+  apellido: string;
+  email: string;
   password: string;
   confirmPassword: string;
+  celular?: string;
+  nitCi?: string;
 }
 
 /**
- * Tipo para cambio de contraseña
+ * Datos para cambio de contraseña
  */
 export interface ChangePasswordData {
   currentPassword: string;
@@ -110,14 +135,14 @@ export interface ChangePasswordData {
 }
 
 /**
- * Tipo para recuperación de contraseña
+ * Datos para solicitar recuperación de contraseña
  */
 export interface ResetPasswordData {
   email: string;
 }
 
 /**
- * Tipo para nueva contraseña
+ * Datos para establecer nueva contraseña (recuperación)
  */
 export interface NewPasswordData {
   token: string;

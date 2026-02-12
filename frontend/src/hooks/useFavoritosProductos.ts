@@ -40,7 +40,7 @@ export const useFavoritosProductos = (limit = 20) => {
 
   // Cargar productos favoritos
   const loadFavoritosProductos = useCallback(async (offset = 0) => {
-    if (!user?.id_cliente) {
+    if (!user?.id) {
       setProductos([]);
       return;
     }
@@ -50,7 +50,7 @@ export const useFavoritosProductos = (limit = 20) => {
       setError(null);
       
       const response: FavoritoResponse = await favoritoService.getFavoritos(
-        user.id_cliente, 
+        user.id, 
         limit, 
         offset
       );
@@ -84,7 +84,7 @@ export const useFavoritosProductos = (limit = 20) => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id_cliente, limit]);
+  }, [user?.id, limit]);
 
   // Cargar más productos
   const loadMore = useCallback(() => {
@@ -95,10 +95,10 @@ export const useFavoritosProductos = (limit = 20) => {
 
   // Remover producto de favoritos
   const removeFromFavoritos = useCallback(async (productId: number) => {
-    if (!user?.id_cliente) return false;
+    if (!user?.id) return false;
 
     try {
-      await favoritoService.removeFavorito(user.id_cliente, productId);
+      await favoritoService.removeFavorito(user.id, productId);
       
       // ✅ ACTUALIZAR ESTADO LOCAL
       setProductos(prev => prev.filter(p => p.id_producto !== productId));
@@ -112,7 +112,7 @@ export const useFavoritosProductos = (limit = 20) => {
       console.error('Error al remover de favoritos:', error);
       return false;
     }
-  }, [user?.id_cliente, refreshGlobalFavoritos]);
+  }, [user?.id, refreshGlobalFavoritos]);
 
   // Verificar si hay más productos para cargar
   const hasMore = pagination.offset + pagination.limit < pagination.total;

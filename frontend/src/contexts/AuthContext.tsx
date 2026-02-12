@@ -1,116 +1,25 @@
 /**
- * Contexto de Autenticación Optimizado - Maneja el estado global de autenticación
- * Proporciona funcionalidades de login, registro, logout y autenticación con Google OAuth
+ * Contexto de Autenticación - Maneja el estado global de autenticación
+ * Soporta dos flujos independientes:
+ * - Clientes: login, registro, Google OAuth (via clienteService)
+ * - Usuarios del sistema (admin/empleado): loginAdmin (via usuarioService)
  * Incluye persistencia de sesión, verificación de tokens y manejo de errores
- * Utiliza useGoogleLogin para integración con Google OAuth 2.0
  */
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import type { ReactNode } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import { authService } from '../services/authService';
-import { adminService } from '../services/adminService';
+import { clienteService } from '../services/clienteService';
+import { usuarioService } from '../services/usuarioService';
 
-// ============================================================================
-// CONSTANTES Y CONFIGURACIÓN
-// ============================================================================
+import type { ReactNode } from 'react';
+import type { Cliente } from '../types/cliente';
+import type { AdminUser } from '../types/usuario';
+import type { RegisterData, UserType, RegisterResult, AuthState, AuthContextType } from '../types/auth';
 
-// Constantes para almacenamiento local
+// Constantes de localStorage
 const TOKEN_KEY = 'token';
-const AUTH_TIMESTAMP_KEY = 'auth_timestamp';
-const AUTH_USER_KEY = 'auth_user';
+const ADMIN_TOKEN_KEY = 'admin_token';
 
-// ============================================================================
-// INTERFACES Y TIPOS
-// ============================================================================
-
-/**
- * Estructura de un cliente en el sistema
- * Define los campos básicos de información del usuario autenticado
- */
-export interface ClienteUser {
-  id_cliente: number;
-  nombre_cliente: string;
-  apellido_cliente: string;
-  email_cliente: string;
-  celular_cliente?: string;
-  nit_ci_cliente?: string;
-}
-
-/**
- * Estructura de un usuario administrador o empleado
- * Define los campos para usuarios del sistema (no clientes)
- */
-export interface AdminUser {
-  id_usuario: number;
-  nombres: string;
-  email: string;
-  id_rol: number;
-}
-
-/**
- * Tipo de usuario en el sistema
- * - cliente: Usuario final de la tienda web
- * - admin: Administrador del sistema (acceso completo)
- * - empleado: Empleado del sistema (acceso limitado)
- */
-export type UserType = 'cliente' | 'admin' | 'empleado' | null;
-
-/**
- * Estado interno del contexto de autenticación
- * Mantiene información del usuario, token y estados de operación
- * Soporta tanto clientes como usuarios del sistema (admin/empleado)
- */
-interface AuthState {
-  user: ClienteUser | AdminUser | null;
-  userType: UserType;
-  token: string | null;
-  isVerifying: boolean;
-  isInitialized: boolean;
-  error: string | null;
-}
-
-/**
- * Datos requeridos para el registro de un nuevo usuario
- * Incluye validación de campos obligatorios y opcionales
- */
-interface RegisterData {
-  nombre_cliente: string;
-  apellido_cliente: string;
-  email_cliente: string;
-  contrasena: string;
-  celular_cliente: string;
-  nit_ci_cliente: string;
-}
-
-/**
- * Métodos y propiedades del contexto de autenticación
- * Define la API pública del contexto para componentes consumidores
- * Incluye autenticación para clientes y usuarios del sistema
- */
-interface AuthContextType {
-  user: ClienteUser | AdminUser | null;
-  userType: UserType;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  isEmpleado: boolean;
-  isCliente: boolean;
-  token: string | null;
-  isVerifying: boolean;
-  isInitialized: boolean;
-  error: string | null;
-  login: (email_cliente: string, contrasena: string) => Promise<void>;
-  loginAdmin: (email: string, contrasena: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<any>;
-  logout: () => void;
-  googleLogin: (overrideConfig?: any) => void;
-  clearError: () => void;
-}
-
-// ============================================================================
-// ESTADO INICIAL
-// ============================================================================
-
-// Estado inicial del contexto
+// Estado inicial del contexto de autenticación
 const initialState: AuthState = {
   user: null,
   userType: null,
@@ -120,17 +29,15 @@ const initialState: AuthState = {
   error: null,
 };
 
-// ============================================================================
-// CREACIÓN DEL CONTEXTO
-// ============================================================================
+// PROPIEDADES DEL PROVIDER
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-// Creación del contexto de autenticación
+// Instancia del contexto de autenticación
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * Hook personalizado para usar el contexto de autenticación
- * Proporciona acceso seguro al contexto con validación de uso
- */
+// Hook personalizado para usar el contexto de autenticación
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -139,71 +46,63 @@ export const useAuth = () => {
   return context;
 };
 
-// ============================================================================
-// PROPIEDADES DEL PROVIDER
-// ============================================================================
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-// ============================================================================
 // PROVIDER PRINCIPAL
-// ============================================================================
 
 /**
- * Proveedor del contexto de autenticación optimizado
+ * Proveedor del contexto de autenticación
  * Maneja el estado global de autenticación y la persistencia de sesión
- * Incluye optimizaciones para evitar re-renders innecesarios
+ * Restaura sesiones de clientes y usuarios del sistema al cargar
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  // ============================================================================
-  // ESTADO Y REFS
-  // ============================================================================
-
-  // Estado unificado del contexto
+  // Estado unificado del contexto - restaura sesión desde localStorage
   const [state, setState] = useState<AuthState>(() => {
-    // Inicialización lazy para evitar cálculos en cada render
-    const token = localStorage.getItem(TOKEN_KEY);
-    const user = localStorage.getItem(AUTH_USER_KEY);
-    const timestamp = localStorage.getItem(AUTH_TIMESTAMP_KEY);
-
-    // Verificar si los datos han expirado (24 horas)
-    if (token && user && timestamp) {
-      const isExpired = Date.now() - parseInt(timestamp) > 24 * 60 * 60 * 1000;
-      if (!isExpired) {
-        return {
-          ...initialState,
-          token,
-          user: JSON.parse(user),
-        };
-      }
+    // Intentar restaurar sesión de cliente
+    const clientAuth = clienteService.getAuthData();
+    if (clientAuth?.cliente && clientAuth?.token) {
+      return {
+        ...initialState,
+        user: clientAuth.cliente,
+        userType: 'cliente' as UserType,
+        token: clientAuth.token,
+        isInitialized: true,
+      };
     }
 
-    return initialState;
+    // Intentar restaurar sesión de admin/empleado
+    const adminAuth = usuarioService.getAuthData();
+    if (adminAuth?.usuario && adminAuth?.token) {
+      const userType: UserType = adminAuth.usuario.idRol === 1 ? 'admin' : 'empleado';
+      return {
+        ...initialState,
+        user: adminAuth.usuario,
+        userType,
+        token: adminAuth.token,
+        isInitialized: true,
+      };
+    }
+
+    return { ...initialState, isInitialized: true };
   });
 
-  // Refs para evitar re-renders innecesarios
+  // Ref para evitar verificación duplicada de token
   const verificationRef = useRef(false);
-  const isInitializedRef = useRef(false);
 
   // ============================================================================
   // FUNCIONES AUXILIARES
   // ============================================================================
 
-  // Función para actualizar estado de forma inmutable
   const updateState = useCallback((updates: Partial<AuthState>) => {
-    setState(prev => ({ ...prev, ...updates }));
+    setState((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  // Función para guardar datos de autenticación
-  const saveAuthData = useCallback((user: ClienteUser, token: string) => {
-    authService.saveAuthData({ user, token });
+  // Guarda datos de autenticación de CLIENTE en localStorage
+  const saveClienteData = useCallback((cliente: Cliente, token: string) => {
+    clienteService.saveAuthData({ token, cliente });
   }, []);
 
-  // Función para limpiar datos de autenticación
-  const clearAuthData = useCallback(() => {
-    authService.clearAuthToken();
+  // Limpia datos de autenticación de CLIENTE
+  const clearClienteData = useCallback(() => {
+    clienteService.clearAuthToken();
   }, []);
 
   // ============================================================================
@@ -211,59 +110,74 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // ============================================================================
 
   /**
-   * Verificación de token optimizada
-   * Valida el token almacenado y actualiza el estado del usuario
-   * Incluye manejo de errores y limpieza automática de datos expirados
+   * Verificación de token al iniciar la app
+   * Intenta verificar token de cliente primero, luego de admin
+   * Se ejecuta solo una vez gracias a verificationRef
    */
   const verifyToken = useCallback(async () => {
-    if (verificationRef.current || isInitializedRef.current) {
-      return;
-    }
-
+    if (verificationRef.current) return;
     verificationRef.current = true;
+
     updateState({ isVerifying: true, error: null });
 
-    const storedToken = localStorage.getItem(TOKEN_KEY);
+    const storedClientToken = localStorage.getItem(TOKEN_KEY);
+    const storedAdminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
 
-    if (!storedToken) {
-      updateState({
-        user: null,
-        token: null,
-        isVerifying: false,
-        isInitialized: true
-      });
-      return;
+    // Verificar token de cliente
+    if (storedClientToken) {
+      try {
+        const cliente = await clienteService.verifyToken();
+        updateState({
+          user: cliente,
+          userType: 'cliente',
+          token: storedClientToken,
+          isVerifying: false,
+          isInitialized: true,
+          error: null,
+        });
+        return;
+      } catch {
+        clearClienteData();
+      }
     }
 
-    try {
-      const cliente = await authService.verifyToken();
-      updateState({
-        user: cliente,
-        userType: 'cliente',
-        token: storedToken,
-        isVerifying: false,
-        isInitialized: true,
-        error: null,
-      });
-    } catch (error) {
-      console.error('Error al verificar token:', error);
-      clearAuthData();
-      updateState({
-        user: null,
-        userType: null,
-        token: null,
-        isVerifying: false,
-        isInitialized: true,
-        error: 'Sesión expirada',
-      });
+    // Verificar token de admin/empleado
+    if (storedAdminToken) {
+      try {
+        const userData = await usuarioService.verifyAdminToken();
+        const userType: UserType = userData.idRol === 1 ? 'admin' : 'empleado';
+        const adminUser: AdminUser = {
+          ...userData,
+          rol: userType === 'admin' ? 'admin' : 'empleado',
+        };
+        updateState({
+          user: adminUser,
+          userType,
+          token: storedAdminToken,
+          isVerifying: false,
+          isInitialized: true,
+          error: null,
+        });
+        return;
+      } catch {
+        usuarioService.clearAuthToken();
+      }
     }
-  }, [updateState, clearAuthData]);
+
+    // Sin sesión válida
+    updateState({
+      user: null,
+      userType: null,
+      token: null,
+      isVerifying: false,
+      isInitialized: true,
+    });
+  }, [updateState, clearClienteData]);
 
   // ============================================================================
   // EFECTOS
   // ============================================================================
 
-  // Efecto para verificar token solo una vez
   useEffect(() => {
     verifyToken();
   }, [verifyToken]);
@@ -273,144 +187,169 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // ============================================================================
 
   /**
-   * Login optimizado con credenciales de usuario
-   * Maneja autenticación, persistencia de datos y manejo de errores
+   * Login de cliente con email y contraseña
    */
-  const login = useCallback(async (email_cliente: string, contrasena: string) => {
-    try {
-      updateState({ error: null });
+  const login = useCallback(
+    async (email: string, contrasena: string) => {
+      try {
+        updateState({ error: null });
 
-      const authData = await authService.login(email_cliente, contrasena);
-      saveAuthData(authData.user, authData.token);
-      updateState({
-        user: authData.user,
-        userType: 'cliente',
-        token: authData.token,
-        error: null,
-      });
-    } catch (error: any) {
-      clearAuthData();
-      updateState({
-        user: null,
-        userType: null,
-        token: null,
-        error: error.message || 'Error al iniciar sesión',
-      });
-      throw error;
-    }
-  }, [updateState, saveAuthData, clearAuthData]);
+        const authData = await clienteService.login(email, contrasena);
+
+        if (!authData.cliente) {
+          throw new Error('Respuesta inválida del servidor');
+        }
+
+        saveClienteData(authData.cliente, authData.token);
+        updateState({
+          user: authData.cliente,
+          userType: 'cliente',
+          token: authData.token,
+          error: null,
+        });
+      } catch (error: any) {
+        clearClienteData();
+        updateState({
+          user: null,
+          userType: null,
+          token: null,
+          error: error.message || 'Error al iniciar sesión',
+        });
+        throw error;
+      }
+    },
+    [updateState, saveClienteData, clearClienteData],
+  );
 
   /**
-   * Register optimizado para nuevos usuarios
-   * Crea cuenta de usuario y establece sesión automáticamente
+   * Registro de nuevo cliente
+   * Crea cuenta y establece sesión automáticamente
    */
-  const register = useCallback(async (data: RegisterData) => {
-    try {
-      updateState({ error: null });
+  const register = useCallback(
+    async (data: RegisterData): Promise<RegisterResult> => {
+      try {
+        updateState({ error: null });
 
-      const authData = await authService.register(data);
-      saveAuthData(authData.user, authData.token);
-      updateState({
-        user: authData.user,
-        userType: 'cliente',
-        token: authData.token,
-        error: null,
-      });
+        const authData = await clienteService.register(data);
 
-      return { success: true, data: authData };
-    } catch (error: any) {
-      const errorMessage = error.message || 'Error al registrar usuario';
-      updateState({ error: errorMessage });
-      throw new Error(errorMessage);
-    }
-  }, [updateState, saveAuthData]);
+        if (!authData.cliente) {
+          throw new Error('Respuesta inválida del servidor');
+        }
+
+        saveClienteData(authData.cliente, authData.token);
+        updateState({
+          user: authData.cliente,
+          userType: 'cliente',
+          token: authData.token,
+          error: null,
+        });
+
+        return {
+          token: authData.token,
+          cliente: authData.cliente,
+          mensaje: authData.mensaje,
+        };
+      } catch (error: any) {
+        const errorMessage = error.message || 'Error al registrar usuario';
+        updateState({ error: errorMessage });
+        throw new Error(errorMessage);
+      }
+    },
+    [updateState, saveClienteData],
+  );
 
   /**
-   * Logout optimizado
-   * Limpia datos de sesión y restablece estado inicial
+   * Logout - limpia sesión de cliente y admin
    */
   const logout = useCallback(() => {
-    clearAuthData();
-    adminService.clearAuthToken();
+    clearClienteData();
+    usuarioService.clearAuthToken();
     updateState({
       user: null,
       userType: null,
       token: null,
       error: null,
     });
-  }, [clearAuthData, updateState]);
+  }, [clearClienteData, updateState]);
 
   /**
-   * Google login optimizado con OAuth 2.0
-   * Configura flujo de autenticación con Google y maneja respuestas
+   * Google login con OAuth 2.0
    */
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
         updateState({ error: null });
 
-        const authData = await authService.googleLogin(response.access_token);
-        saveAuthData(authData.user, authData.token);
+        const authData = await clienteService.googleLogin(response.access_token);
+
+        if (!authData.cliente) {
+          throw new Error('Respuesta inválida del servidor');
+        }
+
+        saveClienteData(authData.cliente, authData.token);
         updateState({
-          user: authData.user,
+          user: authData.cliente,
           userType: 'cliente',
           token: authData.token,
           error: null,
         });
       } catch (error: any) {
-        clearAuthData();
+        clearClienteData();
         updateState({
           user: null,
           userType: null,
           token: null,
           error: error.message || 'Error al autenticarse con Google',
         });
-        throw error;
       }
     },
     onError: (error) => {
       console.error('Error en Google OAuth:', error);
       updateState({ error: 'Error al autenticarse con Google' });
-      throw new Error('Error al autenticarse con Google');
     },
     scope: 'email profile',
-    flow: 'implicit'
+    flow: 'implicit',
   });
 
   /**
    * Login de administrador o empleado
    * Autentica usuarios del sistema (no clientes)
    */
-  const loginAdmin = useCallback(async (email: string, contrasena: string) => {
-    try {
-      updateState({ error: null });
+  const loginAdmin = useCallback(
+    async (email: string, contrasena: string) => {
+      try {
+        updateState({ error: null });
 
-      const { token, usuario } = await adminService.loginAdmin(email, contrasena);
+        // Limpiar cualquier sesión de cliente previa para evitar conflictos al recargar
+        clearClienteData();
 
-      // Determinar tipo de usuario basado en id_rol
-      const userType: UserType = usuario.id_rol === 1 ? 'admin' : 'empleado';
+        const { token, usuario } = await usuarioService.loginAdmin(email, contrasena);
 
-      updateState({
-        user: usuario,
-        userType,
-        token,
-        error: null,
-      });
-    } catch (error: any) {
-      adminService.clearAuthToken();
-      updateState({
-        user: null,
-        userType: null,
-        token: null,
-        error: error.message || 'Error al iniciar sesión como administrador',
-      });
-      throw error;
-    }
-  }, [updateState]);
+        // idRol viene del backend: 1 = admin, 2 = empleado
+        const userType: UserType = usuario.idRol === 1 ? 'admin' : 'empleado';
+
+        updateState({
+          user: usuario,
+          userType,
+          token,
+          error: null,
+        });
+      } catch (error: any) {
+        usuarioService.clearAuthToken();
+        updateState({
+          user: null,
+          userType: null,
+          token: null,
+          error: error.message || 'Error al iniciar sesión como administrador',
+        });
+        throw error;
+      }
+    },
+    [updateState, clearClienteData],
+  );
 
   /**
    * Limpiar error del contexto
-   * Permite a los componentes limpiar mensajes de error
    */
   const clearError = useCallback(() => {
     updateState({ error: null });
@@ -420,42 +359,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // VALOR DEL CONTEXTO
   // ============================================================================
 
-  // Valor del contexto memoizado para evitar re-renders innecesarios
-  const contextValue = useMemo(() => ({
-    user: state.user,
-    userType: state.userType,
-    token: state.token,
-    isAuthenticated: !!state.user,
-    isAdmin: state.userType === 'admin',
-    isEmpleado: state.userType === 'empleado',
-    isCliente: state.userType === 'cliente',
-    isVerifying: state.isVerifying,
-    isInitialized: state.isInitialized,
-    error: state.error,
-    login,
-    loginAdmin,
-    register,
-    logout,
-    googleLogin,
-    clearError,
-  }), [
-    state.user,
-    state.userType,
-    state.token,
-    state.isVerifying,
-    state.isInitialized,
-    state.error,
-    login,
-    loginAdmin,
-    register,
-    logout,
-    googleLogin,
-    clearError,
-  ]);
-
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      user: state.user,
+      userType: state.userType,
+      token: state.token,
+      isAuthenticated: !!state.user,
+      isAdmin: state.userType === 'admin',
+      isEmpleado: state.userType === 'empleado',
+      isCliente: state.userType === 'cliente',
+      isVerifying: state.isVerifying,
+      isInitialized: state.isInitialized,
+      error: state.error,
+      login,
+      loginAdmin,
+      register,
+      logout,
+      googleLogin,
+      clearError,
+    }),
+    [
+      state.user,
+      state.userType,
+      state.token,
+      state.isVerifying,
+      state.isInitialized,
+      state.error,
+      login,
+      loginAdmin,
+      register,
+      logout,
+      googleLogin,
+      clearError,
+    ],
   );
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

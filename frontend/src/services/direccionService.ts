@@ -1,5 +1,5 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Direccion } from '../types';
+import type { Direccion } from '../types/cliente';
 
 /**
  * Respuesta del servidor al obtener múltiples direcciones

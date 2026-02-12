@@ -4,9 +4,9 @@
  */
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import type { ClienteUser } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { authService } from '../../../services/authService';
+import { clienteService } from '../../../services/clienteService';
+import type { Cliente } from '../../../types/cliente';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './InformacionPersonal.module.css';
 
@@ -19,17 +19,16 @@ interface DatosPersonales {
 
 const InformacionPersonal = () => {
     const { user } = useAuth();
-    // Type guard: asegurar que user es ClienteUser
-    const clienteUser = user as ClienteUser;
+    const clienteUser = user as Cliente;
     const { showNotification } = useNotification();
     const [guardando, setGuardando] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
     const [formData, setFormData] = useState<DatosPersonales>({
-        nombre_cliente: clienteUser?.nombre_cliente || '',
-        apellido_cliente: clienteUser?.apellido_cliente || '',
-        celular_cliente: clienteUser?.celular_cliente || '',
-        nit_ci_cliente: clienteUser?.nit_ci_cliente || ''
+        nombre_cliente: clienteUser?.nombre || '',
+        apellido_cliente: clienteUser?.apellido || '',
+        celular_cliente: clienteUser?.celular || '',
+        nit_ci_cliente: clienteUser?.nitCi || ''
     });
 
     const [errors, setErrors] = useState<Partial<DatosPersonales>>({});
@@ -38,10 +37,10 @@ const InformacionPersonal = () => {
     useEffect(() => {
         if (clienteUser) {
             setFormData({
-                nombre_cliente: clienteUser.nombre_cliente || '',
-                apellido_cliente: clienteUser.apellido_cliente || '',
-                celular_cliente: clienteUser.celular_cliente || '',
-                nit_ci_cliente: clienteUser.nit_ci_cliente || ''
+                nombre_cliente: clienteUser.nombre || '',
+                apellido_cliente: clienteUser.apellido || '',
+                celular_cliente: clienteUser.celular || '',
+                nit_ci_cliente: clienteUser.nitCi || ''
             });
         }
     }, [clienteUser]);
@@ -49,10 +48,10 @@ const InformacionPersonal = () => {
     // Detectar cambios
     useEffect(() => {
         const hasChanged =
-            formData.nombre_cliente !== (clienteUser?.nombre_cliente || '') ||
-            formData.apellido_cliente !== (clienteUser?.apellido_cliente || '') ||
-            formData.celular_cliente !== (clienteUser?.celular_cliente || '') ||
-            formData.nit_ci_cliente !== (clienteUser?.nit_ci_cliente || '');
+            formData.nombre_cliente !== (clienteUser?.nombre || '') ||
+            formData.apellido_cliente !== (clienteUser?.apellido || '') ||
+            formData.celular_cliente !== (clienteUser?.celular || '') ||
+            formData.nit_ci_cliente !== (clienteUser?.nitCi || '');
 
         setHasChanges(hasChanged);
     }, [formData, clienteUser]);
@@ -104,7 +103,7 @@ const InformacionPersonal = () => {
 
         try {
             setGuardando(true);
-            await authService.actualizarPerfil(formData);
+            await clienteService.actualizarPerfil(formData);
 
             // Actualizar localStorage con los nuevos datos
             const userFromStorage = localStorage.getItem('auth_user');
@@ -136,10 +135,10 @@ const InformacionPersonal = () => {
 
     const handleCancel = () => {
         setFormData({
-            nombre_cliente: clienteUser?.nombre_cliente || '',
-            apellido_cliente: clienteUser?.apellido_cliente || '',
-            celular_cliente: clienteUser?.celular_cliente || '',
-            nit_ci_cliente: clienteUser?.nit_ci_cliente || ''
+            nombre_cliente: clienteUser?.nombre || '',
+            apellido_cliente: clienteUser?.apellido || '',
+            celular_cliente: clienteUser?.celular || '',
+            nit_ci_cliente: clienteUser?.nitCi || ''
         });
         setErrors({});
         setHasChanges(false);

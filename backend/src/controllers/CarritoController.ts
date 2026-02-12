@@ -476,7 +476,7 @@ export default class CarritoController {
    */
   static async obtenerCarrito(req: Request, res: Response) {
     try {
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -613,7 +613,7 @@ export default class CarritoController {
       logger.error('Error al obtener carrito:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente
+        cliente_id: req.usuario?.id
       });
       return res.status(500).json({ mensaje: 'Error al obtener el carrito', error });
     }
@@ -659,7 +659,7 @@ export default class CarritoController {
   static async agregarItem(req: Request, res: Response) {
     try {
       const { id_producto, cantidad } = req.body;
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -842,7 +842,7 @@ export default class CarritoController {
       logger.error('Error al agregar item al carrito:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente,
+        cliente_id: req.usuario?.id,
         body: req.body
       });
       return res.status(500).json({ mensaje: 'Error al agregar item al carrito', error });
@@ -880,7 +880,7 @@ export default class CarritoController {
     try {
       const { id_item } = req.params;
       const { cantidad } = req.body;
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -1009,7 +1009,7 @@ export default class CarritoController {
       logger.error('Error al actualizar cantidad:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente,
+        cliente_id: req.usuario?.id,
         params: req.params,
         body: req.body
       });
@@ -1043,7 +1043,7 @@ export default class CarritoController {
   static async eliminarItem(req: Request, res: Response) {
     try {
       const { id_item } = req.params;
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -1096,7 +1096,7 @@ export default class CarritoController {
       logger.error('Error al eliminar item:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente,
+        cliente_id: req.usuario?.id,
         params: req.params
       });
       return res.status(500).json({ mensaje: 'Error al eliminar producto del carrito', error });
@@ -1127,7 +1127,7 @@ export default class CarritoController {
    */
   static async vaciarCarrito(req: Request, res: Response) {
     try {
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -1173,7 +1173,7 @@ export default class CarritoController {
       logger.error('Error al vaciar carrito:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente
+        cliente_id: req.usuario?.id
       });
       return res.status(500).json({ mensaje: 'Error al vaciar el carrito', error });
     }
@@ -1225,7 +1225,7 @@ export default class CarritoController {
 
     try {
       const { observaciones, moneda = 'BOB', aceptar_cambio_precio = false } = req.body;
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
@@ -1423,7 +1423,7 @@ export default class CarritoController {
       logger.error('Error al confirmar compra (ROLLBACK ejecutado):', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente,
+        cliente_id: req.usuario?.id,
         body: req.body
       });
       return res.status(500).json({ mensaje: 'Error al procesar la compra', error });
@@ -1469,7 +1469,7 @@ export default class CarritoController {
    */
   static async obtenerHistorial(req: Request, res: Response) {
     try {
-      const id_cliente = req.usuario?.id_cliente;
+      const id_cliente = req.usuario?.id;
       const { estado, limit = 10, offset = 0 } = req.query;
 
       if (!id_cliente) {
@@ -1519,7 +1519,7 @@ export default class CarritoController {
       logger.error('Error al obtener historial:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
-        cliente_id: req.usuario?.id_cliente
+        cliente_id: req.usuario?.id
       });
       return res.status(500).json({ mensaje: 'Error al obtener el historial', error });
     }

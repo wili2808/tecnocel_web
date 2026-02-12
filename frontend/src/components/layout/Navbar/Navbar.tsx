@@ -212,7 +212,7 @@ const Navbar: React.FC = () => {
                             >
                                 <span className="material-icons">account_circle</span>
                                 <span className={navbarStyle.mobileUserText}>
-                                    {user.nombre_cliente} {user.apellido_cliente}
+                                    {'nombre' in user ? `${user.nombre} ${user.apellido}` : user.nombres}
                                 </span>
                             </button>
                         </div>
@@ -226,7 +226,7 @@ const Navbar: React.FC = () => {
                             size="sm"
                             className={navbarStyle.authButton}
                             children={<span className={navbarStyle.authButtonText}>
-                                {user.nombre_cliente} {user.apellido_cliente}
+                                {'nombre' in user ? `${user.nombre} ${user.apellido}` : user.nombres}
                             </span>}
                         />
                     )}

@@ -29,11 +29,11 @@ const Direcciones = () => {
     }, []);
 
     const cargarDirecciones = async () => {
-        if (!user?.id_cliente) return;
+        if (!user?.id) return;
 
         try {
             setLoading(true);
-            const data = await direccionService.getDirecciones(user.id_cliente);
+            const data = await direccionService.getDirecciones(user.id);
             setDirecciones(data as Direccion[]);
         } catch (error: any) {
             showNotification('Error al cargar direcciones', 'error');
@@ -54,7 +54,7 @@ const Direcciones = () => {
     };
 
     const handleGuardarDireccion = async (formData: DireccionFormData) => {
-        if (!user?.id_cliente) return;
+        if (!user?.id) return;
 
         try {
             // Convertir DireccionFormData a CreateDireccionData
@@ -81,7 +81,7 @@ const Direcciones = () => {
                 );
                 showNotification('Dirección actualizada correctamente', 'success');
             } else {
-                await direccionService.createDireccion(user.id_cliente, direccionData);
+                await direccionService.createDireccion(user.id, direccionData);
                 showNotification('Dirección creada correctamente', 'success');
             }
             await cargarDirecciones();

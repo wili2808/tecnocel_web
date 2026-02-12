@@ -17,6 +17,30 @@ import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
 import Cliente from '../models/Cliente.js';
 import logger from '../services/loggerService.js';
+import {
+  ListarClientesResponse,
+  ClienteAdminResponse,
+  UpdateClienteAdminResponse
+} from '../types/cliente.types.js';
+import {
+  UsuarioSistemaResponse,
+  UsuarioCreacionResponse,
+  UsuarioActualizacionResponse,
+  ListarUsuariosResponse,
+  CrearUsuarioResponse,
+  ActualizarUsuarioResponse,
+  EliminarResponse
+} from '../types/usuario.types.js';
+import { UsuarioSession } from '../types/express.js';
+
+/**
+ * Helper para verificar si req.usuario es un UsuarioSession (admin/empleado)
+ */
+function esUsuarioSistema(usuario: unknown): usuario is UsuarioSession {
+  return usuario !== null && typeof usuario === 'object' && 'idRol' in usuario;
+}
+
+const BCRYPT_SALT_ROUNDS = 12; // Estándar 2025/2026 para seguridad óptima
 
 /**
  * Controlador para administración de usuarios y clientes
@@ -28,7 +52,63 @@ import logger from '../services/loggerService.js';
  *
  * @class UsuarioAdminController
  */
+
 class UsuarioAdminController {
+
+  // ============================================================================
+  // MÉTODOS HELPER PRIVADOS
+  // ============================================================================
+
+  /**
+   * Mapea el modelo Usuario a la estructura base de respuesta API
+   *
+   * Transforma los nombres de campos de la base de datos a nombres
+   * más amigables para el frontend (camelCase limpio).
+   *
+   * @private
+   * @param usuario - Instancia del modelo Usuario de Sequelize
+   * @returns Objeto con estructura limpia para la respuesta API
+   *
+   * @example
+   * const usuarioRespuesta = this.mapearUsuarioRespuesta(usuario);
+   * // Retorna: { id: 1, nombres: "Juan Pérez", email: "admin@tecnocel.com", idRol: 1 }
+   */
+  private static mapearUsuarioRespuesta(usuario: Usuario): UsuarioSistemaResponse {
+    return {
+      id: usuario.id_usuario,
+      nombres: usuario.nombres,
+      email: usuario.email,
+      idRol: usuario.id_rol
+    };
+  }
+
+  /**
+   * Mapea el modelo Usuario a respuesta con fecha de creación
+   *
+   * @private
+   * @param usuario - Instancia del modelo Usuario de Sequelize
+   * @returns Objeto con datos del usuario y fecha de creación
+   */
+  private static mapearUsuarioCreacion(usuario: Usuario): UsuarioCreacionResponse {
+    return {
+      ...this.mapearUsuarioRespuesta(usuario),
+      fyhCreacion: usuario.fyh_creacion
+    };
+  }
+
+  /**
+   * Mapea el modelo Usuario a respuesta con fecha de actualización
+   *
+   * @private
+   * @param usuario - Instancia del modelo Usuario de Sequelize
+   * @returns Objeto con datos del usuario y fecha de actualización
+   */
+  private static mapearUsuarioActualizacion(usuario: Usuario): UsuarioActualizacionResponse {
+    return {
+      ...this.mapearUsuarioRespuesta(usuario),
+      fyhActualizacion: usuario.fyh_actualizacion
+    };
+  }
 
   // ============================================================================
   // GESTIÓN DE USUARIOS DEL SISTEMA
@@ -83,18 +163,20 @@ class UsuarioAdminController {
       });
 
       logger.info('Lista de usuarios obtenida', {
-        usuario_solicitante: req.usuario?.id_usuario,
+        usuario_solicitante: req.usuario?.id,
         total: count,
         limit,
         offset
       });
 
-      res.json({
+      const respuesta: ListarUsuariosResponse = {
         usuarios,
         total: count,
         limit,
         offset
-      });
+      };
+
+      res.json(respuesta);
 
     } catch (error) {
       logger.error('Error al listar usuarios:', {
@@ -155,7 +237,7 @@ class UsuarioAdminController {
 
       logger.info('Usuario obtenido', {
         id_usuario_solicitado: id,
-        solicitante: req.usuario?.id_usuario
+        solicitante: req.usuario?.id
       });
 
       res.json(usuario);
@@ -231,7 +313,7 @@ class UsuarioAdminController {
       }
 
       // Hashear contraseña
-      const password_hash = await bcrypt.hash(password, 10);
+      const password_hash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 
       // Crear usuario
       const nuevoUsuario = await Usuario.create({
@@ -248,19 +330,15 @@ class UsuarioAdminController {
         id_usuario_nuevo: nuevoUsuario.id_usuario,
         email: nuevoUsuario.email,
         id_rol: nuevoUsuario.id_rol,
-        creado_por: req.usuario?.id_usuario
+        creado_por: req.usuario?.id
       });
 
-      res.status(201).json({
+      const respuesta: CrearUsuarioResponse = {
         mensaje: 'Usuario creado exitosamente',
-        usuario: {
-          id_usuario: nuevoUsuario.id_usuario,
-          nombres: nuevoUsuario.nombres,
-          email: nuevoUsuario.email,
-          id_rol: nuevoUsuario.id_rol,
-          fyh_creacion: nuevoUsuario.fyh_creacion
-        }
-      });
+        usuario: this.mapearUsuarioCreacion(nuevoUsuario)
+      };
+
+      res.status(201).json(respuesta);
 
     } catch (error) {
       logger.error('Error al crear usuario:', {
@@ -320,8 +398,9 @@ class UsuarioAdminController {
       }
 
       // Verificar permisos: empleados solo pueden editar su propia cuenta (sin cambiar rol)
-      const esAdmin = req.usuario?.id_rol === 1;
-      const esPropio = req.usuario?.id_usuario === parseInt(id);
+      const usuarioActual = req.usuario;
+      const esAdmin = esUsuarioSistema(usuarioActual) && usuarioActual.idRol === 1;
+      const esPropio = usuarioActual?.id === parseInt(id);
 
       if (!esAdmin && !esPropio) {
         return res.status(403).json({
@@ -351,28 +430,23 @@ class UsuarioAdminController {
       if (email) usuario.email = email;
       if (id_rol && esAdmin) usuario.id_rol = id_rol;
       if (password) {
-        usuario.password_user = await bcrypt.hash(password, 10);
+        usuario.password_user = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
       }
-      usuario.fyh_actualizacion = new Date();
 
       await usuario.save();
 
       logger.info('Usuario actualizado', {
         id_usuario: usuario.id_usuario,
-        actualizado_por: req.usuario?.id_usuario,
+        actualizado_por: req.usuario?.id,
         campos_actualizados: { nombres: !!nombres, email: !!email, password: !!password, id_rol: !!id_rol }
       });
 
-      res.json({
+      const respuesta: ActualizarUsuarioResponse = {
         mensaje: 'Usuario actualizado exitosamente',
-        usuario: {
-          id_usuario: usuario.id_usuario,
-          nombres: usuario.nombres,
-          email: usuario.email,
-          id_rol: usuario.id_rol,
-          fyh_actualizacion: usuario.fyh_actualizacion
-        }
-      });
+        usuario: this.mapearUsuarioActualizacion(usuario)
+      };
+
+      res.json(respuesta);
 
     } catch (error) {
       logger.error('Error al actualizar usuario:', {
@@ -412,7 +486,7 @@ class UsuarioAdminController {
       const { id } = req.params;
 
       // Evitar auto-eliminación
-      if (req.usuario?.id_usuario === parseInt(id)) {
+      if (req.usuario?.id === parseInt(id)) {
         return res.status(400).json({
           mensaje: 'No puedes eliminar tu propia cuenta'
         });
@@ -429,12 +503,14 @@ class UsuarioAdminController {
 
       logger.info('Usuario eliminado', {
         id_usuario_eliminado: id,
-        eliminado_por: req.usuario?.id_usuario
+        eliminado_por: req.usuario?.id
       });
 
-      res.json({
+      const respuesta: EliminarResponse = {
         mensaje: 'Usuario eliminado exitosamente'
-      });
+      };
+
+      res.json(respuesta);
 
     } catch (error) {
       logger.error('Error al eliminar usuario:', {
@@ -523,19 +599,21 @@ class UsuarioAdminController {
       });
 
       logger.info('Lista de clientes obtenida', {
-        usuario_solicitante: req.usuario?.id_usuario,
+        usuario_solicitante: req.usuario?.id,
         total: count,
         limit,
         offset,
         search
       });
 
-      res.json({
+      const respuesta: ListarClientesResponse = {
         clientes,
         total: count,
         limit,
         offset
-      });
+      };
+
+      res.json(respuesta);
 
     } catch (error) {
       logger.error('Error al listar clientes:', {
@@ -587,7 +665,7 @@ class UsuarioAdminController {
 
       logger.info('Cliente obtenido', {
         id_cliente: id,
-        solicitante: req.usuario?.id_usuario
+        solicitante: req.usuario?.id
       });
 
       res.json(cliente);
@@ -643,55 +721,66 @@ class UsuarioAdminController {
         email_verified
       } = req.body;
 
+      // 1. Buscar el cliente por su Clave Primaria (PK)
       const cliente = await Cliente.findByPk(id);
+      
       if (!cliente) {
-        return res.status(404).json({
-          mensaje: 'Cliente no encontrado'
-        });
+        logger.warn(`Intento de edición de cliente inexistente ID: ${id}`);
+        return res.status(404).json({ mensaje: 'Cliente no encontrado' });
       }
 
-      // Actualizar campos permitidos
+      // 2. Actualización de campos de perfil
+      // Usamos !== undefined para permitir valores vacíos ("") pero ignorar los no enviados
       if (nombre_cliente !== undefined) cliente.nombre_cliente = nombre_cliente;
       if (apellido_cliente !== undefined) cliente.apellido_cliente = apellido_cliente;
       if (celular_cliente !== undefined) cliente.celular_cliente = celular_cliente;
       if (nit_ci_cliente !== undefined) cliente.nit_ci_cliente = nit_ci_cliente;
 
-      // Solo admin puede cambiar estados
-      if (req.usuario?.id_rol === 1) {
+      // 3. Seguridad de Roles (Solo el ID_ROL 1 puede gestionar estados)
+      // Asumimos que req.usuario viene del middleware de Admin/Empleado
+      const usuarioAdmin = req.usuario;
+      if (esUsuarioSistema(usuarioAdmin) && usuarioAdmin.idRol === 1) {
         if (is_web_enabled !== undefined) cliente.is_web_enabled = is_web_enabled;
         if (email_verified !== undefined) cliente.email_verified = email_verified;
+      } else if (is_web_enabled !== undefined || email_verified !== undefined) {
+        logger.warn(`Usuario ${req.usuario?.id} intentó cambiar estados sin permisos suficientes`);
+        // Opcional: podrías retornar 403 aquí si quieres ser estricto
       }
 
-      cliente.fyh_actualizacion = new Date();
+      /**
+       * 4. Persistencia Automática
+       * Eliminamos 'cliente.fyh_actualizacion = new Date()'.
+       * Sequelize lo hará automáticamente si detecta cambios.
+       */
       await cliente.save();
 
-      logger.info('Cliente actualizado desde panel admin', {
-        id_cliente: id,
-        actualizado_por: req.usuario?.id_usuario
-      });
+      logger.info(`Cliente ID ${id} actualizado desde panel admin por usuario ${req.usuario?.id}`);
 
-      res.json({
+      // 5. Respuesta con mapeo consistente para el Frontend de Admin
+      const clienteRespuesta: ClienteAdminResponse = {
+        id: cliente.id_cliente,
+        nombre: cliente.nombre_cliente,
+        apellido: cliente.apellido_cliente,
+        email: cliente.email_cliente,
+        celular: cliente.celular_cliente,
+        nitCi: cliente.nit_ci_cliente,
+        isWebEnabled: cliente.is_web_enabled,
+        emailVerified: cliente.email_verified
+      };
+
+      const respuesta: UpdateClienteAdminResponse = {
         mensaje: 'Cliente actualizado exitosamente',
-        cliente: {
-          id_cliente: cliente.id_cliente,
-          nombre_cliente: cliente.nombre_cliente,
-          apellido_cliente: cliente.apellido_cliente,
-          email_cliente: cliente.email_cliente,
-          celular_cliente: cliente.celular_cliente,
-          nit_ci_cliente: cliente.nit_ci_cliente,
-          is_web_enabled: cliente.is_web_enabled,
-          email_verified: cliente.email_verified
-        }
-      });
+        cliente: clienteRespuesta
+      };
+
+      return res.json(respuesta);
 
     } catch (error) {
-      logger.error('Error al actualizar cliente:', {
-        error: error instanceof Error ? error.message : 'Error desconocido',
-        id_cliente: req.params.id
+      logger.error('Error crítico al actualizar cliente desde admin', {
+        id_cliente: req.params.id,
+        error: error instanceof Error ? error.message : error
       });
-      res.status(500).json({
-        mensaje: 'Error al actualizar cliente'
-      });
+      return res.status(500).json({ mensaje: 'Error interno al procesar la actualización' });
     }
   }
 }
