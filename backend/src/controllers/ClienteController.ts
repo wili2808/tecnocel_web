@@ -17,7 +17,7 @@ import {
 } from '../types/cliente.types.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+const JWT_CLIENTE_EXPIRES_IN = process.env.JWT_CLIENTE_EXPIRES_IN || '24h';
 const BCRYPT_SALT_ROUNDS = 12; // Estándar 2025/2026 para seguridad óptima
 
 /**
@@ -52,7 +52,7 @@ export default class ClienteController {
     return jwt.sign(
       { sub: idCliente, role: 'cliente' },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
+      { expiresIn: JWT_CLIENTE_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
     );
   }
 

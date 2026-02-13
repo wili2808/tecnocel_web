@@ -201,7 +201,7 @@ if (error) {
 
 - **Persistencia de Sesión** - Guarda token y datos de usuario en `localStorage`
 - **Verificación Automática** - Verifica el token al iniciar la aplicación
-- **Expiración de Sesión** - Limpia datos automáticamente después de 24 horas
+- **Expiración de Sesión** - Limpia datos automáticamente (24h cliente, 8h admin)
 - **Google OAuth 2.0** - Integración completa con `@react-oauth/google`
 - **Manejo de Errores** - Sistema robusto de manejo de errores
 

@@ -55,11 +55,11 @@ El backend utiliza JWT para autenticar:
 Ejemplo (registro/login de cliente) en `ClienteController`:
 
 ```ts
-// Firma del token (exp: 7d)
+// Firma del token (exp: 24h)
 const token = jwt.sign(
-  { id_cliente: cliente.id_cliente, email: cliente.email_cliente },
+  { sub: idCliente, role: 'cliente' },
   JWT_SECRET,
-  { expiresIn: "7d" }
+  { expiresIn: "24h" }
 );
 ```
 
@@ -247,7 +247,7 @@ GOOGLE_CLIENT_ID=tu_client_id_de_google
 ## Buenas Prácticas
 
 - Usar `Authorization: Bearer <JWT>` en todas las solicitudes protegidas.
-- Mantener expiración razonable (p. ej., 7 días) y refrescar durante actividad si es necesario.
+- Mantener expiración razonable (24h cliente, 8h admin) y refrescar durante actividad si es necesario.
 - Revocar tokens al deshabilitar cuentas o detectar actividades sospechosas.
 - Validar `email_verified` e `is_web_enabled` en clientes antes de dar acceso.
 - Loggear intentos fallidos y exitosos con contexto (ya implementado vía `loggerService`).

@@ -14,7 +14,7 @@ import { Request, Response } from 'express';
 import logger from '../services/loggerService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+const JWT_ADMIN_EXPIRES_IN = process.env.JWT_ADMIN_EXPIRES_IN || '8h';
 
 import { UsuarioSistemaResponse, AuthUsuarioResponse, UsuarioJWTPayload } from '../types/usuario.types.js';
 
@@ -46,7 +46,7 @@ export default class UsuarioController {
     return jwt.sign(
       payload,
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
+      { expiresIn: JWT_ADMIN_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
     );
   }
 

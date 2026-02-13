@@ -323,7 +323,7 @@ Authorization: Bearer {{token}}
 
 ## 💡 Tips
 
-1. **Guarda tu token**: Los tokens expiran en 24 horas
+1. **Guarda tu token**: Los tokens expiran en 24h (cliente) o 8h (admin)
 2. **Usa variables**: Facilita cambiar entre entornos
 3. **Ejecuta login primero**: Siempre antes de endpoints protegidos
 4. **Revisa los logs**: El backend muestra logs detallados en consola

@@ -23,7 +23,8 @@ export const config = {
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'tu_clave_secreta_aqui',
-    expiresIn: '24h'
+    clienteExpiresIn: '24h',
+    adminExpiresIn: '8h'
   },
   logging: {
     level: process.env.LOG_LEVEL || 'info',

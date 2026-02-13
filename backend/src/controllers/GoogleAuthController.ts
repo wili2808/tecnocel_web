@@ -160,7 +160,7 @@ export default class GoogleAuthController {
       const token = jwt.sign(
         { sub: cliente.id_cliente, role: 'cliente' },
         process.env.JWT_SECRET || 'tu_clave_secreta',
-        { expiresIn: '7d' }
+        { expiresIn: (process.env.JWT_CLIENTE_EXPIRES_IN || '24h') as jwt.SignOptions['expiresIn'] }
       );
 
       // Actualizar último login

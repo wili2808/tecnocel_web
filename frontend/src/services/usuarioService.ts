@@ -7,6 +7,7 @@
  */
 
 import axios from 'axios';
+import adminApi from '../api/axiosAdminConfig';
 import type {
   AdminUser,
   CrearUsuarioData,
@@ -20,49 +21,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const ADMIN_TOKEN_KEY = 'admin_token';
 const ADMIN_USER_KEY = 'admin_user';
 const ADMIN_TIMESTAMP_KEY = 'admin_timestamp';
-
-// ============================================================================
-// CONFIGURACIÓN DE AXIOS
-// ============================================================================
-
-/**
- * Instancia de axios configurada para peticiones admin
- */
-const adminApi = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-/**
- * Interceptor para agregar token de autorización a todas las peticiones
- */
-adminApi.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-/**
- * Interceptor para manejar errores de autenticación
- * Solo limpia tokens en 401, sin hacer redirect (AuthContext maneja la redirección)
- */
-adminApi.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado o inválido - limpiar sesión
-      usuarioService.clearAuthToken();
-    }
-    return Promise.reject(error);
-  }
-);
 
 export const usuarioService = {
 
@@ -170,8 +128,8 @@ export const usuarioService = {
       return null;
     }
 
-    // Verificar expiración (24 horas)
-    const isExpired = Date.now() - parseInt(timestamp) > 86400000;
+    // Verificar expiración (8 horas)
+    const isExpired = Date.now() - parseInt(timestamp) > 28800000;
     if (isExpired) {
       this.clearAuthToken();
       return null;

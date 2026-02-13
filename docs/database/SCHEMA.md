@@ -220,7 +220,7 @@
 
 **Características de Seguridad**:
 - Contraseñas hasheadas con bcrypt
-- Autenticación JWT (7 días de expiración)
+- Autenticación JWT (24 horas de expiración)
 - Google OAuth 2.0 integrado
 - Sistema de verificación de email
 - Reset de contraseña con token temporal

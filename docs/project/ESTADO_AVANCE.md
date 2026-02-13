@@ -357,7 +357,7 @@ Todas las áreas core están integradas y funcionales:
 - Headers de caché (24h)
 
 ### Seguridad
-- JWT con expiración (8h cliente, 24h admin)
+- JWT con expiración (24h cliente, 8h admin)
 - bcrypt 12 rounds
 - CORS configurado
 - Validación con express-validator

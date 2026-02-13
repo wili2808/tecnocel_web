@@ -66,7 +66,7 @@ Enlaces útiles:
 
 - **Responsabilidad**: Registro, login, verificación de email, recuperación/restablecimiento de contraseña y verificación de sesión.
 - **Dependencias**: `Cliente`, `bcryptjs`, `jsonwebtoken`, `emailService`, `loggerService`.
-- **Payload JWT**: `{ id_cliente, email }` con expiración `7d`.
+- **Payload JWT**: `{ sub: id_cliente, role: 'cliente' }` con expiración `24h`.
 - **Endpoints**: ver `docs/api/endpoints/clientes.md`.
 
 ---
