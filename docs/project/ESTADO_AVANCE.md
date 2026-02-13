@@ -77,7 +77,7 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | Elemento | Cantidad |
 |----------|----------|
 | **Páginas** | 14 |
-| **Componentes** | 63 |
+| **Componentes** | 65 |
 | **Contextos Globales** | 8 |
 | **Hooks Personalizados** | 18 |
 | **Servicios** | 10 |
@@ -183,7 +183,7 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | Brands | `/marcas` | Catálogo de marcas |
 | Contacto | `/contacto` | Formulario de contacto |
 
-### Componentes por Dominio (63)
+### Componentes por Dominio (65)
 
 | Carpeta | Cantidad | Componentes Principales |
 |---------|----------|------------------------|
@@ -191,7 +191,7 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | **brand/** | 2 | BrandCard, BrandGrid |
 | **cart/** | 5 | CartItemCard, CartSummary, CartIndicator, PriceChangeAlert |
 | **checkout/** | 5 | DeliveryTypeSelector, ShippingAddressSelector, PaymentMethodSelector, CheckoutSummary, StorePickupInfo |
-| **common/** | 6 | Button, IconButton, LoadingSpinner, Notification, CTASection |
+| **common/** | 8 | Button, IconButton, LoadingSpinner, Notification, CTASection, ProtectedRoute, PublicOnlyRoute |
 | **contact/** | 2 | ContactForm, ContactMethods |
 | **layout/** | 4 | Layout, Navbar, Footer, HeroSection |
 | **location/** | 4 | Location, LocationSection, OpenStreetMap, HistorySection |
@@ -451,8 +451,8 @@ TecnoCel Web es un proyecto e-commerce robusto y bien estructurado, con ~85% de 
 
 ---
 
-**Última actualización**: 6 de Febrero, 2026
-**Versión**: 2.0
+**Última actualización**: 13 de Febrero, 2026
+**Versión**: 2.1
 **Estado**: En desarrollo activo
 
 ---

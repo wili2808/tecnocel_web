@@ -36,7 +36,7 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
     // HOOKS Y CONTEXTOS
     // ============================================================================
 
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, userType } = useAuth();
     const { showNotification } = useNotification();
     const { isFavorito, toggleFavorito, loading } = useFavoritosGlobal();
     const navigate = useNavigate();
@@ -65,6 +65,20 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
                 4000,
                 {
                     label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        // Admin/empleado no puede usar favoritos
+        if (userType !== 'cliente') {
+            showNotification(
+                'Inicia sesión como cliente para guardar favoritos',
+                'info',
+                4000,
+                {
+                    label: 'Ir a login',
                     onClick: () => navigate('/login')
                 }
             );

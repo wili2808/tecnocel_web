@@ -46,7 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // CONTEXTOS Y HOOKS
     // ============================================================================
     const { agregarItem, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, userType } = useAuth();
     const { showNotification } = useNotification();
 
 
@@ -105,6 +105,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
             return;
         }
 
+        // Admin/empleado no puede agregar al carrito
+        if (userType !== 'cliente') {
+            showNotification(
+                'Inicia sesión como cliente para realizar compras',
+                'info',
+                4000,
+                {
+                    label: 'Ir a login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
         if (isOutOfStock) {
             showNotification('Este producto está agotado', 'error', 3000);
             return;
@@ -138,7 +152,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         } finally {
             setIsAddingToCart(false);
         }
-    }, [id_producto, isAuthenticated, isOutOfStock, stock, canAddMoreOfProduct, agregarItem, showNotification, sincronizarCarrito]);
+    }, [id_producto, isAuthenticated, userType, isOutOfStock, stock, canAddMoreOfProduct, agregarItem, showNotification, sincronizarCarrito, navigate]);
 
 
 

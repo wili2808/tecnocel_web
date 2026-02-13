@@ -1,23 +1,5 @@
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import RegisterForm from '../../components/user/RegisterForm';
 import styles from './Register.module.css';
-
-/**
- * Configuración de notificaciones toast
- */
-const TOAST_CONFIG = {
-    position: "top-center" as const,
-    autoClose: 3000,
-    hideProgressBar: false,
-    newestOnTop: true,
-    closeOnClick: true,
-    pauseOnFocusLoss: true,
-    draggable: true,
-    pauseOnHover: true,
-    theme: "light" as const,
-    "aria-label": "Notificaciones del sistema"
-};
 
 /**
  * Página de registro de usuarios
@@ -26,8 +8,6 @@ const TOAST_CONFIG = {
 const Register = () => {
     return (
         <div className={styles.registerPage}>
-            <ToastContainer {...TOAST_CONFIG} />
-
             <div className={styles.registerContainer}>
                 {/* Formulario de registro */}
                 <RegisterForm />

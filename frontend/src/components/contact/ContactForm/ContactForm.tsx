@@ -4,7 +4,7 @@
  * Incluye validación de campos, manejo de errores y feedback visual
  */
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { useNotification } from '../../../contexts/NotificationContext';
 import Button from '../../common/Button';
 import styles from './ContactForm.module.css';
 
@@ -38,6 +38,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     // ============================================================================
     // ESTADOS DEL FORMULARIO
     // ============================================================================
+    const { showNotification } = useNotification();
+
     const [formData, setFormData] = useState({
         nombre: '',
         email: '',
@@ -132,7 +134,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         try {
             // ✅ VALIDAR FORMULARIO antes de procesar
             if (!validateForm()) {
-                toast.error('Por favor corrija los errores en el formulario');
+                showNotification('Por favor corrija los errores en el formulario', 'error');
                 return;
             }
 
@@ -149,7 +151,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             console.log('Datos del formulario:', formData);
 
             // ✅ MOSTRAR MENSAJE DE ÉXITO y limpiar formulario
-            toast.success('¡Mensaje enviado exitosamente! Te responderemos pronto.');
+            showNotification('¡Mensaje enviado exitosamente! Te responderemos pronto.', 'success');
 
             // ✅ LIMPIAR FORMULARIO completo después de éxito
             setFormData({
@@ -172,7 +174,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 error.response?.data?.message ||
                 error.message ||
                 'Error al enviar el mensaje';
-            toast.error(errorMessage);
+            showNotification(errorMessage, 'error');
         } finally {
             setIsSubmitting(false);
         }

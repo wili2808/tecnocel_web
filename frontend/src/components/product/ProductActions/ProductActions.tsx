@@ -42,7 +42,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
         getProductQuantityInCart
     } = useCarrito();
 
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, userType } = useAuth();
     const { showNotification } = useNotification();
     const navigate = useNavigate();
 
@@ -83,6 +83,20 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                 4000,
                 {
                     label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        // Admin/empleado no puede agregar al carrito
+        if (userType !== 'cliente') {
+            showNotification(
+                'Inicia sesión como cliente para realizar compras',
+                'info',
+                4000,
+                {
+                    label: 'Ir a login',
                     onClick: () => navigate('/login')
                 }
             );
@@ -146,6 +160,20 @@ const ProductActions: React.FC<ProductActionsProps> = ({
                 4000,
                 {
                     label: 'Ir al login',
+                    onClick: () => navigate('/login')
+                }
+            );
+            return;
+        }
+
+        // Admin/empleado no puede comprar
+        if (userType !== 'cliente') {
+            showNotification(
+                'Inicia sesión como cliente para realizar compras',
+                'info',
+                4000,
+                {
+                    label: 'Ir a login',
                     onClick: () => navigate('/login')
                 }
             );

@@ -9,30 +9,7 @@ import { useOfertasPagination } from '../../hooks/useOfertasPagination';
 import OffersGrid from '../../components/product/OffersGrid';
 import OffersProductsSection from '../../components/product/OffersProductsSection';
 import ProductsOfferFilter, { type ProductOfferFilter } from '../../components/product/ProductsOfferFilter';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import styles from './Offers.module.css';
-
-// ============================================================================
-// CONFIGURACIÓN DE NOTIFICACIONES
-// ============================================================================
-
-/**
- * Configuración de notificaciones toast
- * Define posición, duración y comportamiento de las notificaciones del sistema
- */
-const TOAST_CONFIG = {
-    position: "top-center" as const,
-    autoClose: 3000,
-    hideProgressBar: false,
-    newestOnTop: true,
-    closeOnClick: true,
-    pauseOnFocusLoss: true,
-    draggable: true,
-    pauseOnHover: true,
-    theme: "light" as const,
-    "aria-label": "Notificaciones del sistema"
-};
 
 const Offers: React.FC = () => {
     // ============================================================================
@@ -101,9 +78,6 @@ const Offers: React.FC = () => {
 
     return (
         <div className={styles.offersPage}>
-            {/* Contenedor de notificaciones toast */}
-            <ToastContainer {...TOAST_CONFIG} />
-
             <div className={styles.offersContainer}>
                 {/* Header de la página con título y estadísticas */}
                 <header className={styles.pageHeader}>

@@ -288,70 +288,122 @@ const handleProductClick = () => {
 
 ## Rutas Protegidas
 
-### Componente ProtectedRoute
+El sistema implementa protección de rutas basada en **tipo de usuario** (cliente, admin, empleado), no solo autenticación.
+
+### Componentes de Protección
+
+#### ProtectedRoute - Protección por tipo de usuario
 
 ```tsx
-// components/auth/ProtectedRoute.tsx
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+// components/common/ProtectedRoute/ProtectedRoute.tsx
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
+import type { UserType } from '../../../types/auth';
 
-const ProtectedRoute = () => {
-  const { isAuthenticated } = useAuth();
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedUserTypes: UserType[];  // ['cliente'] o ['admin', 'empleado']
+  redirectTo?: string;
+}
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <Outlet />;
-};
-
-export default ProtectedRoute;
-```
-
-### Uso de Rutas Protegidas
-
-```tsx
-<Routes>
-  {/* Rutas públicas */}
-  <Route path="/" element={<Home />} />
-  <Route path="/login" element={<Login />} />
-
-  {/* Rutas protegidas */}
-  <Route element={<ProtectedRoute />}>
-    <Route path="/panel" element={<UserPanel />} />
-    <Route path="/pedidos" element={<Orders />} />
-    <Route path="/favoritos" element={<Favorites />} />
-  </Route>
-</Routes>
-```
-
-### Implementación con Redirección
-
-```tsx
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedUserTypes,
+  redirectTo
+}) => {
+  const { isAuthenticated, userType, isVerifying } = useAuth();
   const location = useLocation();
 
+  // Mientras verifica token, no renderizar nada (evita flash)
+  if (isVerifying) return null;
+
+  // No autenticado → redirect a login correspondiente
   if (!isAuthenticated) {
-    // Guardar la ruta a la que intentaba acceder
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const isAdminRoute = allowedUserTypes.includes('admin') || allowedUserTypes.includes('empleado');
+    const loginPath = isAdminRoute ? '/admin-login' : '/login';
+    return <Navigate to={redirectTo || loginPath} state={{ from: location }} replace />;
+  }
+
+  // Autenticado pero tipo incorrecto → redirect inteligente
+  if (userType && !allowedUserTypes.includes(userType)) {
+    const fallback = userType === 'cliente' ? '/' : '/admin-panel';
+    return <Navigate to={fallback} replace />;
   }
 
   return <>{children}</>;
 };
 ```
 
-### Redirigir después de Login
+#### PublicOnlyRoute - Solo para no autenticados
 
 ```tsx
-// Login.tsx
-const location = useLocation();
-const from = location.state?.from?.pathname || '/panel';
+// components/common/PublicOnlyRoute/PublicOnlyRoute.tsx
+export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({
+  children,
+  redirectTo
+}) => {
+  const { isAuthenticated, userType, isVerifying } = useAuth();
 
-const handleLoginSuccess = () => {
-  navigate(from, { replace: true });
+  if (isVerifying) return null;
+
+  if (isAuthenticated) {
+    const defaultRedirect = userType === 'cliente' ? '/panel' : '/admin-panel';
+    return <Navigate to={redirectTo || defaultRedirect} replace />;
+  }
+
+  return <>{children}</>;
 };
 ```
+
+### Uso en App.tsx
+
+```tsx
+import ProtectedRoute from './components/common/ProtectedRoute';
+import PublicOnlyRoute from './components/common/PublicOnlyRoute';
+
+<Routes>
+  {/* Rutas públicas */}
+  <Route path="/" element={<Home />} />
+  <Route path="/productos" element={<ProductCatalog />} />
+
+  {/* Rutas de autenticación - solo para no logueados */}
+  <Route path="/login" element={
+    <PublicOnlyRoute>
+      <Login />
+    </PublicOnlyRoute>
+  } />
+
+  {/* Rutas protegidas de CLIENTE */}
+  <Route path="/panel" element={
+    <ProtectedRoute allowedUserTypes={['cliente']}>
+      <UserPanel />
+    </ProtectedRoute>
+  } />
+  <Route path="/carrito" element={
+    <ProtectedRoute allowedUserTypes={['cliente']}>
+      <Cart />
+    </ProtectedRoute>
+  } />
+
+  {/* Rutas protegidas de ADMIN */}
+  <Route path="/admin-panel" element={
+    <ProtectedRoute allowedUserTypes={['admin', 'empleado']}>
+      <AdminPanel />
+    </ProtectedRoute>
+  } />
+</Routes>
+```
+
+### Comportamiento de Redirección
+
+| Usuario | Intenta acceder | Resultado |
+|---------|-----------------|-----------|
+| Anónimo | `/panel` | Redirect a `/login` |
+| Anónimo | `/admin-panel` | Redirect a `/admin-login` |
+| Cliente | `/admin-panel` | Redirect a `/` |
+| Admin/Empleado | `/panel`, `/carrito` | Redirect a `/admin-panel` |
+| Cliente logueado | `/login` | Redirect a `/panel` |
+| Admin logueado | `/admin-login` | Redirect a `/admin-panel` |
 
 ---
 
@@ -550,14 +602,25 @@ setSearchParams({ categoria: 'celulares', orden: 'precio' });
 | Ruta | Componente | Layout | Descripción | Protegida |
 |------|-----------|--------|-------------|-----------|
 | `/` | `Home` | Con footer | Página principal | No |
-| `/login` | `Login` | Con footer | Inicio de sesión | No |
-| `/register` | `Register` | Con footer | Registro de usuario | No |
-| `/panel` | `UserPanel` | Con footer | Panel de usuario | Sí |
-| `/carrito` | `Cart` | Con footer | Carrito de compras | No |
+| `/login` | `Login` | Con footer | Inicio de sesión | PublicOnly |
+| `/register` | `Register` | Con footer | Registro de usuario | PublicOnly |
+| `/panel` | `UserPanel` | Con footer | Panel de usuario | Cliente |
+| `/carrito` | `Cart` | Con footer | Carrito de compras | Cliente |
+| `/checkout` | `Checkout` | Con footer | Proceso de compra | Cliente |
+| `/order-confirmation/:id` | `OrderConfirmation` | Con footer | Confirmación de orden | Cliente |
 | `/ofertas` | `Offers` | Con footer | Productos en oferta | No |
 | `/marcas` | `Brands` | Con footer | Catálogo de marcas | No |
+| `/contacto` | `Contacto` | Con footer | Formulario de contacto | No |
 | `/productos` | `ProductCatalog` | Sin footer | Catálogo de productos | No |
 | `/productos/:id` | `ProductPage` | Sin footer | Detalle de producto | No |
+| `/admin-login` | `AdminLogin` | Sin layout | Login de administrador | PublicOnly |
+| `/admin-panel` | `AdminPanel` | Sin layout | Panel de administración | Admin/Empleado |
+
+**Tipos de protección:**
+- **No**: Ruta pública, accesible por cualquiera
+- **PublicOnly**: Solo usuarios no autenticados (redirige si ya logueado)
+- **Cliente**: Solo clientes autenticados (redirige admin a /admin-panel)
+- **Admin/Empleado**: Solo usuarios del sistema (redirige cliente a /)
 
 ---
 
@@ -768,8 +831,8 @@ useEffect(() => {
 
 ---
 
-**Última actualización**: 8 de Octubre, 2025
-**Versión**: 1.0
+**Última actualización**: 13 de Febrero, 2026
+**Versión**: 2.0
 **Estado**: Completado
 
 ---

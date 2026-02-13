@@ -11,6 +11,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useSearch } from '../../../contexts/SearchContext';
+import { useNotification } from '../../../contexts/NotificationContext';
 import { useProductActions } from '../../../hooks/useProductActions';
 import ProductSearch from '../../product/ProductSearch';
 import IconButton from '../../common/IconButton';
@@ -41,9 +42,10 @@ const Navbar: React.FC = () => {
     // ============================================================================
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, isAuthenticated, logout, isCliente } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const { estado } = useCarrito();
+    const { showNotification } = useNotification();
     const { debouncedSearchQuery, isSearching } = useSearch();
     const { filteredProducts } = useProductActions();
 
@@ -167,19 +169,35 @@ const Navbar: React.FC = () => {
                 <IconButton
                     icon="shopping_cart"
                     onClick={() => {
-                        if (isAuthenticated) {
+                        if (isCliente) {
+                            // Cliente autenticado → ir al carrito
                             navigate('/carrito');
                             handleLinkClick();
+                        } else if (isAuthenticated) {
+                            // Admin/empleado → mostrar notificación
+                            showNotification(
+                                'Inicia sesión como cliente para acceder al carrito',
+                                'info',
+                                4000,
+                                {
+                                    label: 'Ir a login',
+                                    onClick: () => {
+                                        navigate('/login');
+                                        handleLinkClick();
+                                    }
+                                }
+                            );
                         } else {
+                            // No autenticado → ir a login
                             navigate('/login');
                             handleLinkClick();
                         }
                     }}
                     ariaLabel="Carrito de compras"
-                    disabled={!isAuthenticated}
+                    disabled={!isCliente}
                     variant="ghost"
                     size="sm"
-                    className={`${navbarStyle.cartButton} ${!isAuthenticated ? navbarStyle.cartButtonDisabled : ''}`}
+                    className={`${navbarStyle.cartButton} ${!isCliente ? navbarStyle.cartButtonDisabled : ''}`}
                 >
                     <span className={navbarStyle.cartBadge}>{cartItemCount}</span>
                 </IconButton>

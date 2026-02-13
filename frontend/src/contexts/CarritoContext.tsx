@@ -186,7 +186,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // ============================================================================
 
   const [estado, dispatch] = useReducer(carritoReducer, estadoInicial);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userType } = useAuth();
   const { showNotification } = useNotification();
 
   // ============================================================================
@@ -215,7 +215,8 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
    * ✅ FASE 1: Valida stock y notifica al usuario si hay problemas
    */
   const obtenerCarrito = useCallback(async () => {
-    if (!isAuthenticated) {
+    // Solo cargar carrito para clientes autenticados (no admin/empleado)
+    if (!isAuthenticated || userType !== 'cliente') {
       dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
       return;
     }
@@ -302,7 +303,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       dispatch({ type: 'ESTABLECER_CARGANDO', payload: false });
     }
-  }, [isAuthenticated, obtenerCarritoService, showNotification]);
+  }, [isAuthenticated, userType, obtenerCarritoService, showNotification]);
 
   /**
    * Agrega un producto al carrito
@@ -474,14 +475,14 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // EFECTOS
   // ============================================================================
 
-  // Cargar carrito cuando el usuario se autentica
+  // Cargar carrito cuando el usuario cliente se autentica
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userType === 'cliente') {
       obtenerCarrito();
     } else {
       dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
     }
-  }, [isAuthenticated, obtenerCarrito]);
+  }, [isAuthenticated, userType, obtenerCarrito]);
 
   // ============================================================================
   // MÉTODOS DE UTILIDAD

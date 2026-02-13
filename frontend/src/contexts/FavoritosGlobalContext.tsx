@@ -127,7 +127,7 @@ interface FavoritosGlobalProviderProps {
  * OPTIMIZACIÓN: Uso de Map para búsquedas O(1) y memoización del contexto
  */
 export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = ({ children }) => {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, userType } = useAuth();
     const { showNotification } = useNotification();
 
     // OPTIMIZACIÓN: Usar useRef para evitar dependencias circulares
@@ -172,8 +172,9 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
      * ✅ FIX: También limpia el cache cuando no hay favoritos
      */
     const syncCache = useCallback(() => {
-        if (!isAuthenticated || !user?.id) {
-            // Usuario no autenticado, limpiar cache
+        // Solo sincronizar cache para clientes autenticados (no admin/empleado)
+        if (!isAuthenticated || !user?.id || userType !== 'cliente') {
+            // Usuario no autenticado o no es cliente, limpiar cache
             localStorage.removeItem(FAVORITOS_CACHE_KEY);
             return;
         }
@@ -191,13 +192,14 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
             // ✅ FIX: No hay favoritos, limpiar el cache
             localStorage.removeItem(FAVORITOS_CACHE_KEY);
         }
-    }, [isAuthenticated, user?.id, state.favoritos, state.favoritosCompletos]);
+    }, [isAuthenticated, user?.id, userType, state.favoritos, state.favoritosCompletos]);
 
     /**
      * Carga los favoritos del usuario desde el servidor
      */
     const loadFavoritos = useCallback(async () => {
-        if (!isAuthenticated || !user?.id) {
+        // Solo cargar favoritos para clientes autenticados (no admin/empleado)
+        if (!isAuthenticated || !user?.id || userType !== 'cliente') {
             setState(prev => ({
                 ...prev,
                 favoritos: new Map(),
@@ -274,7 +276,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
                 error: 'Error al cargar favoritos'
             }));
         }
-    }, [isAuthenticated, user?.id]); // OPTIMIZACIÓN: Remover showNotification de dependencias
+    }, [isAuthenticated, user?.id, userType]); // OPTIMIZACIÓN: Remover showNotification de dependencias
 
     /**
      * Verifica si un producto es favorito

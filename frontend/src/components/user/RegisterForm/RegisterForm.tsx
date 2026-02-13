@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
-import { toast } from "react-toastify";
+import { useNotification } from "../../../contexts/NotificationContext";
 import Button from "../../common/Button";
 import styles from "./RegisterForm.module.css";
 import type { RegisterData } from "../../../types/auth";
@@ -17,6 +17,7 @@ const RegisterForm = () => {
   // ============================================================================
   const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   // ============================================================================
   // ESTADOS DEL FORMULARIO
@@ -158,7 +159,7 @@ const RegisterForm = () => {
     try {
       // ✅ VALIDAR FORMULARIO antes de procesar
       if (!validateForm()) {
-        toast.error("Por favor corrija los errores en el formulario");
+        showNotification("Por favor corrija los errores en el formulario", "error");
         return;
       }
 
@@ -166,8 +167,9 @@ const RegisterForm = () => {
       const response = await register(formData);
 
       // ✅ MOSTRAR MENSAJE DE ÉXITO y limpiar formulario
-      toast.success(
-        response.mensaje || "¡Cuenta creada exitosamente! Ya estás logeado."
+      showNotification(
+        response.mensaje || "¡Cuenta creada exitosamente! Ya estás logeado.",
+        "success"
       );
 
       // ✅ LIMPIAR FORMULARIO completo después de éxito
@@ -193,7 +195,7 @@ const RegisterForm = () => {
         error.response?.data?.message ||
         error.message ||
         "Error al crear la cuenta";
-      toast.error(errorMessage);
+      showNotification(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
@@ -207,10 +209,10 @@ const RegisterForm = () => {
     setIsLoading(true);
     try {
       await googleLogin();
-      toast.success("¡Cuenta creada exitosamente!");
+      showNotification("¡Cuenta creada exitosamente!", "success");
       navigate("/");
     } catch (error) {
-      toast.error("Error al crear cuenta con Google");
+      showNotification("Error al crear cuenta con Google", "error");
     } finally {
       setIsLoading(false);
     }

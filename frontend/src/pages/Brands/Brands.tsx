@@ -5,28 +5,10 @@
  */
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import BrandGrid from '../../components/brand/BrandGrid';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { useBrands } from '../../hooks/useBrands';
 import styles from './Brands.module.css';
-
-/**
- * Configuración de notificaciones toast
- */
-const TOAST_CONFIG = {
-  position: "top-center" as const,
-  autoClose: 3000,
-  hideProgressBar: false,
-  newestOnTop: true,
-  closeOnClick: true,
-  pauseOnFocusLoss: true,
-  draggable: true,
-  pauseOnHover: true,
-  theme: "light" as const,
-  "aria-label": "Notificaciones del sistema"
-};
 
 /**
  * Página principal de marcas
@@ -66,7 +48,6 @@ const Brands = () => {
   if (loading) {
     return (
       <div className={styles.brandsPage}>
-        <ToastContainer {...TOAST_CONFIG} />
         <div className={styles.loadingContainer}>
           <LoadingSpinner size="lg" text="Cargando marcas..." />
         </div>
@@ -80,7 +61,6 @@ const Brands = () => {
   if (error) {
     return (
       <div className={styles.brandsPage}>
-        <ToastContainer {...TOAST_CONFIG} />
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}>
             <svg
@@ -115,8 +95,6 @@ const Brands = () => {
 
   return (
     <div className={styles.brandsPage}>
-      <ToastContainer {...TOAST_CONFIG} />
-
       {/* Header de la página */}
       <header className={styles.header}>
         <div className={styles.headerContent}>

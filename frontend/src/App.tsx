@@ -12,6 +12,8 @@ import { OfertasGlobalProvider } from './contexts/OfertasGlobalContext';
 import { ProductProvider } from './contexts/ProductContext';
 import NotificationContainer from './components/common/NotificationContainer';
 import SearchSync from './components/common/SearchSync';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import PublicOnlyRoute from './components/common/PublicOnlyRoute';
 import { useAutoLogout } from './hooks/useAutoLogout';
 import './styles/global.css';
 
@@ -69,27 +71,62 @@ function App() {
                           <SearchSync />
                           <Suspense fallback={<LoadingFallback />}>
                             <Routes>
-                              {/* Rutas que usan Layout normal */}
+                              {/* Rutas públicas que usan Layout normal */}
                               <Route element={<Layout />}>
                                 <Route path="/" element={<Home />} />
-                                <Route path="/login" element={<Login />} />
-                                <Route path="/register" element={<Register />} />
-                                <Route path="/panel" element={<UserPanel />} />
-                                <Route path="/carrito" element={<Cart />} />
-                                <Route path="/checkout" element={<Checkout />} />
-                                <Route path="/order-confirmation/:id_venta" element={<OrderConfirmation />} />
+                                {/* Rutas de autenticación - solo para usuarios no logueados */}
+                                <Route path="/login" element={
+                                  <PublicOnlyRoute>
+                                    <Login />
+                                  </PublicOnlyRoute>
+                                } />
+                                <Route path="/register" element={
+                                  <PublicOnlyRoute>
+                                    <Register />
+                                  </PublicOnlyRoute>
+                                } />
+                                {/* Rutas protegidas de cliente */}
+                                <Route path="/panel" element={
+                                  <ProtectedRoute allowedUserTypes={['cliente']}>
+                                    <UserPanel />
+                                  </ProtectedRoute>
+                                } />
+                                <Route path="/carrito" element={
+                                  <ProtectedRoute allowedUserTypes={['cliente']}>
+                                    <Cart />
+                                  </ProtectedRoute>
+                                } />
+                                <Route path="/checkout" element={
+                                  <ProtectedRoute allowedUserTypes={['cliente']}>
+                                    <Checkout />
+                                  </ProtectedRoute>
+                                } />
+                                <Route path="/order-confirmation/:id_venta" element={
+                                  <ProtectedRoute allowedUserTypes={['cliente']}>
+                                    <OrderConfirmation />
+                                  </ProtectedRoute>
+                                } />
+                                {/* Rutas públicas */}
                                 <Route path="/ofertas" element={<Offers />} />
                                 <Route path="/marcas" element={<Brands />} />
                                 <Route path="/contacto" element={<Contacto />} />
                               </Route>
-                              {/* Rutas sin footer */}
+                              {/* Rutas públicas sin footer */}
                               <Route element={<Layout hideFooter />}>
                                 <Route path="/productos" element={<ProductCatalog />} />
                                 <Route path="/productos/:id" element={<ProductPage />} />
                               </Route>
                               {/* Rutas de administración (sin layout) */}
-                              <Route path="/admin-login" element={<AdminLogin />} />
-                              <Route path="/admin-panel" element={<AdminPanel />} />
+                              <Route path="/admin-login" element={
+                                <PublicOnlyRoute redirectTo="/admin-panel">
+                                  <AdminLogin />
+                                </PublicOnlyRoute>
+                              } />
+                              <Route path="/admin-panel" element={
+                                <ProtectedRoute allowedUserTypes={['admin', 'empleado']}>
+                                  <AdminPanel />
+                                </ProtectedRoute>
+                              } />
                             </Routes>
                           </Suspense>
                           <NotificationContainer />

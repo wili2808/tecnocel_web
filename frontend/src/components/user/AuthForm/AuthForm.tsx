@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { toast } from 'react-toastify';
+import { useNotification } from '../../../contexts/NotificationContext';
 import Button from '../../common/Button';
 import styles from './AuthForm.module.css';
 
@@ -16,6 +16,7 @@ const AuthForm = () => {
     // ============================================================================
     const { login, googleLogin } = useAuth();
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
 
     // ============================================================================
     // ESTADOS DEL FORMULARIO
@@ -80,13 +81,13 @@ const AuthForm = () => {
         try {
             // ✅ VALIDAR CAMPOS REQUERIDOS antes de procesar
             if (!formData.email_cliente || !formData.contrasena) {
-                toast.error('Por favor complete todos los campos');
+                showNotification('Por favor complete todos los campos', 'error');
                 return;
             }
 
             // ✅ EJECUTAR AUTENTICACIÓN con credenciales
             await login(formData.email_cliente, formData.contrasena);
-            toast.success('¡Bienvenido de vuelta!');
+            showNotification('¡Bienvenido de vuelta!', 'success');
 
             // ✅ LIMPIAR FORMULARIO después de éxito
             setFormData({ email_cliente: '', contrasena: '' });
@@ -100,7 +101,7 @@ const AuthForm = () => {
                 error.response?.data?.message ||
                 error.message ||
                 'Error al iniciar sesión';
-            toast.error(errorMessage);
+            showNotification(errorMessage, 'error');
         } finally {
             setIsLoading(false);
         }
@@ -114,10 +115,10 @@ const AuthForm = () => {
         setIsLoading(true);
         try {
             await googleLogin();
-            toast.success('¡Bienvenido!');
+            showNotification('¡Bienvenido!', 'success');
             navigate('/');
         } catch (error) {
-            toast.error('Error al iniciar sesión con Google');
+            showNotification('Error al iniciar sesión con Google', 'error');
         } finally {
             setIsLoading(false);
         }
