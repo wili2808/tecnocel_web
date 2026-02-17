@@ -2,11 +2,14 @@
  * Componente GestionClientes - Lista y gestión de clientes de la tienda
  * Permite visualizar y editar información de clientes registrados
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { usuarioService } from '../../../services/usuarioService';
 import type { ClienteListItem } from '../../../types/usuario';
 import styles from './GestionClientes.module.css';
+
+type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha';
+type SortDir = 'asc' | 'desc';
 
 const GestionClientes = () => {
   const { showNotification } = useNotification();
@@ -14,6 +17,8 @@ const GestionClientes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('id_cliente');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   useEffect(() => {
     cargarClientes();
@@ -37,6 +42,60 @@ const GestionClientes = () => {
     e.preventDefault();
     cargarClientes();
   };
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  };
+
+  const getSortIcon = (key: SortKey) => {
+    if (sortKey !== key) return 'unfold_more';
+    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  };
+
+  const sortedClientes = useMemo(() => {
+    const sorted = [...clientes];
+    sorted.sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+
+      switch (sortKey) {
+        case 'id_cliente':
+          valA = a.id_cliente;
+          valB = b.id_cliente;
+          break;
+        case 'nombre':
+          valA = `${a.nombre_cliente} ${a.apellido_cliente}`.toLowerCase();
+          valB = `${b.nombre_cliente} ${b.apellido_cliente}`.toLowerCase();
+          break;
+        case 'email':
+          valA = a.email_cliente.toLowerCase();
+          valB = b.email_cliente.toLowerCase();
+          break;
+        case 'celular':
+          valA = (a.celular_cliente || '').toLowerCase();
+          valB = (b.celular_cliente || '').toLowerCase();
+          break;
+        case 'estado':
+          valA = (a.email_verified && a.is_web_enabled) ? 1 : 0;
+          valB = (b.email_verified && b.is_web_enabled) ? 1 : 0;
+          break;
+        case 'fecha':
+          valA = a.fyh_creacion || '';
+          valB = b.fyh_creacion || '';
+          break;
+      }
+
+      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [clientes, sortKey, sortDir]);
 
   if (loading) {
     return (
@@ -92,25 +151,55 @@ const GestionClientes = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nombre Completo</th>
-              <th>Email</th>
-              <th>Celular</th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('id_cliente')}>
+                <span className={styles.sortableHeaderContent}>
+                  ID
+                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'id_cliente' ? styles.sortIconActive : ''}`}>{getSortIcon('id_cliente')}</span>
+                </span>
+              </th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
+                <span className={styles.sortableHeaderContent}>
+                  Nombre Completo
+                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
+                </span>
+              </th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
+                <span className={styles.sortableHeaderContent}>
+                  Email
+                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}>{getSortIcon('email')}</span>
+                </span>
+              </th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('celular')}>
+                <span className={styles.sortableHeaderContent}>
+                  Celular
+                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'celular' ? styles.sortIconActive : ''}`}>{getSortIcon('celular')}</span>
+                </span>
+              </th>
               <th>NIT/CI</th>
-              <th>Estado</th>
-              <th>Fecha de Registro</th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
+                <span className={styles.sortableHeaderContent}>
+                  Estado
+                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}>{getSortIcon('estado')}</span>
+                </span>
+              </th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
+                <span className={styles.sortableHeaderContent}>
+                  Fecha de Registro
+                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
+                </span>
+              </th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {clientes.length === 0 ? (
+            {sortedClientes.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.emptyMessage}>
                   No se encontraron clientes
                 </td>
               </tr>
             ) : (
-              clientes.map((cliente) => (
+              sortedClientes.map((cliente) => (
                 <tr key={cliente.id_cliente}>
                   <td>{cliente.id_cliente}</td>
                   <td>{`${cliente.nombre_cliente} ${cliente.apellido_cliente}`}</td>

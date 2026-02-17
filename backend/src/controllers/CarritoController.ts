@@ -591,22 +591,6 @@ export default class CarritoController {
         }))
       };
 
-      res.locals.skipHttpLog = true;
-
-      logger.info('Carrito obtenido exitosamente', {
-        operacion: 'obtener_carrito',
-        cliente_id: id_cliente,
-        cantidad_items: itemsTransformados.length,
-        total_guardado: totalConPreciosGuardados,
-        total_actual: totalConPreciosActuales,
-        diferencia_total,
-        tiene_items_sin_stock,
-        items_sin_stock_count: itemsSinStock.length,
-        tiene_cambios_precio,
-        items_con_cambio_precio_count: itemsConPrecioCambiado.length,
-        success: true
-      });
-
       return res.json({ carrito: carritoResponse });
 
     } catch (error) {
@@ -972,16 +956,6 @@ export default class CarritoController {
         fyh_actualizacion: new Date()
       });
 
-      res.locals.skipHttpLog = true;
-      
-      logger.info('Cantidad de item actualizada exitosamente', {
-        operacion: 'actualizar_cantidad',
-        cliente_id: id_cliente,
-        item_id: id_item,
-        nueva_cantidad: cantidad,
-        success: true
-      });
-      
       // Transformar el producto con ofertas e imágenes usando el método helper
       const ofertasProducto = (item.producto as any).ofertas || [];
       const productoTransformado = await CarritoController.transformarProductoConImagenes(
@@ -1078,15 +1052,6 @@ export default class CarritoController {
         fyh_actualizacion: new Date()
       });
 
-      res.locals.skipHttpLog = true;
-      
-      logger.info('Item eliminado del carrito exitosamente', {
-        operacion: 'eliminar_item',
-        cliente_id: id_cliente,
-        item_id: id_item,
-        success: true
-      });
-      
       return res.json({
         mensaje: 'Producto eliminado del carrito',
         total_carrito: nuevoTotal
@@ -1145,7 +1110,7 @@ export default class CarritoController {
       }
 
       // Eliminar todos los items del carrito
-      const itemsEliminados = await CarritoWebItems.destroy({
+      await CarritoWebItems.destroy({
         where: { id_carrito: carrito.id_carrito }
       });
 
@@ -1155,15 +1120,6 @@ export default class CarritoController {
         fyh_actualizacion: new Date()
       });
 
-      res.locals.skipHttpLog = true;
-      
-      logger.info('Carrito vaciado exitosamente', {
-        operacion: 'vaciar_carrito',
-        cliente_id: id_cliente,
-        items_eliminados: itemsEliminados,
-        success: true
-      });
-      
       return res.json({
         mensaje: 'Carrito vaciado exitosamente',
         total_carrito: 0.00
@@ -1392,19 +1348,6 @@ export default class CarritoController {
       // Confirmar transacción - todas las operaciones fueron exitosas
       await transaction.commit();
 
-      res.locals.skipHttpLog = true;
-      
-      logger.info('Compra confirmada exitosamente', {
-        operacion: 'confirmar_compra',
-        cliente_id: id_cliente,
-        id_venta: venta.id_venta,
-        nro_venta: nroVenta,
-        items_comprados: carrito.items.length,
-        total_pagado: totalActualizado,
-        items_con_cambio_precio: itemsConCambio.length,
-        success: true
-      });
-      
       return res.json({
         mensaje: 'Compra realizada exitosamente',
         venta: {
@@ -1507,7 +1450,6 @@ export default class CarritoController {
         offset: parseInt(offset as string)
       });
 
-      logger.info(`Historial obtenido - Cliente: ${id_cliente}, Carritos: ${carritos.count}`);
       return res.json({
         carritos: carritos.rows,
         total: carritos.count,

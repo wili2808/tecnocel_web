@@ -27,8 +27,8 @@ import Direccion from './Direccion.js';
 import ProductoImagen from './ProductoImagen.js';
 
 // Almacen
-Almacen.belongsTo(Categoria, { foreignKey: 'id_categoria' });
-Categoria.hasMany(Almacen, { foreignKey: 'id_categoria' });
+Almacen.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'Categoria' });
+Categoria.hasMany(Almacen, { foreignKey: 'id_categoria', as: 'productos' });
 Almacen.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 Usuario.hasMany(Almacen, { foreignKey: 'id_usuario' });
 

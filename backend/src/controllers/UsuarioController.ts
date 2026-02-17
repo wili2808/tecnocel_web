@@ -105,7 +105,7 @@ export default class UsuarioController {
     try {
       const { email, contrasena } = req.body;
 
-      logger.info('Intento de login de usuario', { email });
+      logger.debug('Procesando login de usuario', { email });
 
       // Validar que se proporcionen las credenciales
       if (!email || !contrasena) {

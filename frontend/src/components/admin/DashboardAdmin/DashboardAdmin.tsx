@@ -5,7 +5,11 @@
 import { useAuth } from '../../../contexts/AuthContext';
 import styles from './DashboardAdmin.module.css';
 
-const DashboardAdmin = () => {
+interface DashboardAdminProps {
+  onNavigate: (section: string) => void;
+}
+
+const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
   const { user, isAdmin } = useAuth();
 
   const userName = user && 'nombres' in user ? user.nombres : 'Usuario';
@@ -70,18 +74,18 @@ const DashboardAdmin = () => {
         <h3 className={styles.sectionTitle}>Acciones Rápidas</h3>
         <div className={styles.actionsGrid}>
           {isAdmin && (
-            <button className={styles.actionButton}>
+            <button className={styles.actionButton} onClick={() => onNavigate('usuarios')}>
               <span className="material-icons">person_add</span>
-              <span>Crear Usuario</span>
+              <span>Gestionar Usuarios</span>
             </button>
           )}
-          <button className={styles.actionButton}>
+          <button className={styles.actionButton} onClick={() => onNavigate('clientes')}>
             <span className="material-icons">visibility</span>
             <span>Ver Clientes</span>
           </button>
-          <button className={styles.actionButton}>
+          <button className={styles.actionButton} onClick={() => onNavigate('productos')}>
             <span className="material-icons">add_box</span>
-            <span>Agregar Producto</span>
+            <span>Gestionar Productos</span>
           </button>
           <button className={styles.actionButton}>
             <span className="material-icons">assessment</span>

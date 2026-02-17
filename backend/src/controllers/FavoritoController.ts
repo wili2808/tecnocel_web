@@ -91,6 +91,7 @@ export class FavoritoController {
             include: [
               {
                 model: Categoria,
+                as: 'Categoria',
                 attributes: ['nombre_categoria']
               },
               {
@@ -324,6 +325,7 @@ export class FavoritoController {
             include: [
               {
                 model: Categoria,
+                as: 'Categoria',
                 attributes: ['nombre_categoria']
               },
               {
@@ -558,6 +560,7 @@ export class FavoritoController {
             include: [
               {
                 model: Categoria,
+                as: 'Categoria',
                 attributes: ['id_categoria', 'nombre_categoria']
               }
             ]

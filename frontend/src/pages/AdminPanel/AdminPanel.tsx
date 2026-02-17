@@ -1,7 +1,7 @@
 /**
  * Componente AdminPanel - Panel de administración completo con navegación lateral
  * Proporciona acceso a funcionalidades de gestión para administradores y empleados
- * Incluye CRUD de usuarios, gestión de clientes y configuración del sistema
+ * Incluye CRUD de usuarios, gestión de clientes, productos y configuración del sistema
  * Control de acceso basado en roles (admin vs empleado)
  */
 import { useState } from 'react';
@@ -9,8 +9,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import DashboardAdmin from '../../components/admin/DashboardAdmin/DashboardAdmin';
 import GestionUsuarios from '../../components/admin/GestionUsuarios/GestionUsuarios';
-import CrearUsuario from '../../components/admin/CrearUsuario/CrearUsuario';
 import GestionClientes from '../../components/admin/GestionClientes/GestionClientes';
+import GestionProductos from '../../components/admin/GestionProductos/GestionProductos';
 import adminPanelStyles from './AdminPanel.module.css';
 
 // ============================================================================
@@ -34,8 +34,8 @@ interface MenuOption {
  */
 const MENU_OPTIONS: MenuOption[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', roles: ['admin', 'empleado'] },
+  { id: 'productos', label: 'Gestión de Productos', icon: 'inventory_2', roles: ['admin', 'empleado'] },
   { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', roles: ['admin', 'empleado'] },
-  { id: 'crear-usuario', label: 'Crear Usuario', icon: 'person_add', roles: ['admin'] }, // Solo admin
   { id: 'clientes', label: 'Gestión de Clientes', icon: 'people', roles: ['admin', 'empleado'] },
 ];
 
@@ -47,7 +47,7 @@ const MENU_OPTIONS: MenuOption[] = [
  * Componente de elemento del menú del panel
  * Renderiza cada opción del menú con estado activo y funcionalidad de click
  */
-const MenuOption = ({
+const MenuOptionItem = ({
   option,
   isActive,
   onClick
@@ -74,17 +74,23 @@ const MenuOption = ({
  * Componente de contenido dinámico del panel
  * Renderiza diferentes secciones según la opción activa del menú
  */
-const ContentSection = ({ activeSection }: { activeSection: string }) => {
+const ContentSection = ({
+  activeSection,
+  onNavigate
+}: {
+  activeSection: string;
+  onNavigate: (section: string) => void;
+}) => {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard':
-        return <DashboardAdmin />;
+        return <DashboardAdmin onNavigate={onNavigate} />;
+
+      case 'productos':
+        return <GestionProductos />;
 
       case 'usuarios':
         return <GestionUsuarios />;
-
-      case 'crear-usuario':
-        return <CrearUsuario />;
 
       case 'clientes':
         return <GestionClientes />;
@@ -214,7 +220,7 @@ const AdminPanel = () => {
             {/* Opciones del menú filtradas por rol */}
             <div className={adminPanelStyles.menuOptions}>
               {filteredMenuOptions.map(option => (
-                <MenuOption
+                <MenuOptionItem
                   key={option.id}
                   option={option}
                   isActive={activeSection === option.id}
@@ -239,7 +245,7 @@ const AdminPanel = () => {
 
         {/* Área de contenido principal del panel */}
         <main className={adminPanelStyles.mainContent}>
-          <ContentSection activeSection={activeSection} />
+          <ContentSection activeSection={activeSection} onNavigate={setActiveSection} />
         </main>
       </div>
     </div>

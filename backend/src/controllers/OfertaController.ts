@@ -148,6 +148,7 @@ export class OfertaController {
           },
           {
             model: Categoria,
+            as: 'Categoria',
             attributes: ['nombre_categoria']
           },
           {

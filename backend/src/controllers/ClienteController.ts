@@ -121,7 +121,7 @@ export default class ClienteController {
   static async login(req: Request, res: Response) {
     try {
       const { email_cliente, contrasena } = req.body;
-      logger.info('Intento de login de cliente', { email_cliente });
+      logger.debug('Procesando login de cliente', { email_cliente });
       
       if (!email_cliente || !contrasena) {
         return res.status(400).json({ mensaje: 'Email y contraseña son obligatorios' });
@@ -221,7 +221,7 @@ export default class ClienteController {
   static async register(req: Request, res: Response) {
     try {
       const { nombre_cliente, apellido_cliente, email_cliente, contrasena, celular_cliente, nit_ci_cliente} = req.body;
-      logger.info('Intentando registrar nuevo cliente', { email_cliente, nombre_cliente });
+      logger.debug('Procesando registro de nuevo cliente', { email_cliente, nombre_cliente });
       
       // Validaciones básicas
       if (!nombre_cliente || !apellido_cliente || !email_cliente || !contrasena) {
@@ -389,7 +389,7 @@ export default class ClienteController {
     try {
       const { email_cliente } = req.body;
 
-      logger.info('Solicitud de recuperación de contraseña para:', { email_cliente });
+      logger.debug('Procesando solicitud de recuperación de contraseña', { email_cliente });
       
       if (!email_cliente) {
         return res.status(400).json({ mensaje: 'Email es obligatorio' });
@@ -467,7 +467,7 @@ export default class ClienteController {
     try {
       const { reset_token, nueva_contrasena } = req.body;
 
-      logger.info('Intento de restablecimiento de contraseña iniciado');
+      logger.debug('Procesando restablecimiento de contraseña');
 
       if (!reset_token || !nueva_contrasena) {
         return res.status(400).json({ mensaje: 'El token y la nueva contraseña son obligatorios' });
@@ -806,7 +806,7 @@ export default class ClienteController {
       const usuarioSession = req.usuario;
       const { contrasena_actual, contrasena_nueva } = req.body;
 
-      logger.info(`Intento de cambio de contraseña iniciado para el usuario ID: ${usuarioSession?.id}`);
+      logger.debug('Procesando cambio de contraseña', { usuario_id: usuarioSession?.id });
 
       if (!usuarioSession) {
         return res.status(401).json({ mensaje: 'Sesión no válida' });

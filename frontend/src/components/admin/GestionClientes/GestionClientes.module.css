@@ -127,6 +127,36 @@
   white-space: nowrap;
 }
 
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortableHeader:hover {
+  color: var(--text-primary);
+}
+
+.sortableHeaderContent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.sortIcon {
+  font-size: var(--font-size-sm) !important;
+  opacity: 0.3;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.sortableHeader:hover .sortIcon {
+  opacity: 0.6;
+}
+
+.sortIconActive {
+  opacity: 1 !important;
+  color: var(--color-primary);
+}
+
 .table td {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);

@@ -1,6 +1,4 @@
 // Hooks de autenticación
-export { useAuthActions } from './useAuthActions';
-export { useAuthForm, authValidationConfigs } from './useAuthForm';
 export { useAutoLogout } from './useAutoLogout';
 
 // Hooks de productos (CONSOLIDADO - ProductContext)
@@ -9,7 +7,6 @@ export { useProductActions } from './useProductActions';
 // Hooks de carrito
 export { useCarrito } from './useCarrito';
 export { useCarritoOperations } from './useCarritoOperations';
-export { useCarritoUtils } from './useCarritoUtils';
 
 // Hooks de ofertas
 export { useOfertas } from './useOfertas';

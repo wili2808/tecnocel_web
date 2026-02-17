@@ -192,3 +192,39 @@ export interface ProductUIFilters {
   order: string;
   onlyStock: boolean;
 }
+
+// ============================================================================
+// INTERFACES PARA ADMIN - FORMULARIO DE PRODUCTOS
+// ============================================================================
+
+/**
+ * Datos del formulario para crear/editar un producto desde el admin
+ */
+export interface ProductoFormData {
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  id_categoria: number;
+  id_marca?: number;
+  modelo?: string;
+  precio_compra: string;
+  precio_venta: string;
+  stock: number;
+  stock_minimo?: number;
+  stock_maximo?: number;
+  fecha_ingreso: string;
+  es_destacado: boolean;
+  orden_destacado?: number;
+  imagenes?: { url_imagen: string; alt_text?: string }[];
+}
+
+/**
+ * Imagen en estado de preview antes de subir al servidor
+ */
+export interface ImagenPreview {
+  file?: File;
+  preview: string;
+  url_imagen?: string;
+  alt_text: string;
+  es_existente: boolean;
+}

@@ -131,8 +131,9 @@ class AlmacenController {
       const productos = await Almacen.findAll({
         include: [
           { 
-            model: Categoria, 
-            attributes: ['nombre_categoria'] 
+            model: Categoria,
+            as: 'Categoria',
+            attributes: ['nombre_categoria']
           },
           { 
             model: Usuario, 
@@ -223,8 +224,9 @@ class AlmacenController {
       const producto = await Almacen.findByPk(id, {
         include: [
           { 
-            model: Categoria, 
-            attributes: ['nombre_categoria'] 
+            model: Categoria,
+            as: 'Categoria',
+            attributes: ['nombre_categoria']
           },
           { 
             model: Usuario, 
@@ -556,7 +558,7 @@ class AlmacenController {
           ]
         },
         include: [
-          { model: Categoria, attributes: ['nombre_categoria'] },
+          { model: Categoria, as: 'Categoria', attributes: ['nombre_categoria'] },
           { model: Usuario, attributes: ['nombres'] },
           {
             model: Marca,
@@ -607,7 +609,7 @@ class AlmacenController {
       const productos = await Almacen.findAll({
         where: { id_categoria: categoriaId },
         include: [
-          { model: Categoria, attributes: ['nombre_categoria'] },
+          { model: Categoria, as: 'Categoria', attributes: ['nombre_categoria'] },
           { model: Usuario, attributes: ['nombres'] },
           {
             model: Marca,
@@ -721,7 +723,7 @@ class AlmacenController {
           es_destacado: true
         },
         include: [
-          { model: Categoria, attributes: ['nombre_categoria'] },
+          { model: Categoria, as: 'Categoria', attributes: ['nombre_categoria'] },
           { model: Usuario, attributes: ['nombres'] },
           {
             model: Marca,
@@ -879,7 +881,7 @@ class AlmacenController {
       logger.debug('DIAGNÓSTICO Paso 2: Include Categoria');
       try {
         const productosConCategoria = await Almacen.findAll({
-          include: [{ model: Categoria, attributes: ['nombre_categoria'] }],
+          include: [{ model: Categoria, as: 'Categoria', attributes: ['nombre_categoria'] }],
           limit: 5
         });
         diagnostics.step2_categoria_include = {
@@ -918,7 +920,7 @@ class AlmacenController {
       try {
         const productos = await Almacen.findAll({
           include: [
-            { model: Categoria, attributes: ['nombre_categoria'] },
+            { model: Categoria, as: 'Categoria', attributes: ['nombre_categoria'] },
             { model: Usuario, attributes: ['nombres'] }
           ],
           limit: 5
