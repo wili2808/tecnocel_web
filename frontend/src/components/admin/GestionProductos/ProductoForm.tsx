@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminProductService from '../../../services/adminProductService';
 import ProductoImageUploader from './ProductoImageUploader';
+import ProductoOfertas from './ProductoOfertas';
 import type { Product, Category, Marca, ProductoFormData, ImagenPreview } from '../../../types/product';
 import styles from './ProductoForm.module.css';
 
@@ -518,6 +519,17 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </legend>
           <ProductoImageUploader imagenes={imagenes} onChange={setImagenes} />
         </fieldset>
+
+        {/* Sección: Ofertas (solo en edición) */}
+        {modo === 'editar' && producto && (
+          <fieldset className={styles.section}>
+            <legend className={styles.sectionTitle}>
+              <span className="material-icons">local_offer</span>
+              Ofertas Asociadas
+            </legend>
+            <ProductoOfertas idProducto={producto.id_producto} />
+          </fieldset>
+        )}
 
         {/* Acciones del formulario */}
         <div className={styles.formFooter}>

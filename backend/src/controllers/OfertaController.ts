@@ -491,6 +491,157 @@ export class OfertaController {
    *   message: "Oferta eliminada exitosamente"
    * }
    */
+  /**
+   * Obtiene todas las ofertas (activas e inactivas) para administración
+   *
+   * @param req - Express Request
+   * @param res - Express Response
+   * @returns 200 con { success, data, count }
+   */
+  static async getAllOfertas(req: Request, res: Response) {
+    try {
+      const ofertas = await Oferta.findAll({
+        order: [['fyh_creacion', 'DESC']],
+        attributes: {
+          include: [
+            [
+              Oferta.sequelize!.literal(
+                '(SELECT COUNT(*) FROM tb_productos_ofertas WHERE tb_productos_ofertas.id_oferta = Oferta.id_oferta)'
+              ),
+              'productos_count'
+            ]
+          ]
+        }
+      });
+
+      res.json({
+        success: true,
+        data: ofertas,
+        count: ofertas.length
+      });
+    } catch (error) {
+      logger.error('Error obteniendo todas las ofertas:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
+  /**
+   * Obtiene una oferta por ID con sus productos asociados
+   *
+   * @param req - Express Request con params.id
+   * @param res - Express Response
+   * @returns 200 con { success, data } oferta con productos
+   * @returns 404 si la oferta no existe
+   */
+  static async getOfertaById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const oferta = await Oferta.findByPk(id, {
+        include: [
+          {
+            model: Almacen,
+            as: 'productos',
+            attributes: ['id_producto', 'codigo', 'nombre', 'precio_venta'],
+            through: {
+              attributes: ['id_producto_oferta', 'precio_oferta', 'es_precio_personalizado']
+            },
+            include: [
+              {
+                model: ProductoImagen,
+                as: 'imagenes',
+                attributes: ['url_imagen', 'alt_text', 'es_principal'],
+                where: { es_principal: true },
+                required: false
+              }
+            ]
+          }
+        ]
+      });
+
+      if (!oferta) {
+        return res.status(404).json({
+          success: false,
+          message: 'Oferta no encontrada'
+        });
+      }
+
+      // Transformar URLs de imágenes
+      const imageService = getImageService();
+      const ofertaJson = oferta.toJSON() as any;
+
+      if (imageService && ofertaJson.productos) {
+        for (const producto of ofertaJson.productos) {
+          if (producto.imagenes && producto.imagenes.length > 0) {
+            producto.imagen_url = imageService.generateImageUrl(producto.imagenes[0].url_imagen);
+          } else {
+            producto.imagen_url = imageService.generateImageUrl(null);
+          }
+        }
+      }
+
+      res.json({
+        success: true,
+        data: ofertaJson
+      });
+    } catch (error) {
+      logger.error('Error obteniendo oferta por ID:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
+  /**
+   * Remueve un producto de una oferta
+   *
+   * @param req - Express Request con params.id_oferta y params.id_producto
+   * @param res - Express Response
+   * @returns 200 con { success, message }
+   * @returns 404 si la relación no existe
+   */
+  static async removeProductoOferta(req: Request, res: Response) {
+    try {
+      const { id_oferta, id_producto } = req.params;
+
+      const productoOferta = await ProductoOferta.findOne({
+        where: {
+          id_oferta: parseInt(id_oferta),
+          id_producto: parseInt(id_producto)
+        }
+      });
+
+      if (!productoOferta) {
+        return res.status(404).json({
+          success: false,
+          message: 'El producto no está asignado a esta oferta'
+        });
+      }
+
+      await productoOferta.destroy();
+
+      logger.info(`Producto ${id_producto} removido de oferta ${id_oferta}`);
+
+      res.json({
+        success: true,
+        message: 'Producto removido de la oferta exitosamente'
+      });
+    } catch (error) {
+      logger.error('Error removiendo producto de oferta:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
   static async deleteOferta(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -516,6 +667,48 @@ export class OfertaController {
       });
     } catch (error) {
       logger.error('Error eliminando oferta:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
+  /**
+   * Obtiene todas las ofertas asociadas a un producto específico
+   * Incluye ofertas activas, inactivas y expiradas para vista admin
+   *
+   * GET /api/ofertas/producto/:id_producto
+   */
+  static async getOfertasByProducto(req: Request, res: Response) {
+    try {
+      const { id_producto } = req.params;
+
+      const productoOfertas = await ProductoOferta.findAll({
+        where: { id_producto },
+        include: [
+          {
+            model: Oferta,
+            as: 'oferta',
+            attributes: ['id_oferta', 'nombre_oferta', 'tipo_descuento', 'valor_descuento', 'fecha_inicio', 'fecha_fin', 'activo']
+          }
+        ],
+        attributes: ['id_producto_oferta', 'precio_oferta', 'es_precio_personalizado']
+      });
+
+      const ofertas = productoOfertas.map((po: any) => ({
+        ...po.oferta.toJSON(),
+        precio_oferta: po.precio_oferta,
+        es_precio_personalizado: po.es_precio_personalizado
+      }));
+
+      res.json({
+        success: true,
+        data: ofertas
+      });
+    } catch (error) {
+      logger.error('Error obteniendo ofertas del producto:', error);
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',

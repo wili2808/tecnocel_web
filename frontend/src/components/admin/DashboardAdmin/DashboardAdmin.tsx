@@ -87,6 +87,10 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
             <span className="material-icons">add_box</span>
             <span>Gestionar Productos</span>
           </button>
+          <button className={styles.actionButton} onClick={() => onNavigate('ofertas')}>
+            <span className="material-icons">local_offer</span>
+            <span>Gestionar Ofertas</span>
+          </button>
           <button className={styles.actionButton}>
             <span className="material-icons">assessment</span>
             <span>Ver Reportes</span>
