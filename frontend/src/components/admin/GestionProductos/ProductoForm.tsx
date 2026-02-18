@@ -6,8 +6,16 @@ import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminProductService from '../../../services/adminProductService';
 import ProductoImageUploader from './ProductoImageUploader';
+import ProductoCaracteristicas from './ProductoCaracteristicas';
 import ProductoOfertas from './ProductoOfertas';
-import type { Product, Category, Marca, ProductoFormData, ImagenPreview } from '../../../types/product';
+import type {
+  Product,
+  Category,
+  Marca,
+  ProductoFormData,
+  ImagenPreview,
+  CaracteristicaLocal,
+} from '../../../types/product';
 import styles from './ProductoForm.module.css';
 
 interface ProductoFormProps {
@@ -38,6 +46,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
   const { showNotification } = useNotification();
   const [formData, setFormData] = useState<ProductoFormData>(INITIAL_FORM);
   const [imagenes, setImagenes] = useState<ImagenPreview[]>([]);
+  const [caracteristicas, setCaracteristicas] = useState<CaracteristicaLocal[]>([]);
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [loading, setLoading] = useState(false);
@@ -86,7 +95,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
 
       // Cargar imágenes existentes
       if (producto.imagenes && producto.imagenes.length > 0) {
-        const imagenesExistentes: ImagenPreview[] = producto.imagenes.map(img => ({
+        const imagenesExistentes: ImagenPreview[] = producto.imagenes.map((img) => ({
           preview: img.url || '',
           url_imagen: img.url || '',
           alt_text: img.alt_text || '',
@@ -97,19 +106,17 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
     }
   }, [modo, producto]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData((prev) => ({ ...prev, [name]: checked }));
       return;
     }
 
     if (['stock', 'stock_minimo', 'stock_maximo', 'orden_destacado', 'id_categoria'].includes(name)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         [name]: value === '' ? (name === 'id_categoria' ? 0 : undefined) : parseInt(value),
       }));
@@ -117,14 +124,14 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
     }
 
     if (name === 'id_marca') {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         id_marca: value === '' || value === '0' ? undefined : parseInt(value),
       }));
       return;
     }
 
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -156,7 +163,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       setLoading(true);
 
       // 1. Subir imágenes nuevas (las que tienen File)
-      const nuevasFiles = imagenes.filter(img => img.file).map(img => img.file!);
+      const nuevasFiles = imagenes.filter((img) => img.file).map((img) => img.file!);
       let imagenesSubidas: { url_imagen: string; alt_text: string }[] = [];
 
       if (nuevasFiles.length > 0) {
@@ -168,7 +175,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
 
       // Respetar el orden del array de imagenes
       let subidasIndex = 0;
-      imagenes.forEach(img => {
+      imagenes.forEach((img) => {
         if (img.es_existente && img.url_imagen) {
           // Extraer solo el nombre del archivo de la URL completa
           // La BD guarda el nombre, no la URL (ej: "imagen.webp", no "http://...imagen.webp")
@@ -188,9 +195,10 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       // Solo incluir imagenes si hubo cambios (nuevas subidas o reordenamiento)
       const hayNuevasImagenes = nuevasFiles.length > 0;
       const imagenesOriginales = producto?.imagenes || [];
-      const hayCambiosImagenes = hayNuevasImagenes
-        || imagenes.length !== imagenesOriginales.length
-        || imagenes.some((img, i) => {
+      const hayCambiosImagenes =
+        hayNuevasImagenes ||
+        imagenes.length !== imagenesOriginales.length ||
+        imagenes.some((img, i) => {
           if (!img.es_existente) return true;
           const orig = imagenesOriginales[i];
           if (!orig) return true;
@@ -200,6 +208,8 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       const payload: ProductoFormData = {
         ...formData,
         imagenes: hayCambiosImagenes ? todasImagenes : undefined,
+        caracteristicas:
+          caracteristicas.length > 0 ? caracteristicas.map((c) => ({ id_tipo: c.id_tipo, valor: c.valor })) : [],
       };
 
       // 4. Crear o actualizar
@@ -236,9 +246,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
         <div className={styles.headerTop}>
           <div>
             <h2 className={styles.title}>
-              <span className="material-icons">
-                {modo === 'crear' ? 'add_box' : 'edit'}
-              </span>
+              <span className="material-icons">{modo === 'crear' ? 'add_box' : 'edit'}</span>
               {modo === 'crear' ? 'Crear Nuevo Producto' : 'Editar Producto'}
             </h2>
             <p className={styles.subtitle}>
@@ -263,7 +271,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </legend>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="codigo" className={styles.label}>Código *</label>
+              <label htmlFor="codigo" className={styles.label}>
+                Código *
+              </label>
               <input
                 type="text"
                 id="codigo"
@@ -276,7 +286,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="nombre" className={styles.label}>Nombre *</label>
+              <label htmlFor="nombre" className={styles.label}>
+                Nombre *
+              </label>
               <input
                 type="text"
                 id="nombre"
@@ -291,7 +303,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </div>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="modelo" className={styles.label}>Modelo</label>
+              <label htmlFor="modelo" className={styles.label}>
+                Modelo
+              </label>
               <input
                 type="text"
                 id="modelo"
@@ -303,7 +317,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               />
             </div>
             <div className={styles.formGroupFull}>
-              <label htmlFor="descripcion" className={styles.label}>Descripción</label>
+              <label htmlFor="descripcion" className={styles.label}>
+                Descripción
+              </label>
               <textarea
                 id="descripcion"
                 name="descripcion"
@@ -325,7 +341,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </legend>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="id_categoria" className={styles.label}>Categoría *</label>
+              <label htmlFor="id_categoria" className={styles.label}>
+                Categoría *
+              </label>
               <select
                 id="id_categoria"
                 name="id_categoria"
@@ -335,7 +353,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                 required
               >
                 <option value={0}>Seleccionar categoría...</option>
-                {categorias.map(cat => (
+                {categorias.map((cat) => (
                   <option key={cat.id_categoria} value={cat.id_categoria}>
                     {cat.nombre_categoria}
                   </option>
@@ -343,7 +361,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               </select>
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="id_marca" className={styles.label}>Marca</label>
+              <label htmlFor="id_marca" className={styles.label}>
+                Marca
+              </label>
               <select
                 id="id_marca"
                 name="id_marca"
@@ -352,7 +372,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                 className={styles.select}
               >
                 <option value="">Sin marca</option>
-                {marcas.map(marca => (
+                {marcas.map((marca) => (
                   <option key={marca.id_marca} value={marca.id_marca}>
                     {marca.nombre_marca}
                   </option>
@@ -360,6 +380,20 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               </select>
             </div>
           </div>
+        </fieldset>
+
+        {/* Sección: Características / Especificaciones */}
+        <fieldset className={styles.section}>
+          <legend className={styles.sectionTitle}>
+            <span className="material-icons">tune</span>
+            Características / Especificaciones
+          </legend>
+          <ProductoCaracteristicas
+            modo={modo}
+            idProducto={producto?.id_producto}
+            caracteristicas={caracteristicas}
+            onCaracteristicasChange={setCaracteristicas}
+          />
         </fieldset>
 
         {/* Sección: Precios */}
@@ -370,7 +404,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </legend>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="precio_compra" className={styles.label}>Precio de Compra (BOB) *</label>
+              <label htmlFor="precio_compra" className={styles.label}>
+                Precio de Compra (BOB) *
+              </label>
               <input
                 type="number"
                 id="precio_compra"
@@ -385,7 +421,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="precio_venta" className={styles.label}>Precio de Venta (BOB) *</label>
+              <label htmlFor="precio_venta" className={styles.label}>
+                Precio de Venta (BOB) *
+              </label>
               <input
                 type="number"
                 id="precio_venta"
@@ -402,11 +440,13 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </div>
           {formData.precio_compra && formData.precio_venta && (
             <p className={styles.helpText}>
-              Margen: {(
+              Margen:{' '}
+              {(
                 ((parseFloat(formData.precio_venta) - parseFloat(formData.precio_compra)) /
                   parseFloat(formData.precio_compra)) *
                 100
-              ).toFixed(1)}%
+              ).toFixed(1)}
+              %
             </p>
           )}
         </fieldset>
@@ -419,7 +459,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </legend>
           <div className={styles.formRow3}>
             <div className={styles.formGroup}>
-              <label htmlFor="stock" className={styles.label}>Stock Actual *</label>
+              <label htmlFor="stock" className={styles.label}>
+                Stock Actual *
+              </label>
               <input
                 type="number"
                 id="stock"
@@ -432,7 +474,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="stock_minimo" className={styles.label}>Stock Mínimo</label>
+              <label htmlFor="stock_minimo" className={styles.label}>
+                Stock Mínimo
+              </label>
               <input
                 type="number"
                 id="stock_minimo"
@@ -445,7 +489,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="stock_maximo" className={styles.label}>Stock Máximo</label>
+              <label htmlFor="stock_maximo" className={styles.label}>
+                Stock Máximo
+              </label>
               <input
                 type="number"
                 id="stock_maximo"
@@ -460,7 +506,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           </div>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="fecha_ingreso" className={styles.label}>Fecha de Ingreso *</label>
+              <label htmlFor="fecha_ingreso" className={styles.label}>
+                Fecha de Ingreso *
+              </label>
               <input
                 type="date"
                 id="fecha_ingreso"
@@ -495,7 +543,9 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           {formData.es_destacado && (
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="orden_destacado" className={styles.label}>Orden de Destacado</label>
+                <label htmlFor="orden_destacado" className={styles.label}>
+                  Orden de Destacado
+                </label>
                 <input
                   type="number"
                   id="orden_destacado"
@@ -511,15 +561,6 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           )}
         </fieldset>
 
-        {/* Sección: Imágenes */}
-        <fieldset className={styles.section}>
-          <legend className={styles.sectionTitle}>
-            <span className="material-icons">photo_library</span>
-            Imágenes del Producto
-          </legend>
-          <ProductoImageUploader imagenes={imagenes} onChange={setImagenes} />
-        </fieldset>
-
         {/* Sección: Ofertas (solo en edición) */}
         {modo === 'editar' && producto && (
           <fieldset className={styles.section}>
@@ -530,6 +571,15 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
             <ProductoOfertas idProducto={producto.id_producto} />
           </fieldset>
         )}
+
+        {/* Sección: Imágenes */}
+        <fieldset className={styles.section}>
+          <legend className={styles.sectionTitle}>
+            <span className="material-icons">photo_library</span>
+            Imágenes del Producto
+          </legend>
+          <ProductoImageUploader imagenes={imagenes} onChange={setImagenes} />
+        </fieldset>
 
         {/* Acciones del formulario */}
         <div className={styles.formFooter}>

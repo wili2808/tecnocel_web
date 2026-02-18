@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import OfertaProductos from './OfertaProductos';
-import type { OfertaFormData, OfertaConProductos } from '../../../services/adminOfertaService';
+import type { OfertaFormData, OfertaConProductos } from '../../../types';
 import styles from './OfertaForm.module.css';
 
 interface OfertaFormProps {

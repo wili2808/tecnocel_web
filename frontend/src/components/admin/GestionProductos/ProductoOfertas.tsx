@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
-import type { OfertaDeProducto } from '../../../services/adminOfertaService';
+import type { OfertaDeProducto } from '../../../types';
 import styles from './ProductoOfertas.module.css';
 
 interface ProductoOfertasProps {

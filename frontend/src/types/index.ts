@@ -6,6 +6,7 @@
 export * from './cliente';
 export * from './usuario';
 export * from './product';
+export * from './oferta';
 
 // Exportar tipos de autenticación y sesión
 export * from './auth';

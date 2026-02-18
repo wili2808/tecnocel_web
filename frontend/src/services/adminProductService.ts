@@ -3,7 +3,7 @@
  * Usa axiosAdminConfig para inyectar token admin/empleado automáticamente
  */
 import adminApi from '../api/axiosAdminConfig';
-import type { Product, Category, Marca, ProductoFormData } from '../types';
+import type { Product, Category, Marca, ProductoFormData, TipoCaracteristica, ProductoCaracteristica } from '../types';
 
 interface UploadImagenResponse {
   mensaje: string;
@@ -103,6 +103,40 @@ const adminProductService = {
   obtenerMarcas: async (): Promise<Marca[]> => {
     const response = await adminApi.get('/marcas');
     return response.data.data || response.data;
+  },
+
+  // ============================================================================
+  // CARACTERÍSTICAS DE PRODUCTOS
+  // ============================================================================
+
+  /**
+   * Obtiene todos los tipos de características activos
+   */
+  obtenerTiposCaracteristicas: async (): Promise<TipoCaracteristica[]> => {
+    const response = await adminApi.get('/caracteristicas/tipos');
+    return response.data.data || [];
+  },
+
+  /**
+   * Crea un nuevo tipo de característica
+   */
+  crearTipoCaracteristica: async (data: {
+    nombre_tipo: string;
+    descripcion?: string;
+    tipo_dato: string;
+    unidad_medida?: string;
+    opciones_seleccion?: string[];
+  }): Promise<TipoCaracteristica> => {
+    const response = await adminApi.post('/caracteristicas/tipos', data);
+    return response.data.data;
+  },
+
+  /**
+   * Obtiene las características de un producto específico
+   */
+  obtenerCaracteristicasProducto: async (idProducto: number): Promise<ProductoCaracteristica[]> => {
+    const response = await adminApi.get(`/caracteristicas/producto/${idProducto}`);
+    return response.data.data || [];
   },
 };
 

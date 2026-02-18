@@ -4,22 +4,12 @@
  */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ofertaService } from '../services/ofertaService';
-import type { Oferta, Product } from '../types';
+import type { Oferta, Product, OfertaConInfo } from '../types';
 
 // Constantes
 const OFERTAS_CACHE_KEY = import.meta.env.VITE_OFERTAS_CACHE_KEY || 'ofertas_cache';
 const CACHE_DURATION = parseInt(import.meta.env.VITE_OFERTAS_CACHE_DURATION || '300000'); // 5 minutos por defecto
 const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_OFERTAS_REFRESH_INTERVAL || '60000'); // 1 minuto por defecto
-
-/**
- * Estructura de una oferta con información adicional
- */
-export interface OfertaConProductos extends Oferta {
-    productos?: Product[];
-    productosCount?: number;
-    isActive?: boolean;
-    timeRemaining?: string;
-}
 
 /**
  * Estado del contexto de ofertas
@@ -48,7 +38,7 @@ interface OfertasContextType extends OfertasState {
     getOfertaById: (id: number) => Oferta | undefined;
     getProductosPorOferta: (ofertaId: number) => Product[];
     isProductoEnOferta: (productId: number) => boolean;
-    getOfertaInfo: (productId: number) => OfertaConProductos | null;
+    getOfertaInfo: (productId: number) => OfertaConInfo | null;
 
     // Métodos de gestión
     loadOfertas: () => Promise<void>;
@@ -324,7 +314,7 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
     /**
      * Obtiene información completa de oferta para un producto
      */
-    const getOfertaInfo = useCallback((productId: number): OfertaConProductos | null => {
+    const getOfertaInfo = useCallback((productId: number): OfertaConInfo | null => {
         const producto = state.cache.productos.get(productId);
         if (!producto?.en_oferta || !producto.ofertas) return null;
 

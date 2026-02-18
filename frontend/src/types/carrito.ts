@@ -1,4 +1,5 @@
 import type { Product } from './product';
+import type { OfertaAplicada } from './oferta';
 
 // ============================================================================
 // TIPOS PRINCIPALES DEL CARRITO
@@ -59,16 +60,6 @@ export interface CambioPrecio {
   porcentaje_cambio: number;
   subtotal_guardado: number;
   subtotal_actual: number;
-}
-
-/**
- * Información de oferta aplicada (Fase 2)
- */
-export interface OfertaAplicada {
-  id_oferta: number | null;
-  nombre_oferta?: string | null;
-  descuento_porcentaje: number | null;
-  precio_oferta: number | null;
 }
 
 /**

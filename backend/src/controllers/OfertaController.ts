@@ -472,26 +472,6 @@ export class OfertaController {
   }
 
   /**
-   * Desactiva una oferta (soft delete) (requiere admin)
-   *
-   * Endpoint protegido que marca una oferta como inactiva (activo=false)
-   * sin eliminarla permanentemente de la BD. Los productos asociados
-   * a la oferta no se eliminan, solo la oferta deja de estar vigente.
-   *
-   * @param req - Express Request con params.id
-   * @param res - Express Response object
-   * @returns 200 con { success, message }
-   * @returns 404 si la oferta no existe
-   * @returns 500 si ocurre error en el servidor
-   *
-   * @example
-   * DELETE /api/ofertas/5
-   * Response: {
-   *   success: true,
-   *   message: "Oferta eliminada exitosamente"
-   * }
-   */
-  /**
    * Obtiene todas las ofertas (activas e inactivas) para administración
    *
    * @param req - Express Request
@@ -642,6 +622,26 @@ export class OfertaController {
     }
   }
 
+  /**
+   * Desactiva una oferta (soft delete) (requiere admin)
+   *
+   * Endpoint protegido que marca una oferta como inactiva (activo=false)
+   * sin eliminarla permanentemente de la BD. Los productos asociados
+   * a la oferta no se eliminan, solo la oferta deja de estar vigente.
+   *
+   * @param req - Express Request con params.id
+   * @param res - Express Response object
+   * @returns 200 con { success, message }
+   * @returns 404 si la oferta no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/ofertas/5
+   * Response: {
+   *   success: true,
+   *   message: "Oferta eliminada exitosamente"
+   * }
+   */
   static async deleteOferta(req: Request, res: Response) {
     try {
       const { id } = req.params;

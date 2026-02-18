@@ -362,6 +362,33 @@ export class CaracteristicaController {
    *   data: { id_tipo: 3, nombre_tipo: "Almacenamiento", ... }
    * }
    */
+  /**
+   * Obtiene todos los tipos de características (activos e inactivos)
+   *
+   * Endpoint protegido para administración que retorna todos los tipos,
+   * incluyendo los desactivados.
+   */
+  static async getAllTipos(req: Request, res: Response) {
+    try {
+      const tipos = await TipoCaracteristica.findAll({
+        order: [['nombre_tipo', 'ASC']]
+      });
+
+      res.json({
+        success: true,
+        data: tipos,
+        count: tipos.length
+      });
+    } catch (error) {
+      logger.error('Error obteniendo todos los tipos de características:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
   static async createTipoCaracteristica(req: Request, res: Response) {
     try {
       const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion } = req.body;
@@ -403,6 +430,111 @@ export class CaracteristicaController {
         });
       }
 
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
+  /**
+   * Actualiza un tipo de característica
+   *
+   * Endpoint protegido que permite modificar los datos de un tipo de característica.
+   * Solo actualiza los campos proporcionados en el body.
+   *
+   * @param req - Express Request con params.id_tipo y body con campos a actualizar
+   * @param res - Express Response object
+   * @returns 200 con tipo actualizado
+   * @returns 404 si el tipo no existe
+   */
+  static async updateTipoCaracteristica(req: Request, res: Response) {
+    try {
+      const { id_tipo } = req.params;
+      const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion, activo } = req.body;
+
+      const tipo = await TipoCaracteristica.findByPk(id_tipo);
+
+      if (!tipo) {
+        return res.status(404).json({
+          success: false,
+          message: 'Tipo de característica no encontrado'
+        });
+      }
+
+      const updateData: Record<string, any> = { fyh_actualizacion: new Date() };
+      if (nombre_tipo !== undefined) updateData.nombre_tipo = nombre_tipo;
+      if (descripcion !== undefined) updateData.descripcion = descripcion;
+      if (tipo_dato !== undefined) updateData.tipo_dato = tipo_dato;
+      if (unidad_medida !== undefined) updateData.unidad_medida = unidad_medida;
+      if (opciones_seleccion !== undefined) updateData.opciones_seleccion = opciones_seleccion;
+      if (activo !== undefined) updateData.activo = activo;
+
+      await tipo.update(updateData);
+
+      logger.info(`Tipo de característica actualizado (ID: ${id_tipo}): ${tipo.nombre_tipo}`);
+
+      res.json({
+        success: true,
+        message: 'Tipo de característica actualizado exitosamente',
+        data: tipo
+      });
+    } catch (error) {
+      logger.error('Error actualizando tipo de característica:', error);
+
+      if (error instanceof Error && error.message.includes('Duplicate entry')) {
+        return res.status(400).json({
+          success: false,
+          message: 'Ya existe un tipo de característica con ese nombre'
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }
+
+  /**
+   * Desactiva un tipo de característica (soft delete)
+   *
+   * Endpoint protegido que cambia el estado activo a false.
+   * Las características de productos existentes quedan intactas.
+   *
+   * @param req - Express Request con params.id_tipo
+   * @param res - Express Response object
+   * @returns 200 si se desactivó exitosamente
+   * @returns 404 si el tipo no existe
+   */
+  static async deleteTipoCaracteristica(req: Request, res: Response) {
+    try {
+      const { id_tipo } = req.params;
+
+      const tipo = await TipoCaracteristica.findByPk(id_tipo);
+
+      if (!tipo) {
+        return res.status(404).json({
+          success: false,
+          message: 'Tipo de característica no encontrado'
+        });
+      }
+
+      await tipo.update({
+        activo: false,
+        fyh_actualizacion: new Date()
+      });
+
+      logger.info(`Tipo de característica desactivado (ID: ${id_tipo}): ${tipo.nombre_tipo}`);
+
+      res.json({
+        success: true,
+        message: 'Tipo de característica desactivado exitosamente'
+      });
+    } catch (error) {
+      logger.error('Error desactivando tipo de característica:', error);
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor',

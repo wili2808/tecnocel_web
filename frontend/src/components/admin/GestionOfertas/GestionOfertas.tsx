@@ -7,7 +7,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import OfertaForm from './OfertaForm';
-import type { OfertaConConteo, OfertaConProductos } from '../../../services/adminOfertaService';
+import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import styles from './GestionOfertas.module.css';
 
 type Vista = 'lista' | 'crear' | 'editar';

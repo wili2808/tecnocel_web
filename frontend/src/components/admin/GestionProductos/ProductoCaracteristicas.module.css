@@ -1,0 +1,454 @@
+/* ============================================================================
+   PRODUCTO CARACTERÍSTICAS - Gestión de especificaciones en formulario de producto
+   ============================================================================ */
+
+.loadingSmall {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.emptyState .material-icons {
+  font-size: 32px;
+  opacity: 0.5;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* Lista de características */
+.caracteristicasList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.caracteristicaCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  transition: var(--theme-transition);
+}
+
+.caracteristicaCard:hover {
+  border-color: var(--color-primary-200);
+}
+
+.caracteristicaInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.caracteristicaNombre {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  min-width: 120px;
+}
+
+.caracteristicaValor {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.caracteristicaUnidad {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-left: 2px;
+}
+
+.tipoBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-600);
+}
+
+/* Acciones de cada característica */
+.cardActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--theme-transition);
+}
+
+.iconButton:hover {
+  color: var(--color-primary-600);
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-200);
+}
+
+.iconButtonDanger:hover {
+  color: var(--color-error-600);
+  background-color: var(--color-error-100);
+  border-color: var(--color-error-200);
+}
+
+.iconButton .material-icons {
+  font-size: 18px;
+}
+
+/* Edición inline */
+.editInput {
+  padding: 4px 8px;
+  border: 1px solid var(--color-primary-300);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+  width: 150px;
+  outline: none;
+}
+
+.editInput:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.editSelect {
+  padding: 4px 8px;
+  border: 1px solid var(--color-primary-300);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+  outline: none;
+}
+
+/* Formulario para agregar */
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--background-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+.addFormTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.addFormTitle .material-icons {
+  font-size: 18px;
+  color: var(--color-primary-500);
+}
+
+.addFormRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.addFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.addFormLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.addFormInput {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+  outline: none;
+  transition: var(--theme-transition);
+}
+
+.addFormInput:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.addFormSelect {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+  outline: none;
+  transition: var(--theme-transition);
+}
+
+.addFormSelect:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 8px 16px;
+  background-color: var(--color-primary-500);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--theme-transition);
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  background-color: var(--color-primary-600);
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addButton .material-icons {
+  font-size: 18px;
+}
+
+/* Sección crear tipo rápido */
+.newTypeSection {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.newTypeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--color-primary-500);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: var(--theme-transition);
+}
+
+.newTypeToggle:hover {
+  color: var(--color-primary-700);
+}
+
+.newTypeToggle .material-icons {
+  font-size: 16px;
+}
+
+.newTypeForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  background-color: var(--background-primary);
+  border: 1px solid var(--color-primary-200);
+  border-radius: var(--border-radius-md);
+}
+
+.newTypeFormRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.newTypeActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 6px 12px;
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: var(--theme-transition);
+}
+
+.cancelButton:hover {
+  background-color: var(--background-secondary);
+}
+
+.saveTypeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 6px 12px;
+  background-color: var(--color-success-500);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: var(--theme-transition);
+}
+
+.saveTypeButton:hover {
+  background-color: var(--color-success-600);
+}
+
+.saveTypeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Opciones de selección (tags) */
+.opcionesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.opcionTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-700);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+}
+
+.opcionRemove {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary-500);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.opcionRemove:hover {
+  color: var(--color-error-500);
+}
+
+.opcionInputRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.opcionInput {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  width: 120px;
+}
+
+.opcionAddBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background-color: var(--color-primary-500);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.opcionAddBtn:hover {
+  background-color: var(--color-primary-600);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .caracteristicaCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cardActions {
+    align-self: flex-end;
+  }
+
+  .addFormRow {
+    flex-direction: column;
+  }
+
+  .addFormGroup {
+    min-width: 100%;
+  }
+
+  .caracteristicaInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+}

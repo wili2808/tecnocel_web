@@ -327,7 +327,7 @@ class AlmacenController {
    */
   async createProduct(req: Request, res: Response) {
     try {
-      const { imagenes, ...productoData } = req.body;
+      const { imagenes, caracteristicas, ...productoData } = req.body;
 
       // Tomar id_usuario del token autenticado (req.usuario)
       // Esto previene que se falsifique el campo id_usuario en el body
@@ -350,6 +350,18 @@ class AlmacenController {
         }));
 
         await ProductoImagen.bulkCreate(imagenesData);
+      }
+
+      // Crear características si se proporcionaron
+      if (Array.isArray(caracteristicas) && caracteristicas.length > 0) {
+        const caracData = caracteristicas.map((c: { id_tipo: number; valor: string }) => ({
+          id_producto: producto.id_producto,
+          id_tipo: c.id_tipo,
+          valor: c.valor,
+          fyh_creacion: new Date(),
+          fyh_actualizacion: new Date()
+        }));
+        await ProductoCaracteristica.bulkCreate(caracData);
       }
 
       // Guardar el ID original de req.params (si existe)
@@ -412,7 +424,7 @@ class AlmacenController {
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { imagenes, ...productoData } = req.body;
+      const { imagenes, caracteristicas, ...productoData } = req.body;
 
       const [updated] = await Almacen.update({
         ...productoData,
@@ -446,12 +458,28 @@ class AlmacenController {
         }
       }
 
+      // Actualizar características si se proporcionaron
+      if (Array.isArray(caracteristicas)) {
+        await ProductoCaracteristica.destroy({ where: { id_producto: id } });
+        if (caracteristicas.length > 0) {
+          const caracData = caracteristicas.map((c: { id_tipo: number; valor: string }) => ({
+            id_producto: id,
+            id_tipo: c.id_tipo,
+            valor: c.valor,
+            fyh_creacion: new Date(),
+            fyh_actualizacion: new Date()
+          }));
+          await ProductoCaracteristica.bulkCreate(caracData);
+        }
+      }
+
       res.locals.skipHttpLog = true;
-      
-      logger.info('Producto actualizado exitosamente', { 
+
+      logger.info('Producto actualizado exitosamente', {
         operacion: 'actualizar_producto',
         producto_id: id,
         imagenes_actualizadas: imagenes?.length,
+        caracteristicas_actualizadas: caracteristicas?.length,
         success: true
       });
       

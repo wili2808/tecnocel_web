@@ -1,3 +1,5 @@
+import type { Oferta } from './oferta';
+
 // ============================================================================
 // TIPOS DE PRODUCTOS Y CATÁLOGO
 // ============================================================================
@@ -26,6 +28,21 @@ export interface Category {
 }
 
 /**
+ * Interfaz para Tipos de Características - Tabla tb_tipos_caracteristicas
+ */
+export interface TipoCaracteristica {
+  id_tipo: number;
+  nombre_tipo: string;
+  descripcion?: string | null;
+  tipo_dato: 'texto' | 'numero' | 'booleano' | 'seleccion';
+  unidad_medida?: string | null;
+  opciones_seleccion?: string[] | null;
+  activo: boolean;
+  fyh_creacion?: string;
+  fyh_actualizacion?: string;
+}
+
+/**
  * Interfaz para Características de Productos - Tabla tb_producto_caracteristicas
  */
 export interface ProductoCaracteristica {
@@ -35,35 +52,19 @@ export interface ProductoCaracteristica {
   valor: string;
   fyh_creacion: string;
   fyh_actualizacion: string;
-  tipo?: {
-    id_tipo: number;
-    nombre_tipo: string;
-    descripcion?: string | null;
-    tipo_dato: 'texto' | 'numero' | 'booleano' | 'seleccion';
-    unidad_medida?: string | null;
-    opciones_seleccion?: string[] | null;
-    activo: boolean;
-  };
+  tipo?: TipoCaracteristica;
 }
 
 /**
- * Interfaz para Ofertas - Tabla tb_ofertas
+ * Característica en estado local (para formulario crear/editar)
  */
-export interface Oferta {
-  id_oferta: number;
-  nombre_oferta: string;
-  descripcion?: string | null;
-  tipo_descuento: 'porcentaje' | 'monto_fijo';
-  valor_descuento: number;
-  fecha_inicio: string;
-  fecha_fin: string;
-  activo: boolean;
-  precio_minimo?: number | null;
-  precio_maximo?: number | null;
-  limite_uso?: number | null;
-  uso_actual: number;
-  fyh_creacion: string;
-  fyh_actualizacion: string;
+export interface CaracteristicaLocal {
+  id_tipo: number;
+  valor: string;
+  nombre_tipo: string;
+  tipo_dato: 'texto' | 'numero' | 'booleano' | 'seleccion';
+  unidad_medida?: string | null;
+  opciones_seleccion?: string[] | null;
 }
 
 /**
@@ -216,6 +217,7 @@ export interface ProductoFormData {
   es_destacado: boolean;
   orden_destacado?: number;
   imagenes?: { url_imagen: string; alt_text?: string }[];
+  caracteristicas?: { id_tipo: number; valor: string }[];
 }
 
 /**

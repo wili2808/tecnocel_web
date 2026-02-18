@@ -5,8 +5,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
-import type { OfertaConProductos, ProductoEnOferta } from '../../../services/adminOfertaService';
-import type { Product } from '../../../types/product';
+import type { OfertaConProductos, ProductoEnOferta, Product } from '../../../types';
 import styles from './OfertaProductos.module.css';
 
 interface OfertaProductosProps {

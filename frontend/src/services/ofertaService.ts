@@ -1,5 +1,11 @@
 import axiosInstance from '../api/axiosConfig';
-import type { Product, Oferta } from '../types';
+import type {
+  Oferta,
+  OfertaResponse,
+  ProductosOfertaResponse,
+  OfertaDetalleResponse,
+  OfertasEstadisticasResponse,
+} from '../types';
 
 /**
  * Constantes de configuración para el servicio de ofertas
@@ -7,54 +13,6 @@ import type { Product, Oferta } from '../types';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 segundo
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
-
-/**
- * Respuesta del servidor al obtener ofertas con conteo
- */
-export interface OfertaResponse {
-  success: boolean;
-  data: Oferta[];
-  count: number;
-}
-
-/**
- * Respuesta del servidor al obtener productos en oferta con paginación
- */
-export interface ProductosOfertaResponse {
-  success: boolean;
-  data: Product[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    pages: number;
-  };
-}
-
-/**
- * Respuesta del servidor con detalle completo de una oferta
- */
-export interface OfertaDetalleResponse {
-  success: boolean;
-  data: Oferta & {
-    productos: Product[];
-    productosCount: number;
-  };
-}
-
-/**
- * Respuesta del servidor con estadísticas generales de ofertas
- */
-export interface OfertasEstadisticasResponse {
-  success: boolean;
-  data: {
-    total: number;
-    activas: number;
-    expiradas: number;
-    productosEnOferta: number;
-    promedioDescuento: number;
-  };
-}
 
 /**
  * Estructura de entrada en el cache con timestamp de expiración
