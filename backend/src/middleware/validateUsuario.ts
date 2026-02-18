@@ -97,13 +97,7 @@ export const validateCrearUsuario = [
 
   body('id_rol')
     .isInt({ min: 1 })
-    .withMessage('El rol es requerido y debe ser un número válido')
-    .custom((value) => {
-      if (![1, 2].includes(value)) {
-        throw new Error('El rol debe ser 1 (Admin) o 2 (Empleado)');
-      }
-      return true;
-    }),
+    .withMessage('El rol es requerido y debe ser un número válido'),
 
   handleValidationErrors
 ];
@@ -159,13 +153,7 @@ export const validateActualizarUsuario = [
   body('id_rol')
     .optional()
     .isInt({ min: 1 })
-    .withMessage('El rol debe ser un número válido')
-    .custom((value) => {
-      if (value && ![1, 2].includes(value)) {
-        throw new Error('El rol debe ser 1 (Admin) o 2 (Empleado)');
-      }
-      return true;
-    }),
+    .withMessage('El rol debe ser un número válido'),
 
   handleValidationErrors
 ];

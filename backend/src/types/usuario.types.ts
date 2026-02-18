@@ -36,8 +36,11 @@ export interface UsuarioSistemaResponse {
   /** Email del usuario (usado para login) */
   email: string;
 
-  /** ID del rol asignado (1: Admin, 2: Empleado) */
+  /** ID del rol asignado */
   idRol: number;
+
+  /** Nombre del rol obtenido desde la BD (ej: "ADMINISTRADOR", "EMPLEADO", "VENDEDOR") */
+  rolNombre: string;
 }
 
 /**

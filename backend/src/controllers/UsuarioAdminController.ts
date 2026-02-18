@@ -70,15 +70,16 @@ class UsuarioAdminController {
    * @returns Objeto con estructura limpia para la respuesta API
    *
    * @example
-   * const usuarioRespuesta = this.mapearUsuarioRespuesta(usuario);
+   * const usuarioRespuesta = UsuarioAdminController.mapearUsuarioRespuesta(usuario);
    * // Retorna: { id: 1, nombres: "Juan Pérez", email: "admin@tecnocel.com", idRol: 1 }
    */
-  private static mapearUsuarioRespuesta(usuario: Usuario): UsuarioSistemaResponse {
+  private static mapearUsuarioRespuesta(usuario: Usuario, rolNombre?: string): UsuarioSistemaResponse {
     return {
       id: usuario.id_usuario,
       nombres: usuario.nombres,
       email: usuario.email,
-      idRol: usuario.id_rol
+      idRol: usuario.id_rol,
+      rolNombre: rolNombre || (usuario as any).Rol?.rol || 'Desconocido'
     };
   }
 
@@ -89,9 +90,9 @@ class UsuarioAdminController {
    * @param usuario - Instancia del modelo Usuario de Sequelize
    * @returns Objeto con datos del usuario y fecha de creación
    */
-  private static mapearUsuarioCreacion(usuario: Usuario): UsuarioCreacionResponse {
+  private static mapearUsuarioCreacion(usuario: Usuario, rolNombre?: string): UsuarioCreacionResponse {
     return {
-      ...this.mapearUsuarioRespuesta(usuario),
+      ...UsuarioAdminController.mapearUsuarioRespuesta(usuario, rolNombre),
       fyhCreacion: usuario.fyh_creacion
     };
   }
@@ -103,11 +104,55 @@ class UsuarioAdminController {
    * @param usuario - Instancia del modelo Usuario de Sequelize
    * @returns Objeto con datos del usuario y fecha de actualización
    */
-  private static mapearUsuarioActualizacion(usuario: Usuario): UsuarioActualizacionResponse {
+  private static mapearUsuarioActualizacion(usuario: Usuario, rolNombre?: string): UsuarioActualizacionResponse {
     return {
-      ...this.mapearUsuarioRespuesta(usuario),
+      ...UsuarioAdminController.mapearUsuarioRespuesta(usuario, rolNombre),
       fyhActualizacion: usuario.fyh_actualizacion
     };
+  }
+
+  // ============================================================================
+  // GESTIÓN DE ROLES
+  // ============================================================================
+
+  /**
+   * Listar todos los roles disponibles en el sistema
+   *
+   * Retorna la lista completa de roles para uso en formularios de creación/edición.
+   * Accesible por: Admin
+   *
+   * @async
+   * @param req - Express Request
+   * @param res - Express Response
+   * @returns 200 con array de roles
+   * @returns 500 si ocurre un error
+   *
+   * @example
+   * GET /api/usuarios/admin/roles
+   *
+   * Response: {
+   *   "roles": [
+   *     { "id_rol": 1, "rol": "ADMINISTRADOR" },
+   *     { "id_rol": 2, "rol": "EMPLEADO" }
+   *   ]
+   * }
+   */
+  static async listarRoles(_req: Request, res: Response) {
+    try {
+      const roles = await Rol.findAll({
+        attributes: ['id_rol', 'rol'],
+        order: [['id_rol', 'ASC']]
+      });
+
+      res.json({ roles });
+    } catch (error) {
+      logger.error('Error al listar roles:', {
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+      res.status(500).json({
+        mensaje: 'Error al obtener lista de roles'
+      });
+    }
   }
 
   // ============================================================================
@@ -335,7 +380,7 @@ class UsuarioAdminController {
 
       const respuesta: CrearUsuarioResponse = {
         mensaje: 'Usuario creado exitosamente',
-        usuario: this.mapearUsuarioCreacion(nuevoUsuario)
+        usuario: UsuarioAdminController.mapearUsuarioCreacion(nuevoUsuario, rol.rol)
       };
 
       res.status(201).json(respuesta);
@@ -435,6 +480,9 @@ class UsuarioAdminController {
 
       await usuario.save();
 
+      // Obtener nombre del rol actualizado
+      const rolActual = await Rol.findByPk(usuario.id_rol);
+
       logger.info('Usuario actualizado', {
         id_usuario: usuario.id_usuario,
         actualizado_por: req.usuario?.id,
@@ -443,7 +491,7 @@ class UsuarioAdminController {
 
       const respuesta: ActualizarUsuarioResponse = {
         mensaje: 'Usuario actualizado exitosamente',
-        usuario: this.mapearUsuarioActualizacion(usuario)
+        usuario: UsuarioAdminController.mapearUsuarioActualizacion(usuario, rolActual?.rol)
       };
 
       res.json(respuesta);

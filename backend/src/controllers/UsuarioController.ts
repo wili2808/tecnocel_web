@@ -10,6 +10,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
+import Rol from '../models/Rol.js';
 import { Request, Response } from 'express';
 import logger from '../services/loggerService.js';
 
@@ -56,12 +57,13 @@ export default class UsuarioController {
    * @param usuario - Instancia del modelo Usuario
    * @returns Objeto con datos públicos del usuario
    */
-  private static mapearUsuarioResponse(usuario: Usuario): UsuarioSistemaResponse {
+  private static mapearUsuarioResponse(usuario: Usuario, rolNombre?: string): UsuarioSistemaResponse {
     return {
       id: usuario.id_usuario,
       nombres: usuario.nombres,
       email: usuario.email,
-      idRol: usuario.id_rol
+      idRol: usuario.id_rol,
+      rolNombre: rolNombre || 'Desconocido'
     };
   }
 
@@ -115,10 +117,13 @@ export default class UsuarioController {
         });
       }
 
-      // Buscar usuario por email
-      const usuario = await Usuario.findOne({ where: { email } });
+      // Buscar usuario por email con su rol
+      const usuario = await Usuario.findOne({
+        where: { email },
+        include: [{ model: Rol, attributes: ['rol'] }]
+      });
       const errorAuth = { mensaje: 'Credenciales inválidas' };
-      
+
       // Validacion de seguridad: usuario existe
       if (!usuario) {
         logger.warn('Login fallido: Usuario no encontrado', { email });
@@ -136,9 +141,10 @@ export default class UsuarioController {
       const token = this.generarTokenJWT(usuario);
       
       // Responder con token y datos del usuario
+      const rolNombre = (usuario as any).Rol?.rol || 'Desconocido';
       const response: AuthUsuarioResponse = {
         token,
-        usuario: this.mapearUsuarioResponse(usuario)
+        usuario: this.mapearUsuarioResponse(usuario, rolNombre)
       };
       
       res.json(response);
@@ -184,14 +190,17 @@ export default class UsuarioController {
         return res.status(401).json({mensaje: 'No autenticado'});
       }
 
-      // Buscar usuario en la base de datos
-      const usuario = await Usuario.findByPk(req.usuario.id);
+      // Buscar usuario en la base de datos con su rol
+      const usuario = await Usuario.findByPk(req.usuario.id, {
+        include: [{ model: Rol, attributes: ['rol'] }]
+      });
 
       if (!usuario) {
         return res.status(404).json({mensaje: 'Usuario no encontrado'});
       }
 
-      res.json(this.mapearUsuarioResponse(usuario));
+      const rolNombre = (usuario as any).Rol?.rol || 'Desconocido';
+      res.json(this.mapearUsuarioResponse(usuario, rolNombre));
 
     } catch (error) {
       logger.error('Error al obtener datos del usuario:', {

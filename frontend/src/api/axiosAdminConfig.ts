@@ -27,16 +27,18 @@ axiosRetry(adminApi, {
   retryDelay: axiosRetry.exponentialDelay,
 
   retryCondition: (error: AxiosError) => {
+    // No reintentar métodos que modifican datos (no son idempotentes)
+    const method = error.config?.method?.toUpperCase();
+    if (method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      return false;
+    }
+
     if (axiosRetry.isNetworkError(error) || error.code === 'ECONNABORTED') {
       return true;
     }
 
     if (error.response && error.response.status >= 500) {
       return true;
-    }
-
-    if (error.response && error.response.status >= 400 && error.response.status < 500) {
-      return false;
     }
 
     return false;

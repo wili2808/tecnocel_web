@@ -9,16 +9,17 @@ import type { UserType } from '../../../types/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedUserTypes: UserType[];
+  /**
+   * Tipos de usuario permitidos.
+   * Usar 'cliente' para clientes, 'system' para cualquier usuario del sistema,
+   * o nombres de rol específicos en minúsculas (ej: 'administrador', 'empleado')
+   */
+  allowedUserTypes: (UserType | 'system')[];
   redirectTo?: string;
 }
 
 /**
  * Componente de protección de rutas basado en tipo de usuario
- *
- * @param children - Componente hijo a renderizar si está autorizado
- * @param allowedUserTypes - Array de tipos de usuario permitidos ('cliente', 'admin', 'empleado')
- * @param redirectTo - Ruta de redirección personalizada (opcional)
  *
  * @example
  * // Solo clientes
@@ -27,8 +28,8 @@ interface ProtectedRouteProps {
  * </ProtectedRoute>
  *
  * @example
- * // Admin y empleados
- * <ProtectedRoute allowedUserTypes={['admin', 'empleado']}>
+ * // Todos los usuarios del sistema (admin, empleado, vendedor, etc.)
+ * <ProtectedRoute allowedUserTypes={['system']}>
  *   <AdminPanel />
  * </ProtectedRoute>
  */
@@ -47,15 +48,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // No autenticado → redirect a login correspondiente
   if (!isAuthenticated) {
-    const isAdminRoute = allowedUserTypes.includes('admin') || allowedUserTypes.includes('empleado');
-    const loginPath = isAdminRoute ? '/admin-login' : '/login';
+    const isClienteRoute = allowedUserTypes.includes('cliente');
+    const loginPath = isClienteRoute ? '/login' : '/admin-login';
     return <Navigate to={redirectTo || loginPath} state={{ from: location }} replace />;
   }
 
   // Autenticado pero tipo incorrecto → redirect inteligente
-  if (userType && !allowedUserTypes.includes(userType)) {
+  // 'system' permite a cualquier usuario del sistema (no cliente)
+  const isAllowed = allowedUserTypes.includes('system')
+    ? userType !== 'cliente'
+    : allowedUserTypes.includes(userType!);
+
+  if (userType && !isAllowed) {
     // Cliente intentando acceder a admin → a home
-    // Admin intentando acceder a panel cliente → a admin panel
+    // Usuario del sistema intentando acceder a panel cliente → a admin panel
     const fallback = userType === 'cliente' ? '/' : '/admin-panel';
     return <Navigate to={fallback} replace />;
   }

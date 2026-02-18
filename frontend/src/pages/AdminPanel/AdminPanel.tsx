@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import type { AdminUser } from '../../types/usuario';
 import DashboardAdmin from '../../components/admin/DashboardAdmin/DashboardAdmin';
 import GestionUsuarios from '../../components/admin/GestionUsuarios/GestionUsuarios';
 import GestionClientes from '../../components/admin/GestionClientes/GestionClientes';
@@ -26,19 +27,21 @@ interface MenuOption {
   id: string;
   label: string;
   icon: string;
-  roles: ('admin' | 'empleado')[];
+  /** IDs de roles permitidos (vacío = todos los del sistema) */
+  allowedRoles?: number[];
 }
 
 /**
  * Opciones del menú del panel de administración
- * Cada opción incluye id, etiqueta, icono y roles permitidos
+ * Cada opción incluye id, etiqueta, icono y roles permitidos por idRol
+ * Si allowedRoles no se define, todos los usuarios del sistema pueden acceder
  */
 const MENU_OPTIONS: MenuOption[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', roles: ['admin', 'empleado'] },
-  { id: 'productos', label: 'Gestión de Productos', icon: 'inventory_2', roles: ['admin', 'empleado'] },
-  { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', roles: ['admin', 'empleado'] },
-  { id: 'clientes', label: 'Gestión de Clientes', icon: 'people', roles: ['admin', 'empleado'] },
-  { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', roles: ['admin', 'empleado'] },
+  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { id: 'productos', label: 'Gestión de Productos', icon: 'inventory_2', allowedRoles: [1, 2] },
+  { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [1, 2] },
+  { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
+  { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [1, 2] },
 ];
 
 // ============================================================================
@@ -130,7 +133,7 @@ const AdminPanel = () => {
   // ============================================================================
   // HOOKS Y ESTADO
   // ============================================================================
-  const { user, isAdmin, isEmpleado, logout } = useAuth();
+  const { user, isSystemUser, logout } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
 
@@ -157,14 +160,14 @@ const AdminPanel = () => {
   // VERIFICACIÓN DE AUTENTICACIÓN Y AUTORIZACIÓN
   // ============================================================================
 
-  // Verificar si el usuario está autenticado y tiene permisos
-  if (!user || (!isAdmin && !isEmpleado)) {
+  // Verificar si el usuario está autenticado y es usuario del sistema
+  if (!user || !isSystemUser) {
     return (
       <div className={adminPanelStyles.adminPanel}>
         <div className={adminPanelStyles.container}>
           <div className={adminPanelStyles.contentSection}>
             <h2 className={adminPanelStyles.sectionTitle}>Acceso Denegado</h2>
-            <p>Debes iniciar sesión como administrador o empleado para acceder al panel de administración.</p>
+            <p>Debes iniciar sesión como usuario del sistema para acceder al panel de administración.</p>
             <button
               onClick={() => navigate('/admin-login')}
               className={adminPanelStyles.retryButton}
@@ -178,15 +181,19 @@ const AdminPanel = () => {
     );
   }
 
-  // Filtrar opciones del menú según el rol del usuario
+  // Obtener idRol del usuario del sistema
+  const adminUser = user as AdminUser;
+  const userIdRol = adminUser.idRol;
+
+  // Filtrar opciones del menú según el idRol del usuario
   const filteredMenuOptions = MENU_OPTIONS.filter(option => {
-    const userRole = isAdmin ? 'admin' : 'empleado';
-    return option.roles.includes(userRole);
+    if (!option.allowedRoles) return true;
+    return option.allowedRoles.includes(userIdRol);
   });
 
-  // Obtener nombre del usuario según el tipo
-  const userName = 'nombres' in user ? user.nombres : `${user.nombre} ${user.apellido}`;
-  const userRole = isAdmin ? 'Administrador' : 'Empleado';
+  // Obtener nombre y rol del usuario dinámicamente desde el backend
+  const userName = adminUser.nombres;
+  const userRole = adminUser.rolNombre || 'Usuario';
 
   // ============================================================================
   // RENDERIZADO PRINCIPAL DEL PANEL

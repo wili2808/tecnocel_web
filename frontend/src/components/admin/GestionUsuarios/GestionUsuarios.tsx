@@ -3,11 +3,11 @@
  * Permite ver, crear y eliminar usuarios (admin/empleado)
  * Incluye formulario integrado de creación de usuario
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { usuarioService } from '../../../services/usuarioService';
-import type { UsuarioListItem } from '../../../types/usuario';
+import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
 import styles from './GestionUsuarios.module.css';
 
 type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha';
@@ -21,28 +21,51 @@ interface CrearUsuarioFormData {
   id_rol: number;
 }
 
+interface EditarUsuarioFormData {
+  nombres: string;
+  email: string;
+  id_rol: number;
+  password: string;
+  confirmPassword: string;
+}
+
 const INITIAL_FORM_DATA: CrearUsuarioFormData = {
   nombres: '',
   email: '',
   password: '',
   confirmPassword: '',
-  id_rol: 2,
+  id_rol: 0,
+};
+
+const INITIAL_EDIT_FORM: EditarUsuarioFormData = {
+  nombres: '',
+  email: '',
+  id_rol: 0,
+  password: '',
+  confirmPassword: '',
 };
 
 const GestionUsuarios = () => {
   const { isAdmin } = useAuth();
   const { showNotification } = useNotification();
   const [usuarios, setUsuarios] = useState<UsuarioListItem[]>([]);
+  const [roles, setRoles] = useState<RolItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('id_usuario');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [showCrearForm, setShowCrearForm] = useState(false);
   const [creando, setCreando] = useState(false);
+  const creandoRef = useRef(false);
   const [formData, setFormData] = useState<CrearUsuarioFormData>(INITIAL_FORM_DATA);
+  const [editandoUsuario, setEditandoUsuario] = useState<UsuarioListItem | null>(null);
+  const [editando, setEditando] = useState(false);
+  const editandoRef = useRef(false);
+  const [editFormData, setEditFormData] = useState<EditarUsuarioFormData>(INITIAL_EDIT_FORM);
 
   useEffect(() => {
     cargarUsuarios();
+    cargarRoles();
   }, []);
 
   const cargarUsuarios = async () => {
@@ -56,6 +79,15 @@ const GestionUsuarios = () => {
       showNotification(err.message || 'Error al cargar usuarios', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const cargarRoles = async () => {
+    try {
+      const data = await usuarioService.listarRoles();
+      setRoles(data);
+    } catch (err: any) {
+      showNotification(err.message || 'Error al cargar roles', 'error');
     }
   };
 
@@ -89,7 +121,10 @@ const GestionUsuarios = () => {
   const handleCrearUsuario = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.nombres || !formData.email || !formData.password) {
+    // Guardia sincrónica contra doble envío
+    if (creandoRef.current) return;
+
+    if (!formData.nombres || !formData.email || !formData.password || !formData.id_rol) {
       showNotification('Todos los campos son requeridos', 'error');
       return;
     }
@@ -105,6 +140,7 @@ const GestionUsuarios = () => {
     }
 
     try {
+      creandoRef.current = true;
       setCreando(true);
       await usuarioService.crearUsuario({
         nombres: formData.nombres,
@@ -120,6 +156,7 @@ const GestionUsuarios = () => {
     } catch (err: any) {
       showNotification(err.message || 'Error al crear usuario', 'error');
     } finally {
+      creandoRef.current = false;
       setCreando(false);
     }
   };
@@ -127,6 +164,81 @@ const GestionUsuarios = () => {
   const handleCancelarCrear = () => {
     setFormData(INITIAL_FORM_DATA);
     setShowCrearForm(false);
+  };
+
+  const handleEditarClick = (usuario: UsuarioListItem) => {
+    setShowCrearForm(false);
+    setFormData(INITIAL_FORM_DATA);
+    setEditandoUsuario(usuario);
+    setEditFormData({
+      nombres: usuario.nombres,
+      email: usuario.email,
+      id_rol: usuario.id_rol,
+      password: '',
+      confirmPassword: '',
+    });
+  };
+
+  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: name === 'id_rol' ? parseInt(value) : value
+    }));
+  };
+
+  const handleEditarUsuario = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (editandoRef.current || !editandoUsuario) return;
+
+    if (!editFormData.nombres || !editFormData.email || !editFormData.id_rol) {
+      showNotification('Nombre, email y rol son requeridos', 'error');
+      return;
+    }
+
+    if (editFormData.password) {
+      if (editFormData.password.length < 6) {
+        showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+      if (editFormData.password !== editFormData.confirmPassword) {
+        showNotification('Las contraseñas no coinciden', 'error');
+        return;
+      }
+    }
+
+    const dataToSend: ActualizarUsuarioData = {};
+    if (editFormData.nombres !== editandoUsuario.nombres) dataToSend.nombres = editFormData.nombres;
+    if (editFormData.email !== editandoUsuario.email) dataToSend.email = editFormData.email;
+    if (editFormData.id_rol !== editandoUsuario.id_rol) dataToSend.id_rol = editFormData.id_rol;
+    if (editFormData.password) dataToSend.password = editFormData.password;
+
+    if (Object.keys(dataToSend).length === 0) {
+      showNotification('No hay cambios para guardar', 'info');
+      return;
+    }
+
+    try {
+      editandoRef.current = true;
+      setEditando(true);
+      await usuarioService.actualizarUsuario(editandoUsuario.id_usuario, dataToSend);
+
+      showNotification('Usuario actualizado exitosamente', 'success');
+      setEditandoUsuario(null);
+      setEditFormData(INITIAL_EDIT_FORM);
+      cargarUsuarios();
+    } catch (err: any) {
+      showNotification(err.message || 'Error al actualizar usuario', 'error');
+    } finally {
+      editandoRef.current = false;
+      setEditando(false);
+    }
+  };
+
+  const handleCancelarEditar = () => {
+    setEditandoUsuario(null);
+    setEditFormData(INITIAL_EDIT_FORM);
   };
 
   const handleSort = (key: SortKey) => {
@@ -216,7 +328,7 @@ const GestionUsuarios = () => {
               Administra los usuarios del sistema (administradores y empleados)
             </p>
           </div>
-          {isAdmin && !showCrearForm && (
+          {isAdmin && !showCrearForm && !editandoUsuario && (
             <button
               className={styles.crearButton}
               onClick={() => setShowCrearForm(true)}
@@ -292,14 +404,13 @@ const GestionUsuarios = () => {
                   className={styles.select}
                   required
                 >
-                  <option value={1}>Administrador</option>
-                  <option value={2}>Empleado</option>
+                  <option value={0} disabled>Seleccionar rol...</option>
+                  {roles.map((rol) => (
+                    <option key={rol.id_rol} value={rol.id_rol}>
+                      {rol.rol}
+                    </option>
+                  ))}
                 </select>
-                <p className={styles.helpText}>
-                  {formData.id_rol === 1
-                    ? 'Acceso completo al sistema'
-                    : 'Acceso limitado a funcionalidades básicas'}
-                </p>
               </div>
 
               <div className={styles.formGroup}>
@@ -366,6 +477,143 @@ const GestionUsuarios = () => {
         </div>
       )}
 
+      {editandoUsuario && (
+        <div className={styles.crearFormWrapper}>
+          <div className={styles.crearFormHeader}>
+            <h3 className={styles.crearFormTitle}>
+              <span className="material-icons">edit</span>
+              Editar Usuario: {editandoUsuario.nombres}
+            </h3>
+            <button
+              className={styles.cerrarFormButton}
+              onClick={handleCancelarEditar}
+              aria-label="Cerrar formulario"
+            >
+              <span className="material-icons">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleEditarUsuario} className={styles.crearForm}>
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="edit_nombres" className={styles.label}>
+                  Nombre Completo *
+                </label>
+                <input
+                  type="text"
+                  id="edit_nombres"
+                  name="nombres"
+                  value={editFormData.nombres}
+                  onChange={handleEditFormChange}
+                  className={styles.input}
+                  placeholder="Ej: Juan Pérez"
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="edit_email" className={styles.label}>
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="edit_email"
+                  name="email"
+                  value={editFormData.email}
+                  onChange={handleEditFormChange}
+                  className={styles.input}
+                  placeholder="Ej: juan@tecnocel.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="edit_id_rol" className={styles.label}>
+                  Rol *
+                </label>
+                <select
+                  id="edit_id_rol"
+                  name="id_rol"
+                  value={editFormData.id_rol}
+                  onChange={handleEditFormChange}
+                  className={styles.select}
+                  required
+                >
+                  <option value={0} disabled>Seleccionar rol...</option>
+                  {roles.map((rol) => (
+                    <option key={rol.id_rol} value={rol.id_rol}>
+                      {rol.rol}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="edit_password" className={styles.label}>
+                  Nueva Contraseña
+                </label>
+                <input
+                  type="password"
+                  id="edit_password"
+                  name="password"
+                  value={editFormData.password}
+                  onChange={handleEditFormChange}
+                  className={styles.input}
+                  placeholder="Dejar vacío para no cambiar"
+                />
+              </div>
+            </div>
+
+            <div className={styles.formRow}>
+              {editFormData.password && (
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit_confirmPassword" className={styles.label}>
+                    Confirmar Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="edit_confirmPassword"
+                    name="confirmPassword"
+                    value={editFormData.confirmPassword}
+                    onChange={handleEditFormChange}
+                    className={styles.input}
+                    placeholder="Repite la nueva contraseña"
+                  />
+                </div>
+              )}
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  onClick={handleCancelarEditar}
+                  className={styles.cancelButton}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={editando}
+                  className={styles.submitButton}
+                >
+                  {editando ? (
+                    <>
+                      <span className="material-icons">hourglass_empty</span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons">save</span>
+                      Guardar Cambios
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
+
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -417,8 +665,12 @@ const GestionUsuarios = () => {
                   <td>{usuario.nombres}</td>
                   <td>{usuario.email}</td>
                   <td>
-                    <span className={`${styles.badge} ${usuario.id_rol === 1 ? styles.badgeAdmin : styles.badgeEmpleado}`}>
-                      {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol)}
+                    <span className={`${styles.badge} ${
+                      usuario.id_rol === 1 ? styles.badgeAdmin
+                      : usuario.id_rol === 3 ? styles.badgeVendedor
+                      : styles.badgeEmpleado
+                    }`}>
+                      {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
                     </span>
                   </td>
                   <td>
@@ -428,12 +680,15 @@ const GestionUsuarios = () => {
                   </td>
                   <td>
                     <div className={styles.actions}>
-                      <button
-                        className={styles.actionButton}
-                        title="Ver detalles"
-                      >
-                        <span className="material-icons">visibility</span>
-                      </button>
+                      {isAdmin && (
+                        <button
+                          className={styles.actionButton}
+                          title="Editar usuario"
+                          onClick={() => handleEditarClick(usuario)}
+                        >
+                          <span className="material-icons">edit</span>
+                        </button>
+                      )}
                       {isAdmin && (
                         <button
                           className={`${styles.actionButton} ${styles.actionButtonDanger}`}

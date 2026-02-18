@@ -25,13 +25,13 @@ axiosRetry(axiosInstance, {
 
   // Condiciones para reintentar
   retryCondition: (error: AxiosError) => {
-    // Reintentar si:
-    // 1. Error de red (sin respuesta del servidor)
-    // 2. Error 5xx (error del servidor)
-    // 3. Request timeout
-    // 4. Solo métodos idempotentes (GET, PUT, DELETE, HEAD, OPTIONS)
+    // No reintentar métodos que modifican datos (no son idempotentes)
+    const method = error.config?.method?.toUpperCase();
+    if (method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      return false;
+    }
 
-    // Si es error de red o timeout, reintentar
+    // Si es error de red o timeout, reintentar (solo GET y similares)
     if (axiosRetry.isNetworkError(error) || error.code === 'ECONNABORTED') {
       return true;
     }
@@ -39,11 +39,6 @@ axiosRetry(axiosInstance, {
     // Si es error 5xx del servidor, reintentar
     if (error.response && error.response.status >= 500) {
       return true;
-    }
-
-    // NO reintentar errores 4xx (cliente), 401, 403, 404
-    if (error.response && error.response.status >= 400 && error.response.status < 500) {
-      return false;
     }
 
     return false;

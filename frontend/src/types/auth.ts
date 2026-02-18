@@ -14,11 +14,11 @@ import type { AdminUser } from './usuario';
 
 /**
  * Tipo de usuario en el sistema
- * - cliente: Usuario final de la tienda web
- * - admin: Administrador del sistema (acceso completo)
- * - empleado: Empleado del sistema (acceso limitado)
+ * - 'cliente': Usuario final de la tienda web
+ * - string: Nombre del rol del sistema en minúsculas, obtenido dinámicamente de la BD
+ *   (ej: 'administrador', 'empleado', 'vendedor')
  */
-export type UserType = 'cliente' | 'admin' | 'empleado';
+export type UserType = 'cliente' | (string & {});
 
 /**
  * Tipo union para cualquier usuario autenticado
@@ -32,7 +32,7 @@ export type User = Cliente | AdminUser;
 /**
  * Estado interno del contexto de autenticación
  * Mantiene información del usuario, token y estados de operación
- * Soporta tanto clientes como usuarios del sistema (admin/empleado)
+ * Soporta tanto clientes como usuarios del sistema (admin/empleado/vendedor)
  */
 export interface AuthState {
   user: User | null;
@@ -55,6 +55,8 @@ export interface AuthContextType {
   isAdmin: boolean;
   isEmpleado: boolean;
   isCliente: boolean;
+  /** true para cualquier usuario del sistema (admin, empleado, vendedor, etc.) */
+  isSystemUser: boolean;
   token: string | null;
   isVerifying: boolean;
   isInitialized: boolean;

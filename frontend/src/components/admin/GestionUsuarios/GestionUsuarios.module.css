@@ -346,6 +346,11 @@
   color: var(--color-primary);
 }
 
+.badgeVendedor {
+  background-color: var(--color-success-100);
+  color: var(--color-success);
+}
+
 .actions {
   display: flex;
   gap: var(--spacing-sm);

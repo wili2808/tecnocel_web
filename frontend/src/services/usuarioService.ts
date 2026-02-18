@@ -10,6 +10,7 @@ import axios from 'axios';
 import adminApi from '../api/axiosAdminConfig';
 import type {
   AdminUser,
+  RolItem,
   CrearUsuarioData,
   ActualizarUsuarioData,
   ActualizarClienteAdmin
@@ -47,13 +48,7 @@ export const usuarioService = {
       });
 
       const { token } = response.data;
-      const rawUsuario = response.data.usuario;
-
-      // Agregar campo 'rol' derivado de idRol para facilitar type guards en el frontend
-      const usuario: AdminUser = {
-        ...rawUsuario,
-        rol: rawUsuario.idRol === 1 ? 'admin' as const : 'empleado' as const,
-      };
+      const usuario: AdminUser = response.data.usuario;
 
       // Guardar en localStorage
       this.saveAuthData({ user: usuario, token });
@@ -140,6 +135,24 @@ export const usuarioService = {
     } catch {
       this.clearAuthToken();
       return null;
+    }
+  },
+
+  // ==========================================================================
+  // GESTIÓN DE ROLES
+  // ==========================================================================
+
+  /**
+   * Listar todos los roles disponibles en el sistema
+   *
+   * @returns Array de roles con id_rol y nombre
+   */
+  async listarRoles(): Promise<RolItem[]> {
+    try {
+      const response = await adminApi.get('/usuarios/admin/roles');
+      return response.data.roles;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.mensaje || 'Error al obtener roles');
     }
   },
 
@@ -305,17 +318,15 @@ export const usuarioService = {
   },
 
   /**
-   * Obtener nombre del rol
+   * Obtener nombre del rol (fallback cuando no hay datos del include)
    *
    * @param id_rol - ID del rol
+   * @param roles - Lista de roles cargados desde la BD
    * @returns Nombre descriptivo del rol
    */
-  getRolName(id_rol: number): string {
-    const roles: { [key: number]: string } = {
-      1: 'Administrador',
-      2: 'Empleado'
-    };
-    return roles[id_rol] || 'Desconocido';
+  getRolName(id_rol: number, roles: RolItem[] = []): string {
+    const rol = roles.find(r => r.id_rol === id_rol);
+    return rol ? rol.rol : 'Desconocido';
   }
 };
 

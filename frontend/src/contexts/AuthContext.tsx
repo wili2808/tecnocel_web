@@ -19,6 +19,21 @@ import type { RegisterData, UserType, RegisterResult, AuthState, AuthContextType
 const TOKEN_KEY = 'token';
 const ADMIN_TOKEN_KEY = 'admin_token';
 
+/**
+ * Deriva el UserType desde el AdminUser
+ * Usa rolNombre del backend (dinámico) en minúsculas
+ */
+const getSystemUserType = (usuario: AdminUser): UserType => {
+  return usuario.rolNombre?.toLowerCase() || 'desconocido';
+};
+
+/**
+ * Verifica si un user es AdminUser (tiene idRol)
+ */
+const isAdminUser = (user: AdminUser | Cliente | null): user is AdminUser => {
+  return !!user && 'idRol' in user;
+};
+
 // Estado inicial del contexto de autenticación
 const initialState: AuthState = {
   user: null,
@@ -68,14 +83,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       };
     }
 
-    // Intentar restaurar sesión de admin/empleado
+    // Intentar restaurar sesión de admin/empleado/vendedor
     const adminAuth = usuarioService.getAuthData();
     if (adminAuth?.usuario && adminAuth?.token) {
-      const userType: UserType = adminAuth.usuario.idRol === 1 ? 'admin' : 'empleado';
       return {
         ...initialState,
         user: adminAuth.usuario,
-        userType,
+        userType: getSystemUserType(adminAuth.usuario),
         token: adminAuth.token,
         isInitialized: true,
       };
@@ -141,18 +155,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     }
 
-    // Verificar token de admin/empleado
+    // Verificar token de usuario del sistema (admin/empleado/vendedor)
     if (storedAdminToken) {
       try {
         const userData = await usuarioService.verifyAdminToken();
-        const userType: UserType = userData.idRol === 1 ? 'admin' : 'empleado';
-        const adminUser: AdminUser = {
-          ...userData,
-          rol: userType === 'admin' ? 'admin' : 'empleado',
-        };
+        const adminUser: AdminUser = { ...userData };
         updateState({
           user: adminUser,
-          userType,
+          userType: getSystemUserType(adminUser),
           token: storedAdminToken,
           isVerifying: false,
           isInitialized: true,
@@ -325,12 +335,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         const { token, usuario } = await usuarioService.loginAdmin(email, contrasena);
 
-        // idRol viene del backend: 1 = admin, 2 = empleado
-        const userType: UserType = usuario.idRol === 1 ? 'admin' : 'empleado';
-
         updateState({
           user: usuario,
-          userType,
+          userType: getSystemUserType(usuario),
           token,
           error: null,
         });
@@ -365,9 +372,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       userType: state.userType,
       token: state.token,
       isAuthenticated: !!state.user,
-      isAdmin: state.userType === 'admin',
-      isEmpleado: state.userType === 'empleado',
+      isAdmin: isAdminUser(state.user) && state.user.idRol === 1,
+      isEmpleado: isAdminUser(state.user) && state.user.idRol === 2,
       isCliente: state.userType === 'cliente',
+      isSystemUser: !!state.user && state.userType !== 'cliente' && state.userType !== null,
       isVerifying: state.isVerifying,
       isInitialized: state.isInitialized,
       error: state.error,

@@ -1,5 +1,18 @@
 // ============================================================================
-// TIPOS DE USUARIOS DEL SISTEMA (ADMIN/EMPLEADO)
+// TIPOS DE ROLES DEL SISTEMA
+// ============================================================================
+
+/**
+ * Rol del sistema obtenido desde la BD
+ * Usado en: GET /api/usuarios/admin/roles
+ */
+export interface RolItem {
+  id_rol: number;
+  rol: string;
+}
+
+// ============================================================================
+// TIPOS DE USUARIOS DEL SISTEMA
 // ============================================================================
 
 /**
@@ -11,7 +24,8 @@ export interface AdminUser {
   nombres: string;
   email: string;
   idRol: number;
-  rol?: 'admin' | 'empleado';
+  /** Nombre del rol desde la BD (ej: "ADMINISTRADOR", "EMPLEADO", "VENDEDOR") */
+  rolNombre: string;
 }
 
 /**

@@ -123,7 +123,7 @@ function App() {
                                 </PublicOnlyRoute>
                               } />
                               <Route path="/admin-panel" element={
-                                <ProtectedRoute allowedUserTypes={['admin', 'empleado']}>
+                                <ProtectedRoute allowedUserTypes={['system']}>
                                   <AdminPanel />
                                 </ProtectedRoute>
                               } />

@@ -85,8 +85,8 @@ const GestionClientes = () => {
           valB = (b.email_verified && b.is_web_enabled) ? 1 : 0;
           break;
         case 'fecha':
-          valA = a.fyh_creacion || '';
-          valB = b.fyh_creacion || '';
+          valA = a.fyh_creacion ? new Date(a.fyh_creacion).getTime() : 0;
+          valB = b.fyh_creacion ? new Date(b.fyh_creacion).getTime() : 0;
           break;
       }
 

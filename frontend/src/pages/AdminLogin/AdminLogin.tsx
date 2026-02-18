@@ -10,7 +10,7 @@ import styles from './AdminLogin.module.css';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const { loginAdmin, isAdmin, isEmpleado, isAuthenticated } = useAuth();
+  const { loginAdmin, isSystemUser, isAuthenticated } = useAuth();
   const { showNotification } = useNotification();
 
   const [formData, setFormData] = useState({
@@ -19,12 +19,12 @@ const AdminLogin = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Redirigir si ya está autenticado como admin/empleado
+  // Redirigir si ya está autenticado como usuario del sistema
   useEffect(() => {
-    if (isAuthenticated && (isAdmin || isEmpleado)) {
+    if (isAuthenticated && isSystemUser) {
       navigate('/admin-panel');
     }
-  }, [isAuthenticated, isAdmin, isEmpleado, navigate]);
+  }, [isAuthenticated, isSystemUser, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

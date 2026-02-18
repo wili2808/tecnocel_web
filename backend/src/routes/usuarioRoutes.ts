@@ -21,6 +21,14 @@ router.post('/login', usuarioController.login.bind(usuarioController));
 router.get('/me', verificarToken, usuarioController.getMe.bind(usuarioController));
 
 // ============================================================================
+// RUTAS DE ADMINISTRACIÓN - GESTIÓN DE ROLES
+// Requieren: Autenticación + Rol Admin (1)
+// ============================================================================
+
+// Listar todos los roles disponibles
+router.get('/admin/roles', verificarToken, verificarRol([1]), UsuarioAdminController.listarRoles);
+
+// ============================================================================
 // RUTAS DE ADMINISTRACIÓN - GESTIÓN DE USUARIOS
 // Requieren: Autenticación + Rol Admin (1) o Empleado (2)
 // ============================================================================
@@ -42,16 +50,16 @@ router.delete('/admin/usuarios/:id', verificarToken, verificarRol([1]),UsuarioAd
 
 // ============================================================================
 // RUTAS DE ADMINISTRACIÓN - GESTIÓN DE CLIENTES
-// Requieren: Autenticación + Rol Admin (1) o Empleado (2)
+// Requieren: Autenticación + Rol Admin (1), Empleado (2) o Vendedor (3)
 // ============================================================================
 
 // Listar todos los clientes
-router.get('/admin/clientes', verificarToken, verificarRol([1, 2]), UsuarioAdminController.listarClientes);
+router.get('/admin/clientes', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.listarClientes);
 
 // Obtener información de un cliente específico
-router.get('/admin/clientes/:id', verificarToken, verificarRol([1, 2]), UsuarioAdminController.obtenerCliente);
+router.get('/admin/clientes/:id', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.obtenerCliente);
 
-// Actualizar información de un cliente
+// Actualizar información de un cliente (solo Admin y Empleado)
 router.put('/admin/clientes/:id', verificarToken, verificarRol([1, 2]), validateActualizarCliente, UsuarioAdminController.actualizarCliente);
 
 export default router;
