@@ -4,14 +4,18 @@ import sequelize from '../config/database.js';
 class Venta extends Model {
   declare id_venta: number;
   declare nro_venta: number;
-  declare id_cliente: number;
-  declare id_carrito: number | null;
+  declare id_cliente: number | null;
+  declare id_carrito_web: number | null;
   declare total_pagado: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
   declare observaciones: string | null;
   declare valor_dolar: number | null;
   declare moneda: string | null;
+  declare metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr' | null;
+  declare tipo_venta: 'web' | 'manual';
+  declare estado: 'completada' | 'cancelada' | 'pendiente';
+  declare id_vendedor: number | null;
 }
 
 Venta.init({
@@ -26,13 +30,13 @@ Venta.init({
   },
   id_cliente: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'tb_clientes',
       key: 'id_cliente'
     }
   },
-  id_carrito: {
+  id_carrito_web: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
@@ -57,12 +61,34 @@ Venta.init({
     allowNull: true
   },
   valor_dolar: {
-    type: DataTypes.DECIMAL(10,2),
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: true
   },
   moneda: {
     type: DataTypes.STRING(15),
     allowNull: true
+  },
+  metodo_pago: {
+    type: DataTypes.ENUM('efectivo', 'tarjeta', 'transferencia', 'qr'),
+    allowNull: true
+  },
+  tipo_venta: {
+    type: DataTypes.ENUM('web', 'manual'),
+    allowNull: false,
+    defaultValue: 'web'
+  },
+  estado: {
+    type: DataTypes.ENUM('completada', 'cancelada', 'pendiente'),
+    allowNull: false,
+    defaultValue: 'completada'
+  },
+  id_vendedor: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tb_usuarios',
+      key: 'id_usuario'
+    }
   }
 }, {
   sequelize,
@@ -71,4 +97,4 @@ Venta.init({
   timestamps: false
 });
 
-export default Venta; 
+export default Venta;

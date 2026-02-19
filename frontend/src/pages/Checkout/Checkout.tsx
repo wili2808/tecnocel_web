@@ -69,7 +69,8 @@ const Checkout = () => {
     try {
       const venta = await confirmarCompra({
         observaciones: observaciones || `Compra con ${tipoEntrega === 'envio' ? 'envío a domicilio' : 'retiro en local'}`,
-        moneda: 'BOB'
+        moneda: 'USD',
+        metodo_pago: (selectedMetodoPago as 'efectivo' | 'tarjeta' | 'transferencia' | 'qr') || undefined
       });
 
       showNotification('¡Compra realizada exitosamente!', 'success');
@@ -97,7 +98,8 @@ const Checkout = () => {
     try {
       const venta = await confirmarCompra({
         observaciones: observaciones || `Compra con ${tipoEntrega === 'envio' ? 'envío a domicilio' : 'retiro en local'}`,
-        moneda: 'BOB',
+        moneda: 'USD',
+        metodo_pago: (selectedMetodoPago as 'efectivo' | 'tarjeta' | 'transferencia' | 'qr') || undefined,
         aceptar_cambio_precio: true
       });
 

@@ -355,7 +355,7 @@ const GestionProductos = () => {
                         <td>{producto.Categoria?.nombre_categoria || '-'}</td>
                         <td>{producto.marca?.nombre_marca || '-'}</td>
                         <td className={styles.precioCell}>
-                          {parseFloat(producto.precio_venta).toFixed(2)} BOB
+                          $ {parseFloat(producto.precio_venta).toFixed(2)}
                         </td>
                         <td>
                           <span className={`${styles.stockBadge} ${

@@ -13,6 +13,7 @@ import GestionUsuarios from '../../components/admin/GestionUsuarios/GestionUsuar
 import GestionClientes from '../../components/admin/GestionClientes/GestionClientes';
 import GestionProductos from '../../components/admin/GestionProductos/GestionProductos';
 import GestionOfertas from '../../components/admin/GestionOfertas/GestionOfertas';
+import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
 import adminPanelStyles from './AdminPanel.module.css';
 
 // ============================================================================
@@ -42,6 +43,7 @@ const MENU_OPTIONS: MenuOption[] = [
   { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [1, 2] },
   { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
   { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [1, 2] },
+  { id: 'ventas', label: 'Gestión de Ventas', icon: 'receipt_long' },
 ];
 
 // ============================================================================
@@ -102,6 +104,9 @@ const ContentSection = ({
 
       case 'ofertas':
         return <GestionOfertas />;
+
+      case 'ventas':
+        return <GestionVentas />;
 
       default:
         return (

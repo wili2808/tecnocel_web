@@ -346,6 +346,12 @@
     align-items: flex-start;
   }
 
+  .ventaActions {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+  }
+
   .item {
     flex-direction: column;
     align-items: flex-start;
@@ -366,4 +372,58 @@
   .totalValue {
     font-size: var(--font-size-lg);
   }
+}
+
+/* === MÉTODO DE PAGO === */
+.ventaMetodo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin: 2px 0 0 0;
+}
+
+.ventaMetodo .material-icons {
+  font-size: 14px;
+}
+
+/* === GRUPO DE ACCIONES (PDF + expandir) ═══════════════════════ */
+.ventaActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-left: 1px solid var(--border-color);
+  padding-left: var(--spacing-sm);
+  margin-left: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+/* === BOTÓN DESCARGA PDF ═══════════════════════════════════════ */
+.pdfBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--border-radius-sm, 6px);
+  background: transparent;
+  color: var(--color-error, #ef4444);
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.pdfBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.pdfBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdfBtn { transition: none; }
 }

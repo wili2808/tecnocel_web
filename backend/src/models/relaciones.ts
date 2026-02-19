@@ -16,6 +16,8 @@ import Proveedor from './Proveedor.js';
 import Rol from './Rol.js';
 import Usuario from './Usuario.js';
 import Venta from './Venta.js';
+import VentaItem from './VentaItem.js';
+import './Configuracion.js';
 // Nuevos modelos
 import Marca from './Marca.js';
 import TipoCaracteristica from './TipoCaracteristica.js';
@@ -36,13 +38,13 @@ Usuario.hasMany(Almacen, { foreignKey: 'id_usuario' });
 Almacen.belongsTo(Marca, { foreignKey: 'id_marca', as: 'marca' });
 Marca.hasMany(Almacen, { foreignKey: 'id_marca', as: 'productos' });
 
-// Carrito (tabla antigua)
+// Carrito (tabla antigua - legacy, no se usa para nuevas ventas)
 Carrito.belongsTo(Almacen, { foreignKey: 'id_producto' });
 Almacen.hasMany(Carrito, { foreignKey: 'id_producto' });
 Carrito.belongsTo(Venta, { foreignKey: 'nro_venta', targetKey: 'nro_venta' });
 Venta.hasMany(Carrito, { foreignKey: 'nro_venta', sourceKey: 'nro_venta' });
 
-// CarritoWeb (nueva implementación)
+// CarritoWeb (nueva implementación - flujo web del cliente)
 CarritoWeb.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
 Cliente.hasMany(CarritoWeb, { foreignKey: 'id_cliente', as: 'carritos' });
 
@@ -53,9 +55,16 @@ CarritoWeb.hasMany(CarritoWebItems, { foreignKey: 'id_carrito', as: 'items' });
 CarritoWebItems.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
 Almacen.hasMany(CarritoWebItems, { foreignKey: 'id_producto', as: 'carritoItems' });
 
-// Venta con CarritoWeb
-Venta.belongsTo(CarritoWeb, { foreignKey: 'id_carrito', as: 'carrito' });
-CarritoWeb.hasOne(Venta, { foreignKey: 'id_carrito', as: 'venta' });
+// Venta → CarritoWeb (referencia histórica del proceso de compra web)
+Venta.belongsTo(CarritoWeb, { foreignKey: 'id_carrito_web', as: 'carritoWeb' });
+CarritoWeb.hasOne(Venta, { foreignKey: 'id_carrito_web', as: 'venta' });
+
+// VentaItem - detalle universal de ventas (web y manual)
+Venta.hasMany(VentaItem, { foreignKey: 'id_venta', as: 'items' });
+VentaItem.belongsTo(Venta, { foreignKey: 'id_venta', as: 'venta' });
+
+VentaItem.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
+Almacen.hasMany(VentaItem, { foreignKey: 'id_producto', as: 'ventaItems' });
 
 // Compra y DetalleCompra
 Compra.belongsTo(Usuario, { foreignKey: 'id_usuario' });
@@ -90,6 +99,10 @@ Rol.hasMany(Usuario, { foreignKey: 'id_rol' });
 // Venta
 Venta.belongsTo(Cliente, { foreignKey: 'id_cliente' });
 Cliente.hasMany(Venta, { foreignKey: 'id_cliente' });
+
+// Venta → Vendedor (usuario del sistema que registró la venta manual)
+Venta.belongsTo(Usuario, { foreignKey: 'id_vendedor', as: 'vendedor' });
+Usuario.hasMany(Venta, { foreignKey: 'id_vendedor', as: 'ventasRegistradas' });
 // Carrito y Venta ya definidos arriba
 
 // Comentarios de productos
@@ -191,6 +204,7 @@ export {
   Rol,
   Usuario,
   Venta,
+  VentaItem,
   // Nuevos modelos
   Marca,
   TipoCaracteristica,

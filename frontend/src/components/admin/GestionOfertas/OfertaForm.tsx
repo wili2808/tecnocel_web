@@ -234,7 +234,7 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar }: OfertaFormProps) =
                 className={styles.select}
               >
                 <option value="porcentaje">Porcentaje (%)</option>
-                <option value="monto_fijo">Monto Fijo (BOB)</option>
+                <option value="monto_fijo">Monto Fijo ($)</option>
               </select>
             </div>
             <div className={styles.formGroup}>
@@ -257,7 +257,7 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar }: OfertaFormProps) =
               <p className={styles.helpText}>
                 {formData.tipo_descuento === 'porcentaje'
                   ? 'Ej: 20 = 20% de descuento sobre el precio de venta'
-                  : 'Ej: 150 = Se restan 150 BOB del precio de venta'}
+                  : 'Ej: 150 = Se restan $ 150 del precio de venta'}
               </p>
             </div>
           </div>
@@ -306,7 +306,7 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar }: OfertaFormProps) =
           </legend>
           <div className={styles.formRow3}>
             <div className={styles.formGroup}>
-              <label htmlFor="precio_minimo" className={styles.label}>Precio Mínimo (BOB)</label>
+              <label htmlFor="precio_minimo" className={styles.label}>Precio Mínimo ($)</label>
               <input
                 type="number"
                 id="precio_minimo"
@@ -321,7 +321,7 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar }: OfertaFormProps) =
               <p className={styles.helpText}>Solo aplicar a productos con precio mayor a este valor</p>
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="precio_maximo" className={styles.label}>Precio Máximo (BOB)</label>
+              <label htmlFor="precio_maximo" className={styles.label}>Precio Máximo ($)</label>
               <input
                 type="number"
                 id="precio_maximo"

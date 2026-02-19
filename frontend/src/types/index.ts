@@ -14,3 +14,6 @@ export * from './auth';
 // Exportar tipos de carrito y checkout
 export * from './carrito';
 export * from './checkout';
+
+// Exportar tipos de ventas (admin)
+export * from './venta';

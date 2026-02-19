@@ -175,8 +175,8 @@ export const validateConfirmarCompra = [
   
   body('moneda')
     .optional()
-    .isIn(['BOB', 'USD', 'EUR'])
-    .withMessage('La moneda debe ser BOB, USD o EUR'),
+    .isIn(['ARS', 'USD', 'EUR'])
+    .withMessage('La moneda debe ser ARS, USD o EUR'),
   
   body('metodo_pago')
     .optional()
@@ -270,7 +270,7 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
 
     const MAX_ITEMS_POR_CARRITO = 50;
     const MAX_ITEMS_TOTALES = 100;
-    const MAX_VALOR_CARRITO = 50000; // En la moneda base (BOB)
+    const MAX_VALOR_CARRITO = 50000; // En la moneda base (ARS)
     
     const { cantidad, id_producto } = req.body;
 
@@ -333,7 +333,7 @@ export const verificarLimitesCarrito = async (req: Request, res: Response, next:
           });
           
           return res.status(400).json({
-            mensaje: `El valor total del carrito no puede exceder ${MAX_VALOR_CARRITO} BOB`,
+            mensaje: `El valor total del carrito no puede exceder ${MAX_VALOR_CARRITO} ARS`,
             valor_actual: valorActual,
             limite_maximo: MAX_VALOR_CARRITO
           });

@@ -220,10 +220,10 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
                     <td className={styles.codigoCell}>{producto.codigo}</td>
                     <td>{producto.nombre}</td>
                     <td className={styles.precioCell}>
-                      {parseFloat(producto.precio_venta).toFixed(2)} BOB
+                      {parseFloat(producto.precio_venta).toFixed(2)} ARS
                     </td>
                     <td className={styles.precioCell}>
-                      {precioOferta} BOB
+                      {precioOferta} ARS
                     </td>
                     <td>
                       {producto.ProductoOferta?.es_precio_personalizado ? (
@@ -314,7 +314,7 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
                       <div className={styles.productoCodigo}>{producto.codigo}</div>
                     </div>
                     <div className={styles.productoPrecio}>
-                      {parseFloat(producto.precio_venta).toFixed(2)} BOB
+                      {parseFloat(producto.precio_venta).toFixed(2)} ARS
                     </div>
                     {isSelected && (
                       <input

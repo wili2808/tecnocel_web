@@ -10,7 +10,7 @@ export interface CheckoutData {
   id_direccion?: number;  // Solo si es envío
   metodo_pago: 'efectivo' | 'qr' | 'tarjeta';
   observaciones?: string;
-  moneda?: 'BOB' | 'USD';
+  moneda?: 'ARS' | 'USD';
 }
 
 export interface MetodoPago {

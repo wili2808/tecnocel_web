@@ -98,6 +98,15 @@ export class CarritoService {
     const response = await axiosInstance.get('/ventas/historial', { params });
     return response.data;
   }
+
+  /**
+   * Obtiene el detalle completo de una venta específica del cliente autenticado
+   * @param id_venta - ID de la venta a consultar
+   */
+  static async obtenerDetalleVenta(id_venta: number): Promise<any> {
+    const response = await axiosInstance.get(`/ventas/${id_venta}`);
+    return response.data;
+  }
 }
 
 // ============================================================================

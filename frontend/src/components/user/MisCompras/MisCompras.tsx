@@ -1,12 +1,14 @@
 /**
  * Componente MisCompras - Muestra el historial de compras del usuario
- * Lista de ventas realizadas con detalles expandibles
+ * Lista de ventas realizadas con detalles expandibles y descarga de factura PDF
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { pdf } from '@react-pdf/renderer';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { CarritoService } from '../../../services/carritoService';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { FacturaPDF } from './FacturaPDF';
 import styles from './MisCompras.module.css';
 
 interface ItemVenta {
@@ -22,8 +24,18 @@ interface Venta {
     fecha_venta: string;
     total: number;
     estado: string;
+    metodo_pago: string | null;
+    moneda: string;
+    valor_dolar: number | null;
     items: ItemVenta[];
 }
+
+const METODOS_PAGO: Record<string, string> = {
+    efectivo: 'Efectivo',
+    tarjeta: 'Tarjeta',
+    transferencia: 'Transferencia',
+    qr: 'QR'
+};
 
 const MisCompras = () => {
     const navigate = useNavigate();
@@ -31,6 +43,7 @@ const MisCompras = () => {
     const [loading, setLoading] = useState(true);
     const [ventas, setVentas] = useState<Venta[]>([]);
     const [expandedVenta, setExpandedVenta] = useState<number | null>(null);
+    const [descargandoPDF, setDescargandoPDF] = useState<number | null>(null);
 
     useEffect(() => {
         cargarHistorial();
@@ -59,12 +72,29 @@ const MisCompras = () => {
         });
     };
 
-    const formatearPrecio = (precio: number) => {
-        return `USD $. ${precio.toFixed(2)}`;
-    };
+    const formatearPrecio = (precio: number, moneda = 'USD') =>
+        `${moneda} ${precio.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     const toggleExpand = (idVenta: number) => {
         setExpandedVenta(expandedVenta === idVenta ? null : idVenta);
+    };
+
+    const handleDescargarPDF = async (venta: Venta) => {
+        setDescargandoPDF(venta.id_venta);
+        try {
+            const detalle = await CarritoService.obtenerDetalleVenta(venta.id_venta);
+            const blob = await pdf(<FacturaPDF venta={detalle} />).toBlob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `factura-${venta.numero_venta}.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            showNotification('Error al generar la factura', 'error');
+        } finally {
+            setDescargandoPDF(null);
+        }
     };
 
     if (loading) {
@@ -141,18 +171,38 @@ const MisCompras = () => {
                                 <p className={styles.ventaFecha}>
                                     {formatearFecha(venta.fecha_venta)}
                                 </p>
+                                {venta.metodo_pago && (
+                                    <p className={styles.ventaMetodo}>
+                                        <span className="material-icons">payment</span>
+                                        {METODOS_PAGO[venta.metodo_pago] || venta.metodo_pago}
+                                    </p>
+                                )}
                             </div>
                             <div className={styles.ventaTotal}>
                                 <p className={styles.totalLabel}>Total</p>
-                                <p className={styles.totalValue}>{formatearPrecio(venta.total)}</p>
+                                <p className={styles.totalValue}>
+                                    {formatearPrecio(venta.total, venta.moneda)}
+                                </p>
                             </div>
-                            <button className={styles.expandBtn}>
-                                <span className="material-icons">
-                                    {expandedVenta === venta.id_venta
-                                        ? 'expand_less'
-                                        : 'expand_more'}
-                                </span>
-                            </button>
+                            <div className={styles.ventaActions}>
+                                <button
+                                    className={styles.pdfBtn}
+                                    onClick={e => { e.stopPropagation(); handleDescargarPDF(venta); }}
+                                    disabled={descargandoPDF === venta.id_venta}
+                                    title="Descargar factura PDF"
+                                >
+                                    <span className="material-icons">
+                                        {descargandoPDF === venta.id_venta ? 'hourglass_empty' : 'picture_as_pdf'}
+                                    </span>
+                                </button>
+                                <button className={styles.expandBtn}>
+                                    <span className="material-icons">
+                                        {expandedVenta === venta.id_venta
+                                            ? 'expand_less'
+                                            : 'expand_more'}
+                                    </span>
+                                </button>
+                            </div>
                         </div>
 
                         {expandedVenta === venta.id_venta && (
@@ -171,10 +221,10 @@ const MisCompras = () => {
                                             </div>
                                             <div className={styles.itemPrecios}>
                                                 <p className={styles.itemPrecio}>
-                                                    {formatearPrecio(item.precio_unitario)} c/u
+                                                    {formatearPrecio(item.precio_unitario, venta.moneda)} c/u
                                                 </p>
                                                 <p className={styles.itemSubtotal}>
-                                                    Subtotal: {formatearPrecio(item.subtotal)}
+                                                    Subtotal: {formatearPrecio(item.subtotal, venta.moneda)}
                                                 </p>
                                             </div>
                                         </div>

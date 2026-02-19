@@ -405,7 +405,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="precio_compra" className={styles.label}>
-                Precio de Compra (BOB) *
+                Precio de Compra ($) *
               </label>
               <input
                 type="number"
@@ -422,7 +422,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="precio_venta" className={styles.label}>
-                Precio de Venta (BOB) *
+                Precio de Venta ($) *
               </label>
               <input
                 type="number"

@@ -88,7 +88,7 @@ export interface EstadoCarrito {
  */
 export interface DatosCompra {
   observaciones?: string;
-  moneda?: 'BOB' | 'USD' | 'EUR';
+  moneda?: 'ARS' | 'USD' | 'EUR';
   metodo_pago?: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr';
   // ✅ FASE 2: Aceptación de cambios de precio
   aceptar_cambio_precio?: boolean;

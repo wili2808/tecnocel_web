@@ -54,7 +54,7 @@ const OrderConfirmation = () => {
         {/* Acciones */}
         <div className={styles.actions}>
           <button
-            onClick={() => navigate('/panel')}
+            onClick={() => navigate('/panel', { state: { tab: 'purchases' } })}
             className={styles.btnSecondary}
             type="button"
           >

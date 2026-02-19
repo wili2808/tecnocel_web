@@ -30,7 +30,7 @@ const getEstadoOferta = (oferta: OfertaConConteo) => {
 
 /** Formatea una fecha ISO a formato legible */
 const formatFecha = (fecha: string) => {
-  return new Date(fecha).toLocaleDateString('es-BO', {
+  return new Date(fecha).toLocaleDateString('es-AR', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -379,7 +379,7 @@ const GestionOfertas = () => {
                         <td className={styles.valorCell}>
                           {oferta.tipo_descuento === 'porcentaje'
                             ? `${oferta.valor_descuento}%`
-                            : `${oferta.valor_descuento} BOB`
+                            : `$ ${oferta.valor_descuento}`
                           }
                         </td>
                         <td>{formatFecha(oferta.fecha_inicio)}</td>

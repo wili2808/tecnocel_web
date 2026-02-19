@@ -4,10 +4,12 @@ import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import Venta from '../models/Venta.js';
+import VentaItem from '../models/VentaItem.js';
 import Oferta from '../models/Oferta.js';
 import logger from '../services/loggerService.js';
 import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
+import Configuracion from '../models/Configuracion.js';
 import { getImageService } from '../services/imageService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { calcularPrecioOferta, calcularPorcentajeDescuento } from '../services/ofertaService.js';
@@ -1180,7 +1182,7 @@ export default class CarritoController {
     const transaction = await sequelize.transaction();
 
     try {
-      const { observaciones, moneda = 'BOB', aceptar_cambio_precio = false } = req.body;
+      const { observaciones, moneda = 'USD', metodo_pago, aceptar_cambio_precio = false } = req.body;
       const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
@@ -1313,17 +1315,41 @@ export default class CarritoController {
       });
       const nroVenta = ultimaVenta ? ultimaVenta.nro_venta + 1 : 1;
 
+      // Obtener tipo de cambio vigente para registrar histórico
+      let valor_dolar: number | null = null;
+      if (moneda === 'USD') {
+        const config = await Configuracion.findByPk('tipo_cambio_usd', { transaction });
+        valor_dolar = config ? parseFloat(config.valor) : null;
+      }
+
       // ✅ CREAR VENTA CON TOTAL ACTUALIZADO (Fase 2)
       const venta = await Venta.create({
         nro_venta: nroVenta,
         id_cliente,
-        id_carrito: carrito.id_carrito,
+        id_carrito_web: carrito.id_carrito,
+        tipo_venta: 'web',
+        estado: 'completada',
         total_pagado: totalActualizado,  // ← Precio ACTUAL validado
         observaciones,
         moneda,
+        metodo_pago: metodo_pago || null,
+        valor_dolar,
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       }, { transaction });
+
+      // ✅ CREAR SNAPSHOT PERMANENTE EN tb_venta_items
+      // Registro histórico de los productos vendidos con precio fijo al momento de la compra
+      for (const item of carrito.items) {
+        await VentaItem.create({
+          id_venta: venta.id_venta,
+          id_producto: item.id_producto,
+          cantidad: item.cantidad,
+          precio_unitario: item.precio_unitario,
+          subtotal: item.subtotal,
+          fyh_creacion: new Date()
+        }, { transaction });
+      }
 
       // Actualizar stock de productos
       for (const item of carrito.items) {

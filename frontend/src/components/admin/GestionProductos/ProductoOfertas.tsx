@@ -24,7 +24,7 @@ const getEstadoOferta = (oferta: OfertaDeProducto) => {
 };
 
 const formatFecha = (fecha: string) => {
-  return new Date(fecha).toLocaleDateString('es-BO', {
+  return new Date(fecha).toLocaleDateString('es-AR', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -103,7 +103,7 @@ const ProductoOfertas = ({ idProducto }: ProductoOfertasProps) => {
                   <span className="material-icons">discount</span>
                   {oferta.tipo_descuento === 'porcentaje'
                     ? `${oferta.valor_descuento}%`
-                    : `${oferta.valor_descuento} BOB`
+                    : `$ ${oferta.valor_descuento}`
                   }
                 </span>
                 <span className={styles.detalle}>
@@ -113,7 +113,7 @@ const ProductoOfertas = ({ idProducto }: ProductoOfertasProps) => {
                 {oferta.es_precio_personalizado && oferta.precio_oferta != null && (
                   <span className={styles.detalle}>
                     <span className="material-icons">sell</span>
-                    Precio personalizado: {oferta.precio_oferta} BOB
+                    Precio personalizado: $ {oferta.precio_oferta}
                   </span>
                 )}
               </div>

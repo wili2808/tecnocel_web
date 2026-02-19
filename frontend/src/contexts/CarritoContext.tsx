@@ -274,8 +274,8 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const diferenciaAbs = Math.abs(carrito.diferencia_total);
           mensaje +=
             carrito.diferencia_total > 0
-              ? ` Total aumentó en ${diferenciaAbs.toFixed(2)} BOB.`
-              : ` Total disminuyó en ${diferenciaAbs.toFixed(2)} BOB.`;
+              ? ` Total aumentó en ${diferenciaAbs.toFixed(2)} ARS.`
+              : ` Total disminuyó en ${diferenciaAbs.toFixed(2)} ARS.`;
         }
 
         // Tipo de notificación según el cambio

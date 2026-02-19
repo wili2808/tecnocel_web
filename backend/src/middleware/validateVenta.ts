@@ -11,7 +11,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { param, query, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
 import logger from '../services/loggerService.js';
 
 /**
@@ -218,3 +218,131 @@ export const ventasRateLimit = (req: Request, res: Response, next: NextFunction)
 
   next();
 };
+
+// ============================================================================
+// VALIDATORS PARA GESTIÓN ADMIN DE VENTAS
+// ============================================================================
+
+/**
+ * Validaciones para listar ventas desde el panel admin
+ * Acepta filtros opcionales de fecha, estado, tipo y paginación
+ */
+export const validateListarVentasAdmin = [
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('El límite debe ser entre 1 y 100')
+    .toInt(),
+  query('offset')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('El offset debe ser un entero no negativo')
+    .toInt(),
+  query('fecha_inicio')
+    .optional()
+    .isISO8601()
+    .withMessage('fecha_inicio debe ser una fecha ISO válida'),
+  query('fecha_fin')
+    .optional()
+    .isISO8601()
+    .withMessage('fecha_fin debe ser una fecha ISO válida'),
+  query('estado')
+    .optional()
+    .isIn(['completada', 'cancelada', 'pendiente'])
+    .withMessage('Estado inválido'),
+  query('tipo_venta')
+    .optional()
+    .isIn(['web', 'manual'])
+    .withMessage('tipo_venta debe ser web o manual'),
+  query('metodo_pago')
+    .optional()
+    .isIn(['efectivo', 'tarjeta', 'transferencia', 'qr'])
+    .withMessage('metodo_pago inválido'),
+  query('search')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('El término de búsqueda no puede superar 100 caracteres'),
+  handleValidationErrors
+];
+
+/**
+ * Validaciones para registrar una venta manual desde el admin
+ */
+export const validateRegistrarVentaManual = [
+  body('id_cliente')
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage('id_cliente debe ser un entero positivo si se proporciona'),
+  body('items')
+    .isArray({ min: 1 })
+    .withMessage('Se requiere al menos un item en la venta'),
+  body('items.*.id_producto')
+    .isInt({ min: 1 })
+    .withMessage('id_producto debe ser un entero positivo'),
+  body('items.*.cantidad')
+    .isInt({ min: 1, max: 50 })
+    .withMessage('La cantidad debe estar entre 1 y 50'),
+  body('items.*.precio_unitario_manual')
+    .optional({ nullable: true })
+    .isFloat({ min: 0 })
+    .withMessage('precio_unitario_manual debe ser un número positivo'),
+  body('metodo_pago')
+    .isIn(['efectivo', 'tarjeta', 'transferencia', 'qr'])
+    .withMessage('metodo_pago es requerido: efectivo, tarjeta, transferencia o qr'),
+  body('observaciones')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Las observaciones no pueden superar 500 caracteres'),
+  body('moneda')
+    .optional()
+    .isIn(['ARS', 'USD'])
+    .withMessage('La moneda debe ser ARS o USD'),
+  body('valor_dolar')
+    .optional({ nullable: true })
+    .isFloat({ min: 0 })
+    .withMessage('valor_dolar debe ser un número positivo si se proporciona'),
+  handleValidationErrors
+];
+
+/**
+ * Validaciones para actualizar el tipo de cambio USD/ARS
+ * Solo admin (rol 1) y empleado (rol 2)
+ */
+export const validateTipoCambio = [
+  body('valor')
+    .isFloat({ min: 1, max: 100000 })
+    .withMessage('El tipo de cambio debe ser un número entre 1 y 100000'),
+  handleValidationErrors
+];
+
+/**
+ * Validaciones para cancelar una venta (solo admin)
+ */
+export const validateCancelarVenta = [
+  param('id_venta')
+    .isInt({ min: 1 })
+    .withMessage('id_venta debe ser un entero positivo')
+    .toInt(),
+  body('motivo')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 300 })
+    .withMessage('El motivo no puede superar 300 caracteres'),
+  handleValidationErrors
+];
+
+/**
+ * Validaciones para obtener detalle de una venta desde el admin (sin restricción de cliente)
+ */
+export const validateObtenerDetalleAdmin = [
+  param('id_venta')
+    .isInt({ min: 1 })
+    .withMessage('id_venta debe ser un entero positivo')
+    .toInt(),
+  handleValidationErrors
+];

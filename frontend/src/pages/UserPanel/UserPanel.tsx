@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Cliente } from '../../types/cliente';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import DatosCuenta from '../../components/user/DatosCuenta';
 import InformacionPersonal from '../../components/user/InformacionPersonal';
 import Seguridad from '../../components/user/Seguridad';
@@ -126,7 +126,10 @@ const UserPanel = () => {
     // ============================================================================
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const [activeSection, setActiveSection] = useState('profile');
+    const location = useLocation();
+    const [activeSection, setActiveSection] = useState(
+        (location.state as { tab?: string } | null)?.tab || 'profile'
+    );
 
     // ============================================================================
     // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN

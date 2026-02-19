@@ -52,11 +52,11 @@ export const PriceChangeAlert: React.FC<PriceChangeAlertProps> = ({
               <span className={styles.itemName}>{item.nombre_producto}</span>
               <div className={styles.priceChange}>
                 <span className={styles.oldPrice}>
-                  {item.precio_guardado.toFixed(2)} BOB
+                  {item.precio_guardado.toFixed(2)} ARS
                 </span>
                 <span className={styles.arrow}>→</span>
                 <span className={item.diferencia_precio > 0 ? styles.newPriceUp : styles.newPriceDown}>
-                  {item.precio_actual.toFixed(2)} BOB
+                  {item.precio_actual.toFixed(2)} ARS
                   <span className={styles.percentage}>
                     ({item.porcentaje_cambio > 0 ? '+' : ''}{item.porcentaje_cambio.toFixed(1)}%)
                   </span>
@@ -69,7 +69,7 @@ export const PriceChangeAlert: React.FC<PriceChangeAlertProps> = ({
         <div className={styles.totalChange}>
           <span className={styles.totalLabel}>Diferencia en total:</span>
           <span className={esAumento ? styles.totalUp : styles.totalDown}>
-            {esAumento ? '+' : ''}{diferencia_total.toFixed(2)} BOB
+            {esAumento ? '+' : ''}{diferencia_total.toFixed(2)} ARS
           </span>
         </div>
       </div>
