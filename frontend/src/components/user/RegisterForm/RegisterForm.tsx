@@ -3,7 +3,7 @@
  * Maneja creación de cuentas con validación completa y autenticación Google OAuth
  * Incluye validación de campos, manejo de errores y navegación automática
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useNotification } from "../../../contexts/NotificationContext";
@@ -15,7 +15,7 @@ const RegisterForm = () => {
   // ============================================================================
   // HOOKS Y CONTEXTOS
   // ============================================================================
-  const { register, googleLogin } = useAuth();
+  const { register, googleLogin, error: authError } = useAuth();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
@@ -36,6 +36,13 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Resetea el spinner si Google OAuth falla o el usuario cierra el popup
+  useEffect(() => {
+    if (authError) {
+      setIsLoading(false);
+    }
+  }, [authError]);
 
   // ============================================================================
   // MANEJADORES DE EVENTOS
@@ -203,19 +210,12 @@ const RegisterForm = () => {
 
   /**
    * Maneja el registro con Google OAuth
-   * Procesa autenticación externa y navegación automática
+   * Abre el popup de Google; la notificación y navegación son gestionadas
+   * por PublicOnlyRoute al detectar el cambio de estado de autenticación.
    */
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     setIsLoading(true);
-    try {
-      await googleLogin();
-      showNotification("¡Cuenta creada exitosamente!", "success");
-      navigate("/");
-    } catch (error) {
-      showNotification("Error al crear cuenta con Google", "error");
-    } finally {
-      setIsLoading(false);
-    }
+    googleLogin();
   };
 
   // ============================================================================

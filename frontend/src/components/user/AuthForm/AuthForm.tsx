@@ -3,7 +3,7 @@
  * Maneja login con email/contraseña y autenticación Google OAuth
  * Incluye validación, estados de carga y navegación automática
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -14,7 +14,7 @@ const AuthForm = () => {
     // ============================================================================
     // HOOKS Y CONTEXTOS
     // ============================================================================
-    const { login, googleLogin } = useAuth();
+    const { login, googleLogin, error: authError } = useAuth();
     const navigate = useNavigate();
     const { showNotification } = useNotification();
 
@@ -28,6 +28,13 @@ const AuthForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
+
+    // Resetea el spinner si Google OAuth falla o el usuario cierra el popup
+    useEffect(() => {
+        if (authError) {
+            setIsLoading(false);
+        }
+    }, [authError]);
 
     // ============================================================================
     // MANEJADORES DE EVENTOS
@@ -109,19 +116,12 @@ const AuthForm = () => {
 
     /**
      * Maneja el inicio de sesión con Google OAuth
-     * Procesa autenticación externa y navegación automática
+     * Abre el popup de Google; la notificación y navegación son gestionadas
+     * por PublicOnlyRoute al detectar el cambio de estado de autenticación.
      */
-    const handleGoogleLogin = async () => {
+    const handleGoogleLogin = () => {
         setIsLoading(true);
-        try {
-            await googleLogin();
-            showNotification('¡Bienvenido!', 'success');
-            navigate('/');
-        } catch (error) {
-            showNotification('Error al iniciar sesión con Google', 'error');
-        } finally {
-            setIsLoading(false);
-        }
+        googleLogin();
     };
 
     // ============================================================================

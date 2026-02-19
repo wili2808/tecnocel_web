@@ -1,10 +1,12 @@
 /**
  * Componente PublicOnlyRoute - Ruta solo para usuarios no autenticados
- * Redirige a usuarios ya logueados a su panel correspondiente
+ * Redirige a usuarios ya logueados a su destino correspondiente
  * Útil para páginas de login y registro
  */
+import { useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useNotification } from '../../../contexts/NotificationContext';
 
 interface PublicOnlyRouteProps {
   children: React.ReactNode;
@@ -13,13 +15,15 @@ interface PublicOnlyRouteProps {
 
 /**
  * Ruta solo para usuarios no autenticados
- * Redirige automáticamente a usuarios logueados a su panel correspondiente
+ * Redirige automáticamente a usuarios logueados a su destino correspondiente.
+ * Muestra notificación de bienvenida cuando el login ocurre mientras se está
+ * en esta ruta (caso Google OAuth, donde el auth es completamente asíncrono).
  *
  * @param children - Componente hijo a renderizar si no está autenticado
  * @param redirectTo - Ruta de redirección personalizada (opcional)
  *
  * @example
- * // Login de cliente - redirige a /panel si ya está logueado
+ * // Login de cliente - redirige a / si ya está logueado
  * <PublicOnlyRoute>
  *   <Login />
  * </PublicOnlyRoute>
@@ -35,15 +39,31 @@ export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({
   redirectTo
 }) => {
   const { isAuthenticated, userType, isVerifying } = useAuth();
+  const { showNotification } = useNotification();
+
+  // Guarda el valor anterior de isAuthenticated para detectar transición false→true
+  const wasAuthenticated = useRef(isAuthenticated);
+
+  // Cuando isAuthenticated cambia de false a true mientras estamos en esta ruta
+  // significa que el usuario acaba de autenticarse (caso típico: Google OAuth).
+  // El email/password login no llega aquí porque navega antes del re-render.
+  useEffect(() => {
+    const prevAuth = wasAuthenticated.current;
+    wasAuthenticated.current = isAuthenticated;
+
+    if (!prevAuth && isAuthenticated && !isVerifying && userType === 'cliente') {
+      showNotification('¡Bienvenido!', 'success');
+    }
+  }, [isAuthenticated, isVerifying, userType, showNotification]);
 
   // Mientras verifica token, no renderizar nada (evita flash)
   if (isVerifying) {
     return null;
   }
 
-  // Si está autenticado, redirigir a su panel correspondiente
+  // Si está autenticado, redirigir al destino correspondiente
   if (isAuthenticated) {
-    const defaultRedirect = userType === 'cliente' ? '/panel' : '/admin-panel';
+    const defaultRedirect = userType === 'cliente' ? '/' : '/admin-panel';
     return <Navigate to={redirectTo || defaultRedirect} replace />;
   }
 
