@@ -23,11 +23,13 @@ import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
+import Cancelacion from '../models/Cancelacion.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
+import { sendCancellationEmail } from '../services/emailService.js';
 
 /** Type guard para verificar que el usuario es del sistema (tiene idRol) */
 function esUsuarioSistema(usuario: unknown): usuario is { id: number; idRol: number } {
@@ -216,6 +218,18 @@ export default class AdminVentaController {
                 attributes: ['id_producto', 'nombre', 'codigo']
               }
             ]
+          },
+          {
+            model: Cancelacion,
+            as: 'cancelacion',
+            required: false,
+            include: [
+              {
+                model: Usuario,
+                as: 'usuario_cancelacion',
+                attributes: ['id_usuario', 'nombres']
+              }
+            ]
           }
         ]
       });
@@ -233,6 +247,8 @@ export default class AdminVentaController {
         fyh_actualizacion: v.fyh_actualizacion,
         total_pagado: parseFloat(v.total_pagado),
         estado:       v.estado,
+        estado_reembolso: v.estado_reembolso || null,
+        fecha_despacho:   v.fecha_despacho || null,
         metodo_pago:  v.metodo_pago,
         tipo_venta:   v.tipo_venta,
         moneda:       v.moneda,
@@ -246,6 +262,11 @@ export default class AdminVentaController {
         vendedor: v.vendedor ? {
           id_vendedor: v.vendedor.id_usuario,
           nombres:     v.vendedor.nombres
+        } : null,
+        cancelacion: v.cancelacion ? {
+          motivo:           v.cancelacion.motivo,
+          fyh_cancelacion:  v.cancelacion.fyh_cancelacion,
+          cancelado_por:    v.cancelacion.usuario_cancelacion?.nombres || null
         } : null,
         items: (v.items || []).map((item: any) => ({
           id_producto:     item.producto?.id_producto,
@@ -430,8 +451,11 @@ export default class AdminVentaController {
    * Cancela una venta y restaura el stock de los productos
    * PATCH /api/ventas/admin/:id_venta/cancelar
    *
-   * Solo accesible para administradores (rol 1).
-   * Usa VentaItems para restaurar stock en ambos tipos de venta.
+   * Accesible para administradores (rol 1) y vendedores (rol 3).
+   * Reglas de negocio:
+   * - Ventas manuales: solo cancelables dentro de las 48hs de registradas
+   * - Ventas web: solo cancelables si fecha_despacho es null (aún no despachadas)
+   * Registra la cancelación en tb_cancelaciones con motivo y usuario responsable.
    */
   static async cancelarVenta(req: Request, res: Response) {
     const transaction = await sequelize.transaction();
@@ -463,6 +487,25 @@ export default class AdminVentaController {
         return res.status(400).json({ mensaje: 'La venta ya está cancelada' });
       }
 
+      // Regla: ventas manuales solo cancelables dentro de las 48hs
+      if (ventaData.tipo_venta === 'manual') {
+        const horasTranscurridas = (Date.now() - new Date(ventaData.fyh_creacion).getTime()) / (1000 * 60 * 60);
+        if (horasTranscurridas > 48) {
+          await transaction.rollback();
+          return res.status(400).json({
+            mensaje: 'Las ventas manuales solo pueden cancelarse dentro de las 48 horas de registradas'
+          });
+        }
+      }
+
+      // Regla: ventas web solo cancelables si aún no fueron despachadas
+      if (ventaData.tipo_venta === 'web' && ventaData.fecha_despacho !== null) {
+        await transaction.rollback();
+        return res.status(400).json({
+          mensaje: 'No se puede cancelar una venta web que ya fue despachada'
+        });
+      }
+
       // Restaurar stock para cada item (funciona igual para web y manual)
       for (const item of ventaData.items || []) {
         if (item.producto) {
@@ -476,25 +519,49 @@ export default class AdminVentaController {
         }
       }
 
-      // Marcar como cancelada y agregar motivo a observaciones
-      const observacionesCancelacion = motivo
-        ? `${ventaData.observaciones ? ventaData.observaciones + ' ' : ''}[CANCELADA: ${motivo}]`
-        : ventaData.observaciones;
-
+      // Marcar como cancelada (sin tocar observaciones)
       await venta.update({
         estado:            'cancelada',
-        observaciones:     observacionesCancelacion,
         fyh_actualizacion: new Date()
+      }, { transaction });
+
+      // Registrar en tabla de auditoría de cancelaciones
+      if (!esUsuarioSistema(req.usuario)) {
+        await transaction.rollback();
+        return res.status(403).json({ mensaje: 'No autorizado' });
+      }
+
+      await Cancelacion.create({
+        id_venta:       ventaData.id_venta,
+        id_usuario:     req.usuario.id,
+        motivo:         motivo || null,
+        fyh_cancelacion: new Date()
       }, { transaction });
 
       await transaction.commit();
 
       logger.info('Venta cancelada y stock restaurado', {
         id_venta,
-        cancelada_por:    req.usuario?.id,
+        cancelada_por:    req.usuario.id,
         items_restaurados: (ventaData.items || []).length,
         motivo:           motivo || null
       });
+
+      // Email de cancelación al cliente (no bloqueante — falla silenciosa)
+      if (ventaData.id_cliente) {
+        Cliente.findByPk(ventaData.id_cliente, {
+          attributes: ['email_cliente', 'nombre_cliente']
+        }).then(cliente => {
+          if (cliente?.email_cliente) {
+            sendCancellationEmail(cliente.email_cliente, {
+              nro_venta:    `V-${ventaData.nro_venta.toString().padStart(5, '0')}`,
+              total_pagado: ventaData.total_pagado,
+              motivo:       motivo || null,
+              items:        ventaData.items || []
+            }).catch(err => logger.error('Error enviando email de cancelación:', { error: err.message }));
+          }
+        }).catch(err => logger.error('Error buscando cliente para email cancelación:', { error: err.message }));
+      }
 
       return res.json({ mensaje: 'Venta cancelada y stock restaurado exitosamente' });
 

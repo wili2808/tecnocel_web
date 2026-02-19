@@ -13,6 +13,7 @@ import Configuracion from '../models/Configuracion.js';
 import { getImageService } from '../services/imageService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { calcularPrecioOferta, calcularPorcentajeDescuento } from '../services/ofertaService.js';
+import { sendOrderConfirmationEmail } from '../services/emailService.js';
 
 /**
  * Controlador para gestión del carrito de compras
@@ -1373,6 +1374,25 @@ export default class CarritoController {
 
       // Confirmar transacción - todas las operaciones fueron exitosas
       await transaction.commit();
+
+      // Email de confirmación de compra al cliente (no bloqueante)
+      Cliente.findByPk(id_cliente, {
+        attributes: ['email_cliente', 'nombre_cliente']
+      }).then(cliente => {
+        if (cliente?.email_cliente) {
+          sendOrderConfirmationEmail(cliente.email_cliente, {
+            nro_venta:      `V-${nroVenta.toString().padStart(5, '0')}`,
+            nombre_cliente: cliente.nombre_cliente,
+            total_pagado:   totalActualizado,
+            items: (carrito.items || []).map(item => ({
+              nombre_producto: item.producto?.nombre || 'Producto',
+              cantidad:        item.cantidad,
+              precio_unitario: item.precio_unitario,
+              subtotal:        item.subtotal
+            }))
+          }).catch(err => logger.error('Error enviando email de confirmación de compra:', { error: err.message }));
+        }
+      }).catch(err => logger.error('Error buscando cliente para email confirmación:', { error: err.message }));
 
       return res.json({
         mensaje: 'Compra realizada exitosamente',

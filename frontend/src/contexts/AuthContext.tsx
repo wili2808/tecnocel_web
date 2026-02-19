@@ -374,6 +374,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       isAuthenticated: !!state.user,
       isAdmin: isAdminUser(state.user) && state.user.idRol === 1,
       isEmpleado: isAdminUser(state.user) && state.user.idRol === 2,
+      isVendedor: isAdminUser(state.user) && state.user.idRol === 3,
       isCliente: state.userType === 'cliente',
       isSystemUser: !!state.user && state.userType !== 'cliente' && state.userType !== null,
       isVerifying: state.isVerifying,

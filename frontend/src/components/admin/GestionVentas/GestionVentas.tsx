@@ -16,6 +16,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import styles from './GestionVentas.module.css';
 import DetalleVentaModal from './DetalleVentaModal';
 import RegistrarVentaModal from './RegistrarVentaModal';
+import CancelacionModal from './CancelacionModal';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ventaAdminService } from '../../../services/ventaAdminService';
@@ -52,7 +53,7 @@ const formatIngreso = (n: number) => {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 const GestionVentas: React.FC = () => {
-  const { isAdmin, isEmpleado } = useAuth();
+  const { isAdmin, isEmpleado, isVendedor } = useAuth();
   const { showNotification } = useNotification();
 
   // ── Estado de datos ────────────────────────────────────────────────────────
@@ -82,6 +83,7 @@ const GestionVentas: React.FC = () => {
   // ── Modales ────────────────────────────────────────────────────────────────
   const [idDetalleAbierto, setIdDetalleAbierto] = useState<number | null>(null);
   const [mostrarRegistrar, setMostrarRegistrar] = useState(false);
+  const [cancelacionModal, setCancelacionModal] = useState<{ id: number; nro: string } | null>(null);
 
   // ── Guards de carga ────────────────────────────────────────────────────────
   const cargandoRef = useRef(false);
@@ -216,16 +218,8 @@ const GestionVentas: React.FC = () => {
   };
 
   // ── Cancelar venta rápido (desde fila de tabla) ────────────────────────────
-  const cancelarVentaFila = async (id: number) => {
-    if (!window.confirm('¿Cancelar esta venta? Se restaurará el stock.')) return;
-    try {
-      await ventaAdminService.cancelarVenta(id);
-      showNotification('Venta cancelada exitosamente', 'success');
-      cargarVentas(filtros, offset);
-      cargarStats();
-    } catch (err: any) {
-      showNotification(err.message || 'Error al cancelar la venta', 'error');
-    }
+  const cancelarVentaFila = (id: number, nro: string) => {
+    setCancelacionModal({ id, nro });
   };
 
   // ── Badges ─────────────────────────────────────────────────────────────────
@@ -576,10 +570,10 @@ const GestionVentas: React.FC = () => {
                           >
                             <span className="material-icons">visibility</span>
                           </button>
-                          {isAdmin && venta.estado === 'completada' && (
+                          {(isAdmin || isVendedor) && venta.estado === 'completada' && (
                             <button
                               className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                              onClick={() => cancelarVentaFila(venta.id_venta)}
+                              onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
                               title="Cancelar venta"
                             >
                               <span className="material-icons">cancel</span>
@@ -641,6 +635,16 @@ const GestionVentas: React.FC = () => {
           onClose={() => setMostrarRegistrar(false)}
           onRegistrada={refreshTodo}
           tipoCambioUsd={tipoCambio}
+        />
+      )}
+
+      {/* Modal cancelar venta (desde tabla) */}
+      {cancelacionModal && (
+        <CancelacionModal
+          idVenta={cancelacionModal.id}
+          nroVenta={cancelacionModal.nro}
+          onClose={() => setCancelacionModal(null)}
+          onCancelada={() => { setCancelacionModal(null); refreshTodo(); }}
         />
       )}
 

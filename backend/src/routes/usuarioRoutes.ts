@@ -25,6 +25,9 @@ router.get('/me', verificarToken, usuarioController.getMe.bind(usuarioController
 // Requieren: Autenticación + Rol Admin (1)
 // ============================================================================
 
+// Estadísticas del dashboard: usuarios, clientes y productos
+router.get('/admin/dashboard-stats', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.obtenerEstadisticasDashboard);
+
 // Listar todos los roles disponibles
 router.get('/admin/roles', verificarToken, verificarRol([1]), UsuarioAdminController.listarRoles);
 
@@ -59,7 +62,7 @@ router.get('/admin/clientes', verificarToken, verificarRol([1, 2, 3]), UsuarioAd
 // Obtener información de un cliente específico
 router.get('/admin/clientes/:id', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.obtenerCliente);
 
-// Actualizar información de un cliente (solo Admin y Empleado)
-router.put('/admin/clientes/:id', verificarToken, verificarRol([1, 2]), validateActualizarCliente, UsuarioAdminController.actualizarCliente);
+// Actualizar información de un cliente (solo Admin)
+router.put('/admin/clientes/:id', verificarToken, verificarRol([1]), validateActualizarCliente, UsuarioAdminController.actualizarCliente);
 
 export default router;

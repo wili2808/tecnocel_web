@@ -17,6 +17,7 @@ import Rol from './Rol.js';
 import Usuario from './Usuario.js';
 import Venta from './Venta.js';
 import VentaItem from './VentaItem.js';
+import Cancelacion from './Cancelacion.js';
 import './Configuracion.js';
 // Nuevos modelos
 import Marca from './Marca.js';
@@ -104,6 +105,12 @@ Cliente.hasMany(Venta, { foreignKey: 'id_cliente' });
 Venta.belongsTo(Usuario, { foreignKey: 'id_vendedor', as: 'vendedor' });
 Usuario.hasMany(Venta, { foreignKey: 'id_vendedor', as: 'ventasRegistradas' });
 // Carrito y Venta ya definidos arriba
+
+// Cancelacion (auditoría de cancelaciones)
+Venta.hasOne(Cancelacion, { foreignKey: 'id_venta', as: 'cancelacion' });
+Cancelacion.belongsTo(Venta, { foreignKey: 'id_venta' });
+Cancelacion.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario_cancelacion' });
+Usuario.hasMany(Cancelacion, { foreignKey: 'id_usuario', as: 'cancelaciones' });
 
 // Comentarios de productos
 Comentario.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
@@ -205,6 +212,7 @@ export {
   Usuario,
   Venta,
   VentaItem,
+  Cancelacion,
   // Nuevos modelos
   Marca,
   TipoCaracteristica,

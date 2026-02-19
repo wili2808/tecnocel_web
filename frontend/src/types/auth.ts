@@ -54,6 +54,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isEmpleado: boolean;
+  isVendedor: boolean;
   isCliente: boolean;
   /** true para cualquier usuario del sistema (admin, empleado, vendedor, etc.) */
   isSystemUser: boolean;

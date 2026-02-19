@@ -16,6 +16,8 @@ class Venta extends Model {
   declare tipo_venta: 'web' | 'manual';
   declare estado: 'completada' | 'cancelada' | 'pendiente';
   declare id_vendedor: number | null;
+  declare estado_reembolso: 'sin_reembolso' | 'pendiente' | 'procesado' | 'rechazado' | null;
+  declare fecha_despacho: Date | null;
 }
 
 Venta.init({
@@ -89,6 +91,15 @@ Venta.init({
       model: 'tb_usuarios',
       key: 'id_usuario'
     }
+  },
+  estado_reembolso: {
+    type: DataTypes.ENUM('sin_reembolso', 'pendiente', 'procesado', 'rechazado'),
+    allowNull: true,
+    defaultValue: null
+  },
+  fecha_despacho: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   sequelize,

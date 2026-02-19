@@ -79,11 +79,11 @@ router.post('/admin/registrar',
 /**
  * PATCH /api/ventas/admin/:id_venta/cancelar
  * Cancelar una venta y restaurar stock
- * Roles: SOLO admin (1)
+ * Roles: admin (1) y vendedor (3)
  */
 router.patch('/admin/:id_venta/cancelar',
   verificarToken,
-  verificarRol([1]),
+  verificarRol([1, 3]),
   validateCancelarVenta,
   AdminVentaController.cancelarVenta
 );

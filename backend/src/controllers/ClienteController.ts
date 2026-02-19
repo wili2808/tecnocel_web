@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Cliente from '../models/Cliente.js';
 import { Request, Response } from 'express';
 import logger from '../services/loggerService.js';
-import { sendVerificationEmail, sendResetPasswordEmail } from '../services/emailService.js';
+import { sendVerificationEmail, sendResetPasswordEmail, sendWelcomeEmail } from '../services/emailService.js';
 import {
   ClienteResponse,
   ClientePerfilResponse,
@@ -281,6 +281,10 @@ export default class ClienteController {
         token,
         cliente: ClienteController.mapearClienteRespuesta(nuevoCliente)
       };
+
+      // Email de bienvenida (no bloqueante — no afecta el registro si falla)
+      sendWelcomeEmail(nuevoCliente.email_cliente, nuevoCliente.nombre_cliente)
+        .catch(err => logger.error('Error enviando email de bienvenida:', { error: err.message }));
 
       return res.status(201).json(respuesta);
     

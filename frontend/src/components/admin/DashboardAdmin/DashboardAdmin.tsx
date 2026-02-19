@@ -1,18 +1,62 @@
 /**
  * Componente DashboardAdmin - Panel principal de administración
- * Muestra estadísticas y métricas del sistema
+ * Muestra estadísticas y métricas del sistema obtenidas desde la API.
  */
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import adminApi from '../../../api/axiosAdminConfig';
 import styles from './DashboardAdmin.module.css';
 
 interface DashboardAdminProps {
   onNavigate: (section: string) => void;
 }
 
+interface StatsGenerales {
+  usuarios_sistema: number;
+  clientes_registrados: number;
+  productos_activos: number;
+}
+
+interface StatsVentas {
+  ventas_mes: number;
+}
+
 const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
   const { user, isAdmin } = useAuth();
 
   const userName = user && 'nombres' in user ? user.nombres : 'Usuario';
+
+  const [statsGenerales, setStatsGenerales] = useState<StatsGenerales | null>(null);
+  const [statsVentas, setStatsVentas] = useState<StatsVentas | null>(null);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    let activo = true;
+
+    const cargar = async () => {
+      setCargando(true);
+      try {
+        const [resGenerales, resVentas] = await Promise.all([
+          adminApi.get<StatsGenerales>('/usuarios/admin/dashboard-stats'),
+          adminApi.get<StatsVentas>('/ventas/admin/estadisticas')
+        ]);
+        if (activo) {
+          setStatsGenerales(resGenerales.data);
+          setStatsVentas(resVentas.data);
+        }
+      } catch {
+        // Stats no críticas: si fallan, se muestran guiones
+      } finally {
+        if (activo) setCargando(false);
+      }
+    };
+
+    cargar();
+    return () => { activo = false; };
+  }, []);
+
+  const fmt = (n: number | null | undefined) =>
+    cargando ? '...' : n != null ? n.toLocaleString('es-AR') : '-';
 
   return (
     <div className={styles.dashboard}>
@@ -31,7 +75,7 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
           </div>
           <div className={styles.statInfo}>
             <h3 className={styles.statTitle}>Usuarios del Sistema</h3>
-            <p className={styles.statValue}>-</p>
+            <p className={styles.statValue}>{fmt(statsGenerales?.usuarios_sistema)}</p>
             <p className={styles.statLabel}>Total de administradores y empleados</p>
           </div>
         </div>
@@ -42,7 +86,7 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
           </div>
           <div className={styles.statInfo}>
             <h3 className={styles.statTitle}>Clientes Registrados</h3>
-            <p className={styles.statValue}>-</p>
+            <p className={styles.statValue}>{fmt(statsGenerales?.clientes_registrados)}</p>
             <p className={styles.statLabel}>Total de clientes en la plataforma</p>
           </div>
         </div>
@@ -53,7 +97,7 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
           </div>
           <div className={styles.statInfo}>
             <h3 className={styles.statTitle}>Ventas del Mes</h3>
-            <p className={styles.statValue}>-</p>
+            <p className={styles.statValue}>{fmt(statsVentas?.ventas_mes)}</p>
             <p className={styles.statLabel}>Ventas realizadas este mes</p>
           </div>
         </div>
@@ -64,7 +108,7 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
           </div>
           <div className={styles.statInfo}>
             <h3 className={styles.statTitle}>Productos Activos</h3>
-            <p className={styles.statValue}>-</p>
+            <p className={styles.statValue}>{fmt(statsGenerales?.productos_activos)}</p>
             <p className={styles.statLabel}>Total de productos en catálogo</p>
           </div>
         </div>
@@ -90,6 +134,10 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
           <button className={styles.actionButton} onClick={() => onNavigate('ofertas')}>
             <span className="material-icons">local_offer</span>
             <span>Gestionar Ofertas</span>
+          </button>
+          <button className={styles.actionButton} onClick={() => onNavigate('ventas')}>
+            <span className="material-icons">receipt_long</span>
+            <span>Gestión de Ventas</span>
           </button>
           <button className={styles.actionButton}>
             <span className="material-icons">assessment</span>

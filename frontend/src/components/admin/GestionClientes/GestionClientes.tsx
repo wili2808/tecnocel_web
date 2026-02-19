@@ -1,24 +1,36 @@
 /**
  * Componente GestionClientes - Lista y gestión de clientes de la tienda
- * Permite visualizar y editar información de clientes registrados
+ *
+ * Ver detalle: disponible para todos los roles (admin, empleado, vendedor).
+ * Editar: solo visible y funcional para administradores (rol 1).
+ * El backend también rechaza el PUT para roles no autorizados (defensa en profundidad).
  */
 import { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { usuarioService } from '../../../services/usuarioService';
 import type { ClienteListItem } from '../../../types/usuario';
+import DetalleClienteModal from './DetalleClienteModal';
+import EditarClienteModal from './EditarClienteModal';
 import styles from './GestionClientes.module.css';
 
 type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha';
 type SortDir = 'asc' | 'desc';
 
 const GestionClientes = () => {
+  const { isAdmin } = useAuth();
   const { showNotification } = useNotification();
+
   const [clientes, setClientes] = useState<ClienteListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('id_cliente');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  // Modal state
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<ClienteListItem | null>(null);
+  const [tipoModal, setTipoModal] = useState<'detalle' | 'editar' | null>(null);
 
   useEffect(() => {
     cargarClientes();
@@ -56,6 +68,25 @@ const GestionClientes = () => {
     if (sortKey !== key) return 'unfold_more';
     return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
   };
+
+  // ── Handlers de modal ──────────────────────────────────────────────────────
+
+  const handleVerDetalle = (cliente: ClienteListItem) => {
+    setClienteSeleccionado(cliente);
+    setTipoModal('detalle');
+  };
+
+  const handleEditar = (cliente: ClienteListItem) => {
+    setClienteSeleccionado(cliente);
+    setTipoModal('editar');
+  };
+
+  const handleCerrarModal = () => {
+    setClienteSeleccionado(null);
+    setTipoModal(null);
+  };
+
+  // ── Sorting ────────────────────────────────────────────────────────────────
 
   const sortedClientes = useMemo(() => {
     const sorted = [...clientes];
@@ -97,6 +128,8 @@ const GestionClientes = () => {
     return sorted;
   }, [clientes, sortKey, sortDir]);
 
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -122,125 +155,157 @@ const GestionClientes = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>
-          <span className="material-icons">people</span>
-          Gestión de Clientes
-        </h2>
-        <p className={styles.subtitle}>
-          Visualiza y administra los clientes registrados en la plataforma
-        </p>
-      </div>
+    <>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>
+            <span className="material-icons">people</span>
+            Gestión de Clientes
+          </h2>
+          <p className={styles.subtitle}>
+            Visualiza y administra los clientes registrados en la plataforma
+          </p>
+        </div>
 
-      <form onSubmit={handleSearch} className={styles.searchForm}>
-        <input
-          type="text"
-          placeholder="Buscar por nombre, email o celular..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className={styles.searchInput}
-        />
-        <button type="submit" className={styles.searchButton}>
-          <span className="material-icons">search</span>
-          Buscar
-        </button>
-      </form>
+        <form onSubmit={handleSearch} className={styles.searchForm}>
+          <input
+            type="text"
+            placeholder="Buscar por nombre, email o celular..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+          <button type="submit" className={styles.searchButton}>
+            <span className="material-icons">search</span>
+            Buscar
+          </button>
+        </form>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSort('id_cliente')}>
-                <span className={styles.sortableHeaderContent}>
-                  ID
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'id_cliente' ? styles.sortIconActive : ''}`}>{getSortIcon('id_cliente')}</span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                <span className={styles.sortableHeaderContent}>
-                  Nombre Completo
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
-                <span className={styles.sortableHeaderContent}>
-                  Email
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}>{getSortIcon('email')}</span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('celular')}>
-                <span className={styles.sortableHeaderContent}>
-                  Celular
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'celular' ? styles.sortIconActive : ''}`}>{getSortIcon('celular')}</span>
-                </span>
-              </th>
-              <th>NIT/CI</th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
-                <span className={styles.sortableHeaderContent}>
-                  Estado
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}>{getSortIcon('estado')}</span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
-                <span className={styles.sortableHeaderContent}>
-                  Fecha de Registro
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
-                </span>
-              </th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedClientes.length === 0 ? (
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td colSpan={8} className={styles.emptyMessage}>
-                  No se encontraron clientes
-                </td>
+                <th className={styles.sortableHeader} onClick={() => handleSort('id_cliente')}>
+                  <span className={styles.sortableHeaderContent}>
+                    ID
+                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'id_cliente' ? styles.sortIconActive : ''}`}>{getSortIcon('id_cliente')}</span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Nombre Completo
+                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Email
+                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}>{getSortIcon('email')}</span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('celular')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Celular
+                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'celular' ? styles.sortIconActive : ''}`}>{getSortIcon('celular')}</span>
+                  </span>
+                </th>
+                <th>NIT/CI</th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Estado
+                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}>{getSortIcon('estado')}</span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Fecha de Registro
+                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
+                  </span>
+                </th>
+                <th>Acciones</th>
               </tr>
-            ) : (
-              sortedClientes.map((cliente) => (
-                <tr key={cliente.id_cliente}>
-                  <td>{cliente.id_cliente}</td>
-                  <td>{`${cliente.nombre_cliente} ${cliente.apellido_cliente}`}</td>
-                  <td>{cliente.email_cliente}</td>
-                  <td>{cliente.celular_cliente || '-'}</td>
-                  <td>{cliente.nit_ci_cliente || '-'}</td>
-                  <td>
-                    <span
-                      className={`${styles.badge} ${
-                        cliente.email_verified && cliente.is_web_enabled
-                          ? styles.badgeActive
-                          : styles.badgeInactive
-                      }`}
-                    >
-                      {cliente.email_verified && cliente.is_web_enabled
-                        ? 'Activo'
-                        : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td>
-                    {cliente.fyh_creacion
-                      ? new Date(cliente.fyh_creacion).toLocaleDateString()
-                      : '-'}
-                  </td>
-                  <td>
-                    <div className={styles.actions}>
-                      <button className={styles.actionButton} title="Ver detalles">
-                        <span className="material-icons">visibility</span>
-                      </button>
-                      <button className={styles.actionButton} title="Editar">
-                        <span className="material-icons">edit</span>
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              {sortedClientes.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className={styles.emptyMessage}>
+                    No se encontraron clientes
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                sortedClientes.map((cliente) => (
+                  <tr key={cliente.id_cliente}>
+                    <td>{cliente.id_cliente}</td>
+                    <td>{`${cliente.nombre_cliente} ${cliente.apellido_cliente}`}</td>
+                    <td>{cliente.email_cliente}</td>
+                    <td>{cliente.celular_cliente || '-'}</td>
+                    <td>{cliente.nit_ci_cliente || '-'}</td>
+                    <td>
+                      <span
+                        className={`${styles.badge} ${
+                          cliente.email_verified && cliente.is_web_enabled
+                            ? styles.badgeActive
+                            : styles.badgeInactive
+                        }`}
+                      >
+                        {cliente.email_verified && cliente.is_web_enabled
+                          ? 'Activo'
+                          : 'Inactivo'}
+                      </span>
+                    </td>
+                    <td>
+                      {cliente.fyh_creacion
+                        ? new Date(cliente.fyh_creacion).toLocaleDateString('es-AR')
+                        : '-'}
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        {/* Ver detalle: disponible para todos los roles */}
+                        <button
+                          className={styles.actionButton}
+                          title="Ver detalles"
+                          onClick={() => handleVerDetalle(cliente)}
+                        >
+                          <span className="material-icons">visibility</span>
+                        </button>
+
+                        {/* Editar: solo para administradores (rol 1) */}
+                        {isAdmin && (
+                          <button
+                            className={styles.actionButton}
+                            title="Editar cliente"
+                            onClick={() => handleEditar(cliente)}
+                          >
+                            <span className="material-icons">edit</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      {/* Modal de detalle (solo lectura) */}
+      {tipoModal === 'detalle' && clienteSeleccionado && (
+        <DetalleClienteModal
+          cliente={clienteSeleccionado}
+          onClose={handleCerrarModal}
+        />
+      )}
+
+      {/* Modal de edición (solo admin) */}
+      {tipoModal === 'editar' && clienteSeleccionado && (
+        <EditarClienteModal
+          cliente={clienteSeleccionado}
+          onClose={handleCerrarModal}
+          onGuardado={cargarClientes}
+        />
+      )}
+    </>
   );
 };
 

@@ -16,6 +16,7 @@ import { Op } from 'sequelize';
 import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
 import Cliente from '../models/Cliente.js';
+import Almacen from '../models/Almacen.js';
 import logger from '../services/loggerService.js';
 import {
   ListarClientesResponse,
@@ -829,6 +830,33 @@ class UsuarioAdminController {
         error: error instanceof Error ? error.message : error
       });
       return res.status(500).json({ mensaje: 'Error interno al procesar la actualización' });
+    }
+  }
+
+  /**
+   * Estadísticas del dashboard: usuarios del sistema, clientes, productos
+   * GET /api/usuarios/admin/dashboard-stats
+   * Roles: admin (1), empleado (2), vendedor (3)
+   */
+  static async obtenerEstadisticasDashboard(_req: Request, res: Response) {
+    try {
+      const [usuariosSistema, clientesRegistrados, productosActivos] = await Promise.all([
+        Usuario.count(),
+        Cliente.count(),
+        Almacen.count()
+      ]);
+
+      return res.json({
+        usuarios_sistema: usuariosSistema,
+        clientes_registrados: clientesRegistrados,
+        productos_activos: productosActivos
+      });
+
+    } catch (error) {
+      logger.error('Error al obtener estadísticas del dashboard:', {
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+      return res.status(500).json({ mensaje: 'Error al obtener estadísticas del dashboard' });
     }
   }
 }

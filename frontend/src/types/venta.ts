@@ -45,6 +45,8 @@ export interface VentaDetalle {
   fyh_actualizacion: string;
   total_pagado: number;
   estado: 'completada' | 'cancelada' | 'pendiente';
+  estado_reembolso: 'sin_reembolso' | 'pendiente' | 'procesado' | 'rechazado' | null;
+  fecha_despacho: string | null;
   metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr' | null;
   tipo_venta: 'web' | 'manual';
   moneda: string | null;
@@ -58,6 +60,11 @@ export interface VentaDetalle {
   vendedor: {
     id_vendedor: number;
     nombres: string;
+  } | null;
+  cancelacion: {
+    motivo: string | null;
+    fyh_cancelacion: string;
+    cancelado_por: string | null;
   } | null;
   items: VentaDetalleItem[];
 }
