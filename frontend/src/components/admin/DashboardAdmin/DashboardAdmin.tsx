@@ -76,7 +76,7 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
           <div className={styles.statInfo}>
             <h3 className={styles.statTitle}>Usuarios del Sistema</h3>
             <p className={styles.statValue}>{fmt(statsGenerales?.usuarios_sistema)}</p>
-            <p className={styles.statLabel}>Total de administradores y empleados</p>
+            <p className={styles.statLabel}>Total de administradores y gerentes</p>
           </div>
         </div>
 

@@ -13,6 +13,8 @@ import FavoriteButtonReusable from '../FavoriteButtonReusable';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS } from '../../../utils/formatPrecio';
 
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types';
@@ -48,24 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const { agregarItem, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
     const { isAuthenticated, userType } = useAuth();
     const { showNotification } = useNotification();
-
-
-    // ============================================================================
-    // FUNCIONES MEMOIZADAS
-    // ============================================================================
-
-    /**
-     * Formatear precio con formato argentino
-     * Convierte números a formato de moneda local con símbolo ARS
-     */
-    const formatPrice = useCallback((price: number) => {
-        return new Intl.NumberFormat('es-AR', {
-            style: 'currency',
-            currency: 'ARS',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(price);
-    }, []);
+    const { tipoCambio } = useTipoCambio();
 
     /**
      * Información de precios calculada y memoizada
@@ -359,12 +344,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             {priceInfo.hasDiscount ? (
                                 <>
                                     {/* Precio con descuento y original en la misma línea */}
-                                    <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
-                                    <span className={styles.originalPrice}>{formatPrice(priceInfo.original)}</span>
+                                    <span className={styles.price}>{formatARS(priceInfo.current, tipoCambio)}</span>
+                                    <span className={styles.originalPrice}>{formatARS(priceInfo.original, tipoCambio)}</span>
                                 </>
                             ) : (
                                 /* Precio único sin descuento */
-                                <span className={styles.price}>{formatPrice(priceInfo.current)}</span>
+                                <span className={styles.price}>{formatARS(priceInfo.current, tipoCambio)}</span>
                             )}
                         </div>
                     </div>

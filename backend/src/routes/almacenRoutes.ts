@@ -5,6 +5,7 @@ import { verificarToken } from '../middleware/authMiddleware.js';
 const router = Router();
 
 // Rutas públicas (no requieren autenticación)
+router.get('/tipo-cambio', almacenController.getTipoCambio.bind(almacenController));
 router.get('/diagnostico', almacenController.diagnosticProducts.bind(almacenController));
 router.get('/productos', almacenController.getProducts.bind(almacenController));
 router.get('/productos/destacados', almacenController.getFeaturedProducts.bind(almacenController));

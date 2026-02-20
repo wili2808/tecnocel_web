@@ -24,6 +24,8 @@ import sequelize from '../config/database.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Cancelacion from '../models/Cancelacion.js';
+import Envio from '../models/Envio.js';
+import Direccion from '../models/Direccion.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
@@ -230,6 +232,17 @@ export default class AdminVentaController {
                 attributes: ['id_usuario', 'nombres']
               }
             ]
+          },
+          {
+            model: Envio,
+            as: 'envio',
+            required: false,
+            include: [{
+              model: Direccion,
+              as: 'direccion_envio',
+              required: false,
+              attributes: ['calle', 'numero', 'piso', 'departamento', 'barrio', 'ciudad', 'provincia']
+            }]
           }
         ]
       });
@@ -248,7 +261,20 @@ export default class AdminVentaController {
         total_pagado: parseFloat(v.total_pagado),
         estado:       v.estado,
         estado_reembolso: v.estado_reembolso || null,
-        fecha_despacho:   v.fecha_despacho || null,
+        envio: v.envio ? {
+          tipo_entrega:    v.envio.tipo_entrega,
+          estado_envio:    v.envio.estado_envio,
+          fecha_despacho:  v.envio.fecha_despacho || null,
+          direccion_envio: v.envio.direccion_envio ? {
+            calle:        v.envio.direccion_envio.calle,
+            numero:       v.envio.direccion_envio.numero,
+            piso:         v.envio.direccion_envio.piso || null,
+            departamento: v.envio.direccion_envio.departamento || null,
+            barrio:       v.envio.direccion_envio.barrio,
+            ciudad:       v.envio.direccion_envio.ciudad,
+            provincia:    v.envio.direccion_envio.provincia
+          } : null
+        } : null,
         metodo_pago:  v.metodo_pago,
         tipo_venta:   v.tipo_venta,
         moneda:       v.moneda,
@@ -385,7 +411,7 @@ export default class AdminVentaController {
         total_pagado:     Math.round(total), // INTEGER en BD
         observaciones:    observaciones || null,
         moneda,
-        valor_dolar:      moneda === 'USD' ? (valor_dolar ?? null) : null,
+        valor_dolar:      valor_dolar ?? null,
         fyh_creacion:     new Date(),
         fyh_actualizacion: new Date()
       }, { transaction });
@@ -470,6 +496,11 @@ export default class AdminVentaController {
             model: VentaItem,
             as: 'items',
             include: [{ model: Almacen, as: 'producto' }]
+          },
+          {
+            model: Envio,
+            as: 'envio',
+            required: false
           }
         ],
         transaction
@@ -499,7 +530,7 @@ export default class AdminVentaController {
       }
 
       // Regla: ventas web solo cancelables si aún no fueron despachadas
-      if (ventaData.tipo_venta === 'web' && ventaData.fecha_despacho !== null) {
+      if (ventaData.tipo_venta === 'web' && ventaData.envio?.fecha_despacho != null) {
         await transaction.rollback();
         return res.status(400).json({
           mensaje: 'No se puede cancelar una venta web que ya fue despachada'

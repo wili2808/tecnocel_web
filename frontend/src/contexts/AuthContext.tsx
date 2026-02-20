@@ -9,6 +9,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { useGoogleLogin } from '@react-oauth/google';
 import { clienteService } from '../services/clienteService';
 import { usuarioService } from '../services/usuarioService';
+import { ROLES } from '../constants/roles';
 
 import type { ReactNode } from 'react';
 import type { Cliente } from '../types/cliente';
@@ -372,9 +373,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       userType: state.userType,
       token: state.token,
       isAuthenticated: !!state.user,
-      isAdmin: isAdminUser(state.user) && state.user.idRol === 1,
-      isEmpleado: isAdminUser(state.user) && state.user.idRol === 2,
-      isVendedor: isAdminUser(state.user) && state.user.idRol === 3,
+      isAdmin: isAdminUser(state.user) && state.user.idRol === ROLES.ADMIN,
+      isGerente: isAdminUser(state.user) && state.user.idRol === ROLES.GERENTE,
+      isVendedor: isAdminUser(state.user) && state.user.idRol === ROLES.VENDEDOR,
       isCliente: state.userType === 'cliente',
       isSystemUser: !!state.user && state.userType !== 'cliente' && state.userType !== null,
       isVerifying: state.isVerifying,

@@ -172,17 +172,27 @@ export const validateConfirmarCompra = [
     .trim()
     .isLength({ max: 500 })
     .withMessage('Las observaciones deben ser texto con máximo 500 caracteres'),
-  
+
   body('moneda')
     .optional()
     .isIn(['ARS', 'USD', 'EUR'])
     .withMessage('La moneda debe ser ARS, USD o EUR'),
-  
+
   body('metodo_pago')
     .optional()
     .isIn(['efectivo', 'tarjeta', 'transferencia', 'qr'])
     .withMessage('Método de pago inválido'),
-  
+
+  body('tipo_entrega')
+    .optional()
+    .isIn(['envio', 'retiro_en_tienda'])
+    .withMessage('Tipo de entrega debe ser "envio" o "retiro_en_tienda"'),
+
+  body('id_direccion')
+    .optional({ nullable: true })
+    .custom((value) => value === null || (Number.isInteger(value) && value > 0))
+    .withMessage('El ID de dirección debe ser un número entero positivo o null'),
+
   handleValidationErrors
 ];
 

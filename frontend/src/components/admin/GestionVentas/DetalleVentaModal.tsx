@@ -176,10 +176,18 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                       <span className={styles.detalleRowLabel}>Moneda</span>
                       <span className={styles.detalleRowValue}>{detalle.moneda || 'ARS'}</span>
                     </div>
-                    {detalle.fecha_despacho && (
+                    {detalle.envio?.fecha_despacho && (
                       <div className={styles.detalleRow}>
                         <span className={styles.detalleRowLabel}>Despachado</span>
-                        <span className={styles.detalleRowValue}>{formatFecha(detalle.fecha_despacho)}</span>
+                        <span className={styles.detalleRowValue}>{formatFecha(detalle.envio.fecha_despacho)}</span>
+                      </div>
+                    )}
+                    {detalle.envio && (
+                      <div className={styles.detalleRow}>
+                        <span className={styles.detalleRowLabel}>Entrega</span>
+                        <span className={styles.detalleRowValue}>
+                          {detalle.envio.tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda'}
+                        </span>
                       </div>
                     )}
                     {detalle.estado_reembolso && (

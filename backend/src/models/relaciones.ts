@@ -18,6 +18,7 @@ import Usuario from './Usuario.js';
 import Venta from './Venta.js';
 import VentaItem from './VentaItem.js';
 import Cancelacion from './Cancelacion.js';
+import Envio from './Envio.js';
 import './Configuracion.js';
 // Nuevos modelos
 import Marca from './Marca.js';
@@ -111,6 +112,13 @@ Venta.hasOne(Cancelacion, { foreignKey: 'id_venta', as: 'cancelacion' });
 Cancelacion.belongsTo(Venta, { foreignKey: 'id_venta' });
 Cancelacion.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario_cancelacion' });
 Usuario.hasMany(Cancelacion, { foreignKey: 'id_usuario', as: 'cancelaciones' });
+
+// Envio (logística de despacho — one-to-one con Venta)
+Venta.hasOne(Envio, { foreignKey: 'id_venta', as: 'envio' });
+Envio.belongsTo(Venta, { foreignKey: 'id_venta', as: 'venta' });
+
+Envio.belongsTo(Direccion, { foreignKey: 'id_direccion', as: 'direccion_envio' });
+Direccion.hasMany(Envio, { foreignKey: 'id_direccion', as: 'envios' });
 
 // Comentarios de productos
 Comentario.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
@@ -213,6 +221,7 @@ export {
   Venta,
   VentaItem,
   Cancelacion,
+  Envio,
   // Nuevos modelos
   Marca,
   TipoCaracteristica,

@@ -70,6 +70,16 @@ const pdfStyles = StyleSheet.create({
   }
 });
 
+interface DireccionEnvioPDF {
+  calle: string;
+  numero: string;
+  piso: string | null;
+  departamento: string | null;
+  barrio: string;
+  ciudad: string;
+  provincia: string;
+}
+
 interface FacturaPDFProps {
   venta: {
     numero_venta: string;
@@ -79,6 +89,16 @@ interface FacturaPDFProps {
     valor_dolar: number | null;
     metodo_pago: string | null;
     observaciones?: string | null;
+    estado?: string;
+    envio?: {
+      tipo_entrega: 'envio' | 'retiro_en_tienda';
+      fecha_despacho: string | null;
+      direccion_envio: DireccionEnvioPDF | null;
+    } | null;
+    cancelacion?: {
+      motivo: string | null;
+      fecha_cancelacion: string;
+    } | null;
     cliente: {
       nombre_cliente: string;
       apellido_cliente: string;
@@ -164,7 +184,45 @@ export const FacturaPDF = ({ venta }: FacturaPDFProps) => (
             <Text style={pdfStyles.value}>{venta.observaciones}</Text>
           </View>
         )}
+        {venta.envio && (
+          <View style={pdfStyles.row}>
+            <Text style={pdfStyles.label}>Tipo de entrega:</Text>
+            <Text style={pdfStyles.value}>
+              {venta.envio.tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda'}
+            </Text>
+          </View>
+        )}
+        {venta.envio?.tipo_entrega === 'envio' && venta.envio.direccion_envio && (
+          <View style={pdfStyles.row}>
+            <Text style={pdfStyles.label}>Dirección de envío:</Text>
+            <Text style={pdfStyles.value}>
+              {venta.envio.direccion_envio.calle} {venta.envio.direccion_envio.numero}
+              {venta.envio.direccion_envio.piso ? `, Piso ${venta.envio.direccion_envio.piso}` : ''}
+              {venta.envio.direccion_envio.departamento ? ` Dpto. ${venta.envio.direccion_envio.departamento}` : ''}{'\n'}
+              {venta.envio.direccion_envio.barrio}, {venta.envio.direccion_envio.ciudad}, {venta.envio.direccion_envio.provincia}
+            </Text>
+          </View>
+        )}
       </View>
+
+      {venta.cancelacion && (
+        <>
+          <View style={pdfStyles.divider} />
+          <View style={{ backgroundColor: '#fee2e2', padding: 10, borderRadius: 4, marginBottom: 12 }}>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#dc2626', marginBottom: 4 }}>
+              PEDIDO CANCELADO
+            </Text>
+            <Text style={{ fontSize: 9, color: '#7f1d1d' }}>
+              Fecha de cancelación: {formatFecha(venta.cancelacion.fecha_cancelacion)}
+            </Text>
+            {venta.cancelacion.motivo && (
+              <Text style={{ fontSize: 9, color: '#7f1d1d', marginTop: 2 }}>
+                Motivo: {venta.cancelacion.motivo}
+              </Text>
+            )}
+          </View>
+        </>
+      )}
 
       <View style={pdfStyles.divider} />
 

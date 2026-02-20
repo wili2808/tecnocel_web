@@ -6,6 +6,8 @@ import { memo, useMemo } from 'react';
 import type { ItemCarritoCompleto } from '../../../types/carrito';
 import type { TipoEntrega } from '../../../types/checkout';
 import styles from './CheckoutSummary.module.css';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS, formatUSD, formatARSDirecto } from '../../../utils/formatPrecio';
 
 interface CheckoutSummaryProps {
   items: ItemCarritoCompleto[];
@@ -13,6 +15,8 @@ interface CheckoutSummaryProps {
 }
 
 export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega }) => {
+  const { tipoCambio } = useTipoCambio();
+
   // Filtrar items con stock
   const itemsConStock = useMemo(() => {
     return items.filter(item => item.tiene_stock !== false);
@@ -38,19 +42,27 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
       <h3 className={styles.title}>Resumen del Pedido</h3>
 
       <div className={styles.itemsList}>
-        {itemsConStock.map((item) => (
-          <div key={item.id_item} className={styles.item}>
-            <div className={styles.itemInfo}>
-              <span className={styles.itemName}>
-                {item.producto?.nombre || 'Producto'}
-              </span>
-              <span className={styles.itemQuantity}>x{item.cantidad}</span>
+        {itemsConStock.map((item) => {
+          const subtotalUSD = item.subtotal_actual ?? item.subtotal;
+          return (
+            <div key={item.id_item} className={styles.item}>
+              <div className={styles.itemInfo}>
+                <span className={styles.itemName}>
+                  {item.producto?.nombre || 'Producto'}
+                </span>
+                <span className={styles.itemQuantity}>x{item.cantidad}</span>
+              </div>
+              <div className={styles.itemPriceBlock}>
+                <span className={styles.itemPrice}>
+                  {formatARS(subtotalUSD, tipoCambio)}
+                </span>
+                <span className={styles.itemPriceUsd}>
+                  {formatUSD(subtotalUSD)}
+                </span>
+              </div>
             </div>
-            <span className={styles.itemPrice}>
-              $ {(item.subtotal_actual ?? item.subtotal).toLocaleString('es-ES')}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className={styles.divider}></div>
@@ -58,7 +70,7 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
       <div className={styles.summary}>
         <div className={styles.summaryRow}>
           <span>Productos ({cantidadTotal})</span>
-          <span>$ {subtotal.toLocaleString('es-ES')}</span>
+          <span>{formatARS(subtotal, tipoCambio)}</span>
         </div>
 
         <div className={styles.summaryRow}>
@@ -79,8 +91,16 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
       <div className={styles.divider}></div>
 
       <div className={styles.total}>
-        <span className={styles.totalLabel}>Total</span>
-        <span className={styles.totalAmount}>$ {totalFinal.toLocaleString('es-ES')}</span>
+        <span className={styles.totalLabel}>Total a pagar</span>
+        <span className={styles.totalAmount}>{formatARS(totalFinal, tipoCambio)}</span>
+      </div>
+
+      <div className={styles.tipoCambioInfo}>
+        <span className="material-icons">info</span>
+        <span>
+          Tipo de cambio: {formatARSDirecto(tipoCambio)}/USD ·{' '}
+          Equivale a {formatUSD(totalFinal)}
+        </span>
       </div>
     </div>
   );

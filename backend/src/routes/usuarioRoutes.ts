@@ -2,6 +2,7 @@ import { Router } from 'express';
 import usuarioController from '../controllers/UsuarioController.js';
 import UsuarioAdminController from '../controllers/UsuarioAdminController.js';
 import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
+import { ROLES } from '../constants/roles.js';
 import { validateCrearUsuario, validateActualizarUsuario, validateActualizarCliente } from '../middleware/validateUsuario.js';
 
 const router = Router();
@@ -26,10 +27,10 @@ router.get('/me', verificarToken, usuarioController.getMe.bind(usuarioController
 // ============================================================================
 
 // Estadísticas del dashboard: usuarios, clientes y productos
-router.get('/admin/dashboard-stats', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.obtenerEstadisticasDashboard);
+router.get('/admin/dashboard-stats', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]), UsuarioAdminController.obtenerEstadisticasDashboard);
 
 // Listar todos los roles disponibles
-router.get('/admin/roles', verificarToken, verificarRol([1]), UsuarioAdminController.listarRoles);
+router.get('/admin/roles', verificarToken, verificarRol([ROLES.ADMIN]), UsuarioAdminController.listarRoles);
 
 // ============================================================================
 // RUTAS DE ADMINISTRACIÓN - GESTIÓN DE USUARIOS
@@ -37,19 +38,19 @@ router.get('/admin/roles', verificarToken, verificarRol([1]), UsuarioAdminContro
 // ============================================================================
 
 // Listar todos los usuarios del sistema
-router.get('/admin/usuarios', verificarToken, verificarRol([1, 2]), UsuarioAdminController.listarUsuarios);
+router.get('/admin/usuarios', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE]), UsuarioAdminController.listarUsuarios);
 
 // Obtener información de un usuario específico
-router.get('/admin/usuarios/:id', verificarToken, verificarRol([1, 2]), UsuarioAdminController.obtenerUsuario);
+router.get('/admin/usuarios/:id', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE]), UsuarioAdminController.obtenerUsuario);
 
 // Crear nuevo usuario del sistema
-router.post('/admin/usuarios', verificarToken, verificarRol([1]), validateCrearUsuario, UsuarioAdminController.crearUsuario);
+router.post('/admin/usuarios', verificarToken, verificarRol([ROLES.ADMIN]), validateCrearUsuario, UsuarioAdminController.crearUsuario);
 
 // Actualizar información de un usuario del sistema
-router.put('/admin/usuarios/:id', verificarToken, verificarRol([1, 2]), validateActualizarUsuario, UsuarioAdminController.actualizarUsuario);
+router.put('/admin/usuarios/:id', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE]), validateActualizarUsuario, UsuarioAdminController.actualizarUsuario);
 
 // Eliminar un usuario del sistema
-router.delete('/admin/usuarios/:id', verificarToken, verificarRol([1]),UsuarioAdminController.eliminarUsuario);
+router.delete('/admin/usuarios/:id', verificarToken, verificarRol([ROLES.ADMIN]),UsuarioAdminController.eliminarUsuario);
 
 // ============================================================================
 // RUTAS DE ADMINISTRACIÓN - GESTIÓN DE CLIENTES
@@ -57,12 +58,12 @@ router.delete('/admin/usuarios/:id', verificarToken, verificarRol([1]),UsuarioAd
 // ============================================================================
 
 // Listar todos los clientes
-router.get('/admin/clientes', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.listarClientes);
+router.get('/admin/clientes', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]), UsuarioAdminController.listarClientes);
 
 // Obtener información de un cliente específico
-router.get('/admin/clientes/:id', verificarToken, verificarRol([1, 2, 3]), UsuarioAdminController.obtenerCliente);
+router.get('/admin/clientes/:id', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]), UsuarioAdminController.obtenerCliente);
 
 // Actualizar información de un cliente (solo Admin)
-router.put('/admin/clientes/:id', verificarToken, verificarRol([1]), validateActualizarCliente, UsuarioAdminController.actualizarCliente);
+router.put('/admin/clientes/:id', verificarToken, verificarRol([ROLES.ADMIN]), validateActualizarCliente, UsuarioAdminController.actualizarCliente);
 
 export default router;

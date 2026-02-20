@@ -15,6 +15,7 @@ import GestionProductos from '../../components/admin/GestionProductos/GestionPro
 import GestionOfertas from '../../components/admin/GestionOfertas/GestionOfertas';
 import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
 import adminPanelStyles from './AdminPanel.module.css';
+import { ROLES } from '../../constants/roles';
 
 // ============================================================================
 // CONFIGURACIÓN Y CONSTANTES
@@ -39,10 +40,10 @@ interface MenuOption {
  */
 const MENU_OPTIONS: MenuOption[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { id: 'productos', label: 'Gestión de Productos', icon: 'inventory_2', allowedRoles: [1, 2] },
-  { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [1, 2] },
+  { id: 'productos', label: 'Gestión de Productos', icon: 'inventory_2', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR] },
+  { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
   { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
-  { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [1, 2] },
+  { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
   { id: 'ventas', label: 'Gestión de Ventas', icon: 'receipt_long' },
 ];
 

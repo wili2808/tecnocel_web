@@ -12,6 +12,8 @@ import ProductImage from '../../product/ProductImage';
 import IconButton from '../../common/IconButton';
 import styles from './CartItemCard.module.css';
 import type { ItemCarritoCompleto } from '../../../types/carrito';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS } from '../../../utils/formatPrecio';
 
 interface CartItemCardProps {
     item: ItemCarritoCompleto;
@@ -24,6 +26,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
     const { actualizarCantidad, eliminarItem } = useCarrito();
     const { canAddMoreOfProduct } = useCarritoHook();
     const [isUpdating, setIsUpdating] = useState(false);
+    const { tipoCambio } = useTipoCambio();
 
     // ============================================================================
     // MANEJO DE ESTADO Y OPERACIONES
@@ -151,13 +154,13 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                                 <div className={styles.priceRow}>
                                     <span className={styles.oldPriceLabel}>Antes:</span>
                                     <span className={styles.oldPrice}>
-                                        $ {item.precio_guardado.toLocaleString('es-ES')}
+                                        {formatARS(item.precio_guardado, tipoCambio)}
                                     </span>
                                 </div>
                                 <div className={styles.priceRow}>
                                     <span className={styles.newPriceLabel}>Ahora:</span>
                                     <span className={item.diferencia_precio && item.diferencia_precio > 0 ? styles.priceUp : styles.priceDown}>
-                                        $ {item.precio_actual.toLocaleString('es-ES')}
+                                        {formatARS(item.precio_actual, tipoCambio)}
                                         {item.porcentaje_cambio !== undefined && (
                                             <span className={styles.percentageChange}>
                                                 ({item.porcentaje_cambio > 0 ? '+' : ''}{item.porcentaje_cambio.toFixed(1)}%)
@@ -171,7 +174,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                             <div className={styles.subtotalInfo}>
                                 <span className={styles.subtotalLabel}>Subtotal:</span>
                                 <span className={styles.subtotalAmount}>
-                                    $ {(item.subtotal_actual || item.subtotal).toLocaleString('es-ES')}
+                                    {formatARS(item.subtotal_actual || item.subtotal, tipoCambio)}
                                 </span>
                             </div>
                         </>
@@ -180,10 +183,10 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                         <>
                             <div className={styles.priceRow}>
                                 <span className={styles.originalPrice}>
-                                    $ {productInfo.precio_original?.toLocaleString('es-ES')}
+                                    {productInfo.precio_original !== undefined && formatARS(productInfo.precio_original, tipoCambio)}
                                 </span>
                                 <span className={styles.currentPrice}>
-                                    $ {productInfo.precio_oferta.toLocaleString('es-ES')}
+                                    {formatARS(productInfo.precio_oferta, tipoCambio)}
                                 </span>
                                 {productInfo.descuento_porcentaje && (
                                     <span className={styles.discountBadge}>
@@ -194,7 +197,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                             <div className={styles.subtotalInfo}>
                                 <span className={styles.subtotalLabel}>Subtotal:</span>
                                 <span className={styles.subtotalAmount}>
-                                    $ {item.subtotal.toLocaleString('es-ES')}
+                                    {formatARS(item.subtotal, tipoCambio)}
                                 </span>
                             </div>
                         </>
@@ -202,12 +205,12 @@ const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
                         /* Precio normal sin oferta ni cambio */
                         <>
                             <span className={styles.currentPrice}>
-                                $ {Number(productInfo.precio_venta).toLocaleString('es-ES')}
+                                {formatARS(Number(productInfo.precio_venta), tipoCambio)}
                             </span>
                             <div className={styles.subtotalInfo}>
                                 <span className={styles.subtotalLabel}>Subtotal:</span>
                                 <span className={styles.subtotalAmount}>
-                                    $ {item.subtotal.toLocaleString('es-ES')}
+                                    {formatARS(item.subtotal, tipoCambio)}
                                 </span>
                             </div>
                         </>

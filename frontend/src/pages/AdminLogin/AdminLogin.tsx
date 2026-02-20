@@ -63,7 +63,7 @@ const AdminLogin = () => {
               <span className="material-icons">admin_panel_settings</span>
             </div>
             <h1 className={styles.title}>Panel de Administración</h1>
-            <p className={styles.subtitle}>Ingresa tus credenciales de administrador o empleado</p>
+            <p className={styles.subtitle}>Ingresa tus credenciales de administrador o gerente</p>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form}>
@@ -137,7 +137,7 @@ const AdminLogin = () => {
           <div className={styles.infoCard}>
             <span className="material-icons">info</span>
             <p>
-              Esta área es exclusiva para administradores y empleados del sistema.
+              Esta área es exclusiva para administradores y gerentes del sistema.
               Si eres un cliente, por favor usa el{' '}
               <button onClick={() => navigate('/login')} className={styles.linkButton}>
                 login de clientes

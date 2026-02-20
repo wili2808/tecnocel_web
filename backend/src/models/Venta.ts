@@ -17,7 +17,6 @@ class Venta extends Model {
   declare estado: 'completada' | 'cancelada' | 'pendiente';
   declare id_vendedor: number | null;
   declare estado_reembolso: 'sin_reembolso' | 'pendiente' | 'procesado' | 'rechazado' | null;
-  declare fecha_despacho: Date | null;
 }
 
 Venta.init({
@@ -96,10 +95,6 @@ Venta.init({
     type: DataTypes.ENUM('sin_reembolso', 'pendiente', 'procesado', 'rechazado'),
     allowNull: true,
     defaultValue: null
-  },
-  fecha_despacho: {
-    type: DataTypes.DATE,
-    allowNull: true
   }
 }, {
   sequelize,

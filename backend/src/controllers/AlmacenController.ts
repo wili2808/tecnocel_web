@@ -9,6 +9,7 @@ import TipoCaracteristica from '../models/TipoCaracteristica.js';
 import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
 import Oferta from '../models/Oferta.js';
 import ProductoImagen from '../models/ProductoImagen.js';
+import Configuracion from '../models/Configuracion.js';
 // Servicios
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
@@ -1031,6 +1032,17 @@ class AlmacenController {
         message: 'Error general en diagnóstico',
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
+    }
+  }
+
+  async getTipoCambio(_req: Request, res: Response) {
+    try {
+      const config = await Configuracion.findByPk('tipo_cambio_usd');
+      const valor = config ? parseFloat(config.valor) : 1200.00;
+      res.json({ valor, fyh_actualizacion: config?.fyh_actualizacion || null });
+    } catch (error) {
+      logger.error('Error al obtener tipo de cambio:', error);
+      res.status(500).json({ mensaje: 'Error al obtener tipo de cambio' });
     }
   }
 }

@@ -90,6 +90,8 @@ export interface DatosCompra {
   observaciones?: string;
   moneda?: 'ARS' | 'USD' | 'EUR';
   metodo_pago?: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr';
+  tipo_entrega?: 'envio' | 'retiro_en_tienda';
+  id_direccion?: number | null;
   // ✅ FASE 2: Aceptación de cambios de precio
   aceptar_cambio_precio?: boolean;
 }

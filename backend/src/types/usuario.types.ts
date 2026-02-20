@@ -337,7 +337,7 @@ export interface UsuarioJWTPayload {
   sub: number;
 
   /** Rol del usuario en string */
-  role: 'admin' | 'empleado';
+  role: 'admin' | 'gerente';
 
   /** ID del rol */
   idRol: number;

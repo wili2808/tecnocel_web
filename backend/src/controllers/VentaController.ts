@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
+import Envio from '../models/Envio.js';
+import Cancelacion from '../models/Cancelacion.js';
+import Direccion from '../models/Direccion.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import logger from '../services/loggerService.js';
@@ -58,6 +61,23 @@ export default class VentaController {
                 attributes: ['id_producto', 'nombre', 'descripcion']
               }
             ]
+          },
+          {
+            model: Cancelacion,
+            as: 'cancelacion',
+            required: false,
+            attributes: ['motivo', 'fyh_cancelacion']
+          },
+          {
+            model: Envio,
+            as: 'envio',
+            required: false,
+            include: [{
+              model: Direccion,
+              as: 'direccion_envio',
+              required: false,
+              attributes: ['calle', 'numero', 'piso', 'departamento', 'barrio', 'ciudad', 'provincia']
+            }]
           }
         ],
         order: [['fyh_creacion', 'DESC']],
@@ -83,8 +103,27 @@ export default class VentaController {
           total: parseFloat(ventaData.total_pagado),
           estado: ventaData.estado,
           metodo_pago: ventaData.metodo_pago || null,
-          moneda: ventaData.moneda || 'USD',
+          moneda: ventaData.moneda || 'ARS',
           valor_dolar: ventaData.valor_dolar ? parseFloat(ventaData.valor_dolar) : null,
+          estado_reembolso: ventaData.estado_reembolso || null,
+          envio: ventaData.envio ? {
+            tipo_entrega:    ventaData.envio.tipo_entrega,
+            estado_envio:    ventaData.envio.estado_envio,
+            fecha_despacho:  ventaData.envio.fecha_despacho || null,
+            direccion_envio: ventaData.envio.direccion_envio ? {
+              calle:        ventaData.envio.direccion_envio.calle,
+              numero:       ventaData.envio.direccion_envio.numero,
+              piso:         ventaData.envio.direccion_envio.piso || null,
+              departamento: ventaData.envio.direccion_envio.departamento || null,
+              barrio:       ventaData.envio.direccion_envio.barrio,
+              ciudad:       ventaData.envio.direccion_envio.ciudad,
+              provincia:    ventaData.envio.direccion_envio.provincia
+            } : null
+          } : null,
+          cancelacion: ventaData.cancelacion ? {
+            motivo:            ventaData.cancelacion.motivo || null,
+            fecha_cancelacion: ventaData.cancelacion.fyh_cancelacion
+          } : null,
           items
         };
       });
@@ -152,6 +191,23 @@ export default class VentaController {
                 attributes: ['id_producto', 'nombre', 'descripcion', 'codigo']
               }
             ]
+          },
+          {
+            model: Cancelacion,
+            as: 'cancelacion',
+            required: false,
+            attributes: ['motivo', 'fyh_cancelacion']
+          },
+          {
+            model: Envio,
+            as: 'envio',
+            required: false,
+            include: [{
+              model: Direccion,
+              as: 'direccion_envio',
+              required: false,
+              attributes: ['calle', 'numero', 'piso', 'departamento', 'barrio', 'ciudad', 'provincia']
+            }]
           }
         ]
       });
@@ -190,9 +246,29 @@ export default class VentaController {
         fecha_venta: ventaData.fyh_creacion,
         total: parseFloat(ventaData.total_pagado),
         estado: ventaData.estado,
+        metodo_pago: ventaData.metodo_pago || null,
         observaciones: ventaData.observaciones,
         moneda: ventaData.moneda || 'ARS',
         valor_dolar: ventaData.valor_dolar ? parseFloat(ventaData.valor_dolar) : null,
+        estado_reembolso: ventaData.estado_reembolso || null,
+        envio: ventaData.envio ? {
+          tipo_entrega:    ventaData.envio.tipo_entrega,
+          estado_envio:    ventaData.envio.estado_envio,
+          fecha_despacho:  ventaData.envio.fecha_despacho || null,
+          direccion_envio: ventaData.envio.direccion_envio ? {
+            calle:        ventaData.envio.direccion_envio.calle,
+            numero:       ventaData.envio.direccion_envio.numero,
+            piso:         ventaData.envio.direccion_envio.piso || null,
+            departamento: ventaData.envio.direccion_envio.departamento || null,
+            barrio:       ventaData.envio.direccion_envio.barrio,
+            ciudad:       ventaData.envio.direccion_envio.ciudad,
+            provincia:    ventaData.envio.direccion_envio.provincia
+          } : null
+        } : null,
+        cancelacion: ventaData.cancelacion ? {
+          motivo:            ventaData.cancelacion.motivo || null,
+          fecha_cancelacion: ventaData.cancelacion.fyh_cancelacion
+        } : null,
         cliente: {
           id_cliente: ventaData.Cliente?.id_cliente,
           nombre_cliente: ventaData.Cliente?.nombre_cliente,

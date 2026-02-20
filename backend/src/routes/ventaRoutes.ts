@@ -21,6 +21,7 @@ import { Router } from 'express';
 import VentaController from '../controllers/VentaController.js';
 import AdminVentaController from '../controllers/AdminVentaController.js';
 import { verificarToken, verificarTokenCliente, verificarRol } from '../middleware/authMiddleware.js';
+import { ROLES } from '../constants/roles.js';
 import {
   validateObtenerHistorial,
   validateObtenerDetalle,
@@ -48,7 +49,7 @@ const router = Router();
  */
 router.get('/admin/estadisticas',
   verificarToken,
-  verificarRol([1, 2, 3]),
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
   AdminVentaController.obtenerEstadisticasVentas
 );
 
@@ -59,7 +60,7 @@ router.get('/admin/estadisticas',
  */
 router.get('/admin/listar',
   verificarToken,
-  verificarRol([1, 2, 3]),
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
   validateListarVentasAdmin,
   AdminVentaController.listarVentasAdmin
 );
@@ -71,7 +72,7 @@ router.get('/admin/listar',
  */
 router.post('/admin/registrar',
   verificarToken,
-  verificarRol([1, 2, 3]),
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
   validateRegistrarVentaManual,
   AdminVentaController.registrarVentaManual
 );
@@ -83,7 +84,7 @@ router.post('/admin/registrar',
  */
 router.patch('/admin/:id_venta/cancelar',
   verificarToken,
-  verificarRol([1, 3]),
+  verificarRol([ROLES.ADMIN, ROLES.VENDEDOR]),
   validateCancelarVenta,
   AdminVentaController.cancelarVenta
 );
@@ -95,7 +96,7 @@ router.patch('/admin/:id_venta/cancelar',
  */
 router.get('/admin/tipo-cambio',
   verificarToken,
-  verificarRol([1, 2, 3]),
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
   AdminVentaController.obtenerTipoCambio
 );
 
@@ -106,7 +107,7 @@ router.get('/admin/tipo-cambio',
  */
 router.put('/admin/tipo-cambio',
   verificarToken,
-  verificarRol([1, 2]),
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE]),
   validateTipoCambio,
   AdminVentaController.actualizarTipoCambio
 );
@@ -118,7 +119,7 @@ router.put('/admin/tipo-cambio',
  */
 router.get('/admin/:id_venta',
   verificarToken,
-  verificarRol([1, 2, 3]),
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
   validateObtenerDetalleAdmin,
   AdminVentaController.obtenerDetalleAdmin
 );

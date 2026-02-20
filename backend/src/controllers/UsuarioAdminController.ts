@@ -12,6 +12,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
+import { ROLES } from '../constants/roles.js';
 import { Op } from 'sequelize';
 import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
@@ -445,7 +446,7 @@ class UsuarioAdminController {
 
       // Verificar permisos: empleados solo pueden editar su propia cuenta (sin cambiar rol)
       const usuarioActual = req.usuario;
-      const esAdmin = esUsuarioSistema(usuarioActual) && usuarioActual.idRol === 1;
+      const esAdmin = esUsuarioSistema(usuarioActual) && usuarioActual.idRol === ROLES.ADMIN;
       const esPropio = usuarioActual?.id === parseInt(id);
 
       if (!esAdmin && !esPropio) {
@@ -788,7 +789,7 @@ class UsuarioAdminController {
       // 3. Seguridad de Roles (Solo el ID_ROL 1 puede gestionar estados)
       // Asumimos que req.usuario viene del middleware de Admin/Empleado
       const usuarioAdmin = req.usuario;
-      if (esUsuarioSistema(usuarioAdmin) && usuarioAdmin.idRol === 1) {
+      if (esUsuarioSistema(usuarioAdmin) && usuarioAdmin.idRol === ROLES.ADMIN) {
         if (is_web_enabled !== undefined) cliente.is_web_enabled = is_web_enabled;
         if (email_verified !== undefined) cliente.email_verified = email_verified;
       } else if (is_web_enabled !== undefined || email_verified !== undefined) {

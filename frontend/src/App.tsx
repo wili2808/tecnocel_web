@@ -10,6 +10,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { FavoritosGlobalProvider } from './contexts/FavoritosGlobalContext';
 import { OfertasGlobalProvider } from './contexts/OfertasGlobalContext';
 import { ProductProvider } from './contexts/ProductContext';
+import { TipoCambioProvider } from './contexts/TipoCambioContext';
 import NotificationContainer from './components/common/NotificationContainer';
 import SearchSync from './components/common/SearchSync';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -63,6 +64,7 @@ function App() {
             <NotificationProvider>
               <FavoritosGlobalProvider>
                 <OfertasGlobalProvider>
+                  <TipoCambioProvider>
                   <ProductProvider>
                     <Router>
                       <SearchProvider>
@@ -134,6 +136,7 @@ function App() {
                       </SearchProvider>
                     </Router>
                   </ProductProvider>
+                  </TipoCambioProvider>
                 </OfertasGlobalProvider>
               </FavoritosGlobalProvider>
             </NotificationProvider>

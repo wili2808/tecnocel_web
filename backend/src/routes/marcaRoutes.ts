@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { MarcaController } from '../controllers/MarcaController.js';
 import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
+import { ROLES } from '../constants/roles.js';
 import {
   validateCreateMarca,
   validateUpdateMarca,
@@ -42,7 +43,7 @@ router.get('/:id', validateGetMarcaById, MarcaController.getMarcaById);
 router.post(
   '/',
   verificarToken,
-  verificarRol([1]),
+  verificarRol([ROLES.ADMIN]),
   validateCreateMarca,
   MarcaController.createMarca
 );
@@ -56,7 +57,7 @@ router.post(
 router.put(
   '/:id',
   verificarToken,
-  verificarRol([1]),
+  verificarRol([ROLES.ADMIN]),
   validateUpdateMarca,
   MarcaController.updateMarca
 );
@@ -70,7 +71,7 @@ router.put(
 router.delete(
   '/:id',
   verificarToken,
-  verificarRol([1]),
+  verificarRol([ROLES.ADMIN]),
   validateDeleteMarca,
   MarcaController.deleteMarca
 );

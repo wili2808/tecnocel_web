@@ -46,7 +46,15 @@ export interface VentaDetalle {
   total_pagado: number;
   estado: 'completada' | 'cancelada' | 'pendiente';
   estado_reembolso: 'sin_reembolso' | 'pendiente' | 'procesado' | 'rechazado' | null;
-  fecha_despacho: string | null;
+  envio: {
+    tipo_entrega:   'envio' | 'retiro_en_tienda';
+    estado_envio:   'pendiente' | 'en_preparacion' | 'en_camino' | 'entregado' | 'no_aplica';
+    fecha_despacho: string | null;
+    direccion_envio: {
+      calle: string; numero: string; piso: string | null;
+      departamento: string | null; barrio: string; ciudad: string; provincia: string;
+    } | null;
+  } | null;
   metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr' | null;
   tipo_venta: 'web' | 'manual';
   moneda: string | null;

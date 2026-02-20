@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import styles from './CartSummary.module.css';
 import type { ItemCarritoCompleto } from '../../../types/carrito';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS } from '../../../utils/formatPrecio';
 
 interface CartSummaryProps {
     itemCount: number;
@@ -21,6 +23,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
     // ============================================================================
     const navigate = useNavigate();
     const { estado } = useCarrito();
+    const { tipoCambio } = useTipoCambio();
 
     // ============================================================================
     // CÁLCULOS DE PRECIOS Y DESCUENTOS
@@ -137,7 +140,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
                     {/* Línea de productos con cantidad y precio original */}
                     <div className={styles.summaryRow}>
                         <span>Productos ({itemCountConStock})</span>
-                        <span>$ {subtotalOriginal.toLocaleString('es-ES')}</span>
+                        <span>{formatARS(subtotalOriginal, tipoCambio)}</span>
                     </div>
 
                     {/* Línea de envío (siempre gratis) */}
@@ -150,7 +153,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
                     {discount > 0 && (
                         <div className={styles.summaryRow}>
                             <span>Descuentos por ofertas</span>
-                            <span className={styles.discount}>-$ {discount.toLocaleString('es-ES')}</span>
+                            <span className={styles.discount}>-{formatARS(discount, tipoCambio)}</span>
                         </div>
                     )}
 
@@ -164,7 +167,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
                                 Ajuste de precio
                             </span>
                             <span className={estado.diferencia_total > 0 ? styles.priceAdjustmentUp : styles.priceAdjustmentDown}>
-                                {estado.diferencia_total > 0 ? '+' : ''}$ {Math.abs(estado.diferencia_total).toLocaleString('es-ES')}
+                                {estado.diferencia_total > 0 ? '+' : '-'}{formatARS(Math.abs(estado.diferencia_total), tipoCambio)}
                             </span>
                         </div>
                     )}
@@ -174,7 +177,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
                 <div className={styles.totalSection}>
                     <div className={styles.totalRow}>
                         <span className={styles.totalLabel}>Total</span>
-                        <span className={styles.totalAmount}>$ {totalFinal.toLocaleString('es-ES')}</span>
+                        <span className={styles.totalAmount}>{formatARS(totalFinal, tipoCambio)}</span>
                     </div>
                 </div>
 

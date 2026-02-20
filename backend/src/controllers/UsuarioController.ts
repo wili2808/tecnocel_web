@@ -8,6 +8,7 @@
  */
 
 import bcrypt from 'bcryptjs';
+import { ROLES } from '../constants/roles.js';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
@@ -40,7 +41,7 @@ export default class UsuarioController {
     // Payload con estructura estándar JWT (sub para ID)
     const payload: Omit<UsuarioJWTPayload, 'iat' | 'exp'> = {
       sub: usuario.id_usuario,
-      role: usuario.id_rol === 1 ? 'admin' : 'empleado',
+      role: usuario.id_rol === ROLES.ADMIN ? 'admin' : 'gerente',
       idRol: usuario.id_rol
     };
 

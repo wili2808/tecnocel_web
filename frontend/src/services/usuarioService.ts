@@ -8,6 +8,7 @@
 
 import axios from 'axios';
 import adminApi from '../api/axiosAdminConfig';
+import { ROLES } from '../constants/roles';
 import type {
   AdminUser,
   RolItem,
@@ -304,17 +305,17 @@ export const usuarioService = {
    * @returns true si es administrador (idRol === 1)
    */
   isAdmin(user: AdminUser | null): boolean {
-    return user?.idRol === 1;
+    return user?.idRol === ROLES.ADMIN;
   },
 
   /**
-   * Verificar si el usuario es empleado
+   * Verificar si el usuario es gerente
    *
    * @param user - Usuario a verificar
-   * @returns true si es empleado (idRol === 2)
+   * @returns true si es gerente (idRol === 2)
    */
-  isEmpleado(user: AdminUser | null): boolean {
-    return user?.idRol === 2;
+  isGerente(user: AdminUser | null): boolean {
+    return user?.idRol === ROLES.GERENTE;
   },
 
   /**

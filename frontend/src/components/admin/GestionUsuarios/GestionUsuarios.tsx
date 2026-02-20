@@ -9,6 +9,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import { usuarioService } from '../../../services/usuarioService';
 import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
 import styles from './GestionUsuarios.module.css';
+import { ROLES } from '../../../constants/roles';
 
 type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha';
 type SortDir = 'asc' | 'desc';
@@ -325,7 +326,7 @@ const GestionUsuarios = () => {
               Gestión de Usuarios
             </h2>
             <p className={styles.subtitle}>
-              Administra los usuarios del sistema (administradores y empleados)
+              Administra los usuarios del sistema (administradores y gerentes)
             </p>
           </div>
           {isAdmin && !showCrearForm && !editandoUsuario && (
@@ -666,9 +667,9 @@ const GestionUsuarios = () => {
                   <td>{usuario.email}</td>
                   <td>
                     <span className={`${styles.badge} ${
-                      usuario.id_rol === 1 ? styles.badgeAdmin
-                      : usuario.id_rol === 3 ? styles.badgeVendedor
-                      : styles.badgeEmpleado
+                      usuario.id_rol === ROLES.ADMIN ? styles.badgeAdmin
+                      : usuario.id_rol === ROLES.VENDEDOR ? styles.badgeVendedor
+                      : styles.badgeGerente
                     }`}>
                       {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
                     </span>
@@ -680,24 +681,22 @@ const GestionUsuarios = () => {
                   </td>
                   <td>
                     <div className={styles.actions}>
-                      {isAdmin && (
-                        <button
-                          className={styles.actionButton}
-                          title="Editar usuario"
-                          onClick={() => handleEditarClick(usuario)}
-                        >
-                          <span className="material-icons">edit</span>
-                        </button>
-                      )}
-                      {isAdmin && (
-                        <button
-                          className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                          title="Eliminar"
-                          onClick={() => handleEliminar(usuario.id_usuario)}
-                        >
-                          <span className="material-icons">delete</span>
-                        </button>
-                      )}
+                      <button
+                        className={styles.actionButton}
+                        title={!isAdmin ? 'Solo el administrador puede editar usuarios' : 'Editar usuario'}
+                        onClick={() => handleEditarClick(usuario)}
+                        disabled={!isAdmin}
+                      >
+                        <span className="material-icons">edit</span>
+                      </button>
+                      <button
+                        className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                        title={!isAdmin ? 'Solo el administrador puede eliminar usuarios' : 'Eliminar'}
+                        onClick={() => handleEliminar(usuario.id_usuario)}
+                        disabled={!isAdmin}
+                      >
+                        <span className="material-icons">delete</span>
+                      </button>
                     </div>
                   </td>
                 </tr>

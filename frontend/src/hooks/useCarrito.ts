@@ -117,7 +117,7 @@ export const useCarrito = () => {
    */
   const prepareCompraData = useCallback((datosCompra: DatosCompra) => {
     return {
-      observaciones: datosCompra.observaciones || '',
+      ...datosCompra,
       moneda: datosCompra.moneda || 'ARS',
       metodo_pago: datosCompra.metodo_pago || 'efectivo'
     };

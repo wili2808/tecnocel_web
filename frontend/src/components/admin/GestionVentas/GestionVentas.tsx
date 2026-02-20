@@ -53,7 +53,7 @@ const formatIngreso = (n: number) => {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 const GestionVentas: React.FC = () => {
-  const { isAdmin, isEmpleado, isVendedor } = useAuth();
+  const { isAdmin, isGerente, isVendedor } = useAuth();
   const { showNotification } = useNotification();
 
   // ── Estado de datos ────────────────────────────────────────────────────────
@@ -362,7 +362,7 @@ const GestionVentas: React.FC = () => {
             <span className={styles.cotizacionValor}>
               1 USD = {tipoCambio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
             </span>
-            {(isAdmin || isEmpleado) && (
+            {(isAdmin || isGerente) && (
               <button
                 className={styles.cotizacionEditBtn}
                 onClick={() => { setTipoCambioInput(tipoCambio.toString()); setEditandoCambio(true); }}
@@ -570,11 +570,12 @@ const GestionVentas: React.FC = () => {
                           >
                             <span className="material-icons">visibility</span>
                           </button>
-                          {(isAdmin || isVendedor) && venta.estado === 'completada' && (
+                          {venta.estado === 'completada' && (
                             <button
                               className={`${styles.actionButton} ${styles.actionButtonDanger}`}
                               onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
-                              title="Cancelar venta"
+                              title={!(isAdmin || isVendedor) ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
+                              disabled={!(isAdmin || isVendedor)}
                             >
                               <span className="material-icons">cancel</span>
                             </button>

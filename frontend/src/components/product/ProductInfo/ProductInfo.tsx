@@ -6,6 +6,8 @@
 import React from 'react';
 import type { Product } from '../../../types';
 import styles from './ProductInfo.module.css';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS } from '../../../utils/formatPrecio';
 
 interface ProductInfoProps {
     product: Product;
@@ -33,22 +35,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     // CÁLCULOS Y VALIDACIONES
     // ============================================================================
 
-    /**
-     * Formatear precio con formato argentino
-     * Convierte números a formato de moneda local con símbolo ARS
-     */
-    const formatPrice = (price: number | string): string => {
-        const numPrice = typeof price === 'string' ? Number(price) : price;
-        if (isNaN(numPrice) || numPrice < 0) {
-            return 'Precio no disponible';
-        }
-        return new Intl.NumberFormat('es-AR', {
-            style: 'currency',
-            currency: 'ARS',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(numPrice);
-    };
+    const { tipoCambio } = useTipoCambio();
 
     // Calcular información de precios y descuentos
     const priceInfo = {
@@ -125,18 +112,18 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                             <>
                                 {/* Precio original tachado cuando hay descuento */}
                                 <span className={styles.priceOriginal}>
-                                    {formatPrice(priceInfo.original)}
+                                    {formatARS(priceInfo.original, tipoCambio)}
                                 </span>
 
                                 {/* Precio actual con descuento */}
                                 <span className={styles.priceCurrent}>
-                                    {formatPrice(priceInfo.current)}
+                                    {formatARS(priceInfo.current, tipoCambio)}
                                 </span>
                             </>
                         ) : (
                             /* Precio único cuando no hay descuento */
                             <span className={styles.priceCurrent}>
-                                {formatPrice(priceInfo.current)}
+                                {formatARS(priceInfo.current, tipoCambio)}
                             </span>
                         )}
                     </div>

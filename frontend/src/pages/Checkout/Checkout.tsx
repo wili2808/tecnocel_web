@@ -68,13 +68,15 @@ const Checkout = () => {
 
     try {
       const venta = await confirmarCompra({
-        observaciones: observaciones || `Compra con ${tipoEntrega === 'envio' ? 'envío a domicilio' : 'retiro en local'}`,
-        moneda: 'USD',
-        metodo_pago: (selectedMetodoPago as 'efectivo' | 'tarjeta' | 'transferencia' | 'qr') || undefined
+        observaciones: observaciones || undefined,
+        moneda: 'ARS',
+        metodo_pago: (selectedMetodoPago as 'efectivo' | 'tarjeta' | 'transferencia' | 'qr') || undefined,
+        tipo_entrega: tipoEntrega === 'envio' ? 'envio' : 'retiro_en_tienda',
+        id_direccion: tipoEntrega === 'envio' ? selectedDireccionId : null
       });
 
       showNotification('¡Compra realizada exitosamente!', 'success');
-      navigate(`/order-confirmation/${venta.id_venta}`);
+      navigate(`/order-confirmation/${venta.id_venta}`, { state: { nro_venta: venta.nro_venta } });
     } catch (error: any) {
       console.error('Error al confirmar compra:', error);
 
@@ -97,14 +99,16 @@ const Checkout = () => {
 
     try {
       const venta = await confirmarCompra({
-        observaciones: observaciones || `Compra con ${tipoEntrega === 'envio' ? 'envío a domicilio' : 'retiro en local'}`,
-        moneda: 'USD',
+        observaciones: observaciones || undefined,
+        moneda: 'ARS',
         metodo_pago: (selectedMetodoPago as 'efectivo' | 'tarjeta' | 'transferencia' | 'qr') || undefined,
+        tipo_entrega: tipoEntrega === 'envio' ? 'envio' : 'retiro_en_tienda',
+        id_direccion: tipoEntrega === 'envio' ? selectedDireccionId : null,
         aceptar_cambio_precio: true
       });
 
       showNotification('¡Compra realizada exitosamente!', 'success');
-      navigate(`/order-confirmation/${venta.id_venta}`);
+      navigate(`/order-confirmation/${venta.id_venta}`, { state: { nro_venta: venta.nro_venta } });
     } catch (error: any) {
       showNotification(
         error.response?.data?.mensaje || 'Error al procesar la compra',

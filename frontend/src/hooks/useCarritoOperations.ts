@@ -156,15 +156,10 @@ export const useCarritoOperations = () => {
       throw new Error(validation.error);
     }
 
-    try {
-      const compraData = prepareCompraData(datosCompra);
-      const response = await CarritoService.confirmarCompra(compraData);
-      return response.venta;
-    } catch (error: any) {
-      const mensajeError = handleCarritoError(error);
-      throw new Error(mensajeError);
-    }
-  }, [validateCarritoOperation, prepareCompraData, handleCarritoError]);
+    const compraData = prepareCompraData(datosCompra);
+    const response = await CarritoService.confirmarCompra(compraData);
+    return response.venta;
+  }, [validateCarritoOperation, prepareCompraData]);
 
   /**
    * Sincroniza el carrito con el servidor

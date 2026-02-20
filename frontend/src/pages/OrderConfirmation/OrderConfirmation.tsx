@@ -3,12 +3,18 @@
  * Muestra detalles de la compra exitosa
  */
 import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styles from './OrderConfirmation.module.css';
 
 const OrderConfirmation = () => {
   const { id_venta } = useParams<{ id_venta: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const nro_venta: number | undefined = location.state?.nro_venta;
+
+  const numeroMostrado = nro_venta
+    ? `V-${nro_venta.toString().padStart(5, '0')}`
+    : `#${id_venta?.padStart(5, '0')}`;
 
   useEffect(() => {
     if (!id_venta) {
@@ -30,7 +36,7 @@ const OrderConfirmation = () => {
 
         <div className={styles.orderNumber}>
           <span className={styles.orderLabel}>Número de pedido:</span>
-          <span className={styles.orderValue}>#{id_venta?.padStart(5, '0')}</span>
+          <span className={styles.orderValue}>{numeroMostrado}</span>
         </div>
 
         <div className={styles.divider}></div>

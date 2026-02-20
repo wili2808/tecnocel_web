@@ -403,15 +403,14 @@ const GestionOfertas = () => {
                             >
                               <span className="material-icons">edit</span>
                             </button>
-                            {isAdmin && (
-                              <button
-                                className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                                title="Desactivar"
-                                onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
-                              >
-                                <span className="material-icons">delete</span>
-                              </button>
-                            )}
+                            <button
+                              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                              title={!isAdmin ? 'Solo el administrador puede desactivar ofertas' : 'Desactivar'}
+                              onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
+                              disabled={!isAdmin}
+                            >
+                              <span className="material-icons">delete</span>
+                            </button>
                           </div>
                         </td>
                       </tr>

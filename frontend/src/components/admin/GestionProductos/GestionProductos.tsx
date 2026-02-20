@@ -17,7 +17,8 @@ type SortDir = 'asc' | 'desc';
 const ITEMS_PER_PAGE = 20;
 
 const GestionProductos = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isVendedor } = useAuth();
+  const isReadOnly = isVendedor && !isAdmin;
   const { showNotification } = useNotification();
 
   // Estado de la vista
@@ -202,13 +203,15 @@ const GestionProductos = () => {
               Administra el catálogo de productos de la tienda
             </p>
           </div>
-          <button
-            className={styles.crearButton}
-            onClick={() => setVista('crear')}
-          >
-            <span className="material-icons">add_box</span>
-            <span>Agregar Producto</span>
-          </button>
+          {!isReadOnly && (
+            <button
+              className={styles.crearButton}
+              onClick={() => setVista('crear')}
+            >
+              <span className="material-icons">add_box</span>
+              <span>Agregar Producto</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -372,20 +375,20 @@ const GestionProductos = () => {
                           <div className={styles.actions}>
                             <button
                               className={styles.actionButton}
-                              title="Editar"
+                              title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
                               onClick={() => handleEditar(producto.id_producto)}
+                              disabled={isReadOnly}
                             >
                               <span className="material-icons">edit</span>
                             </button>
-                            {isAdmin && (
-                              <button
-                                className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                                title="Eliminar"
-                                onClick={() => handleEliminar(producto.id_producto, producto.nombre)}
-                              >
-                                <span className="material-icons">delete</span>
-                              </button>
-                            )}
+                            <button
+                              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                              title={!isAdmin ? 'Solo el administrador puede eliminar' : 'Eliminar'}
+                              onClick={() => handleEliminar(producto.id_producto, producto.nombre)}
+                              disabled={!isAdmin}
+                            >
+                              <span className="material-icons">delete</span>
+                            </button>
                           </div>
                         </td>
                       </tr>

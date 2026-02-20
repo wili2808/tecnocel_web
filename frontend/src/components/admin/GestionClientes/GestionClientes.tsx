@@ -270,15 +270,14 @@ const GestionClientes = () => {
                         </button>
 
                         {/* Editar: solo para administradores (rol 1) */}
-                        {isAdmin && (
-                          <button
-                            className={styles.actionButton}
-                            title="Editar cliente"
-                            onClick={() => handleEditar(cliente)}
-                          >
-                            <span className="material-icons">edit</span>
-                          </button>
-                        )}
+                        <button
+                          className={styles.actionButton}
+                          title={!isAdmin ? 'Solo el administrador puede editar clientes' : 'Editar cliente'}
+                          onClick={() => handleEditar(cliente)}
+                          disabled={!isAdmin}
+                        >
+                          <span className="material-icons">edit</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
