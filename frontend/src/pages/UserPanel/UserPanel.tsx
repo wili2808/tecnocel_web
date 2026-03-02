@@ -26,13 +26,13 @@ import userPanelStyles from './UserPanel.module.css';
  * Cada opción incluye id, etiqueta e icono de Material Design
  */
 const MENU_OPTIONS = [
-    { id: 'profile', label: 'Información Personal', icon: 'person' },
-    { id: 'account', label: 'Datos de Cuenta', icon: 'account_circle' },
-    { id: 'security', label: 'Seguridad', icon: 'security' },
-    { id: 'purchases', label: 'Mis Compras', icon: 'shopping_bag' },
-    { id: 'favorites', label: 'Favoritos', icon: 'favorite' },
-    { id: 'addresses', label: 'Direcciones', icon: 'location_on' },
-    { id: 'support', label: 'Soporte', icon: 'help' },
+  { id: 'profile', label: 'Información Personal', icon: 'person' },
+  { id: 'account', label: 'Datos de Cuenta', icon: 'account_circle' },
+  { id: 'security', label: 'Seguridad', icon: 'security' },
+  { id: 'purchases', label: 'Mis Compras', icon: 'shopping_bag' },
+  { id: 'favorites', label: 'Favoritos', icon: 'favorite' },
+  { id: 'addresses', label: 'Direcciones', icon: 'location_on' },
+  { id: 'support', label: 'Soporte', icon: 'help' },
 ];
 
 // ============================================================================
@@ -44,22 +44,22 @@ const MENU_OPTIONS = [
  * Renderiza cada opción del menú con estado activo y funcionalidad de click
  */
 const MenuOption = ({
-    option,
-    isActive,
-    onClick
+  option,
+  isActive,
+  onClick,
 }: {
-    option: typeof MENU_OPTIONS[0];
-    isActive: boolean;
-    onClick: () => void;
+  option: (typeof MENU_OPTIONS)[0];
+  isActive: boolean;
+  onClick: () => void;
 }) => (
-    <button
-        className={`${userPanelStyles.menuOption} ${isActive ? userPanelStyles.activeOption : ''}`}
-        onClick={onClick}
-        aria-label={option.label}
-    >
-        <span className="material-icons">{option.icon}</span>
-        <span className={userPanelStyles.menuLabel}>{option.label}</span>
-    </button>
+  <button
+    className={`${userPanelStyles.menuOption} ${isActive ? userPanelStyles.activeOption : ''}`}
+    onClick={onClick}
+    aria-label={option.label}
+  >
+    <span className="material-icons">{option.icon}</span>
+    <span className={userPanelStyles.menuLabel}>{option.label}</span>
+  </button>
 );
 
 // ============================================================================
@@ -72,43 +72,39 @@ const MenuOption = ({
  * Cada sección tiene su propia lógica y presentación
  */
 const ContentSection = ({ activeSection }: { activeSection: string }) => {
-    /**
-     * Renderiza el contenido específico de cada sección del panel
-     * Utiliza switch statement para manejar múltiples opciones de menú
-     */
-    const renderContent = () => {
-        switch (activeSection) {
-            case 'profile':
-                return <InformacionPersonal />;
+  /**
+   * Renderiza el contenido específico de cada sección del panel
+   * Utiliza switch statement para manejar múltiples opciones de menú
+   */
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'profile':
+        return <InformacionPersonal />;
 
-            case 'account':
-                return <DatosCuenta />;
+      case 'account':
+        return <DatosCuenta />;
 
-            case 'security':
-                return <Seguridad />;
-            case 'purchases':
-                return <MisCompras />;
-            case 'favorites':
-                return <Favoritos />;
-            case 'addresses':
-                return <Direcciones />;
-            case 'support':
-                return <Soporte />;
-            default:
-                return (
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Bienvenido</h2>
-                        <p>Selecciona una opción del menú para comenzar.</p>
-                    </div>
-                );
-        }
-    };
+      case 'security':
+        return <Seguridad />;
+      case 'purchases':
+        return <MisCompras />;
+      case 'favorites':
+        return <Favoritos />;
+      case 'addresses':
+        return <Direcciones />;
+      case 'support':
+        return <Soporte />;
+      default:
+        return (
+          <div className={userPanelStyles.contentSection}>
+            <h2 className={userPanelStyles.sectionTitle}>Bienvenido</h2>
+            <p>Selecciona una opción del menú para comenzar.</p>
+          </div>
+        );
+    }
+  };
 
-    return (
-        <div className={userPanelStyles.contentArea}>
-            {renderContent()}
-        </div>
-    );
+  return <div className={userPanelStyles.contentArea}>{renderContent()}</div>;
 };
 
 // ============================================================================
@@ -121,130 +117,142 @@ const ContentSection = ({ activeSection }: { activeSection: string }) => {
  * Incluye sidebar con menú y área de contenido principal
  */
 const UserPanel = () => {
-    // ============================================================================
-    // HOOKS Y ESTADO
-    // ============================================================================
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [activeSection, setActiveSection] = useState(
-        (location.state as { tab?: string } | null)?.tab || 'profile'
-    );
+  // ============================================================================
+  // HOOKS Y ESTADO
+  // ============================================================================
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState((location.state as { tab?: string } | null)?.tab || 'profile');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // ============================================================================
-    // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN
-    // ============================================================================
+  // ============================================================================
+  // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN
+  // ============================================================================
 
-    /**
-     * Cierra la sesión del usuario y redirige al inicio
-     */
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
+  /**
+   * Cierra la sesión del usuario y redirige al inicio
+   */
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
-    /**
-     * Navega de vuelta a la página principal
-     */
-    const handleBackToHome = () => {
-        navigate('/');
-    };
+  /**
+   * Navega de vuelta a la página principal
+   */
+  const handleBackToHome = () => {
+    navigate('/');
+  };
 
-    // ============================================================================
-    // VERIFICACIÓN DE AUTENTICACIÓN
-    // ============================================================================
+  // ============================================================================
+  // VERIFICACIÓN DE AUTENTICACIÓN
+  // ============================================================================
 
-    // Verificar si el usuario está autenticado antes de mostrar el panel
-    if (!user) {
-        return (
-            <div className={userPanelStyles.userPanel}>
-                <div className={userPanelStyles.container}>
-                    <div className={userPanelStyles.contentSection}>
-                        <h2 className={userPanelStyles.sectionTitle}>Acceso Denegado</h2>
-                        <p>Debes iniciar sesión para acceder al panel de usuario.</p>
-                        <button
-                            onClick={() => navigate('/login')}
-                            className={userPanelStyles.retryButton}
-                        >
-                            <span className="material-icons">login</span>
-                            Ir al Login
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    // ============================================================================
-    // RENDERIZADO PRINCIPAL DEL PANEL
-    // ============================================================================
-
+  // Verificar si el usuario está autenticado antes de mostrar el panel
+  if (!user) {
     return (
-        <div className={`${userPanelStyles.userPanel} ${userPanelStyles.themeAware}`}>
-            <div className={userPanelStyles.container}>
-                {/* Sidebar del panel con navegación y información del usuario */}
-                <aside className={userPanelStyles.sidebar}>
-                    {/* Encabezado del sidebar con botón de retorno */}
-                    <div className={userPanelStyles.sidebarHeader}>
-                        <button
-                            className={userPanelStyles.backButton}
-                            onClick={handleBackToHome}
-                            aria-label="Volver al inicio"
-                        >
-                            <span className="material-icons">arrow_back</span>
-                            <span>Volver al inicio</span>
-                        </button>
-                    </div>
-
-                    {/* Información del usuario autenticado */}
-                    <div className={userPanelStyles.userInfo}>
-                        <div className={userPanelStyles.userAvatar}>
-                            <span className="material-icons">account_circle</span>
-                        </div>
-                        <div className={userPanelStyles.userDetails}>
-                            <h3 className={userPanelStyles.userName}>
-                                {(user as Cliente).nombre} {(user as Cliente).apellido}
-                            </h3>
-                        </div>
-                    </div>
-
-                    {/* Navegación principal del sidebar */}
-                    <nav className={userPanelStyles.sidebarNav}>
-                        {/* Opciones del menú principal */}
-                        <div className={userPanelStyles.menuOptions}>
-                            {MENU_OPTIONS.map(option => (
-                                <MenuOption
-                                    key={option.id}
-                                    option={option}
-                                    isActive={activeSection === option.id}
-                                    onClick={() => setActiveSection(option.id)}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Sección de cierre de sesión */}
-                        <div className={userPanelStyles.logoutSection}>
-                            <button
-                                className={userPanelStyles.logoutButton}
-                                onClick={handleLogout}
-                                aria-label="Cerrar sesión"
-                            >
-                                <span className="material-icons">logout</span>
-                                <span>Cerrar Sesión</span>
-                            </button>
-                        </div>
-                    </nav>
-                </aside>
-
-                {/* Área de contenido principal del panel */}
-                <main className={userPanelStyles.mainContent}>
-                    <ContentSection activeSection={activeSection} />
-                </main>
-            </div>
+      <div className={userPanelStyles.userPanel}>
+        <div className={userPanelStyles.container}>
+          <div className={userPanelStyles.contentSection}>
+            <h2 className={userPanelStyles.sectionTitle}>Acceso Denegado</h2>
+            <p>Debes iniciar sesión para acceder al panel de usuario.</p>
+            <button onClick={() => navigate('/login')} className={userPanelStyles.retryButton}>
+              <span className="material-icons">login</span>
+              Ir al Login
+            </button>
+          </div>
         </div>
+      </div>
     );
+  }
+
+  // ============================================================================
+  // RENDERIZADO PRINCIPAL DEL PANEL
+  // ============================================================================
+
+  return (
+    <div className={`${userPanelStyles.userPanel} ${userPanelStyles.themeAware}`}>
+      <div className={userPanelStyles.container}>
+        {/* Sidebar del panel con navegación y información del usuario */}
+        <aside className={userPanelStyles.sidebar}>
+          {/* Encabezado del sidebar con botón de retorno */}
+          <div className={userPanelStyles.sidebarHeader}>
+            <button className={userPanelStyles.backButton} onClick={handleBackToHome} aria-label="Volver al inicio">
+              <span className="material-icons">arrow_back</span>
+              <span>Volver al inicio</span>
+            </button>
+          </div>
+
+          {/* Información del usuario autenticado */}
+          <div className={userPanelStyles.userInfo}>
+            <div className={userPanelStyles.userAvatar}>
+              <span className="material-icons">account_circle</span>
+            </div>
+            <div className={userPanelStyles.userDetails}>
+              <h3 className={userPanelStyles.userName}>
+                {(user as Cliente).nombre} {(user as Cliente).apellido}
+              </h3>
+            </div>
+          </div>
+
+          {/* Navegación principal del sidebar */}
+          <nav className={userPanelStyles.sidebarNav}>
+            {/* Botón desplegable — solo visible en ≤480px */}
+            {(() => {
+              const activeOption = MENU_OPTIONS.find((o) => o.id === activeSection);
+              return (
+                <button
+                  className={userPanelStyles.mobileMenuToggle}
+                  onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                  aria-expanded={isMobileMenuOpen}
+                  aria-label="Abrir menú de navegación"
+                >
+                  <span className="material-icons">{activeOption?.icon}</span>
+                  <span>{activeOption?.label}</span>
+                  <span
+                    className={`material-icons ${userPanelStyles.mobileMenuChevron} ${isMobileMenuOpen ? userPanelStyles.mobileMenuChevronOpen : ''}`}
+                  >
+                    expand_more
+                  </span>
+                </button>
+              );
+            })()}
+
+            {/* Opciones del menú principal */}
+            <div className={`${userPanelStyles.menuOptions} ${isMobileMenuOpen ? userPanelStyles.mobileMenuOpen : ''}`}>
+              {MENU_OPTIONS.map((option) => (
+                <MenuOption
+                  key={option.id}
+                  option={option}
+                  isActive={activeSection === option.id}
+                  onClick={() => {
+                    setActiveSection(option.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Sección de cierre de sesión */}
+            <div className={userPanelStyles.logoutSection}>
+              <button className={userPanelStyles.logoutButton} onClick={handleLogout} aria-label="Cerrar sesión">
+                <span className="material-icons">logout</span>
+                <span>Cerrar Sesión</span>
+              </button>
+            </div>
+          </nav>
+        </aside>
+
+        {/* Área de contenido principal del panel */}
+        <main className={userPanelStyles.mainContent}>
+          <ContentSection activeSection={activeSection} />
+        </main>
+      </div>
+    </div>
+  );
 };
 
 UserPanel.displayName = 'UserPanel';
 
-export default UserPanel; 
+export default UserPanel;

@@ -491,7 +491,6 @@ input[type="password"]::-ms-reveal {
 /* ===== RESPONSIVIDAD ===== */
 @media (max-width: 1024px) {
     .registerCard {
-        max-width: 580px;
         padding: var(--spacing-2xl);
     }
     

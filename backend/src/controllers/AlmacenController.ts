@@ -24,7 +24,6 @@ import { enriquecerProductoConOferta } from '../services/ofertaService.js';
  * @class AlmacenController
  */
 class AlmacenController {
-
   /**
    * Transforma una lista de productos agregando URLs completas de imágenes
    *

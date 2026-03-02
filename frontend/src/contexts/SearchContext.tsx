@@ -4,38 +4,9 @@
  * Incluye estado de búsqueda, query debounced y funciones de navegación optimizadas
  * Maneja la sincronización entre el estado local y los parámetros de URL
  */
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-// ============================================================================
-// UTILIDADES Y FUNCIONES AUXILIARES
-// ============================================================================
-
-/**
- * Función debounce para retrasar la ejecución de una función
- * Evita llamadas excesivas a la API durante la escritura del usuario
- * 
- * @param func - Función a ejecutar después del delay
- * @param wait - Tiempo de espera en milisegundos
- * @returns Función debounced que retrasa la ejecución
- */
-function debounce<T extends (...args: any[]) => void>(
-    func: T,
-    wait: number
-): (...args: Parameters<T>) => void {
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-
-    return (...args: Parameters<T>) => {
-        const later = () => {
-            timeout = null;
-            func(...args);
-        };
-
-        if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
 
 // ============================================================================
 // TIPOS E INTERFACES
@@ -53,7 +24,7 @@ interface SearchContextType {
     /** Estado de búsqueda activa para mostrar indicadores visuales */
     isSearching: boolean;
     /** Función para actualizar el query de búsqueda */
-    setSearchQuery: (query: string) => void;
+    setSearchQuery: (query: string, options?: { immediate?: boolean }) => void;
     /** Función para limpiar completamente la búsqueda */
     clearSearch: () => void;
     /** Función para navegar a productos con query de búsqueda */
@@ -116,27 +87,43 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     /**
      * Estado de búsqueda activa - calculado dinámicamente
      * Se considera activa cuando hay diferencia entre query actual y debounced
-     * Esto proporciona feedback visual preciso al usuario
      */
     const isSearching = useMemo(() => {
         return searchQuery !== debouncedSearchQuery && searchQuery.length > 0;
     }, [searchQuery, debouncedSearchQuery]);
 
     // ============================================================================
-    // FUNCIONES DEBOUNDED Y OPTIMIZADAS
+    // REFS
     // ============================================================================
 
     /**
-     * Función debounced para actualizar la búsqueda
-     * Retrasa la actualización del query debounced para evitar llamadas excesivas
-     * Se memoiza con useCallback para evitar recreaciones innecesarias
+     * Ref para el timer del debounce - evita problemas de closure y React 18 Strict Mode
+     * Al usar useRef el timer persiste entre renders sin crear nuevas instancias
      */
-    const debouncedUpdateSearch = useCallback(
-        debounce((query: string) => {
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    /**
+     * Ref para acceder al searchQuery actual sin closure stale en el efecto de URL
+     * Se actualiza en cada render para garantizar que siempre refleja el valor actual
+     */
+    const searchQueryRef = useRef(searchQuery);
+    useEffect(() => { searchQueryRef.current = searchQuery; });
+
+    // ============================================================================
+    // FUNCIONES DEBOUNCED Y OPTIMIZADAS
+    // ============================================================================
+
+    /**
+     * Función debounced estable que usa el ref del timer
+     * A diferencia de useCallback(debounce(), []), esta no crea una nueva instancia
+     * de debounce en cada render — el timer está almacenado en el ref
+     */
+    const debouncedSetQuery = useCallback((query: string) => {
+        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = setTimeout(() => {
             setDebouncedSearchQuery(query);
-        }, 300),
-        []
-    );
+        }, 300);
+    }, []);
 
     // ============================================================================
     // EFECTOS Y SINCRONIZACIÓN
@@ -144,34 +131,17 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
 
     /**
      * Sincronizar con parámetros de URL cuando cambia la navegación
-     * Mantiene consistencia entre el estado local y la URL del navegador
-     * Solo se ejecuta cuando cambia la URL, no cuando cambia el estado local
+     * Usa searchQueryRef para evitar closure stale — sin el ref, el efecto capturaría
+     * el valor de searchQuery de cuando location.search cambió por última vez,
+     * lo que podría resetear el texto que el usuario está escribiendo
      */
     useEffect(() => {
-        const searchParams = new URLSearchParams(location.search);
-        const searchFromUrl = searchParams.get('search') || '';
-
-        // Solo actualizar si la URL cambió y es diferente al estado actual
-        if (searchFromUrl !== searchQuery) {
+        const searchFromUrl = new URLSearchParams(location.search).get('search') || '';
+        if (searchFromUrl !== searchQueryRef.current) {
             setSearchQueryState(searchFromUrl);
             setDebouncedSearchQuery(searchFromUrl);
-            // isSearching se calculará automáticamente en el próximo render
         }
-    }, [location.search]); // Solo depende de la URL, no del estado
-
-    /**
-     * Aplicar debounce a la búsqueda cuando el usuario escribe
-     * El estado isSearching se calcula automáticamente durante el delay
-     */
-    useEffect(() => {
-        // Solo aplicar debounce si el query no está vacío
-        if (searchQuery) {
-            debouncedUpdateSearch(searchQuery);
-        } else {
-            // Si está vacío, actualizar inmediatamente
-            setDebouncedSearchQuery('');
-        }
-    }, [searchQuery, debouncedUpdateSearch]);
+    }, [location.search]);
 
     // ============================================================================
     // FUNCIONES PÚBLICAS DEL CONTEXTO
@@ -179,18 +149,32 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
 
     /**
      * Función para actualizar la consulta de búsqueda
-     * Actualiza inmediatamente el estado local sin aplicar debounce
-     * 
+     * Actualiza inmediatamente el estado local e integra el debounce directamente
+     * Si el query está vacío, cancela cualquier timer pendiente y limpia de inmediato
+     *
      * @param query - Nueva consulta de búsqueda
      */
-    const setSearchQuery = useCallback((query: string) => {
+    /**
+     * Cuando immediate=true, cancela el timer pendiente y actualiza debouncedSearchQuery
+     * en el mismo tick. Usar al seleccionar sugerencias/historial para evitar la race
+     * condition donde ProductCatalog ve el debouncedSearchQuery viejo y navega de vuelta.
+     */
+    const setSearchQuery = useCallback((query: string, options?: { immediate?: boolean }) => {
         setSearchQueryState(query);
-    }, []);
+        if (!query) {
+            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+            setDebouncedSearchQuery('');
+        } else if (options?.immediate) {
+            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+            setDebouncedSearchQuery(query);
+        } else {
+            debouncedSetQuery(query);
+        }
+    }, [debouncedSetQuery]);
 
     /**
      * Función para limpiar completamente la búsqueda
      * Resetea todos los estados relacionados con la búsqueda
-     * El estado isSearching se calculará automáticamente como false
      */
     const clearSearch = useCallback(() => {
         setSearchQueryState('');
@@ -200,17 +184,22 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     /**
      * Función para navegar a productos con búsqueda
      * Construye la URL con parámetros de búsqueda y navega
-     * 
+     *
      * @param query - Query opcional, usa el estado actual si no se proporciona
+     */
+    /**
+     * Usa replace:true cuando ya estamos en /productos para evitar agregar una entrada
+     * duplicada al historial del navegador (el efecto de la URL "yendo de un lado a otro").
      */
     const navigateToProducts = useCallback((query?: string) => {
         const searchTerm = query || searchQuery;
+        const replace = location.pathname === '/productos';
         if (searchTerm.trim()) {
-            navigate(`/productos?search=${encodeURIComponent(searchTerm.trim())}`);
+            navigate(`/productos?search=${encodeURIComponent(searchTerm)}`, { replace });
         } else {
-            navigate('/productos');
+            navigate('/productos', { replace });
         }
-    }, [navigate, searchQuery]);
+    }, [navigate, searchQuery, location.pathname]);
 
     // ============================================================================
     // OPTIMIZACIÓN Y MEMOIZACIÓN
@@ -254,7 +243,7 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
 /**
  * Hook personalizado para usar el contexto de búsqueda
  * Proporciona acceso seguro al contexto con validación de uso
- * 
+ *
  * @returns Objeto con todas las propiedades y métodos del contexto
  * @throws Error si se usa fuera del SearchProvider
  */
@@ -264,4 +253,4 @@ export const useSearch = (): SearchContextType => {
         throw new Error('useSearch must be used within a SearchProvider');
     }
     return context;
-}; 
+};

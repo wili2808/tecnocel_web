@@ -133,7 +133,7 @@ export const filtersToQueryString = (filters: Partial<ProductFilters>): string =
   }
 
   if (filters.busqueda && filters.busqueda.trim()) {
-    params.set('search', filters.busqueda.trim());
+    params.set('search', filters.busqueda);
   }
 
   if (filters.order && filters.order.trim()) {

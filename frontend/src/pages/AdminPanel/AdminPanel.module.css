@@ -17,7 +17,6 @@
 
 .container {
   display: flex;
-  max-width: var(--container-max-width);
   margin: 0 auto;
   min-height: 80vh;
   padding: var(--spacing-lg);

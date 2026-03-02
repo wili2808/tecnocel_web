@@ -121,9 +121,13 @@
     }
     
     .infoCard {
-        padding: var(--spacing-2xl);
-        max-width: none;
-        width: 100%;
+        padding: var(--spacing-xl);
+        max-width: 100%;
+    }
+    .benefitsList{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
     }
     
     .infoCard h3 {

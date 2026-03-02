@@ -7,6 +7,7 @@
   display: block;
   outline: none;
   transition: transform var(--transition-normal) var(--transition-curve);
+  height: 100%;
 }
 
 .productLink:hover {
@@ -35,6 +36,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 320px;
+  width: 100%;
+  box-sizing: border-box;
   padding: var(--spacing-sm);
 }
 
@@ -45,7 +49,8 @@
 /* === CONTENEDOR DE IMAGEN === */
 .imageContainer {
   position: relative;
-  padding-top: 100%; /* Aspect ratio 1:1 */
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Aspect ratio 1:1 */
   overflow: hidden;
   border-radius: var(--border-radius-md);
   background: var(--background-secondary);
@@ -347,8 +352,8 @@
 /* === CONTENEDOR DE PRECIOS - ÉNFASIS ESPECIAL === */
 .priceContainer {
   display: flex;
-  flex-direction: row;
-  gap: var(--spacing-md);
+  flex-direction: column;
+  gap: var(--spacing-xs);
   align-items: baseline;
   margin-top: var(--spacing-xs);
 }

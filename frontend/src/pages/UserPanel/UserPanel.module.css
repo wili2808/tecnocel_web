@@ -26,6 +26,7 @@
 
 /* === SIDEBAR === */
 .sidebar {
+  display: flex;
   flex: 0 0 280px;
   background-color: var(--background-light);
   transition: var(--theme-transition);
@@ -35,7 +36,6 @@
   height: fit-content;
   position: sticky;
   top: var(--spacing-lg);
-  display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   border: 1px solid var(--border-color);
@@ -154,6 +154,20 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* Botón dropdown móvil — oculto por encima de 480px */
+.mobileMenuToggle {
+  display: none;
+}
+
+.mobileMenuChevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.mobileMenuChevronOpen {
+  transform: rotate(180deg);
+}
+
 .logoutSection {
   margin-top: auto;
   padding-top: var(--spacing-md);
@@ -197,10 +211,6 @@
 .contentArea {
   height: 100%;
   overflow-y: auto;
-}
-
-.contentSection {
-  /* Padding removido para evitar doble espaciado - cada componente gestiona su propio padding */
 }
 
 .sectionTitle {
@@ -273,9 +283,29 @@
   }
 
   .sidebar {
-    flex: none;
-    position: static;
+    flex-wrap: wrap;
+    flex-direction: row;
     width: 100%;
+    padding: var(--spacing-md);
+  }
+
+  .sidebarHeader {
+    flex-basis: 25%;
+    border: none;
+  }
+
+  .backButton {
+    padding: var(--spacing-sm);
+    height: 100%;
+  }
+
+  .userInfo{
+    padding: var(--spacing-sm);
+    flex: 1;
+  }
+
+  .sidebarNav {
+    flex-basis: 100%;
   }
 
   .mainContent {
@@ -283,29 +313,39 @@
   }
 
   .userInfo {
-    flex-direction: column;
+    flex-direction: row;
     text-align: center;
+    justify-content: center;
+  }
+
+  .userDetails {
+    max-width: 200px;
   }
 
   .menuOptions {
     flex-direction: row;
     flex-wrap: wrap;
     gap: var(--spacing-sm);
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-md);
   }
 
   .menuOption {
+    font-size: var(--font-size-xs);
     flex: 1;
-    min-width: 120px;
+    min-width: 150px;
     justify-content: center;
     padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    transition: var(--theme-transition);
+    width: 100%;
+    text-align: center;
   }
 
   .menuOption .material-icons {
     display: none;
-  }
-
-  .logoutSection {
-    margin-top: var(--spacing-md);
   }
 }
 
@@ -335,13 +375,49 @@
     text-align: center;
   }
 
+  /* Mostrar el botón trigger en móvil */
+  .mobileMenuToggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    width: 100%;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-neutral);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: var(--theme-transition);
+  }
+
+  .mobileMenuToggle:hover {
+    background-color: var(--background-light);
+  }
+
+  /* Ocultar opciones por defecto, mostrar al abrir */
   .menuOptions {
+    display: none;
     flex-direction: column;
+    gap: var(--spacing-xs);
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-sm);
+  }
+
+  .menuOptions.mobileMenuOpen {
+    display: flex;
   }
 
   .menuOption {
     flex: none;
     width: 100%;
+    justify-content: flex-start;
+    border: none;
+  }
+
+  .menuOption .material-icons {
+    display: inline-block;
   }
 }
 

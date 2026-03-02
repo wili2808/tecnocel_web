@@ -235,10 +235,6 @@
   .stat {
     justify-content: center;
   }
-
-  .brandsContainer {
-    padding: var(--spacing-3xl) var(--container-padding);
-  }
 }
 
 /* Mobile (max-width: 480px) */
@@ -272,10 +268,6 @@
 
   .stat strong {
     font-size: var(--font-size-lg);
-  }
-
-  .brandsContainer {
-    padding: var(--spacing-2xl) var(--container-padding);
   }
 
   .errorContainer {

@@ -262,13 +262,15 @@
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .overlay {
+    position: sticky;
+    margin-top: var(--spacing-md);
+    border-radius: var(--border-radius-lg);
     padding: 0;
   }
 
   .modal {
     max-width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
+    max-height: 150vh;
   }
 
   .formGrid {

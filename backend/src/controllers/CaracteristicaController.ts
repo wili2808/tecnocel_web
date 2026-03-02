@@ -336,33 +336,6 @@ export class CaracteristicaController {
   }
 
   /**
-   * Crea un nuevo tipo de característica (requiere admin)
-   *
-   * Endpoint protegido que crea un nuevo tipo de característica que luego puede
-   * ser asignado a productos. Permite definir el tipo de dato (texto, numero, booleano),
-   * unidades de medida y opciones de selección para características categóricas.
-   *
-   * @param req - Express Request con body {nombre_tipo, descripcion?, tipo_dato?, unidad_medida?, opciones_seleccion?}
-   * @param res - Express Response object
-   * @returns 201 con { success, message, data } tipo de característica creado
-   * @returns 400 si falta nombre_tipo o ya existe un tipo con ese nombre
-   * @returns 500 si ocurre error en el servidor
-   *
-   * @example
-   * POST /api/caracteristicas/tipos
-   * Body: {
-   *   nombre_tipo: "Almacenamiento",
-   *   tipo_dato: "numero",
-   *   unidad_medida: "GB",
-   *   descripcion: "Capacidad de almacenamiento interno"
-   * }
-   * Response: {
-   *   success: true,
-   *   message: "Tipo de característica creado exitosamente",
-   *   data: { id_tipo: 3, nombre_tipo: "Almacenamiento", ... }
-   * }
-   */
-  /**
    * Obtiene todos los tipos de características (activos e inactivos)
    *
    * Endpoint protegido para administración que retorna todos los tipos,
@@ -389,6 +362,33 @@ export class CaracteristicaController {
     }
   }
 
+  /**
+   * Crea un nuevo tipo de característica (requiere admin)
+   *
+   * Endpoint protegido que crea un nuevo tipo de característica que luego puede
+   * ser asignado a productos. Permite definir el tipo de dato (texto, numero, booleano),
+   * unidades de medida y opciones de selección para características categóricas.
+   *
+   * @param req - Express Request con body {nombre_tipo, descripcion?, tipo_dato?, unidad_medida?, opciones_seleccion?}
+   * @param res - Express Response object
+   * @returns 201 con { success, message, data } tipo de característica creado
+   * @returns 400 si falta nombre_tipo o ya existe un tipo con ese nombre
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/caracteristicas/tipos
+   * Body: {
+   *   nombre_tipo: "Almacenamiento",
+   *   tipo_dato: "numero",
+   *   unidad_medida: "GB",
+   *   descripcion: "Capacidad de almacenamiento interno"
+   * }
+   * Response: {
+   *   success: true,
+   *   message: "Tipo de característica creado exitosamente",
+   *   data: { id_tipo: 3, nombre_tipo: "Almacenamiento", ... }
+   * }
+   */
   static async createTipoCaracteristica(req: Request, res: Response) {
     try {
       const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion } = req.body;

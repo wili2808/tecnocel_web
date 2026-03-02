@@ -309,7 +309,7 @@ input[type="password"]::-ms-reveal {
 /* ===== DIVISOR ===== */
 .divider {
     position: relative;
-    margin: var(--spacing-xl) 0;
+    margin: var(--spacing-lg) 0;
     text-align: center;
     color: var(--text-tertiary);
     font-size: var(--font-size-sm);
@@ -491,8 +491,7 @@ input[type="password"]::-ms-reveal {
 /* ===== RESPONSIVIDAD ===== */
 @media (max-width: 1024px) {
     .loginCard {
-        max-width: 580px;
-        padding: var(--spacing-2xl);
+        padding: var(--spacing-lg);
     }
 }
 

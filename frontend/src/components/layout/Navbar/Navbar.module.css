@@ -54,7 +54,6 @@
 .mobileSearchSection {
   flex: 1;
   display: flex;
-  justify-content: center;
   margin: 0 var(--spacing-sm);
 }
 
@@ -242,7 +241,7 @@
   right: 0;
   background: var(--background-light);
   border: 1px solid var(--border-color);
-  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   min-width: 280px;
   max-width: 320px;

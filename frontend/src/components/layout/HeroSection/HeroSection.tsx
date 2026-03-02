@@ -4,39 +4,37 @@ import styles from './HeroSection.module.css';
 import { FiArrowRight } from 'react-icons/fi';
 
 interface HeroSectionProps {
-    className?: string;
-    title?: string;
-    description?: string;
+  className?: string;
+  title?: string;
+  description?: string;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = memo(({
+const HeroSection: React.FC<HeroSectionProps> = memo(
+  ({
     className,
-    title = 'Tecnología de Vanguardia a tu Alcance',
-    description = 'Explora nuestra selección de los mejores gadgets, componentes y accesorios del mercado.'
-}) => {
+    title = 'Tecnología que conecta con tu mundo.',
+    description = 'Domina el ecosistema digital con los equipos más potentes del mercado, solo en TECNOCEL',
+  }) => {
     return (
-        <section className={`${styles.heroSection} ${className || ''}`}>
-            <div className={styles.heroContainer}>
-                <h1 className={styles.heroTitle}>
-                    {title}
-                </h1>
-                <p className={styles.heroDescription}>
-                    {description}
-                </p>
-                <div className={styles.ctaContainer}>
-                    <Link to="/productos" className={styles.primaryCta}>
-                        <span>Explorar Productos</span>
-                        <FiArrowRight />
-                    </Link>
-                    <Link to="/ofertas" className={styles.secondaryCta}>
-                        Ver Ofertas
-                    </Link>
-                </div>
-            </div>
-        </section>
+      <section className={`${styles.heroSection} ${className || ''}`}>
+        <div className={styles.heroContainer}>
+          <h1 className={styles.heroTitle}>{title}</h1>
+          <p className={styles.heroDescription}>{description}</p>
+          <div className={styles.ctaContainer}>
+            <Link to="/productos" className={styles.primaryCta}>
+              <span>Explorar Productos</span>
+              <FiArrowRight />
+            </Link>
+            <Link to="/ofertas" className={styles.secondaryCta}>
+              Ver Ofertas
+            </Link>
+          </div>
+        </div>
+      </section>
     );
-});
+  },
+);
 
 HeroSection.displayName = 'HeroSection';
 
-export default HeroSection; 
+export default HeroSection;

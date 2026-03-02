@@ -29,7 +29,6 @@
 
 .badgesContainer {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--spacing-sm);
   align-items: center;
 }
@@ -173,7 +172,7 @@
 /* Responsive - Mantener diseño horizontal en pantallas pequeñas */
 @media (max-width: 768px) {
   .productInfo {
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
   }
 
   .basicInfo {
@@ -184,6 +183,13 @@
     font-size: var(--font-size-2xl);
   }
 
+  .header {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-md);
+    align-items: center;
+  }
+  
   .priceCurrent {
     font-size: var(--font-size-3xl);
   }
@@ -195,7 +201,6 @@
   /* Mantener badges en línea horizontal */
   .badgesContainer {
     flex-direction: row;
-    flex-wrap: wrap;
   }
 
   /* Mantener metadata en línea horizontal */

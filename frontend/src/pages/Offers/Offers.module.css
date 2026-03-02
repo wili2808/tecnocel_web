@@ -159,7 +159,9 @@
 
 @media (max-width: 480px) {
   .pageHeader {
-    margin-bottom: var(--spacing-lg);
+    flex-direction: row;
+    margin-bottom: var(--spacing-md);
+    align-items: center;
   }
 
   .pageTitle {
@@ -176,20 +178,23 @@
   }
 
   .statsCard {
+    flex-direction: column;
     padding: var(--spacing-xs);
-    gap: var(--spacing-md);
+    gap: var(--spacing-xs);
+    max-width: 100px;
   }
 
   .statNumber {
     font-size: var(--font-size-xl);
   }
+  
+  .statDivider {
+    height: 1px;
+    width: 80%;
+  }
 
   .statLabel {
     font-size: var(--font-size-xs);
-  }
-
-  .statDivider {
-    height: 28px;
   }
 }
 

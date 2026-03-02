@@ -73,7 +73,7 @@ class UsuarioAdminController {
    *
    * @example
    * const usuarioRespuesta = UsuarioAdminController.mapearUsuarioRespuesta(usuario);
-   * // Retorna: { id: 1, nombres: "Juan Pérez", email: "admin@tecnocel.com", idRol: 1 }
+   * // Retorna: { id: 1, nombres: "Juan Pérez", email: "admin@tecnocel.com", idRol: 1, rolNombre: "ADMINISTRADOR" }
    */
   private static mapearUsuarioRespuesta(usuario: Usuario, rolNombre?: string): UsuarioSistemaResponse {
     return {
@@ -135,7 +135,8 @@ class UsuarioAdminController {
    * Response: {
    *   "roles": [
    *     { "id_rol": 1, "rol": "ADMINISTRADOR" },
-   *     { "id_rol": 2, "rol": "EMPLEADO" }
+   *     { "id_rol": 2, "rol": "GERENTE" }
+   *     { "id_rol": 3, "rol": "VENDEDOR" }
    *   ]
    * }
    */

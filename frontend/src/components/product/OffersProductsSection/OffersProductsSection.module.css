@@ -198,25 +198,24 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) {git sta
   .productsSection {
     margin-top: var(--spacing-2xl);
   }
 
   .sectionHeader {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: nowrap;;
     align-items: flex-start;
     gap: var(--spacing-md);
+    align-items: center;
   }
 
   .headerLeft {
     width: 100%;
-    flex-wrap: wrap;
-    min-width: auto;
   }
 
   .headerRight {
-    width: 100%;
     justify-content: flex-end;
   }
 
@@ -264,11 +263,20 @@
 
 @media (max-width: 480px) {
   .sectionHeader {
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: var(--spacing-sm);
+    align-items: center;
   }
 
   .headerLeft {
-    gap: var(--spacing-sm);
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+  }
+
+  .headerRight {
+    max-width: 160px;
   }
 
   .productsGrid {

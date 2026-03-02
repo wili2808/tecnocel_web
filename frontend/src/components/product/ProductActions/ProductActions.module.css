@@ -264,6 +264,11 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
+  .productActions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
   .actionButtons {
     flex-direction: row;
   }
@@ -271,6 +276,8 @@
 
 @media (max-width: 768px) {
   .productActions {
+    display: flex;
+    flex-direction: column;
     padding: var(--spacing-md);
     gap: var(--spacing-sm);
   }

@@ -14,7 +14,7 @@ const Home = () => {
     featuredProducts,
     productsLoading: loading,
     productsError: error,
-    loadFeaturedProducts
+    loadFeaturedProducts,
   } = useProductActions();
 
   // ============================================================================
@@ -57,12 +57,7 @@ const Home = () => {
   return (
     <>
       <HeroSection />
-      <FeaturedProducts
-        products={featuredProducts}
-        title=""
-        loading={loading}
-        error={error}
-      />
+      <FeaturedProducts products={featuredProducts} title="" loading={loading} error={error} />
       <CTASection
         title="¿Listo para personalizar tu pedido?"
         description="Contáctanos para obtener una cotización personalizada para tu proyecto."

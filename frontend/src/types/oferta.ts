@@ -22,6 +22,7 @@ export interface Oferta {
   uso_actual: number;
   fyh_creacion: string;
   fyh_actualizacion: string;
+  productos_count?: number;
 }
 
 /**

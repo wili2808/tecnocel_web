@@ -1184,8 +1184,7 @@ export default class CarritoController {
     const transaction = await sequelize.transaction();
 
     try {
-      const { observaciones, moneda = 'ARS', metodo_pago, aceptar_cambio_precio = false,
-              tipo_entrega = 'retiro_en_tienda', id_direccion = null } = req.body;
+      const { observaciones, moneda = 'USD', metodo_pago, aceptar_cambio_precio = false } = req.body;
       const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
@@ -1318,15 +1317,12 @@ export default class CarritoController {
       });
       const nroVenta = ultimaVenta ? ultimaVenta.nro_venta + 1 : 1;
 
-      // Obtener tipo de cambio vigente (siempre, para snapshot de auditoría y conversión ARS)
-      const tcConfig = await Configuracion.findByPk('tipo_cambio_usd', { transaction });
-      const tipoCambio = tcConfig ? parseFloat(tcConfig.valor) : 1200.00;
-      const valor_dolar = tipoCambio;
-
-      // Calcular total en la moneda de pago (ARS requiere conversión desde USD)
-      const totalPagadoFinal = moneda === 'ARS'
-        ? Math.round(totalActualizado * tipoCambio)
-        : totalActualizado;
+      // Obtener tipo de cambio vigente para registrar histórico
+      let valor_dolar: number | null = null;
+      if (moneda === 'USD') {
+        const config = await Configuracion.findByPk('tipo_cambio_usd', { transaction });
+        valor_dolar = config ? parseFloat(config.valor) : null;
+      }
 
       // ✅ CREAR VENTA CON TOTAL ACTUALIZADO (Fase 2)
       const venta = await Venta.create({
@@ -1335,7 +1331,7 @@ export default class CarritoController {
         id_carrito_web: carrito.id_carrito,
         tipo_venta: 'web',
         estado: 'completada',
-        total_pagado: totalPagadoFinal,
+        total_pagado: totalActualizado,  // ← Precio ACTUAL validado
         observaciones,
         moneda,
         metodo_pago: metodo_pago || null,
@@ -1344,35 +1340,15 @@ export default class CarritoController {
         fyh_actualizacion: new Date()
       }, { transaction });
 
-      // Crear registro logístico en tb_envios
-      await Envio.create({
-        id_venta:          venta.id_venta,
-        tipo_entrega,
-        id_direccion:      tipo_entrega === 'envio' ? (id_direccion || null) : null,
-        estado_envio:      tipo_entrega === 'envio' ? 'pendiente' : 'no_aplica',
-        fyh_creacion:      new Date(),
-        fyh_actualizacion: new Date()
-      }, { transaction });
-
       // ✅ CREAR SNAPSHOT PERMANENTE EN tb_venta_items
       // Registro histórico de los productos vendidos con precio fijo al momento de la compra
-      // Los precios se almacenan en la moneda de pago (ARS = USD × tipoCambio)
-      for (const itemConPrecio of itemsConPreciosActuales) {
-        const { item } = itemConPrecio;
-        const precioUnitarioUSD = itemConPrecio.precio_actual;
-        const precioUnitarioFinal = moneda === 'ARS'
-          ? Math.round(precioUnitarioUSD * tipoCambio)
-          : precioUnitarioUSD;
-        const subtotalFinal = moneda === 'ARS'
-          ? Math.round(precioUnitarioUSD * item.cantidad * tipoCambio)
-          : precioUnitarioUSD * item.cantidad;
-
+      for (const item of carrito.items) {
         await VentaItem.create({
           id_venta: venta.id_venta,
           id_producto: item.id_producto,
           cantidad: item.cantidad,
-          precio_unitario: precioUnitarioFinal,
-          subtotal: subtotalFinal,
+          precio_unitario: item.precio_unitario,
+          subtotal: item.subtotal,
           fyh_creacion: new Date()
         }, { transaction });
       }

@@ -4,7 +4,9 @@
 
 /* Contenedor principal */
 .ctaSection {
-  padding: var(--spacing-lg);
+  padding: 0 var(--container-padding);
+  margin-top: var(--spacing-lg);
+  max-width: var(--max-width);
   background: var(--background-primary);
   transition: background-color var(--transition-normal) ease;
 }
@@ -13,7 +15,6 @@
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
 }
 
 /* Contenido principal */
@@ -151,14 +152,7 @@
 
 /* Tablet */
 @media (max-width: 768px) {
-  .ctaSection {
-    padding: var(--spacing-2xl) 0;
-  }
-
-  .content {
-    padding: var(--spacing-2xl);
-    gap: var(--spacing-lg);
-  }
+  
 
   .title {
     font-size: var(--font-size-2xl);

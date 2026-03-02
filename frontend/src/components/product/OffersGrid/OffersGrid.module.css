@@ -178,7 +178,6 @@
 
 @media (max-width: 480px) {
   .sectionHeader {
-    flex-wrap: wrap;
     gap: var(--spacing-xs);
   }
 

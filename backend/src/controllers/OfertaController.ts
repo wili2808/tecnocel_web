@@ -64,6 +64,16 @@ export class OfertaController {
           fecha_inicio: { [Op.lte]: now },
           fecha_fin: { [Op.gte]: now }
         },
+        attributes: {
+          include: [
+            [
+              Oferta.sequelize!.literal(
+                '(SELECT COUNT(*) FROM tb_productos_ofertas WHERE tb_productos_ofertas.id_oferta = Oferta.id_oferta)'
+              ),
+              'productos_count'
+            ]
+          ]
+        },
         order: [['fyh_creacion', 'DESC']]
       });
 

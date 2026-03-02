@@ -1,23 +1,25 @@
 /**
- * Componente ProductSearch - Campo de búsqueda de productos reutilizable
- * Proporciona funcionalidad de búsqueda con indicadores visuales y navegación
- * Incluye botón de limpiar, indicador de búsqueda activa, manejo de teclas e historial
- * Se integra con el SearchContext global para estado centralizado de búsqueda
+ * Componente ProductSearch - Campo de búsqueda de productos con autocompletado
+ * Proporciona funcionalidad de búsqueda con sugerencias predictivas (marcas, categorías y productos),
+ * navegación por teclado (flechas ↑↓), historial de búsquedas recientes e indicadores visuales.
+ * Se integra con SearchContext (estado global) y ProductContext (sugerencias).
  */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSearch } from '../../../contexts/SearchContext';
 import { useSearchHistory } from '../../../hooks/useSearchHistory';
+import { useProductActions } from '../../../hooks/useProductActions';
 import styles from './ProductSearch.module.css';
 
 // ============================================================================
 // TIPOS E INTERFACES
 // ============================================================================
 
-/**
- * Props del componente ProductSearch
- * Define la configuración personalizable del campo de búsqueda
- */
+interface Suggestion {
+    text: string;
+    type: 'producto' | 'marca' | 'categoria';
+}
+
 interface ProductSearchProps {
     /** Texto placeholder del campo de búsqueda */
     placeholder?: string;
@@ -27,10 +29,6 @@ interface ProductSearchProps {
     className?: string;
     /** Callback ejecutado cuando se realiza una búsqueda */
     onSearch?: () => void;
-    /** Cantidad de resultados encontrados (opcional) */
-    resultCount?: number;
-    /** Si se debe mostrar el contador de resultados */
-    showResultCount?: boolean;
     /** Si se debe mostrar el historial de búsquedas */
     showHistory?: boolean;
 }
@@ -39,213 +37,334 @@ interface ProductSearchProps {
 // COMPONENTE PRINCIPAL
 // ============================================================================
 
-/**
- * Componente de búsqueda de productos con funcionalidad completa
- * Maneja la entrada del usuario, navegación y limpieza de búsqueda
- * Se integra con el SearchContext global para estado centralizado
- */
 const ProductSearch: React.FC<ProductSearchProps> = ({
     placeholder = "Buscar productos, marcas y mas ...",
     showClearButton = true,
     className = '',
     onSearch,
-    resultCount,
-    showResultCount = false,
-    showHistory = false
+    showHistory = false,
 }) => {
-    // ============================================================================
-    // HOOKS Y CONTEXTOS
-    // ============================================================================
-
-    /**
-     * Hook del contexto global de búsqueda
-     * Proporciona estado de búsqueda, funciones de actualización y navegación
-     */
     const {
         searchQuery,
         setSearchQuery,
         clearSearch,
         isSearching,
-        navigateToProducts
+        navigateToProducts,
     } = useSearch();
 
-    /**
-     * Hook de React Router para obtener la ubicación actual
-     * Se usa para determinar si estamos en la página de productos
-     */
     const location = useLocation();
-
-    /**
-     * Hook de React Router para navegación programática
-     * Permite redirigir al usuario a diferentes páginas
-     */
     const navigate = useNavigate();
+    const { history, addToHistory } = useSearchHistory({ enabled: showHistory });
+    const {
+        products,
+        brands,
+        categories,
+        loadBrands,
+        loadCategories,
+    } = useProductActions();
 
-    /**
-     * Hook de historial de búsquedas
-     * Proporciona funcionalidad para guardar y recuperar búsquedas recientes
-     */
-    const { history, addToHistory } = useSearchHistory({
-        enabled: showHistory
-    });
-
-    // ============================================================================
-    // ESTADO LOCAL
-    // ============================================================================
-
-    /**
-     * Estado para controlar la visualización del dropdown de historial
-     */
     const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    /** Índice de la sugerencia resaltada con teclado (-1 = ninguna). */
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const historyListRef = useRef<HTMLUListElement>(null);
+    /** Ref de foco: evita que el useEffect de sugerencias las reabra tras una selección. */
+    const isFocusedRef = useRef(false);
+
+    // ============================================================================
+    // CARGA INICIAL DE DATOS
+    // ============================================================================
 
     /**
-     * Referencia al contenedor del componente para detectar clics fuera
+     * Carga marcas y categorías si no están disponibles todavía.
+     * Se ejecuta una sola vez al montar el componente (el contexto cachea las peticiones).
      */
-    const containerRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (brands.length === 0) loadBrands();
+        if (categories.length === 0) loadCategories();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // ============================================================================
+    // SUGERENCIAS PREDICTIVAS
+    // ============================================================================
+
+    /**
+     * Computa sugerencias a partir de los datos disponibles en el contexto.
+     * Prioriza coincidencias que empiezan con el query antes que las que lo contienen.
+     * Límites: 3 marcas, 2 categorías, 5 productos = máx 8 sugerencias totales.
+     */
+    const suggestions = useMemo((): Suggestion[] => {
+        if (searchQuery.length < 2) return [];
+        const q = searchQuery.toLowerCase().trim();
+        const results: Suggestion[] = [];
+
+        // Marcas (prioridad más alta)
+        brands
+            .filter(b => b.nombre_marca.toLowerCase().includes(q))
+            .sort((a, b) => {
+                const aStarts = a.nombre_marca.toLowerCase().startsWith(q) ? 0 : 1;
+                const bStarts = b.nombre_marca.toLowerCase().startsWith(q) ? 0 : 1;
+                return aStarts - bStarts;
+            })
+            .slice(0, 3)
+            .forEach(b => results.push({ text: b.nombre_marca, type: 'marca' }));
+
+        // Categorías
+        categories
+            .filter(c => c.nombre_categoria.toLowerCase().includes(q))
+            .sort((a, b) => {
+                const aStarts = a.nombre_categoria.toLowerCase().startsWith(q) ? 0 : 1;
+                const bStarts = b.nombre_categoria.toLowerCase().startsWith(q) ? 0 : 1;
+                return aStarts - bStarts;
+            })
+            .slice(0, 2)
+            .forEach(c => results.push({ text: c.nombre_categoria, type: 'categoria' }));
+
+        // Nombres de productos (deduplicados, starts-with primero)
+        const seen = new Set<string>();
+        const productNames: string[] = [];
+        products.forEach(p => {
+            if (!seen.has(p.nombre) && p.nombre.toLowerCase().startsWith(q)) {
+                seen.add(p.nombre);
+                productNames.push(p.nombre);
+            }
+        });
+        products.forEach(p => {
+            if (!seen.has(p.nombre) && p.nombre.toLowerCase().includes(q)) {
+                seen.add(p.nombre);
+                productNames.push(p.nombre);
+            }
+        });
+        productNames.slice(0, 5).forEach(name => results.push({ text: name, type: 'producto' }));
+
+        return results.slice(0, 8);
+    }, [searchQuery, products, brands, categories]);
 
     // ============================================================================
     // EFECTOS
     // ============================================================================
 
-    /**
-     * Detectar clics fuera del componente para cerrar el dropdown
-     */
+    /** Mostrar u ocultar el dropdown de sugerencias según el query, datos disponibles y foco actual.
+     *  Solo se muestran si el input tiene el foco, evitando que se reabran tras una selección/navegación. */
+    useEffect(() => {
+        if (isFocusedRef.current && searchQuery.length >= 2 && suggestions.length > 0) {
+            setShowSuggestions(true);
+            setShowHistoryDropdown(false);
+        } else {
+            setShowSuggestions(false);
+        }
+    }, [searchQuery, suggestions.length]);
+
+    /** Resetear el índice activo cada vez que cambia la lista de sugerencias */
+    useEffect(() => {
+        setActiveIndex(-1);
+    }, [suggestions]);
+
+    /** Resetear el índice activo cuando el dropdown de historial abre o cierra */
+    useEffect(() => {
+        setActiveIndex(-1);
+    }, [showHistoryDropdown]);
+
+    /** Hacer scroll automático al ítem resaltado (sugerencias o historial) */
+    useEffect(() => {
+        if (activeIndex >= 0) {
+            if (dropdownRef.current) {
+                const activeEl = dropdownRef.current.children[activeIndex] as HTMLElement;
+                activeEl?.scrollIntoView({ block: 'nearest' });
+            }
+            if (historyListRef.current) {
+                const activeEl = historyListRef.current.children[activeIndex] as HTMLElement;
+                activeEl?.scrollIntoView({ block: 'nearest' });
+            }
+        }
+    }, [activeIndex]);
+
+    /** Cerrar dropdowns al hacer clic fuera del componente */
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setShowHistoryDropdown(false);
+                setShowSuggestions(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    /**
-     * Cerrar historial cuando el usuario empieza a escribir
-     */
-    useEffect(() => {
-        if (searchQuery && showHistoryDropdown) {
-            setShowHistoryDropdown(false);
-        }
-    }, [searchQuery, showHistoryDropdown]);
 
     // ============================================================================
     // MANEJADORES DE EVENTOS
     // ============================================================================
 
-    /**
-     * Manejar la limpieza de la búsqueda
-     * Limpia el estado global y actualiza la URL si es necesario
-     */
     const handleClear = () => {
-        // Limpiar la búsqueda en el contexto global
         clearSearch();
-
-        // Si estamos en la página de productos, actualizar la URL
         if (location.pathname === '/productos') {
             navigate('/productos', { replace: true });
         }
-
-        // Cerrar dropdown de historial
         setShowHistoryDropdown(false);
+        setShowSuggestions(false);
     };
 
-    /**
-     * Manejar eventos de teclado en el campo de búsqueda
-     * Permite cerrar historial y limpiar con Escape, navegar con Enter
-     *
-     * @param e - Evento de teclado del input
-     */
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        // Escape: primero cierra el historial, luego limpia la búsqueda
+        // Navegación con flechas — dropdown de sugerencias
+        if (showSuggestions && suggestions.length > 0) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : -1));
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveIndex(prev => {
+                    if (prev <= 0) return prev === 0 ? -1 : suggestions.length - 1;
+                    return prev - 1;
+                });
+                return;
+            }
+        }
+
+        // Navegación con flechas — dropdown de historial
+        if (showHistoryDropdown && history.length > 0) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveIndex(prev => (prev < history.length - 1 ? prev + 1 : -1));
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveIndex(prev => {
+                    if (prev <= 0) return prev === 0 ? -1 : history.length - 1;
+                    return prev - 1;
+                });
+                return;
+            }
+        }
+
         if (e.key === 'Escape') {
-            if (showHistoryDropdown) {
-                // Si el historial está abierto, solo cerrarlo
+            if (showSuggestions) {
+                setShowSuggestions(false);
+            } else if (showHistoryDropdown) {
                 setShowHistoryDropdown(false);
             } else if (searchQuery) {
-                // Si no hay historial abierto, limpiar búsqueda
                 handleClear();
             }
+            return;
         }
 
-        // Redireccionar con Enter
-        if (e.key === 'Enter' && searchQuery) {
-            // Agregar al historial si está habilitado
-            if (showHistory) {
-                addToHistory(searchQuery);
+        if (e.key === 'Enter') {
+            // Si hay una sugerencia resaltada, seleccionarla
+            if (showSuggestions && activeIndex >= 0 && suggestions[activeIndex]) {
+                handleSuggestionSelect(suggestions[activeIndex]);
+                return;
             }
-            // Usar la función del contexto global para navegación
-            navigateToProducts();
-            // Llamar al callback onSearch si existe
-            onSearch?.();
-            // Cerrar dropdown de historial
-            setShowHistoryDropdown(false);
+            // Si hay un ítem de historial resaltado, seleccionarlo
+            if (showHistoryDropdown && activeIndex >= 0 && history[activeIndex]) {
+                handleHistorySelect(history[activeIndex]);
+                return;
+            }
+            // Si no, buscar el texto escrito
+            if (searchQuery) {
+                setSearchQuery(searchQuery, { immediate: true });
+                if (showHistory) addToHistory(searchQuery);
+                navigateToProducts();
+                onSearch?.();
+                setShowHistoryDropdown(false);
+                setShowSuggestions(false);
+            }
         }
     };
 
-    /**
-     * Manejar el foco en el input
-     * Muestra el dropdown de historial si hay elementos
-     */
     const handleFocus = () => {
+        isFocusedRef.current = true;
         if (showHistory && history.length > 0 && !searchQuery) {
             setShowHistoryDropdown(true);
         }
+        if (searchQuery.length >= 2 && suggestions.length > 0) {
+            setShowSuggestions(true);
+        }
     };
 
-    /**
-     * Manejar la selección de un elemento del historial
-     * Aplica la búsqueda seleccionada
-     *
-     * @param query - Búsqueda seleccionada del historial
-     */
+    const handleBlur = () => {
+        isFocusedRef.current = false;
+    };
+
     const handleHistorySelect = (query: string) => {
-        setSearchQuery(query);
+        inputRef.current?.blur();
+        setSearchQuery(query, { immediate: true });
         setShowHistoryDropdown(false);
         navigateToProducts(query);
         onSearch?.();
     };
 
+    /**
+     * Seleccionar una sugerencia.
+     * Usa onMouseDown con preventDefault para evitar que el blur del input
+     * cierre el dropdown antes de que se registre el click.
+     */
+    const handleSuggestionSelect = (suggestion: Suggestion) => {
+        inputRef.current?.blur();
+        setSearchQuery(suggestion.text, { immediate: true });
+        setShowSuggestions(false);
+        navigateToProducts(suggestion.text);
+        onSearch?.();
+    };
+
+    const getSuggestionIcon = (type: Suggestion['type']) => {
+        if (type === 'marca') return 'store';
+        if (type === 'categoria') return 'category';
+        return 'search';
+    };
+
+    const getSuggestionIconClass = (type: Suggestion['type']) => {
+        if (type === 'marca') return styles.iconMarca;
+        if (type === 'categoria') return styles.iconCategoria;
+        return '';
+    };
+
+    const getSuggestionTagClass = (type: Suggestion['type']) => {
+        if (type === 'marca') return styles.tagMarca;
+        if (type === 'categoria') return styles.tagCategoria;
+        return '';
+    };
+
     // ============================================================================
-    // RENDERIZADO PRINCIPAL
+    // RENDERIZADO
     // ============================================================================
 
     return (
         <div className={`${styles.searchContainer} ${className}`} ref={containerRef}>
             <div className={styles.searchInputGroup}>
-                {/* Campo de entrada principal */}
                 <input
+                    ref={inputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={handleFocus}
+                    onBlur={handleBlur}
                     placeholder={placeholder}
                     className={`${styles.searchInput} ${isSearching ? styles.searching : ''}`}
                     aria-label="Buscar productos, marcas y mas ..."
+                    aria-autocomplete="list"
+                    aria-expanded={showSuggestions}
+                    aria-activedescendant={activeIndex >= 0 ? `suggestion-${activeIndex}` : undefined}
+                    autoComplete="off"
                 />
 
-                {/* Indicador de búsqueda activa o contador de resultados */}
-                {searchQuery && (
+                {/* Indicador de búsqueda activa (hourglass durante debounce) */}
+                {searchQuery && isSearching && (
                     <div className={styles.searchIndicator}>
-                        {isSearching ? (
-                            // Mientras busca, mostrar hourglass
-                            <span className={`material-icons ${styles.searchIcon}`}>
-                                hourglass_empty
-                            </span>
-                        ) : showResultCount && resultCount !== undefined ? (
-                            // Cuando termina de buscar, mostrar contador
-                            <span className={styles.resultCountBadge}>
-                                {resultCount}
-                            </span>
-                        ) : null}
+                        <span className={`material-icons ${styles.searchIcon}`}>
+                            hourglass_empty
+                        </span>
                     </div>
                 )}
 
-                {/* Botón de limpiar búsqueda */}
+                {/* Botón de limpiar */}
                 {showClearButton && searchQuery && (
                     <button
                         type="button"
@@ -259,6 +378,36 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                 )}
             </div>
 
+            {/* Dropdown de sugerencias predictivas */}
+            {showSuggestions && suggestions.length > 0 && (
+                <div className={styles.suggestionsDropdown} role="listbox" ref={dropdownRef}>
+                    {suggestions.map((suggestion, index) => (
+                        <div
+                            key={`${suggestion.type}-${index}`}
+                            id={`suggestion-${index}`}
+                            className={`${styles.suggestionItem} ${activeIndex === index ? styles.suggestionActive : ''}`}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleSuggestionSelect(suggestion);
+                            }}
+                            onMouseEnter={() => setActiveIndex(index)}
+                            role="option"
+                            aria-selected={activeIndex === index}
+                        >
+                            <span className={`material-icons ${styles.suggestionIcon} ${getSuggestionIconClass(suggestion.type)}`}>
+                                {getSuggestionIcon(suggestion.type)}
+                            </span>
+                            <span className={styles.suggestionText}>{suggestion.text}</span>
+                            {suggestion.type !== 'producto' && (
+                                <span className={`${styles.suggestionTag} ${getSuggestionTagClass(suggestion.type)}`}>
+                                    {suggestion.type === 'marca' ? 'Marca' : 'Categoría'}
+                                </span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Dropdown de historial de búsquedas */}
             {showHistory && showHistoryDropdown && history.length > 0 && (
                 <div className={styles.historyDropdown}>
@@ -266,12 +415,13 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                         <span className="material-icons">history</span>
                         <span>Búsquedas recientes</span>
                     </div>
-                    <ul className={styles.historyList}>
+                    <ul className={styles.historyList} ref={historyListRef}>
                         {history.map((item, index) => (
                             <li
                                 key={index}
-                                className={styles.historyItem}
+                                className={`${styles.historyItem} ${activeIndex === index ? styles.historyItemActive : ''}`}
                                 onClick={() => handleHistorySelect(item)}
+                                onMouseEnter={() => setActiveIndex(index)}
                             >
                                 <span className="material-icons">search</span>
                                 <span className={styles.historyText}>{item}</span>
@@ -284,4 +434,4 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     );
 };
 
-export default ProductSearch; 
+export default ProductSearch;

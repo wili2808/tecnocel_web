@@ -23,7 +23,6 @@
   padding: var(--spacing-md);
   background-color: var(--background-light);
   border-radius: var(--border-radius-md);
-  flex-wrap: wrap;
 }
 
 .breadcrumbLink {
@@ -161,7 +160,10 @@
 }
 
 .productActionsSection {
-  position: sticky;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Secciones de detalles */
@@ -411,7 +413,7 @@
   .breadcrumbLink,
   .breadcrumbItem,
   .breadcrumbCurrent {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-xxs);
   }
 
   .breadcrumbCurrent {

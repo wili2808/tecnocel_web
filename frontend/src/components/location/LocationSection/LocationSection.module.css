@@ -4,7 +4,6 @@
 
 /* Contenedor principal de la sección */
 .locationSection {
-  padding: var(--spacing-lg);
   background: var(--background-primary);
   transition: background-color var(--transition-normal) ease;
 }
@@ -12,8 +11,8 @@
 /* Container responsivo */
 .container {
   max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--container-padding);
+  margin-top: var(--section-spacing);
 }
 
 /* ============================================================================
@@ -140,10 +139,6 @@
 
 /* Tablet */
 @media (max-width: 768px) {
-  .locationSection {
-    padding: var(--spacing-3xl) 0;
-  }
-
   .sectionHeader {
     margin-bottom: var(--spacing-2xl);
   }
@@ -172,10 +167,6 @@
 
 /* Mobile */
 @media (max-width: 480px) {
-  .locationSection {
-    padding: var(--spacing-2xl) 0;
-  }
-
   .sectionHeader {
     margin-bottom: var(--spacing-lg);
   }

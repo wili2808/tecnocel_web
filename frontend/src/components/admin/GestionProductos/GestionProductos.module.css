@@ -193,7 +193,7 @@
 }
 
 .table th {
-  padding: var(--spacing-md);
+  padding: var(--spacing-xs);
   text-align: left;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
