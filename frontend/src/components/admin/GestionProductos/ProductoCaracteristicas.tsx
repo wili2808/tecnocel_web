@@ -93,10 +93,8 @@ const ProductoCaracteristicas = ({
         setLoading(false);
       }
     };
-
     cargarDatos();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modo, idProducto]);
+  }, [modo, idProducto, onCaracteristicasChange, showNotification]);
 
   // Tipos disponibles (filtrar los ya asignados)
   const tiposDisponibles = tipos.filter(
@@ -191,8 +189,9 @@ const ProductoCaracteristicas = ({
       setShowNuevoTipo(false);
       setNuevoTipo(INITIAL_NUEVO_TIPO);
       setNuevaOpcion('');
-    } catch (err: any) {
-      const mensaje = err.response?.data?.message || err.message || 'Error al crear tipo';
+    } catch (err: unknown) {
+      const errorWithResponse = err as { response?: { data?: { message?: string } }; message?: string };
+      const mensaje = errorWithResponse.response?.data?.message || errorWithResponse.message || 'Error al crear tipo';
       showNotification(mensaje, 'error');
     } finally {
       setSavingTipo(false);
@@ -584,3 +583,5 @@ const ProductoCaracteristicas = ({
 };
 
 export default ProductoCaracteristicas;
+
+

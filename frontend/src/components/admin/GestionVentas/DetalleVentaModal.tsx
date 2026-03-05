@@ -41,8 +41,9 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
       try {
         const data = await ventaAdminService.obtenerDetalle(idVenta);
         if (activo) setDetalle(data);
-      } catch (err: any) {
-        if (activo) showNotification(err.message || 'Error al cargar el detalle', 'error');
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Error al cargar el detalle';
+        if (activo) showNotification(message, 'error');
       } finally {
         if (activo) setCargando(false);
       }
@@ -50,7 +51,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
     cargar();
     return () => { activo = false; };
-  }, [idVenta]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idVenta, showNotification]);
 
   // ── Cerrar con Escape ──────────────────────────────────────────────────────
 
@@ -312,3 +313,4 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 };
 
 export default DetalleVentaModal;
+

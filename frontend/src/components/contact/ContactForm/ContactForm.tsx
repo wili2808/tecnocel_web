@@ -99,7 +99,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
         // ✅ VALIDAR TELÉFONO (opcional pero si se ingresa debe ser válido)
         if (formData.telefono.trim()) {
-            const phoneRegex = /^[0-9\s\-\+\(\)]+$/;
+            const phoneRegex = /^[0-9\s+()-]+$/;
             if (!phoneRegex.test(formData.telefono)) {
                 newErrors.telefono = 'El formato del teléfono no es válido';
             } else if (formData.telefono.trim().length < 7) {
@@ -138,42 +138,15 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 return;
             }
 
-            // TODO: Implementar llamada a API real
-            // const response = await fetch('/api/contacto', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(formData)
-            // });
+            showNotification('La funcionalidad de contacto estará disponible próximamente.', 'info');
 
-            // ✅ SIMULACIÓN de envío (reemplazar con API real)
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            console.log('Datos del formulario:', formData);
-
-            // ✅ MOSTRAR MENSAJE DE ÉXITO y limpiar formulario
-            showNotification('¡Mensaje enviado exitosamente! Te responderemos pronto.', 'success');
-
-            // ✅ LIMPIAR FORMULARIO completo después de éxito
-            setFormData({
-                nombre: '',
-                email: '',
-                telefono: '',
-                asunto: '',
-                mensaje: ''
-            });
-            setErrors({});
-
-            // ✅ CALLBACK de éxito si existe
             if (onSubmitSuccess) {
                 onSubmitSuccess();
             }
-
-        } catch (error: any) {
-            // ✅ MANEJO DE ERRORES con mensajes descriptivos
-            const errorMessage = error.response?.data?.mensaje ||
-                error.response?.data?.message ||
-                error.message ||
-                'Error al enviar el mensaje';
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'No se pudo procesar el formulario de contacto';
             showNotification(errorMessage, 'error');
         } finally {
             setIsSubmitting(false);
@@ -431,3 +404,4 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 };
 
 export default ContactForm;
+

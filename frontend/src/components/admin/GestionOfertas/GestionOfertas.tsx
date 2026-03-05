@@ -86,7 +86,6 @@ const GestionOfertas = () => {
 
     // Filtro por estado
     if (filtroEstado !== 'todas') {
-      const now = new Date();
       result = result.filter(o => {
         const estado = getEstadoOferta(o);
         switch (filtroEstado) {
@@ -450,3 +449,5 @@ const GestionOfertas = () => {
 };
 
 export default GestionOfertas;
+
+

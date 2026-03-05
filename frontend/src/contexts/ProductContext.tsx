@@ -713,11 +713,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
    */
   const fetchProduct = useCallback(async (id: number) => {
     try {
-      // Limpieza completa del estado
+      // Limpieza previa y transición explícita de loading para evitar estados intermedios inconsistentes
       clearProductState();
-
-      // Pausa breve para asegurar limpieza
-      await new Promise(resolve => setTimeout(resolve, 10));
+      dispatch({ type: 'SET_PRODUCTS_LOADING', payload: true });
+      dispatch({ type: 'SET_PRODUCTS_ERROR', payload: null });
 
       const product = await productService.getProductById(id);
       const productWithOffers = syncProductsWithOffers([product])[0];
@@ -1103,3 +1102,4 @@ export const useProductContext = (): ProductContextType => {
 };
 
 export default ProductContext;
+

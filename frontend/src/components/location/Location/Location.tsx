@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import styles from './Location.module.css';
-import GoogleMap from '../GoogleMap';
+import OpenStreetMap from '../OpenStreetMap';
 import HistorySection from '../HistorySection';
 
 const Location = () => {
@@ -20,7 +20,7 @@ const Location = () => {
 
             <div className={styles.mapSection}>
                 <h3>Encuéntranos Aquí</h3>
-                <GoogleMap
+                <OpenStreetMap
                     center={center}
                     title="MAC WIL - Creaciones e Impresiones"
                     onMarkerClick={handleMarkerClick}

@@ -280,8 +280,8 @@ const GestionUsuarios = () => {
           valB = b.id_rol;
           break;
         case 'fecha':
-          valA = a.fyh_creacion || '';
-          valB = b.fyh_creacion || '';
+          valA = a.fyh_creacion ? new Date(a.fyh_creacion).getTime() : 0;
+          valB = b.fyh_creacion ? new Date(b.fyh_creacion).getTime() : 0;
           break;
       }
 
@@ -705,3 +705,4 @@ const GestionUsuarios = () => {
 };
 
 export default GestionUsuarios;
+

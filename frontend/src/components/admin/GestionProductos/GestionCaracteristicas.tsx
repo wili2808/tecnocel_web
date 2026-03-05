@@ -36,11 +36,22 @@ const TIPO_DATO_LABELS: Record<TipoCaracteristica['tipo_dato'], string> = {
 };
 
 /** Normaliza opciones_seleccion: puede llegar como JSON string o como array desde el backend */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parseOpciones = (opciones: any): string[] => {
+const parseOpciones = (opciones: unknown): string[] => {
   if (!opciones) return [];
-  if (Array.isArray(opciones)) return opciones;
-  try { return JSON.parse(opciones); } catch { return []; }
+  if (Array.isArray(opciones)) return opciones.filter((item): item is string => typeof item === 'string');
+  if (typeof opciones !== 'string') return [];
+
+  try {
+    const parsed = JSON.parse(opciones);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  const err = error as { response?: { data?: { error?: string; message?: string; mensaje?: string } }; message?: string };
+  return err.response?.data?.error || err.response?.data?.message || err.response?.data?.mensaje || err.message || fallback;
 };
 
 const GestionCaracteristicas: React.FC = memo(() => {
@@ -63,12 +74,12 @@ const GestionCaracteristicas: React.FC = memo(() => {
       setLoading(true);
       const data = await adminProductService.obtenerTiposCaracteristicas();
       setTipos(data);
-    } catch (err: any) {
-      showNotification(err.response?.data?.error || err.message || 'Error al cargar tipos de características', 'error');
+    } catch (err: unknown) {
+      showNotification(getErrorMessage(err, 'Error al cargar tipos de características'), 'error');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
     cargarTipos();
@@ -89,7 +100,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
       descripcion: tipo.descripcion || '',
       tipo_dato: tipo.tipo_dato,
       unidad_medida: tipo.unidad_medida || '',
-      opciones_seleccion: parseOpciones(tipo.opciones_seleccion as any),
+      opciones_seleccion: parseOpciones(tipo.opciones_seleccion),
     });
     setNuevaOpcion('');
     setShowForm(true);
@@ -153,11 +164,8 @@ const GestionCaracteristicas: React.FC = memo(() => {
       }
       cancelarForm();
       await cargarTipos();
-    } catch (err: any) {
-      showNotification(
-        err.response?.data?.error || err.response?.data?.message || err.message || 'Error al guardar',
-        'error',
-      );
+    } catch (err: unknown) {
+      showNotification(getErrorMessage(err, 'Error al guardar'), 'error');
     } finally {
       setSaving(false);
     }
@@ -180,11 +188,8 @@ const GestionCaracteristicas: React.FC = memo(() => {
       showNotification('Tipo de característica desactivado exitosamente', 'success');
       setEliminandoId(null);
       await cargarTipos();
-    } catch (err: any) {
-      showNotification(
-        err.response?.data?.error || err.response?.data?.message || err.message || 'Error al eliminar',
-        'error',
-      );
+    } catch (err: unknown) {
+      showNotification(getErrorMessage(err, 'Error al eliminar'), 'error');
     } finally {
       setSaving(false);
     }
@@ -237,7 +242,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
       return <span className={styles.unidadBadge}>{tipo.unidad_medida}</span>;
     }
     if (tipo.tipo_dato === 'seleccion') {
-      const opciones = parseOpciones(tipo.opciones_seleccion as any);
+      const opciones = parseOpciones(tipo.opciones_seleccion);
       if (!opciones.length) return <span className={styles.emptyValue}>—</span>;
       return (
         <div className={styles.opcionesList}>
@@ -508,3 +513,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
 });
 
 export default GestionCaracteristicas;
+
+
+
+

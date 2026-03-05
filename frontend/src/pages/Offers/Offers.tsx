@@ -28,7 +28,7 @@ const Offers: React.FC = () => {
   const productosPorOferta = useMemo(() => {
     const map = new Map<number, Product[]>();
     productosEnOferta.forEach((producto) => {
-      producto.ofertas?.forEach((oferta) => {
+      producto.ofertas?.forEach((oferta: { id_oferta: number }) => {
         const list = map.get(oferta.id_oferta) ?? [];
         if (!list.find((p) => p.id_producto === producto.id_producto)) {
           list.push(producto);
@@ -206,3 +206,4 @@ const Offers: React.FC = () => {
 
 Offers.displayName = 'Offers';
 export default Offers;
+

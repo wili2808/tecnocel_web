@@ -107,7 +107,16 @@ export const usuarioService = {
    */
   getStoredUser(): AdminUser | null {
     const userStr = localStorage.getItem(ADMIN_USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(userStr) as AdminUser;
+    } catch {
+      this.clearAuthToken();
+      return null;
+    }
   },
 
   /**
@@ -332,3 +341,4 @@ export const usuarioService = {
 };
 
 export default usuarioService;
+

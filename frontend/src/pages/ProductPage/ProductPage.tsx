@@ -12,7 +12,6 @@ import ProductFeatures from '../../components/product/ProductFeatures';
 import ProductComments from '../../components/product/ProductComments';
 import OfferIndicator from '../../components/product/OfferIndicator';
 import FavoriteButtonReusable from '../../components/product/FavoriteButtonReusable';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import styles from './ProductPage.module.css';
 
 const ProductPage: React.FC = () => {
@@ -195,3 +194,4 @@ const ProductPage: React.FC = () => {
 };
 
 export default ProductPage;
+

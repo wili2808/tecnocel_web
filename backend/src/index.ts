@@ -190,12 +190,25 @@ const startServer = async () => {
     
     await initDatabase();
     
-    app.listen(PORT, () => {
+    const server = app.listen(Number(PORT), () => {
       logger.info('Servidor iniciado exitosamente', {
         port: PORT,
         environment: process.env.NODE_ENV || 'development',
         timestamp: new Date().toISOString()
       });
+    });
+
+    server.on('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'EADDRINUSE') {
+        logger.error('El puerto ' + PORT + ' ya esta en uso. Cerra el proceso que lo usa o cambia PORT en .env');
+        process.exit(1);
+      }
+
+      logger.error('Error al iniciar el servidor', {
+        error: error.message,
+        code: error.code
+      });
+      process.exit(1);
     });
   } catch (error) {
     logger.error('Error crítico al iniciar el servidor', {
@@ -209,3 +222,4 @@ const startServer = async () => {
 startServer();
 
 export default app;
+
