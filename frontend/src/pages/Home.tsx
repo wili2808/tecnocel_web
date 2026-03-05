@@ -1,73 +1,79 @@
+import { useEffect, useCallback } from 'react';
+import { FiZap, FiShield, FiRefreshCw, FiHeadphones } from 'react-icons/fi';
 import HeroSection from '../components/layout/HeroSection';
 import FeaturedProducts from '../components/product/FeaturedProducts';
 import CTASection from '../components/common/CTASection';
 import LocationSection from '../components/location/LocationSection';
 import { useProductActions } from '../hooks/useProductActions';
 import { useOfertasGlobal } from '../hooks/useOfertasGlobal';
-import { useEffect, useCallback } from 'react';
+import styles from './Home.module.css';
+
+// Pilares de valor de la marca
+const FEATURES = [
+  { icon: FiZap,        title: 'Envío rápido',        desc: 'En 24-48 horas' },
+  { icon: FiShield,     title: 'Garantía oficial',     desc: 'Productos certificados' },
+  { icon: FiHeadphones, title: 'Soporte dedicado',     desc: 'Lun–Vie 9–20 hs' },
+  { icon: FiRefreshCw,  title: 'Devolución fácil',     desc: '30 días sin preguntas' },
+] as const;
 
 const Home = () => {
-  // ============================================================================
-  // CONTEXTO DE PRODUCTOS - CARGA PRINCIPAL
-  // ============================================================================
-  const {
-    featuredProducts,
-    productsLoading: loading,
-    productsError: error,
-    loadFeaturedProducts,
-  } = useProductActions();
-
-  // ============================================================================
-  // CONTEXTO DE OFERTAS - CARGA PARA PRODUCTCARDS
-  // ============================================================================
+  const { featuredProducts, productsLoading, productsError, loadFeaturedProducts } = useProductActions();
   const { loadOfertas, ofertas } = useOfertasGlobal();
 
-  // ============================================================================
-  // FUNCIONES ESTABLES PARA EVITAR BUCLE INFINITO
-  // ============================================================================
+  const loadProducts = useCallback(() => {
+    if (!featuredProducts.length && !productsLoading) loadFeaturedProducts(8);
+  }, [featuredProducts.length, productsLoading, loadFeaturedProducts]);
 
-  // Función estable para cargar productos destacados
-  const handleLoadFeaturedProducts = useCallback(() => {
-    if (featuredProducts.length === 0 && !loading) {
-      loadFeaturedProducts(8);
-    }
-  }, [featuredProducts.length, loading, loadFeaturedProducts]);
-
-  // Función estable para cargar ofertas
-  const handleLoadOfertas = useCallback(() => {
-    if (ofertas.length === 0) {
-      loadOfertas();
-    }
+  const loadOfertasIfNeeded = useCallback(() => {
+    if (!ofertas.length) loadOfertas();
   }, [ofertas.length, loadOfertas]);
 
-  // ============================================================================
-  // CARGA INTELLIGENTE DE DATOS - ORQUESTACIÓN CENTRALIZADA
-  // ============================================================================
-
-  // Cargar productos destacados solo si no están cargados
-  useEffect(() => {
-    handleLoadFeaturedProducts();
-  }, [handleLoadFeaturedProducts]);
-
-  // Cargar ofertas para que ProductCard pueda mostrar precios actualizados
-  useEffect(() => {
-    handleLoadOfertas();
-  }, [handleLoadOfertas]);
+  useEffect(() => { loadProducts(); }, [loadProducts]);
+  useEffect(() => { loadOfertasIfNeeded(); }, [loadOfertasIfNeeded]);
 
   return (
     <>
+      {/* 1. Hero principal */}
       <HeroSection />
-      <FeaturedProducts products={featuredProducts} title="" loading={loading} error={error} />
+
+      {/* 2. Franja de pilares de valor */}
+      <div className={styles.featuresStrip}>
+        <div className={styles.featuresGrid}>
+          {FEATURES.map(({ icon: Icon, title, desc }) => (
+            <div key={title} className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <Icon size={18} />
+              </div>
+              <div className={styles.featureText}>
+                <p className={styles.featureTitle}>{title}</p>
+                <p className={styles.featureDesc}>{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Productos destacados */}
+      <FeaturedProducts
+        products={featuredProducts}
+        title="Destacados"
+        loading={productsLoading}
+        error={productsError}
+      />
+
+      {/* 4. CTA de contacto/cotización — sección oscura editorial */}
       <CTASection
-        title="¿Listo para personalizar tu pedido?"
-        description="Contáctanos para obtener una cotización personalizada para tu proyecto."
-        buttonText="Solicitar Cotización"
+        title="¿Listo para tu próximo equipo?"
+        description="Cotización personalizada para empresas, profesionales y proyectos especiales."
+        buttonText="Solicitar cotización"
         buttonLink="/contacto"
         variant="gradient"
-        icon="mail"
-        secondaryButtonText="Ver Catálogo"
+        icon="arrow"
+        secondaryButtonText="Ver catálogo"
         secondaryButtonLink="/productos"
       />
+
+      {/* 5. Ubicación y contacto */}
       <LocationSection />
     </>
   );

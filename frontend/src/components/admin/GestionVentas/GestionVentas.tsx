@@ -42,12 +42,12 @@ const formatFecha = (iso: string) =>
   });
 
 const formatMonto = (n: number) =>
-  `$${n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const formatIngreso = (n: number) => {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000)    return `$${(n / 1_000).toFixed(1)}K`;
-  return formatMonto(n);
+  return `$${formatMonto(n)}`;
 };
 
 // ── Componente ────────────────────────────────────────────────────────────────
@@ -303,7 +303,7 @@ const GestionVentas: React.FC = () => {
                 {formatIngreso(stats?.ingresos_mes ?? 0)}
               </span>
               <span className={styles.statSub}>
-                {stats ? formatMonto(stats.ingresos_mes) : '—'}
+                {stats ? `$${formatMonto(stats.ingresos_mes)}` : '—'}
               </span>
             </div>
           </>
@@ -378,83 +378,90 @@ const GestionVentas: React.FC = () => {
 
       {/* Barra de filtros */}
       <div className={styles.filterBar}>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Desde</label>
-          <input
-            type="date"
-            className={styles.filterInput}
-            value={filtrosTmp.fecha_inicio || ''}
-            onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
-          />
+        {/* Fila 1: fechas, estado, tipo, método de pago */}
+        <div className={styles.filterRow}>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Desde</label>
+            <input
+              type="date"
+              className={styles.filterInput}
+              value={filtrosTmp.fecha_inicio || ''}
+              onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+            />
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Hasta</label>
+            <input
+              type="date"
+              className={styles.filterInput}
+              value={filtrosTmp.fecha_fin || ''}
+              onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+            />
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Estado</label>
+            <select
+              className={styles.filterSelect}
+              value={filtrosTmp.estado || ''}
+              onChange={e => setFiltrosTmp(prev => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))}
+            >
+              <option value="">Todos</option>
+              <option value="completada">Completada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="pendiente">Pendiente</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Tipo</label>
+            <select
+              className={styles.filterSelect}
+              value={filtrosTmp.tipo_venta || ''}
+              onChange={e => setFiltrosTmp(prev => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))}
+            >
+              <option value="">Todos</option>
+              <option value="web">Web</option>
+              <option value="manual">Manual</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Método pago</label>
+            <select
+              className={styles.filterSelect}
+              value={filtrosTmp.metodo_pago || ''}
+              onChange={e => setFiltrosTmp(prev => ({ ...prev, metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'] }))}
+            >
+              <option value="">Todos</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="qr">QR</option>
+            </select>
+          </div>
         </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Hasta</label>
-          <input
-            type="date"
-            className={styles.filterInput}
-            value={filtrosTmp.fecha_fin || ''}
-            onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
-          />
-        </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Estado</label>
-          <select
-            className={styles.filterSelect}
-            value={filtrosTmp.estado || ''}
-            onChange={e => setFiltrosTmp(prev => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))}
-          >
-            <option value="">Todos</option>
-            <option value="completada">Completada</option>
-            <option value="cancelada">Cancelada</option>
-            <option value="pendiente">Pendiente</option>
-          </select>
-        </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Tipo</label>
-          <select
-            className={styles.filterSelect}
-            value={filtrosTmp.tipo_venta || ''}
-            onChange={e => setFiltrosTmp(prev => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))}
-          >
-            <option value="">Todos</option>
-            <option value="web">Web</option>
-            <option value="manual">Manual</option>
-          </select>
-        </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Método pago</label>
-          <select
-            className={styles.filterSelect}
-            value={filtrosTmp.metodo_pago || ''}
-            onChange={e => setFiltrosTmp(prev => ({ ...prev, metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'] }))}
-          >
-            <option value="">Todos</option>
-            <option value="efectivo">Efectivo</option>
-            <option value="tarjeta">Tarjeta</option>
-            <option value="transferencia">Transferencia</option>
-            <option value="qr">QR</option>
-          </select>
-        </div>
-        <div className={`${styles.filterGroup} ${styles.filterGroupWide}`}>
-          <label className={styles.filterLabel}>Búsqueda</label>
-          <input
-            type="text"
-            className={styles.filterInput}
-            placeholder="N° venta, cliente..."
-            value={filtrosTmp.search || ''}
-            onChange={e => setFiltrosTmp(prev => ({ ...prev, search: e.target.value || undefined }))}
-            onKeyDown={e => { if (e.key === 'Enter') aplicarFiltros(); }}
-          />
-        </div>
-        <div className={styles.filterActions}>
-          <button className={styles.filterButton} onClick={aplicarFiltros}>
-            <span className="material-icons">filter_list</span>
-            Filtrar
-          </button>
-          <button className={styles.clearButton} onClick={limpiarFiltros}>
-            <span className="material-icons">clear</span>
-            Limpiar
-          </button>
+
+        {/* Fila 2: búsqueda + acciones */}
+        <div className={styles.filterRow}>
+          <div className={`${styles.filterGroup} ${styles.filterGroupWide}`}>
+            <label className={styles.filterLabel}>Búsqueda</label>
+            <input
+              type="text"
+              className={styles.filterInput}
+              placeholder="N° venta, cliente..."
+              value={filtrosTmp.search || ''}
+              onChange={e => setFiltrosTmp(prev => ({ ...prev, search: e.target.value || undefined }))}
+              onKeyDown={e => { if (e.key === 'Enter') aplicarFiltros(); }}
+            />
+          </div>
+          <div className={styles.filterActions}>
+            <button className={styles.filterButton} onClick={aplicarFiltros}>
+              <span className="material-icons">filter_list</span>
+              Filtrar
+            </button>
+            <button className={styles.clearButton} onClick={limpiarFiltros}>
+              <span className="material-icons">clear</span>
+              Limpiar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -545,9 +552,20 @@ const GestionVentas: React.FC = () => {
                         }
                       </td>
                       <td>{venta.cantidad_items}</td>
-                      <td>
+                      <td className={styles.textRight}>
                         <span className={styles.totalCell}>
-                          {formatMonto(venta.total_pagado)}
+                          ${formatMonto(venta.total_pagado)}
+                          <span style={{
+                            marginLeft: '6px',
+                            fontSize: '0.75rem',
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                            backgroundColor: venta.moneda === 'USD' ? '#dbeafe' : '#cffafe',
+                            color: venta.moneda === 'USD' ? '#1e40af' : '#0369a1',
+                            fontWeight: '500'
+                          }}>
+                            {venta.moneda === 'USD' ? 'USD' : 'ARS'}
+                          </span>
                         </span>
                       </td>
                       <td>{ventaAdminService.formatearMetodoPago(venta.metodo_pago)}</td>

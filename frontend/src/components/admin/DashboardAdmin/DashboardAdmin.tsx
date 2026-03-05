@@ -139,7 +139,7 @@ const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
             <span className="material-icons">receipt_long</span>
             <span>Gestión de Ventas</span>
           </button>
-          <button className={styles.actionButton}>
+          <button className={styles.actionButton} onClick={() => onNavigate('reportes')}>
             <span className="material-icons">assessment</span>
             <span>Ver Reportes</span>
           </button>

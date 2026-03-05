@@ -1,0 +1,302 @@
+/* ============================================================================
+   GESTION CATEGORIAS — Panel CRUD de categorías
+   ============================================================================ */
+
+.panel {
+  padding: 0;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.panelTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.panelTitle .material-icons {
+  color: var(--color-primary);
+  font-size: var(--font-size-2xl);
+}
+
+.panelSubtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.addButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   TABLA
+   ============================================================================ */
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--background-light);
+  font-size: var(--font-size-sm);
+}
+
+.table thead {
+  background-color: var(--background-neutral);
+}
+
+.th {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.sortableHeader:hover {
+  color: var(--color-primary);
+}
+
+.sortableHeaderContent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.sortIcon {
+  font-size: var(--font-size-sm) !important;
+  opacity: 0.3;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.sortableHeader:hover .sortIcon {
+  opacity: 0.6;
+}
+
+.sortIconActive {
+  opacity: 1 !important;
+  color: var(--color-primary);
+}
+
+.td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child .td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-primary-25);
+}
+
+/* ============================================================================
+   ESTADOS DE FILA
+   ============================================================================ */
+
+.newRow {
+  background-color: var(--color-success-50, #f0fdf4);
+}
+
+.editRow {
+  background-color: var(--color-primary-25);
+}
+
+.confirmRow {
+  background-color: var(--color-warning-100);
+}
+
+.confirmText {
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.emptyMessage {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+/* ============================================================================
+   INPUTS INLINE
+   ============================================================================ */
+
+.editInput {
+  width: 100%;
+  padding: 5px var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  min-width: 180px;
+}
+
+.editInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+/* ============================================================================
+   ACCIONES
+   ============================================================================ */
+
+.rowActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.actionBtn {
+  padding: 5px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
+}
+
+.actionBtn .material-icons {
+  font-size: var(--font-size-md);
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.actionBtnEdit {
+  color: var(--text-secondary);
+}
+
+.actionBtnEdit:hover:not(:disabled) {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.actionBtnSuccess {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.actionBtnSuccess:hover:not(:disabled) {
+  background-color: var(--color-success-100);
+}
+
+.actionBtnDanger {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.actionBtnDanger:hover:not(:disabled) {
+  background-color: var(--color-error-100);
+}
+
+.actionBtnNeutral {
+  color: var(--text-secondary);
+}
+
+.actionBtnNeutral:hover:not(:disabled) {
+  background-color: var(--background-neutral);
+}
+
+/* ============================================================================
+   ESTADO CARGA
+   ============================================================================ */
+
+.loadingState {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .panelHeader {
+    flex-direction: column;
+  }
+
+  .th,
+  .td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

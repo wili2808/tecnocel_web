@@ -21,6 +21,7 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
+import type { RegistrarVentaManualBody, CancelarVentaBody, ActualizarTipoCambioBody } from '../types/venta.types.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Cancelacion from '../models/Cancelacion.js';
@@ -155,7 +156,8 @@ export default class AdminVentaController {
       });
 
       const ventas = rows.map(venta => {
-        const v = venta.toJSON() as any;
+        /** Sequelize no tipifica asociaciones — cast necesario para acceder a relaciones incluidas */
+        const v = venta.toJSON() as Record<string, any>;
         return {
           id_venta:        v.id_venta,
           nro_venta:       `V-${v.nro_venta.toString().padStart(5, '0')}`,
@@ -170,6 +172,7 @@ export default class AdminVentaController {
           metodo_pago:     v.metodo_pago,
           tipo_venta:      v.tipo_venta,
           estado:          v.estado,
+          moneda:          v.moneda || 'ARS',
           id_vendedor:     v.id_vendedor,
           nombre_vendedor: v.vendedor?.nombres || null
         };
@@ -251,7 +254,8 @@ export default class AdminVentaController {
         return res.status(404).json({ mensaje: 'Venta no encontrada' });
       }
 
-      const v = venta.toJSON() as any;
+      /** Sequelize no tipifica asociaciones — cast necesario para acceder a relaciones incluidas */
+      const v = venta.toJSON() as Record<string, any>;
 
       return res.json({
         id_venta:     v.id_venta,
@@ -335,7 +339,7 @@ export default class AdminVentaController {
       }
 
       const id_vendedor = req.usuario.id;
-      const { id_cliente, items, metodo_pago, observaciones, moneda = 'ARS', valor_dolar } = req.body;
+      const { id_cliente, items, metodo_pago, observaciones, moneda = 'ARS', valor_dolar } = req.body as RegistrarVentaManualBody;
 
       // 1. Verificar cliente si se proporcionó
       if (id_cliente) {
@@ -377,7 +381,7 @@ export default class AdminVentaController {
 
         // Usar precio manual si lo proveyó el vendedor, sino precio del catálogo
         const precio_unitario = (item.precio_unitario_manual != null)
-          ? parseFloat(item.precio_unitario_manual)
+          ? parseFloat(String(item.precio_unitario_manual))
           : parseFloat(producto.precio_venta);
 
         itemsValidados.push({
@@ -399,6 +403,12 @@ export default class AdminVentaController {
       });
       const nroVenta = ultimaVenta ? ultimaVenta.nro_venta + 1 : 1;
 
+      // 5b. Siempre guardar tipo de cambio vigente (necesario para conversiones en reportes)
+      const valorDolarFinal: number | null = valor_dolar
+        ? parseFloat(String(valor_dolar))
+        : await Configuracion.findByPk('tipo_cambio_usd', { transaction })
+            .then(c => c ? parseFloat(c.valor) : null);
+
       // 6. Crear Venta
       const venta = await Venta.create({
         nro_venta:        nroVenta,
@@ -411,7 +421,7 @@ export default class AdminVentaController {
         total_pagado:     Math.round(total), // INTEGER en BD
         observaciones:    observaciones || null,
         moneda,
-        valor_dolar:      valor_dolar ?? null,
+        valor_dolar:      valorDolarFinal,
         fyh_creacion:     new Date(),
         fyh_actualizacion: new Date()
       }, { transaction });
@@ -487,7 +497,7 @@ export default class AdminVentaController {
     const transaction = await sequelize.transaction();
     try {
       const { id_venta } = req.params;
-      const { motivo } = req.body;
+      const { motivo } = req.body as CancelarVentaBody;
 
       const venta = await Venta.findOne({
         where: { id_venta },
@@ -511,7 +521,8 @@ export default class AdminVentaController {
         return res.status(404).json({ mensaje: 'Venta no encontrada' });
       }
 
-      const ventaData = venta.toJSON() as any;
+      /** Sequelize no tipifica asociaciones — cast necesario para acceder a relaciones incluidas */
+      const ventaData = venta.toJSON() as Record<string, any>;
 
       if (ventaData.estado === 'cancelada') {
         await transaction.rollback();
@@ -636,7 +647,7 @@ export default class AdminVentaController {
         return res.status(400).json({ mensaje: 'Datos inválidos', errores: errors.array() });
       }
 
-      const { valor } = req.body;
+      const { valor } = req.body as ActualizarTipoCambioBody;
       await Configuracion.upsert({
         clave: 'tipo_cambio_usd',
         valor: valor.toString(),

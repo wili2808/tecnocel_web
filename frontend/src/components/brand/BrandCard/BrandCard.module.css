@@ -1,345 +1,168 @@
-/**
- * Estilos del componente BrandCard
- * Sistema de diseño: Mobile-first responsive
- * Usa variables CSS del sistema definidas en variables.css y themes.css
- */
-
 /* ============================================================================
-   CONTENEDOR PRINCIPAL DE LA TARJETA
+   BRAND CARD — Silicon Precision
+   Tarjeta de marca: hover elegante, overlay oscuro editorial.
    ============================================================================ */
 
 .brandCard {
   position: relative;
   background: var(--background-secondary);
-  border: 1px solid var(--border-color-light);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-lg);
   text-align: center;
   cursor: pointer;
-  transition: all var(--transition-normal) var(--transition-curve);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              transform var(--transition-fast) var(--transition-curve);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
-  min-height: 280px;
+  min-height: 260px;
 }
 
 .brandCard:hover {
-  transform: scale(1.02);
-  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
   border-color: var(--color-primary);
 }
 
-.brandCard:focus {
+.brandCard:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.brandCard:active {
-  transform: translateY(-3px);
-}
-
-/* ============================================================================
-   CONTENEDOR DEL LOGO
-   ============================================================================ */
-
+/* Logo */
 .logoContainer {
   width: 100%;
-  height: 140px;
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-md);
   background: var(--background-primary);
-  border-radius: var(--border-radius-md);
-  margin-bottom: var(--spacing-sm);
-  transition: all var(--transition-normal) var(--transition-curve);
-  position: relative;
-  overflow: hidden;
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .brandCard:hover .logoContainer {
-  background: linear-gradient(135deg, var(--color-primary-100) 0%, var(--color-secondary-100) 100%);
-  box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1);
+  background: var(--color-primary-100);
 }
 
 .logo {
   max-width: 120px;
-  max-height: 120px;
+  max-height: 110px;
   width: auto;
   height: auto;
   object-fit: contain;
-  transition: all var(--transition-normal) var(--transition-curve);
-  filter: brightness(0.95) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  position: relative;
-  z-index: 1;
+  filter: brightness(0.95);
+  transition: filter var(--transition-fast) var(--transition-curve);
 }
 
-.brandCard:hover .logo {
-  transform: scale(1.1) translateY(-4px);
-  filter: brightness(1) drop-shadow(0 8px 16px rgba(14, 165, 233, 0.3));
-}
+.brandCard:hover .logo { filter: brightness(1); }
 
-/* ============================================================================
-   CONTENIDO DE LA TARJETA
-   ============================================================================ */
-
+/* Contenido */
 .content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   width: 100%;
   flex: 1;
 }
 
 .brandName {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.3;
-  word-wrap: break-word;
-  transition: color var(--transition-normal) var(--transition-curve);
+  transition: color var(--transition-fast) var(--transition-curve);
 }
 
-.brandCard:hover .brandName {
-  color: var(--color-primary);
-}
+.brandCard:hover .brandName { color: var(--color-primary); }
 
 .description {
-  font-family: var(--font-family-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
-  text-align: center;
-  min-height: 40px;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
-/* ============================================================================
-   OVERLAY DE HOVER
-   ============================================================================ */
-
+/* Overlay editorial — oscuro y limpio */
 .hoverOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(14, 165, 233, 0.95) 0%,
-    rgba(107, 70, 193, 0.95) 100%
-  );
+  inset: 0;
+  background: rgba(10, 10, 12, 0.82);
   opacity: 0;
-  transition: opacity var(--transition-normal) var(--transition-curve);
+  transition: opacity var(--transition-fast) var(--transition-curve);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-md);
-  backdrop-filter: blur(4px);
   z-index: 2;
 }
 
-.brandCard:hover .hoverOverlay {
-  opacity: 1;
-}
+.brandCard:hover .hoverOverlay { opacity: 1; }
 
 .overlayContent {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-sm);
-  animation: slideUpFade 0.3s ease-out;
 }
 
-@keyframes slideUpFade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.overlayIcon {
-  font-size: var(--icon-size-xl);
-  color: var(--color-white);
-  animation: iconPulse 2s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
+/* Ocultar el material-icon del overlay — el diseño habla por sí solo */
+.overlayContent .material-icons { display: none; }
 
 .viewText {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-white);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  letter-spacing: 0.5px;
-  text-align: center;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: #f4f4f5;
+  letter-spacing: -0.01em;
 }
 
 .viewButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: var(--color-white);
-  color: var(--color-primary);
+  padding: 0.5rem var(--spacing-lg);
+  background: var(--color-primary);
+  color: var(--color-white);
   border: none;
   border-radius: var(--border-radius-full);
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--transition-curve);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.viewButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  background: var(--color-primary-light);
-}
-
-.viewButton .material-icons {
-  font-size: var(--icon-size-sm);
-}
-
-/* ============================================================================
-   RESPONSIVE - MOBILE FIRST
-   ============================================================================ */
-
-/* Mobile (por defecto - hasta 480px) */
-.brandCard {
-  min-height: 260px;
-}
-
-.logo {
-  max-width: 100px;
-  max-height: 100px;
-}
-
-.viewText {
-  font-size: var(--font-size-md);
-}
-
-.viewButton {
-  padding: var(--spacing-xs) var(--spacing-md);
   font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-/* Tablet (481px - 768px) */
-@media (min-width: 481px) {
-  .brandCard {
-    min-height: 280px;
-  }
+.viewButton .material-icons { font-size: 14px; }
 
-  .logo {
-    max-width: 120px;
-    max-height: 120px;
-  }
-
-  .brandName {
-    font-size: var(--font-size-xl);
-  }
-}
-
-/* Desktop (769px - 1024px) */
-@media (min-width: 769px) {
-  .brandCard {
-    min-height: 300px;
-  }
-
-  .description {
-    font-size: var(--font-size-md);
-  }
-}
-
-/* Large Desktop (1025px+) */
+/* Responsive */
 @media (min-width: 1025px) {
-  .brandCard {
-    min-height: 320px;
-  }
-
-  .logoContainer {
-    height: 160px;
-  }
-
-  .logo {
-    max-width: 140px;
-    max-height: 140px;
-  }
+  .brandCard { min-height: 300px; }
+  .logoContainer { height: 150px; }
+  .logo { max-width: 130px; max-height: 120px; }
 }
 
-/* ============================================================================
-   ACCESIBILIDAD
-   ============================================================================ */
-
-/* Mejoras para usuarios de teclado */
-.brandCard:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 3px;
+@media (min-width: 481px) {
+  .brandCard { min-height: 280px; }
+  .brandName { font-size: var(--font-size-lg); }
 }
 
-/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
+/* Tema oscuro */
+[data-theme="dark"] .logo { filter: brightness(0.9); }
+[data-theme="dark"] .brandCard:hover .logo { filter: brightness(1.05); }
+[data-theme="dark"] .logoContainer { background: var(--background-elevated); }
+
 @media (prefers-reduced-motion: reduce) {
-  .brandCard,
-  .logo,
-  .logoContainer,
-  .hoverOverlay,
-  .overlayContent,
-  .overlayIcon,
-  .viewButton,
-  .brandName {
-    transition: none;
-    animation: none;
-  }
-
-  .brandCard:hover {
-    transform: none;
-  }
-
-  .brandCard:hover .logo {
-    transform: none;
-  }
-
-  .overlayIcon {
-    animation: none;
-  }
-}
-
-/* ============================================================================
-   TEMA OSCURO - Ajustes adicionales
-   ============================================================================ */
-
-[data-theme="dark"] .logo {
-  filter: brightness(0.9);
-}
-
-[data-theme="dark"] .brandCard:hover .logo {
-  filter: brightness(1.1);
-}
-
-[data-theme="dark"] .logoContainer {
-  background: var(--background-secondary);
+  .brandCard, .logo, .logoContainer, .hoverOverlay, .brandName { transition: none; }
+  .brandCard:hover { transform: none; }
 }

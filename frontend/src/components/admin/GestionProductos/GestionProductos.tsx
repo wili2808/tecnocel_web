@@ -7,10 +7,14 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminProductService from '../../../services/adminProductService';
 import ProductoForm from './ProductoForm';
+import GestionMarcas from './GestionMarcas';
+import GestionCategorias from './GestionCategorias';
+import GestionCaracteristicas from './GestionCaracteristicas';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
 type Vista = 'lista' | 'crear' | 'editar';
+type TabProductos = 'productos' | 'marcas' | 'categorias' | 'caracteristicas';
 type SortKey = 'codigo' | 'nombre' | 'categoria' | 'marca' | 'precio_venta' | 'stock';
 type SortDir = 'asc' | 'desc';
 
@@ -23,6 +27,7 @@ const GestionProductos = () => {
 
   // Estado de la vista
   const [vista, setVista] = useState<Vista>('lista');
+  const [activeTab, setActiveTab] = useState<TabProductos>('productos');
   const [productoSeleccionado, setProductoSeleccionado] = useState<Product | null>(null);
 
   // Estado de la lista (todos los productos cargados)
@@ -215,6 +220,32 @@ const GestionProductos = () => {
         </div>
       </div>
 
+      {/* Barra de tabs */}
+      <div className={styles.tabsBar}>
+        {[
+          { key: 'productos', icon: 'inventory_2', label: 'Productos' },
+          { key: 'marcas', icon: 'branding_watermark', label: 'Marcas' },
+          { key: 'categorias', icon: 'category', label: 'Categorías' },
+          { key: 'caracteristicas', icon: 'tune', label: 'Características' },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            className={`${styles.tabBtn} ${activeTab === tab.key ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab(tab.key as TabProductos)}
+          >
+            <span className="material-icons">{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Pestañas secundarias */}
+      {activeTab === 'marcas' && <GestionMarcas />}
+      {activeTab === 'categorias' && <GestionCategorias />}
+      {activeTab === 'caracteristicas' && <GestionCaracteristicas />}
+
+      {activeTab === 'productos' && (
+      <>
       {/* Barra de búsqueda */}
       <form onSubmit={handleSearch} className={styles.searchForm}>
         <div className={styles.searchInputWrapper}>
@@ -357,8 +388,22 @@ const GestionProductos = () => {
                         </td>
                         <td>{producto.Categoria?.nombre_categoria || '-'}</td>
                         <td>{producto.marca?.nombre_marca || '-'}</td>
-                        <td className={styles.precioCell}>
-                          $ {parseFloat(producto.precio_venta).toFixed(2)}
+                        <td className={`${styles.precioCell} ${styles.textRight}`}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <span>$ {parseFloat(producto.precio_venta).toFixed(2)}</span>
+                            <span style={{
+                              marginLeft: '0px',
+                              fontSize: '0.75rem',
+                              padding: '2px 6px',
+                              borderRadius: '3px',
+                              backgroundColor: '#dbeafe',
+                              color: '#1e40af',
+                              fontWeight: '500',
+                              flexShrink: 0
+                            }}>
+                              USD
+                            </span>
+                          </span>
                         </td>
                         <td>
                           <span className={`${styles.stockBadge} ${
@@ -422,6 +467,8 @@ const GestionProductos = () => {
             </div>
           )}
         </>
+      )}
+      </>
       )}
     </div>
   );

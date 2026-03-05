@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
+import type { TransformedProduct, CreateProductoBody, UpdateProductoBody, UpdateStockBody } from '../types/producto.types.js';
 // Modelos
 import Almacen from '../models/Almacen.js';
 import Categoria from '../models/Categoria.js';
@@ -41,7 +42,8 @@ class AlmacenController {
    * const conImagenes = await this.transformProductsWithImages(productos);
    * // conImagenes[0].imagen_url = "http://localhost:3000/api/uploads/productos/imagen.jpg"
    */
-  private async transformProductsWithImages(productos: any[]): Promise<any[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async transformProductsWithImages(productos: any[]): Promise<TransformedProduct[]> {
     try {
       if (!productos || productos.length === 0) {
         return [];
@@ -81,7 +83,8 @@ class AlmacenController {
    * const conImagen = await this.transformProductWithImage(producto);
    * // conImagen.imagen_url = "http://localhost:3000/api/uploads/productos/imagen.jpg"
    */
-  private async transformProductWithImage(producto: any): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async transformProductWithImage(producto: any): Promise<TransformedProduct> {
     try {
       const imageService = getImageService();
       if (!imageService) {
@@ -327,7 +330,7 @@ class AlmacenController {
    */
   async createProduct(req: Request, res: Response) {
     try {
-      const { imagenes, caracteristicas, ...productoData } = req.body;
+      const { imagenes, caracteristicas, ...productoData } = req.body as CreateProductoBody;
 
       // Tomar id_usuario del token autenticado (req.usuario)
       // Esto previene que se falsifique el campo id_usuario en el body
@@ -424,7 +427,7 @@ class AlmacenController {
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { imagenes, caracteristicas, ...productoData } = req.body;
+      const { imagenes, caracteristicas, ...productoData } = req.body as UpdateProductoBody;
 
       const [updated] = await Almacen.update({
         ...productoData,
@@ -686,7 +689,7 @@ class AlmacenController {
   async updateStock(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { stock } = req.body;
+      const { stock } = req.body as UpdateStockBody;
       logger.debug(`Actualizando stock del producto ID: ${id}`, { stock });
       
       const [updated] = await Almacen.update({
@@ -818,7 +821,7 @@ class AlmacenController {
     try {
       logger.debug('Obteniendo todas las categorías');
       const categorias = await Categoria.findAll({
-        attributes: ['id_categoria', 'nombre_categoria']
+        attributes: ['id_categoria', 'nombre_categoria', 'fyh_creacion', 'fyh_actualizacion']
       });
       res.locals.skipHttpLog = true;
       
@@ -835,6 +838,163 @@ class AlmacenController {
         stack: error instanceof Error ? error.stack : undefined
       });
       res.status(500).json({ message: 'Error al obtener las categorías' });
+    }
+  }
+
+  /**
+   * Crea una nueva categoría de producto
+   *
+   * @param req - Express Request con body { nombre_categoria: string }
+   * @param res - Express Response
+   * @returns 201 con { success: true, message, data: nuevaCategoria }
+   * @returns 400 si el nombre es inválido o ya existe
+   * @returns 500 para errores internos
+   */
+  async createCategoria(req: Request, res: Response) {
+    try {
+      const nombre_categoria = (req.body.nombre_categoria || '').toString().trim();
+
+      if (!nombre_categoria || nombre_categoria.length < 2 || nombre_categoria.length > 255) {
+        return res.status(400).json({ error: 'El nombre de la categoría debe tener entre 2 y 255 caracteres' });
+      }
+
+      const existente = await Categoria.findOne({ where: { nombre_categoria } });
+      if (existente) {
+        return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
+      }
+
+      const ahora = new Date();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nuevaCategoria = await Categoria.create({
+        nombre_categoria,
+        fyh_creacion: ahora,
+        fyh_actualizacion: ahora,
+      } as any);
+
+      logger.info('Categoría creada', {
+        operacion: 'crear_categoria',
+        id_usuario: req.usuario?.id,
+        nombre_categoria,
+        id_categoria: nuevaCategoria.id_categoria,
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: `Categoría "${nombre_categoria}" creada exitosamente`,
+        data: nuevaCategoria,
+      });
+    } catch (error) {
+      logger.error('Error al crear categoría:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      return res.status(500).json({ error: 'Error interno al crear la categoría' });
+    }
+  }
+
+  /**
+   * Actualiza una categoría existente
+   *
+   * @param req - Express Request con params.id y body { nombre_categoria: string }
+   * @param res - Express Response
+   * @returns 200 con { success: true, message, data }
+   * @returns 400 si el nombre es inválido o ya existe
+   * @returns 404 si la categoría no existe
+   * @returns 500 para errores internos
+   */
+  async updateCategoria(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const nombre_categoria = (req.body.nombre_categoria || '').toString().trim();
+
+      if (!nombre_categoria || nombre_categoria.length < 2 || nombre_categoria.length > 255) {
+        return res.status(400).json({ error: 'El nombre de la categoría debe tener entre 2 y 255 caracteres' });
+      }
+
+      const categoria = await Categoria.findByPk(id);
+      if (!categoria) {
+        return res.status(404).json({ error: 'Categoría no encontrada' });
+      }
+
+      const duplicado = await Categoria.findOne({
+        where: { nombre_categoria, id_categoria: { [Op.ne]: id } }
+      });
+      if (duplicado) {
+        return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (categoria as any).update({
+        nombre_categoria,
+        fyh_actualizacion: new Date()
+      });
+
+      logger.info('Categoría actualizada', {
+        operacion: 'actualizar_categoria',
+        id_usuario: req.usuario?.id,
+        id_categoria: id,
+        nombre_categoria,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `Categoría actualizada a "${nombre_categoria}"`,
+        data: categoria,
+      });
+    } catch (error) {
+      logger.error('Error al actualizar categoría:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+      });
+      return res.status(500).json({ error: 'Error interno al actualizar la categoría' });
+    }
+  }
+
+  /**
+   * Elimina una categoría (hard delete)
+   *
+   * Verifica que no haya productos asignados antes de eliminar.
+   *
+   * @param req - Express Request con params.id
+   * @param res - Express Response
+   * @returns 200 con { success: true, message }
+   * @returns 400 si hay productos asignados
+   * @returns 404 si la categoría no existe
+   * @returns 500 para errores internos
+   */
+  async deleteCategoria(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const categoria = await Categoria.findByPk(id);
+      if (!categoria) {
+        return res.status(404).json({ error: 'Categoría no encontrada' });
+      }
+
+      const count = await Almacen.count({ where: { id_categoria: id } });
+      if (count > 0) {
+        return res.status(400).json({
+          error: `Hay ${count} producto${count !== 1 ? 's' : ''} asignado${count !== 1 ? 's' : ''} a esta categoría. Reasígnalo${count !== 1 ? 's' : ''} antes de eliminarla.`
+        });
+      }
+
+      await categoria.destroy();
+
+      logger.info('Categoría eliminada', {
+        operacion: 'eliminar_categoria',
+        id_usuario: req.usuario?.id,
+        id_categoria: id,
+        nombre_categoria: categoria.getDataValue('nombre_categoria'),
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Categoría eliminada exitosamente',
+      });
+    } catch (error) {
+      logger.error('Error al eliminar categoría:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+      });
+      return res.status(500).json({ error: 'Error interno al eliminar la categoría' });
     }
   }
 

@@ -125,34 +125,32 @@ const Cart: React.FC = () => {
                         {/* Información de envío y acciones del carrito */}
                         <div className={styles.shippingInfo}>
                             <div className={styles.shippingStatus}>
-                                <span className={styles.shippingIcon}>🚚</span>
-                                <div className={styles.shippingText}>
-                                    <span className={styles.shippingBadge}>Envio gratis</span>
-                                </div>
+                                <span className={styles.shippingBadge}>
+                                    <span className="material-icons" style={{ fontSize: '14px' }}>local_shipping</span>
+                                    Envío gratis
+                                </span>
+                                <span className={styles.shippingLabel}>en todos tus pedidos</span>
                             </div>
-                            <div className={styles.shippingDetails}>
-                                <p>Aprovecha tu envío gratis agregando más productos.</p>
-                                <div className={styles.cartActions}>
-                                    <button
-                                        className={styles.moreProductsButton}
-                                        onClick={() => navigate('/productos')}
-                                    >
-                                        <span className="material-icons">shopping_bag</span>
-                                        Ver más productos
-                                    </button>
-                                    <button
-                                        className={styles.clearCartButton}
-                                        onClick={async () => {
-                                            if (window.confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
-                                                await vaciarCarrito();
-                                            }
-                                        }}
-                                        disabled={estado.cargando}
-                                    >
-                                        <span className="material-icons">delete_sweep</span>
-                                        Vaciar carrito
-                                    </button>
-                                </div>
+                            <div className={styles.cartActions}>
+                                <button
+                                    className={styles.moreProductsButton}
+                                    onClick={() => navigate('/productos')}
+                                >
+                                    <span className="material-icons">shopping_bag</span>
+                                    Ver más productos
+                                </button>
+                                <button
+                                    className={styles.clearCartButton}
+                                    onClick={async () => {
+                                        if (window.confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+                                            await vaciarCarrito();
+                                        }
+                                    }}
+                                    disabled={estado.cargando}
+                                >
+                                    <span className="material-icons">delete_sweep</span>
+                                    Vaciar carrito
+                                </button>
                             </div>
                         </div>
                     </div>

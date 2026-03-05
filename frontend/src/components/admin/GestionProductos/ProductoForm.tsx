@@ -52,6 +52,17 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
   const [loading, setLoading] = useState(false);
   const [loadingDatos, setLoadingDatos] = useState(true);
 
+  // Estado para creación inline de categoría
+  const [showNuevaCategoria, setShowNuevaCategoria] = useState(false);
+  const [nuevaCategoriaName, setNuevaCategoriaName] = useState('');
+  const [savingCategoria, setSavingCategoria] = useState(false);
+
+  // Estado para creación inline de marca
+  const [showNuevaMarca, setShowNuevaMarca] = useState(false);
+  const [nuevaMarcaNombre, setNuevaMarcaNombre] = useState('');
+  const [nuevaMarcaDescripcion, setNuevaMarcaDescripcion] = useState('');
+  const [savingMarca, setSavingMarca] = useState(false);
+
   // Cargar categorías y marcas al montar
   useEffect(() => {
     const cargarDatos = async () => {
@@ -105,6 +116,56 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       }
     }
   }, [modo, producto]);
+
+  const handleCrearCategoria = async () => {
+    const nombre = nuevaCategoriaName.trim();
+    if (!nombre) {
+      showNotification('El nombre de la categoría es requerido', 'error');
+      return;
+    }
+    try {
+      setSavingCategoria(true);
+      const creada = await adminProductService.crearCategoria({ nombre_categoria: nombre });
+      const cats = await adminProductService.obtenerCategorias();
+      setCategorias(Array.isArray(cats) ? cats : []);
+      setFormData((prev) => ({ ...prev, id_categoria: creada.id_categoria }));
+      showNotification(`Categoría "${nombre}" creada exitosamente`, 'success');
+      setShowNuevaCategoria(false);
+      setNuevaCategoriaName('');
+    } catch (err: any) {
+      const mensaje = err.response?.data?.error || err.message || 'Error al crear la categoría';
+      showNotification(mensaje, 'error');
+    } finally {
+      setSavingCategoria(false);
+    }
+  };
+
+  const handleCrearMarca = async () => {
+    const nombre = nuevaMarcaNombre.trim();
+    if (!nombre) {
+      showNotification('El nombre de la marca es requerido', 'error');
+      return;
+    }
+    try {
+      setSavingMarca(true);
+      const creada = await adminProductService.crearMarca({
+        nombre_marca: nombre,
+        descripcion_marca: nuevaMarcaDescripcion.trim() || undefined,
+      });
+      const mrs = await adminProductService.obtenerMarcas();
+      setMarcas(Array.isArray(mrs) ? mrs : []);
+      setFormData((prev) => ({ ...prev, id_marca: creada.id_marca }));
+      showNotification(`Marca "${nombre}" creada exitosamente`, 'success');
+      setShowNuevaMarca(false);
+      setNuevaMarcaNombre('');
+      setNuevaMarcaDescripcion('');
+    } catch (err: any) {
+      const mensaje = err.response?.data?.message || err.response?.data?.error || err.message || 'Error al crear la marca';
+      showNotification(mensaje, 'error');
+    } finally {
+      setSavingMarca(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -359,6 +420,44 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                   </option>
                 ))}
               </select>
+              {!showNuevaCategoria ? (
+                <button
+                  type="button"
+                  className={styles.inlineCreateToggle}
+                  onClick={() => setShowNuevaCategoria(true)}
+                >
+                  + Nueva categoría
+                </button>
+              ) : (
+                <div className={styles.inlineCreateForm}>
+                  <input
+                    type="text"
+                    className={styles.inlineInput}
+                    placeholder="Nombre de la categoría"
+                    value={nuevaCategoriaName}
+                    onChange={(e) => setNuevaCategoriaName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCrearCategoria())}
+                    autoFocus
+                  />
+                  <div className={styles.inlineActions}>
+                    <button
+                      type="button"
+                      className={styles.inlineCancelBtn}
+                      onClick={() => { setShowNuevaCategoria(false); setNuevaCategoriaName(''); }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.inlineSaveBtn}
+                      onClick={handleCrearCategoria}
+                      disabled={savingCategoria || !nuevaCategoriaName.trim()}
+                    >
+                      {savingCategoria ? 'Creando...' : 'Crear'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="id_marca" className={styles.label}>
@@ -378,6 +477,51 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                   </option>
                 ))}
               </select>
+              {!showNuevaMarca ? (
+                <button
+                  type="button"
+                  className={styles.inlineCreateToggle}
+                  onClick={() => setShowNuevaMarca(true)}
+                >
+                  + Nueva marca
+                </button>
+              ) : (
+                <div className={styles.inlineCreateForm}>
+                  <input
+                    type="text"
+                    className={styles.inlineInput}
+                    placeholder="Nombre de la marca *"
+                    value={nuevaMarcaNombre}
+                    onChange={(e) => setNuevaMarcaNombre(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCrearMarca())}
+                    autoFocus
+                  />
+                  <input
+                    type="text"
+                    className={styles.inlineInput}
+                    placeholder="Descripción (opcional)"
+                    value={nuevaMarcaDescripcion}
+                    onChange={(e) => setNuevaMarcaDescripcion(e.target.value)}
+                  />
+                  <div className={styles.inlineActions}>
+                    <button
+                      type="button"
+                      className={styles.inlineCancelBtn}
+                      onClick={() => { setShowNuevaMarca(false); setNuevaMarcaNombre(''); setNuevaMarcaDescripcion(''); }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.inlineSaveBtn}
+                      onClick={handleCrearMarca}
+                      disabled={savingMarca || !nuevaMarcaNombre.trim()}
+                    >
+                      {savingMarca ? 'Creando...' : 'Crear'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </fieldset>

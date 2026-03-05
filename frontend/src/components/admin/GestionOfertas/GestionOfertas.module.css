@@ -1,3 +1,7 @@
+/* ============================================================================
+   GESTION OFERTAS - CRUD de ofertas y descuentos
+   ============================================================================ */
+
 .container {
   padding: var(--spacing-xl);
   min-height: 100%;
@@ -5,6 +9,8 @@
 
 .header {
   margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .headerTop {
@@ -15,21 +21,23 @@
 }
 
 .title {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
+  margin: 0 0 var(--spacing-xs) 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  letter-spacing: -0.25px;
 }
 
 .title .material-icons {
-  color: var(--color-secondary);
+  color: var(--color-primary);
+  font-size: var(--font-size-2xl);
 }
 
 .subtitle {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -39,28 +47,27 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 .crearButton:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
+  background-color: var(--color-primary-dark);
 }
 
 .crearButton:active {
-  transform: translateY(0);
+  background-color: var(--color-primary-dark);
 }
 
 /* ============================================================================
-   BÚSQUEDA Y FILTROS
+   BUSQUEDA Y FILTROS
    ============================================================================ */
 
 .filterRow {
@@ -78,7 +85,8 @@
   border-radius: var(--border-radius-md);
   background-color: var(--background-light);
   padding: 0 var(--spacing-md);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .searchInputWrapper:focus-within {
@@ -96,7 +104,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   background: none;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
 }
@@ -124,7 +132,8 @@
   font-size: var(--font-size-sm);
   cursor: pointer;
   outline: none;
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
   min-width: 140px;
 }
 
@@ -155,14 +164,15 @@
 }
 
 .retryButton {
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .retryButton:hover {
@@ -181,7 +191,7 @@
 
 .tableWrapper {
   overflow-x: auto;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
 }
 
@@ -189,6 +199,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: var(--background-light);
+  font-size: var(--font-size-sm);
 }
 
 .table thead {
@@ -196,9 +207,9 @@
 }
 
 .table th {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -216,7 +227,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  transition: color 0.15s ease;
+  transition: color var(--transition-fast);
 }
 
 .sortableHeader:hover .sortableHeaderContent {
@@ -226,7 +237,7 @@
 .sortIcon {
   font-size: 16px !important;
   opacity: 0.3;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--transition-fast);
 }
 
 .sortableHeader:hover .sortableHeaderContent .sortIcon {
@@ -239,14 +250,18 @@
 }
 
 .table td {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
 }
 
+.table tbody tr {
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
 .table tbody tr:hover {
-  background-color: var(--background-neutral);
+  background-color: var(--color-primary-25);
 }
 
 .table tbody tr:last-child td {
@@ -257,14 +272,16 @@
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
-/* Badges de estado */
+/* === BADGES DE ESTADO === */
+
 .estadoBadge {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 3px var(--spacing-sm);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -288,12 +305,11 @@
   color: var(--color-info);
 }
 
-/* Badges de tipo de descuento */
 .tipoBadge {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 3px var(--spacing-sm);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   background-color: var(--color-primary-100);
   color: var(--color-primary);
@@ -309,20 +325,23 @@
   color: var(--text-secondary);
 }
 
-/* Acciones */
+/* === ACCIONES === */
+
 .actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
 }
 
 .actionButton {
-  padding: var(--spacing-xs);
+  padding: 6px;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -343,7 +362,7 @@
 .actionButton:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  color: var(--text-secondary);
+  color: var(--text-disabled);
   border-color: var(--border-color);
   background: none;
 }
@@ -353,7 +372,7 @@
 }
 
 /* ============================================================================
-   PAGINACIÓN
+   PAGINACION
    ============================================================================ */
 
 .pagination {
@@ -371,7 +390,9 @@
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   display: flex;
   align-items: center;
 }
@@ -409,12 +430,8 @@
     flex-direction: column;
   }
 
-  .table {
-    font-size: var(--font-size-sm);
-  }
-
   .table th,
   .table td {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }

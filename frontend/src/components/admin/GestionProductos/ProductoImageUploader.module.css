@@ -1,3 +1,7 @@
+/* ============================================================================
+   PRODUCTO IMAGE UPLOADER - Subida y gestion de imagenes de producto
+   ============================================================================ */
+
 .uploader {
   display: flex;
   flex-direction: column;
@@ -12,10 +16,11 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-xl);
   border: 2px dashed var(--border-color);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   background-color: var(--background-neutral);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve);
 }
 
 .dropzone:hover {
@@ -34,7 +39,7 @@
 }
 
 .dropzoneText {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
@@ -95,7 +100,7 @@
   top: var(--spacing-xs);
   left: var(--spacing-xs);
   padding: 2px var(--spacing-sm);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -118,6 +123,7 @@
   background-color: var(--background-light);
   color: var(--text-primary);
   box-sizing: border-box;
+  transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
 .altTextInput:focus {
@@ -138,7 +144,9 @@
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,6 +179,10 @@
   margin: 0;
   text-align: center;
 }
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
 
 @media (max-width: 768px) {
   .previewGrid {

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import almacenController from '../controllers/AlmacenController.js';
-import { verificarToken } from '../middleware/authMiddleware.js';
+import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
+import { ROLES } from '../constants/roles.js';
 
 const router = Router();
 
@@ -16,6 +17,9 @@ router.get('/categorias', almacenController.getAllCategories.bind(almacenControl
 
 // Rutas protegidas (requieren autenticación)
 router.use(verificarToken);
+router.post('/categorias', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), almacenController.createCategoria.bind(almacenController));
+router.put('/categorias/:id', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), almacenController.updateCategoria.bind(almacenController));
+router.delete('/categorias/:id', verificarRol([ROLES.ADMIN]), almacenController.deleteCategoria.bind(almacenController));
 router.post('/productos', almacenController.createProduct.bind(almacenController));
 router.put('/productos/:id', almacenController.updateProduct.bind(almacenController));
 router.delete('/productos/:id', almacenController.deleteProduct.bind(almacenController));

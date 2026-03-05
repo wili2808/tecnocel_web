@@ -14,6 +14,7 @@ import GestionClientes from '../../components/admin/GestionClientes/GestionClien
 import GestionProductos from '../../components/admin/GestionProductos/GestionProductos';
 import GestionOfertas from '../../components/admin/GestionOfertas/GestionOfertas';
 import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
+import Reportes from '../../components/admin/Reportes/Reportes';
 import adminPanelStyles from './AdminPanel.module.css';
 import { ROLES } from '../../constants/roles';
 
@@ -45,6 +46,7 @@ const MENU_OPTIONS: MenuOption[] = [
   { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
   { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
   { id: 'ventas', label: 'Gestión de Ventas', icon: 'receipt_long' },
+  { id: 'reportes', label: 'Reportes', icon: 'assessment', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
 ];
 
 // ============================================================================
@@ -108,6 +110,9 @@ const ContentSection = ({
 
       case 'ventas':
         return <GestionVentas />;
+
+      case 'reportes':
+        return <Reportes />;
 
       default:
         return (

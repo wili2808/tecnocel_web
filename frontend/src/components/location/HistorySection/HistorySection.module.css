@@ -1,202 +1,104 @@
 /* ============================================================================
-   HISTORY SECTION - HISTORIA Y CONTACTO
+   HISTORY SECTION — Silicon Precision / Dark Panel
+   Diseñado para vivir sobre el fondo oscuro #111113 del LocationSection.
+   Tipografía clara, items de contacto como filas limpias.
    ============================================================================ */
 
-/* Contenedor principal */
 .historySection {
   height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-  padding-top: var(--spacing-sm);
 }
 
-/* Header (Título y descripción) */
-.header {
-  text-align: center;
-}
+/* Header */
+.header { }
 
 .title {
-  margin: 0 0 var(--spacing-sm) 0;
-  font-family: var(--font-family-primary);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  color: var(--text-primary);
+  font-weight: 700;
+  color: #f4f4f5;
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .description {
-  margin: 0;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
-  color: var(--text-secondary);
-  max-width: 100%;
+  color: #a1a1aa;
+  margin: 0;
 }
 
-/* ============================================================================
-   INFORMACIÓN DE CONTACTO
-   ============================================================================ */
-
+/* Contacto */
 .contactInfo {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 .contactItem {
   display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md);
-  background: var(--background-secondary);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--border-color);
-  transition: all var(--transition-normal) ease;
   align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  transition: padding-left var(--transition-fast) var(--transition-curve);
 }
 
-.contactItem:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
+.contactItem:last-child { border-bottom: none; }
 
-/* Icono wrapper */
+.contactItem:hover { padding-left: var(--spacing-xs); }
+
 .iconWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
-  background: var(--color-primary);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: rgba(14, 165, 233, 0.15);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(14, 165, 233, 0.2);
 }
 
 .icon {
-  width: 24px;
-  height: 24px;
-  color: var(--color-white);
+  width: 18px;
+  height: 18px;
+  color: var(--color-sky-400);
 }
 
-/* Texto de contacto */
 .contactText {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  justify-content: center;
+  gap: 2px;
 }
 
 .contactText h3 {
   margin: 0;
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: #71717a;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .contactText p {
   margin: 0;
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-normal);
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  color: #e4e4e7;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-.contactText p + p {
-  margin-top: var(--spacing-xs);
-}
-
-/* ============================================================================
-   RESPONSIVE DESIGN
-   ============================================================================ */
-
-/* Tablet */
+/* Responsive */
 @media (max-width: 768px) {
-  .title {
-    font-size: var(--font-size-lg);
-  }
-
-  .description {
-    font-size: var(--font-size-sm);
-  }
-
-  .contactInfo {
-    grid-template-rows: 1fr;
-    gap: var(--spacing-md);
-  }
-
-  .contactItem {
-    padding: var(--spacing-md);
-  }
-
-  .iconWrapper {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-  }
-
-  .icon {
-    width: 22px;
-    height: 22px;
-  }
-
-  .contactText h3 {
-    font-size: var(--font-size-sm);
-  }
-
-  .contactText p {
-    font-size: var(--font-size-sm);
-  }
+  .title { font-size: var(--font-size-lg); }
 }
-
-/* Mobile */
-@media (max-width: 480px) {
-  .historySection {
-    gap: var(--spacing-md);
-  }
-
-  .title {
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .description {
-    font-size: var(--font-size-xs);
-  }
-
-  .contactInfo {
-    gap: var(--spacing-sm);
-  }
-
-  .contactItem {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .iconWrapper {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-  }
-
-  .icon {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-/* ============================================================================
-   ACCESIBILIDAD
-   ============================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .contactItem {
-    transition: none;
-  }
-
-  .contactItem:hover {
-    transform: none;
-  }
+  .contactItem { transition: none; }
+  .contactItem:hover { padding-left: 0; }
 }

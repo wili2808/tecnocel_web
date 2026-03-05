@@ -1,5 +1,5 @@
 /* ============================================================================
-   PRODUCTO CARACTERÍSTICAS - Gestión de especificaciones en formulario de producto
+   PRODUCTO CARACTERISTICAS - Gestion de especificaciones en formulario de producto
    ============================================================================ */
 
 .loadingSmall {
@@ -31,7 +31,8 @@
   font-size: var(--font-size-sm);
 }
 
-/* Lista de características */
+/* === Lista de caracteristicas === */
+
 .caracteristicasList {
   display: flex;
   flex-direction: column;
@@ -48,7 +49,7 @@
   background-color: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
 .caracteristicaCard:hover {
@@ -86,13 +87,14 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: var(--border-radius-full);
+  border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   background-color: var(--color-neutral-100);
   color: var(--color-neutral-600);
 }
 
-/* Acciones de cada característica */
+/* === Acciones de cada caracteristica === */
+
 .cardActions {
   display: flex;
   gap: var(--spacing-xs);
@@ -111,7 +113,9 @@
   border-radius: var(--border-radius-md);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: color var(--transition-fast) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
 }
 
 .iconButton:hover {
@@ -130,7 +134,8 @@
   font-size: 18px;
 }
 
-/* Edición inline */
+/* === Edicion inline === */
+
 .editInput {
   padding: 4px 8px;
   border: 1px solid var(--color-primary-300);
@@ -140,6 +145,8 @@
   background-color: var(--background-primary);
   width: 150px;
   outline: none;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .editInput:focus {
@@ -155,9 +162,12 @@
   color: var(--text-primary);
   background-color: var(--background-primary);
   outline: none;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
-/* Formulario para agregar */
+/* === Formulario para agregar === */
+
 .addForm {
   display: flex;
   flex-direction: column;
@@ -180,7 +190,7 @@
 
 .addFormTitle .material-icons {
   font-size: 18px;
-  color: var(--color-primary-500);
+  color: var(--color-primary);
 }
 
 .addFormRow {
@@ -205,34 +215,36 @@
 }
 
 .addFormInput {
-  padding: 8px 12px;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   background-color: var(--background-primary);
   outline: none;
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .addFormInput:focus {
-  border-color: var(--color-primary-500);
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 .addFormSelect {
-  padding: 8px 12px;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   background-color: var(--background-primary);
   outline: none;
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .addFormSelect:focus {
-  border-color: var(--color-primary-500);
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
@@ -240,20 +252,20 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: 8px 16px;
-  background-color: var(--color-primary-500);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 .addButton:hover {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-primary-dark);
 }
 
 .addButton:disabled {
@@ -265,7 +277,8 @@
   font-size: 18px;
 }
 
-/* Sección crear tipo rápido */
+/* === Seccion crear tipo rapido === */
+
 .newTypeSection {
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-sm);
@@ -279,14 +292,14 @@
   padding: 4px 0;
   background: none;
   border: none;
-  color: var(--color-primary-500);
+  color: var(--color-primary);
   font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: color var(--transition-fast) var(--transition-curve);
 }
 
 .newTypeToggle:hover {
-  color: var(--color-primary-700);
+  color: var(--color-primary-dark);
 }
 
 .newTypeToggle .material-icons {
@@ -327,11 +340,13 @@
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
 }
 
 .cancelButton:hover {
-  background-color: var(--background-secondary);
+  background-color: var(--background-hover);
+  border-color: var(--text-secondary);
 }
 
 .saveTypeButton {
@@ -339,17 +354,17 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: 6px 12px;
-  background-color: var(--color-success-500);
+  background-color: var(--color-success);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .saveTypeButton:hover {
-  background-color: var(--color-success-600);
+  background-color: var(--color-success-dark);
 }
 
 .saveTypeButton:disabled {
@@ -357,7 +372,8 @@
   cursor: not-allowed;
 }
 
-/* Opciones de selección (tags) */
+/* === Opciones de seleccion (tags) === */
+
 .opcionesContainer {
   display: flex;
   flex-wrap: wrap;
@@ -372,7 +388,7 @@
   padding: 2px 8px;
   background-color: var(--color-primary-100);
   color: var(--color-primary-700);
-  border-radius: var(--border-radius-full);
+  border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
 }
 
@@ -385,10 +401,11 @@
   color: var(--color-primary-500);
   cursor: pointer;
   font-size: 14px;
+  transition: color var(--transition-fast) var(--transition-curve);
 }
 
 .opcionRemove:hover {
-  color: var(--color-error-500);
+  color: var(--color-error);
 }
 
 .opcionInputRow {
@@ -403,6 +420,14 @@
   border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   width: 120px;
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  transition: border-color var(--transition-fast) var(--transition-curve);
+}
+
+.opcionInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
 }
 
 .opcionAddBtn {
@@ -412,16 +437,17 @@
   width: 24px;
   height: 24px;
   padding: 0;
-  background-color: var(--color-primary-500);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-sm);
   cursor: pointer;
   font-size: 16px;
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .opcionAddBtn:hover {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-primary-dark);
 }
 
 /* ============================================================================

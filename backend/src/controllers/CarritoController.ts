@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { AgregarItemBody, ActualizarItemBody, ConfirmarCompraBody } from '../types/carrito.types.js';
 import CarritoWeb from '../models/CarritoWeb.js';
 import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
@@ -646,7 +647,7 @@ export default class CarritoController {
    */
   static async agregarItem(req: Request, res: Response) {
     try {
-      const { id_producto, cantidad } = req.body;
+      const { id_producto, cantidad } = req.body as AgregarItemBody;
       const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
@@ -867,7 +868,7 @@ export default class CarritoController {
   static async actualizarCantidad(req: Request, res: Response) {
     try {
       const { id_item } = req.params;
-      const { cantidad } = req.body;
+      const { cantidad } = req.body as ActualizarItemBody;
       const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
@@ -1184,7 +1185,7 @@ export default class CarritoController {
     const transaction = await sequelize.transaction();
 
     try {
-      const { observaciones, moneda = 'USD', metodo_pago, aceptar_cambio_precio = false } = req.body;
+      const { observaciones, moneda = 'USD', metodo_pago, aceptar_cambio_precio = false } = req.body as ConfirmarCompraBody;
       const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
@@ -1317,12 +1318,13 @@ export default class CarritoController {
       });
       const nroVenta = ultimaVenta ? ultimaVenta.nro_venta + 1 : 1;
 
-      // Obtener tipo de cambio vigente para registrar histórico
-      let valor_dolar: number | null = null;
-      if (moneda === 'USD') {
-        const config = await Configuracion.findByPk('tipo_cambio_usd', { transaction });
-        valor_dolar = config ? parseFloat(config.valor) : null;
-      }
+      // Siempre guardar tipo de cambio vigente (necesario para conversiones en reportes)
+      const configTC = await Configuracion.findByPk('tipo_cambio_usd', { transaction });
+      const valor_dolar: number | null = configTC ? parseFloat(configTC.valor) : null;
+
+      // Los precios en BD están en USD → convertir a ARS si corresponde
+      const factor = (moneda === 'ARS' && valor_dolar) ? valor_dolar : 1;
+      const total_en_moneda = Math.round(totalActualizado * factor);
 
       // ✅ CREAR VENTA CON TOTAL ACTUALIZADO (Fase 2)
       const venta = await Venta.create({
@@ -1331,7 +1333,7 @@ export default class CarritoController {
         id_carrito_web: carrito.id_carrito,
         tipo_venta: 'web',
         estado: 'completada',
-        total_pagado: totalActualizado,  // ← Precio ACTUAL validado
+        total_pagado: total_en_moneda,
         observaciones,
         moneda,
         metodo_pago: metodo_pago || null,
@@ -1340,15 +1342,21 @@ export default class CarritoController {
         fyh_actualizacion: new Date()
       }, { transaction });
 
+      // Mapa de precio_actual (USD) por id_item para usar precios revalidados
+      const preciosMap = new Map(
+        itemsConPreciosActuales.map(i => [i.item.id_item, i.precio_actual])
+      );
+
       // ✅ CREAR SNAPSHOT PERMANENTE EN tb_venta_items
-      // Registro histórico de los productos vendidos con precio fijo al momento de la compra
+      // Registro histórico de los productos vendidos con precio en la moneda de la venta
       for (const item of carrito.items) {
+        const precioUSD = preciosMap.get(item.id_item) ?? parseFloat(item.precio_unitario.toString());
         await VentaItem.create({
           id_venta: venta.id_venta,
           id_producto: item.id_producto,
           cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario,
-          subtotal: item.subtotal,
+          precio_unitario: parseFloat((precioUSD * factor).toFixed(2)),
+          subtotal: parseFloat((precioUSD * item.cantidad * factor).toFixed(2)),
           fyh_creacion: new Date()
         }, { transaction });
       }
@@ -1384,7 +1392,7 @@ export default class CarritoController {
           sendOrderConfirmationEmail(cliente.email_cliente, {
             nro_venta:      `V-${nroVenta.toString().padStart(5, '0')}`,
             nombre_cliente: cliente.nombre_cliente,
-            total_pagado:   totalActualizado,
+            total_pagado:   total_en_moneda,
             items: (carrito.items || []).map(item => ({
               nombre_producto: item.producto?.nombre || 'Producto',
               cantidad:        item.cantidad,

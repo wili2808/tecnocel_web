@@ -1,721 +1,603 @@
-/* === TARJETA DE COMENTARIO === */
+/* ============================================================================
+   COMMENT CARD — Silicon Precision / Minimal List Item
+   Cada comentario es un ítem de lista separado por border-bottom, sin card bg
+   ============================================================================ */
+
 .commentCard {
-    background: var(--background-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
-    transition: var(--theme-transition);
+  padding: var(--spacing-xl) 0;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  animation: fadeIn 0.25s ease-out;
 }
 
-.commentCard:hover {
-    box-shadow: var(--shadow-sm);
+.commentCard:last-child {
+  border-bottom: none;
 }
 
-/* === HEADER DEL COMENTARIO === */
+.commentCard.deleting {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
 .commentHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .userInfo {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-md);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
 }
 
+/* Avatar circular */
 .avatar {
-    color: var(--text-secondary);
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
 }
 
-.avatar .material-icons {
-    font-size: 40px;
-}
+.avatar .material-icons { font-size: 22px !important; }
 
 .userDetails {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 
 .userName {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .commentMeta {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .date {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
 .verified {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-size: var(--font-size-xs);
-    color: var(--color-success);
-    font-weight: var(--font-weight-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-success, #16a34a);
 }
 
-.verified .material-icons {
-    font-size: 16px;
-}
+.verified .material-icons { font-size: 12px !important; }
 
-/* === ACCIONES === */
+/* ── Actions (edit / delete) ─────────────────────────────────────────── */
+
 .actions {
-    display: flex;
-    gap: var(--spacing-xs);
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .actionButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: var(--theme-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-full);
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
 }
 
 .actionButton:hover:not(:disabled) {
-    background: var(--background-neutral);
-    color: var(--text-primary);
+  border-color: var(--border-color);
+  background: var(--background-secondary);
+  color: var(--text-primary);
 }
 
-.actionButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+.actionButton:disabled { opacity: 0.4; cursor: not-allowed; }
+.actionButton .material-icons { font-size: 15px !important; }
 
-.actionButton .material-icons {
-    font-size: 18px;
-}
+/* ── Rating display ─────────────────────────────────────────────────── */
 
-/* === CALIFICACIÓN === */
 .rating {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: var(--spacing-sm);
 }
 
-.star {
-    font-size: 18px;
-    color: var(--text-secondary);
-}
-
-.star.active {
-    color: var(--color-warning);
-}
+.star { font-size: 15px !important; color: var(--border-color); }
+.star.active { color: var(--color-warning); }
 
 .ratingText {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    margin-left: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-left: var(--spacing-xs);
 }
 
-/* === CALIFICACIÓN EDITABLE === */
+/* ── Editable rating ────────────────────────────────────────────────── */
+
 .editRatingSection {
-    margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .editLabel {
-    display: block;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .editableRating {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .editStar {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius-sm);
-    transition: var(--theme-transition);
-    color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--border-radius-sm);
+  color: var(--border-color);
+  transition: color var(--transition-fast) var(--transition-curve),
+              transform var(--transition-fast) var(--transition-curve);
 }
 
 .editStar:hover:not(:disabled),
-.editStar.active {
-    color: var(--color-warning);
-    transform: scale(1.1);
-}
+.editStar.active { color: var(--color-warning); transform: scale(1.15); }
 
-.editStar:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
+.editStar:disabled { cursor: not-allowed; opacity: 0.4; }
+.editStar .material-icons { font-size: 20px !important; }
 
-.editStar .material-icons {
-    font-size: 20px;
-}
+/* ── Comment text ────────────────────────────────────────────────────── */
 
-/* === CONTENIDO DEL COMENTARIO === */
 .commentContent {
-    margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .commentText {
-    font-size: var(--font-size-md);
-    line-height: 1.6;
-    color: var(--text-primary);
-    margin: 0;
-    word-wrap: break-word;
+  font-size: var(--font-size-sm);
+  line-height: 1.65;
+  color: var(--text-primary);
+  margin: 0;
+  word-wrap: break-word;
 }
 
-/* === EDICIÓN === */
-.editSection {
-    margin-bottom: var(--spacing-sm);
-}
+/* ── Edit mode ───────────────────────────────────────────────────────── */
+
+.editSection { margin-bottom: var(--spacing-sm); }
 
 .editTextarea {
-    width: 100%;
-    min-height: 100px;
-    padding: var(--spacing-md);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    font-family: inherit;
-    font-size: var(--font-size-md);
-    line-height: 1.5;
-    resize: vertical;
-    transition: var(--theme-transition);
-    background: var(--background-light);
-    color: var(--text-primary);
+  width: 100%;
+  min-height: 96px;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  resize: vertical;
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast) var(--transition-curve);
+  box-sizing: border-box;
 }
 
 .editTextarea:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-alpha);
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
 }
 
-.editTextarea:disabled {
-    background: var(--background-disabled);
-    cursor: not-allowed;
-    opacity: 0.6;
-}
+.editTextarea:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .charCount {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: var(--spacing-xs);
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-tertiary);
 }
 
-/* === IMÁGENES DEL COMENTARIO === */
+/* ── Images — horizontal strip of square thumbs ─────────────────────── */
+
 .commentImages {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
+
+.commentImages:empty { display: none; }
 
 .imageContainer {
-    position: relative;
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    transition: var(--theme-transition);
-    cursor: pointer;
+  position: relative;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
-.imageContainer:hover {
-    border-color: var(--color-primary);
-    transform: scale(1.02);
-}
+.imageContainer:hover { border-color: var(--color-primary); }
 
 .commentImage {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    display: block;
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  display: block;
 }
 
+/* Delete image — aparece al hover del contenedor */
 .deleteImageButton {
-    position: absolute;
-    top: var(--spacing-xs);
-    right: var(--spacing-xs);
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 50%;
-    background: var(--color-error);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--theme-transition);
-    opacity: 0.8;
-    z-index: 2;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast) var(--transition-curve);
+  z-index: 2;
 }
 
-.deleteImageButton:hover {
-    opacity: 1;
-    transform: scale(1.1);
-    background: var(--color-error-dark);
-}
-
-.deleteImageButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.deleteImageButton .material-icons {
-    font-size: 16px;
-}
+.imageContainer:hover .deleteImageButton { opacity: 1; }
+.deleteImageButton:disabled { opacity: 0.3; cursor: not-allowed; }
+.deleteImageButton .material-icons { font-size: 12px !important; }
 
 .deleteImageButton .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid transparent;
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid transparent;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-/* === RESPUESTA DEL ADMIN === */
+/* Add image button */
+.addImageContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-md);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-sm);
+  height: 88px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
+}
+
+.addImageContainer:hover { border-color: var(--color-primary); background: rgba(var(--color-primary-rgb), 0.03); }
+
+.fileInput { display: none; }
+
+.addImageButton {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--transition-fast) var(--transition-curve);
+}
+
+.addImageButton:hover:not(:disabled) { color: var(--color-primary); }
+.addImageButton:disabled { opacity: 0.4; cursor: not-allowed; }
+.addImageButton .material-icons { font-size: 24px !important; }
+.addImageText { font-size: 11px; white-space: nowrap; }
+
+.imageCount {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-left: var(--spacing-xs);
+  white-space: nowrap;
+}
+
+/* ── Admin response — left border accent ─────────────────────────────── */
+
 .adminResponse {
-    background: var(--background-info);
-    border: 1px solid var(--border-info);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-md);
-    margin-top: var(--spacing-md);
+  border-left: 3px solid var(--color-primary);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+  margin-top: var(--spacing-md);
+  background: rgba(var(--color-primary-rgb), 0.03);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
 }
 
 .adminHeader {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-    color: var(--color-info);
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.adminHeader .material-icons {
-    font-size: 18px;
-}
+.adminHeader .material-icons { font-size: 13px !important; }
 
 .responseDate {
-    margin-left: auto;
-    font-weight: normal;
-    color: var(--text-secondary);
+  margin-left: auto;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-tertiary);
+  font-size: 11px;
 }
 
 .adminText {
-    margin: 0;
-    font-size: var(--font-size-sm);
-    line-height: 1.5;
-    color: var(--text-primary);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
 }
 
-/* === ACCIONES DE EDICIÓN === */
+/* ── Edit actions ────────────────────────────────────────────────────── */
+
 .editActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
 }
 
 .cancelEdit {
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    transition: var(--theme-transition);
+  padding: 6px var(--spacing-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve);
 }
 
 .cancelEdit:hover:not(:disabled) {
-    background: var(--background-neutral);
-    color: var(--text-primary);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .saveEdit {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-primary);
-    color: var(--text-inverse);
-    border: none;
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    transition: var(--theme-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 6px var(--spacing-lg);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast) var(--transition-curve);
 }
 
-.saveEdit:hover:not(:disabled) {
-    background: var(--color-primary-dark);
-}
-
-.saveEdit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+.saveEdit:hover:not(:disabled) { background: var(--color-primary-dark); }
+.saveEdit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid transparent;
-    border-top: 2px solid currentColor;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
 }
 
-/* === MODAL DE ELIMINACIÓN === */
+/* ── Delete modal ────────────────────────────────────────────────────── */
+
 .deleteModal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: var(--spacing-lg);
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-lg);
+  backdrop-filter: blur(2px);
 }
 
 .modalContent {
-    background: var(--background-light);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xl);
-    max-width: 400px;
-    width: 100%;
-    box-shadow: var(--shadow-lg);
+  background: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xl);
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.14);
 }
 
 .modalContent h4 {
-    margin: 0 0 var(--spacing-md) 0;
-    font-size: var(--font-size-lg);
-    color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .modalContent p {
-    margin: 0 0 var(--spacing-lg) 0;
-    color: var(--text-secondary);
-    font-size: var(--font-size-md);
+  margin: 0 0 var(--spacing-xl) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
 }
 
 .modalActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-md);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
 }
 
 .modalCancel {
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    transition: var(--theme-transition);
+  padding: 6px var(--spacing-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve);
 }
 
 .modalCancel:hover:not(:disabled) {
-    background: var(--background-neutral);
-    color: var(--text-primary);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .modalDelete {
-    background: var(--color-error);
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-weight: var(--font-weight-medium);
-    transition: var(--theme-transition);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 6px var(--spacing-lg);
+  background: var(--color-error);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast) var(--transition-curve),
+              transform var(--transition-fast) var(--transition-curve);
 }
 
 .modalDelete:hover:not(:disabled) {
-    background: var(--color-error-dark);
-    transform: translateY(-1px);
+  background: var(--color-error-dark, #b91c1c);
+  transform: translateY(-1px);
 }
 
-.modalDelete:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
+.modalDelete:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .modalDelete .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid transparent;
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 14px;
+  height: 14px;
+  border-color: transparent;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
 }
 
-/* === ESTADOS DE ELIMINACIÓN === */
-.commentCard.deleting {
-    opacity: 0.6;
-    pointer-events: none;
-}
+/* ── Animations ──────────────────────────────────────────────────────── */
 
-.commentCard.deleting::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: var(--border-radius-lg);
-    z-index: 1;
-}
-
-/* === MEJORAS EN BOTONES DE ACCIÓN === */
-.actionButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.actionButton:disabled:hover {
-    background: var(--background-light);
-    color: var(--text-secondary);
-}
-
-/* === ANIMACIONES === */
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.commentCard {
-    animation: fadeIn 0.3s ease-out;
-}
+/* ── Responsive ─────────────────────────────────────────────────────── */
 
-/* === RESPONSIVE === */
 @media (max-width: 768px) {
-    .commentCard {
-        padding: var(--spacing-md);
-    }
+  .commentCard { padding: var(--spacing-lg) 0; }
 
-    .commentHeader {
-        flex-direction: column;
-        gap: var(--spacing-md);
-    }
+  .editActions { flex-direction: column-reverse; }
 
-    .userInfo {
-        width: 100%;
-    }
-
-    .actions {
-        align-self: flex-end;
-    }
-
-    .editActions {
-        flex-direction: column-reverse;
-    }
-
-    .cancelEdit,
-    .saveEdit {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .commentImages {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: var(--spacing-sm);
-    }
-
-    .modalActions {
-        flex-direction: column-reverse;
-    }
-
-    .modalCancel,
-    .modalDelete {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .commentCard {
-        padding: var(--spacing-sm);
-    }
-
-    .avatar .material-icons {
-        font-size: 32px;
-    }
-
-    .commentImages {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    }
-}
-
-/* === BOTÓN DE AGREGAR IMÁGENES === */
-.addImageContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .cancelEdit,
+  .saveEdit {
+    width: 100%;
     justify-content: center;
-    border: 2px dashed var(--border-color);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-lg);
-    background: var(--background-light);
-    transition: var(--theme-transition);
-    min-height: 120px;
-    cursor: pointer;
-}
+  }
 
-.addImageContainer:hover {
-    border-color: var(--color-primary);
-    background: var(--background-hover);
-}
+  .modalActions { flex-direction: column-reverse; }
 
-.fileInput {
-    display: none;
-}
-
-.addImageButton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-sm);
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: var(--theme-transition);
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius-md);
-}
-
-.addImageButton:hover:not(:disabled) {
-    color: var(--color-primary);
-    background: var(--background-hover);
-}
-
-.addImageButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.addImageButton .material-icons {
-    font-size: 32px;
-}
-
-.addImageText {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-}
-
-.imageCount {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-    margin-top: var(--spacing-xs);
-}
-
-/* === MEJORAS EN CONTENEDOR DE IMÁGENES === */
-.commentImages {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-}
-
-.commentImages:empty {
-    display: none;
-}
-
-/* === RESPONSIVE PARA IMÁGENES === */
-@media (max-width: 768px) {
-    .commentImages {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: var(--spacing-sm);
-    }
-    
-    .addImageContainer {
-        min-height: 100px;
-        padding: var(--spacing-md);
-    }
-    
-    .addImageButton .material-icons {
-        font-size: 24px;
-    }
-    
-    .addImageText {
-        font-size: var(--font-size-xs);
-    }
+  .modalCancel,
+  .modalDelete {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
-    .commentImages {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    }
+  .commentCard { padding: var(--spacing-md) 0; }
+
+  .commentImage { width: 72px; height: 72px; }
+  .addImageContainer { height: 72px; }
+
+  .avatar { width: 32px; height: 32px; }
+  .avatar .material-icons { font-size: 20px !important; }
 }
 
-/* === ACCESIBILIDAD === */
+/* ── Accesibilidad ───────────────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
-  .commentCard,
-  .imageContainer,
+  .commentCard { animation: none; }
+
   .editTextarea,
   .actionButton,
   .deleteImageButton,
+  .imageContainer,
+  .addImageContainer,
   .saveEdit,
+  .cancelEdit,
+  .editStar,
   .modalDelete {
     transition: none;
-    animation: none;
   }
 
-  .imageContainer:hover,
-  .deleteImageButton:hover,
+  .editStar:hover:not(:disabled),
+  .editStar.active,
   .modalDelete:hover:not(:disabled) {
     transform: none;
   }
 
-  .editStar:hover:not(:disabled),
-  .editStar.active {
-    transform: none;
-  }
-
   .spinner,
-  .deleteImageButton .spinner,
-  .modalDelete .spinner {
+  .deleteImageButton .spinner {
     animation: none;
   }
 }

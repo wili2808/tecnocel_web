@@ -1,9 +1,3 @@
-/**
- * Componente FeaturedProducts - Sección de productos destacados
- * Muestra grid de productos destacados con manejo de estados de carga y error
- * Incluye funcionalidades para renderizado condicional según estado de datos
- * Utiliza React.memo para optimización de re-renders
- */
 import React, { memo } from 'react';
 import ProductCard from '../ProductCard';
 import styles from './FeaturedProducts.module.css';
@@ -17,61 +11,54 @@ interface FeaturedProductsProps {
   error?: string | null;
 }
 
+// Skeleton de carga para el grid de productos
+const SkeletonGrid = () => (
+  <div className={styles.skeletonGrid}>
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div key={i} className={styles.skeletonCard}>
+        <div className={styles.skeletonImage} />
+        <div className={styles.skeletonInfo}>
+          <div className={styles.skeletonLine} />
+          <div className={styles.skeletonLine} />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(
-  ({ products, title = '', className, loading = false, error = null }) => {
-    // ============================================================================
-    // ESTADOS DE CARGA Y ERROR
-    // ============================================================================
-
-    // Si está cargando, mostrar un placeholder
-    if (loading) {
-      return (
-        <section className={`${styles.productsSection} ${className || ''}`}>
-          <div className={styles.productsContainer}>
-            <h2 className={styles.sectionTitle}>{title}</h2>
-            <div className={styles.loadingContainer}>
-              <p>Cargando productos destacados...</p>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    // Si hay error, no mostrar nada (comportamiento silencioso)
-    if (error) {
-      return null;
-    }
-
-    // Verificar que products existe y tiene elementos
-    if (!products || products.length === 0) {
-      return null;
-    }
-
-    // ============================================================================
-    // RENDERIZADO
-    // ============================================================================
+  ({ products, title = 'Destacados', className, loading = false, error = null }) => {
+    if (error) return null;
 
     return (
       <section className={`${styles.productsSection} ${className || ''}`}>
         <div className={styles.productsContainer}>
-          <h2 className={styles.sectionTitle}>{title}</h2>
-          <div className={styles.productsGrid}>
-            {products.map((product) => (
-              <ProductCard
-                key={product.id_producto}
-                id_producto={product.id_producto}
-                nombre={product.nombre}
-                descripcion={product.descripcion}
-                imagen_url={product.imagen_url}
-                imagenes={product.imagenes}
-                precio_venta={String(product.precio_venta)}
-                stock={product.stock}
-                precio_oferta={product.precio_oferta}
-                en_oferta={product.en_oferta}
-                precio_original={product.precio_original}
-              />
-            ))}
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionEyebrow}>Selección</span>
+            {title && <h2 className={styles.sectionTitle}>{title}</h2>}
           </div>
+
+          {loading ? (
+            <SkeletonGrid />
+          ) : products?.length > 0 ? (
+            <div className={styles.productsGrid}>
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id_producto}
+                  id_producto={product.id_producto}
+                  nombre={product.nombre}
+                  descripcion={product.descripcion}
+                  imagen_url={product.imagen_url}
+                  imagenes={product.imagenes}
+                  precio_venta={String(product.precio_venta)}
+                  stock={product.stock}
+                  precio_oferta={product.precio_oferta}
+                  en_oferta={product.en_oferta}
+                  precio_original={product.precio_original}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
     );

@@ -1,5 +1,5 @@
 /* ============================================================================
-   PRODUCTO OFERTAS - Sección informativa de ofertas en formulario de producto
+   PRODUCTO OFERTAS - Seccion informativa de ofertas en formulario de producto
    ============================================================================ */
 
 .loadingSmall {
@@ -36,7 +36,8 @@
   opacity: 0.7;
 }
 
-/* Lista de ofertas */
+/* === Lista de ofertas === */
+
 .ofertasList {
   display: flex;
   flex-direction: column;
@@ -52,7 +53,7 @@
   background-color: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
 .ofertaCard:hover {
@@ -75,12 +76,13 @@
 }
 
 .ofertaNombre {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
-/* Detalles de la oferta */
+/* === Detalles de la oferta === */
+
 .ofertaDetalles {
   display: flex;
   flex-wrap: wrap;
@@ -99,12 +101,13 @@
   font-size: 14px;
 }
 
-/* Estado badges */
+/* === Estado badges === */
+
 .estadoBadge {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: var(--border-radius-full);
+  border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
@@ -112,7 +115,7 @@
 
 .estadoActiva {
   background-color: var(--color-success-100);
-  color: var(--color-success-700);
+  color: var(--color-success);
 }
 
 .estadoInactiva {
@@ -122,15 +125,16 @@
 
 .estadoExpirada {
   background-color: var(--color-error-100);
-  color: var(--color-error-700);
+  color: var(--color-error);
 }
 
 .estadoProgramada {
   background-color: var(--color-info-100);
-  color: var(--color-info-700);
+  color: var(--color-info);
 }
 
-/* Botón remover */
+/* === Boton remover === */
+
 .removeButton {
   display: flex;
   align-items: center;
@@ -143,12 +147,14 @@
   border-radius: var(--border-radius-md);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: color var(--transition-fast) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   flex-shrink: 0;
 }
 
 .removeButton:hover {
-  color: var(--color-error-600);
+  color: var(--color-error);
   background-color: var(--color-error-100);
   border-color: var(--color-error-200);
 }

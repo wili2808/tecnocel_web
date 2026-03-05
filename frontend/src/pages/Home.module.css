@@ -1,0 +1,82 @@
+/* ============================================================================
+   HOME PAGE — Silicon Precision
+   Ritmo visual: Hero → Strip → Products → CTA Dark → Location
+   ============================================================================ */
+
+/* FeatureStrip — 4 pilares de valor, franja horizontal */
+.featuresStrip {
+  padding: var(--spacing-xl) var(--container-padding);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--background-secondary);
+}
+
+.featuresGrid {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-right: 1px solid var(--border-color);
+}
+
+.featureItem:last-child { border-right: none; }
+
+.featureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: var(--color-primary-100);
+  border-radius: var(--border-radius-md);
+  color: var(--color-primary);
+}
+
+.featureText { display: flex; flex-direction: column; gap: 2px; }
+
+.featureTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.featureDesc {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .featureItem { padding: var(--spacing-md); gap: var(--spacing-sm); }
+}
+
+@media (max-width: 768px) {
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+  }
+  .featureItem:nth-child(2)  { border-right: none; }
+  .featureItem:nth-child(-n+2) { border-bottom: 1px solid var(--border-color); }
+}
+
+@media (max-width: 480px) {
+  .featuresStrip { padding: var(--spacing-md) var(--spacing-md); }
+  .featuresGrid  { grid-template-columns: 1fr 1fr; }
+  .featureItem   { padding: var(--spacing-sm); gap: var(--spacing-sm); }
+  .featureIcon   { width: 32px; height: 32px; min-width: 32px; }
+  .featureTitle  { font-size: var(--font-size-xs); }
+  .featureDesc   { display: none; }
+}

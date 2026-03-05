@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import Marca from '../models/Marca.js';
 import logger from '../services/loggerService.js';
 
+interface CreateMarcaBody { nombre_marca: string; logo_marca?: string; descripcion_marca?: string; }
+interface UpdateMarcaBody extends Partial<CreateMarcaBody> { activo?: boolean; }
+
 /**
  * Controlador para gestión de marcas de productos
  *
@@ -118,7 +121,7 @@ export class MarcaController {
    */
   static async createMarca(req: Request, res: Response) {
     try {
-      const { nombre_marca, logo_marca, descripcion_marca } = req.body;
+      const { nombre_marca, logo_marca, descripcion_marca } = req.body as CreateMarcaBody;
       logger.debug('Creando nueva marca', { nombre_marca, logo_marca: !!logo_marca, descripcion_marca: !!descripcion_marca });
 
       if (!nombre_marca) {
@@ -186,7 +189,7 @@ export class MarcaController {
   static async updateMarca(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { nombre_marca, logo_marca, descripcion_marca, activo } = req.body;
+      const { nombre_marca, logo_marca, descripcion_marca, activo } = req.body as UpdateMarcaBody;
       logger.debug(`Actualizando marca ID: ${id}`, { nombre_marca, logo_marca: !!logo_marca, descripcion_marca: !!descripcion_marca, activo });
 
       const marca = await Marca.findByPk(id);
@@ -199,7 +202,7 @@ export class MarcaController {
         });
       }
 
-      const datosActualizados: any = {
+      const datosActualizados: UpdateMarcaBody & { fyh_actualizacion: Date } = {
         fyh_actualizacion: new Date()
       };
 

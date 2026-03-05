@@ -1,9 +1,14 @@
-/* Footer */
+/* ============================================================================
+   FOOTER — Silicon Precision
+   Oscuro permanente: contrasta con el fondo del contenido.
+   Minimalismo editorial con información esencial.
+   ============================================================================ */
+
 .footer {
-  background-color: var(--background-light);
-  color: var(--text-secondary);
-  padding: var(--spacing-4xl) var(--container-padding);
-  margin-top: auto;
+  background: #0c0c0e;
+  color: #71717a;
+  padding: var(--spacing-3xl) var(--container-padding) var(--spacing-xl);
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .footerContainer {
@@ -13,80 +18,101 @@
 
 .footerGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--spacing-2xl);
-  margin-bottom: var(--spacing-3xl);
+  grid-template-columns: 1.5fr repeat(2, 1fr);
+  gap: var(--spacing-3xl);
+  padding-bottom: var(--spacing-2xl);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: var(--spacing-xl);
 }
 
+/* Brand */
 .footerBrand .footerTitle {
-  font-size: var(--font-size-2xl);
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
   font-weight: 700;
+  color: #f4f4f5;
+  margin: 0 0 var(--spacing-md) 0;
+  letter-spacing: -0.02em;
 }
 
 .footerDescription {
-  line-height: 1.7;
-  margin-bottom: var(--spacing-lg);
-  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: #52525b;
+  margin: 0 0 var(--spacing-lg) 0;
+  max-width: 280px;
 }
 
 .socialLinks {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
 .socialLinks a {
-  color: var(--text-secondary);
-  font-size: var(--font-size-xl);
-  transition: color var(--transition-fast) var(--transition-curve), transform var(--transition-fast) var(--transition-curve);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #71717a;
+  font-size: var(--font-size-md);
+  transition: color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
 }
 
 .socialLinks a:hover {
-  color: var(--text-primary);
-  transform: translateY(-2px);
+  color: #f4f4f5;
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.05);
 }
 
+/* Links columns */
 .footerLinks .linksTitle {
-  font-size: var(--font-size-lg);
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xs);
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+  margin: 0 0 var(--spacing-lg) 0;
 }
 
 .footerLinks a {
   display: block;
-  margin-bottom: var(--spacing-md);
-  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: #52525b;
   text-decoration: none;
   transition: color var(--transition-fast) var(--transition-curve);
 }
 
-.footerLinks a:hover {
-  color: var(--text-primary);
+.footerLinks a:hover { color: #a1a1aa; }
+
+/* Copyright */
+.footerCopyright {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: #3f3f46;
 }
 
-.footerCopyright {
-  text-align: center;
-  padding-top: var(--spacing-2xl);
-  border-top: 1px solid var(--background-elevated);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
+.footerCopyright span { color: #3f3f46; }
 
 /* Responsive */
 @media (max-width: 768px) {
   .footerGrid {
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-2xl);
   }
-  .footerBrand {
-    grid-column: 1 / -1;
-  }
+  .footerBrand { grid-column: 1 / -1; }
+  .footerDescription { max-width: 100%; }
 }
 
 @media (max-width: 480px) {
-  .footerGrid {
-    grid-template-columns: 1fr;
-  }
-} 
+  .footer { padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-lg); }
+  .footerGrid { grid-template-columns: 1fr; gap: var(--spacing-xl); }
+  .footerCopyright { flex-direction: column; gap: var(--spacing-xs); text-align: center; }
+}

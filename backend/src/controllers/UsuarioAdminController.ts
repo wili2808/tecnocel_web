@@ -19,10 +19,12 @@ import Rol from '../models/Rol.js';
 import Cliente from '../models/Cliente.js';
 import Almacen from '../models/Almacen.js';
 import logger from '../services/loggerService.js';
+import { WhereOptions } from 'sequelize';
 import {
   ListarClientesResponse,
   ClienteAdminResponse,
-  UpdateClienteAdminResponse
+  UpdateClienteAdminResponse,
+  ActualizarClienteAdminRequest
 } from '../types/cliente.types.js';
 import {
   UsuarioSistemaResponse,
@@ -31,7 +33,9 @@ import {
   ListarUsuariosResponse,
   CrearUsuarioResponse,
   ActualizarUsuarioResponse,
-  EliminarResponse
+  EliminarResponse,
+  CrearUsuarioRequest,
+  ActualizarUsuarioRequest
 } from '../types/usuario.types.js';
 import { UsuarioSession } from '../types/express.js';
 
@@ -81,7 +85,8 @@ class UsuarioAdminController {
       nombres: usuario.nombres,
       email: usuario.email,
       idRol: usuario.id_rol,
-      rolNombre: rolNombre || (usuario as any).Rol?.rol || 'Desconocido'
+      /** Sequelize no tipifica asociaciones — cast necesario para acceder a la relación Rol */
+      rolNombre: rolNombre || (usuario as unknown as { Rol?: { rol: string } }).Rol?.rol || 'Desconocido'
     };
   }
 
@@ -342,7 +347,7 @@ class UsuarioAdminController {
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { nombres, email, password, id_rol } = req.body;
+      const { nombres, email, password, id_rol } = req.body as CrearUsuarioRequest;
 
       // Verificar si el email ya existe
       const usuarioExistente = await Usuario.findOne({ where: { email } });
@@ -436,7 +441,7 @@ class UsuarioAdminController {
       }
 
       const { id } = req.params;
-      const { nombres, email, password, id_rol } = req.body;
+      const { nombres, email, password, id_rol } = req.body as ActualizarUsuarioRequest;
 
       const usuario = await Usuario.findByPk(id);
       if (!usuario) {
@@ -619,14 +624,16 @@ class UsuarioAdminController {
       const search = req.query.search as string;
 
       // Construir filtros de búsqueda si se proporciona término
-      const whereClause: any = {};
+      let whereClause: WhereOptions = {};
       if (search) {
-        whereClause[Op.or] = [
-          { nombre_cliente: { [Op.like]: `%${search}%` } },
-          { apellido_cliente: { [Op.like]: `%${search}%` } },
-          { email_cliente: { [Op.like]: `%${search}%` } },
-          { celular_cliente: { [Op.like]: `%${search}%` } }
-        ];
+        whereClause = {
+          [Op.or]: [
+            { nombre_cliente: { [Op.like]: `%${search}%` } },
+            { apellido_cliente: { [Op.like]: `%${search}%` } },
+            { email_cliente: { [Op.like]: `%${search}%` } },
+            { celular_cliente: { [Op.like]: `%${search}%` } }
+          ]
+        };
       }
 
       const { count, rows: clientes } = await Cliente.findAndCountAll({
@@ -770,7 +777,7 @@ class UsuarioAdminController {
         nit_ci_cliente,
         is_web_enabled,
         email_verified
-      } = req.body;
+      } = req.body as ActualizarClienteAdminRequest;
 
       // 1. Buscar el cliente por su Clave Primaria (PK)
       const cliente = await Cliente.findByPk(id);

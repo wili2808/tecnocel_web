@@ -1,17 +1,23 @@
+/* ============================================================
+   ProductInfo — Silicon Precision
+   ============================================================ */
+
 .productInfo {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
   width: 100%;
 }
+
+/* ---- Bloque básico: título + badges + precio ---- */
 
 .basicInfo {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-primary-light);
 }
+
+/* ---- Encabezado ---- */
 
 .header {
   display: flex;
@@ -20,145 +26,120 @@
 }
 
 .productTitle {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
   margin: 0;
-  line-height: var(--line-height-tight);
+  line-height: 1.15;
 }
+
+/* ---- Badges ---- */
 
 .badgesContainer {
   display: flex;
-  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
   align-items: center;
 }
 
 .categoryBadge {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-md);
-  background-color: var(--color-primary-100);
+  padding: 2px var(--spacing-sm);
+  background-color: rgba(var(--color-primary-rgb), 0.07);
   color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.18);
   border-radius: var(--border-radius-full);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  width: fit-content;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .discountBadge {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-md);
-  background-color: var(--color-success-100);
+  padding: 2px var(--spacing-sm);
+  background-color: rgba(var(--color-success-rgb), 0.07);
   color: var(--color-success);
+  border: 1px solid rgba(var(--color-success-rgb), 0.18);
   border-radius: var(--border-radius-full);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  width: fit-content;
-  animation: pulse 2s infinite;
-  border: var(--border-width-thin) solid rgba(var(--color-success-rgb), 0.2);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
+/* ---- Metadata ---- */
 
 .metadata {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-md);
-}
-
-.productCode {
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  gap: var(--spacing-sm);
 }
 
 .offerName {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background-color: var(--color-warning-100);
+  padding: 2px var(--spacing-sm);
+  background-color: rgba(var(--color-warning-rgb), 0.08);
   color: var(--color-warning);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-full);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  border: var(--border-width-thin) solid rgba(var(--color-warning-rgb), 0.2);
+  font-weight: 600;
+  border: 1px solid rgba(var(--color-warning-rgb), 0.2);
+  letter-spacing: 0.02em;
 }
+
+/* ---- Precio ---- */
 
 .priceSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  align-items: flex-start;
+  gap: var(--spacing-xs);
 }
 
 .priceContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  align-items: flex-start;
+  gap: 2px;
 }
 
 .priceCurrent {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  letter-spacing: -0.04em;
   color: var(--color-primary);
-  line-height: var(--line-height-tight);
+  line-height: 1;
 }
 
 .priceOriginal {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  line-height: var(--line-height-tight);
-  text-decoration: line-through;
-  opacity: 0.7;
-}
-
-.stockBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--border-radius-full);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  line-height: 1.4;
 }
 
-.stockBadge .material-icons {
-  font-size: var(--icon-size-md);
-}
-
-.inStock {
-  background-color: var(--color-success-100);
-  color: var(--color-success);
-  border: var(--border-width-thin) solid rgba(var(--color-success-rgb), 0.2);
-}
-
-.outOfStock {
-  background-color: var(--color-error-100);
-  color: var(--color-error);
-  border: var(--border-width-thin) solid rgba(var(--color-error-rgb), 0.2);
-}
+/* ---- Descripción ---- */
 
 .descriptionSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
 }
 
 .sectionTitle {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
   margin: 0;
 }
 
@@ -169,52 +150,21 @@
   margin: 0;
 }
 
-/* Responsive - Mantener diseño horizontal en pantallas pequeñas */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
 @media (max-width: 768px) {
-  .productInfo {
-    gap: var(--spacing-md);
-  }
-
-  .basicInfo {
-    gap: var(--spacing-md);
-  }
-
   .productTitle {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
   }
 
-  .header {
-    display: flex;
-    flex-direction: row;
-    gap: var(--spacing-md);
-    align-items: center;
-  }
-  
   .priceCurrent {
-    font-size: var(--font-size-3xl);
-  }
-
-  .priceOriginal {
-    font-size: var(--font-size-md);
-  }
-
-  /* Mantener badges en línea horizontal */
-  .badgesContainer {
-    flex-direction: row;
-  }
-
-  /* Mantener metadata en línea horizontal */
-  .metadata {
-    flex-direction: row;
-    flex-wrap: wrap;
+    font-size: var(--font-size-2xl);
   }
 }
 
 @media (max-width: 480px) {
-  .header {
-    gap: var(--spacing-xs);
-  }
-
   .productTitle {
     font-size: var(--font-size-xl);
   }
@@ -224,55 +174,14 @@
   }
 
   .priceOriginal {
-    font-size: var(--font-size-sm);
-  }
-
-  /* Asegurar que los badges se mantengan horizontales */
-  .badgesContainer {
-    flex-direction: row;
-    gap: var(--spacing-xs);
-  }
-
-  .categoryBadge,
-  .discountBadge {
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  /* Mantener metadata en línea horizontal incluso en móvil */
-  .metadata {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--spacing-sm);
-  }
-
-  .productCode,
-  .offerName {
-    font-size: var(--font-size-xs);
-  }
-
-  /* Asegurar que el precio y stock se mantengan en línea horizontal */
-  .priceSection {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-sm);
-  }
-
-  .priceContainer {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .stockBadge {
-    padding: var(--spacing-xs) var(--spacing-sm);
     font-size: var(--font-size-xs);
   }
 }
 
-/* === ACCESIBILIDAD === */
+/* ============================================================
+   ACCESIBILIDAD
+   ============================================================ */
+
 @media (prefers-reduced-motion: reduce) {
-  .discountBadge {
-    animation: none;
-  }
-} 
+  .discountBadge { animation: none; }
+}

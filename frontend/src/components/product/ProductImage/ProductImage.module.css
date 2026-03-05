@@ -1,11 +1,15 @@
-/* === CONTENEDOR PRINCIPAL === */
+/* ============================================================
+   ProductImage — Galería con thumbnails — Silicon Precision
+   ============================================================ */
+
 .imageContainer {
-  position: relative;
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  width: 100%;
 }
+
+/* ---- Imagen principal ---- */
 
 .mainImageContainer {
   position: relative;
@@ -14,207 +18,175 @@
   background-color: var(--background-secondary);
   border-radius: var(--border-radius-md);
   overflow: hidden;
-  border: var(--border-width-thin) solid var(--border-color-light);
-  transition: var(--theme-transition);
+  border: 1px solid var(--border-color);
+  transition: border-color var(--transition-normal);
 }
 
 .mainImageContainer:hover {
-  border-color: var(--color-primary-200);
+  border-color: rgba(var(--color-primary-rgb), 0.4);
 }
 
-/* === IMAGEN PRINCIPAL === */
 .productImage {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: opacity var(--transition-normal) var(--transition-curve);
+  transition: opacity var(--transition-normal);
 }
 
-.productImage.loading {
-  opacity: 0;
-}
+.imageHidden { opacity: 0; }
 
-/* === LOADING OVERLAY === */
+/* ---- Loading overlay ---- */
+
 .loadingOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--background-secondary);
+  z-index: 1;
 }
 
 .loadingSpinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border-color-light);
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-color);
   border-top-color: var(--color-primary);
-  border-radius: var(--border-radius-full);
-  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* === BOTONES DE NAVEGACIÓN === */
+/* ---- Botones de navegación ---- */
+
 .navButton {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(var(--background-primary-rgb), 0.9);
-  color: var(--text-primary);
-  border: var(--border-width-thick) solid var(--border-color);
-  border-radius: var(--border-radius-full);
-  width: 48px;
-  height: 48px;
-  font-size: var(--icon-size-xl);
-  font-weight: var(--font-weight-bold);
+  width: 36px;
+  height: 36px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--background-primary-rgb), 0.92);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
   cursor: pointer;
-  opacity: 0.9;
-  transition: all var(--transition-normal) var(--transition-curve);
-  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transition: all var(--transition-normal);
   backdrop-filter: blur(8px);
   z-index: 2;
 }
 
 .mainImageContainer:hover .navButton {
   opacity: 1;
-  transform: translateY(-50%) scale(1.05);
 }
 
 .navButton:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.95);
+  background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: var(--text-inverse);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-50%) scale(1.1);
+  color: #fff;
 }
 
 .navButton:active {
   transform: translateY(-50%) scale(0.95);
 }
 
-.navButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: translateY(-50%);
+.navButton .material-icons { font-size: 20px; }
+
+.prevButton { left: var(--spacing-sm); }
+.nextButton { right: var(--spacing-sm); }
+
+/* ---- Tira de thumbnails ---- */
+
+.thumbnailStrip {
+  display: flex;
+  gap: var(--spacing-xs);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
 }
 
-.prevButton {
-  left: var(--spacing-md);
+.thumbnailStrip::-webkit-scrollbar { display: none; }
+
+.thumbnailButton {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
 }
 
-.nextButton {
-  right: var(--spacing-md);
+.thumbnailButton:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.5);
 }
 
-/* === CONTADOR DE IMÁGENES === */
-.imageCounter {
-  position: absolute;
-  bottom: var(--spacing-md);
-  right: var(--spacing-md);
-  background-color: rgba(var(--background-primary-rgb), 0.9);
-  color: var(--text-primary);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  backdrop-filter: blur(8px);
-  border: var(--border-width-thin) solid var(--border-color-light);
-  box-shadow: var(--shadow-sm);
-  z-index: 2;
-  transition: var(--theme-transition);
+.thumbnailActive {
+  border-color: var(--color-primary);
+  border-width: 2px;
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 1024px) {
-  .imageContainer {
-    gap: var(--spacing-sm);
-  }
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 
 @media (max-width: 768px) {
   .navButton {
     opacity: 1;
-    width: 40px;
-    height: 40px;
-    font-size: var(--icon-size-lg);
+    width: 36px;
+    height: 36px;
   }
 
-  .prevButton {
-    left: var(--spacing-sm);
-  }
-
-  .nextButton {
-    right: var(--spacing-sm);
-  }
-
-  .imageCounter {
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    bottom: var(--spacing-sm);
-    right: var(--spacing-sm);
+  .thumbnailButton {
+    width: 56px;
+    height: 56px;
   }
 }
 
 @media (max-width: 480px) {
-  .imageContainer {
-    gap: var(--spacing-xs);
-  }
-
   .navButton {
-    width: 36px;
-    height: 36px;
-    font-size: var(--icon-size-md);
+    width: 32px;
+    height: 32px;
   }
 
-  .prevButton {
-    left: var(--spacing-xs);
+  .navButton .material-icons { font-size: 18px; }
+
+  .thumbnailButton {
+    width: 48px;
+    height: 48px;
   }
 
-  .nextButton {
-    right: var(--spacing-xs);
-  }
-
-  .imageCounter {
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs);
-    bottom: var(--spacing-xs);
-    right: var(--spacing-xs);
-  }
+  .prevButton { left: var(--spacing-xs); }
+  .nextButton { right: var(--spacing-xs); }
 }
 
-/* === ACCESIBILIDAD === */
+/* ============================================================
+   ACCESIBILIDAD
+   ============================================================ */
+
 @media (prefers-reduced-motion: reduce) {
   .productImage,
   .navButton,
-  .mainImageContainer,
-  .imageCounter {
-    transition: none;
-  }
+  .thumbnailButton { transition: none; }
 
-  .loadingSpinner {
-    animation: none;
-  }
+  .loadingSpinner { animation: none; }
 
-  .navButton:hover {
-    transform: translateY(-50%);
-  }
-
-  .mainImageContainer:hover .navButton {
-    transform: translateY(-50%);
-  }
-
-  .navButton:active {
-    transform: translateY(-50%);
-  }
+  .navButton:active { transform: translateY(-50%); }
 }

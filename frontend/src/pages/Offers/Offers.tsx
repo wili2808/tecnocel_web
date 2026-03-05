@@ -1,27 +1,22 @@
 /**
- * Página Offers - Página principal de ofertas especiales
- * Muestra todas las ofertas disponibles y productos en oferta con paginación
- * Incluye funcionalidades para estadísticas, grid de ofertas y productos en oferta
- * Utiliza useOfertasPagination para gestión de datos paginados y contexto global
+ * Página Offers — rediseño PWA vertical
+ * Cada oferta activa se muestra como un banner wide + los productos que le pertenecen
+ * Las ofertas se presentan en secuencia vertical; al final van las expiradas en grid compacto
  */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useOfertasPagination } from '../../hooks/useOfertasPagination';
-import OffersGrid from '../../components/product/OffersGrid';
-import OffersProductsSection from '../../components/product/OffersProductsSection';
-import ProductsOfferFilter, { type ProductOfferFilter } from '../../components/product/ProductsOfferFilter';
+import OfferCard from '../../components/product/OfferCard';
+import ProductCard from '../../components/product/ProductCard';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import type { Product } from '../../types';
 import styles from './Offers.module.css';
 
 const Offers: React.FC = () => {
-  // ============================================================================
-  // HOOKS Y CONTEXTOS
-  // ============================================================================
-
   const {
     ofertas,
     productosEnOferta,
     loading,
     error,
-    totalItems,
     hasNextPage,
     loadMore,
     refreshOfertas,
@@ -29,108 +24,185 @@ const Offers: React.FC = () => {
     getProductosEnOfertaCount,
   } = useOfertasPagination({ itemsPerPage: 20 });
 
-  // ============================================================================
-  // ESTADO LOCAL
-  // ============================================================================
-
-  // Estado del filtro de productos por oferta
-  const [productOfferFilter, setProductOfferFilter] = useState<ProductOfferFilter>('todas');
-
-  // ============================================================================
-  // PROCESAMIENTO DE DATOS
-  // ============================================================================
-
-  // El backend devuelve productos_count por oferta — no hay que calcularlo en el cliente
-  const productCounts = useMemo(
-    () => Object.fromEntries(ofertas.map((o) => [o.id_oferta, o.productos_count ?? 0])),
-    [ofertas],
-  );
-
-  // Filtrar productos por oferta seleccionada
-  const productosFiltrados = useMemo(() => {
-    let filtered = [...productosEnOferta];
-
-    // Aplicar filtro por oferta
-    if (productOfferFilter !== 'todas') {
-      filtered = filtered.filter((producto) => {
-        // Verificar si el producto tiene la oferta seleccionada
-        return producto.ofertas?.some((oferta) => oferta.id_oferta === productOfferFilter);
+  // Agrupa productos por id_oferta — evita duplicados
+  const productosPorOferta = useMemo(() => {
+    const map = new Map<number, Product[]>();
+    productosEnOferta.forEach((producto) => {
+      producto.ofertas?.forEach((oferta) => {
+        const list = map.get(oferta.id_oferta) ?? [];
+        if (!list.find((p) => p.id_producto === producto.id_producto)) {
+          list.push(producto);
+          map.set(oferta.id_oferta, list);
+        }
       });
-    }
+    });
+    return map;
+  }, [productosEnOferta]);
 
-    return filtered;
-  }, [productosEnOferta, productOfferFilter]);
+  // Separa activas / expiradas
+  const { ofertasActivas, ofertasExpiradas } = useMemo(() => {
+    const now = new Date();
+    return {
+      ofertasActivas: ofertas.filter((o) => new Date(o.fecha_fin) >= now),
+      ofertasExpiradas: ofertas.filter((o) => new Date(o.fecha_fin) < now),
+    };
+  }, [ofertas]);
 
-  // ============================================================================
-  // RENDERIZADO
-  // ============================================================================
+  // ── Estados de carga / error ────────────────────────────────────────
+  if (loading && ofertas.length === 0) {
+    return (
+      <div className={styles.offersPage}>
+        <div className={styles.centeredState}>
+          <LoadingSpinner size="lg" />
+          <p className={styles.loadingText}>Cargando ofertas...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && ofertas.length === 0) {
+    return (
+      <div className={styles.offersPage}>
+        <div className={styles.centeredState}>
+          <span className="material-icons">error_outline</span>
+          <h3>No pudimos cargar las ofertas</h3>
+          <p>{error}</p>
+          <button onClick={refreshOfertas} className={styles.retryButton}>
+            <span className="material-icons">refresh</span>
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.offersPage}>
-      <div className={styles.offersContainer}>
-        {/* Header de la página con título y estadísticas */}
-        <header className={styles.pageHeader}>
+
+      {/* ── Header ──────────────────────────────────────────────────── */}
+      <header className={styles.pageHeader}>
+        <div className={styles.headerInner}>
           <div className={styles.headerContent}>
-            <h1 className={styles.pageTitle}>
-              <span className="material-icons">local_offer</span>
-              Ofertas Especiales
-            </h1>
+            <p className={styles.eyebrow}>Promociones</p>
+            <h1 className={styles.pageTitle}>Ofertas Especiales</h1>
             <p className={styles.pageSubtitle}>
-              Descubre nuestras mejores ofertas y aprovecha descuentos exclusivos en tecnología
+              Descuentos exclusivos en tecnología seleccionada
             </p>
           </div>
 
-          {/* Tarjeta de estadísticas con conteo de ofertas y productos */}
           {getProductosEnOfertaCount() > 0 && (
             <div className={styles.statsCard}>
               <div className={styles.stat}>
                 <span className={styles.statNumber}>{getOfertasCount()}</span>
                 <span className={styles.statLabel}>Ofertas</span>
               </div>
-              <div className={styles.statDivider}></div>
+              <div className={styles.statDivider} />
               <div className={styles.stat}>
                 <span className={styles.statNumber}>{getProductosEnOfertaCount()}</span>
                 <span className={styles.statLabel}>Productos</span>
               </div>
             </div>
           )}
-        </header>
+        </div>
+      </header>
 
-        {/* Grid de ofertas con separación por estado */}
-        <OffersGrid
-          ofertas={ofertas}
-          loading={loading}
-          error={error}
-          onRetry={refreshOfertas}
-          productCounts={productCounts}
-        />
+      <div className={styles.offersContainer}>
 
-        {/* Sección de productos en oferta con paginación */}
-        <OffersProductsSection
-          products={productosFiltrados}
-          loading={loading}
-          error={error}
-          totalProducts={productosEnOferta.length}
-          hasMore={hasNextPage}
-          onLoadMore={loadMore}
-          onRetry={refreshOfertas}
-          useGlobalContext={false}
-          filterControls={
-            !loading && ofertas.length > 0 ? (
-              <ProductsOfferFilter
-                currentFilter={productOfferFilter}
-                ofertas={ofertas}
-                onFilterChange={setProductOfferFilter}
-                disabled={loading}
-              />
-            ) : undefined
-          }
-        />
+        {/* ── Sin ofertas ──────────────────────────────────────────── */}
+        {ofertas.length === 0 && !loading && (
+          <div className={styles.centeredState}>
+            <span className="material-icons">local_offer</span>
+            <h3>No hay ofertas disponibles</h3>
+            <p>Vuelve pronto para ver nuestras promociones exclusivas.</p>
+          </div>
+        )}
+
+        {/* ── Ofertas activas — banner + productos ─────────────────── */}
+        {ofertasActivas.length > 0 && (
+          <div className={styles.offersList}>
+            {ofertasActivas.map((oferta, index) => {
+              const productos = productosPorOferta.get(oferta.id_oferta) ?? [];
+              return (
+                <article
+                  key={oferta.id_oferta}
+                  className={styles.offerSection}
+                  style={{ animationDelay: `${index * 0.07}s` }}
+                >
+                  <OfferCard oferta={oferta} productCount={productos.length} />
+
+                  {productos.length > 0 && (
+                    <div className={styles.offerProducts}>
+                      {productos.map((product) => (
+                        <ProductCard
+                          key={product.id_producto}
+                          id_producto={product.id_producto}
+                          nombre={product.nombre}
+                          descripcion={product.descripcion}
+                          imagen_url={product.imagen_url}
+                          imagenes={product.imagenes}
+                          precio_venta={product.precio_venta}
+                          stock={product.stock}
+                          precio_original={product.precio_original}
+                          precio_oferta={product.precio_oferta}
+                          descuento_porcentaje={product.descuento_porcentaje}
+                          en_oferta={product.en_oferta}
+                          ofertas={product.ofertas}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {productos.length === 0 && !loading && (
+                    <p className={styles.noProducts}>
+                      Esta oferta aún no tiene productos asignados.
+                    </p>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Cargar más ───────────────────────────────────────────── */}
+        {hasNextPage && (
+          <div className={styles.loadMoreWrap}>
+            <button
+              onClick={loadMore}
+              className={styles.loadMoreButton}
+              disabled={loading}
+            >
+              {loading ? (
+                <><LoadingSpinner size="sm" /><span>Cargando...</span></>
+              ) : (
+                <><span className="material-icons">expand_more</span><span>Cargar más</span></>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* ── Ofertas expiradas ────────────────────────────────────── */}
+        {ofertasExpiradas.length > 0 && (
+          <section className={styles.expiredSection}>
+            <div className={styles.expiredHeader}>
+              <h2 className={styles.expiredTitle}>Ofertas anteriores</h2>
+              <span className={styles.expiredBadge}>{ofertasExpiradas.length}</span>
+            </div>
+            <div className={styles.expiredGrid}>
+              {ofertasExpiradas.map((oferta) => (
+                <OfferCard
+                  key={oferta.id_oferta}
+                  oferta={oferta}
+                  productCount={productosPorOferta.get(oferta.id_oferta)?.length ?? 0}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
       </div>
     </div>
   );
 };
 
 Offers.displayName = 'Offers';
-
 export default Offers;

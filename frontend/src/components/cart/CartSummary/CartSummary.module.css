@@ -1,22 +1,23 @@
 /* Resumen de compra */
 .cartSummary {
-    background: var(--background-light);
+    background: var(--background-secondary);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-card);
     height: fit-content;
-    border: 2px solid var(--border-color-light);
+    border: 1px solid var(--border-color);
 }
 
 .summaryHeader {
     padding: var(--spacing-lg);
-    border-bottom: 2px solid var(--border-color-light);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .summaryHeader h2 {
     margin: 0;
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--text-primary);
 }
 
@@ -60,7 +61,7 @@
 }
 
 .summaryRow:not(:last-child) {
-    border-bottom: 1px solid var(--border-color-light);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .freeShipping {
@@ -131,9 +132,9 @@
     background: var(--color-primary);
     color: var(--text-inverse);
     border: none;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-full);
     font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
+    font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     transition: var(--theme-transition);
@@ -152,8 +153,8 @@
 .totalSection {
     margin-bottom: var(--spacing-lg);
     padding: var(--spacing-md) 0;
-    border-top: 2px solid var(--border-color-light);
-    border-bottom: 2px solid var(--border-color-light);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .totalRow {
@@ -163,14 +164,19 @@
 }
 
 .totalLabel {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: var(--font-size-xs);
 }
 
 .totalAmount {
+    font-family: var(--font-family-display);
     font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
+    font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--text-primary);
 }
 
@@ -181,25 +187,25 @@
 
 .checkoutButton {
     width: 100%;
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 0.9rem var(--spacing-lg);
     background: var(--color-primary);
     color: var(--text-inverse);
     border: none;
-    border-radius: var(--border-radius-md);
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
     cursor: pointer;
-    transition: var(--theme-transition);
+    transition: background var(--transition-fast) var(--transition-curve),
+                transform var(--transition-fast) var(--transition-curve);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-sm);
-    box-shadow: var(--shadow-button-primary);
 }
 
 .checkoutButton:hover:not(:disabled) {
     background: var(--color-primary-dark);
-    box-shadow: var(--shadow-button-primary-hover);
+    transform: translateY(-1px);
 }
 
 .checkoutButton:disabled {

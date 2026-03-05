@@ -3,15 +3,16 @@
   background: var(--background-secondary);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
-  border: 1px solid var(--border-color-light);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
   animation: fadeIn 0.3s ease-out;
 }
 
 /* === TÍTULO === */
 .title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin: 0 0 var(--spacing-lg) 0;
   display: flex;
@@ -29,7 +30,7 @@
   background: var(--background-primary);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-lg);
-  border: 1px solid var(--border-color-light);
+  border: 1px solid var(--border-color);
 }
 
 .infoHeader {
@@ -38,7 +39,7 @@
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .storeIcon {
@@ -47,8 +48,10 @@
 }
 
 .storeName {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   margin: 0;
 }
@@ -101,20 +104,18 @@
   padding: var(--spacing-sm) var(--spacing-lg);
   background: var(--color-primary);
   color: var(--text-inverse);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-full);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
   transition: var(--theme-transition);
   width: fit-content;
   margin-bottom: var(--spacing-lg);
-  box-shadow: var(--shadow-button-primary);
 }
 
 .mapButton:hover {
   background: var(--color-primary-dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-button-primary-hover);
 }
 
 .mapButton .material-icons {

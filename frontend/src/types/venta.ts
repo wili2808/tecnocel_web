@@ -15,6 +15,7 @@ export interface VentaListItem {
   email_cliente: string | null;
   cantidad_items: number;
   total_pagado: number;
+  moneda: string;
   metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr' | null;
   tipo_venta: 'web' | 'manual';
   estado: 'completada' | 'cancelada' | 'pendiente';

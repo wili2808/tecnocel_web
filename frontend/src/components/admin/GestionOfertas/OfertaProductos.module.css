@@ -1,3 +1,7 @@
+/* ============================================================================
+   OFERTA PRODUCTOS - Asignacion de productos a ofertas
+   ============================================================================ */
+
 .container {
   margin-top: var(--spacing-xl);
 }
@@ -21,10 +25,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  letter-spacing: -0.25px;
 }
 
 .title .material-icons {
-  color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
 .addButton {
@@ -32,24 +37,23 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 .addButton:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
+  background-color: var(--color-primary-dark);
 }
 
 .addButton:active {
-  transform: translateY(0);
+  background-color: var(--color-primary-dark);
 }
 
 /* ============================================================================
@@ -58,7 +62,7 @@
 
 .tableWrapper {
   overflow-x: auto;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
 }
 
@@ -66,6 +70,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: var(--background-light);
+  font-size: var(--font-size-sm);
 }
 
 .table thead {
@@ -73,9 +78,9 @@
 }
 
 .table th {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -85,14 +90,18 @@
 }
 
 .table td {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
 }
 
+.table tbody tr {
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
 .table tbody tr:hover {
-  background-color: var(--background-neutral);
+  background-color: var(--color-primary-25);
 }
 
 .table tbody tr:last-child td {
@@ -103,6 +112,7 @@
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
 .thumbnailWrapper {
@@ -126,7 +136,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .thumbnailPlaceholder .material-icons {
@@ -134,8 +144,8 @@
 }
 
 .codigoCell {
-  font-family: monospace;
-  font-size: var(--font-size-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
 
@@ -171,7 +181,9 @@
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,7 +207,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,7 +215,7 @@
 }
 
 .modal {
-  background: var(--background-light);
+  background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
   max-width: 750px;
@@ -211,7 +223,8 @@
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-elevated);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
 }
 
 .modalHeader {
@@ -219,11 +232,13 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modalTitle {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
   display: flex;
@@ -232,24 +247,25 @@
 }
 
 .modalTitle .material-icons {
-  color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
 .closeButton {
   padding: var(--spacing-xs);
   background: none;
-  border: 1px solid var(--border-color);
+  border: none;
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: var(--theme-transition);
+  transition: color var(--transition-fast) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve);
 }
 
 .closeButton:hover {
-  background-color: var(--color-error-100);
-  color: var(--color-error);
+  background-color: var(--background-hover);
+  color: var(--text-primary);
 }
 
 .modalSearch {
@@ -260,7 +276,8 @@
   background-color: var(--background-light);
   padding: 0 var(--spacing-md);
   margin-bottom: var(--spacing-lg);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .modalSearch:focus-within {
@@ -278,7 +295,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   background: none;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
 }
@@ -299,11 +316,12 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   margin-bottom: var(--spacing-sm);
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
 }
 
 .productoItem:hover {
@@ -339,7 +357,7 @@
 .productoCodigo {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  font-family: monospace;
+  font-family: var(--font-family-mono);
 }
 
 .productoPrecio {
@@ -359,6 +377,8 @@
   color: var(--text-primary);
   text-align: right;
   flex-shrink: 0;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .precioOfertaInput:focus {
@@ -384,6 +404,10 @@
   justify-content: space-between;
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border-color);
+  background-color: var(--background-light);
+  margin: 0 calc(-1 * var(--spacing-xl));
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
 }
 
 .seleccionInfo {
@@ -396,19 +420,18 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .asignarButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
+  background-color: var(--color-primary-dark);
 }
 
 .asignarButton:disabled {
@@ -443,6 +466,8 @@
   .modalFooter {
     flex-direction: column;
     gap: var(--spacing-md);
+    margin: 0 calc(-1 * var(--spacing-lg));
+    padding: var(--spacing-md) var(--spacing-lg);
   }
 
   .asignarButton {
@@ -452,6 +477,6 @@
 
   .table th,
   .table td {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }

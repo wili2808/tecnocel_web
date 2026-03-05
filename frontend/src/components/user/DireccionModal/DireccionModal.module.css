@@ -5,25 +5,25 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   padding: var(--spacing-md);
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.15s ease-out;
 }
 
 /* === CONTENIDO DEL MODAL === */
 .modal {
-  background-color: var(--background-secondary);
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  max-width: 600px;
+  max-width: 580px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-xl);
-  animation: slideUp 0.3s ease-out;
+  animation: slideUp 0.2s ease-out;
 }
 
 /* === HEADER DEL MODAL === */
@@ -31,17 +31,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
-  background-color: var(--background-secondary);
+  background-color: var(--background-primary);
   z-index: 10;
 }
 
 .header h2 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin: 0;
 }
@@ -55,12 +57,11 @@
   align-items: center;
   justify-content: center;
   color: var(--text-tertiary);
-  transition: all var(--transition-normal);
+  transition: color var(--transition-normal);
   border-radius: var(--border-radius-full);
 }
 
 .closeBtn:hover:not(:disabled) {
-  background-color: var(--background-hover);
   color: var(--text-primary);
 }
 
@@ -75,7 +76,7 @@
 
 /* === FORMULARIO === */
 .form {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -88,8 +89,10 @@
 }
 
 .label {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--text-secondary);
   display: flex;
   flex-direction: column;
@@ -101,30 +104,32 @@
   font-weight: 400;
   color: var(--text-tertiary);
   font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .input,
 .textarea {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-md);
   color: var(--text-primary);
   background-color: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  transition: all var(--transition-normal);
+  transition: border-color var(--transition-normal);
   font-family: inherit;
+  outline: none;
 }
 
 .input:focus,
 .textarea:focus {
-  outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
 }
 
 .input:disabled,
 .textarea:disabled {
-  background-color: var(--background-disabled);
+  background-color: var(--background-secondary);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -145,10 +150,13 @@
 .error {
   color: var(--color-error);
   font-size: var(--font-size-xs);
-  margin-top: var(--spacing-xs);
+  margin-top: 2px;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
 /* === FILA DE FORMULARIO === */
@@ -168,7 +176,7 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background-color: var(--background-light);
+  background-color: var(--background-secondary);
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
 }
@@ -179,14 +187,18 @@
   gap: var(--spacing-sm);
   cursor: pointer;
   font-size: var(--font-size-sm);
+  font-weight: 500;
   color: var(--text-secondary);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .checkboxLabel input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   cursor: pointer;
   margin: 0;
+  accent-color: var(--color-primary);
 }
 
 .checkboxLabel:hover {
@@ -204,14 +216,14 @@
   justify-content: flex-end;
   padding-top: var(--spacing-md);
   border-top: 1px solid var(--border-color);
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
 }
 
 .btnSecondary,
 .btnPrimary {
   padding: var(--spacing-sm) var(--spacing-xl);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -219,7 +231,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  min-width: 120px;
+  min-width: 110px;
   justify-content: center;
 }
 
@@ -231,6 +243,8 @@
 
 .btnSecondary:hover:not(:disabled) {
   background-color: var(--background-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .btnPrimary {
@@ -241,7 +255,6 @@
 .btnPrimary:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 
 .btnSecondary:disabled,
@@ -262,15 +275,24 @@
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .overlay {
-    position: sticky;
-    margin-top: var(--spacing-md);
-    border-radius: var(--border-radius-lg);
+    align-items: flex-end;
     padding: 0;
   }
 
   .modal {
-    max-width: 100%;
-    max-height: 150vh;
+    max-width: 90%;
+    max-height: 57vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+  }
+
+  .form {
+    padding: var(--spacing-md);
+  }
+
+  .header {
+    padding: var(--spacing-md) var(--spacing-lg);
   }
 
   .formGrid {
@@ -288,20 +310,28 @@
 }
 
 @media (max-width: 480px) {
-  .header {
-    padding: var(--spacing-md);
-  }
-
   .header h2 {
     font-size: var(--font-size-lg);
-  }
-
-  .form {
-    padding: var(--spacing-md);
   }
 
   .input,
   .textarea {
     font-size: var(--font-size-sm);
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay { animation: none; }
+  .modal { animation: none; }
+  .btnPrimary, .btnSecondary { transition: none; }
 }

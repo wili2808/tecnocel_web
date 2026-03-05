@@ -1,0 +1,560 @@
+/* ============================================================================
+   GESTION CARACTERISTICAS — Panel CRUD de tipos de características
+   ============================================================================ */
+
+.panel {
+  padding: 0;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.panelTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.panelTitle .material-icons {
+  color: var(--color-primary);
+  font-size: var(--font-size-2xl);
+}
+
+.panelSubtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.addButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   TABLA
+   ============================================================================ */
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-xl);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--background-light);
+  font-size: var(--font-size-sm);
+}
+
+.table thead {
+  background-color: var(--background-neutral);
+}
+
+.th {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.sortableHeader:hover {
+  color: var(--color-primary);
+}
+
+.sortableHeaderContent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.sortIcon {
+  font-size: var(--font-size-sm) !important;
+  opacity: 0.3;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.sortableHeader:hover .sortIcon {
+  opacity: 0.6;
+}
+
+.sortIconActive {
+  opacity: 1 !important;
+  color: var(--color-primary);
+}
+
+.td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child .td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-primary-25);
+}
+
+/* ============================================================================
+   ESTADOS DE FILA
+   ============================================================================ */
+
+.editRow {
+  background-color: var(--color-primary-25);
+}
+
+.confirmRow {
+  background-color: var(--color-warning-100);
+}
+
+.confirmText {
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.emptyMessage {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.emptyValue {
+  color: var(--text-muted);
+}
+
+/* ============================================================================
+   CELDA NOMBRE
+   ============================================================================ */
+
+.tipoNombre {
+  display: block;
+  font-weight: var(--font-weight-medium);
+}
+
+.tipoDescripcion {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ============================================================================
+   BADGES / CHIPS
+   ============================================================================ */
+
+.tipoDatoBadge {
+  display: inline-block;
+  padding: 2px var(--spacing-sm);
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.unidadBadge {
+  display: inline-block;
+  padding: 2px var(--spacing-sm);
+  background-color: var(--background-neutral);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+}
+
+.badgeActivo {
+  display: inline-block;
+  padding: 2px var(--spacing-sm);
+  background-color: var(--color-success-100);
+  color: var(--color-success);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badgeInactivo {
+  display: inline-block;
+  padding: 2px var(--spacing-sm);
+  background-color: var(--color-error-100);
+  color: var(--color-error);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.opcionesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.opcionChip {
+  display: inline-block;
+  padding: 1px 6px;
+  background-color: var(--background-neutral);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+}
+
+.opcionChipMore {
+  display: inline-block;
+  padding: 1px 6px;
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ============================================================================
+   ACCIONES
+   ============================================================================ */
+
+.rowActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.actionBtn {
+  padding: 5px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
+}
+
+.actionBtn .material-icons {
+  font-size: var(--font-size-md);
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.actionBtnEdit {
+  color: var(--text-secondary);
+}
+
+.actionBtnEdit:hover:not(:disabled) {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.actionBtnDanger {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.actionBtnDanger:hover:not(:disabled) {
+  background-color: var(--color-error-100);
+}
+
+.actionBtnNeutral {
+  color: var(--text-secondary);
+}
+
+.actionBtnNeutral:hover:not(:disabled) {
+  background-color: var(--background-neutral);
+}
+
+/* ============================================================================
+   FORMULARIO PANEL
+   ============================================================================ */
+
+.formPanel {
+  border: 1px solid var(--color-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-light);
+  padding: var(--spacing-xl);
+}
+
+.formTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.formGroupFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.input {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+/* Opciones de selección */
+
+.opcionesInput {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.opcionesInput .input {
+  flex: 1;
+}
+
+.addOpcionBtn {
+  padding: var(--spacing-sm);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color var(--transition-fast);
+}
+
+.addOpcionBtn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.addOpcionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.opcionesChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.opcionChipEditable {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px var(--spacing-sm);
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+}
+
+.removeOpcionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: var(--color-primary);
+  opacity: 0.7;
+}
+
+.removeOpcionBtn:hover {
+  opacity: 1;
+}
+
+.removeOpcionBtn .material-icons {
+  font-size: 14px;
+}
+
+/* Acciones del formulario */
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.saveButton {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: var(--background-neutral);
+  color: var(--text-primary);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   ESTADO CARGA
+   ============================================================================ */
+
+.loadingState {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .panelHeader {
+    flex-direction: column;
+  }
+
+  .th,
+  .td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formGroupFull {
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

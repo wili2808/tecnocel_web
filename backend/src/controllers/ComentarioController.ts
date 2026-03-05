@@ -1,5 +1,12 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
+import type { Order } from 'sequelize';
+import type {
+  ComentarioCreateData,
+  ComentarioImagenData,
+  GetComentariosQuery,
+  ActualizarComentarioData
+} from '../types/comentario.types.js';
 import Comentario from '../models/Comentario.js';
 import ComentarioImagen from '../models/ComentarioImagen.js';
 import Almacen from '../models/Almacen.js';
@@ -7,38 +14,6 @@ import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
-
-// Interfaces para tipado
-interface ComentarioCreateData {
-  id_producto: number;
-  id_cliente: number;
-  comentario: string;
-  calificacion?: number;
-}
-
-interface ComentarioImagenData {
-  url_imagen: string;
-  alt_text?: string;
-}
-
-interface GetComentariosQuery {
-  limite?: string;
-  offset?: string;
-  orden?: 'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion';
-}
-
-interface ActualizarComentarioData {
-  comentario?: string;
-  calificacion?: number;
-  imagenes_a_eliminar?: number[]; // IDs de imágenes a eliminar
-  imagenes?: {
-    nombre_archivo: string;
-    ruta_imagen: string;
-    tipo_archivo: string;
-    tamaño_archivo?: number;
-    alt_text?: string;
-  }[]; // Nuevas imágenes a agregar
-}
 
 /**
  * Controlador para gestión de comentarios y reseñas de productos
@@ -140,7 +115,7 @@ class ComentarioController {
       const offsetNum = parseInt(offset);
 
       // Determinar orden
-      let orderClause: any[] = [['fyh_creacion', 'DESC']];
+      let orderClause: Order = [['fyh_creacion', 'DESC']];
       switch (orden) {
         case 'antiguos':
           orderClause = [['fyh_creacion', 'ASC']];

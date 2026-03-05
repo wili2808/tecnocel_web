@@ -138,6 +138,61 @@ const adminProductService = {
     const response = await adminApi.get(`/caracteristicas/producto/${idProducto}`);
     return response.data.data || [];
   },
+
+  /**
+   * Crea una nueva marca
+   */
+  crearMarca: async (data: { nombre_marca: string; descripcion_marca?: string }): Promise<Marca> => {
+    const response = await adminApi.post('/marcas', data);
+    return response.data.data;
+  },
+
+  /**
+   * Crea una nueva categoría
+   */
+  crearCategoria: async (data: { nombre_categoria: string }): Promise<Category> => {
+    const response = await adminApi.post('/almacen/categorias', data);
+    return response.data.data;
+  },
+
+  // ============================================================================
+  // CRUD COMPLETO — MARCAS
+  // ============================================================================
+
+  actualizarMarca: async (id: number, data: { nombre_marca: string; descripcion_marca?: string }): Promise<Marca> => {
+    const response = await adminApi.put(`/marcas/${id}`, data);
+    return response.data.data;
+  },
+
+  eliminarMarca: async (id: number): Promise<void> => {
+    await adminApi.delete(`/marcas/${id}`);
+  },
+
+  // ============================================================================
+  // CRUD COMPLETO — CATEGORÍAS
+  // ============================================================================
+
+  actualizarCategoria: async (id: number, data: { nombre_categoria: string }): Promise<Category> => {
+    const response = await adminApi.put(`/almacen/categorias/${id}`, data);
+    return response.data.data;
+  },
+
+  eliminarCategoria: async (id: number): Promise<void> => {
+    await adminApi.delete(`/almacen/categorias/${id}`);
+  },
+
+  // ============================================================================
+  // CRUD COMPLETO — TIPOS DE CARACTERÍSTICAS
+  // ============================================================================
+
+  actualizarTipoCaracteristica: async (id: number, data: Partial<TipoCaracteristica>): Promise<TipoCaracteristica> => {
+    const response = await adminApi.put(`/caracteristicas/tipos/${id}`, data);
+    return response.data.data;
+  },
+
+  eliminarTipoCaracteristica: async (id: number): Promise<void> => {
+    await adminApi.delete(`/caracteristicas/tipos/${id}`);
+  },
 };
 
 export default adminProductService;

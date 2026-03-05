@@ -113,9 +113,9 @@ const GestionUsuarios = () => {
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'id_rol' ? parseInt(value) : value
+      [name]: name === 'id_rol' ? parseInt(value) : value,
     }));
   };
 
@@ -147,7 +147,7 @@ const GestionUsuarios = () => {
         nombres: formData.nombres,
         email: formData.email,
         password: formData.password,
-        id_rol: formData.id_rol
+        id_rol: formData.id_rol,
       });
 
       showNotification('Usuario creado exitosamente', 'success');
@@ -182,9 +182,9 @@ const GestionUsuarios = () => {
 
   const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [name]: name === 'id_rol' ? parseInt(value) : value
+      [name]: name === 'id_rol' ? parseInt(value) : value,
     }));
   };
 
@@ -244,7 +244,7 @@ const GestionUsuarios = () => {
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -325,15 +325,10 @@ const GestionUsuarios = () => {
               <span className="material-icons">group</span>
               Gestión de Usuarios
             </h2>
-            <p className={styles.subtitle}>
-              Administra los usuarios del sistema (administradores y gerentes)
-            </p>
+            <p className={styles.subtitle}>Administra los usuarios del sistema (administradores y gerentes)</p>
           </div>
           {isAdmin && !showCrearForm && !editandoUsuario && (
-            <button
-              className={styles.crearButton}
-              onClick={() => setShowCrearForm(true)}
-            >
+            <button className={styles.crearButton} onClick={() => setShowCrearForm(true)}>
               <span className="material-icons">person_add</span>
               <span>Crear Usuario</span>
             </button>
@@ -348,11 +343,7 @@ const GestionUsuarios = () => {
               <span className="material-icons">person_add</span>
               Crear Nuevo Usuario
             </h3>
-            <button
-              className={styles.cerrarFormButton}
-              onClick={handleCancelarCrear}
-              aria-label="Cerrar formulario"
-            >
+            <button className={styles.cerrarFormButton} onClick={handleCancelarCrear} aria-label="Cerrar formulario">
               <span className="material-icons">close</span>
             </button>
           </div>
@@ -405,7 +396,9 @@ const GestionUsuarios = () => {
                   className={styles.select}
                   required
                 >
-                  <option value={0} disabled>Seleccionar rol...</option>
+                  <option value={0} disabled>
+                    Seleccionar rol...
+                  </option>
                   {roles.map((rol) => (
                     <option key={rol.id_rol} value={rol.id_rol}>
                       {rol.rol}
@@ -448,18 +441,10 @@ const GestionUsuarios = () => {
                 />
               </div>
               <div className={styles.formActions}>
-                <button
-                  type="button"
-                  onClick={handleCancelarCrear}
-                  className={styles.cancelButton}
-                >
+                <button type="button" onClick={handleCancelarCrear} className={styles.cancelButton}>
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  disabled={creando}
-                  className={styles.submitButton}
-                >
+                <button type="submit" disabled={creando} className={styles.submitButton}>
                   {creando ? (
                     <>
                       <span className="material-icons">hourglass_empty</span>
@@ -485,11 +470,7 @@ const GestionUsuarios = () => {
               <span className="material-icons">edit</span>
               Editar Usuario: {editandoUsuario.nombres}
             </h3>
-            <button
-              className={styles.cerrarFormButton}
-              onClick={handleCancelarEditar}
-              aria-label="Cerrar formulario"
-            >
+            <button className={styles.cerrarFormButton} onClick={handleCancelarEditar} aria-label="Cerrar formulario">
               <span className="material-icons">close</span>
             </button>
           </div>
@@ -542,7 +523,9 @@ const GestionUsuarios = () => {
                   className={styles.select}
                   required
                 >
-                  <option value={0} disabled>Seleccionar rol...</option>
+                  <option value={0} disabled>
+                    Seleccionar rol...
+                  </option>
                   {roles.map((rol) => (
                     <option key={rol.id_rol} value={rol.id_rol}>
                       {rol.rol}
@@ -585,18 +568,10 @@ const GestionUsuarios = () => {
                 </div>
               )}
               <div className={styles.formActions}>
-                <button
-                  type="button"
-                  onClick={handleCancelarEditar}
-                  className={styles.cancelButton}
-                >
+                <button type="button" onClick={handleCancelarEditar} className={styles.cancelButton}>
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  disabled={editando}
-                  className={styles.submitButton}
-                >
+                <button type="submit" disabled={editando} className={styles.submitButton}>
                   {editando ? (
                     <>
                       <span className="material-icons">hourglass_empty</span>
@@ -622,31 +597,51 @@ const GestionUsuarios = () => {
               <th className={styles.sortableHeader} onClick={() => handleSort('id_usuario')}>
                 <span className={styles.sortableHeaderContent}>
                   ID
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'id_usuario' ? styles.sortIconActive : ''}`}>{getSortIcon('id_usuario')}</span>
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'id_usuario' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('id_usuario')}
+                  </span>
                 </span>
               </th>
               <th className={styles.sortableHeader} onClick={() => handleSort('nombres')}>
                 <span className={styles.sortableHeaderContent}>
                   Nombre
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombres' ? styles.sortIconActive : ''}`}>{getSortIcon('nombres')}</span>
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'nombres' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('nombres')}
+                  </span>
                 </span>
               </th>
               <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
                 <span className={styles.sortableHeaderContent}>
                   Email
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}>{getSortIcon('email')}</span>
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('email')}
+                  </span>
                 </span>
               </th>
               <th className={styles.sortableHeader} onClick={() => handleSort('rol')}>
                 <span className={styles.sortableHeaderContent}>
                   Rol
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'rol' ? styles.sortIconActive : ''}`}>{getSortIcon('rol')}</span>
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'rol' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('rol')}
+                  </span>
                 </span>
               </th>
               <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
                 <span className={styles.sortableHeaderContent}>
                   Fecha de Creación
-                  <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('fecha')}
+                  </span>
                 </span>
               </th>
               <th>Acciones</th>
@@ -666,19 +661,19 @@ const GestionUsuarios = () => {
                   <td>{usuario.nombres}</td>
                   <td>{usuario.email}</td>
                   <td>
-                    <span className={`${styles.badge} ${
-                      usuario.id_rol === ROLES.ADMIN ? styles.badgeAdmin
-                      : usuario.id_rol === ROLES.VENDEDOR ? styles.badgeVendedor
-                      : styles.badgeGerente
-                    }`}>
+                    <span
+                      className={`${styles.badge} ${
+                        usuario.id_rol === ROLES.ADMIN
+                          ? styles.badgeAdmin
+                          : usuario.id_rol === ROLES.VENDEDOR
+                            ? styles.badgeVendedor
+                            : styles.badgeGerente
+                      }`}
+                    >
                       {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
                     </span>
                   </td>
-                  <td>
-                    {usuario.fyh_creacion
-                      ? new Date(usuario.fyh_creacion).toLocaleDateString()
-                      : '-'}
-                  </td>
+                  <td>{usuario.fyh_creacion ? new Date(usuario.fyh_creacion).toLocaleDateString() : '-'}</td>
                   <td>
                     <div className={styles.actions}>
                       <button

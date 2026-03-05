@@ -1,86 +1,151 @@
-/* Featured Products Section */
+/* ============================================================================
+   FEATURED PRODUCTS — Silicon Precision
+   Sección con respiración generosa y grid limpio.
+   ============================================================================ */
+
+.productsSection {
+  padding: var(--spacing-2xl) 0 var(--spacing-3xl);
+}
+
 .productsContainer {
-  padding: 0 var(--container-padding);
   max-width: var(--max-width);
   margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* Header de la sección */
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.sectionEyebrow {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.sectionEyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--color-primary);
 }
 
 .sectionTitle {
-  font-size: var(--font-size-4xl);
+  font-family: var(--font-family-display);
+  font-size: clamp(1.5rem, 3.5vw, var(--font-size-4xl));
   font-weight: 700;
-  text-align: center;
   color: var(--text-primary);
-  line-height: 1.2;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
+/* Grid */
 .productsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-lg);
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+  gap: var(--spacing-md);
   opacity: 0;
-  width: 100%;
-  align-items: stretch;
-  justify-items: stretch;
+  animation: fadeInUp 0.55s ease-out 0.15s forwards;
 }
 
-/* Animación */
+/* Estado de carga */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  gap: var(--spacing-md);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Skeleton pulse */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.skeletonCard {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color-light);
+}
+
+.skeletonImage {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(
+    90deg,
+    var(--background-neutral) 25%,
+    var(--background-hover) 50%,
+    var(--background-neutral) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.skeletonInfo {
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.skeletonLine {
+  height: 12px;
+  border-radius: var(--border-radius-xs);
+  background: linear-gradient(
+    90deg,
+    var(--background-neutral) 25%,
+    var(--background-hover) 50%,
+    var(--background-neutral) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.skeletonLine:last-child { width: 50%; }
+
+/* Animaciones */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Media Queries */
-@media (max-width: 1024px) {
-  .productsContainer {
-    
-  }
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
-  .productsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-md);
-  }
+/* Responsive */
+@media (max-width: 1024px) {
+  .productsGrid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .productsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
-  }
-
-  .sectionTitle {
-    font-size: var(--font-size-3xl);
-  }
+  .productsSection { padding: var(--spacing-xl) 0 var(--spacing-2xl); }
+  .productsGrid    { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
+  .sectionHeader   { flex-direction: column; gap: var(--spacing-xs); }
 }
 
 @media (max-width: 480px) {
-  .productsContainer {
-    
-  }
-
-  .productsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-xs);
-  }
-  
-  .sectionTitle {
-    font-size: var(--font-size-2xl);
-  }
+  .productsGrid { gap: var(--spacing-xs); }
 }
 
-/* Loading state */
-.loadingContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--spacing-2xl);
-  color: var(--text-secondary);
-  font-size: var(--font-size-lg);
-  min-height: 200px;
-} 
+@media (prefers-reduced-motion: reduce) {
+  .productsGrid { animation: none; opacity: 1; }
+  .skeletonImage, .skeletonLine { animation: none; }
+}

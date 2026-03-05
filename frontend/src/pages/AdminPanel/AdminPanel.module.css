@@ -1,7 +1,10 @@
-/* === CONTENEDOR PRINCIPAL === */
+/* ============================================================================
+   ADMIN PANEL - Layout principal del panel de administración
+   ============================================================================ */
+
 .adminPanel {
   min-height: 100vh;
-  background-color: var(--background-primary);
+  background-color: var(--background-secondary);
   transition: var(--theme-transition);
   font-family: var(--font-family-primary);
   color: var(--text-primary);
@@ -18,18 +21,21 @@
 .container {
   display: flex;
   margin: 0 auto;
-  min-height: 80vh;
+  min-height: 100vh;
   padding: var(--spacing-lg);
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
 }
 
-/* === SIDEBAR === */
+/* ============================================================================
+   SIDEBAR - Navegación lateral formal
+   ============================================================================ */
+
 .sidebar {
-  flex: 0 0 280px;
-  background-color: var(--background-light);
+  flex: 0 0 260px;
+  background-color: var(--background-elevated);
   transition: var(--theme-transition);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-sm);
   padding: var(--spacing-lg);
   height: fit-content;
   position: sticky;
@@ -48,35 +54,40 @@
 .backButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border: none;
   background: none;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   cursor: pointer;
   border-radius: var(--border-radius-sm);
-  transition: var(--theme-transition);
+  transition: color var(--transition-fast) var(--transition-curve);
   width: 100%;
   justify-content: flex-start;
 }
 
 .backButton:hover {
-  background-color: var(--background-neutral);
   color: var(--text-primary);
 }
 
-/* === INFORMACIÓN DEL USUARIO === */
+.backButton .material-icons {
+  font-size: var(--font-size-md);
+}
+
+/* === INFORMACION DEL USUARIO === */
+
 .userInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: linear-gradient(135deg, var(--color-secondary-100) 0%, var(--color-primary-100) 100%);
+  background-color: var(--background-light);
   transition: var(--theme-transition);
   border-radius: var(--border-radius-md);
   text-align: center;
+  border: 1px solid var(--border-color);
 }
 
 .userAvatar {
@@ -86,10 +97,10 @@
   width: var(--avatar-size-xl);
   height: var(--avatar-size-xl);
   border-radius: var(--border-radius-full);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   transition: var(--theme-transition);
   color: white;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
 }
 
 .userDetails {
@@ -97,21 +108,24 @@
 }
 
 .userName {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.2;
+  line-height: var(--line-height-tight);
 }
 
 .userRole {
-  font-size: var(--font-size-sm);
-  color: var(--color-secondary);
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
   margin-top: var(--spacing-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* === NAVEGACIÓN === */
+/* === NAVEGACION === */
+
 .sidebarNav {
   flex: 1;
   display: flex;
@@ -122,39 +136,52 @@
 .menuOptions {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 2px;
 }
 
 .menuOption {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   background: none;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   cursor: pointer;
   border-radius: var(--border-radius-md);
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve);
   text-align: left;
   width: 100%;
 }
 
+.menuOption .material-icons {
+  font-size: var(--font-size-lg);
+  width: 24px;
+  text-align: center;
+}
+
 .menuOption:hover {
-  background-color: var(--background-neutral);
+  background-color: var(--background-hover);
   color: var(--text-primary);
 }
 
 .menuOption.activeOption {
-  background: linear-gradient(135deg, var(--color-secondary-100) 0%, var(--color-primary-100) 100%);
-  color: var(--color-secondary);
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
+}
+
+.menuOption.activeOption .material-icons {
+  color: var(--color-primary);
 }
 
 .menuLabel {
   font-weight: var(--font-weight-medium);
 }
+
+/* === CERRAR SESION === */
 
 .logoutSection {
   margin-top: auto;
@@ -165,15 +192,15 @@
 .logoutButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   background: none;
   color: var(--color-error);
   font-size: var(--font-size-sm);
   cursor: pointer;
   border-radius: var(--border-radius-md);
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
   text-align: left;
   width: 100%;
   font-weight: var(--font-weight-medium);
@@ -181,16 +208,18 @@
 
 .logoutButton:hover {
   background-color: var(--color-error-100);
-  color: var(--color-error);
 }
 
-/* === CONTENIDO PRINCIPAL === */
+/* ============================================================================
+   CONTENIDO PRINCIPAL
+   ============================================================================ */
+
 .mainContent {
   flex: 1;
   background-color: var(--background-elevated);
   transition: var(--theme-transition);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   overflow: hidden;
 }
@@ -205,7 +234,7 @@
 }
 
 .sectionTitle {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin-bottom: var(--spacing-xl);
@@ -214,38 +243,44 @@
   gap: var(--spacing-md);
 }
 
-/* === BOTÓN DE REINTENTO === */
+/* === BOTON DE REINTENTO === */
+
 .retryButton {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   margin-top: var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .retryButton:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
+  background-color: var(--color-primary-dark);
 }
 
-.retryButton:active {
-  transform: translateY(0);
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .sidebar {
+    flex: 0 0 240px;
+  }
 }
 
-/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
     padding: var(--spacing-md);
     gap: var(--spacing-md);
+    min-height: auto;
   }
 
   .sidebar {
@@ -266,7 +301,7 @@
   .menuOptions {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
   }
 
   .menuOption {
@@ -299,7 +334,7 @@
   }
 
   .sectionTitle {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
   }
 
   .contentSection {

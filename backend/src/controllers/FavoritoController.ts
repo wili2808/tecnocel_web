@@ -128,24 +128,27 @@ export class FavoritoController {
         
         if (producto && producto.imagenes) {
           // Transformar imágenes con estructura consistente
-          producto.imagenes = producto.imagenes.map((imagen: any) => ({
+          producto.imagenes = (producto.imagenes as { url_imagen: string; es_principal: boolean; [key: string]: unknown }[]).map((imagen) => ({
             ...imagen,
             url: imagen.url_imagen // Mapear url_imagen a url para el frontend
           }));
-          
+
           // Encontrar la imagen principal o usar la primera disponible
-          const imagenPrincipal = producto.imagenes.find((img: any) => img.es_principal);
+          const imagenPrincipal = (producto.imagenes as { url_imagen: string; es_principal: boolean }[]).find((img) => img.es_principal);
           const imagenDefault = imagenPrincipal || producto.imagenes[0];
-          
+
           // Debug: Log de imagen encontrada
           logger.debug(`Procesando imagen para producto ${producto.id_producto}:`, {
             imagenDefault: imagenDefault?.url_imagen,
             esPrincipal: imagenDefault?.es_principal
           });
-          
-          // ✅ Generar imagen_url directamente sin depender del servicio
+
+          // Generar imagen_url usando el servicio de imágenes
+          const imageService = getImageService();
           if (imagenDefault && imagenDefault.url_imagen) {
-            producto.imagen_url = `http://localhost:3000/api/images/${imagenDefault.url_imagen}`;
+            producto.imagen_url = imageService
+              ? imageService.generateImageUrl(imagenDefault.url_imagen)
+              : null;
             logger.debug(`imagen_url generada: ${producto.imagen_url}`);
           } else {
             producto.imagen_url = null;

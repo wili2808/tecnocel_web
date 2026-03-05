@@ -8,7 +8,7 @@
   justify-content: space-between;
   margin-bottom: var(--spacing-2xl);
   padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid var(--border-color-light);
+  border-bottom: 1px solid var(--border-color);
   gap: var(--spacing-md);
   flex-wrap: wrap;
 }
@@ -31,8 +31,10 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin: 0;
 }
@@ -79,23 +81,21 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-md) var(--spacing-2xl);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--text-light);
+  background: var(--color-primary);
+  color: var(--text-inverse);
   border: none;
-  border-radius: var(--border-radius-xl);
+  border-radius: var(--border-radius-full);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-md);
   cursor: pointer;
   transition: all var(--transition-normal) ease;
-  box-shadow: var(--shadow-button-primary);
   min-width: 200px;
   justify-content: center;
 }
 
 .loadMoreButton:hover:not(:disabled) {
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-button-primary-hover);
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-dark) 100%);
 }
 
 .loadMoreButton:active:not(:disabled) {
@@ -167,20 +167,18 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
-  color: var(--text-light);
+  background: var(--color-error);
+  color: var(--color-white);
   border: none;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-full);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all var(--transition-normal) ease;
-  box-shadow: var(--shadow-md);
 }
 
 .retryButton:hover {
+  background: var(--color-error-dark);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-  background: linear-gradient(135deg, var(--color-error-dark) 0%, var(--color-error-dark) 100%);
 }
 
 .retryButton:active {
@@ -198,7 +196,7 @@
   }
 }
 
-@media (max-width: 768px) {git sta
+@media (max-width: 768px) {
   .productsSection {
     margin-top: var(--spacing-2xl);
   }

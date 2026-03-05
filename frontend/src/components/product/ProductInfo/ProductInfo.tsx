@@ -21,7 +21,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     nombre,
     descripcion,
     precio_venta,
-    codigo,
     Categoria,
     // Campos de ofertas
     precio_original,
@@ -90,7 +89,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
 
         {/* Metadatos del producto */}
         <div className={styles.metadata}>
-          {/*<span className={styles.productCode}>Código: {codigo}</span>*/}
           {/* Nombre de la oferta activa */}
           {activeOffer && <span className={styles.offerName}>{activeOffer.nombre_oferta}</span>}
         </div>

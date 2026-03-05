@@ -1,220 +1,115 @@
+/* ============================================================
+   ProductFeatures — Tabla de especificaciones — Silicon Precision
+   ============================================================ */
+
 .productFeatures {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
-  padding: var(--spacing-xl);
-  background-color: var(--background-secondary);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-card);
-  transition: var(--theme-transition);
+  gap: var(--spacing-lg);
+  width: 100%;
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
+/* ---- Título de sección ---- */
 
 .sectionTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
   margin: 0;
-  padding-bottom: var(--spacing-md);
-  border-bottom: var(--border-width-thin) solid var(--border-color-light);
 }
 
-.sectionTitle .material-icons {
-  font-size: var(--icon-size-lg);
-  color: var(--color-primary);
-}
+/* ---- Tabla de specs ---- */
 
-.featureIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background-color: var(--color-primary-100);
-  color: var(--color-primary);
-  border-radius: var(--border-radius-md);
-  flex-shrink: 0;
-}
-
-.featureIcon .material-icons {
-  font-size: var(--icon-size-lg);
-}
-
-.featureContent {
+.specTable {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
 }
 
-.featureLabel {
+.specRow {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-fast);
+}
+
+.specRow:last-child {
+  border-bottom: none;
+}
+
+.specRow:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.03);
+}
+
+.specLabel {
+  padding: var(--spacing-sm) var(--spacing-lg);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: 600;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background-color: rgba(var(--color-primary-rgb), 0.02);
+  border-right: 1px solid var(--border-color);
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
 }
 
-.featureValue {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+.specValue {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
   color: var(--text-primary);
+  margin: 0;
   word-break: break-word;
 }
 
-.featureDescription {
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  font-style: italic;
-  margin-top: var(--spacing-xs);
-}
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 
-/* Grid para especificaciones técnicas */
-.specificationsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-md);
-}
-
-.specificationItem {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--color-primary-25) 100%);
-  border: var(--border-width-thin) solid var(--color-primary-100);
-  border-radius: var(--border-radius-md);
-  transition: all var(--transition-normal) var(--transition-curve);
-}
-
-.specificationItem:hover {
-  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
-  border-color: var(--color-primary-200);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.specificationItem .featureIcon {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
-
-.specificationItem .featureValue {
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-dark);
-}
-
-/* Grid responsivo para pantallas más grandes */
-@media (min-width: 768px) {
-  .specificationsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .specificationsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-lg);
-  }
-}
-
-@media (min-width: 1200px) {
-  .specificationsGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {
-  .productFeatures {
-    padding: var(--spacing-lg);
-    gap: var(--spacing-xl);
+  .specRow {
+    grid-template-columns: 160px 1fr;
   }
 
-  .section {
-    gap: var(--spacing-md);
-  }
-
-  .specificationsGrid {
-    gap: var(--spacing-md);
-  }
-
-  .specificationItem {
-    padding: var(--spacing-sm);
-  }
-
-  .featureIcon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .featureIcon .material-icons {
-    font-size: var(--icon-size-md);
-  }
-
-  .sectionTitle {
-    font-size: var(--font-size-lg);
-  }
-
-  .sectionTitle .material-icons {
-    font-size: var(--icon-size-md);
+  .specLabel,
+  .specValue {
+    padding: var(--spacing-xs) var(--spacing-md);
   }
 }
 
 @media (max-width: 480px) {
-  .productFeatures {
-    padding: var(--spacing-md);
-    gap: var(--spacing-lg);
+  .specRow {
+    grid-template-columns: 1fr;
   }
 
-  .section {
-    gap: var(--spacing-sm);
-  }
-
-  .sectionTitle {
-    font-size: var(--font-size-md);
-    align-items: flex-start;
-  }
-
-  .specificationItem {
-    gap: var(--spacing-sm);
-    padding: var(--spacing-xs);
-  }
-
-  .featureIcon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .featureIcon .material-icons {
-    font-size: var(--icon-size-sm);
-  }
-
-  .featureValue {
-    font-size: var(--font-size-sm);
-  }
-  
-  .featureDescription {
+  .specLabel {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-xs) var(--spacing-md);
     font-size: var(--font-size-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    background-color: rgba(var(--color-primary-rgb), 0.03);
+  }
+
+  .specValue {
+    padding: var(--spacing-xs) var(--spacing-md) var(--spacing-sm);
+    font-size: var(--font-size-md);
   }
 }
 
-/* === ACCESIBILIDAD === */
-@media (prefers-reduced-motion: reduce) {
-  .specificationItem {
-    transition: none;
-  }
+/* ============================================================
+   ACCESIBILIDAD
+   ============================================================ */
 
-  .specificationItem:hover {
-    transform: none;
-  }
-} 
+@media (prefers-reduced-motion: reduce) {
+  .specRow { transition: none; }
+}

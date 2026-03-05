@@ -1,3 +1,7 @@
+/* ============================================================================
+   GESTION CLIENTES - Lista y gestion de clientes de la tienda
+   ============================================================================ */
+
 .container {
   padding: var(--spacing-xl);
   min-height: 100%;
@@ -5,27 +9,33 @@
 
 .header {
   margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .title {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
+  margin: 0 0 var(--spacing-xs) 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  letter-spacing: -0.25px;
 }
 
 .title .material-icons {
   color: var(--color-primary);
+  font-size: var(--font-size-2xl);
 }
 
 .subtitle {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0;
 }
+
+/* === BUSQUEDA === */
 
 .searchForm {
   display: flex;
@@ -35,37 +45,42 @@
 
 .searchInput {
   flex: 1;
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   background-color: var(--background-light);
   color: var(--text-primary);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .searchInput:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
 }
 
 .searchButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .searchButton:hover {
   background-color: var(--color-primary-dark);
 }
+
+/* === ESTADOS === */
 
 .loading,
 .error {
@@ -85,23 +100,28 @@
 }
 
 .retryButton {
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .retryButton:hover {
   background-color: var(--color-primary-dark);
 }
 
+/* ============================================================================
+   TABLA DE CLIENTES
+   ============================================================================ */
+
 .tableWrapper {
   overflow-x: auto;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
 }
 
@@ -109,6 +129,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: var(--background-light);
+  font-size: var(--font-size-sm);
 }
 
 .table thead {
@@ -116,9 +137,9 @@
 }
 
 .table th {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -133,7 +154,7 @@
 }
 
 .sortableHeader:hover {
-  color: var(--text-primary);
+  color: var(--color-primary);
 }
 
 .sortableHeaderContent {
@@ -145,7 +166,7 @@
 .sortIcon {
   font-size: var(--font-size-sm) !important;
   opacity: 0.3;
-  transition: opacity 0.2s, color 0.2s;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
 }
 
 .sortableHeader:hover .sortIcon {
@@ -158,13 +179,17 @@
 }
 
 .table td {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
 }
 
+.table tbody tr {
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
 .table tbody tr:hover {
-  background-color: var(--background-neutral);
+  background-color: var(--color-primary-25);
 }
 
 .table tbody tr:last-child td {
@@ -175,11 +200,14 @@
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;
+  padding: var(--spacing-xl) var(--spacing-md);
 }
+
+/* === BADGES === */
 
 .badge {
   display: inline-block;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 3px var(--spacing-sm);
   border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -197,19 +225,23 @@
   color: var(--color-error);
 }
 
+/* === ACCIONES === */
+
 .actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
 }
 
 .actionButton {
-  padding: var(--spacing-xs);
+  padding: 6px;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,7 +256,7 @@
 .actionButton:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  color: var(--text-secondary);
+  color: var(--text-disabled);
   border-color: var(--border-color);
   background: none;
 }
@@ -233,9 +265,9 @@
   font-size: var(--font-size-md);
 }
 
-/* ============================================================
+/* ============================================================================
    MODAL
-   ============================================================ */
+   ============================================================================ */
 
 .modalOverlay {
   position: fixed;
@@ -244,20 +276,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal);
   padding: var(--spacing-lg);
 }
 
 .modal {
-  background: var(--background-light);
+  background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-xl, 0 20px 60px rgba(0,0,0,0.3));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 640px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .modalHeader {
@@ -270,7 +303,7 @@
 }
 
 .modalTitle {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
@@ -292,11 +325,12 @@
   align-items: center;
   padding: var(--spacing-xs);
   border-radius: var(--border-radius-sm);
-  transition: var(--theme-transition);
+  transition: color var(--transition-fast) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve);
 }
 
 .closeButton:hover:not(:disabled) {
-  background: var(--background-neutral);
+  background: var(--background-hover);
   color: var(--text-primary);
 }
 
@@ -315,12 +349,13 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-md);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-xl);
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
+  background-color: var(--background-light);
 }
 
-/* ── Detalle (vista lectura) ── */
+/* === DETALLE (vista lectura) === */
 
 .detalleGrid {
   display: grid;
@@ -335,7 +370,7 @@
 }
 
 .detalleSectionTitle {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -367,7 +402,7 @@
   word-break: break-word;
 }
 
-/* ── Formulario edición ── */
+/* === FORMULARIO EDICION === */
 
 .formGrid {
   display: grid;
@@ -395,17 +430,20 @@
   font-size: var(--font-size-md);
   background-color: var(--background-light);
   color: var(--text-primary);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .formInput:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
 }
 
 .formInput:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background-color: var(--background-disabled);
 }
 
 .formDivider {
@@ -414,7 +452,7 @@
   margin-bottom: var(--spacing-lg);
 }
 
-/* ── Toggles ── */
+/* === TOGGLES === */
 
 .toggleGroup {
   display: flex;
@@ -451,7 +489,7 @@
   border: none;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.2s;
+  transition: background var(--transition-fast);
   padding: 0;
 }
 
@@ -475,8 +513,8 @@
   height: 18px;
   border-radius: 50%;
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: left var(--transition-fast);
 }
 
 .toggleOn .toggleKnob {
@@ -487,7 +525,7 @@
   left: 3px;
 }
 
-/* ── Email readonly hint ── */
+/* === EMAIL READONLY === */
 
 .emailReadonly {
   display: flex;
@@ -506,7 +544,7 @@
   flex-shrink: 0;
 }
 
-/* ── Botones de pie ── */
+/* === BOTONES DE PIE === */
 
 .saveButton {
   display: flex;
@@ -517,10 +555,10 @@
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .saveButton:hover:not(:disabled) {
@@ -538,15 +576,16 @@
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: var(--background-neutral);
-  color: var(--text-primary);
+  background: var(--background-hover);
+  border-color: var(--text-secondary);
 }
 
 .cancelButton:disabled {
@@ -554,9 +593,9 @@
   cursor: not-allowed;
 }
 
-/* ============================================================
+/* ============================================================================
    RESPONSIVE
-   ============================================================ */
+   ============================================================================ */
 
 @media (max-width: 768px) {
   .container {
@@ -567,13 +606,9 @@
     flex-direction: column;
   }
 
-  .table {
-    font-size: var(--font-size-sm);
-  }
-
   .table th,
   .table td {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 
   .detalleGrid,

@@ -17,3 +17,6 @@ export * from './checkout';
 
 // Exportar tipos de ventas (admin)
 export * from './venta';
+
+// Exportar tipos de reportes (admin)
+export * from './reporte';

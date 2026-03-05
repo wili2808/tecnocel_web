@@ -4,6 +4,14 @@ import ProductoCaracteristica from '../models/ProductoCaracteristica.js';
 import Almacen from '../models/Almacen.js';
 import logger from '../services/loggerService.js';
 
+interface AddCaracteristicaBody { id_tipo: number; valor: string; }
+interface UpdateCaracteristicaBody { valor: string; }
+interface CreateTipoBody {
+  nombre_tipo: string; descripcion?: string; tipo_dato?: string;
+  unidad_medida?: string; opciones_seleccion?: string;
+}
+interface UpdateTipoBody extends Partial<CreateTipoBody> { activo?: boolean; }
+
 /**
  * Controlador para gestión de características de productos
  *
@@ -141,7 +149,7 @@ export class CaracteristicaController {
   static async addCaracteristicaProducto(req: Request, res: Response) {
     try {
       const { id_producto } = req.params;
-      const { id_tipo, valor } = req.body;
+      const { id_tipo, valor } = req.body as AddCaracteristicaBody;
 
       if (!id_tipo || !valor) {
         return res.status(400).json({
@@ -238,7 +246,7 @@ export class CaracteristicaController {
   static async updateCaracteristicaProducto(req: Request, res: Response) {
     try {
       const { id_caracteristica } = req.params;
-      const { valor } = req.body;
+      const { valor } = req.body as UpdateCaracteristicaBody;
 
       if (!valor) {
         return res.status(400).json({
@@ -391,7 +399,7 @@ export class CaracteristicaController {
    */
   static async createTipoCaracteristica(req: Request, res: Response) {
     try {
-      const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion } = req.body;
+      const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion } = req.body as CreateTipoBody;
 
       if (!nombre_tipo) {
         return res.status(400).json({
@@ -452,7 +460,7 @@ export class CaracteristicaController {
   static async updateTipoCaracteristica(req: Request, res: Response) {
     try {
       const { id_tipo } = req.params;
-      const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion, activo } = req.body;
+      const { nombre_tipo, descripcion, tipo_dato, unidad_medida, opciones_seleccion, activo } = req.body as UpdateTipoBody;
 
       const tipo = await TipoCaracteristica.findByPk(id_tipo);
 
@@ -463,7 +471,7 @@ export class CaracteristicaController {
         });
       }
 
-      const updateData: Record<string, any> = { fyh_actualizacion: new Date() };
+      const updateData: UpdateTipoBody & { fyh_actualizacion: Date } = { fyh_actualizacion: new Date() };
       if (nombre_tipo !== undefined) updateData.nombre_tipo = nombre_tipo;
       if (descripcion !== undefined) updateData.descripcion = descripcion;
       if (tipo_dato !== undefined) updateData.tipo_dato = tipo_dato;

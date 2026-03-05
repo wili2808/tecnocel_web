@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
+import type { VentaItemResumen } from '../types/venta.types.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Envio from '../models/Envio.js';
@@ -86,10 +87,11 @@ export default class VentaController {
       });
 
       const ventasTransformadas = ventas.map(venta => {
-        const ventaData = venta.toJSON() as any;
+        /** Sequelize no tipifica asociaciones — cast necesario para acceder a relaciones incluidas */
+        const ventaData = venta.toJSON() as Record<string, any>;
         const numeroVentaFormateado = `V-${ventaData.nro_venta.toString().padStart(5, '0')}`;
 
-        const items = (ventaData.items || []).map((item: any) => ({
+        const items = (ventaData.items || []).map((item: Record<string, any>) => ({
           nombre_producto: item.producto?.nombre || 'Producto no disponible',
           cantidad: item.cantidad,
           precio_unitario: parseFloat(item.precio_unitario),
@@ -216,7 +218,8 @@ export default class VentaController {
         return res.status(404).json({ mensaje: 'Venta no encontrada' });
       }
 
-      const ventaData = venta.toJSON() as any;
+      /** Sequelize no tipifica asociaciones — cast necesario para acceder a relaciones incluidas */
+      const ventaData = venta.toJSON() as Record<string, any>;
 
       // Verificar que la venta pertenece al cliente autenticado
       if (ventaData.id_cliente !== id_cliente) {

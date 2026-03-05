@@ -1,397 +1,275 @@
+/* ============================================================================
+   OFFER CARD — Silicon Precision / Wide Horizontal Banner
+   Banner a todo ancho: accent bar izquierda · info editorial · badge circular
+   ============================================================================ */
+
 .offerCard {
-  background: var(--background-secondary);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color-light);
-  overflow: hidden;
-  transition: all var(--transition-normal) var(--transition-curve);
   position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              transform var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .offerCard:hover {
-  transform: scale(1.02);
-  box-shadow: var(--shadow-card-hover);
-  border-color: var(--color-primary);
-}
-
-.offerCard:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  border-color: rgba(var(--color-primary-rgb), 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .offerCard.inactive {
-  opacity: 0.7;
-  background: linear-gradient(135deg, var(--color-neutral-200) 0%, var(--color-neutral-300) 100%);
+  opacity: 0.5;
 }
 
 .offerCard.inactive:hover {
-  transform: scale(1.01);
-  box-shadow: var(--shadow-md);
+  transform: none;
+  border-color: var(--border-color);
+  box-shadow: none;
 }
 
-/* === BADGE DE DESCUENTO === */
-.discountBadge {
+/* ── Accent bar — franja de color en el borde izquierdo ──────────── */
+
+.accentBar {
   position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
-  background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
-  color: var(--color-white);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--border-radius-md);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-sm);
-  box-shadow: var(--shadow-lg);
-  z-index: 2;
-  animation: discountPulse 2s ease-in-out infinite;
-  transition: transform var(--transition-normal) var(--transition-curve);
-  transform: rotate(-2deg);
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(
+    180deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
 }
 
-.discountBadge:hover {
-  transform: rotate(0deg) scale(1.05);
+.offerCard.inactive .accentBar {
+  background: var(--border-color);
 }
 
-@keyframes discountPulse {
-  0%, 100% {
-    box-shadow: var(--shadow-lg);
-  }
-  50% {
-    box-shadow: 0 10px 25px -5px rgba(var(--color-error-rgb), 0.4);
-  }
-}
+/* ── Card inner — flex horizontal ────────────────────────────────── */
 
-.discountText {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.5px;
-}
-
-/* === BADGE DE ESTADO === */
-.statusBadge {
-  position: absolute;
-  top: var(--spacing-sm);
-  left: var(--spacing-sm);
+.cardInner {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  z-index: 2;
-  transition: all var(--transition-normal) var(--transition-curve);
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-xl) calc(var(--spacing-xl) + 4px);
 }
 
-.statusBadge.active {
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
+/* ── Columna izquierda ────────────────────────────────────────────── */
 
-.statusBadge.active:hover {
-  box-shadow: 0 4px 12px rgba(var(--color-success-rgb), 0.3);
-}
-
-.statusBadge.expired {
-  background: linear-gradient(135deg, var(--color-neutral-500) 0%, var(--color-neutral-600) 100%);
-  color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-}
-
-.statusBadge .material-icons {
-  font-size: var(--icon-size-sm);
-}
-
-/* === CONTENIDO PRINCIPAL === */
-.cardContent {
-  padding: var(--spacing-lg);
+.cardLeft {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-2xl);
+  gap: var(--spacing-sm);
 }
 
+/* Meta row */
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--border-radius-full);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border: 1px solid;
+  line-height: 1.6;
+}
+
+.activeBadge {
+  color: var(--color-success, #16a34a);
+  border-color: var(--color-success, #16a34a);
+  background: rgba(22, 163, 74, 0.07);
+}
+
+.expiredBadge {
+  color: var(--text-tertiary);
+  border-color: var(--border-color);
+  background: transparent;
+}
+
+.timeMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.timeMeta {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Título — display font grande */
 .offerTitle {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
   color: var(--text-primary);
   margin: 0;
-  line-height: var(--line-height-tight);
-  text-align: center;
-  transition: color var(--transition-normal) var(--transition-curve);
+  transition: color var(--transition-fast) var(--transition-curve);
 }
 
 .offerCard:hover .offerTitle {
   color: var(--color-primary);
 }
 
+/* Descripción */
 .offerDescription {
-  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  font-size: var(--font-size-md);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-relaxed);
   margin: 0;
-  flex: 1;
+  max-width: 600px;
 }
 
-/* === INFORMACIÓN DE PRODUCTOS === */
-.productInfo {
+/* Footer meta */
+.footerMeta {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--background-primary);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color-light);
-  transition: all var(--transition-normal) var(--transition-curve);
-}
-
-.offerCard:hover .productInfo {
-  background: linear-gradient(135deg, var(--color-primary-100) 0%, var(--color-secondary-100) 100%);
-  border-color: var(--color-primary);
-}
-
-.productInfo .material-icons {
-  color: var(--text-secondary);
-  font-size: var(--icon-size-lg);
-  transition: color var(--transition-normal) var(--transition-curve);
-}
-
-.offerCard:hover .productInfo .material-icons {
-  color: var(--color-primary);
+  gap: var(--spacing-lg);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
 }
 
 .productCount {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-/* === INFORMACIÓN DE FECHAS === */
-.dateInfo {
+.productCount .material-icons {
+  font-size: 14px;
+  color: var(--text-tertiary);
+}
+
+.dateRange {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* ── Columna derecha — badge circular ────────────────────────────── */
+
+.cardRight {
+  flex-shrink: 0;
+}
+
+.discountBadge {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.dateRange,
-.timeRemaining {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-}
-
-.dateRange .material-icons,
-.timeRemaining .material-icons {
-  color: var(--text-secondary);
-  font-size: var(--icon-size-md);
-}
-
-.dateText {
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
-}
-
-.timeText {
-  color: var(--color-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* === FOOTER === */
-.cardFooter {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-top: 1px solid var(--border-color-light);
-  background: var(--background-primary);
-  transition: background var(--transition-normal) var(--transition-curve);
-}
-
-.viewButton {
-  width: 100%;
-  display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-white);
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-family: var(--font-family-primary);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-md);
-  cursor: pointer;
-  transition: all var(--transition-normal) var(--transition-curve);
-  box-shadow: var(--shadow-button-primary);
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  transition: transform var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
 }
 
-.viewButton:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-button-primary-hover);
+.offerCard:hover .discountBadge {
+  transform: scale(1.08);
+  background: var(--color-primary-dark);
 }
 
-.viewButton:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-button-primary);
+.offerCard.inactive .discountBadge {
+  background: var(--border-color);
+  color: var(--text-tertiary);
 }
 
-.viewButton:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+.discountValue {
+  color: var(--text-primary);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.viewButton.disabled {
-  background: var(--color-neutral-400);
-  color: var(--color-neutral-600);
-  cursor: not-allowed;
-  box-shadow: none;
+.discountLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
 }
 
-.viewButton.disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
+/* ── Responsive ─────────────────────────────────────────────────────── */
 
-.viewButton .material-icons {
-  font-size: var(--icon-size-lg);
-}
-
-/* === RESPONSIVE DESIGN - DESKTOP FIRST === */
-
-/* Tablets grandes y laptops pequeñas (1024px) */
-@media (max-width: 1024px) {
-  .cardContent {
-    padding: var(--spacing-md);
-  }
-
-  .offerTitle {
-    font-size: var(--font-size-lg);
-  }
-
-  .cardFooter {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-}
-
-/* Tablets y móviles en landscape (768px) */
 @media (max-width: 768px) {
-  .cardContent {
-    padding: var(--spacing-md);
-    margin-top: var(--spacing-xl);
-    gap: var(--spacing-sm);
+  .cardInner {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-lg) calc(var(--spacing-lg) + 4px);
+    gap: var(--spacing-lg);
   }
 
-  .offerTitle {
-    font-size: var(--font-size-md);
-  }
-
-  .offerDescription {
-    font-size: var(--font-size-sm);
-  }
+  .offerTitle { font-size: var(--font-size-xl); }
 
   .discountBadge {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
+    width: 80px;
+    height: 80px;
   }
 
-  .statusBadge {
-    padding: 4px var(--spacing-xs);
-  }
-
-  .productInfo {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .productCount {
-    font-size: var(--font-size-sm);
-  }
-
-  .viewButton {
-    font-size: var(--font-size-sm);
-  }
+  .discountValue { font-size: var(--font-size-xl); }
 }
 
-/* Móviles en portrait (480px) */
 @media (max-width: 480px) {
-  .cardContent {
-    padding: var(--spacing-sm);
-    margin-top: var(--spacing-lg);
+  .cardInner {
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) calc(var(--spacing-md) + 4px);
+    gap: var(--spacing-md);
+    align-items: flex-start;
   }
 
-  .offerTitle {
-    font-size: var(--font-size-md);
-  }
+  .offerTitle { font-size: var(--font-size-lg); }
+
+  .offerDescription { display: none; }
 
   .discountBadge {
-    padding: 4px var(--spacing-xs);
-    font-size: 0.625rem;
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
   }
 
-  .statusBadge {
-    padding: 4px var(--spacing-xs);
-    font-size: 0.625rem;
-  }
+  .discountValue { font-size: var(--font-size-lg); }
 
-  .dateText,
-  .timeText {
-    font-size: var(--font-size-xs);
-  }
+  .metaRow { gap: var(--spacing-sm); }
 
-  .viewButton {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--font-size-sm);
-  }
-
-  .cardFooter {
-    padding: var(--spacing-sm);
-  }
+  .dateRange { display: none; }
 }
 
-/* === ACCESIBILIDAD === */
+/* ── Accesibilidad ───────────────────────────────────────────────────── */
 
-/* Mejoras para usuarios de teclado */
-.offerCard:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 3px;
-}
-
-/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
 @media (prefers-reduced-motion: reduce) {
   .offerCard,
-  .offerTitle,
-  .productInfo,
-  .productInfo .material-icons,
   .discountBadge,
-  .statusBadge,
-  .viewButton,
-  .cardFooter {
+  .offerTitle {
     transition: none;
-    animation: none;
   }
 
   .offerCard:hover {
     transform: none;
+    box-shadow: none;
   }
 
-  .discountBadge {
+  .offerCard:hover .discountBadge {
     transform: none;
-  }
-
-  .discountBadge:hover {
-    transform: none;
-  }
-
-  .viewButton:hover {
-    transform: none;
-  }
-
-  @keyframes discountPulse {
-    0%, 100% {
-      box-shadow: var(--shadow-lg);
-    }
   }
 }

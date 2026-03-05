@@ -1,3 +1,7 @@
+/* ============================================================================
+   GESTION USUARIOS - CRUD de usuarios del sistema
+   ============================================================================ */
+
 .container {
   padding: var(--spacing-xl);
   min-height: 100%;
@@ -5,6 +9,8 @@
 
 .header {
   margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .headerTop {
@@ -15,21 +21,23 @@
 }
 
 .title {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
+  margin: 0 0 var(--spacing-xs) 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  letter-spacing: -0.25px;
 }
 
 .title .material-icons {
-  color: var(--color-secondary);
+  color: var(--color-primary);
+  font-size: var(--font-size-2xl);
 }
 
 .subtitle {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -39,28 +47,27 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 .crearButton:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
+  background-color: var(--color-primary-dark);
 }
 
 .crearButton:active {
-  transform: translateY(0);
+  background-color: var(--color-primary-dark);
 }
 
 /* ============================================================================
-   FORMULARIO CREAR USUARIO INTEGRADO
+   FORMULARIO CREAR/EDITAR USUARIO
    ============================================================================ */
 
 .crearFormWrapper {
@@ -76,10 +83,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .crearFormTitle {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
@@ -89,7 +98,7 @@
 }
 
 .crearFormTitle .material-icons {
-  color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
 .cerrarFormButton {
@@ -102,7 +111,8 @@
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve);
 }
 
 .cerrarFormButton:hover {
@@ -133,6 +143,7 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
+  letter-spacing: 0.15px;
 }
 
 .input,
@@ -143,7 +154,8 @@
   font-size: var(--font-size-md);
   background-color: var(--background-light);
   color: var(--text-primary);
-  transition: var(--theme-transition);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .input:focus,
@@ -174,11 +186,12 @@
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
 }
 
 .cancelButton:hover {
-  background-color: var(--background-neutral);
+  background-color: var(--background-hover);
   border-color: var(--text-secondary);
 }
 
@@ -188,24 +201,19 @@
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 .submitButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
-}
-
-.submitButton:active:not(:disabled) {
-  transform: translateY(0);
+  background-color: var(--color-primary-dark);
 }
 
 .submitButton:disabled {
@@ -235,14 +243,15 @@
 }
 
 .retryButton {
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve);
+  font-size: var(--font-size-sm);
 }
 
 .retryButton:hover {
@@ -251,7 +260,7 @@
 
 .tableWrapper {
   overflow-x: auto;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
 }
 
@@ -259,6 +268,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: var(--background-light);
+  font-size: var(--font-size-sm);
 }
 
 .table thead {
@@ -266,14 +276,15 @@
 }
 
 .table th {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .sortableHeader {
@@ -282,7 +293,7 @@
 }
 
 .sortableHeader:hover {
-  color: var(--text-primary);
+  color: var(--color-primary);
 }
 
 .sortableHeaderContent {
@@ -294,7 +305,7 @@
 .sortIcon {
   font-size: var(--font-size-sm) !important;
   opacity: 0.3;
-  transition: opacity 0.2s, color 0.2s;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
 }
 
 .sortableHeader:hover .sortIcon {
@@ -307,13 +318,17 @@
 }
 
 .table td {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
 }
 
+.table tbody tr {
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
 .table tbody tr:hover {
-  background-color: var(--background-neutral);
+  background-color: var(--color-primary-25);
 }
 
 .table tbody tr:last-child td {
@@ -324,11 +339,14 @@
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;
+  padding: var(--spacing-xl) var(--spacing-md);
 }
+
+/* === BADGES === */
 
 .badge {
   display: inline-block;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 3px var(--spacing-sm);
   border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -337,13 +355,13 @@
 }
 
 .badgeAdmin {
-  background-color: var(--color-secondary-100);
-  color: var(--color-secondary);
+  background-color: var(--color-primary-100);
+  color: var(--color-primary);
 }
 
 .badgeGerente {
-  background-color: var(--color-primary-100);
-  color: var(--color-primary);
+  background-color: var(--color-info-100);
+  color: var(--color-info);
 }
 
 .badgeVendedor {
@@ -351,19 +369,23 @@
   color: var(--color-success);
 }
 
+/* === ACCIONES === */
+
 .actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
 }
 
 .actionButton {
-  padding: var(--spacing-xs);
+  padding: 6px;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--theme-transition);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -384,7 +406,7 @@
 .actionButton:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  color: var(--text-secondary);
+  color: var(--text-disabled);
   border-color: var(--border-color);
   background: none;
 }
@@ -415,12 +437,8 @@
     align-items: stretch;
   }
 
-  .table {
-    font-size: var(--font-size-sm);
-  }
-
   .table th,
   .table td {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }

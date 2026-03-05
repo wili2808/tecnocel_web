@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
+import type { UpdateOfertaBody } from '../types/oferta.types.js';
 import Oferta from '../models/Oferta.js';
 import ProductoOferta from '../models/ProductoOferta.js';
 import Almacen from '../models/Almacen.js';
@@ -449,7 +450,16 @@ export class OfertaController {
   static async updateOferta(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const datosActualizacion = req.body;
+      const {
+        nombre_oferta, descripcion, tipo_descuento, valor_descuento,
+        fecha_inicio, fecha_fin, precio_minimo, precio_maximo,
+        limite_uso, activo
+      } = req.body as UpdateOfertaBody;
+      const datosActualizacion: UpdateOfertaBody = {
+        nombre_oferta, descripcion, tipo_descuento, valor_descuento,
+        fecha_inicio, fecha_fin, precio_minimo, precio_maximo,
+        limite_uso, activo
+      };
 
       const oferta = await Oferta.findByPk(id);
       if (!oferta) {
@@ -459,10 +469,7 @@ export class OfertaController {
         });
       }
 
-      // Agregar fecha de actualización
-      datosActualizacion.fyh_actualizacion = new Date();
-
-      await oferta.update(datosActualizacion);
+      await oferta.update({ ...datosActualizacion, fyh_actualizacion: new Date() });
 
       logger.info(`Oferta actualizada: ${oferta.nombre_oferta} (ID: ${id})`);
 

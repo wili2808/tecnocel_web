@@ -5,13 +5,12 @@
     padding: var(--spacing-lg);
     background-color: var(--background-secondary);
     border-radius: var(--border-radius-lg);
-    border: var(--border-width-thin) solid var(--border-color-light);
-    transition: all var(--transition-normal) var(--transition-curve);
+    border: 1px solid var(--border-color);
+    transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
 .card:hover {
-    border-color: var(--border-color);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--color-primary);
 }
 
 .card.updating {
@@ -19,18 +18,10 @@
     pointer-events: none;
 }
 
-/* Estado sin stock - Indicador visual sutil */
+/* Estado sin stock */
 .card.sinStock {
-    position: relative;
-    opacity: 0.85;
+    opacity: 0.75;
     border-color: rgba(var(--color-error-rgb), 0.4);
-    background: linear-gradient(
-        135deg,
-        var(--background-secondary) 0%,
-        var(--background-secondary) 93%,
-        rgba(var(--color-error-rgb), 0.05) 93%,
-        rgba(var(--color-error-rgb), 0.05) 100%
-    );
 }
 
 .card.sinStock:hover {
@@ -76,8 +67,10 @@
 }
 
 .productTitle {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    letter-spacing: -0.01em;
     margin: 0;
     line-height: var(--line-height-tight);
     color: var(--text-primary);
@@ -111,10 +104,10 @@
 .discountBadge {
     background-color: var(--color-error);
     color: var(--color-white);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius-sm);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
+    padding: 2px var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
 }
 
 .subtotalInfo {
@@ -172,7 +165,7 @@
     align-items: center;
     gap: 0;
     width: fit-content;
-    border: var(--border-width-thin) solid var(--border-color-light);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     background-color: var(--background-primary);
     overflow: hidden;

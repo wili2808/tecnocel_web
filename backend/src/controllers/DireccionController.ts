@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Direccion from '../models/Direccion.js';
 import Cliente from '../models/Cliente.js';
 import logger from '../services/loggerService.js';
+import type { UpdateDireccionBody } from '../types/carrito.types.js';
 
 /**
  * Controlador para gestión de direcciones de envío
@@ -253,7 +254,16 @@ export class DireccionController {
   static async updateDireccion(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const datosActualizacion = req.body;
+      const {
+        nombre_direccion, calle, numero, piso, departamento, barrio,
+        ciudad, provincia, codigo_postal, pais, referencia,
+        es_predeterminada, es_facturacion, telefono_contacto
+      } = req.body as UpdateDireccionBody;
+      const datosActualizacion: UpdateDireccionBody = {
+        nombre_direccion, calle, numero, piso, departamento, barrio,
+        ciudad, provincia, codigo_postal, pais, referencia,
+        es_predeterminada, es_facturacion, telefono_contacto
+      };
       const clienteAutenticado = req.usuario?.id;
 
       const direccion = await Direccion.findByPk(id);
@@ -293,10 +303,7 @@ export class DireccionController {
         );
       }
 
-      // Agregar fecha de actualización
-      datosActualizacion.fyh_actualizacion = now;
-
-      await direccion.update(datosActualizacion);
+      await direccion.update({ ...datosActualizacion, fyh_actualizacion: now });
 
       logger.info(`Dirección actualizada: ${direccion.nombre_direccion} (ID: ${id})`);
 

@@ -15,6 +15,8 @@ import Rol from '../models/Rol.js';
 import { Request, Response } from 'express';
 import logger from '../services/loggerService.js';
 
+interface LoginBody { email: string; contrasena: string; }
+
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
 const JWT_ADMIN_EXPIRES_IN = process.env.JWT_ADMIN_EXPIRES_IN || '8h';
 
@@ -106,7 +108,7 @@ export default class UsuarioController {
    */
   static async login(req: Request, res: Response) {
     try {
-      const { email, contrasena } = req.body;
+      const { email, contrasena } = req.body as LoginBody;
 
       logger.debug('Procesando login de usuario', { email });
 

@@ -1,207 +1,148 @@
-/* === FILTROS DE COMENTARIOS === */
+/* ============================================================================
+   COMMENT FILTERS — Silicon Precision
+   Barra de filtros plana: conteo + pills de ordenación sin card
+   ============================================================================ */
+
 .commentFilters {
-  background-color: var(--background-secondary);
-  border: var(--border-width-thin) solid var(--border-color-light);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-md);
-  box-shadow: var(--shadow-sm);
-  transition: var(--theme-transition);
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .filtersHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
 }
 
+/* ── Total count ─────────────────────────────────────────────────────── */
+
 .totalCount {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  flex-shrink: 0;
 }
 
 .totalCount .material-icons {
-  font-size: var(--icon-size-md);
-  color: var(--text-secondary);
+  font-size: 14px !important;
 }
+
+/* ── Order section ────────────────────────────────────────────────────── */
 
 .orderSection {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
+
+.orderSection::-webkit-scrollbar { display: none; }
 
 .orderLabel {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  margin: 0;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  white-space: nowrap;
   cursor: default;
+  flex-shrink: 0;
 }
 
-.orderLabel .material-icons {
-  font-size: var(--icon-size-md);
-  color: var(--text-secondary);
-}
+.orderLabel .material-icons { font-size: 13px !important; }
+
+/* ── Pill buttons ────────────────────────────────────────────────────── */
 
 .orderOptions {
   display: flex;
-  gap: var(--spacing-xs);
-  border: var(--border-width-thin) solid var(--border-color-light);
-  border-radius: var(--border-radius-sm);
-  padding: 2px;
-  background: var(--background-primary);
+  gap: 4px;
+  flex-wrap: nowrap;
 }
 
 .orderButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: 4px;
+  padding: 5px var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
   background: transparent;
-  border: none;
-  border-radius: var(--border-radius-xs);
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
 }
 
 .orderButton:hover:not(.active) {
-  background: var(--background-elevated);
-  color: var(--text-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .orderButton.active {
-  background: var(--color-primary);
-  color: var(--text-inverse);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.08);
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
-.orderButton .material-icons {
-  font-size: var(--icon-size-sm);
-}
+.orderButton .material-icons { font-size: 12px !important; }
+.orderText { font-size: var(--font-size-xs); }
 
-.orderText {
-  font-size: var(--font-size-sm);
-}
+/* Separator — hidden, no longer needed */
+.separator { display: none; }
 
-.separator {
-  width: 100%;
-  height: var(--border-width-thin);
-  background: var(--border-color-light);
-  margin-top: var(--spacing-md);
-}
+/* ── Responsive ─────────────────────────────────────────────────────── */
 
-/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .filtersHeader {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
     gap: var(--spacing-sm);
   }
 
   .orderSection {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-xs);
+    width: 100%;
+    overflow-x: auto;
   }
 
-  .orderLabel {
-    justify-content: center;
-  }
+  .orderLabel { display: none; }
 
   .orderOptions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-xs);
-  }
-
-  .orderButton {
-    justify-content: center;
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .orderText {
-    display: none;
-  }
-
-  .orderButton .material-icons {
-    font-size: var(--icon-size-md);
+    flex-wrap: nowrap;
+    width: max-content;
   }
 }
 
 @media (max-width: 480px) {
-  .commentFilters {
-    padding: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .totalCount {
-    justify-content: center;
-    font-size: var(--font-size-sm);
-  }
+  .commentFilters { padding: var(--spacing-sm) 0; }
 
   .orderButton {
-    padding: var(--spacing-xs);
-  }
-
-  .orderButton .material-icons {
-    font-size: var(--icon-size-sm);
+    padding: 4px var(--spacing-xs);
   }
 }
 
-/* === ESTADOS DE INTERACCIÓN === */
+/* ── Focus & Accesibilidad ───────────────────────────────────────────── */
+
 .orderButton:focus-visible {
-  outline: 2px solid var(--color-primary-300);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.orderButton:active:not(.active) {
-  transform: translateY(1px);
-}
-
-.orderButton.active:hover {
-  background: var(--color-primary-dark);
-}
-
-/* === ANIMACIONES === */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.commentFilters {
-  animation: fadeIn var(--animation-duration-normal) ease-out;
-}
-
-/* === ACCESIBILIDAD === */
 @media (prefers-reduced-motion: reduce) {
-  .commentFilters {
-    animation: none;
-  }
-
-  .orderButton,
-  .orderOptions {
-    transition: none;
-  }
-
-  .orderButton:active {
-    transform: none;
-  }
+  .orderButton { transition: none; }
 }

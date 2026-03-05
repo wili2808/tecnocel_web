@@ -111,6 +111,7 @@
   --font-family-secondary: 'Roboto', system-ui, -apple-system, sans-serif;
   --font-family-mono: 'Courier New', Courier, monospace;
   --font-family-decorative: 'Great Vibes', cursive;
+  --font-family-display: 'Syne', system-ui, -apple-system, sans-serif;
   
   --font-size-xxs: 0.625rem;  /* 10px */
   --font-size-xs: 0.75rem;    /* 12px */
@@ -171,7 +172,7 @@
   --shadow-button-primary-hover: 0 4px 8px rgba(59, 130, 246, 0.3);
 
   /* === LAYOUT === */
-  --max-width: 1120px;
+  --max-width: 1200px;
   --max-width-prose: 65ch;
   --container-max-width: 1200px;
   --container-padding: 2rem;

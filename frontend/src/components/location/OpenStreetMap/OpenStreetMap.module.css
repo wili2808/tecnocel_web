@@ -1,50 +1,50 @@
-/* ============================================================================
-   OPEN STREET MAP - MAPA INTEGRADO
-   ============================================================================ */
-
-/* Contenedor del mapa */
 .mapContainer {
-  width: 100%;
-  height: 450px;
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(0, 217, 255, 0.1);
+    border: 1px solid rgba(0, 217, 255, 0.2);
 }
 
-/* Mapa de Leaflet */
 .map {
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 12px;
 }
 
-/* ============================================================================
-   TEMA OSCURO
-   ============================================================================ */
-
-:global([data-theme="dark"]) .map {
-  filter: invert(90%) hue-rotate(180deg);
+/* Estilos para Leaflet */
+:global(.leaflet-container) {
+    font-family: inherit;
 }
 
-:global([data-theme="dark"]) .map :global(.leaflet-tile-pane) {
-  filter: invert(100%) hue-rotate(180deg);
+/* Control de atribuciones */
+:global(.leaflet-attribution) {
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: #b0b0b0 !important;
 }
 
-/* ============================================================================
-   RESPONSIVE DESIGN
-   ============================================================================ */
+:global(.leaflet-attribution a) {
+    color: #00D9FF !important;
+    text-decoration: none;
+}
 
-/* Tablet */
+:global(.leaflet-attribution a:hover) {
+    text-decoration: underline;
+}
+
+/* Mejorar la visibilidad del mapa en modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .mapContainer {
+        filter: brightness(0.95);
+    }
+}
+
+/* Responsive para móviles */
 @media (max-width: 768px) {
-  .mapContainer {
-    height: 350px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .mapContainer {
-    height: 300px;
-  }
+    .mapContainer {
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
 }

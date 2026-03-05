@@ -186,13 +186,17 @@ const UserPanel = () => {
 
           {/* Información del usuario autenticado */}
           <div className={userPanelStyles.userInfo}>
-            <div className={userPanelStyles.userAvatar}>
-              <span className="material-icons">account_circle</span>
+            <div className={userPanelStyles.userAvatar} aria-hidden="true">
+              <span className={userPanelStyles.avatarInitials}>
+                {((user as Cliente).nombre?.[0] ?? '').toUpperCase()}
+                {((user as Cliente).apellido?.[0] ?? '').toUpperCase()}
+              </span>
             </div>
             <div className={userPanelStyles.userDetails}>
               <h3 className={userPanelStyles.userName}>
                 {(user as Cliente).nombre} {(user as Cliente).apellido}
               </h3>
+              <p className={userPanelStyles.userRole}>Mi cuenta</p>
             </div>
           </div>
 
