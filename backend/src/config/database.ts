@@ -12,6 +12,18 @@ import { config } from './config.js';
  * Configuración de la conexión a la base de datos MySQL
  * Utiliza la configuración centralizada del archivo config.ts
  */
+const sslEnabled = process.env.DB_SSL === 'true';
+const sslCaPath = process.env.DB_SSL_CA_PATH;
+const sslCa = sslCaPath && fs.existsSync(sslCaPath)
+  ? fs.readFileSync(sslCaPath, 'utf-8')
+  : undefined;
+
+if (sslEnabled && sslCaPath && !fs.existsSync(sslCaPath)) {
+  logger.warn('DB_SSL_CA_PATH definido pero archivo no encontrado. Se intentara SSL sin CA custom.', {
+    sslCaPath
+  });
+}
+
 const sequelize = new Sequelize({
   database: config.database.name,
   username: config.database.user,
@@ -28,16 +40,11 @@ const sequelize = new Sequelize({
     }
   },
   */
-
-
-  
   // Configuración SSL para Aiven
   dialectOptions: {
-    ssl: process.env.DB_SSL === 'true' ? {
+    ssl: sslEnabled ? {
       rejectUnauthorized: true,
-      ca: process.env.DB_SSL_CA_PATH ?
-          fs.readFileSync(process.env.DB_SSL_CA_PATH, 'utf-8') :
-          undefined
+      ca: sslCa
     } : undefined
   },
   logging: (msg) => {
@@ -166,3 +173,4 @@ export const initDatabase = async () => {
 };
 
 export default sequelize;
+
