@@ -14,12 +14,14 @@ import { config } from './config.js';
  */
 const sslEnabled = process.env.DB_SSL === 'true';
 const sslCaPath = process.env.DB_SSL_CA_PATH;
-const sslCa = sslCaPath && fs.existsSync(sslCaPath)
+const sslCaFromEnv = process.env.DB_SSL_CA_CERT;
+const sslCaFromFile = sslCaPath && fs.existsSync(sslCaPath)
   ? fs.readFileSync(sslCaPath, 'utf-8')
   : undefined;
+const sslCa = sslCaFromEnv || sslCaFromFile || undefined;
 
-if (sslEnabled && sslCaPath && !fs.existsSync(sslCaPath)) {
-  logger.warn('DB_SSL_CA_PATH definido pero archivo no encontrado. Se intentara SSL sin CA custom.', {
+if (sslEnabled && sslCaPath && !fs.existsSync(sslCaPath) && !sslCaFromEnv) {
+  logger.warn('DB_SSL_CA_PATH definido pero archivo no encontrado y sin DB_SSL_CA_CERT. Se intentara SSL sin CA custom.', {
     sslCaPath
   });
 }
@@ -173,4 +175,5 @@ export const initDatabase = async () => {
 };
 
 export default sequelize;
+
 
