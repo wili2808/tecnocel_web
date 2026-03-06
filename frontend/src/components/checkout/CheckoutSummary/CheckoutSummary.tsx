@@ -15,7 +15,7 @@ interface CheckoutSummaryProps {
 }
 
 export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega }) => {
-  const { tipoCambio } = useTipoCambio();
+  const { tipoCambio, esConfiable, origen } = useTipoCambio();
 
   // Filtrar items con stock
   const itemsConStock = useMemo(() => {
@@ -41,6 +41,16 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
     <div className={styles.container}>
       <h3 className={styles.title}>Resumen del Pedido</h3>
 
+      {!esConfiable && (
+        <div className={styles.tipoCambioWarning}>
+          <span className="material-icons">warning_amber</span>
+          <span>
+            No pudimos sincronizar la cotización en este momento. Mostramos importes en USD y el total final en ARS
+            se confirmará al procesar la compra.
+          </span>
+        </div>
+      )}
+
       <div className={styles.itemsList}>
         {itemsConStock.map((item) => {
           const subtotalUSD = item.subtotal_actual ?? item.subtotal;
@@ -53,11 +63,17 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
                 <span className={styles.itemQuantity}>x{item.cantidad}</span>
               </div>
               <div className={styles.itemPriceBlock}>
-                <span className={styles.itemPrice}>
-                  {formatARS(subtotalUSD, tipoCambio)}
-                </span>
+                {esConfiable ? (
+                  <span className={styles.itemPrice}>
+                    {formatARS(subtotalUSD, tipoCambio)}
+                  </span>
+                ) : (
+                  <span className={styles.itemPrice}>
+                    {formatUSD(subtotalUSD)}
+                  </span>
+                )}
                 <span className={styles.itemPriceUsd}>
-                  {formatUSD(subtotalUSD)}
+                  {esConfiable ? formatUSD(subtotalUSD) : 'ARS pendiente de cotización'}
                 </span>
               </div>
             </div>
@@ -70,7 +86,7 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
       <div className={styles.summary}>
         <div className={styles.summaryRow}>
           <span>Productos ({cantidadTotal})</span>
-          <span>{formatARS(subtotal, tipoCambio)}</span>
+          <span>{esConfiable ? formatARS(subtotal, tipoCambio) : formatUSD(subtotal)}</span>
         </div>
 
         <div className={styles.summaryRow}>
@@ -92,14 +108,16 @@ export const CheckoutSummary = memo<CheckoutSummaryProps>(({ items, tipoEntrega 
 
       <div className={styles.total}>
         <span className={styles.totalLabel}>Total a pagar</span>
-        <span className={styles.totalAmount}>{formatARS(totalFinal, tipoCambio)}</span>
+        <span className={styles.totalAmount}>{esConfiable ? formatARS(totalFinal, tipoCambio) : formatUSD(totalFinal)}</span>
       </div>
 
       <div className={styles.tipoCambioInfo}>
         <span className="material-icons">info</span>
         <span>
-          Tipo de cambio: {formatARSDirecto(tipoCambio)}/USD ·{' '}
-          Equivale a {formatUSD(totalFinal)}
+          {esConfiable
+            ? `Tipo de cambio: ${formatARSDirecto(tipoCambio)}/USD · Equivale a ${formatUSD(totalFinal)}`
+            : 'Tipo de cambio no sincronizado. El total definitivo en ARS se calculará al confirmar la compra.'}
+          {origen === 'cache' ? ' (Mostrando último valor guardado)' : ''}
         </span>
       </div>
     </div>

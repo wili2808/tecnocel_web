@@ -269,14 +269,19 @@ export default class AdminVentaController {
           tipo_entrega:    v.envio.tipo_entrega,
           estado_envio:    v.envio.estado_envio,
           fecha_despacho:  v.envio.fecha_despacho || null,
-          direccion_envio: v.envio.direccion_envio ? {
-            calle:        v.envio.direccion_envio.calle,
-            numero:       v.envio.direccion_envio.numero,
-            piso:         v.envio.direccion_envio.piso || null,
-            departamento: v.envio.direccion_envio.departamento || null,
-            barrio:       v.envio.direccion_envio.barrio,
-            ciudad:       v.envio.direccion_envio.ciudad,
-            provincia:    v.envio.direccion_envio.provincia
+          direccion_envio: (v.envio.envio_calle || v.envio.direccion_envio) ? {
+            nombre_direccion: v.envio.envio_nombre_direccion || null,
+            calle:        v.envio.envio_calle || v.envio.direccion_envio?.calle || null,
+            numero:       v.envio.envio_numero || v.envio.direccion_envio?.numero || null,
+            piso:         v.envio.envio_piso || v.envio.direccion_envio?.piso || null,
+            departamento: v.envio.envio_departamento || v.envio.direccion_envio?.departamento || null,
+            barrio:       v.envio.envio_barrio || v.envio.direccion_envio?.barrio || null,
+            ciudad:       v.envio.envio_ciudad || v.envio.direccion_envio?.ciudad || null,
+            provincia:    v.envio.envio_provincia || v.envio.direccion_envio?.provincia || null,
+            codigo_postal: v.envio.envio_codigo_postal || null,
+            pais:         v.envio.envio_pais || null,
+            referencia:   v.envio.envio_referencia || null,
+            telefono_contacto: v.envio.envio_telefono_contacto || null
           } : null
         } : null,
         metodo_pago:  v.metodo_pago,
@@ -664,3 +669,4 @@ export default class AdminVentaController {
     }
   }
 }
+

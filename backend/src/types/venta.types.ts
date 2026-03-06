@@ -1,4 +1,4 @@
-// Response shapes — cliente
+// Response shapes - cliente
 export interface VentaItemResumen {
   id_producto: number;
   nombre: string;
@@ -9,10 +9,26 @@ export interface VentaItemResumen {
   imagen_url: string | null;
 }
 
+export interface EnvioDireccionResumen {
+  nombre_direccion?: string | null;
+  calle: string | null;
+  numero: string | null;
+  piso: string | null;
+  departamento: string | null;
+  barrio: string | null;
+  ciudad: string | null;
+  provincia: string | null;
+  codigo_postal?: string | null;
+  pais?: string | null;
+  referencia?: string | null;
+  telefono_contacto?: string | null;
+}
+
 export interface EnvioResumen {
   tipo_entrega: string;
   estado_envio: string;
-  direccion: string | null;
+  fecha_despacho?: string | null;
+  direccion_envio: EnvioDireccionResumen | null;
 }
 
 export interface CancelacionResumen {
@@ -40,7 +56,7 @@ export interface VentaDetalleCliente extends VentaHistorialItem {
   observaciones: string | null;
 }
 
-// Response shapes — admin
+// Response shapes - admin
 export interface VentaAdminListItem {
   id_venta: number;
   nro_venta: string;

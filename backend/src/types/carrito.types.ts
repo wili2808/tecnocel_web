@@ -8,7 +8,7 @@ export interface ActualizarItemBody {
 }
 
 export interface ConfirmarCompraBody {
-  tipo_entrega: 'domicilio' | 'sucursal';
+  tipo_entrega?: 'envio' | 'retiro_en_tienda' | 'domicilio' | 'sucursal';
   id_direccion?: number;
   metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr';
   observaciones?: string;
@@ -60,3 +60,4 @@ export interface CarritoResponse {
   total_items: number;
   tiene_cambios_precio: boolean;
 }
+

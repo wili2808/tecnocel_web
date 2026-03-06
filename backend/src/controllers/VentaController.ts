@@ -112,14 +112,19 @@ export default class VentaController {
             tipo_entrega:    ventaData.envio.tipo_entrega,
             estado_envio:    ventaData.envio.estado_envio,
             fecha_despacho:  ventaData.envio.fecha_despacho || null,
-            direccion_envio: ventaData.envio.direccion_envio ? {
-              calle:        ventaData.envio.direccion_envio.calle,
-              numero:       ventaData.envio.direccion_envio.numero,
-              piso:         ventaData.envio.direccion_envio.piso || null,
-              departamento: ventaData.envio.direccion_envio.departamento || null,
-              barrio:       ventaData.envio.direccion_envio.barrio,
-              ciudad:       ventaData.envio.direccion_envio.ciudad,
-              provincia:    ventaData.envio.direccion_envio.provincia
+            direccion_envio: (ventaData.envio.envio_calle || ventaData.envio.direccion_envio) ? {
+              nombre_direccion: ventaData.envio.envio_nombre_direccion || null,
+              calle:        ventaData.envio.envio_calle || ventaData.envio.direccion_envio?.calle || null,
+              numero:       ventaData.envio.envio_numero || ventaData.envio.direccion_envio?.numero || null,
+              piso:         ventaData.envio.envio_piso || ventaData.envio.direccion_envio?.piso || null,
+              departamento: ventaData.envio.envio_departamento || ventaData.envio.direccion_envio?.departamento || null,
+              barrio:       ventaData.envio.envio_barrio || ventaData.envio.direccion_envio?.barrio || null,
+              ciudad:       ventaData.envio.envio_ciudad || ventaData.envio.direccion_envio?.ciudad || null,
+              provincia:    ventaData.envio.envio_provincia || ventaData.envio.direccion_envio?.provincia || null,
+              codigo_postal: ventaData.envio.envio_codigo_postal || null,
+              pais:         ventaData.envio.envio_pais || null,
+              referencia:   ventaData.envio.envio_referencia || null,
+              telefono_contacto: ventaData.envio.envio_telefono_contacto || null
             } : null
           } : null,
           cancelacion: ventaData.cancelacion ? {
@@ -258,15 +263,20 @@ export default class VentaController {
           tipo_entrega:    ventaData.envio.tipo_entrega,
           estado_envio:    ventaData.envio.estado_envio,
           fecha_despacho:  ventaData.envio.fecha_despacho || null,
-          direccion_envio: ventaData.envio.direccion_envio ? {
-            calle:        ventaData.envio.direccion_envio.calle,
-            numero:       ventaData.envio.direccion_envio.numero,
-            piso:         ventaData.envio.direccion_envio.piso || null,
-            departamento: ventaData.envio.direccion_envio.departamento || null,
-            barrio:       ventaData.envio.direccion_envio.barrio,
-            ciudad:       ventaData.envio.direccion_envio.ciudad,
-            provincia:    ventaData.envio.direccion_envio.provincia
-          } : null
+          direccion_envio: (ventaData.envio.envio_calle || ventaData.envio.direccion_envio) ? {
+              nombre_direccion: ventaData.envio.envio_nombre_direccion || null,
+              calle:        ventaData.envio.envio_calle || ventaData.envio.direccion_envio?.calle || null,
+              numero:       ventaData.envio.envio_numero || ventaData.envio.direccion_envio?.numero || null,
+              piso:         ventaData.envio.envio_piso || ventaData.envio.direccion_envio?.piso || null,
+              departamento: ventaData.envio.envio_departamento || ventaData.envio.direccion_envio?.departamento || null,
+              barrio:       ventaData.envio.envio_barrio || ventaData.envio.direccion_envio?.barrio || null,
+              ciudad:       ventaData.envio.envio_ciudad || ventaData.envio.direccion_envio?.ciudad || null,
+              provincia:    ventaData.envio.envio_provincia || ventaData.envio.direccion_envio?.provincia || null,
+              codigo_postal: ventaData.envio.envio_codigo_postal || null,
+              pais:         ventaData.envio.envio_pais || null,
+              referencia:   ventaData.envio.envio_referencia || null,
+              telefono_contacto: ventaData.envio.envio_telefono_contacto || null
+            } : null
         } : null,
         cancelacion: ventaData.cancelacion ? {
           motivo:            ventaData.cancelacion.motivo || null,
@@ -305,3 +315,4 @@ export default class VentaController {
     }
   }
 }
+

@@ -17,6 +17,25 @@
   margin: 0 0 var(--spacing-lg) 0;
 }
 
+.tipoCambioWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+.tipoCambioWarning .material-icons {
+  font-size: 15px;
+  margin-top: 1px;
+}
+
 .itemsList {
   display: flex;
   flex-direction: column;

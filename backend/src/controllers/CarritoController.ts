@@ -4,6 +4,7 @@ import CarritoWeb from '../models/CarritoWeb.js';
 import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
+import Direccion from '../models/Direccion.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Envio from '../models/Envio.js';
@@ -1185,14 +1186,48 @@ export default class CarritoController {
     const transaction = await sequelize.transaction();
 
     try {
-      const { observaciones, moneda = 'USD', metodo_pago, aceptar_cambio_precio = false } = req.body as ConfirmarCompraBody;
+      const {
+        observaciones,
+        moneda = 'USD',
+        metodo_pago,
+        aceptar_cambio_precio = false,
+        tipo_entrega,
+        id_direccion
+      } = req.body as ConfirmarCompraBody;
       const id_cliente = req.usuario?.id;
 
       if (!id_cliente) {
         return res.status(401).json({ mensaje: 'Cliente no autenticado' });
       }
 
-      logger.debug(`Confirmando compra - Cliente: ${id_cliente}, Acepta cambios: ${aceptar_cambio_precio}`);
+      const tipoEntregaNormalizado = tipo_entrega === 'envio' || tipo_entrega === 'domicilio'
+        ? 'envio'
+        : 'retiro_en_tienda';
+
+      let direccionEntrega: Direccion | null = null;
+
+      if (tipoEntregaNormalizado === 'envio') {
+        if (!id_direccion || !Number.isInteger(id_direccion) || id_direccion <= 0) {
+          await transaction.rollback();
+          return res.status(400).json({
+            mensaje: 'Debe seleccionar una dirección válida para envío a domicilio'
+          });
+        }
+
+        direccionEntrega = await Direccion.findOne({
+          where: { id_direccion, id_cliente },
+          transaction
+        });
+
+        if (!direccionEntrega) {
+          await transaction.rollback();
+          return res.status(404).json({
+            mensaje: 'La dirección seleccionada no existe o no pertenece al cliente'
+          });
+        }
+      }
+
+      logger.debug(`Confirmando compra - Cliente: ${id_cliente}, Acepta cambios: ${aceptar_cambio_precio}, Entrega: ${tipoEntregaNormalizado}`);
 
       // Buscar carrito activo con items
       const carrito = await CarritoWeb.findOne({
@@ -1338,6 +1373,29 @@ export default class CarritoController {
         moneda,
         metodo_pago: metodo_pago || null,
         valor_dolar,
+        fyh_creacion: new Date(),
+        fyh_actualizacion: new Date()
+      }, { transaction });
+
+      // Crear registro logístico de envío con snapshot inmutable de dirección
+      await Envio.create({
+        id_venta: venta.id_venta,
+        tipo_entrega: tipoEntregaNormalizado,
+        id_direccion: tipoEntregaNormalizado === 'envio' ? direccionEntrega?.id_direccion ?? null : null,
+        envio_nombre_direccion: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.nombre_direccion ?? null) : null,
+        envio_calle: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.calle ?? null) : null,
+        envio_numero: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.numero ?? null) : null,
+        envio_piso: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.piso ?? null) : null,
+        envio_departamento: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.departamento ?? null) : null,
+        envio_barrio: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.barrio ?? null) : null,
+        envio_ciudad: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.ciudad ?? null) : null,
+        envio_provincia: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.provincia ?? null) : null,
+        envio_codigo_postal: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.codigo_postal ?? null) : null,
+        envio_pais: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.pais ?? null) : null,
+        envio_referencia: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.referencia ?? null) : null,
+        envio_telefono_contacto: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.telefono_contacto ?? null) : null,
+        estado_envio: tipoEntregaNormalizado === 'envio' ? 'pendiente' : 'no_aplica',
+        fecha_despacho: null,
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       }, { transaction });
@@ -1522,3 +1580,4 @@ export default class CarritoController {
     }
   }
 } 
+
