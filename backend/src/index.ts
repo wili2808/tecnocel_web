@@ -41,33 +41,34 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware de logging de requests optimizado
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  
+
   // Log al final de la request
   res.on('finish', () => {
     const duration = Date.now() - start;
     const logLevel = res.statusCode >= 400 ? 'warn' : 'info';
-    
+
     // Formato estructurado para requests HTTP
     const message = `${req.method} ${req.path} | Status: ${res.statusCode} | ${duration}ms`;
-    
+
     // Solo logear si no es una request duplicada o estática
     if (!res.locals.skipHttpLog) {
       logger[logLevel](message);
     }
   });
-  
+
   next();
 });
 
 // Configurar servicio de imágenes usando la configuración centralizada
-const { 
-  basePath, 
-  productImagesPath, 
-  commentImagesPath, 
-  baseUrl, 
-  endpoint, 
-  defaultProductImage, 
-  defaultCommentImage 
+const {
+  basePath,
+  productImagesPath,
+  commentImagesPath,
+  baseUrl,
+  endpoint,
+  defaultProductImage,
+  defaultCommentImage,
+  useCloudinary
 } = config.images;
 
 logger.info('Inicializando servicio de imágenes', {
@@ -75,7 +76,8 @@ logger.info('Inicializando servicio de imágenes', {
   productImagesPath,
   commentImagesPath,
   baseUrl,
-  endpoint
+  endpoint,
+  storage: useCloudinary ? 'cloudinary' : 'filesystem'
 });
 
 // Configurar middleware de imágenes estáticas
@@ -91,19 +93,21 @@ const imageMiddleware = new StaticImageMiddleware({
 
 // Validar que los directorios de imágenes existen antes de inicializar el servicio
 let imageServiceInitialized = false;
-if (imageMiddleware.validateImagesDirectory()) {
-  // Inicializar servicio de imágenes solo si los directorios son válidos
-  const imageService = initializeImageService({
+if (useCloudinary || imageMiddleware.validateImagesDirectory()) {
+  initializeImageService({
     baseUrl,
     basePath,
     productImagesPath,
     commentImagesPath,
     defaultProductImage,
     defaultCommentImage,
-    endpoint
+    endpoint,
+    useCloudinary
   });
   imageServiceInitialized = true;
-  logger.info('Servicio de imágenes inicializado exitosamente');
+  logger.info('Servicio de imágenes inicializado exitosamente', {
+    storage: useCloudinary ? 'cloudinary' : 'filesystem'
+  });
 } else {
   logger.warn('Los directorios de imágenes no están disponibles. El servicio de imágenes no se inicializará.');
 }
@@ -116,21 +120,22 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API de TecnoCel Web funcionando correctamente' });
 });
 
-// Rutas para servir imágenes estáticas
+// Rutas para servir imágenes estáticas (solo útil en modo filesystem)
 app.get('/api/images/*', imageMiddleware.serveProductImage);
 app.get('/api/comment-images/*', imageMiddleware.serveCommentImage);
 
 // Ruta de diagnóstico para verificar el estado del servicio de imágenes
 app.get('/api/images-status', (req: Request, res: Response) => {
   const directoriesInfo = imageMiddleware.getDirectoriesInfo();
-  
+
   res.json({
     service_initialized: imageServiceInitialized,
     directories: directoriesInfo,
     base_url: baseUrl,
     endpoint: endpoint,
     default_product_image: defaultProductImage,
-    default_comment_image: defaultCommentImage
+    default_comment_image: defaultCommentImage,
+    storage: useCloudinary ? 'cloudinary' : 'filesystem'
   });
 });
 
@@ -172,7 +177,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     params: req.params,
     query: req.query
   });
-  
+
   res.status(500).json({
     error: 'Error interno del servidor',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -187,9 +192,9 @@ const startServer = async () => {
       environment: process.env.NODE_ENV || 'development',
       nodeVersion: process.version
     });
-    
+
     await initDatabase();
-    
+
     const server = app.listen(Number(PORT), () => {
       logger.info('Servidor iniciado exitosamente', {
         port: PORT,
@@ -222,4 +227,3 @@ const startServer = async () => {
 startServer();
 
 export default app;
-

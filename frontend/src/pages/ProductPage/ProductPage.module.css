@@ -94,6 +94,13 @@
   pointer-events: none;
 }
 
+.favoriteBadgeWrap {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 10;
+}
+
 /* ---- Columna detalle ---- */
 
 .detailColumn {
@@ -101,12 +108,6 @@
   flex-direction: column;
   gap: var(--spacing-lg);
   min-width: 0;
-}
-
-.detailTopBar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: calc(-1 * var(--spacing-sm));
 }
 
 .actionsWrap {
@@ -305,10 +306,6 @@
 
   .imageColumn {
     position: static;
-  }
-
-  .detailTopBar {
-    margin-bottom: 0;
   }
 
   .breadcrumbCurrent { max-width: 160px; }

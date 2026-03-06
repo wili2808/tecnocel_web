@@ -133,21 +133,13 @@
   border-top: 1px solid var(--border-color);
 }
 
-.sectionTitle {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  margin: 0;
-}
 
 .description {
   color: var(--text-secondary);
   font-size: var(--font-size-md);
   line-height: var(--line-height-relaxed);
   margin: 0;
+  white-space: pre-line;
 }
 
 /* ============================================================
@@ -185,3 +177,6 @@
 @media (prefers-reduced-motion: reduce) {
   .discountBadge { animation: none; }
 }
+
+
+

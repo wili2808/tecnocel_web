@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { Comentario } from '../../../services/commentService';
 import commentService from '../../../services/commentService';
 import uploadService from '../../../services/uploadService';
@@ -39,10 +40,44 @@ const CommentCard: React.FC<CommentCardProps> = ({
     const [isDeletingComment, setIsDeletingComment] = useState(false);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [uploadingImages, setUploadingImages] = useState(false);
+    const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
+    const [expandedImageList, setExpandedImageList] = useState<Array<{ src: string; alt: string }>>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const isOwner = currentUserId === comentario.id_cliente;
     const fechaFormateada = commentService.formatearFechaComentario(comentario.fyh_creacion);
+
+    useEffect(() => {
+        if (expandedImageIndex === null) {
+            return;
+        }
+
+        const previousOverflow = document.body.style.overflow;
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setExpandedImageIndex(null);
+                setExpandedImageList([]);
+            } else if (event.key === 'ArrowLeft') {
+                setExpandedImageIndex((prev) => {
+                    if (prev === null || expandedImageList.length <= 1) return prev;
+                    return prev === 0 ? expandedImageList.length - 1 : prev - 1;
+                });
+            } else if (event.key === 'ArrowRight') {
+                setExpandedImageIndex((prev) => {
+                    if (prev === null || expandedImageList.length <= 1) return prev;
+                    return prev === expandedImageList.length - 1 ? 0 : prev + 1;
+                });
+            }
+        };
+
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [expandedImageIndex, expandedImageList.length]);
 
     const handleEdit = async () => {
         if (editText.trim().length < 10) {
@@ -87,8 +122,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
         setDeletingImages(prev => new Set(prev).add(idImagen));
         try {
             await onImageDelete(comentario.id_comentario, idImagen);
-            // No cerrar la edición, solo actualizar el estado local
-            // El componente padre se encargará de actualizar los comentarios
             console.log('✅ Imagen eliminada, manteniendo modo de edición');
         } catch (error) {
             console.error('Error deleting image:', error);
@@ -122,7 +155,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
 
         setNewImages(prev => [...prev, ...validFiles]);
 
-        // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -130,6 +162,30 @@ const CommentCard: React.FC<CommentCardProps> = ({
 
     const removeNewImage = (index: number) => {
         setNewImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const openImageModal = (images: Array<{ src: string; alt: string }>, index: number) => {
+        setExpandedImageList(images);
+        setExpandedImageIndex(index);
+    };
+
+    const closeImageModal = () => {
+        setExpandedImageIndex(null);
+        setExpandedImageList([]);
+    };
+
+    const goToPreviousImage = () => {
+        setExpandedImageIndex((prev) => {
+            if (prev === null || expandedImageList.length <= 1) return prev;
+            return prev === 0 ? expandedImageList.length - 1 : prev - 1;
+        });
+    };
+
+    const goToNextImage = () => {
+        setExpandedImageIndex((prev) => {
+            if (prev === null || expandedImageList.length <= 1) return prev;
+            return prev === expandedImageList.length - 1 ? 0 : prev + 1;
+        });
     };
 
     const handleSaveWithNewImages = async () => {
@@ -141,18 +197,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
         setUploadingImages(true);
 
         try {
-            // Subir nuevas imágenes si las hay
             let uploadedImages: any[] = [];
             if (newImages.length > 0) {
                 try {
                     const uploadedImagesData = await uploadService.uploadCommentImages(newImages);
 
-                    // Transformar las imágenes subidas al formato esperado por el backend
                     uploadedImages = uploadedImagesData.map((image) => ({
                         nombre_archivo: image.url_imagen,
                         ruta_imagen: image.url_imagen,
-                        tipo_archivo: 'image/jpeg', // Por defecto, ya que sharp convierte a JPEG
-                        tamaño_archivo: 0, // No es crítico para comentarios
+                        tipo_archivo: 'image/jpeg',
+                        tamaño_archivo: 0,
                         alt_text: image.alt_text
                     }));
 
@@ -164,14 +218,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 }
             }
 
-            // Actualizar comentario con nuevas imágenes
             await onEdit(comentario.id_comentario, {
                 comentario: editText.trim(),
                 calificacion: editRating,
                 imagenes: uploadedImages
             });
 
-            // Limpiar estado de edición según el tipo de manejo
             if (onStartEdit) {
                 onCancelEdit?.();
             } else {
@@ -226,9 +278,18 @@ const CommentCard: React.FC<CommentCardProps> = ({
         );
     };
 
+    const existingCommentImages = (comentario.imagenes || []).map((imagen) => ({
+        src: imagen.imagen_url,
+        alt: imagen.alt_text || 'Imagen del comentario',
+    }));
+
+    const activeExpandedImage =
+        expandedImageIndex !== null && expandedImageList[expandedImageIndex]
+            ? expandedImageList[expandedImageIndex]
+            : null;
+
     return (
         <div className={`${styles.commentCard} ${className} ${isDeletingComment ? styles.deleting : ''}`}>
-            {/* Header del comentario */}
             <div className={styles.commentHeader}>
                 <div className={styles.userInfo}>
                     <div className={styles.avatar}>
@@ -250,7 +311,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     </div>
                 </div>
 
-                {/* Acciones del propietario */}
                 {isOwner && !isCurrentlyEditing && (
                     <div className={styles.actions}>
                         <button
@@ -279,7 +339,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 )}
             </div>
 
-            {/* Calificación */}
             {!isCurrentlyEditing ? (
                 renderStars(comentario.calificacion)
             ) : (
@@ -289,7 +348,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 </div>
             )}
 
-            {/* Contenido del comentario */}
             <div className={styles.commentContent}>
                 {!isCurrentlyEditing ? (
                     <p className={styles.commentText}>{comentario.comentario}</p>
@@ -309,19 +367,24 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 )}
             </div>
 
-            {/* Imágenes del comentario */}
             <div className={styles.commentImages}>
-                {/* Imágenes existentes */}
                 {comentario.imagenes && comentario.imagenes.length > 0 && (
                     <>
-                        {comentario.imagenes.map((imagen) => (
+                        {comentario.imagenes.map((imagen, index) => (
                             <div key={imagen.id_imagen} className={styles.imageContainer}>
-                                <img
-                                    src={imagen.imagen_url}
-                                    alt={imagen.alt_text || `Imagen del comentario`}
-                                    className={styles.commentImage}
-                                    loading="lazy"
-                                />
+                                <button
+                                    type="button"
+                                    className={styles.imagePreviewButton}
+                                    onClick={() => openImageModal(existingCommentImages, index)}
+                                    aria-label="Abrir imagen en tamaño completo"
+                                >
+                                    <img
+                                        src={imagen.imagen_url}
+                                        alt={imagen.alt_text || 'Imagen del comentario'}
+                                        className={styles.commentImage}
+                                        loading="lazy"
+                                    />
+                                </button>
                                 {isOwner && onImageDelete && isCurrentlyEditing && (
                                     <button
                                         type="button"
@@ -342,31 +405,42 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     </>
                 )}
 
-                {/* Nuevas imágenes durante edición */}
                 {isCurrentlyEditing && newImages.length > 0 && (
                     <>
-                        {newImages.map((file, index) => (
-                            <div key={`new-${index}`} className={styles.imageContainer}>
-                                <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Nueva imagen ${index + 1}`}
-                                    className={styles.commentImage}
-                                />
-                                <button
-                                    type="button"
-                                    className={styles.deleteImageButton}
-                                    onClick={() => removeNewImage(index)}
-                                    disabled={isSubmitting}
-                                    title="Eliminar imagen"
-                                >
-                                    <span className="material-icons">delete</span>
-                                </button>
-                            </div>
-                        ))}
+                        {newImages.map((file, index) => {
+                            const previewUrl = URL.createObjectURL(file);
+
+                            return (
+                                <div key={`new-${index}`} className={styles.imageContainer}>
+                                    <button
+                                        type="button"
+                                        className={styles.imagePreviewButton}
+                                        onClick={() =>
+                                            openImageModal([{ src: previewUrl, alt: `Nueva imagen ${index + 1}` }], 0)
+                                        }
+                                        aria-label="Abrir imagen en tamaño completo"
+                                    >
+                                        <img
+                                            src={previewUrl}
+                                            alt={`Nueva imagen ${index + 1}`}
+                                            className={styles.commentImage}
+                                        />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.deleteImageButton}
+                                        onClick={() => removeNewImage(index)}
+                                        disabled={isSubmitting}
+                                        title="Eliminar imagen"
+                                    >
+                                        <span className="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </>
                 )}
 
-                {/* Botón para agregar imágenes durante edición */}
                 {isCurrentlyEditing && (
                     <div className={styles.addImageContainer}>
                         <input
@@ -395,7 +469,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 )}
             </div>
 
-            {/* Respuesta del admin */}
             {comentario.respuesta_admin && (
                 <div className={styles.adminResponse}>
                     <div className={styles.adminHeader}>
@@ -411,7 +484,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 </div>
             )}
 
-            {/* Botones de edición */}
             {isCurrentlyEditing && (
                 <div className={styles.editActions}>
                     <button
@@ -447,7 +519,53 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 </div>
             )}
 
-            {/* Modal de confirmación de eliminación */}
+            {activeExpandedImage && createPortal(
+                <div className={styles.imageModal} role="dialog" aria-modal="true" aria-label="Vista ampliada de imagen">
+                    <button
+                        type="button"
+                        className={styles.imageModalBackdrop}
+                        onClick={closeImageModal}
+                        aria-label="Cerrar vista ampliada"
+                    />
+                    <div className={styles.imageModalContent}>
+                        {expandedImageList.length > 1 && (
+                            <>
+                                <button
+                                    type="button"
+                                    className={`${styles.imageNavButton} ${styles.imageNavPrev}`}
+                                    onClick={goToPreviousImage}
+                                    aria-label="Imagen anterior"
+                                >
+                                    <span className="material-icons">chevron_left</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`${styles.imageNavButton} ${styles.imageNavNext}`}
+                                    onClick={goToNextImage}
+                                    aria-label="Siguiente imagen"
+                                >
+                                    <span className="material-icons">chevron_right</span>
+                                </button>
+                            </>
+                        )}
+                        <button
+                            type="button"
+                            className={styles.imageModalClose}
+                            onClick={closeImageModal}
+                            aria-label="Cerrar"
+                        >
+                            <span className="material-icons">close</span>
+                        </button>
+                        <img
+                            src={activeExpandedImage.src}
+                            alt={activeExpandedImage.alt}
+                            className={styles.imageModalImage}
+                        />
+                    </div>
+                </div>,
+                document.body
+            )}
+
             {showDeleteConfirm && (
                 <div className={styles.deleteModal}>
                     <div className={styles.modalContent}>

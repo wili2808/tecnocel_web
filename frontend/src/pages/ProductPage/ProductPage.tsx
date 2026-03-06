@@ -131,6 +131,16 @@ const ProductPage: React.FC = () => {
                                     />
                                 </div>
                             )}
+                            <div className={styles.favoriteBadgeWrap}>
+                                <FavoriteButtonReusable
+                                    productId={product.id_producto}
+                                    productName={product.nombre}
+                                    size="medium"
+                                    showText={false}
+                                    position="absolute"
+                                    variant="outlined"
+                                />
+                            </div>
                             <ProductImage
                                 images={product.imagenes || []}
                                 defaultImage={product.imagen_url}
@@ -142,17 +152,6 @@ const ProductPage: React.FC = () => {
 
                     {/* Columna derecha — info + acciones */}
                     <div className={styles.detailColumn}>
-                        <div className={styles.detailTopBar}>
-                            <FavoriteButtonReusable
-                                productId={product.id_producto}
-                                productName={product.nombre}
-                                size="medium"
-                                showText={false}
-                                position="static"
-                                variant="outlined"
-                            />
-                        </div>
-
                         <ProductInfo product={product} />
 
                         <div className={styles.actionsWrap}>
@@ -194,4 +193,3 @@ const ProductPage: React.FC = () => {
 };
 
 export default ProductPage;
-

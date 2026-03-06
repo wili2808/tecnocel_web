@@ -21,6 +21,8 @@ const ProductImage: React.FC<ProductImageProps> = ({
     className,
     mode = 'simple'
 }) => {
+    const isSimpleMode = mode === 'simple';
+    const isGalleryMode = mode === 'gallery';
     const [currentIndex, setCurrentIndex] = useState(0);
     const [imageError, setImageError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +74,9 @@ const ProductImage: React.FC<ProductImageProps> = ({
     return (
         <div className={`${styles.imageContainer} ${className || ''}`}>
             {/* Imagen principal */}
-            <div className={styles.mainImageContainer}>
+            <div
+                className={`${styles.mainImageContainer} ${isSimpleMode ? styles.simpleMainImageContainer : ''} ${isGalleryMode ? styles.galleryMainImageContainer : ''}`}
+            >
                 {isLoading && (
                     <div className={styles.loadingOverlay}>
                         <div className={styles.loadingSpinner} />
@@ -115,7 +119,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
                         <button
                             key={idx}
                             role="listitem"
-                            className={`${styles.thumbnailButton} ${idx === currentIndex ? styles.thumbnailActive : ''}`}
+                            className={`${styles.thumbnailButton} ${isGalleryMode ? styles.galleryThumbnailButton : ''} ${idx === currentIndex ? styles.thumbnailActive : ''}`}
                             onClick={() => handleThumbnailClick(idx)}
                             aria-label={`Ver imagen ${idx + 1}`}
                             aria-current={idx === currentIndex ? 'true' : undefined}

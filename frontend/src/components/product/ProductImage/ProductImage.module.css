@@ -190,3 +190,30 @@
 
   .navButton:active { transform: translateY(-50%); }
 }
+
+
+/* Variante simple para tarjetas: fondo blanco sin marco gris */
+.simpleMainImageContainer {
+  background-color: #fff;
+  border: none;
+  border-radius: 0;
+}
+
+.simpleMainImageContainer .loadingOverlay {
+  background-color: #fff;
+}
+
+
+/* Variante gallery para ProductPage: fondo blanco en principal y miniaturas */
+.galleryMainImageContainer {
+  background-color: #fff;
+}
+
+.galleryMainImageContainer .loadingOverlay {
+  background-color: #fff;
+}
+
+.galleryThumbnailButton {
+  background-color: #fff;
+}
+

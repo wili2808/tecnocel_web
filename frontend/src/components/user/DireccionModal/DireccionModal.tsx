@@ -402,7 +402,7 @@ const DireccionModal = ({ isOpen, onClose, onSave, direccion, title }: Direccion
                         >
                             {loading ? (
                                 <>
-                                    <LoadingSpinner />
+                                    <LoadingSpinner size="sm" className={styles.buttonSpinner} />
                                     Guardando...
                                 </>
                             ) : (
@@ -417,3 +417,4 @@ const DireccionModal = ({ isOpen, onClose, onSave, direccion, title }: Direccion
 };
 
 export default DireccionModal;
+

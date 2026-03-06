@@ -23,6 +23,42 @@ interface NuevoTipoForm {
   opciones_seleccion: string[];
 }
 
+const normalizeOpcionesSeleccion = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string');
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+
+    // Admite payload JSON serializado en BD/API: '["Android","iOS"]'
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((item): item is string => typeof item === 'string');
+        }
+      } catch {
+        // Fallback: sigue abajo para tratarlo como string simple
+      }
+    }
+
+    // Fallback tolerante: "Android, iOS"
+    return trimmed
+      .split(',')
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const normalizeTipo = (tipo: TipoCaracteristica): TipoCaracteristica => ({
+  ...tipo,
+  opciones_seleccion: normalizeOpcionesSeleccion(tipo.opciones_seleccion),
+});
+
 const INITIAL_NUEVO_TIPO: NuevoTipoForm = {
   nombre_tipo: '',
   descripcion: '',
@@ -58,7 +94,7 @@ const ProductoCaracteristicas = ({
   const cargarTipos = useCallback(async () => {
     try {
       const data = await adminProductService.obtenerTiposCaracteristicas();
-      setTipos(data);
+      setTipos(data.map(normalizeTipo));
     } catch {
       showNotification('Error al cargar tipos de características', 'error');
     }
@@ -70,7 +106,8 @@ const ProductoCaracteristicas = ({
       try {
         setLoading(true);
         const tiposData = await adminProductService.obtenerTiposCaracteristicas();
-        setTipos(tiposData);
+        const tiposNormalizados = tiposData.map(normalizeTipo);
+        setTipos(tiposNormalizados);
 
         // En modo editar, cargar características existentes del producto
         if (modo === 'editar' && idProducto) {
@@ -83,7 +120,7 @@ const ProductoCaracteristicas = ({
               nombre_tipo: c.tipo!.nombre_tipo,
               tipo_dato: c.tipo!.tipo_dato,
               unidad_medida: c.tipo!.unidad_medida,
-              opciones_seleccion: c.tipo!.opciones_seleccion,
+              opciones_seleccion: normalizeOpcionesSeleccion(c.tipo!.opciones_seleccion),
             }));
           onCaracteristicasChange(caracLocales);
         }
@@ -583,5 +620,6 @@ const ProductoCaracteristicas = ({
 };
 
 export default ProductoCaracteristicas;
+
 
 

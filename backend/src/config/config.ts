@@ -8,6 +8,8 @@ const IMAGES_BASE_PATH = process.env.IMAGES_BASE_PATH || 'C:/xampp/htdocs/tecnoc
 const PRODUCT_IMAGES_PATH = process.env.PRODUCT_IMAGES_PATH || path.join(IMAGES_BASE_PATH, 'products');
 const COMMENT_IMAGES_PATH = process.env.COMMENT_IMAGES_PATH || path.join(IMAGES_BASE_PATH, 'comments');
 
+const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+
 export const config = {
   database: {
     name: process.env.DB_NAME || 'db_tecnocel_v4',
@@ -35,14 +37,24 @@ export const config = {
     // Configuración general
     baseUrl: process.env.BASE_URL || 'http://localhost',
     endpoint: process.env.IMAGES_ENDPOINT || '',
-    
+    useCloudinary: USE_CLOUDINARY,
+
     // Rutas de directorios
     basePath: IMAGES_BASE_PATH,
     productImagesPath: PRODUCT_IMAGES_PATH,
     commentImagesPath: COMMENT_IMAGES_PATH,
-    
+
     // Imágenes por defecto
     defaultProductImage: process.env.DEFAULT_PRODUCT_IMAGE || 'default-product.png',
-    defaultCommentImage: process.env.DEFAULT_COMMENT_IMAGE || 'default-comment.png'
+    defaultCommentImage: process.env.DEFAULT_COMMENT_IMAGE || 'default-comment.png',
+
+    // Cloudinary
+    cloudinary: {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+      apiKey: process.env.CLOUDINARY_API_KEY || '',
+      apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+      productFolder: process.env.CLOUDINARY_PRODUCT_FOLDER || 'tecnocel/productos',
+      commentFolder: process.env.CLOUDINARY_COMMENT_FOLDER || 'tecnocel/comentarios'
+    }
   }
 };

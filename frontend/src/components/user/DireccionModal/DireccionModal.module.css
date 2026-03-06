@@ -335,3 +335,14 @@
   .modal { animation: none; }
   .btnPrimary, .btnSecondary { transition: none; }
 }
+
+
+.buttonSpinner {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+}
+

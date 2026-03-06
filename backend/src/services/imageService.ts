@@ -18,6 +18,7 @@ interface ImageServiceConfig {
   defaultProductImage: string;
   defaultCommentImage: string;
   endpoint: string;
+  useCloudinary?: boolean;
 }
 
 interface ImageInfo {
@@ -42,6 +43,10 @@ class ImageService {
    * Asegura que los directorios de imágenes existan
    */
   private ensureDirectoriesExist(): void {
+    if (this.config.useCloudinary) {
+      return;
+    }
+
     const directories = [
       this.config.basePath,
       this.config.productImagesPath,
@@ -96,6 +101,10 @@ class ImageService {
       return this.getDefaultImageUrl(imageType);
     }
 
+    if (/^https?:\/\//i.test(imageName)) {
+      return imageName;
+    }
+
     if (!this.isValidImageName(imageName)) {
       logger.warn(`Nombre de imagen inválido detectado: ${imageName}`);
       return this.getDefaultImageUrl(imageType);
@@ -110,6 +119,9 @@ class ImageService {
    */
   private getDefaultImageUrl(imageType: ImageType): string {
     const defaultImage = this.getDefaultImage(imageType);
+    if (/^https?:\/\//i.test(defaultImage)) {
+      return defaultImage;
+    }
     const endpoint = imageType === ImageType.COMMENT ? 'comment-images' : 'images';
     return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/${endpoint}/${defaultImage}`;
   }
@@ -147,7 +159,15 @@ class ImageService {
    * Verifica si un archivo de imagen existe físicamente
    */
   public imageExists(imageName: string, imageType: ImageType = ImageType.PRODUCT): boolean {
-    if (!imageName || !this.isValidImageName(imageName)) {
+    if (!imageName) {
+      return false;
+    }
+
+    if (/^https?:\/\//i.test(imageName)) {
+      return true;
+    }
+
+    if (!this.isValidImageName(imageName)) {
       return false;
     }
 
@@ -317,6 +337,10 @@ class ImageService {
    * Valida la configuración del servicio
    */
   public validateConfiguration(): boolean {
+    if (this.config.useCloudinary) {
+      return true;
+    }
+
     const directories = [
       this.config.basePath,
       this.config.productImagesPath,
@@ -366,6 +390,10 @@ class ImageService {
     };
 
     try {
+      if (this.config.useCloudinary) {
+        return stats;
+      }
+
       // Contar imágenes de productos
       const productFiles = fs.readdirSync(this.config.productImagesPath);
       const productImages = productFiles.filter(file => {
@@ -563,6 +591,9 @@ class ImageService {
    */
   public async cleanOrphanImages(): Promise<number> {
     try {
+      if (this.config.useCloudinary) {
+        return 0;
+      }
       const allFiles = fs.readdirSync(this.config.productImagesPath);
       let deletedCount = 0;
 
@@ -645,3 +676,6 @@ export function getImageService(): ImageService | null {
 }
 
 export default ImageService;
+
+
+
