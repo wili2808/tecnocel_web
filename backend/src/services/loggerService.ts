@@ -57,51 +57,56 @@ const createLogger = (): winston.Logger => {
     })
   );
 
-  // Configurar transports con rotación semanal
-  const transports: winston.transport[] = [
-    // Logs de error
-    new winston.transports.File({
-      filename: path.join(__dirname, '../logs/error.log'),
-      level: 'error',
-      maxsize: 10485760, // 10MB
-      maxFiles: 7,
-      format: customFormat,
-      tailable: true
-    }),
-    // Logs de API y operaciones
-    new winston.transports.File({
-      filename: path.join(__dirname, '../logs/api.log'),
-      maxsize: 10485760, // 10MB
-      maxFiles: 7,
-      format: customFormat,
-      tailable: true
-    })
-  ];
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  // Agregar transport Console solo en desarrollo
-  if (process.env.NODE_ENV !== 'production') {
+  const transports: winston.transport[] = [];
+
+  if (isProduction) {
+    // En producción: solo stdout en JSON estructurado (Render lo captura en su dashboard)
     transports.push(new winston.transports.Console({
       format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          // Para requests de API en consola
-          if (meta.method && meta.path) {
-            return `${timestamp} ${level} | ${meta.method} ${meta.path} | Status: ${meta.statusCode} | ${meta.duration}`;
-          }
-          
-          // Para logs normales en consola
-          let logMessage = `${timestamp} ${level} | ${message}`;
-          if (Object.keys(meta).length > 0) {
-            // Omitir userAgent en consola para mayor claridad
-            const { userAgent, ...relevantMeta } = meta;
-            if (Object.keys(relevantMeta).length > 0) {
-              logMessage += ` | ${JSON.stringify(relevantMeta)}`;
-            }
-          }
-          return logMessage;
-        })
+        winston.format.timestamp(),
+        winston.format.errors({ stack: true }),
+        winston.format.json()
       )
     }));
+  } else {
+    // En desarrollo: archivos locales + consola coloreada
+    transports.push(
+      new winston.transports.File({
+        filename: path.join(__dirname, '../logs/error.log'),
+        level: 'error',
+        maxsize: 10485760, // 10MB
+        maxFiles: 7,
+        format: customFormat,
+        tailable: true
+      }),
+      new winston.transports.File({
+        filename: path.join(__dirname, '../logs/api.log'),
+        maxsize: 10485760, // 10MB
+        maxFiles: 7,
+        format: customFormat,
+        tailable: true
+      }),
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.colorize(),
+          winston.format.printf(({ timestamp, level, message, ...meta }) => {
+            if (meta.method && meta.path) {
+              return `${timestamp} ${level} | ${meta.method} ${meta.path} | Status: ${meta.statusCode} | ${meta.duration}`;
+            }
+            let logMessage = `${timestamp} ${level} | ${message}`;
+            if (Object.keys(meta).length > 0) {
+              const { userAgent, ...relevantMeta } = meta;
+              if (Object.keys(relevantMeta).length > 0) {
+                logMessage += ` | ${JSON.stringify(relevantMeta)}`;
+              }
+            }
+            return logMessage;
+          })
+        )
+      })
+    );
   }
 
   // Crear la instancia del logger

@@ -215,8 +215,15 @@ const AdminPanel = () => {
       <div className={adminPanelStyles.container}>
         {/* Sidebar del panel con navegación e información del usuario */}
         <aside className={adminPanelStyles.sidebar}>
-          {/* Encabezado del sidebar con botón de retorno */}
+          {/* Encabezado del sidebar con marca y botón de retorno */}
           <div className={adminPanelStyles.sidebarHeader}>
+            <div className={adminPanelStyles.sidebarBrand}>
+              <span className={`material-icons ${adminPanelStyles.brandIcon}`}>admin_panel_settings</span>
+              <div className={adminPanelStyles.brandText}>
+                <span className={adminPanelStyles.brandName}>TecnoCel</span>
+                <span className={adminPanelStyles.brandSub}>Admin</span>
+              </div>
+            </div>
             <button
               className={adminPanelStyles.backButton}
               onClick={handleBackToHome}

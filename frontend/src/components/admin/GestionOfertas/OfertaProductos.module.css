@@ -3,7 +3,7 @@
    ============================================================================ */
 
 .container {
-  margin-top: var(--spacing-xl);
+  margin-top: 20px;
 }
 
 /* ============================================================================
@@ -14,45 +14,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 14px;
 }
 
 .title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  letter-spacing: -0.25px;
+  gap: 7px;
 }
 
 .title .material-icons {
   color: var(--color-primary);
+  font-size: 18px;
 }
 
 .addButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  gap: 6px;
+  padding: 7px 14px;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 .addButton:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.addButton:active {
   background-color: var(--color-primary-dark);
 }
 
@@ -69,31 +66,32 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--background-light);
-  font-size: var(--font-size-sm);
+  background: var(--background-primary);
+  font-size: 13px;
 }
 
 .table thead {
-  background-color: var(--background-neutral);
+  background: var(--background-neutral);
 }
 
 .table th {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 12px;
   text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border-color);
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
 .table td {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
+  font-size: 13px;
 }
 
 .table tbody tr {
@@ -113,11 +111,12 @@
   color: var(--text-secondary);
   font-style: italic;
   padding: var(--spacing-xl) var(--spacing-md);
+  font-size: 13px;
 }
 
 .thumbnailWrapper {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--border-radius-sm);
   overflow: hidden;
   background-color: var(--background-neutral);
@@ -140,42 +139,43 @@
 }
 
 .thumbnailPlaceholder .material-icons {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .codigoCell {
   font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
 .precioCell {
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .personalizadoBadge {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 2px 8px;
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   background-color: var(--color-info-100);
   color: var(--color-info);
 }
 
 .calculadoBadge {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 2px 8px;
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   background-color: var(--background-neutral);
   color: var(--text-secondary);
 }
 
 .removeButton {
-  padding: var(--spacing-xs);
+  padding: 5px;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -196,7 +196,7 @@
 }
 
 .removeButton .material-icons {
-  font-size: var(--font-size-md);
+  font-size: 16px;
 }
 
 /* ============================================================================
@@ -206,7 +206,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   z-index: var(--z-modal);
   display: flex;
   align-items: center;
@@ -217,13 +217,13 @@
 .modal {
   background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
-  padding: var(--spacing-xl);
-  max-width: 750px;
+  padding: 20px 24px;
+  max-width: 700px;
   width: 100%;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
 }
 
@@ -231,27 +231,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-md);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .modalTitle {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 7px;
 }
 
 .modalTitle .material-icons {
   color: var(--color-primary);
+  font-size: 18px;
 }
 
 .closeButton {
-  padding: var(--spacing-xs);
+  padding: 5px;
   background: none;
   border: none;
   border-radius: var(--border-radius-sm);
@@ -273,29 +274,30 @@
   align-items: center;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  background-color: var(--background-light);
-  padding: 0 var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  background-color: var(--background-primary);
+  padding: 0 12px;
+  margin-bottom: 14px;
   transition: border-color var(--transition-fast) var(--transition-curve),
               box-shadow var(--transition-fast) var(--transition-curve);
 }
 
 .modalSearch:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 .modalSearch .material-icons {
   color: var(--text-secondary);
-  font-size: var(--font-size-lg);
+  font-size: 18px;
 }
 
 .modalSearchInput {
   flex: 1;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 7px 10px;
   border: none;
   background: none;
-  font-size: var(--font-size-sm);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
   color: var(--text-primary);
   outline: none;
 }
@@ -303,23 +305,24 @@
 .modalBody {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 14px;
 }
 
 .loadingSmall {
   text-align: center;
   padding: var(--spacing-lg);
   color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .productoItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: 12px;
+  padding: 8px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 6px;
   transition: background-color var(--transition-fast) var(--transition-curve),
               border-color var(--transition-fast) var(--transition-curve);
 }
@@ -334,8 +337,8 @@
 }
 
 .productoCheckbox {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   cursor: pointer;
   accent-color: var(--color-primary);
   flex-shrink: 0;
@@ -347,7 +350,8 @@
 }
 
 .productoNombre {
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -355,25 +359,28 @@
 }
 
 .productoCodigo {
-  font-size: var(--font-size-sm);
+  font-size: 12px;
   color: var(--text-secondary);
   font-family: var(--font-family-mono);
 }
 
 .productoPrecio {
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .precioOfertaInput {
   width: 100px;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 5px 8px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
-  background-color: var(--background-light);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
+  background-color: var(--background-primary);
   color: var(--text-primary);
   text-align: right;
   flex-shrink: 0;
@@ -389,43 +396,45 @@
 
 .precioOfertaInput::placeholder {
   color: var(--text-secondary);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
 }
 
 .emptySearch {
   text-align: center;
   padding: var(--spacing-xl);
   color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .modalFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: var(--spacing-lg);
+  padding: 12px 0 0;
   border-top: 1px solid var(--border-color);
-  background-color: var(--background-light);
-  margin: 0 calc(-1 * var(--spacing-xl));
-  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--background-secondary);
+  margin: 0 -24px -20px;
+  padding: 12px 24px;
   border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
 }
 
 .seleccionInfo {
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
 .asignarButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  gap: 6px;
+  padding: 7px 14px;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve);
 }
@@ -446,13 +455,13 @@
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 10px;
     align-items: flex-start;
   }
 
   .modal {
     max-height: 90vh;
-    padding: var(--spacing-lg);
+    padding: 16px;
   }
 
   .productoItem {
@@ -465,9 +474,9 @@
 
   .modalFooter {
     flex-direction: column;
-    gap: var(--spacing-md);
-    margin: 0 calc(-1 * var(--spacing-lg));
-    padding: var(--spacing-md) var(--spacing-lg);
+    gap: 10px;
+    margin: 0 -16px -16px;
+    padding: 12px 16px;
   }
 
   .asignarButton {
@@ -477,6 +486,13 @@
 
   .table th,
   .table td {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: 7px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }

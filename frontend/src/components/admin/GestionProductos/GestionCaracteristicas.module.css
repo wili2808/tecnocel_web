@@ -11,28 +11,28 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-lg);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .panelTitle {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 3px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 7px;
 }
 
 .panelTitle .material-icons {
   color: var(--color-primary);
-  font-size: var(--font-size-2xl);
+  font-size: 18px;
 }
 
 .panelSubtitle {
-  font-size: var(--font-size-sm);
+  font-size: 12px;
   color: var(--text-secondary);
   margin: 0;
 }
@@ -40,14 +40,15 @@
 .addButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  gap: 6px;
+  padding: 7px 14px;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
@@ -71,43 +72,43 @@
   overflow-x: auto;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 20px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--background-light);
-  font-size: var(--font-size-sm);
+  background: var(--background-primary);
+  font-size: 13px;
 }
 
 .table thead {
-  background-color: var(--background-neutral);
+  background: var(--background-neutral);
 }
 
 .th {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 12px;
   text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border-color);
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
 .sortableHeader {
   cursor: pointer;
   user-select: none;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 12px;
   text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border-color);
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
@@ -118,11 +119,11 @@
 .sortableHeaderContent {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .sortIcon {
-  font-size: var(--font-size-sm) !important;
+  font-size: 14px !important;
   opacity: 0.3;
   transition: opacity var(--transition-fast), color var(--transition-fast);
 }
@@ -137,10 +138,11 @@
 }
 
 .td {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
+  font-size: 13px;
 }
 
 .table tbody tr:last-child .td {
@@ -165,7 +167,7 @@
 
 .confirmText {
   color: var(--text-primary);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
 }
 
 .emptyMessage {
@@ -173,6 +175,7 @@
   color: var(--text-secondary);
   font-style: italic;
   padding: var(--spacing-xl) var(--spacing-md);
+  font-size: 13px;
 }
 
 .emptyValue {
@@ -185,12 +188,13 @@
 
 .tipoNombre {
   display: block;
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
+  font-size: 13px;
 }
 
 .tipoDescripcion {
   display: block;
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   color: var(--text-secondary);
   margin-top: 2px;
 }
@@ -201,41 +205,41 @@
 
 .tipoDatoBadge {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 2px 8px;
   background-color: var(--color-primary-100);
   color: var(--color-primary);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .unidadBadge {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 2px 8px;
   background-color: var(--background-neutral);
   color: var(--text-secondary);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
 }
 
 .badgeActivo {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 2px 8px;
   background-color: var(--color-success-100);
   color: var(--color-success);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .badgeInactivo {
   display: inline-block;
-  padding: 2px var(--spacing-sm);
+  padding: 2px 8px;
   background-color: var(--color-error-100);
   color: var(--color-error);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .opcionesList {
@@ -250,7 +254,7 @@
   background-color: var(--background-neutral);
   color: var(--text-secondary);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
 }
 
 .opcionChipMore {
@@ -259,8 +263,8 @@
   background-color: var(--color-primary-100);
   color: var(--color-primary);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 /* ============================================================================
@@ -269,7 +273,7 @@
 
 .rowActions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 5px;
 }
 
 .actionBtn {
@@ -287,7 +291,7 @@
 }
 
 .actionBtn .material-icons {
-  font-size: var(--font-size-md);
+  font-size: 16px;
 }
 
 .actionBtn:disabled {
@@ -329,28 +333,28 @@
 .formPanel {
   border: 1px solid var(--color-primary);
   border-radius: var(--border-radius-md);
-  background-color: var(--background-light);
-  padding: var(--spacing-xl);
+  background-color: var(--background-secondary);
+  padding: 16px 20px;
 }
 
 .formTitle {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-lg) 0;
+  margin: 0 0 14px;
 }
 
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .formGroupFull {
@@ -358,20 +362,21 @@
 }
 
 .label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
 
 .input {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 7px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
   color: var(--text-primary);
-  background-color: var(--background-light);
+  background-color: var(--background-primary);
   outline: none;
   transition: border-color var(--transition-fast);
 }
@@ -382,12 +387,13 @@
 }
 
 .select {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 7px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
   color: var(--text-primary);
-  background-color: var(--background-light);
+  background-color: var(--background-primary);
   outline: none;
   cursor: pointer;
   transition: border-color var(--transition-fast);
@@ -402,7 +408,7 @@
 
 .opcionesInput {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 6px;
 }
 
 .opcionesInput .input {
@@ -410,7 +416,7 @@
 }
 
 .addOpcionBtn {
-  padding: var(--spacing-sm);
+  padding: 7px 10px;
   background-color: var(--color-primary);
   color: white;
   border: none;
@@ -433,19 +439,19 @@
 .opcionesChips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
+  gap: 5px;
+  margin-top: 6px;
 }
 
 .opcionChipEditable {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px var(--spacing-sm);
+  padding: 2px 8px;
   background-color: var(--color-primary-100);
   color: var(--color-primary);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
+  font-size: 11px;
 }
 
 .removeOpcionBtn {
@@ -471,17 +477,18 @@
 
 .formActions {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 8px;
 }
 
 .saveButton {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: 7px 14px;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
@@ -496,21 +503,22 @@
 }
 
 .cancelButton {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: 7px 14px;
   background: none;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast),
-              color var(--transition-fast);
+              border-color var(--transition-fast);
 }
 
 .cancelButton:hover:not(:disabled) {
-  background-color: var(--background-neutral);
-  color: var(--text-primary);
+  background-color: var(--background-hover);
+  border-color: var(--text-secondary);
 }
 
 .cancelButton:disabled {
@@ -526,7 +534,7 @@
   padding: var(--spacing-2xl);
   text-align: center;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
 }
 
 /* ============================================================================
@@ -540,7 +548,7 @@
 
   .th,
   .td {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: 7px 10px;
   }
 
   .formGrid {

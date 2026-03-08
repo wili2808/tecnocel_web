@@ -85,6 +85,7 @@ export interface ProductoImagen {
  */
 export interface ImageData {
   url: string;
+  url_imagen?: string;
   alt_text?: string | null;
   es_principal: boolean;
   orden: number;

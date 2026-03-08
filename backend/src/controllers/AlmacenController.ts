@@ -15,6 +15,7 @@ import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
 import { enriquecerProductoConOferta } from '../services/ofertaService.js';
+import { deleteCloudinaryByPublicId, extractCloudinaryPublicId, isCloudinaryConfigured } from '../services/cloudinaryService.js';
 
 /**
  * Controlador para gestión del catálogo de productos del almacén
@@ -443,9 +444,33 @@ class AlmacenController {
 
       // Actualizar imágenes si se proporcionaron
       if (Array.isArray(imagenes)) {
-        await ProductoImagen.destroy({
-          where: { id_producto: id }
+        // Obtener imágenes actuales para detectar cuáles se eliminaron
+        const imagenesActuales = await ProductoImagen.findAll({
+          where: { id_producto: id },
+          attributes: ['url_imagen']
         });
+
+        const urlsNuevas = new Set(imagenes.map((img: any) => img.url_imagen));
+        const imagenesEliminadas = imagenesActuales.filter(img => !urlsNuevas.has(img.url_imagen));
+
+        // Eliminar de Cloudinary las imágenes que ya no están en la lista
+        if (imagenesEliminadas.length > 0 && isCloudinaryConfigured()) {
+          await Promise.allSettled(
+            imagenesEliminadas.map(img => {
+              const publicId = extractCloudinaryPublicId(img.url_imagen);
+              if (!publicId) return Promise.resolve();
+              return deleteCloudinaryByPublicId(publicId).then(ok => {
+                if (ok) {
+                  logger.info('Imagen eliminada de Cloudinary', { url: img.url_imagen, publicId });
+                } else {
+                  logger.warn('No se pudo eliminar imagen de Cloudinary', { url: img.url_imagen, publicId });
+                }
+              });
+            })
+          );
+        }
+
+        await ProductoImagen.destroy({ where: { id_producto: id } });
 
         if (imagenes.length > 0) {
           const imagenesData = imagenes.map((img: any, index: number) => ({

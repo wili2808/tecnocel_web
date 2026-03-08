@@ -166,6 +166,18 @@ app.use('/api/direcciones', direccionRoutes);
 app.use('/api/ventas', ventaRoutes);
 app.use('/api/reportes', reporteRoutes);
 
+// Sanitizar body antes de loguear (evitar exponer contraseñas/tokens)
+const sanitizeBody = (body: Record<string, any>): Record<string, any> => {
+  const sensitive = ['password', 'contrasena', 'contrasenia', 'token', 'secret', 'authorization'];
+  const result = { ...body };
+  for (const key of Object.keys(result)) {
+    if (sensitive.some(s => key.toLowerCase().includes(s))) {
+      result[key] = '[REDACTED]';
+    }
+  }
+  return result;
+};
+
 // Manejo de errores global
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error('Error no manejado en la aplicación', {
@@ -173,7 +185,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     stack: err.stack,
     path: req.path,
     method: req.method,
-    body: req.body,
+    body: req.body ? sanitizeBody(req.body) : undefined,
     params: req.params,
     query: req.query
   });

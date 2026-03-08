@@ -8,31 +8,31 @@
   justify-content: center;
   padding: var(--spacing-lg);
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
 }
 
 .emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 6px;
   padding: var(--spacing-lg);
   color: var(--text-secondary);
   text-align: center;
 }
 
 .emptyState .material-icons {
-  font-size: 32px;
-  opacity: 0.5;
+  font-size: 28px;
+  opacity: 0.4;
 }
 
 .emptyState p {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: 13px;
 }
 
 .emptyHint {
-  font-size: var(--font-size-xs) !important;
+  font-size: 11px !important;
   opacity: 0.7;
 }
 
@@ -41,15 +41,15 @@
 .ofertasList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 6px;
 }
 
 .ofertaCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: 12px;
+  padding: 10px 14px;
   background-color: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
@@ -57,7 +57,7 @@
 }
 
 .ofertaCard:hover {
-  border-color: var(--color-primary-200);
+  border-color: var(--color-primary-200, rgba(14,165,233,0.3));
 }
 
 .ofertaInfo {
@@ -65,19 +65,19 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .ofertaHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .ofertaNombre {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -86,19 +86,19 @@
 .ofertaDetalles {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
+  gap: 12px;
 }
 
 .detalle {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: var(--font-size-xs);
+  gap: 3px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
 .detalle .material-icons {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* === Estado badges === */
@@ -108,8 +108,8 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -119,8 +119,8 @@
 }
 
 .estadoInactiva {
-  background-color: var(--color-neutral-100);
-  color: var(--color-neutral-600);
+  background-color: var(--background-neutral);
+  color: var(--text-secondary);
 }
 
 .estadoExpirada {
@@ -139,12 +139,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   background: none;
   border: 1px solid transparent;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
   transition: color var(--transition-fast) var(--transition-curve),
@@ -156,11 +156,11 @@
 .removeButton:hover {
   color: var(--color-error);
   background-color: var(--color-error-100);
-  border-color: var(--color-error-200);
+  border-color: var(--color-error);
 }
 
 .removeButton .material-icons {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 /* ============================================================================
@@ -179,6 +179,13 @@
 
   .ofertaDetalles {
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }

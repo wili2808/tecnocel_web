@@ -1,141 +1,153 @@
 /* ============================================================================
-   DASHBOARD ADMIN - Vista principal con estadisticas y acciones rapidas
+   DASHBOARD ADMIN - Strip de estadísticas y acciones rápidas
    ============================================================================ */
 
 .dashboard {
-  padding: var(--spacing-xl);
+  padding: 24px;
   min-height: 100%;
+  background: var(--background-primary);
 }
 
 .header {
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-lg);
+  margin-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  letter-spacing: -0.25px;
+  gap: 8px;
+  letter-spacing: -0.3px;
 }
 
 .title .material-icons {
   color: var(--color-primary);
-  font-size: var(--font-size-2xl);
+  font-size: 20px;
 }
 
 .subtitle {
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
 }
 
-/* === ESTADISTICAS === */
+/* ============================================================================
+   STRIP DE ESTADÍSTICAS - Fila horizontal en lugar de grid de cards
+   ============================================================================ */
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--background-primary);
+  margin-bottom: 24px;
 }
 
 .statCard {
-  background-color: var(--background-light);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-lg);
-  border: 1px solid var(--border-color);
+  padding: 18px 20px;
+  border-right: 1px solid var(--border-color);
   display: flex;
-  gap: var(--spacing-md);
-  transition: box-shadow var(--transition-fast) var(--transition-curve);
+  flex-direction: column;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
+.statCard:last-child {
+  border-right: none;
 }
 
 .statCard:hover {
-  box-shadow: var(--shadow-md);
+  background: var(--background-hover);
 }
 
 .statIcon {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: var(--border-radius-md);
-  background-color: var(--color-primary-100);
+  width: 28px;
+  height: 28px;
   color: var(--color-primary);
+  margin-bottom: 10px;
   flex-shrink: 0;
 }
 
 .statIcon .material-icons {
-  font-size: var(--font-size-2xl);
+  font-size: 20px;
 }
 
 .statInfo {
   flex: 1;
-  min-width: 0;
 }
 
 .statTitle {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.7px;
 }
 
 .statValue {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 28px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 2px 0;
-  line-height: var(--line-height-tight);
+  margin: 0 0 2px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 .statLabel {
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   color: var(--text-muted);
   margin: 0;
 }
 
-/* === ACCIONES RAPIDAS === */
+/* ============================================================================
+   ACCIONES RÁPIDAS
+   ============================================================================ */
 
 .quickActions {
-  margin-top: var(--spacing-xl);
+  margin-top: 0;
 }
 
 .sectionTitle {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-md) 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: var(--font-size-sm);
+  letter-spacing: 0.7px;
+  margin: 0 0 12px;
 }
 
 .actionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .actionButton {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background-color: var(--background-light);
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve),
               color var(--transition-fast) var(--transition-curve),
@@ -143,27 +155,62 @@
 }
 
 .actionButton:hover {
-  background-color: var(--color-primary-100);
+  background: var(--color-primary-50);
   color: var(--color-primary);
   border-color: var(--color-primary-200);
 }
 
 .actionButton .material-icons {
-  font-size: var(--font-size-lg);
+  font-size: 16px;
 }
 
-/* === RESPONSIVE === */
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statCard:nth-child(1),
+  .statCard:nth-child(2) {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .statCard:nth-child(2) {
+    border-right: none;
+  }
+}
 
 @media (max-width: 768px) {
   .dashboard {
-    padding: var(--spacing-lg);
-  }
-
-  .statsGrid {
-    grid-template-columns: 1fr;
+    padding: 16px;
   }
 
   .actionsGrid {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .statCard {
+    padding: 14px 16px;
+  }
+
+  .statValue {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -1,55 +1,57 @@
 /* ============================================================================
-   GESTION CLIENTES - Lista y gestion de clientes de la tienda
+   GESTION CLIENTES - Lista y gestión de clientes de la tienda
    ============================================================================ */
 
 .container {
-  padding: var(--spacing-xl);
+  padding: 20px 24px;
   min-height: 100%;
+  background: var(--background-primary);
 }
 
 .header {
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-lg);
+  margin-bottom: 16px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 4px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  letter-spacing: -0.25px;
+  gap: 8px;
+  letter-spacing: -0.3px;
 }
 
 .title .material-icons {
   color: var(--color-primary);
-  font-size: var(--font-size-2xl);
+  font-size: 20px;
 }
 
 .subtitle {
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
 }
 
-/* === BUSQUEDA === */
+/* === BÚSQUEDA === */
 
 .searchForm {
   display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .searchInput {
   flex: 1;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 7px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  background-color: var(--background-light);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
+  background: var(--background-primary);
   color: var(--text-primary);
   transition: border-color var(--transition-fast) var(--transition-curve),
               box-shadow var(--transition-fast) var(--transition-curve);
@@ -58,26 +60,27 @@
 .searchInput:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 .searchButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-primary);
+  gap: 7px;
+  padding: 7px 14px;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .searchButton:hover {
-  background-color: var(--color-primary-dark);
+  background: var(--color-primary-dark);
 }
 
 /* === ESTADOS === */
@@ -100,19 +103,20 @@
 }
 
 .retryButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-primary);
+  padding: 7px 14px;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-size: 13px;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
 .retryButton:hover {
-  background-color: var(--color-primary-dark);
+  background: var(--color-primary-dark);
 }
 
 /* ============================================================================
@@ -128,23 +132,23 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--background-light);
-  font-size: var(--font-size-sm);
+  background: var(--background-primary);
+  font-size: 13px;
 }
 
 .table thead {
-  background-color: var(--background-neutral);
+  background: var(--background-neutral);
 }
 
 .table th {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 12px;
   text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border-color);
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
@@ -160,11 +164,11 @@
 .sortableHeaderContent {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .sortIcon {
-  font-size: var(--font-size-sm) !important;
+  font-size: 14px !important;
   opacity: 0.3;
   transition: opacity var(--transition-fast), color var(--transition-fast);
 }
@@ -179,9 +183,10 @@
 }
 
 .table td {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
+  font-size: 13px;
 }
 
 .table tbody tr {
@@ -189,7 +194,7 @@
 }
 
 .table tbody tr:hover {
-  background-color: var(--color-primary-25);
+  background: var(--color-primary-25);
 }
 
 .table tbody tr:last-child td {
@@ -201,27 +206,28 @@
   color: var(--text-secondary);
   font-style: italic;
   padding: var(--spacing-xl) var(--spacing-md);
+  font-size: 13px;
 }
 
 /* === BADGES === */
 
 .badge {
   display: inline-block;
-  padding: 3px var(--spacing-sm);
+  padding: 2px 8px;
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .badgeActive {
-  background-color: var(--color-success-100);
+  background: var(--color-success-100);
   color: var(--color-success);
 }
 
 .badgeInactive {
-  background-color: var(--color-error-100);
+  background: var(--color-error-100);
   color: var(--color-error);
 }
 
@@ -229,11 +235,11 @@
 
 .actions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 5px;
 }
 
 .actionButton {
-  padding: 6px;
+  padding: 5px;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -248,7 +254,7 @@
 }
 
 .actionButton:hover:not(:disabled) {
-  background-color: var(--color-primary-100);
+  background: var(--color-primary-100);
   color: var(--color-primary);
   border-color: var(--color-primary);
 }
@@ -262,7 +268,7 @@
 }
 
 .actionButton .material-icons {
-  font-size: var(--font-size-md);
+  font-size: 16px;
 }
 
 /* ============================================================================
@@ -272,7 +278,7 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,9 +289,9 @@
 .modal {
   background: var(--background-elevated);
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 640px;
+  max-width: 600px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -297,23 +303,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
 .modalTitle {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 
 .modalTitle .material-icons {
   color: var(--color-primary);
+  font-size: 18px;
 }
 
 .closeButton {
@@ -323,7 +330,7 @@
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  padding: var(--spacing-xs);
+  padding: 5px;
   border-radius: var(--border-radius-sm);
   transition: color var(--transition-fast) var(--transition-curve),
               background-color var(--transition-fast) var(--transition-curve);
@@ -340,7 +347,7 @@
 }
 
 .modalBody {
-  padding: var(--spacing-xl);
+  padding: 20px;
   overflow-y: auto;
   flex: 1;
 }
@@ -348,11 +355,11 @@
 .modalFooter {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-xl);
+  gap: 8px;
+  padding: 12px 20px;
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
-  background-color: var(--background-light);
+  background: var(--background-secondary);
 }
 
 /* === DETALLE (vista lectura) === */
@@ -360,23 +367,23 @@
 .detalleGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xl);
+  gap: 20px;
 }
 
 .detalleSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 
 .detalleSectionTitle {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.7px;
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-xs) 0;
-  padding-bottom: var(--spacing-xs);
+  margin: 0 0 4px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -384,51 +391,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-md);
-  min-height: 28px;
+  gap: 12px;
+  min-height: 26px;
 }
 
 .detalleLabel {
-  font-size: var(--font-size-sm);
+  font-size: 12px;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
 
 .detalleValue {
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
   text-align: right;
   word-break: break-word;
 }
 
-/* === FORMULARIO EDICION === */
+/* === FORMULARIO EDICIÓN === */
 
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 5px;
 }
 
 .formLabel {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
 .formInput {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 7px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
-  background-color: var(--background-light);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
+  background: var(--background-primary);
   color: var(--text-primary);
   transition: border-color var(--transition-fast) var(--transition-curve),
               box-shadow var(--transition-fast) var(--transition-curve);
@@ -437,19 +445,19 @@
 .formInput:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 .formInput:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: var(--background-disabled);
+  background: var(--background-disabled);
 }
 
 .formDivider {
   height: 1px;
   background: var(--border-color);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 14px;
 }
 
 /* === TOGGLES === */
@@ -457,8 +465,8 @@
 .toggleGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .toggleRow {
@@ -469,23 +477,23 @@
 }
 
 .toggleLabel {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
-  margin: 0 0 2px 0;
+  margin: 0 0 1px;
 }
 
 .toggleDesc {
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   color: var(--text-secondary);
   margin: 0;
 }
 
 .toggle {
   position: relative;
-  width: 44px;
-  height: 24px;
-  border-radius: 12px;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
   border: none;
   cursor: pointer;
   flex-shrink: 0;
@@ -509,16 +517,16 @@
 .toggleKnob {
   position: absolute;
   top: 3px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: left var(--transition-fast);
 }
 
 .toggleOn .toggleKnob {
-  left: 23px;
+  left: 21px;
 }
 
 .toggleOff .toggleKnob {
@@ -530,11 +538,11 @@
 .emailReadonly {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-sm);
+  gap: 8px;
+  font-size: 13px;
   color: var(--text-secondary);
   background: var(--background-neutral);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 7px 12px;
   border-radius: var(--border-radius-md);
   margin: 0;
 }
@@ -549,14 +557,15 @@
 .saveButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  gap: 7px;
+  padding: 7px 14px;
   background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve);
 }
@@ -571,13 +580,14 @@
 }
 
 .cancelButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: 7px 14px;
   background: none;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-family-primary);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve),
               border-color var(--transition-fast) var(--transition-curve);
@@ -599,7 +609,7 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: var(--spacing-lg);
+    padding: 16px;
   }
 
   .searchForm {
@@ -608,7 +618,7 @@
 
   .table th,
   .table td {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: 7px 10px;
   }
 
   .detalleGrid,
@@ -618,5 +628,12 @@
 
   .modal {
     max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }

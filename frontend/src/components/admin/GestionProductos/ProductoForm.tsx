@@ -108,7 +108,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       if (producto.imagenes && producto.imagenes.length > 0) {
         const imagenesExistentes: ImagenPreview[] = producto.imagenes.map((img) => ({
           preview: img.url || '',
-          url_imagen: img.url || '',
+          url_imagen: img.url_imagen || '',
           alt_text: img.alt_text || '',
           es_existente: true,
         }));
@@ -238,11 +238,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       let subidasIndex = 0;
       imagenes.forEach((img) => {
         if (img.es_existente && img.url_imagen) {
-          // Extraer solo el nombre del archivo de la URL completa
-          // La BD guarda el nombre, no la URL (ej: "imagen.webp", no "http://...imagen.webp")
-          const urlParts = img.url_imagen.split('/');
-          const fileName = urlParts[urlParts.length - 1];
-          todasImagenes.push({ url_imagen: fileName, alt_text: img.alt_text });
+          todasImagenes.push({ url_imagen: img.url_imagen, alt_text: img.alt_text });
         } else if (img.file && subidasIndex < imagenesSubidas.length) {
           todasImagenes.push({
             url_imagen: imagenesSubidas[subidasIndex].url_imagen,
@@ -263,7 +259,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           if (!img.es_existente) return true;
           const orig = imagenesOriginales[i];
           if (!orig) return true;
-          return img.alt_text !== (orig.alt_text || '') || img.url_imagen !== orig.url;
+          return img.alt_text !== (orig.alt_text || '') || img.url_imagen !== (orig.url_imagen || '');
         });
 
       const payload: ProductoFormData = {

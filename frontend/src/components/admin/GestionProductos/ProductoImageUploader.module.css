@@ -5,7 +5,7 @@
 .uploader {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 12px;
 }
 
 .dropzone {
@@ -13,8 +13,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xl);
+  gap: 8px;
+  padding: 24px 20px;
   border: 2px dashed var(--border-color);
   border-radius: var(--border-radius-md);
   background-color: var(--background-neutral);
@@ -34,19 +34,19 @@
 }
 
 .dropzone .material-icons {
-  font-size: 40px;
+  font-size: 32px;
   color: var(--text-secondary);
 }
 
 .dropzoneText {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
 
 .dropzoneHint {
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   color: var(--text-secondary);
   margin: 0;
 }
@@ -58,27 +58,27 @@
 .error {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
+  gap: 6px;
+  font-size: 13px;
   color: var(--color-error);
   margin: 0;
 }
 
 .error .material-icons {
-  font-size: var(--font-size-md);
+  font-size: 16px;
 }
 
 .previewGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
 }
 
 .previewCard {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   overflow: hidden;
-  background-color: var(--background-light);
+  background: var(--background-primary);
 }
 
 .previewImageWrapper {
@@ -97,30 +97,31 @@
 
 .principalBadge {
   position: absolute;
-  top: var(--spacing-xs);
-  left: var(--spacing-xs);
-  padding: 2px var(--spacing-sm);
+  top: 6px;
+  left: 6px;
+  padding: 2px 7px;
   background-color: var(--color-primary);
   color: white;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+  font-weight: 600;
   border-radius: var(--border-radius-sm);
 }
 
 .previewActions {
-  padding: var(--spacing-sm);
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 6px;
 }
 
 .altTextInput {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 4px 8px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
-  background-color: var(--background-light);
+  font-size: 12px;
+  font-family: var(--font-family-primary);
+  background-color: var(--background-primary);
   color: var(--text-primary);
   box-sizing: border-box;
   transition: border-color var(--transition-fast) var(--transition-curve);
@@ -133,12 +134,12 @@
 
 .previewButtons {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 5px;
   justify-content: flex-end;
 }
 
 .iconBtn {
-  padding: var(--spacing-xs);
+  padding: 4px;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -170,11 +171,11 @@
 }
 
 .iconBtn .material-icons {
-  font-size: var(--font-size-sm);
+  font-size: 15px;
 }
 
 .imageCount {
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   color: var(--text-secondary);
   margin: 0;
   text-align: center;
@@ -186,10 +187,17 @@
 
 @media (max-width: 768px) {
   .previewGrid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   }
 
   .dropzone {
-    padding: var(--spacing-lg);
+    padding: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }

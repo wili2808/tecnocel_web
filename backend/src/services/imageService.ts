@@ -199,6 +199,7 @@ class ImageService {
       // Transformar imágenes con estructura consistente
       const imagenesTransformadas = imagenes.map(imagen => ({
         url: this.generateImageUrl(imagen.url_imagen, ImageType.PRODUCT),
+        url_imagen: imagen.url_imagen,
         alt_text: imagen.alt_text,
         es_principal: imagen.es_principal,
         orden: imagen.orden,
