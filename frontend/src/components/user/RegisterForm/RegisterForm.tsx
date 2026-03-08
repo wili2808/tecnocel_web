@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useNotification } from "../../../contexts/NotificationContext";
 import Button from "../../common/Button";
+import logo from "../../../assets/tecnocel.svg";
 import styles from "./RegisterForm.module.css";
 import type { RegisterData } from "../../../types/auth";
 
@@ -316,7 +317,7 @@ const RegisterForm = () => {
       <div className={styles.authHeader}>
         <div className={styles.logoContainer}>
           <img
-            src="/src/assets/tecnocel.svg"
+            src={logo}
             alt="Tecnocel Logo"
             className={styles.logo}
           />

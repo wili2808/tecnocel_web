@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import Button from '../../common/Button';
+import logo from '../../../assets/tecnocel.svg';
 import styles from './AuthForm.module.css';
 
 const AuthForm = () => {
@@ -130,7 +131,7 @@ const AuthForm = () => {
       {/* Encabezado integrado con logo y descripción */}
       <div className={styles.authHeader}>
         <div className={styles.logoContainer}>
-          <img src="/src/assets/tecnocel.svg" alt="Tecnocel Logo" className={styles.logo} />
+          <img src={logo} alt="Tecnocel Logo" className={styles.logo} />
         </div>
         <p className={styles.subtitle}>Accede a tu cuenta para continuar</p>
       </div>

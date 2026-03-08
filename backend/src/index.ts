@@ -68,17 +68,28 @@ const {
   endpoint,
   defaultProductImage,
   defaultCommentImage,
-  useCloudinary
+  useCloudinary,
+  cloudinary
 } = config.images;
 
-logger.info('Inicializando servicio de imágenes', {
-  basePath,
-  productImagesPath,
-  commentImagesPath,
-  baseUrl,
-  endpoint,
-  storage: useCloudinary ? 'cloudinary' : 'filesystem'
-});
+// Log diferenciado según el modo de almacenamiento
+if (useCloudinary) {
+  const cloudinaryConfigured = !!(cloudinary.cloudName && cloudinary.apiKey && cloudinary.apiSecret);
+  logger.info('[IMAGE SERVICE] Inicializando en modo CLOUDINARY', {
+    status: cloudinaryConfigured ? '✅ Configurado' : '⚠️ FALTAN CREDENCIALES',
+    cloudName: cloudinary.cloudName ? '***' : 'NO CONFIGURADO',
+    productFolder: cloudinary.productFolder,
+    commentFolder: cloudinary.commentFolder
+  });
+} else {
+  logger.info('[IMAGE SERVICE] Inicializando en modo FILESYSTEM LOCAL', {
+    basePath,
+    productImagesPath,
+    commentImagesPath,
+    baseUrl,
+    staticEndpoint: endpoint || '/api'
+  });
+}
 
 // Configurar middleware de imágenes estáticas
 const imageMiddleware = new StaticImageMiddleware({
@@ -105,11 +116,27 @@ if (useCloudinary || imageMiddleware.validateImagesDirectory()) {
     useCloudinary
   });
   imageServiceInitialized = true;
-  logger.info('Servicio de imágenes inicializado exitosamente', {
-    storage: useCloudinary ? 'cloudinary' : 'filesystem'
-  });
+
+  if (useCloudinary) {
+    logger.info('[IMAGE SERVICE] ✅ Servicio de imágenes ACTIVO: CLOUDINARY', {
+      mode: 'cloudinary',
+      uploads: 'Buffer → Cloudinary CDN',
+      retrieval: 'URLs de Cloudinary desde BD',
+      cdn: 'Servido por CDN global de Cloudinary',
+      cacheControl: '24h'
+    });
+  } else {
+    logger.info('[IMAGE SERVICE] ✅ Servicio de imágenes ACTIVO: FILESYSTEM LOCAL', {
+      mode: 'filesystem',
+      uploads: `Buffer → ${productImagesPath}`,
+      comments: `Buffer → ${commentImagesPath}`,
+      retrieval: 'Middleware estático /api/images/*',
+      storage: 'Disco local (C:/xampp/htdocs)',
+      cacheControl: '24h'
+    });
+  }
 } else {
-  logger.warn('Los directorios de imágenes no están disponibles. El servicio de imágenes no se inicializará.');
+  logger.error('[IMAGE SERVICE] ❌ CRÍTICO: Los directorios de imágenes no están disponibles y Cloudinary no está activo. El servicio de imágenes no se inicializará.');
 }
 
 // Configurar puerto

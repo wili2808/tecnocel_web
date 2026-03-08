@@ -35,8 +35,11 @@ class UploadController {
 
     if (!this.useCloudinary) {
       this.ensureDirectoriesExist();
+      logger.info('[UPLOAD CONTROLLER] ✅ Modo FILESYSTEM: Directorios locales validados');
     } else if (!isCloudinaryConfigured()) {
-      logger.warn('USE_CLOUDINARY=true pero faltan credenciales CLOUDINARY_*.');
+      logger.error('[UPLOAD CONTROLLER] ❌ CRÍTICO: USE_CLOUDINARY=true pero faltan credenciales CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY o CLOUDINARY_API_SECRET');
+    } else {
+      logger.info('[UPLOAD CONTROLLER] ✅ Modo CLOUDINARY: Credenciales válidas, listo para uploads');
     }
   }
 
@@ -188,10 +191,18 @@ class UploadController {
 
       const processedImages = await Promise.all(files.map((file) => this.processCommentImage(file)));
 
-      logger.info('Imágenes de comentario subidas exitosamente', {
-        cantidad: processedImages.length,
-        storage: this.useCloudinary ? 'cloudinary' : this.commentImagesPath
-      });
+      if (this.useCloudinary) {
+        logger.info('[UPLOAD] ✅ Imágenes de comentario subidas a CLOUDINARY', {
+          cantidad: processedImages.length,
+          destino: 'CDN Cloudinary',
+          carpeta: config.images.cloudinary.commentFolder
+        });
+      } else {
+        logger.info('[UPLOAD] ✅ Imágenes de comentario guardadas en FILESYSTEM LOCAL', {
+          cantidad: processedImages.length,
+          destino: this.commentImagesPath
+        });
+      }
 
       res.status(200).json({
         mensaje: 'Imágenes de comentario subidas exitosamente',
@@ -234,11 +245,20 @@ class UploadController {
         files.map((file, index) => this.processProductImage(file, index, productName)),
       );
 
-      logger.info('Imágenes de producto subidas exitosamente', {
-        cantidad: processedImages.length,
-        storage: this.useCloudinary ? 'cloudinary' : this.productImagesPath,
-        productName
-      });
+      if (this.useCloudinary) {
+        logger.info('[UPLOAD] ✅ Imágenes de producto subidas a CLOUDINARY', {
+          cantidad: processedImages.length,
+          destino: 'CDN Cloudinary',
+          carpeta: config.images.cloudinary.productFolder,
+          producto: productName || 'sin nombre'
+        });
+      } else {
+        logger.info('[UPLOAD] ✅ Imágenes de producto guardadas en FILESYSTEM LOCAL', {
+          cantidad: processedImages.length,
+          destino: this.productImagesPath,
+          producto: productName || 'sin nombre'
+        });
+      }
 
       res.status(200).json({
         mensaje: 'Imágenes de producto subidas exitosamente',
@@ -267,7 +287,7 @@ class UploadController {
       const fullPath = path.join(this.commentImagesPath, path.basename(imagePath));
       if (fs.existsSync(fullPath)) {
         await fs.promises.unlink(fullPath);
-        logger.info('Imagen de comentario eliminada', { path: imagePath, directorio: this.commentImagesPath });
+        logger.info('[UPLOAD] Imagen de comentario eliminada (FILESYSTEM)', { archivo: path.basename(imagePath) });
         return true;
       }
       return false;
@@ -288,7 +308,7 @@ class UploadController {
       const fullPath = path.join(this.productImagesPath, path.basename(imagePath));
       if (fs.existsSync(fullPath)) {
         await fs.promises.unlink(fullPath);
-        logger.info('Imagen de producto eliminada', { path: imagePath, directorio: this.productImagesPath });
+        logger.info('[UPLOAD] Imagen de producto eliminada (FILESYSTEM)', { archivo: path.basename(imagePath) });
         return true;
       }
       return false;
@@ -299,11 +319,18 @@ class UploadController {
   };
 
   public cleanOrphanImages = async (): Promise<void> => {
-    logger.info('Función de limpieza de imágenes huérfanas disponible', {
-      storage: this.useCloudinary ? 'cloudinary' : 'filesystem',
-      productImagesPath: this.productImagesPath,
-      commentImagesPath: this.commentImagesPath
-    });
+    if (this.useCloudinary) {
+      logger.info('[UPLOAD] Limpieza de imágenes huérfanas (CLOUDINARY)', {
+        storage: 'cloudinary',
+        nota: 'Se pueden eliminar por públic_id en dashboard de Cloudinary'
+      });
+    } else {
+      logger.info('[UPLOAD] Limpieza de imágenes huérfanas (FILESYSTEM)', {
+        storage: 'filesystem',
+        productImagesPath: this.productImagesPath,
+        commentImagesPath: this.commentImagesPath
+      });
+    }
   };
 
   public getDirectoriesInfo = async (req: Request, res: Response): Promise<void> => {
