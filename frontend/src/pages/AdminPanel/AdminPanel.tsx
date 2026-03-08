@@ -41,7 +41,12 @@ interface MenuOption {
  */
 const MENU_OPTIONS: MenuOption[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { id: 'productos', label: 'Gestión de Productos', icon: 'inventory_2', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR] },
+  {
+    id: 'productos',
+    label: 'Gestión de Productos',
+    icon: 'inventory_2',
+    allowedRoles: [ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR],
+  },
   { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
   { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
   { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
@@ -60,7 +65,7 @@ const MENU_OPTIONS: MenuOption[] = [
 const MenuOptionItem = ({
   option,
   isActive,
-  onClick
+  onClick,
 }: {
   option: MenuOption;
   isActive: boolean;
@@ -86,7 +91,7 @@ const MenuOptionItem = ({
  */
 const ContentSection = ({
   activeSection,
-  onNavigate
+  onNavigate,
 }: {
   activeSection: string;
   onNavigate: (section: string) => void;
@@ -124,11 +129,7 @@ const ContentSection = ({
     }
   };
 
-  return (
-    <div className={adminPanelStyles.contentArea}>
-      {renderContent()}
-    </div>
-  );
+  return <div className={adminPanelStyles.contentArea}>{renderContent()}</div>;
 };
 
 // ============================================================================
@@ -179,10 +180,7 @@ const AdminPanel = () => {
           <div className={adminPanelStyles.contentSection}>
             <h2 className={adminPanelStyles.sectionTitle}>Acceso Denegado</h2>
             <p>Debes iniciar sesión como usuario del sistema para acceder al panel de administración.</p>
-            <button
-              onClick={() => navigate('/admin-login')}
-              className={adminPanelStyles.retryButton}
-            >
+            <button onClick={() => navigate('/admin-login')} className={adminPanelStyles.retryButton}>
               <span className="material-icons">login</span>
               Ir al Login
             </button>
@@ -197,7 +195,7 @@ const AdminPanel = () => {
   const userIdRol = adminUser.idRol;
 
   // Filtrar opciones del menú según el idRol del usuario
-  const filteredMenuOptions = MENU_OPTIONS.filter(option => {
+  const filteredMenuOptions = MENU_OPTIONS.filter((option) => {
     if (!option.allowedRoles) return true;
     return option.allowedRoles.includes(userIdRol);
   });
@@ -224,13 +222,9 @@ const AdminPanel = () => {
                 <span className={adminPanelStyles.brandSub}>Admin</span>
               </div>
             </div>
-            <button
-              className={adminPanelStyles.backButton}
-              onClick={handleBackToHome}
-              aria-label="Volver al inicio"
-            >
+            <button className={adminPanelStyles.backButton} onClick={handleBackToHome} aria-label="Ir a la tienda">
               <span className="material-icons">arrow_back</span>
-              <span>Volver al inicio</span>
+              <span>Ir a la tienda</span>
             </button>
           </div>
 
@@ -249,7 +243,7 @@ const AdminPanel = () => {
           <nav className={adminPanelStyles.sidebarNav}>
             {/* Opciones del menú filtradas por rol */}
             <div className={adminPanelStyles.menuOptions}>
-              {filteredMenuOptions.map(option => (
+              {filteredMenuOptions.map((option) => (
                 <MenuOptionItem
                   key={option.id}
                   option={option}
@@ -261,11 +255,7 @@ const AdminPanel = () => {
 
             {/* Sección de cierre de sesión */}
             <div className={adminPanelStyles.logoutSection}>
-              <button
-                className={adminPanelStyles.logoutButton}
-                onClick={handleLogout}
-                aria-label="Cerrar sesión"
-              >
+              <button className={adminPanelStyles.logoutButton} onClick={handleLogout} aria-label="Cerrar sesión">
                 <span className="material-icons">logout</span>
                 <span>Cerrar Sesión</span>
               </button>

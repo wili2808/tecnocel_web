@@ -15,7 +15,7 @@ const AdminLogin = () => {
 
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +29,9 @@ const AdminLogin = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -106,7 +106,7 @@ const AdminLogin = () => {
                 <button
                   type="button"
                   className={styles.passwordToggle}
-                  onClick={() => setShowPassword(prev => !prev)}
+                  onClick={() => setShowPassword((prev) => !prev)}
                   disabled={loading}
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
@@ -115,11 +115,7 @@ const AdminLogin = () => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={styles.submitButton}
-            >
+            <button type="submit" disabled={loading} className={styles.submitButton}>
               {loading ? (
                 <>
                   <span className="material-icons">hourglass_empty</span>
@@ -135,12 +131,9 @@ const AdminLogin = () => {
           </form>
 
           <div className={styles.footer}>
-            <button
-              onClick={() => navigate('/')}
-              className={styles.backButton}
-            >
+            <button onClick={() => navigate('/')} className={styles.backButton}>
               <span className="material-icons">arrow_back</span>
-              Volver al inicio
+              Ir a la tienda
             </button>
           </div>
         </div>
@@ -149,8 +142,7 @@ const AdminLogin = () => {
           <div className={styles.infoCard}>
             <span className="material-icons">info</span>
             <p>
-              Esta área es exclusiva para administradores y gerentes del sistema.
-              Si eres un cliente, por favor usa el{' '}
+              Esta área es exclusiva para administradores y gerentes del sistema. Si eres un cliente, por favor usa el{' '}
               <button onClick={() => navigate('/login')} className={styles.linkButton}>
                 login de clientes
               </button>

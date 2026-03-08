@@ -59,6 +59,9 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
         products,
         brands,
         categories,
+        selectCategory,
+        selectBrand,
+        clearFilters,
         loadBrands,
         loadCategories,
     } = useProductActions();
@@ -266,8 +269,9 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                 handleHistorySelect(history[activeIndex]);
                 return;
             }
-            // Si no, buscar el texto escrito
+            // Si no, buscar el texto escrito — limpiar filtros de categoria/marca activos
             if (searchQuery) {
+                clearFilters();
                 setSearchQuery(searchQuery, { immediate: true });
                 if (showHistory) addToHistory(searchQuery);
                 navigateToProducts();
@@ -302,15 +306,50 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
 
     /**
      * Seleccionar una sugerencia.
+     * - Categorías y marcas: navegan con filtro por ID (no búsqueda de texto).
+     * - Productos: aplican búsqueda de texto normal.
      * Usa onMouseDown con preventDefault para evitar que el blur del input
      * cierre el dropdown antes de que se registre el click.
      */
     const handleSuggestionSelect = (suggestion: Suggestion) => {
         inputRef.current?.blur();
-        setSearchQuery(suggestion.text, { immediate: true });
         setShowSuggestions(false);
-        navigateToProducts(suggestion.text);
         onSearch?.();
+
+        if (suggestion.type === 'categoria') {
+            const category = categories.find(
+                c => c.nombre_categoria.toLowerCase() === suggestion.text.toLowerCase()
+            );
+            if (category) {
+                clearSearch();        // Elimina el texto escrito del SearchContext
+                clearFilters();       // Limpia filtros activos (marca, busqueda, etc.)
+                selectCategory(category);
+                navigate(`/productos?categoria=${category.id_categoria}`, {
+                    replace: location.pathname === '/productos',
+                });
+                return;
+            }
+        }
+
+        if (suggestion.type === 'marca') {
+            const brand = brands.find(
+                b => b.nombre_marca.toLowerCase() === suggestion.text.toLowerCase()
+            );
+            if (brand) {
+                clearSearch();        // Elimina el texto escrito del SearchContext
+                clearFilters();       // Limpia filtros activos (categoria, busqueda, etc.)
+                selectBrand(brand);
+                navigate(`/productos?marca=${brand.id_marca}`, {
+                    replace: location.pathname === '/productos',
+                });
+                return;
+            }
+        }
+
+        // Producto: texto libre — limpiar filtros de categoria/marca activos
+        clearFilters();
+        setSearchQuery(suggestion.text, { immediate: true });
+        navigateToProducts(suggestion.text);
     };
 
     const getSuggestionIcon = (type: Suggestion['type']) => {
