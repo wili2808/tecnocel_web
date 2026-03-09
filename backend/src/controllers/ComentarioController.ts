@@ -5,9 +5,14 @@ import type {
   ComentarioCreateData,
   ComentarioImagenData,
   GetComentariosQuery,
-  ActualizarComentarioData
+  ActualizarComentarioData,
+  CrearRespuestaClienteBody,
+  CrearRespuestaAdminBody,
+  ModerarComentarioBody,
+  ModerarRespuestaBody
 } from '../types/comentario.types.js';
 import Comentario from '../models/Comentario.js';
+import ComentarioRespuesta from '../models/ComentarioRespuesta.js';
 import ComentarioImagen from '../models/ComentarioImagen.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
@@ -153,6 +158,16 @@ class ComentarioController {
             as: 'adminRespuesta',
             required: false,
             attributes: ['nombres']
+          },
+          {
+            model: ComentarioRespuesta,
+            as: 'respuestas',
+            where: { estado: 'activo' },
+            required: false,
+            include: [
+              { model: Cliente, as: 'clienteAutor', attributes: ['nombre_cliente', 'apellido_cliente'] },
+              { model: Usuario, as: 'usuarioAutor', attributes: ['nombres'] }
+            ]
           }
         ],
         order: orderClause,
@@ -879,6 +894,229 @@ class ComentarioController {
       distribucion_calificaciones: distribucionCalificaciones,
       total_imagenes: totalImagenes
     };
+  }
+
+  async crearRespuestaCliente(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_comentario } = req.params;
+      const { contenido }: CrearRespuestaClienteBody = req.body;
+      const idCliente = req.usuario?.id;
+
+      const comentarioId = parseInt(id_comentario);
+      if (!comentarioId || comentarioId <= 0) {
+        res.status(400).json({ mensaje: 'ID de comentario inválido' });
+        return;
+      }
+
+      if (!idCliente) {
+        res.status(401).json({ mensaje: 'No autenticado' });
+        return;
+      }
+
+      if (!contenido || contenido.trim().length < 1 || contenido.trim().length > 1000) {
+        res.status(400).json({ mensaje: 'El contenido debe tener entre 1 y 1000 caracteres' });
+        return;
+      }
+
+      const comentario = await Comentario.findOne({
+        where: { id_comentario: comentarioId, estado: 'activo' }
+      });
+
+      if (!comentario) {
+        res.status(404).json({ mensaje: 'Comentario no encontrado' });
+        return;
+      }
+
+      const respuesta = await ComentarioRespuesta.create({
+        id_comentario: comentarioId,
+        id_cliente: idCliente,
+        id_usuario: null,
+        tipo_autor: 'cliente',
+        contenido: contenido.trim(),
+        estado: 'activo',
+        fyh_creacion: new Date(),
+        fyh_actualizacion: new Date()
+      });
+
+      const respuestaCompleta = await ComentarioRespuesta.findByPk(respuesta.id_respuesta, {
+        include: [
+          { model: Cliente, as: 'clienteAutor', attributes: ['nombre_cliente', 'apellido_cliente'] }
+        ]
+      });
+
+      logger.info('Respuesta de cliente creada', { id_respuesta: respuesta.id_respuesta, id_comentario: comentarioId });
+
+      res.status(201).json({
+        mensaje: 'Respuesta creada exitosamente',
+        datos: { respuesta: respuestaCompleta?.toJSON() }
+      });
+    } catch (error) {
+      logger.error('Error al crear respuesta de cliente:', { error: error instanceof Error ? error.message : error });
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+  }
+
+  async crearRespuestaAdmin(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_comentario } = req.params;
+      const { contenido }: CrearRespuestaAdminBody = req.body;
+      const idUsuario = req.usuario?.id;
+
+      const comentarioId = parseInt(id_comentario);
+      if (!comentarioId || comentarioId <= 0) {
+        res.status(400).json({ mensaje: 'ID de comentario inválido' });
+        return;
+      }
+
+      if (!idUsuario) {
+        res.status(401).json({ mensaje: 'No autenticado' });
+        return;
+      }
+
+      if (!contenido || contenido.trim().length < 1 || contenido.trim().length > 1000) {
+        res.status(400).json({ mensaje: 'El contenido debe tener entre 1 y 1000 caracteres' });
+        return;
+      }
+
+      const comentario = await Comentario.findByPk(comentarioId);
+      if (!comentario) {
+        res.status(404).json({ mensaje: 'Comentario no encontrado' });
+        return;
+      }
+
+      const respuesta = await ComentarioRespuesta.create({
+        id_comentario: comentarioId,
+        id_cliente: null,
+        id_usuario: idUsuario,
+        tipo_autor: 'admin',
+        contenido: contenido.trim(),
+        estado: 'activo',
+        fyh_creacion: new Date(),
+        fyh_actualizacion: new Date()
+      });
+
+      const respuestaCompleta = await ComentarioRespuesta.findByPk(respuesta.id_respuesta, {
+        include: [
+          { model: Usuario, as: 'usuarioAutor', attributes: ['nombres'] }
+        ]
+      });
+
+      logger.info('Respuesta de admin creada', { id_respuesta: respuesta.id_respuesta, id_comentario: comentarioId, id_usuario: idUsuario });
+
+      res.status(201).json({
+        mensaje: 'Respuesta oficial creada exitosamente',
+        datos: { respuesta: respuestaCompleta?.toJSON() }
+      });
+    } catch (error) {
+      logger.error('Error al crear respuesta de admin:', { error: error instanceof Error ? error.message : error });
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+  }
+
+  async eliminarRespuesta(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_respuesta } = req.params;
+      const idUsuarioActual = req.usuario?.id;
+
+      const respuestaId = parseInt(id_respuesta);
+      if (!respuestaId || respuestaId <= 0) {
+        res.status(400).json({ mensaje: 'ID de respuesta inválido' });
+        return;
+      }
+
+      const respuesta = await ComentarioRespuesta.findByPk(respuestaId);
+      if (!respuesta || respuesta.estado === 'eliminado') {
+        res.status(404).json({ mensaje: 'Respuesta no encontrada' });
+        return;
+      }
+
+      const esPropietario =
+        (respuesta.tipo_autor === 'cliente' && respuesta.id_cliente === idUsuarioActual) ||
+        (respuesta.tipo_autor === 'admin' && respuesta.id_usuario === idUsuarioActual);
+
+      if (!esPropietario) {
+        res.status(403).json({ mensaje: 'No tienes permiso para eliminar esta respuesta' });
+        return;
+      }
+
+      await respuesta.update({ estado: 'eliminado' });
+
+      logger.info('Respuesta eliminada', { id_respuesta: respuestaId });
+      res.status(200).json({ mensaje: 'Respuesta eliminada exitosamente' });
+    } catch (error) {
+      logger.error('Error al eliminar respuesta:', { error: error instanceof Error ? error.message : error });
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+  }
+
+  async moderarComentario(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_comentario } = req.params;
+      const { estado }: ModerarComentarioBody = req.body;
+
+      const comentarioId = parseInt(id_comentario);
+      if (!comentarioId || comentarioId <= 0) {
+        res.status(400).json({ mensaje: 'ID de comentario inválido' });
+        return;
+      }
+
+      if (!['activo', 'oculto', 'eliminado'].includes(estado)) {
+        res.status(400).json({ mensaje: 'Estado inválido. Valores permitidos: activo, oculto, eliminado' });
+        return;
+      }
+
+      const comentario = await Comentario.findByPk(comentarioId);
+      if (!comentario) {
+        res.status(404).json({ mensaje: 'Comentario no encontrado' });
+        return;
+      }
+
+      await comentario.update({ estado, fyh_actualizacion: new Date() });
+
+      logger.info('Comentario moderado', { id_comentario: comentarioId, nuevo_estado: estado, moderador: req.usuario?.id });
+      res.status(200).json({
+        mensaje: `Comentario ${estado === 'oculto' ? 'ocultado' : estado === 'eliminado' ? 'eliminado' : 'restaurado'} exitosamente`,
+        datos: { id_comentario: comentarioId, estado }
+      });
+    } catch (error) {
+      logger.error('Error al moderar comentario:', { error: error instanceof Error ? error.message : error });
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+  }
+
+  async moderarRespuesta(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_respuesta } = req.params;
+      const { estado }: ModerarRespuestaBody = req.body;
+
+      const respuestaId = parseInt(id_respuesta);
+      if (!respuestaId || respuestaId <= 0) {
+        res.status(400).json({ mensaje: 'ID de respuesta inválido' });
+        return;
+      }
+
+      if (!['activo', 'oculto', 'eliminado'].includes(estado)) {
+        res.status(400).json({ mensaje: 'Estado inválido' });
+        return;
+      }
+
+      const respuesta = await ComentarioRespuesta.findByPk(respuestaId);
+      if (!respuesta) {
+        res.status(404).json({ mensaje: 'Respuesta no encontrada' });
+        return;
+      }
+
+      await respuesta.update({ estado });
+
+      logger.info('Respuesta moderada', { id_respuesta: respuestaId, nuevo_estado: estado, moderador: req.usuario?.id });
+      res.status(200).json({
+        mensaje: 'Respuesta moderada exitosamente',
+        datos: { id_respuesta: respuestaId, estado }
+      });
+    } catch (error) {
+      logger.error('Error al moderar respuesta:', { error: error instanceof Error ? error.message : error });
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
   }
 }
 
