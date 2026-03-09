@@ -30,3 +30,19 @@ export interface ActualizarComentarioData {
   imagenes_a_eliminar?: number[];
   imagenes?: ComentarioNuevaImagen[];
 }
+
+export interface CrearRespuestaClienteBody {
+  contenido: string;
+}
+
+export interface CrearRespuestaAdminBody {
+  contenido: string;
+}
+
+export interface ModerarComentarioBody {
+  estado: 'activo' | 'oculto' | 'eliminado';
+}
+
+export interface ModerarRespuestaBody {
+  estado: 'activo' | 'oculto' | 'eliminado';
+}
