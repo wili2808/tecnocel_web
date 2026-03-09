@@ -39,7 +39,8 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
             const response = await commentService.getComentariosProducto(productId, {
                 limite: COMENTARIOS_POR_PAGINA,
                 offset: pagina * COMENTARIOS_POR_PAGINA,
-                orden: nuevoOrden || orden
+                orden: nuevoOrden || orden,
+                incluirOcultos: isSystemUser
             });
 
             setComentarios(response.datos.comentarios);

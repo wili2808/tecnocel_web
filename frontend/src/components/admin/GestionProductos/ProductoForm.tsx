@@ -71,7 +71,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           adminProductService.obtenerCategorias(),
           adminProductService.obtenerMarcas(),
         ]);
-        setCategorias(Array.isArray(cats) ? cats : []);
+        setCategorias(Array.isArray(cats) ? [...cats].sort((a, b) => a.nombre_categoria.localeCompare(b.nombre_categoria, 'es')) : []);
         setMarcas(Array.isArray(mrs) ? mrs : []);
       } catch (err: any) {
         showNotification('Error al cargar categorías y marcas', 'error');
@@ -127,7 +127,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       setSavingCategoria(true);
       const creada = await adminProductService.crearCategoria({ nombre_categoria: nombre });
       const cats = await adminProductService.obtenerCategorias();
-      setCategorias(Array.isArray(cats) ? cats : []);
+      setCategorias(Array.isArray(cats) ? [...cats].sort((a, b) => a.nombre_categoria.localeCompare(b.nombre_categoria, 'es')) : []);
       setFormData((prev) => ({ ...prev, id_categoria: creada.id_categoria }));
       showNotification(`Categoría "${nombre}" creada exitosamente`, 'success');
       setShowNuevaCategoria(false);

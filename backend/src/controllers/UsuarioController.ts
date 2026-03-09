@@ -142,17 +142,20 @@ export default class UsuarioController {
 
       // Generar token JWT
       const token = this.generarTokenJWT(usuario);
-      
+
+      // Registrar fecha/hora del último login
+      await usuario.update({ fyh_ultimo_login: new Date() });
+
       // Responder con token y datos del usuario
       const rolNombre = (usuario as any).Rol?.rol || 'Desconocido';
       const response: AuthUsuarioResponse = {
         token,
         usuario: this.mapearUsuarioResponse(usuario, rolNombre)
       };
-      
+
       res.json(response);
 
-      logger.info('Login de usuario exitoso', { email: usuario.email, id_rol: usuario.id_rol})
+      logger.info('Login de usuario exitoso', { email: usuario.email, id_rol: usuario.id_rol })
     } catch (error) {
       logger.error('Error crítico en login de usuario:', {
         error: error instanceof Error ? error.message : 'Error desconocido',

@@ -14,6 +14,8 @@ export interface GetComentariosQuery {
   limite?: string;
   offset?: string;
   orden?: 'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion';
+  /** Cuando es 'true', incluye comentarios ocultos (solo para administradores) */
+  incluir_ocultos?: string;
 }
 
 export interface ComentarioNuevaImagen {

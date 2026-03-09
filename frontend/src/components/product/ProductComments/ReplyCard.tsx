@@ -3,14 +3,33 @@ import type { Respuesta } from '../../../services/commentService';
 import commentService from '../../../services/commentService';
 import styles from './ReplyCard.module.css';
 
+/**
+ * Props del componente ReplyCard
+ */
 interface ReplyCardProps {
+  /** Objeto de respuesta con datos del autor, contenido y estado */
   respuesta: Respuesta;
+  /** ID del usuario autenticado actualmente, para determinar acciones disponibles */
   currentUserId?: number;
+  /** Si el usuario actual es un administrador o empleado del sistema */
   isSystemUser?: boolean;
+  /** Callback para eliminar la respuesta (soft delete) */
   onDelete: (id: number) => Promise<void>;
+  /** Callback para moderar el estado de la respuesta (solo admins) */
   onModerate?: (id: number, estado: 'activo' | 'oculto' | 'eliminado') => Promise<void>;
 }
 
+/**
+ * Tarjeta individual de respuesta a un comentario de producto
+ *
+ * Renderiza una respuesta con información del autor, fecha y controles de acción.
+ * Las respuestas de administradores se distinguen visualmente con borde y badge de color primario.
+ * Un cliente puede eliminar solo sus propias respuestas; un administrador puede
+ * eliminar y moderar (ocultar/restaurar) cualquier respuesta.
+ *
+ * @param props - Ver ReplyCardProps
+ * @returns Elemento de respuesta con controles de moderación según el rol
+ */
 const ReplyCard: React.FC<ReplyCardProps> = memo(({
   respuesta,
   currentUserId,
@@ -33,6 +52,7 @@ const ReplyCard: React.FC<ReplyCardProps> = memo(({
 
   const fechaFormateada = commentService.formatearFechaComentario(respuesta.fyh_creacion);
 
+  /** Ejecuta la eliminación de la respuesta con confirmación visual de carga */
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -45,6 +65,7 @@ const ReplyCard: React.FC<ReplyCardProps> = memo(({
     }
   };
 
+  /** Cambia el estado de moderación de la respuesta (solo admins) */
   const handleModerate = async (estado: 'activo' | 'oculto' | 'eliminado') => {
     if (!onModerate) return;
     try {

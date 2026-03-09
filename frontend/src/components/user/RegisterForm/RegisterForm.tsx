@@ -474,7 +474,7 @@ const RegisterForm = () => {
             </svg>
           </div>
           <span className={styles.buttonText}>
-            {isLoading ? "Conectando..." : "Continuar con Google"}
+            {isLoading ? "Conectando..." : "Registrarse con Google"}
           </span>
         </Button>
 

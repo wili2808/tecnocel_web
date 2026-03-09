@@ -37,6 +37,7 @@ export interface UsuarioListItem {
   nombres: string;
   email: string;
   id_rol: number;
+  fyh_ultimo_login: Date | null;
   fyh_creacion: Date;
   fyh_actualizacion: Date;
   Rol?: {

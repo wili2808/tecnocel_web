@@ -1,16 +1,16 @@
 .replyList {
-  margin-top: var(--space-3);
+  margin-top: var(--spacing-sm);
 }
 
 .replies {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 4px;
 }
 
 .toggleBtn {
-  margin-left: var(--space-6);
-  margin-top: var(--space-2);
+  margin-left: var(--spacing-lg);
+  margin-top: var(--spacing-xs);
   background: none;
   border: none;
   font-size: var(--font-size-sm);
@@ -27,21 +27,21 @@
 .replyBtn {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
+  gap: 4px;
+  margin-top: var(--spacing-xs);
   background: none;
   border: none;
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
+  padding: 4px var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
   transition: color 0.15s, background-color 0.15s;
 }
 
 .replyBtn:hover {
   color: var(--color-primary);
-  background-color: var(--bg-secondary);
+  background-color: var(--background-secondary);
 }
 
 .replyBtn .material-icons {
@@ -50,7 +50,7 @@
 
 @media (max-width: 480px) {
   .toggleBtn {
-    margin-left: var(--space-4);
+    margin-left: var(--spacing-md);
   }
 }
 

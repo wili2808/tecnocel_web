@@ -62,3 +62,9 @@ database/backups/*.sql
 # .claude/
 # note/
 # CLAUDE.md
+
+# Uploads (imágenes)
+uploads
+
+# ToDo
+TODO.md

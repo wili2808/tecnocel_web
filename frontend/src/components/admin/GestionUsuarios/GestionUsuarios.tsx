@@ -11,7 +11,7 @@ import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../t
 import styles from './GestionUsuarios.module.css';
 import { ROLES } from '../../../constants/roles';
 
-type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha';
+type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha' | 'ultimo_login';
 type SortDir = 'asc' | 'desc';
 
 interface CrearUsuarioFormData {
@@ -282,6 +282,10 @@ const GestionUsuarios = () => {
         case 'fecha':
           valA = a.fyh_creacion ? new Date(a.fyh_creacion).getTime() : 0;
           valB = b.fyh_creacion ? new Date(b.fyh_creacion).getTime() : 0;
+          break;
+        case 'ultimo_login':
+          valA = a.fyh_ultimo_login ? new Date(a.fyh_ultimo_login).getTime() : 0;
+          valB = b.fyh_ultimo_login ? new Date(b.fyh_ultimo_login).getTime() : 0;
           break;
       }
 
@@ -644,13 +648,23 @@ const GestionUsuarios = () => {
                   </span>
                 </span>
               </th>
+              <th className={styles.sortableHeader} onClick={() => handleSort('ultimo_login')}>
+                <span className={styles.sortableHeaderContent}>
+                  Último Login
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ultimo_login' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('ultimo_login')}
+                  </span>
+                </span>
+              </th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {sortedUsuarios.length === 0 ? (
               <tr>
-                <td colSpan={6} className={styles.emptyMessage}>
+                <td colSpan={7} className={styles.emptyMessage}>
                   No hay usuarios registrados
                 </td>
               </tr>
@@ -673,7 +687,12 @@ const GestionUsuarios = () => {
                       {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
                     </span>
                   </td>
-                  <td>{usuario.fyh_creacion ? new Date(usuario.fyh_creacion).toLocaleDateString() : '-'}</td>
+                  <td>{usuario.fyh_creacion ? new Date(usuario.fyh_creacion).toLocaleDateString('es-AR') : '-'}</td>
+                  <td>
+                    {usuario.fyh_ultimo_login
+                      ? new Date(usuario.fyh_ultimo_login).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+                      : <span style={{ color: 'var(--color-text-muted)' }}>Nunca</span>}
+                  </td>
                   <td>
                     <div className={styles.actions}>
                       <button

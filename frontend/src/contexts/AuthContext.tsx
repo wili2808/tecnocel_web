@@ -318,6 +318,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.error('Error en Google OAuth:', error);
       updateState({ error: 'Error al autenticarse con Google' });
     },
+    onNonOAuthError: () => {
+      updateState({ error: 'popup_closed' });
+    },
     scope: 'email profile',
     flow: 'implicit',
   });

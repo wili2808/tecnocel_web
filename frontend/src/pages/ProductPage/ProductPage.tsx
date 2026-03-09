@@ -2,7 +2,7 @@
  * Página ProductPage - Vista detallada de un producto individual
  * Muestra información completa del producto con imágenes, detalles, acciones y comentarios
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductActions } from '../../hooks/useProductActions';
 import ProductImage from '../../components/product/ProductImage';
@@ -27,15 +27,35 @@ const ProductPage: React.FC = () => {
     } = useProductActions();
 
     const [isOutOfStock, setIsOutOfStock] = useState(false);
-    const [hasLoadedProduct, setHasLoadedProduct] = useState<number | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    // Refs para evitar que funciones inestables del contexto causen re-renders en el efecto
+    const loadProductRef = useRef(loadProduct);
+    const forceClearRef = useRef(forceClearProductState);
+    loadProductRef.current = loadProduct;
+    forceClearRef.current = forceClearProductState;
 
+    // Solo se dispara cuando cambia el productId — no depende de funciones del contexto
     useEffect(() => {
-        if (productId > 0 && hasLoadedProduct !== productId) {
-            forceClearProductState();
-            setHasLoadedProduct(productId);
-            loadProduct(productId);
+        if (productId <= 0) return;
+
+        // Cancelar la request anterior si existe
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
         }
-    }, [productId, hasLoadedProduct, loadProduct, forceClearProductState]);
+
+        abortControllerRef.current = new AbortController();
+        const signal = abortControllerRef.current.signal;
+
+        forceClearRef.current();
+        loadProductRef.current(productId, signal);
+
+        // Limpiar al desmontar el componente
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, [productId]);
 
     useEffect(() => {
         return () => {

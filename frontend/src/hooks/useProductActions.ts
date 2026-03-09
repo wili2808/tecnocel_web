@@ -71,8 +71,10 @@ export const useProductActions = () => {
     
     /**
      * Cargar un producto específico por ID
+     * @param id - ID del producto a cargar
+     * @param signal - AbortSignal para cancelar la request (opcional)
      */
-    loadProduct: (id: number) => fetchProduct(id),
+    loadProduct: (id: number, signal?: AbortSignal) => fetchProduct(id, signal),
     
     /**
      * Cargar productos destacados

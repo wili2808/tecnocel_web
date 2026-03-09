@@ -93,6 +93,10 @@ const validateObtenerComentarios = [
     .optional()
     .isIn(['recientes', 'antiguos', 'mejor_calificacion', 'peor_calificacion'])
     .withMessage('Orden no válido. Debe ser: recientes, antiguos, mejor_calificacion o peor_calificacion'),
+  query('incluir_ocultos')
+    .optional()
+    .isIn(['true', 'false', '1', '0'])
+    .withMessage('incluir_ocultos debe ser true o false'),
   handleValidationErrors
 ];
 

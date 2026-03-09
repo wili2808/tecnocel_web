@@ -759,7 +759,7 @@
 
 .moderationActions {
   display: flex;
-  gap: var(--space-1);
+  gap: 4px;
   margin-left: auto;
 }
 
@@ -770,7 +770,7 @@
   border: none;
   cursor: pointer;
   padding: 4px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--border-radius-sm);
   color: var(--text-secondary);
   transition: color 0.15s;
 }
@@ -798,7 +798,7 @@
   background-color: var(--color-warning, #f59e0b);
   color: white;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: var(--border-radius-full);
   font-weight: 600;
   letter-spacing: 0.5px;
 }

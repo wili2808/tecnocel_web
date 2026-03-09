@@ -203,8 +203,8 @@ input[type="password"]::-ms-reveal { display: none !important; }
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: 0.8rem var(--spacing-lg);
-  background: var(--background-primary);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: transparent;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-full);
   font-family: var(--font-family-primary);
@@ -212,18 +212,16 @@ input[type="password"]::-ms-reveal { display: none !important; }
   font-weight: 500;
   color: var(--text-primary);
   cursor: pointer;
+  min-height: 48px;
   transition: border-color var(--transition-fast) var(--transition-curve),
-              background var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve);
+              background var(--transition-fast) var(--transition-curve);
 }
 
 .googleButton:hover:not(:disabled) {
   border-color: var(--color-primary);
-  background: var(--background-hover);
-  transform: translateY(-1px);
+  background: var(--background-primary);
 }
 
-.googleButton:active { transform: translateY(0); }
 .googleButton:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .googleIcon { display: flex; align-items: center; }

@@ -13,7 +13,8 @@
     "switch:local": "node switch-env.js local",
     "switch:aiven": "node switch-env.js aiven",
     "test:images": "node scripts_test/test-image-endpoints.js",
-    "init:logs": "node scripts_test/init-logs-structure.js"
+    "init:logs": "node scripts_test/init-logs-structure.js",
+    "migrate:cloudinary": "npm run build && node dist/scripts/migrateToCloudinary.js"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

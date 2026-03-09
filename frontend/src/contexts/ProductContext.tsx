@@ -124,7 +124,7 @@ interface ProductContextType {
 
   // ACCIONES DE PRODUCTOS
   fetchProducts: (filters?: ProductFilters, page?: number) => Promise<void>;
-  fetchProduct: (id: number) => Promise<void>;
+  fetchProduct: (id: number, signal?: AbortSignal) => Promise<void>;
   fetchFeaturedProducts: (limit?: number) => Promise<void>;
 
   // ACCIONES DE CATEGORÍAS
@@ -710,20 +710,30 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   /**
    * Cargar un producto específico por ID
    * Incluye limpieza del estado y sincronización con ofertas
+   * @param id - ID del producto a cargar
+   * @param signal - AbortSignal para cancelar la request (opcional)
    */
-  const fetchProduct = useCallback(async (id: number) => {
+  const fetchProduct = useCallback(async (id: number, signal?: AbortSignal) => {
     try {
       // Limpieza previa y transición explícita de loading para evitar estados intermedios inconsistentes
       clearProductState();
       dispatch({ type: 'SET_PRODUCTS_LOADING', payload: true });
       dispatch({ type: 'SET_PRODUCTS_ERROR', payload: null });
 
-      const product = await productService.getProductById(id);
+      const product = await productService.getProductById(id, signal);
       const productWithOffers = syncProductsWithOffers([product])[0];
 
       dispatch({ type: 'SET_CURRENT_PRODUCT', payload: productWithOffers });
 
     } catch (error) {
+      // No mostrar error si la request fue cancelada
+      if (error instanceof Error && error.name === 'AbortError') {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug(`Request del producto ${id} fue cancelada`);
+        }
+        return;
+      }
+
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar el producto';
       dispatch({ type: 'SET_PRODUCTS_ERROR', payload: errorMessage });
     } finally {

@@ -42,13 +42,19 @@ const productService = {
   /**
    * Obtiene un producto específico por su ID
    * @param id - ID único del producto
+   * @param signal - AbortSignal para cancelar la request (opcional)
    * @returns Promise con los datos del producto
    */
-  getProductById: async (id: number): Promise<Product> => {
+  getProductById: async (id: number, signal?: AbortSignal): Promise<Product> => {
     try {
-      const response = await axiosInstance.get(`/almacen/productos/${id}`);
+      const response = await axiosInstance.get(`/almacen/productos/${id}`, { signal });
       return response.data;
     } catch (error) {
+      // No loguear errores de cancelación (AbortError)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.debug('Request al producto cancelado');
+        throw error;
+      }
       console.error('Error fetching product by ID:', error);
       throw error;
     }

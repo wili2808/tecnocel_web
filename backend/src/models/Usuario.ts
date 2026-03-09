@@ -8,6 +8,7 @@ class Usuario extends Model {
   declare password_user: string;
   declare token: string;
   declare id_rol: number;
+  declare fyh_ultimo_login: Date | null;
   declare readonly fyh_creacion: Date;
   declare readonly fyh_actualizacion: Date;
 }
@@ -42,6 +43,10 @@ Usuario.init({
       model: 'tb_roles',
       key: 'id_rol'
     }
+  },
+  fyh_ultimo_login: {
+    type: DataTypes.DATE,
+    allowNull: true
   },
   fyh_creacion: {
     type: DataTypes.DATE,

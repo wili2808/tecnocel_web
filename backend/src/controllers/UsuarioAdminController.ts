@@ -203,7 +203,7 @@ class UsuarioAdminController {
       const offset = parseInt(req.query.offset as string) || 0;
 
       const { count, rows: usuarios } = await Usuario.findAndCountAll({
-        attributes: ['id_usuario', 'nombres', 'email', 'id_rol', 'fyh_creacion', 'fyh_actualizacion'],
+        attributes: ['id_usuario', 'nombres', 'email', 'id_rol', 'fyh_ultimo_login', 'fyh_creacion', 'fyh_actualizacion'],
         include: [
           {
             model: Rol,
@@ -273,7 +273,7 @@ class UsuarioAdminController {
       const { id } = req.params;
 
       const usuario = await Usuario.findByPk(id, {
-        attributes: ['id_usuario', 'nombres', 'email', 'id_rol', 'fyh_creacion', 'fyh_actualizacion'],
+        attributes: ['id_usuario', 'nombres', 'email', 'id_rol', 'fyh_ultimo_login', 'fyh_creacion', 'fyh_actualizacion'],
         include: [
           {
             model: Rol,

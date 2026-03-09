@@ -223,7 +223,7 @@ const AdminPanel = () => {
               </div>
             </div>
             <button className={adminPanelStyles.backButton} onClick={handleBackToHome} aria-label="Ir a la tienda">
-              <span className="material-icons">arrow_back</span>
+              <span className="material-icons">store</span>
               <span>Ir a la tienda</span>
             </button>
           </div>

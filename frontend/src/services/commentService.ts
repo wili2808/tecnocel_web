@@ -137,6 +137,8 @@ export interface ObtenerComentariosParams {
   limite?: number;
   offset?: number;
   orden?: 'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion';
+  /** Cuando es true, incluye comentarios ocultos (solo para administradores del sistema) */
+  incluirOcultos?: boolean;
 }
 
 /**
@@ -151,15 +153,16 @@ const commentService = {
    * @returns Promise con comentarios paginados y estadísticas del producto
    */
   getComentariosProducto: async (
-    idProducto: number, 
+    idProducto: number,
     params: ObtenerComentariosParams = {}
   ): Promise<ComentariosResponse> => {
     try {
       const queryParams = new URLSearchParams();
-      
+
       if (params.limite) queryParams.append('limite', params.limite.toString());
       if (params.offset) queryParams.append('offset', params.offset.toString());
       if (params.orden) queryParams.append('orden', params.orden);
+      if (params.incluirOcultos) queryParams.append('incluir_ocultos', 'true');
 
       const url = `/comentarios/producto/${idProducto}${queryParams.toString() ? `?${queryParams}` : ''}`;
       const response = await axiosInstance.get(url);

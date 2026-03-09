@@ -6,17 +6,41 @@ import ReplyCard from './ReplyCard';
 import ReplyForm from './ReplyForm';
 import styles from './ReplyList.module.css';
 
+/**
+ * Props del componente ReplyList
+ */
 interface ReplyListProps {
+  /** ID del comentario padre al que pertenecen las respuestas */
   idComentario: number;
+  /** Lista de respuestas del comentario (incluyendo ocultas si el usuario es admin) */
   respuestas: Respuesta[];
+  /** ID del usuario autenticado actualmente */
   currentUserId?: number;
+  /** Si el usuario está autenticado (muestra botón de responder) */
   isAuthenticated?: boolean;
+  /** Si el usuario actual es administrador o empleado del sistema */
   isSystemUser?: boolean;
+  /** Callback para actualizar el array de respuestas en el componente padre */
   onRepliesChange: (idComentario: number, respuestas: Respuesta[]) => void;
 }
 
+/** Número de respuestas visibles antes de mostrar el toggle "Ver más" */
 const INITIAL_VISIBLE = 2;
 
+/**
+ * Componente orquestador de respuestas a un comentario
+ *
+ * Gestiona la lista completa de respuestas de un comentario con:
+ * - Paginación simple (muestra INITIAL_VISIBLE, con toggle para ver todas)
+ * - Visibilidad diferenciada: los admins ven todas las respuestas (incluyendo ocultas),
+ *   los clientes solo ven las activas
+ * - Creación de respuestas: usa `adminCommentService` si el usuario es admin,
+ *   `commentService` si es cliente
+ * - Delegación de eliminación y moderación a los handlers correspondientes
+ *
+ * @param props - Ver ReplyListProps
+ * @returns Lista de respuestas con controles de paginación y formulario de nueva respuesta
+ */
 const ReplyList: React.FC<ReplyListProps> = memo(({
   idComentario,
   respuestas,
@@ -35,6 +59,7 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
   const visibleReplies = showAll ? activeReplies : activeReplies.slice(0, INITIAL_VISIBLE);
   const hiddenCount = activeReplies.length - INITIAL_VISIBLE;
 
+  /** Crea una nueva respuesta usando el servicio correcto según el rol del usuario */
   const handleCreateReply = async (contenido: string) => {
     let nuevaRespuesta: Respuesta;
     if (isSystemUser) {
@@ -47,6 +72,7 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
     setShowAll(true);
   };
 
+  /** Elimina (soft delete) una respuesta usando el servicio correcto según el rol */
   const handleDeleteReply = async (idRespuesta: number) => {
     if (isSystemUser) {
       await adminCommentService.eliminarRespuestaAdmin(idRespuesta);
@@ -56,6 +82,7 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
     onRepliesChange(idComentario, respuestas.filter(r => r.id_respuesta !== idRespuesta));
   };
 
+  /** Cambia el estado de moderación de una respuesta (solo admins del sistema) */
   const handleModerateReply = async (idRespuesta: number, estado: 'activo' | 'oculto' | 'eliminado') => {
     await adminCommentService.moderarRespuesta(idRespuesta, estado);
     onRepliesChange(

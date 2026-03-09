@@ -76,7 +76,7 @@ class ComentarioController {
   /**
    * Obtiene comentarios de un producto con paginación y ordenamiento
    *
-   * Endpoint público que retorna comentarios activos de un producto con:
+   * Endpoint público que retorna comentarios de un producto con:
    * - Paginación (limite y offset)
    * - Ordenamiento configurable (recientes, antiguos, mejor/peor calificación)
    * - Información del cliente autor
@@ -84,7 +84,10 @@ class ComentarioController {
    * - Respuestas de administradores si existen
    * - Estadísticas del producto (promedio, distribución de calificaciones)
    *
-   * @param req - Express Request con params.id_producto y query {limite?, offset?, orden?}
+   * Cuando se pasa `incluir_ocultos=true`, también se retornan comentarios con
+   * estado 'oculto' para que los administradores puedan verlos con indicador visual.
+   *
+   * @param req - Express Request con params.id_producto y query {limite?, offset?, orden?, incluir_ocultos?}
    * @param res - Express Response object
    * @returns 200 con { mensaje, datos: { comentarios, paginacion, estadisticas } }
    * @returns 400 si el ID del producto es inválido
@@ -92,6 +95,7 @@ class ComentarioController {
    *
    * @example
    * GET /api/comentarios/producto/123?limite=10&offset=0&orden=recientes
+   * GET /api/comentarios/producto/123?incluir_ocultos=true  (admin: incluye ocultos)
    * Response: {
    *   mensaje: "Comentarios obtenidos exitosamente",
    *   datos: {
@@ -104,7 +108,7 @@ class ComentarioController {
   async obtenerComentariosProducto(req: Request, res: Response): Promise<void> {
     try {
       const { id_producto } = req.params;
-      const { limite = '10', offset = '0', orden = 'recientes' }: GetComentariosQuery = req.query;
+      const { limite = '10', offset = '0', orden = 'recientes', incluir_ocultos }: GetComentariosQuery = req.query;
 
       // Validar parámetros
       const productId = parseInt(id_producto);
@@ -118,6 +122,7 @@ class ComentarioController {
 
       const limit = parseInt(limite);
       const offsetNum = parseInt(offset);
+      const mostrarOcultos = incluir_ocultos === 'true' || incluir_ocultos === '1';
 
       // Determinar orden
       let orderClause: Order = [['fyh_creacion', 'DESC']];
@@ -135,11 +140,16 @@ class ComentarioController {
           orderClause = [['fyh_creacion', 'DESC']];
       }
 
+      // Cuando se piden ocultos (vista admin), incluir activo + oculto
+      const estadosVisibles = mostrarOcultos
+        ? { [Op.in]: ['activo', 'oculto'] }
+        : 'activo';
+
       // Consultar comentarios
       const { rows: comentarios, count: total } = await Comentario.findAndCountAll({
         where: {
           id_producto: productId,
-          estado: 'activo'
+          estado: estadosVisibles
         },
         include: [
           {
@@ -162,7 +172,9 @@ class ComentarioController {
           {
             model: ComentarioRespuesta,
             as: 'respuestas',
-            where: { estado: 'activo' },
+            where: mostrarOcultos
+              ? { estado: { [Op.in]: ['activo', 'oculto'] } }
+              : { estado: 'activo' },
             required: false,
             include: [
               { model: Cliente, as: 'clienteAutor', attributes: ['nombre_cliente', 'apellido_cliente'] },
@@ -896,6 +908,25 @@ class ComentarioController {
     };
   }
 
+  /**
+   * Crea una respuesta de cliente a un comentario existente
+   *
+   * Endpoint protegido para clientes que permite responder a un comentario activo.
+   * Verifica que el comentario exista y esté activo, luego crea la respuesta con
+   * `tipo_autor: 'cliente'` y retorna la respuesta con datos del autor.
+   *
+   * @param req - Express Request con params.id_comentario, body.contenido y req.usuario (ClienteSession)
+   * @param res - Express Response object
+   * @returns 201 con { mensaje, datos: { respuesta } }
+   * @returns 400 si el ID o el contenido son inválidos
+   * @returns 401 si el cliente no está autenticado
+   * @returns 404 si el comentario no existe o está inactivo
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/comentarios/5/respuestas/cliente
+   * Body: { "contenido": "Gracias por tu comentario!" }
+   */
   async crearRespuestaCliente(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario } = req.params;
@@ -956,6 +987,27 @@ class ComentarioController {
     }
   }
 
+  /**
+   * Crea una respuesta oficial de administrador a un comentario
+   *
+   * Endpoint protegido para usuarios del sistema (admin/empleados). Permite
+   * responder a cualquier comentario con `tipo_autor: 'admin'`. La respuesta
+   * se muestra con indicador visual de "Equipo oficial" en el frontend.
+   * A diferencia de las respuestas de cliente, puede responder comentarios
+   * independientemente de su estado.
+   *
+   * @param req - Express Request con params.id_comentario, body.contenido y req.usuario (UsuarioSession)
+   * @param res - Express Response object
+   * @returns 201 con { mensaje, datos: { respuesta } }
+   * @returns 400 si el ID o el contenido son inválidos
+   * @returns 401 si el usuario no está autenticado
+   * @returns 404 si el comentario no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * POST /api/comentarios/5/respuestas/admin
+   * Body: { "contenido": "Lamentamos el inconveniente, lo resolveremos pronto." }
+   */
   async crearRespuestaAdmin(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario } = req.params;
@@ -1013,6 +1065,27 @@ class ComentarioController {
     }
   }
 
+  /**
+   * Elimina (soft delete) la propia respuesta de un cliente
+   *
+   * Endpoint protegido que permite a un cliente eliminar solo sus propias respuestas.
+   * Verifica que la respuesta exista, no esté ya eliminada, y que el cliente autenticado
+   * sea el autor original (`tipo_autor: 'cliente'` e `id_cliente` coincide).
+   * Usa soft delete (estado = 'eliminado') para mantener integridad referencial.
+   *
+   * @param req - Express Request con params.id_respuesta y req.usuario (ClienteSession)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje } al eliminar exitosamente
+   * @returns 400 si el ID es inválido
+   * @returns 401 si el cliente no está autenticado
+   * @returns 403 si la respuesta no pertenece al cliente autenticado
+   * @returns 404 si la respuesta no existe o ya fue eliminada
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/comentarios/respuestas/12
+   * Response: { "mensaje": "Respuesta eliminada exitosamente" }
+   */
   async eliminarRespuesta(req: Request, res: Response): Promise<void> {
     try {
       const { id_respuesta } = req.params;
@@ -1050,6 +1123,25 @@ class ComentarioController {
     }
   }
 
+  /**
+   * Modera el estado de un comentario (solo administradores/empleados)
+   *
+   * Endpoint protegido que permite a usuarios del sistema cambiar el estado de un
+   * comentario a 'activo', 'oculto' o 'eliminado'. Los comentarios 'ocultos' siguen
+   * siendo visibles para admins con indicador visual pero no para clientes.
+   *
+   * @param req - Express Request con params.id_comentario, body.estado y req.usuario (UsuarioSession)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { id_comentario, estado } }
+   * @returns 400 si el ID o estado son inválidos
+   * @returns 404 si el comentario no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PATCH /api/comentarios/5/moderar
+   * Body: { "estado": "oculto" }
+   * Response: { "mensaje": "Comentario ocultado exitosamente", "datos": { ... } }
+   */
   async moderarComentario(req: Request, res: Response): Promise<void> {
     try {
       const { id_comentario } = req.params;
@@ -1085,6 +1177,26 @@ class ComentarioController {
     }
   }
 
+  /**
+   * Modera el estado de una respuesta (solo administradores/empleados)
+   *
+   * Endpoint protegido que permite a usuarios del sistema cambiar el estado de una
+   * respuesta a 'activo', 'oculto' o 'eliminado'. También es usado por la ruta
+   * DELETE /respuestas/:id/admin para eliminación forzada por admins.
+   * Las respuestas 'ocultas' siguen siendo visibles para admins con indicador visual.
+   *
+   * @param req - Express Request con params.id_respuesta, body.estado y req.usuario (UsuarioSession)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { id_respuesta, estado } }
+   * @returns 400 si el ID o estado son inválidos
+   * @returns 404 si la respuesta no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * PATCH /api/comentarios/respuestas/8/moderar
+   * Body: { "estado": "oculto" }
+   * Response: { "mensaje": "Respuesta moderada exitosamente", "datos": { ... } }
+   */
   async moderarRespuesta(req: Request, res: Response): Promise<void> {
     try {
       const { id_respuesta } = req.params;
