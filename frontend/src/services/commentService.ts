@@ -27,6 +27,23 @@ export interface AdminRespuesta {
 }
 
 /**
+ * Estructura de una respuesta a un comentario
+ */
+export interface Respuesta {
+  id_respuesta: number;
+  id_comentario: number;
+  id_cliente?: number | null;
+  id_usuario?: number | null;
+  tipo_autor: 'cliente' | 'admin';
+  contenido: string;
+  estado: 'activo' | 'oculto' | 'eliminado';
+  fyh_creacion: string;
+  fyh_actualizacion: string;
+  clienteAutor?: { nombre_cliente: string; apellido_cliente: string };
+  usuarioAutor?: { nombres: string };
+}
+
+/**
  * Estructura completa de un comentario con toda su información
  */
 export interface Comentario {
@@ -44,6 +61,7 @@ export interface Comentario {
   cliente: Cliente;
   imagenes?: ComentarioImagen[];
   adminRespuesta?: AdminRespuesta;
+  respuestas?: Respuesta[];
 }
 
 /**
@@ -336,6 +354,34 @@ const commentService = {
       5: 'Excelente'
     };
     return textos[calificacion as keyof typeof textos] || 'Sin calificación';
+  },
+
+  /**
+   * Crea una respuesta de cliente a un comentario
+   * @param idComentario - ID del comentario al que se responde
+   * @param contenido - Texto de la respuesta (1-1000 caracteres)
+   */
+  crearRespuestaCliente: async (idComentario: number, contenido: string): Promise<Respuesta> => {
+    try {
+      const response = await axiosInstance.post(`/comentarios/${idComentario}/respuestas/cliente`, { contenido });
+      return response.data.datos.respuesta;
+    } catch (error) {
+      console.error('Error creating client reply:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina la propia respuesta del cliente (soft delete)
+   * @param idRespuesta - ID de la respuesta a eliminar
+   */
+  eliminarRespuesta: async (idRespuesta: number): Promise<void> => {
+    try {
+      await axiosInstance.delete(`/comentarios/respuestas/${idRespuesta}`);
+    } catch (error) {
+      console.error('Error deleting reply:', error);
+      throw error;
+    }
   },
 
   /**
