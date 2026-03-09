@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import type { Comentario } from '../../../services/commentService';
+import type { Comentario, Respuesta } from '../../../services/commentService';
 import commentService from '../../../services/commentService';
+import adminCommentService from '../../../services/adminCommentService';
 import uploadService from '../../../services/uploadService';
+import ReplyList from './ReplyList';
 import styles from './CommentCard.module.css';
 
 interface CommentCardProps {
@@ -15,6 +17,10 @@ interface CommentCardProps {
     onCancelEdit?: () => void;
     isEditing?: boolean;
     className?: string;
+    isSystemUser?: boolean;
+    isAuthenticated?: boolean;
+    onRepliesChange?: (idComentario: number, respuestas: Respuesta[]) => void;
+    onModerate?: () => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
@@ -26,7 +32,11 @@ const CommentCard: React.FC<CommentCardProps> = ({
     onStartEdit,
     onCancelEdit,
     isEditing: externalIsEditing = false,
-    className = ''
+    className = '',
+    isSystemUser = false,
+    isAuthenticated = false,
+    onRepliesChange,
+    onModerate,
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(comentario.comentario);
@@ -131,6 +141,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 newSet.delete(idImagen);
                 return newSet;
             });
+        }
+    };
+
+    const handleModerate = async (estado: 'activo' | 'oculto' | 'eliminado') => {
+        try {
+            await adminCommentService.moderarComentario(comentario.id_comentario, estado);
+            onModerate?.();
+        } catch (error) {
+            console.error('Error moderating comment:', error);
         }
     };
 
@@ -298,6 +317,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     <div className={styles.userDetails}>
                         <div className={styles.userName}>
                             {comentario.cliente.nombre_cliente} {comentario.cliente.apellido_cliente}
+                            {isSystemUser && comentario.estado === 'oculto' && (
+                                <span className={styles.hiddenBadge}>OCULTO</span>
+                            )}
                         </div>
                         <div className={styles.commentMeta}>
                             <span className={styles.date}>{fechaFormateada}</span>
@@ -334,6 +356,39 @@ const CommentCard: React.FC<CommentCardProps> = ({
                             title="Eliminar comentario"
                         >
                             <span className="material-icons">delete</span>
+                        </button>
+                    </div>
+                )}
+
+                {isSystemUser && (
+                    <div className={styles.moderationActions}>
+                        {comentario.estado === 'activo' && (
+                            <button
+                                className={styles.moderateBtn}
+                                onClick={() => handleModerate('oculto')}
+                                title="Ocultar comentario"
+                                type="button"
+                            >
+                                <span className="material-icons">visibility_off</span>
+                            </button>
+                        )}
+                        {comentario.estado === 'oculto' && (
+                            <button
+                                className={styles.restoreBtn}
+                                onClick={() => handleModerate('activo')}
+                                title="Restaurar comentario"
+                                type="button"
+                            >
+                                <span className="material-icons">visibility</span>
+                            </button>
+                        )}
+                        <button
+                            className={styles.adminDeleteBtn}
+                            onClick={() => setShowDeleteConfirm(true)}
+                            title="Eliminar comentario"
+                            type="button"
+                        >
+                            <span className="material-icons">delete_forever</span>
                         </button>
                     </div>
                 )}
@@ -596,6 +651,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
                         </div>
                     </div>
                 </div>
+            )}
+
+            {onRepliesChange && (
+                <ReplyList
+                    idComentario={comentario.id_comentario}
+                    respuestas={comentario.respuestas || []}
+                    currentUserId={currentUserId}
+                    isAuthenticated={isAuthenticated}
+                    isSystemUser={isSystemUser}
+                    onRepliesChange={onRepliesChange}
+                />
             )}
         </div>
     );

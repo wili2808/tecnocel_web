@@ -756,3 +756,49 @@
     transition: none;
   }
 }
+
+.moderationActions {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.moderateBtn,
+.restoreBtn,
+.adminDeleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+
+.moderateBtn:hover {
+  color: var(--color-warning, #f59e0b);
+}
+
+.restoreBtn:hover {
+  color: var(--color-success, #22c55e);
+}
+
+.adminDeleteBtn:hover {
+  color: var(--color-error, #ef4444);
+}
+
+.moderateBtn .material-icons,
+.restoreBtn .material-icons,
+.adminDeleteBtn .material-icons {
+  font-size: 18px;
+}
+
+.hiddenBadge {
+  font-size: var(--font-size-xs);
+  background-color: var(--color-warning, #f59e0b);
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

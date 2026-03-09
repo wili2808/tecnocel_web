@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import commentService from '../../../services/commentService';
 import uploadService from '../../../services/uploadService';
-import type { Comentario, EstadisticasComentarios } from '../../../services/commentService';
+import type { Comentario, EstadisticasComentarios, Respuesta } from '../../../services/commentService';
 import CommentForm from './CommentForm';
 import CommentCard from './CommentCard';
 import CommentStats from './CommentStats';
@@ -16,7 +16,7 @@ interface ProductCommentsProps {
 }
 
 const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productName }) => {
-    const { user } = useAuth();
+    const { user, isAuthenticated, isSystemUser } = useAuth();
     const [comentarios, setComentarios] = useState<Comentario[]>([]);
     const [estadisticas, setEstadisticas] = useState<EstadisticasComentarios | null>(null);
     const [loading, setLoading] = useState(true);
@@ -159,6 +159,15 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
         console.log('❌ Cancelando edición');
     };
 
+    // Manejar cambios en respuestas de un comentario
+    const handleRepliesChange = (idComentario: number, nuevasRespuestas: Respuesta[]) => {
+        setComentarios(prev =>
+            prev.map(c =>
+                c.id_comentario === idComentario ? { ...c, respuestas: nuevasRespuestas } : c
+            )
+        );
+    };
+
     // Manejar eliminación de imagen de comentario
     const handleEliminarImagenComentario = async (idComentario: number, idImagen: number) => {
         try {
@@ -288,6 +297,10 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
                                 onCancelEdit={handleCancelarEdicion}
                                 isEditing={editingCommentId === comentario.id_comentario}
                                 className={styles.commentCard}
+                                isSystemUser={isSystemUser}
+                                isAuthenticated={isAuthenticated}
+                                onRepliesChange={handleRepliesChange}
+                                onModerate={() => cargarComentarios(currentPage)}
                             />
                         ))}
 
