@@ -63,6 +63,11 @@ ComentarioRespuesta.init({
   modelName: 'ComentarioRespuesta',
   tableName: 'tb_comentario_respuestas',
   timestamps: false,
+  indexes: [
+    { fields: ['id_comentario'] },
+    { fields: ['estado'] },
+    { fields: ['id_comentario', 'estado'] }
+  ],
   hooks: {
     beforeUpdate: (respuesta) => {
       respuesta.fyh_actualizacion = new Date();

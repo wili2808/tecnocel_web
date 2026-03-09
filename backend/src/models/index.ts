@@ -6,6 +6,7 @@ import './Categoria.js';
 import './Cliente.js';
 import './Comentario.js';
 import './ComentarioImagen.js';
+import './ComentarioRespuesta.js';
 import './Compra.js';
 import './DetalleCompra.js';
 import './DetalleDevolucion.js';
