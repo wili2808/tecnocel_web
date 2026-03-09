@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import ComentarioController from '../controllers/ComentarioController.js';
-import { verificarTokenCliente } from '../middleware/authMiddleware.js';
+import { verificarTokenCliente, verificarToken } from '../middleware/authMiddleware.js';
 import { body, param, query } from 'express-validator';
 import { validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
@@ -122,6 +122,44 @@ const validateProductIdParam = [
   handleValidationErrors
 ];
 
+const validateCrearRespuesta = [
+  param('id_comentario')
+    .isInt({ min: 1 })
+    .withMessage('ID de comentario inválido'),
+  body('contenido')
+    .isLength({ min: 1, max: 1000 })
+    .withMessage('El contenido debe tener entre 1 y 1000 caracteres')
+    .trim(),
+  handleValidationErrors
+];
+
+const validateRespuestaIdParam = [
+  param('id_respuesta')
+    .isInt({ min: 1 })
+    .withMessage('ID de respuesta inválido'),
+  handleValidationErrors
+];
+
+const validateModerarComentario = [
+  param('id_comentario')
+    .isInt({ min: 1 })
+    .withMessage('ID de comentario inválido'),
+  body('estado')
+    .isIn(['activo', 'oculto', 'eliminado'])
+    .withMessage('Estado inválido. Valores permitidos: activo, oculto, eliminado'),
+  handleValidationErrors
+];
+
+const validateModerarRespuesta = [
+  param('id_respuesta')
+    .isInt({ min: 1 })
+    .withMessage('ID de respuesta inválido'),
+  body('estado')
+    .isIn(['activo', 'oculto', 'eliminado'])
+    .withMessage('Estado inválido. Valores permitidos: activo, oculto, eliminado'),
+  handleValidationErrors
+];
+
 // RUTAS PÚBLICAS (sin autenticación)
 
 // Obtener comentarios de un producto
@@ -172,15 +210,56 @@ router.delete(
   (req: Request, res: Response) => comentarioController.eliminarImagenComentario(req, res)
 );
 
-// RUTAS ADICIONALES PARA FUTURAS IMPLEMENTACIONES
+// RESPUESTAS A COMENTARIOS
 
-// Responder a un comentario (solo admin)
-// router.post('/:id_comentario/respuesta', verificarTokenAdmin, responderComentario);
+// Cliente responde un comentario
+router.post(
+  '/:id_comentario/respuestas/cliente',
+  verificarTokenCliente,
+  validateCrearRespuesta,
+  (req: Request, res: Response) => comentarioController.crearRespuestaCliente(req, res)
+);
 
-// Marcar comentario como verificado (solo admin)
-// router.patch('/:id_comentario/verificar', verificarTokenAdmin, verificarComentario);
+// Admin/empleado responde con respuesta oficial
+router.post(
+  '/:id_comentario/respuestas/admin',
+  verificarToken,
+  validateCrearRespuesta,
+  (req: Request, res: Response) => comentarioController.crearRespuestaAdmin(req, res)
+);
 
-// Moderar comentario (solo admin)
-// router.patch('/:id_comentario/moderar', verificarTokenAdmin, moderarComentario);
+// Eliminar propia respuesta (cliente)
+router.delete(
+  '/respuestas/:id_respuesta',
+  verificarTokenCliente,
+  validateRespuestaIdParam,
+  (req: Request, res: Response) => comentarioController.eliminarRespuesta(req, res)
+);
+
+// MODERACIÓN (solo admins/empleados del sistema)
+
+// Ocultar o restaurar un comentario
+router.patch(
+  '/:id_comentario/moderar',
+  verificarToken,
+  validateModerarComentario,
+  (req: Request, res: Response) => comentarioController.moderarComentario(req, res)
+);
+
+// Moderar una respuesta
+router.patch(
+  '/respuestas/:id_respuesta/moderar',
+  verificarToken,
+  validateModerarRespuesta,
+  (req: Request, res: Response) => comentarioController.moderarRespuesta(req, res)
+);
+
+// Admin elimina cualquier respuesta
+router.delete(
+  '/respuestas/:id_respuesta/admin',
+  verificarToken,
+  validateRespuestaIdParam,
+  (req: Request, res: Response) => comentarioController.moderarRespuesta(req, res)
+);
 
 export default router;
