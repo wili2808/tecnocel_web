@@ -904,17 +904,17 @@ class ComentarioController {
 
       const comentarioId = parseInt(id_comentario);
       if (!comentarioId || comentarioId <= 0) {
-        res.status(400).json({ mensaje: 'ID de comentario inválido' });
+        res.status(400).json({ mensaje: 'ID de comentario inválido', error: 'El ID debe ser un número positivo' });
         return;
       }
 
       if (!idCliente) {
-        res.status(401).json({ mensaje: 'No autenticado' });
+        res.status(401).json({ mensaje: 'No autenticado', error: 'Se requiere autenticación' });
         return;
       }
 
       if (!contenido || contenido.trim().length < 1 || contenido.trim().length > 1000) {
-        res.status(400).json({ mensaje: 'El contenido debe tener entre 1 y 1000 caracteres' });
+        res.status(400).json({ mensaje: 'Contenido inválido', error: 'El contenido debe tener entre 1 y 1000 caracteres' });
         return;
       }
 
@@ -923,7 +923,7 @@ class ComentarioController {
       });
 
       if (!comentario) {
-        res.status(404).json({ mensaje: 'Comentario no encontrado' });
+        res.status(404).json({ mensaje: 'Comentario no encontrado', error: 'El comentario especificado no existe' });
         return;
       }
 
@@ -952,7 +952,7 @@ class ComentarioController {
       });
     } catch (error) {
       logger.error('Error al crear respuesta de cliente:', { error: error instanceof Error ? error.message : error });
-      res.status(500).json({ mensaje: 'Error interno del servidor' });
+      res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo crear la respuesta' });
     }
   }
 
@@ -964,23 +964,23 @@ class ComentarioController {
 
       const comentarioId = parseInt(id_comentario);
       if (!comentarioId || comentarioId <= 0) {
-        res.status(400).json({ mensaje: 'ID de comentario inválido' });
+        res.status(400).json({ mensaje: 'ID de comentario inválido', error: 'El ID debe ser un número positivo' });
         return;
       }
 
       if (!idUsuario) {
-        res.status(401).json({ mensaje: 'No autenticado' });
+        res.status(401).json({ mensaje: 'No autenticado', error: 'Se requiere autenticación' });
         return;
       }
 
       if (!contenido || contenido.trim().length < 1 || contenido.trim().length > 1000) {
-        res.status(400).json({ mensaje: 'El contenido debe tener entre 1 y 1000 caracteres' });
+        res.status(400).json({ mensaje: 'Contenido inválido', error: 'El contenido debe tener entre 1 y 1000 caracteres' });
         return;
       }
 
       const comentario = await Comentario.findByPk(comentarioId);
       if (!comentario) {
-        res.status(404).json({ mensaje: 'Comentario no encontrado' });
+        res.status(404).json({ mensaje: 'Comentario no encontrado', error: 'El comentario especificado no existe' });
         return;
       }
 
@@ -1009,7 +1009,7 @@ class ComentarioController {
       });
     } catch (error) {
       logger.error('Error al crear respuesta de admin:', { error: error instanceof Error ? error.message : error });
-      res.status(500).json({ mensaje: 'Error interno del servidor' });
+      res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo crear la respuesta oficial' });
     }
   }
 
@@ -1020,22 +1020,23 @@ class ComentarioController {
 
       const respuestaId = parseInt(id_respuesta);
       if (!respuestaId || respuestaId <= 0) {
-        res.status(400).json({ mensaje: 'ID de respuesta inválido' });
+        res.status(400).json({ mensaje: 'ID de respuesta inválido', error: 'El ID debe ser un número positivo' });
         return;
       }
 
       const respuesta = await ComentarioRespuesta.findByPk(respuestaId);
       if (!respuesta || respuesta.estado === 'eliminado') {
-        res.status(404).json({ mensaje: 'Respuesta no encontrada' });
+        res.status(404).json({ mensaje: 'Respuesta no encontrada', error: 'La respuesta especificada no existe' });
         return;
       }
 
-      const esPropietario =
-        (respuesta.tipo_autor === 'cliente' && respuesta.id_cliente === idUsuarioActual) ||
-        (respuesta.tipo_autor === 'admin' && respuesta.id_usuario === idUsuarioActual);
+      if (!idUsuarioActual) {
+        res.status(401).json({ mensaje: 'No autenticado', error: 'Debes estar autenticado para realizar esta acción' });
+        return;
+      }
 
-      if (!esPropietario) {
-        res.status(403).json({ mensaje: 'No tienes permiso para eliminar esta respuesta' });
+      if (respuesta.tipo_autor !== 'cliente' || respuesta.id_cliente !== idUsuarioActual) {
+        res.status(403).json({ mensaje: 'Acceso denegado', error: 'Solo puedes eliminar tus propias respuestas' });
         return;
       }
 
@@ -1045,7 +1046,7 @@ class ComentarioController {
       res.status(200).json({ mensaje: 'Respuesta eliminada exitosamente' });
     } catch (error) {
       logger.error('Error al eliminar respuesta:', { error: error instanceof Error ? error.message : error });
-      res.status(500).json({ mensaje: 'Error interno del servidor' });
+      res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo eliminar la respuesta' });
     }
   }
 
@@ -1056,18 +1057,18 @@ class ComentarioController {
 
       const comentarioId = parseInt(id_comentario);
       if (!comentarioId || comentarioId <= 0) {
-        res.status(400).json({ mensaje: 'ID de comentario inválido' });
+        res.status(400).json({ mensaje: 'ID de comentario inválido', error: 'El ID debe ser un número positivo' });
         return;
       }
 
       if (!['activo', 'oculto', 'eliminado'].includes(estado)) {
-        res.status(400).json({ mensaje: 'Estado inválido. Valores permitidos: activo, oculto, eliminado' });
+        res.status(400).json({ mensaje: 'Estado inválido', error: 'Valores permitidos: activo, oculto, eliminado' });
         return;
       }
 
       const comentario = await Comentario.findByPk(comentarioId);
       if (!comentario) {
-        res.status(404).json({ mensaje: 'Comentario no encontrado' });
+        res.status(404).json({ mensaje: 'Comentario no encontrado', error: 'El comentario especificado no existe' });
         return;
       }
 
@@ -1080,7 +1081,7 @@ class ComentarioController {
       });
     } catch (error) {
       logger.error('Error al moderar comentario:', { error: error instanceof Error ? error.message : error });
-      res.status(500).json({ mensaje: 'Error interno del servidor' });
+      res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo moderar el comentario' });
     }
   }
 
@@ -1091,18 +1092,18 @@ class ComentarioController {
 
       const respuestaId = parseInt(id_respuesta);
       if (!respuestaId || respuestaId <= 0) {
-        res.status(400).json({ mensaje: 'ID de respuesta inválido' });
+        res.status(400).json({ mensaje: 'ID de respuesta inválido', error: 'El ID debe ser un número positivo' });
         return;
       }
 
       if (!['activo', 'oculto', 'eliminado'].includes(estado)) {
-        res.status(400).json({ mensaje: 'Estado inválido' });
+        res.status(400).json({ mensaje: 'Estado inválido', error: 'Valores permitidos: activo, oculto, eliminado' });
         return;
       }
 
       const respuesta = await ComentarioRespuesta.findByPk(respuestaId);
       if (!respuesta) {
-        res.status(404).json({ mensaje: 'Respuesta no encontrada' });
+        res.status(404).json({ mensaje: 'Respuesta no encontrada', error: 'La respuesta especificada no existe' });
         return;
       }
 
@@ -1115,7 +1116,7 @@ class ComentarioController {
       });
     } catch (error) {
       logger.error('Error al moderar respuesta:', { error: error instanceof Error ? error.message : error });
-      res.status(500).json({ mensaje: 'Error interno del servidor' });
+      res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo moderar la respuesta' });
     }
   }
 }
