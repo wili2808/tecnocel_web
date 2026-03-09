@@ -6,6 +6,7 @@ import Categoria from './Categoria.js';
 import Cliente from './Cliente.js';
 import Comentario from './Comentario.js';
 import ComentarioImagen from './ComentarioImagen.js';
+import ComentarioRespuesta from './ComentarioRespuesta.js';
 import Compra from './Compra.js';
 import DetalleCompra from './DetalleCompra.js';
 import DetalleDevolucion from './DetalleDevolucion.js';
@@ -134,6 +135,16 @@ Usuario.hasMany(Comentario, { foreignKey: 'id_admin_respuesta', as: 'respuestasA
 ComentarioImagen.belongsTo(Comentario, { foreignKey: 'id_comentario', as: 'comentario' });
 Comentario.hasMany(ComentarioImagen, { foreignKey: 'id_comentario', as: 'imagenes' });
 
+// Respuestas de comentarios
+Comentario.hasMany(ComentarioRespuesta, { foreignKey: 'id_comentario', as: 'respuestas' });
+ComentarioRespuesta.belongsTo(Comentario, { foreignKey: 'id_comentario', as: 'comentarioPadre' });
+
+ComentarioRespuesta.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'clienteAutor' });
+Cliente.hasMany(ComentarioRespuesta, { foreignKey: 'id_cliente', as: 'respuestasCliente' });
+
+ComentarioRespuesta.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuarioAutor' });
+Usuario.hasMany(ComentarioRespuesta, { foreignKey: 'id_usuario', as: 'respuestasUsuario' });
+
 // Relaciones para Características de Productos
 Almacen.belongsToMany(TipoCaracteristica, {
   through: ProductoCaracteristica,
@@ -209,6 +220,7 @@ export {
   Cliente,
   Comentario,
   ComentarioImagen,
+  ComentarioRespuesta,
   Compra,
   DetalleCompra,
   DetalleDevolucion,
