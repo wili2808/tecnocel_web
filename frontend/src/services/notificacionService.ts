@@ -32,14 +32,14 @@ export const notificacionService = {
    * @param id - ID de la notificación a marcar como leída
    */
   async marcarLeida(id: number): Promise<void> {
-    await axiosInstance.patch(`/notificaciones/${id}/leida`);
+    await axiosInstance.put(`/notificaciones/${id}/leer`);
   },
 
   /**
    * Marca todas las notificaciones del cliente como leídas
    */
   async marcarTodasLeidas(): Promise<void> {
-    await axiosInstance.patch('/notificaciones/marcar-todas-leidas');
+    await axiosInstance.put('/notificaciones/leer-todas');
   },
 
   /**

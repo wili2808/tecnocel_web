@@ -52,12 +52,12 @@ export class NotificacionController {
 
       return res.json({
         success: true,
-        data: rows,
-        pagination: {
+        data: {
+          notificaciones: rows,
           total: count,
           pagina,
           limite,
-          paginas: Math.ceil(count / limite)
+          totalPaginas: Math.ceil(count / limite)
         }
       });
     } catch (error) {
