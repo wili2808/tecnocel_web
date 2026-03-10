@@ -30,6 +30,7 @@ import ProductoOferta from './ProductoOferta.js';
 import Favorito from './Favorito.js';
 import Direccion from './Direccion.js';
 import ProductoImagen from './ProductoImagen.js';
+import Notificacion from './Notificacion.js';
 
 // Almacen
 Almacen.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'Categoria' });
@@ -210,6 +211,10 @@ Direccion.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
 Almacen.hasMany(ProductoImagen, { foreignKey: 'id_producto', as: 'imagenes' });
 ProductoImagen.belongsTo(Almacen, { foreignKey: 'id_producto', as: 'producto' });
 
+// Relaciones para Notificaciones
+Cliente.hasMany(Notificacion, { foreignKey: 'id_cliente', as: 'notificaciones' });
+Notificacion.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
+
 // Exportar todos los modelos (opcional, útil para inicialización)
 export {
   Almacen,
@@ -242,5 +247,6 @@ export {
   ProductoOferta,
   Favorito,
   Direccion,
-  ProductoImagen
+  ProductoImagen,
+  Notificacion
 }; 
