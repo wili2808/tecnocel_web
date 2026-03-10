@@ -1,0 +1,101 @@
+/* ============================================================================
+   NOTIFICATION BELL
+   El .wrapper con position: relative es el punto de anclaje del panel dropdown
+   ============================================================================ */
+
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ============================================================================
+   BOTÓN CAMPANA
+   ============================================================================ */
+
+.bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-size-sm);
+  height: var(--button-size-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
+  outline: none;
+}
+
+.bell .material-icons {
+  font-size: var(--icon-size-xl);
+}
+
+.bell:hover {
+  color: var(--text-primary);
+  background: var(--background-hover);
+}
+
+.bell:focus-visible {
+  box-shadow: var(--shadow-focus);
+  color: var(--text-primary);
+}
+
+/* ============================================================================
+   BADGE DE CONTEO
+   ============================================================================ */
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(30%, -30%);
+  background: var(--color-error);
+  color: var(--color-white);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xxs);
+  font-weight: var(--font-weight-bold);
+  /* Mínimo 16px × 16px; se expande para "99+" */
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+  animation: badge-pop var(--animation-duration-fast) var(--transition-curve);
+}
+
+@keyframes badge-pop {
+  from { transform: translate(30%, -30%) scale(0.6); }
+  to   { transform: translate(30%, -30%) scale(1); }
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 480px) {
+  .bell {
+    width: var(--button-size-sm);
+    height: var(--button-size-sm);
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .bell,
+  .badge {
+    transition: none !important;
+    animation: none !important;
+  }
+}

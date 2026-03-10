@@ -14,6 +14,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import ProductSearch from '../../product/ProductSearch';
 import IconButton from '../../common/IconButton';
+import NotificationBell from '../../notifications/NotificationBell';
 import navbarStyle from './Navbar.module.css';
 
 // ============================================================================
@@ -139,6 +140,9 @@ const Navbar: React.FC = () => {
           size="sm"
           className={navbarStyle.themeToggle}
         />
+
+        {/* Campana de notificaciones — solo para clientes */}
+        {isCliente && <NotificationBell />}
 
         {/* Botón del carrito de compras */}
         <IconButton

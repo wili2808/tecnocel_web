@@ -1,0 +1,202 @@
+/* ============================================================================
+   NOTIFICATION PANEL — dropdown anclado al wrapper de la campana
+   ============================================================================ */
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--z-dropdown);
+  width: 360px;
+  max-width: calc(100vw - var(--spacing-xl));
+  background: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl), 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  /* Animación de entrada */
+  animation: panel-enter var(--animation-duration-fast) var(--transition-curve);
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  gap: var(--spacing-sm);
+}
+
+.header-title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-family: var(--font-family-primary);
+}
+
+.mark-all-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-medium);
+  padding: 2px 4px;
+  border-radius: var(--border-radius-xs);
+  transition: color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
+}
+
+.mark-all-btn:hover {
+  color: var(--color-primary-dark);
+  background: var(--color-primary-50);
+}
+
+/* ============================================================================
+   BODY — lista scrolleable
+   ============================================================================ */
+
+.body {
+  max-height: 420px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Scrollbar sutil */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--border-radius-full);
+}
+
+/* ============================================================================
+   LISTA
+   ============================================================================ */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-xs) 0;
+}
+
+.list-item {
+  /* Sin margen extra — NotificationItem maneja su propio padding */
+}
+
+/* ============================================================================
+   ESTADO VACÍO
+   ============================================================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  color: var(--text-muted);
+}
+
+.empty-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-family: var(--font-family-primary);
+}
+
+/* ============================================================================
+   ESTADO CARGANDO
+   ============================================================================ */
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.spinner {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: var(--border-radius-full);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-family: var(--font-family-primary);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 480px) {
+  .panel {
+    width: calc(100vw - var(--spacing-xl));
+    right: 0;
+  }
+
+  .body {
+    max-height: 340px;
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+
+  .spinner {
+    animation: none;
+    border-top-color: var(--color-primary);
+  }
+
+  .mark-all-btn {
+    transition: none;
+  }
+}

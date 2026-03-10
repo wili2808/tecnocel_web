@@ -1,0 +1,191 @@
+/* ============================================================================
+   NOTIFICATION ITEM
+   ============================================================================ */
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast) var(--transition-curve);
+  outline: none;
+}
+
+.item:hover {
+  background: var(--background-hover);
+}
+
+.item:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+/* Fondo diferenciado para notificaciones no leídas */
+.item--unread {
+  background: var(--color-primary-50);
+}
+
+.item--unread:hover {
+  background: var(--color-primary-100);
+}
+
+/* ============================================================================
+   ÍCONO
+   ============================================================================ */
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-full);
+  flex-shrink: 0;
+  background: var(--color-primary-100);
+  color: var(--color-primary);
+}
+
+.icon .material-icons {
+  font-size: var(--icon-size-lg);
+}
+
+/* Variantes por tipo */
+.icon--venta-confirmada {
+  background: var(--color-success-100);
+  color: var(--color-success);
+}
+
+.icon--venta-cancelada {
+  background: var(--color-error-100);
+  color: var(--color-error);
+}
+
+.icon--comentario-moderado {
+  background: var(--color-warning-100);
+  color: var(--color-warning);
+}
+
+.icon--respuesta-admin,
+.icon--respuesta-cliente {
+  background: var(--color-primary-100);
+  color: var(--color-primary);
+}
+
+/* ============================================================================
+   CONTENIDO
+   ============================================================================ */
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 calc(var(--spacing-xs) / 4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message {
+  margin: 0 0 calc(var(--spacing-xs) / 2);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  /* Limitar a 2 líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.time {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* ============================================================================
+   INDICADOR DE NO LEÍDA
+   ============================================================================ */
+
+.unread-dot {
+  position: absolute;
+  top: 50%;
+  right: 36px;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: var(--border-radius-full);
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   BOTÓN ELIMINAR
+   ============================================================================ */
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve);
+}
+
+.delete-btn .material-icons {
+  font-size: var(--icon-size-md);
+}
+
+.item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: var(--color-error-100);
+  color: var(--color-error);
+}
+
+/* Cuando hay unread-dot, correr el botón para no solaparse */
+.item--unread .delete-btn {
+  margin-left: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 480px) {
+  .item {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
