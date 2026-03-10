@@ -20,3 +20,6 @@ export * from './venta';
 
 // Exportar tipos de reportes (admin)
 export * from './reporte';
+
+// Exportar tipos de notificaciones
+export * from './notificacion';

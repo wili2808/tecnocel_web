@@ -9,6 +9,7 @@ import { CarritoProvider } from './contexts/CarritoContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { FavoritosGlobalProvider } from './contexts/FavoritosGlobalContext';
 import { OfertasGlobalProvider } from './contexts/OfertasGlobalContext';
+import { NotificacionesProvider } from './contexts/NotificacionesContext';
 import { ProductProvider } from './contexts/ProductContext';
 import { TipoCambioProvider } from './contexts/TipoCambioContext';
 import NotificationContainer from './components/common/NotificationContainer';
@@ -62,6 +63,7 @@ function App() {
         <AutoLogoutWrapper>
           <ThemeProvider>
             <NotificationProvider>
+              <NotificacionesProvider>
               <FavoritosGlobalProvider>
                 <OfertasGlobalProvider>
                   <TipoCambioProvider>
@@ -139,6 +141,7 @@ function App() {
                   </TipoCambioProvider>
                 </OfertasGlobalProvider>
               </FavoritosGlobalProvider>
+              </NotificacionesProvider>
             </NotificationProvider>
           </ThemeProvider>
         </AutoLogoutWrapper>
