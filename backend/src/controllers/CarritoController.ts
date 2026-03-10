@@ -17,6 +17,7 @@ import { getImageService } from '../services/imageService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import { calcularPrecioOferta, calcularPorcentajeDescuento } from '../services/ofertaService.js';
 import { sendOrderConfirmationEmail } from '../services/emailService.js';
+import notificationService from '../services/notificationService.js';
 
 /**
  * Controlador para gestión del carrito de compras
@@ -1441,6 +1442,16 @@ export default class CarritoController {
 
       // Confirmar transacción - todas las operaciones fueron exitosas
       await transaction.commit();
+
+      // fire-and-forget: notificar al cliente que su compra fue confirmada
+      notificationService.crearNotificacion(
+        id_cliente,
+        'venta_confirmada',
+        '¡Compra confirmada!',
+        'Tu pedido fue procesado exitosamente.',
+        venta.id_venta,
+        '/panel'
+      );
 
       // Email de confirmación de compra al cliente (no bloqueante)
       Cliente.findByPk(id_cliente, {

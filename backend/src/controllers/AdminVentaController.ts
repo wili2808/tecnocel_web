@@ -33,6 +33,7 @@ import Usuario from '../models/Usuario.js';
 import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
 import { sendCancellationEmail } from '../services/emailService.js';
+import notificationService from '../services/notificationService.js';
 
 /** Type guard para verificar que el usuario es del sistema (tiene idRol) */
 function esUsuarioSistema(usuario: unknown): usuario is { id: number; idRol: number } {
@@ -593,6 +594,18 @@ export default class AdminVentaController {
         items_restaurados: (ventaData.items || []).length,
         motivo:           motivo || null
       });
+
+      // fire-and-forget: notificar al cliente que su venta fue cancelada (solo si hay cliente asociado)
+      if (ventaData.id_cliente) {
+        notificationService.crearNotificacion(
+          ventaData.id_cliente,
+          'venta_cancelada',
+          'Venta cancelada',
+          'Tu pedido fue cancelado.',
+          ventaData.id_venta,
+          '/panel'
+        );
+      }
 
       // Email de cancelación al cliente (no bloqueante — falla silenciosa)
       if (ventaData.id_cliente) {

@@ -19,6 +19,7 @@ import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
+import notificationService from '../services/notificationService.js';
 
 /**
  * Controlador para gestión de comentarios y reseñas de productos
@@ -977,6 +978,18 @@ class ComentarioController {
 
       logger.info('Respuesta de cliente creada', { id_respuesta: respuesta.id_respuesta, id_comentario: comentarioId });
 
+      // fire-and-forget: notificar al dueño del comentario solo si es diferente al cliente que responde
+      if (comentario.id_cliente !== idCliente) {
+        notificationService.crearNotificacion(
+          comentario.id_cliente,
+          'respuesta_cliente',
+          'Alguien respondió tu comentario',
+          'Un cliente respondió a tu reseña de producto.',
+          comentario.id_comentario,
+          `/productos/${comentario.id_producto}`
+        );
+      }
+
       res.status(201).json({
         mensaje: 'Respuesta creada exitosamente',
         datos: { respuesta: respuestaCompleta?.toJSON() }
@@ -1054,6 +1067,16 @@ class ComentarioController {
       });
 
       logger.info('Respuesta de admin creada', { id_respuesta: respuesta.id_respuesta, id_comentario: comentarioId, id_usuario: idUsuario });
+
+      // fire-and-forget: notificar al dueño del comentario
+      notificationService.crearNotificacion(
+        comentario.id_cliente,
+        'respuesta_admin',
+        'El equipo respondió tu comentario',
+        'TecnoCel respondió a tu reseña de producto.',
+        comentario.id_comentario,
+        `/productos/${comentario.id_producto}`
+      );
 
       res.status(201).json({
         mensaje: 'Respuesta oficial creada exitosamente',
@@ -1165,6 +1188,18 @@ class ComentarioController {
       }
 
       await comentario.update({ estado, fyh_actualizacion: new Date() });
+
+      // fire-and-forget: notificar al dueño si el comentario fue ocultado o eliminado
+      if (estado === 'oculto' || estado === 'eliminado') {
+        notificationService.crearNotificacion(
+          comentario.id_cliente,
+          'comentario_moderado',
+          'Tu comentario fue moderado',
+          'Tu reseña fue revisada por el equipo de TecnoCel.',
+          comentario.id_comentario,
+          `/productos/${comentario.id_producto}`
+        );
+      }
 
       logger.info('Comentario moderado', { id_comentario: comentarioId, nuevo_estado: estado, moderador: req.usuario?.id });
       res.status(200).json({
