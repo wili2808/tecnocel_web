@@ -14,7 +14,7 @@
     "switch:aiven": "node switch-env.js aiven",
     "test:images": "node scripts_test/test-image-endpoints.js",
     "init:logs": "node scripts_test/init-logs-structure.js",
-    "migrate:cloudinary": "npm run build && node dist/scripts/migrateToCloudinary.js"
+    "migrate:cloudinary": "node --loader ts-node/esm scripts/migrations/migrateToCloudinary.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

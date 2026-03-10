@@ -44,6 +44,9 @@ const GestionProductos = () => {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
+  // Filtro de destacados
+  const [soloDestacados, setSoloDestacados] = useState(false);
+
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
@@ -59,11 +62,17 @@ const GestionProductos = () => {
     return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
   };
 
-  // 1. Ordenar TODOS los productos
-  const sortedProductos = useMemo(() => {
-    if (!sortKey) return allProductos;
+  // 1. Filtrar por destacados si el switch está activo
+  const filteredProductos = useMemo(() => {
+    if (!soloDestacados) return allProductos;
+    return allProductos.filter(p => p.es_destacado);
+  }, [allProductos, soloDestacados]);
 
-    return [...allProductos].sort((a, b) => {
+  // 2. Ordenar los productos filtrados
+  const sortedProductos = useMemo(() => {
+    if (!sortKey) return filteredProductos;
+
+    return [...filteredProductos].sort((a, b) => {
       let valA: string | number;
       let valB: string | number;
 
@@ -100,9 +109,9 @@ const GestionProductos = () => {
       if (valA > valB) return sortDir === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [allProductos, sortKey, sortDir]);
+  }, [filteredProductos, sortKey, sortDir]);
 
-  // 2. Paginar los productos ya ordenados
+  // 3. Paginar los productos ya ordenados
   const total = sortedProductos.length;
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
   const paginatedProductos = useMemo(() => {
@@ -139,6 +148,11 @@ const GestionProductos = () => {
   const handleClearSearch = () => {
     setSearchInput('');
     setSearchTerm('');
+    setPage(1);
+  };
+
+  const handleToggleDestacados = () => {
+    setSoloDestacados(prev => !prev);
     setPage(1);
   };
 
@@ -267,6 +281,15 @@ const GestionProductos = () => {
             </button>
           )}
         </div>
+        <button
+          type="button"
+          className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
+          onClick={handleToggleDestacados}
+          title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
+        >
+          <span className="material-icons">star</span>
+          <span>Solo destacados</span>
+        </button>
         <button type="submit" className={styles.searchButton}>
           Buscar
         </button>
@@ -294,7 +317,10 @@ const GestionProductos = () => {
       {!loading && !error && (
         <>
           <div className={styles.tableInfo}>
-            <span>{total} producto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}</span>
+            <span>
+              {total} producto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
+              {soloDestacados && <span className={styles.filterBadge}>Solo destacados</span>}
+            </span>
           </div>
 
           <div className={styles.tableWrapper}>
@@ -345,9 +371,13 @@ const GestionProductos = () => {
                 {paginatedProductos.length === 0 ? (
                   <tr>
                     <td colSpan={8} className={styles.emptyMessage}>
-                      {searchTerm
-                        ? `No se encontraron productos para "${searchTerm}"`
-                        : 'No hay productos registrados'}
+                      {searchTerm && soloDestacados
+                        ? `No se encontraron productos destacados para "${searchTerm}"`
+                        : searchTerm
+                          ? `No se encontraron productos para "${searchTerm}"`
+                          : soloDestacados
+                            ? 'No hay productos destacados'
+                            : 'No hay productos registrados'}
                     </td>
                   </tr>
                 ) : (
