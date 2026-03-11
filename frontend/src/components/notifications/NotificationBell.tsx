@@ -26,7 +26,7 @@ const NotificationBell: React.FC = memo(() => {
   const icono = noLeidas > 0 ? 'notifications_active' : 'notifications';
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-notification-panel>
       <button
         className={styles.bell}
         onClick={handleToggle}

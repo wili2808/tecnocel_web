@@ -50,7 +50,9 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
     };
 
     cargar();
-    return () => { activo = false; };
+    return () => {
+      activo = false;
+    };
   }, [idVenta, showNotification]);
 
   // ── Cerrar con Escape ──────────────────────────────────────────────────────
@@ -67,8 +69,11 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
   const formatFecha = (iso: string) =>
     new Date(iso).toLocaleString('es-AR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
 
   const formatMonto = (n: number) =>
@@ -77,14 +82,13 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
   const getBadgeEstado = (estado: VentaDetalle['estado']) => {
     const map: Record<string, string> = {
       completada: styles.badgeCompletada,
-      cancelada:  styles.badgeCancelada,
-      pendiente:  styles.badgePendiente
+      cancelada: styles.badgeCancelada,
+      pendiente: styles.badgePendiente,
     };
     return map[estado] || '';
   };
 
-  const getBadgeTipo = (tipo: VentaDetalle['tipo_venta']) =>
-    tipo === 'web' ? styles.badgeWeb : styles.badgeManual;
+  const getBadgeTipo = (tipo: VentaDetalle['tipo_venta']) => (tipo === 'web' ? styles.badgeWeb : styles.badgeManual);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -93,9 +97,13 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
   return (
     <>
-      <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div
+        className={styles.modalOverlay}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+      >
         <div className={styles.modal}>
-
           {/* Encabezado */}
           <div className={styles.modalHeader}>
             <h2 className={styles.modalTitle}>
@@ -133,7 +141,6 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
               <>
                 {/* Grilla info */}
                 <div className={styles.detalleGrid}>
-
                   {/* Columna izq: cliente */}
                   <div className={styles.detalleSection}>
                     <p className={styles.detalleSectionTitle}>Cliente</p>
@@ -218,9 +225,11 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
                 {/* Sección de cancelación (solo si fue cancelada) */}
                 {detalle.estado === 'cancelada' && detalle.cancelacion && (
-                  <div style={{ marginTop: '16px', padding: '12px 16px', background: 'var(--color-error-bg, #fef2f2)', borderRadius: '8px', borderLeft: '3px solid var(--color-error, #ef4444)' }}>
-                    <p style={{ fontWeight: 600, marginBottom: '8px', color: 'var(--color-error, #ef4444)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span className="material-icons" style={{ fontSize: '18px' }}>cancel</span>
+                  <div className={styles.contenedorDetalleCancelacion}>
+                    <p className={styles.tituloCancelacion}>
+                      <span className="material-icons" style={{ fontSize: '18px' }}>
+                        cancel
+                      </span>
                       Cancelación
                     </p>
                     <div className={styles.detalleRow}>
@@ -279,10 +288,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
           {/* Pie */}
           <div className={`${styles.modalFooter} ${puedeCancelar ? styles.modalFooterLeft : ''}`}>
             {puedeCancelar && (
-              <button
-                className={styles.dangerButton}
-                onClick={() => setMostrarCancelacionModal(true)}
-              >
+              <button className={styles.dangerButton} onClick={() => setMostrarCancelacionModal(true)}>
                 <span className="material-icons">cancel</span>
                 Cancelar Venta
               </button>
@@ -291,7 +297,6 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
               Cerrar
             </button>
           </div>
-
         </div>
       </div>
 
@@ -313,4 +318,3 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 };
 
 export default DetalleVentaModal;
-

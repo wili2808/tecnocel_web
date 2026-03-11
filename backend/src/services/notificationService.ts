@@ -73,17 +73,20 @@ const notificationService = {
    * @returns true si se actualizó, false si no se encontró.
    */
   async marcarLeida(idNotificacion: number, idCliente: number): Promise<boolean> {
-    const [affectedRows] = await Notificacion.update(
-      { leido: true, fyh_lectura: new Date() },
-      {
-        where: {
-          id_notificacion: idNotificacion,
-          id_cliente: idCliente,
-          leido: false
-        }
-      }
-    );
-    return affectedRows > 0;
+    // Primero verificamos que la notificación pertenece al cliente
+    const notificacion = await Notificacion.findOne({
+      where: { id_notificacion: idNotificacion, id_cliente: idCliente }
+    });
+    if (!notificacion) return false;
+
+    // Solo actualizamos si aún no está leída
+    if (!notificacion.leido) {
+      await Notificacion.update(
+        { leido: true, fyh_lectura: new Date() },
+        { where: { id_notificacion: idNotificacion, id_cliente: idCliente } }
+      );
+    }
+    return true;
   },
 
   /**

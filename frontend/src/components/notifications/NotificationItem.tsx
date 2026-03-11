@@ -54,8 +54,8 @@ const NotificationItem: React.FC<NotificationItemProps> = memo(({ notificacion }
 
   const handleClick = useCallback(async () => {
     await marcarLeida(notificacion.id_notificacion);
+    cerrarPanel();
     if (notificacion.enlace) {
-      cerrarPanel();
       navigate(notificacion.enlace);
     }
   }, [marcarLeida, notificacion, cerrarPanel, navigate]);

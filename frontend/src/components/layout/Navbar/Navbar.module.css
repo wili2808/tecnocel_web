@@ -134,22 +134,21 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  padding-left: var(--spacing-sm);
+  border-left: 1px solid var(--border-color);
+  margin-left: var(--spacing-xs);
 }
 
 .authButton {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  color: var(--text-secondary);
-  background: none;
-  cursor: pointer;
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
-  transition: color var(--transition-fast) var(--transition-curve);
+  border-radius: var(--border-radius-md);
   font-size: var(--font-size-xs);
 }
 
-.authButton:hover { color: var(--text-primary); }
+.authButton:hover { transform: translateY(-1px); }
 
 .authButtonText {
   font-size: var(--font-size-xs);
@@ -157,7 +156,7 @@
   white-space: nowrap;
 }
 
-.themeToggle { color: var(--text-secondary); }
+/* themeToggle hereda estilos del ghost variant de IconButton */
 
 /* Badge del carrito */
 .cartBadge {

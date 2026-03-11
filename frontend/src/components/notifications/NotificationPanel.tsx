@@ -2,11 +2,20 @@
  * Componente NotificationPanel - Panel dropdown de notificaciones
  * Muestra la lista de notificaciones con acciones de marcar leídas y eliminar
  * Se cierra al hacer click fuera o presionar Escape
+ *
+ * NOTA: El Navbar renderiza ControlButtons dos veces (desktop + mobile), lo que
+ * genera dos instancias de NotificationBell y dos NotificationPanel simultáneos.
+ * El check de "click externo" usa data-notification-panel para detectar si el
+ * click fue dentro de CUALQUIER panel, no solo este, evitando que el panel
+ * oculto cierre el panel visible.
  */
-import React, { memo, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useEffect, useCallback } from 'react';
 import { useNotificaciones } from '../../contexts/NotificacionesContext';
 import NotificationItem from './NotificationItem';
 import styles from './NotificationPanel.module.css';
+
+// Atributo usado para identificar todos los paneles de notificación en el DOM
+const PANEL_ATTR = 'data-notification-panel';
 
 // ============================================================================
 // PROPS
@@ -22,12 +31,16 @@ interface NotificationPanelProps {
 
 const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ onClose }) => {
   const { notificaciones, noLeidas, cargando, marcarTodasLeidas } = useNotificaciones();
-  const panelRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar al hacer click fuera del panel
+  // Cerrar al hacer click fuera de CUALQUIER panel de notificaciones
+  // (Navbar renderiza dos NotificationPanel simultáneos: desktop + mobile)
   const handleOutsideClick = useCallback(
     (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+      const panels = document.querySelectorAll(`[${PANEL_ATTR}]`);
+      const isInsideAnyPanel = Array.from(panels).some((panel) =>
+        panel.contains(e.target as Node)
+      );
+      if (!isInsideAnyPanel) {
         onClose();
       }
     },
@@ -63,7 +76,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ onClose }) =
 
   return (
     <div
-      ref={panelRef}
+      {...{ [PANEL_ATTR]: true }}
       className={styles.panel}
       role="dialog"
       aria-label="Panel de notificaciones"

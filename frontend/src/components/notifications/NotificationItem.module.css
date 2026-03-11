@@ -140,7 +140,7 @@
   color: var(--text-muted);
   cursor: pointer;
   flex-shrink: 0;
-  opacity: 0;
+  opacity: 0.35;
   transition: opacity var(--transition-fast) var(--transition-curve),
               background var(--transition-fast) var(--transition-curve),
               color var(--transition-fast) var(--transition-curve);
@@ -157,6 +157,7 @@
 .delete-btn:hover {
   background: var(--color-error-100);
   color: var(--color-error);
+  opacity: 1;
 }
 
 /* Cuando hay unread-dot, correr el botón para no solaparse */

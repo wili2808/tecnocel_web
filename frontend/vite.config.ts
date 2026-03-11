@@ -29,6 +29,12 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
   },
   server: {
     hmr: {
