@@ -16,7 +16,9 @@ import {
   UpdatePerfilResponse
 } from '../types/cliente.types.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
+const _jwtSecret = process.env.JWT_SECRET;
+if (!_jwtSecret) throw new Error('JWT_SECRET no está configurado en las variables de entorno');
+const JWT_SECRET: string = _jwtSecret;
 const JWT_CLIENTE_EXPIRES_IN = process.env.JWT_CLIENTE_EXPIRES_IN || '24h';
 const BCRYPT_SALT_ROUNDS = 12; // Estándar 2025/2026 para seguridad óptima
 

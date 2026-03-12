@@ -17,6 +17,7 @@ import SearchSync from './components/common/SearchSync';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicOnlyRoute from './components/common/PublicOnlyRoute';
 import { useAutoLogout } from './hooks/useAutoLogout';
+import { useAuth } from './contexts/AuthContext';
 import './styles/global.css';
 
 // Lazy loading de componentes
@@ -44,10 +45,16 @@ const LoadingFallback = () => (
 );
 
 // Componente wrapper para auto-logout
+// Solo aplica a gerentes y admins — clientes y vendedores no tienen auto-logout
+// porque sus flujos de trabajo requieren sesiones largas sin interrupciones
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
+  const { isAdmin, isGerente } = useAuth();
+
+  const timeoutMinutes = isAdmin ? 15 : 30; // Admin: 15min, Gerente: 30min
+
   useAutoLogout({
-    timeoutMinutes: 30,
-    enabled: true,
+    timeoutMinutes,
+    enabled: isAdmin || isGerente,
     onLogout: () => {
       console.log('Usuario desconectado por inactividad');
     }

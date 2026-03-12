@@ -17,7 +17,9 @@ import logger from '../services/loggerService.js';
 
 interface LoginBody { email: string; contrasena: string; }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
+const _jwtAdminSecret = process.env.JWT_ADMIN_SECRET;
+if (!_jwtAdminSecret) throw new Error('JWT_ADMIN_SECRET no está configurado en las variables de entorno');
+const JWT_ADMIN_SECRET: string = _jwtAdminSecret;
 const JWT_ADMIN_EXPIRES_IN = process.env.JWT_ADMIN_EXPIRES_IN || '8h';
 
 import { UsuarioSistemaResponse, AuthUsuarioResponse, UsuarioJWTPayload } from '../types/usuario.types.js';
@@ -49,7 +51,7 @@ export default class UsuarioController {
 
     return jwt.sign(
       payload,
-      JWT_SECRET,
+      JWT_ADMIN_SECRET,
       { expiresIn: JWT_ADMIN_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
     );
   }

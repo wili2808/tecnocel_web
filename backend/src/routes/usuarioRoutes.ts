@@ -4,6 +4,7 @@ import UsuarioAdminController from '../controllers/UsuarioAdminController.js';
 import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
 import { ROLES } from '../constants/roles.js';
 import { validateCrearUsuario, validateActualizarUsuario, validateActualizarCliente } from '../middleware/validateUsuario.js';
+import { loginRateLimit } from '../middleware/loginRateLimit.js';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const router = Router();
 // ============================================================================
 
 // Login de usuarios del sistema (admin/empleado)
-router.post('/login', usuarioController.login.bind(usuarioController));
+router.post('/login', loginRateLimit, usuarioController.login.bind(usuarioController));
 
 // ============================================================================
 // RUTAS PROTEGIDAS - INFORMACIÓN PERSONAL

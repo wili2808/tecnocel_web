@@ -3,6 +3,7 @@ import ClienteController from '../controllers/ClienteController.js';
 import GoogleAuthController from '../controllers/GoogleAuthController.js';
 import { validateClienteRegistration } from '../middleware/validateRegistration.js';
 import { verificarTokenCliente } from '../middleware/authMiddleware.js';
+import { loginRateLimit } from '../middleware/loginRateLimit.js';
 
 const router = Router();
 
@@ -13,9 +14,9 @@ const router = Router();
 // Registro
 router.post('/register', validateClienteRegistration, ClienteController.register);
 // Login
-router.post('/login', ClienteController.login);
+router.post('/login', loginRateLimit, ClienteController.login);
 // Login con Google
-router.post('/google-login', GoogleAuthController.googleLogin);
+router.post('/google-login', loginRateLimit, GoogleAuthController.googleLogin);
 // Verificación de email
 router.get('/verify-email', ClienteController.verifyEmail);
 // Solicitud de recuperación de contraseña

@@ -35,7 +35,13 @@ function esUsuarioSistema(usuario: unknown): usuario is UsuarioSession {
  * Debe configurarse en variable de entorno JWT_SECRET
  * @private
  */
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
+const _jwtSecret = process.env.JWT_SECRET;
+if (!_jwtSecret) throw new Error('JWT_SECRET no está configurado en las variables de entorno');
+const JWT_SECRET: string = _jwtSecret;
+
+const _jwtAdminSecret = process.env.JWT_ADMIN_SECRET;
+if (!_jwtAdminSecret) throw new Error('JWT_ADMIN_SECRET no está configurado en las variables de entorno');
+const JWT_ADMIN_SECRET: string = _jwtAdminSecret;
 
 /**
  * Middleware para verificar autenticación de usuarios del sistema vía JWT
@@ -72,7 +78,7 @@ export const verificarToken = async (req: Request, res: Response, next: NextFunc
     }
 
     // Verificar y decodificar el token (usa tipo centralizado)
-    const decodificado = jwt.verify(token, JWT_SECRET) as unknown as UsuarioJWTPayload;
+    const decodificado = jwt.verify(token, JWT_ADMIN_SECRET) as unknown as UsuarioJWTPayload;
 
     // Buscar el usuario en la base de datos usando 'sub' (estándar JWT)
     const usuario = await Usuario.findByPk(decodificado.sub);

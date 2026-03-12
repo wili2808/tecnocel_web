@@ -65,6 +65,3 @@ database/backups/*.sql
 
 # Uploads (imágenes)
 uploads
-
-# ToDo
-TODO.md
