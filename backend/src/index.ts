@@ -65,10 +65,12 @@ const {
   basePath,
   productImagesPath,
   commentImagesPath,
+  marcaImagesPath,
   baseUrl,
   endpoint,
   defaultProductImage,
   defaultCommentImage,
+  defaultMarcaImage,
   useCloudinary,
   cloudinary
 } = config.images;
@@ -97,8 +99,10 @@ const imageMiddleware = new StaticImageMiddleware({
   basePath,
   productImagesPath,
   commentImagesPath,
+  marcaImagesPath,
   defaultProductImage,
   defaultCommentImage,
+  defaultMarcaImage,
   maxAge: 86400, // 24 horas de cache
   endpoint
 });
@@ -111,8 +115,10 @@ if (useCloudinary || imageMiddleware.validateImagesDirectory()) {
     basePath,
     productImagesPath,
     commentImagesPath,
+    marcaImagesPath,
     defaultProductImage,
     defaultCommentImage,
+    defaultMarcaImage,
     endpoint,
     useCloudinary
   });
@@ -151,6 +157,7 @@ app.get('/', (req: Request, res: Response) => {
 // Rutas para servir imágenes estáticas (solo útil en modo filesystem)
 app.get('/api/images/*', imageMiddleware.serveProductImage);
 app.get('/api/comment-images/*', imageMiddleware.serveCommentImage);
+app.get('/api/marca-images/*', imageMiddleware.serveMarcaImage);
 
 // Ruta de diagnóstico para verificar el estado del servicio de imágenes
 app.get('/api/images-status', (req: Request, res: Response) => {
