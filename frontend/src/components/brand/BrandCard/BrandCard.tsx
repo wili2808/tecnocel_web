@@ -49,14 +49,15 @@ const BrandCard: React.FC<BrandCardProps> = ({
   };
 
   /**
-   * Construye la URL del logo de la marca
+   * Retorna la URL del logo de la marca
+   * logo_marca ya llega como URL completa desde la API
    * Retorna placeholder si no hay logo o si hubo error
    */
   const getLogoUrl = () => {
     if (imageError || !brand.logo_marca) {
       return '/placeholder.svg';
     }
-    return `/images/marcas/${brand.logo_marca}`;
+    return brand.logo_marca;
   };
 
   /**
