@@ -26,11 +26,13 @@ interface ProcessedImage {
 class UploadController {
   private productImagesPath: string;
   private commentImagesPath: string;
+  private marcaImagesPath: string;
   private useCloudinary: boolean;
 
   constructor() {
     this.productImagesPath = config.images.productImagesPath;
     this.commentImagesPath = config.images.commentImagesPath;
+    this.marcaImagesPath = config.images.marcaImagesPath;
     this.useCloudinary = config.images.useCloudinary;
 
     if (!this.useCloudinary) {
@@ -44,7 +46,7 @@ class UploadController {
   }
 
   private ensureDirectoriesExist(): void {
-    const directories = [this.productImagesPath, this.commentImagesPath];
+    const directories = [this.productImagesPath, this.commentImagesPath, this.marcaImagesPath];
 
     directories.forEach(dir => {
       try {
@@ -77,6 +79,24 @@ class UploadController {
     });
   }
 
+  public getMarcaMulterConfig() {
+    return multer({
+      storage: multer.memoryStorage(),
+      limits: {
+        fileSize: 2 * 1024 * 1024, // 2MB
+        files: 1
+      },
+      fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error(`Tipo no permitido: ${file.mimetype}. Solo PNG, JPG, JPEG, WebP`));
+        }
+      }
+    });
+  }
+
   private async optimizeImageBuffer(file: UploadedFile): Promise<Buffer> {
     if (file.mimetype === 'image/gif') {
       return file.buffer;
@@ -92,6 +112,36 @@ class UploadController {
         progressive: true
       })
       .toBuffer();
+  }
+
+  private async processMarcaLogo(file: UploadedFile, marcaNombre: string): Promise<string> {
+    try {
+      const sanitizedName = marcaNombre
+        .replace(/[^a-zA-Z0-9]/g, '_')
+        .substring(0, 20)
+        .toLowerCase();
+      const timestamp = Date.now();
+      const uniqueId = uuidv4().split('-')[0];
+      // Always output .png regardless of input format (logos need transparency support)
+      const fileName = `marca_${sanitizedName}_${timestamp}_${uniqueId}.png`;
+      const filePath = path.join(this.marcaImagesPath, fileName);
+
+      // Use .toBuffer() + writeFile pattern consistent with the rest of the codebase
+      const processedBuffer = await sharp(file.buffer)
+        .resize(300, 300, {
+          fit: 'contain',
+          background: { r: 0, g: 0, b: 0, alpha: 0 }
+        })
+        .png({ compressionLevel: 8 })
+        .toBuffer();
+
+      await fs.promises.writeFile(filePath, processedBuffer);
+
+      return fileName;
+    } catch (error) {
+      logger.error('Error al procesar logo de marca:', error);
+      throw new Error('Error al procesar el logo de marca');
+    }
   }
 
   private async processCommentImage(file: UploadedFile): Promise<ProcessedImage> {
@@ -315,6 +365,68 @@ class UploadController {
     } catch (error) {
       logger.error('Error al eliminar imagen de producto:', error);
       return false;
+    }
+  };
+
+  public uploadMarcaLogo = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const file = req.file as UploadedFile | undefined;
+      const { id_marca } = req.params;
+
+      if (!file) {
+        res.status(400).json({ success: false, error: 'No se proporcionó ningún archivo' });
+        return;
+      }
+
+      const Marca = (await import('../models/Marca.js')).default;
+      const marca = await Marca.findByPk(id_marca);
+
+      if (!marca) {
+        res.status(404).json({ success: false, error: 'Marca no encontrada' });
+        return;
+      }
+
+      // Delete previous logo if exists
+      if (marca.logo_marca) {
+        const oldPath = path.join(this.marcaImagesPath, marca.logo_marca);
+        if (fs.existsSync(oldPath)) {
+          await fs.promises.unlink(oldPath);
+          logger.info('[UPLOAD] Logo anterior de marca eliminado', { archivo: marca.logo_marca });
+        }
+      }
+
+      // Process and save new logo
+      const fileName = await this.processMarcaLogo(file, marca.nombre_marca);
+
+      // Update DB
+      await marca.update({
+        logo_marca: fileName,
+        fyh_actualizacion: new Date()
+      });
+
+      // Generate URL
+      const { getImageService, ImageType } = await import('../services/imageService.js');
+      const imageService = getImageService();
+      const url = imageService
+        ? imageService.generateImageUrl(fileName, ImageType.BRAND)
+        : fileName;
+
+      logger.info('[UPLOAD] ✅ Logo de marca subido exitosamente', {
+        marca_id: id_marca,
+        nombre_marca: marca.nombre_marca,
+        archivo: fileName
+      });
+
+      res.status(200).json({
+        success: true,
+        data: { filename: fileName, url }
+      });
+    } catch (error) {
+      logger.error('Error al subir logo de marca:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Error al subir el logo'
+      });
     }
   };
 
