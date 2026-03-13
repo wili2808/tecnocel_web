@@ -16,6 +16,19 @@ import {
   UpdatePerfilResponse
 } from '../types/cliente.types.js';
 
+// Rate limiting para forgot-password (en memoria)
+const forgotPasswordAttempts = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX_ATTEMPTS = 3;
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutos
+
+// Cleanup periódico para evitar memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of forgotPasswordAttempts.entries()) {
+    if (now >= value.resetAt) forgotPasswordAttempts.delete(key);
+  }
+}, 60 * 60 * 1000);
+
 const _jwtSecret = process.env.JWT_SECRET;
 if (!_jwtSecret) throw new Error('JWT_SECRET no está configurado en las variables de entorno');
 const JWT_SECRET: string = _jwtSecret;
@@ -258,37 +271,27 @@ export default class ClienteController {
         password_hash,
         celular_cliente: celular_cliente || null,
         nit_ci_cliente: nit_ci_cliente || null,
-        is_web_enabled: true,
-        email_verified: true, 
-        verification_token: null
+        is_web_enabled: false,
+        email_verified: false,
+        verification_token: uuidv4(),
+        verification_token_expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
 
       // Evitamos loguear datos sensibles en el middleware de HTTP
       res.locals.skipHttpLog = true;
-      
-      logger.info(`Nuevo cliente registrado: ${email_cliente} (ID: ${nuevoCliente.id_cliente})`);
 
-      // Generar JWT para login automático usando método helper
-      const token = ClienteController.generarTokenJWT(nuevoCliente.id_cliente);
+      logger.info(`Nuevo cliente registrado (pendiente verificación): ${email_cliente} (ID: ${nuevoCliente.id_cliente})`);
 
-      // Actualizar último login
-      // Nota: fyh_actualizacion se actualizará solo gracias a la configuración de Sequelize
-      nuevoCliente.last_login = new Date();
-      await nuevoCliente.save();
-      
-      // Respuesta estructurada usando método helper de mapeo
-      // Devolvemos el código 201 (Created) y nombres de propiedades limpios para el front
-      const respuesta: RegistroResponse = {
-        mensaje: 'Registro exitoso. ¡Bienvenido a TecnoCell!',
-        token,
-        cliente: ClienteController.mapearClienteRespuesta(nuevoCliente)
-      };
+      // Email de verificación (no bloqueante — no afecta el registro si falla)
+      const nombre = nuevoCliente.nombre_cliente;
+      sendVerificationEmail(nuevoCliente.email_cliente, nombre, nuevoCliente.verification_token!)
+        .catch(err => logger.error('Error enviando email de verificación:', { error: err.message }));
 
-      // Email de bienvenida (no bloqueante — no afecta el registro si falla)
-      sendWelcomeEmail(nuevoCliente.email_cliente, nuevoCliente.nombre_cliente)
-        .catch(err => logger.error('Error enviando email de bienvenida:', { error: err.message }));
-
-      return res.status(201).json(respuesta);
+      return res.status(201).json({
+        success: true,
+        mensaje: 'Registro exitoso. Revisá tu email para activar tu cuenta.',
+        requiresVerification: true,
+      });
     
     } catch (error) {
       // Manejo de errores seguro
@@ -327,41 +330,39 @@ export default class ClienteController {
    */
   static async verifyEmail(req: Request, res: Response) {
     try {
-      const { token } = req.query;
+      const { token } = req.query as { token: string };
 
-      if (!token || typeof token !== 'string') {
-        logger.warn('Intento de verificación sin token valido');
-        return res.status(400).json({ mensaje: 'Token de verificación requerido' });
+      if (!token) {
+        return res.status(400).json({ error: 'Token de verificación requerido' });
       }
 
-      // Buscar cliente con el token
-      const cliente = await Cliente.findOne({ where: { verification_token: token } });
-      
+      const cliente = await Cliente.findOne({
+        where: { verification_token: token },
+      });
+
       if (!cliente) {
-        logger.warn('Token de verificación inválido o expirado');
-        return res.status(400).json({ mensaje: 'El enlace de verificación es inválido o ha expirado' });
+        return res.status(400).json({ error: 'Token de verificación inválido' });
       }
-      
-      // Actualizar estado (Sequelize maneja fyh_actualizacion automáticamente)
-      cliente.email_verified = true;
-      cliente.verification_token = null; // Invalidar el token usado
-      cliente.is_web_enabled = true;
-      
-      await cliente.save();
-      
-      logger.info(`Email verificado para cliente: ${cliente.email_cliente} (ID: ${cliente.id_cliente})`);
-      
-      return res.json({ mensaje: 'Tu cuenta ha sido verificada con éxito. Ya puedes iniciar sesión en TecnoCell.' });
-    
-    } catch (error) {
-      logger.error('Error crítico en verificación de email', { 
-        token: req.query.token,
-        error: error instanceof Error ? error.message : error
+
+      if (cliente.verification_token_expires && cliente.verification_token_expires < new Date()) {
+        return res.status(400).json({ error: 'El token de verificación expiró. Solicitá un nuevo email de verificación.' });
+      }
+
+      await cliente.update({
+        email_verified: true,
+        is_web_enabled: true,
+        verification_token: null,
+        verification_token_expires: null,
       });
 
-      return res.status(500).json({ 
-        mensaje: 'Lo sentimos, hubo un problema tecnico al verificar tu cuenta. Inténtalo de nuevo más tarde.'
-      });
+      sendWelcomeEmail(cliente.email_cliente, cliente.nombre_cliente)
+        .catch(err => logger.error('Error enviando email de bienvenida:', { error: err.message }));
+
+      logger.info('Email verificado exitosamente', { id_cliente: cliente.id_cliente });
+      return res.status(200).json({ success: true, mensaje: 'Cuenta verificada exitosamente. Ya podés iniciar sesión.' });
+    } catch (error) {
+      logger.error('Error en verifyEmail:', error);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 
@@ -396,9 +397,30 @@ export default class ClienteController {
       const { email_cliente } = req.body;
 
       logger.debug('Procesando solicitud de recuperación de contraseña', { email_cliente });
-      
+
       if (!email_cliente) {
         return res.status(400).json({ mensaje: 'Email es obligatorio' });
+      }
+
+      // Rate limiting por email
+      const emailKey = (req.body.email as string ?? email_cliente).toLowerCase().trim();
+      const now = Date.now();
+      const attempt = forgotPasswordAttempts.get(emailKey);
+
+      if (attempt) {
+        if (now < attempt.resetAt) {
+          if (attempt.count >= RATE_LIMIT_MAX_ATTEMPTS) {
+            const minutosRestantes = Math.ceil((attempt.resetAt - now) / 60000);
+            return res.status(429).json({
+              error: `Demasiados intentos. Esperá ${minutosRestantes} minuto${minutosRestantes !== 1 ? 's' : ''} antes de volver a intentar.`
+            });
+          }
+          forgotPasswordAttempts.set(emailKey, { count: attempt.count + 1, resetAt: attempt.resetAt });
+        } else {
+          forgotPasswordAttempts.set(emailKey, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+        }
+      } else {
+        forgotPasswordAttempts.set(emailKey, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
       }
 
       // Buscar cliente habilitado para web
@@ -863,10 +885,41 @@ export default class ClienteController {
       return res.json({ mensaje: 'Tu contraseña ha sido actualizada correctamente' });
 
     } catch (error) {
-      logger.error('Error crítico en cambiarContrasena', { 
-        error: error instanceof Error ? error.message : error 
+      logger.error('Error crítico en cambiarContrasena', {
+        error: error instanceof Error ? error.message : error
       });
       return res.status(500).json({ mensaje: 'Hubo un error técnico al procesar el cambio' });
     }
   }
-} 
+
+  static async resendVerificationEmail(req: Request, res: Response) {
+    try {
+      const { email } = req.body as { email: string };
+
+      if (!email) {
+        return res.status(400).json({ error: 'Email requerido' });
+      }
+
+      const cliente = await Cliente.findOne({ where: { email_cliente: email } });
+
+      // Respuesta genérica — no revelar si el email existe o no
+      if (!cliente || cliente.email_verified) {
+        return res.status(200).json({ success: true, mensaje: 'Si tu cuenta existe y no está verificada, recibirás un email.' });
+      }
+
+      const nuevoToken = uuidv4();
+      await cliente.update({
+        verification_token: nuevoToken,
+        verification_token_expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      sendVerificationEmail(cliente.email_cliente, cliente.nombre_cliente, nuevoToken)
+        .catch(err => logger.error('Error reenviando email de verificación:', { error: err.message }));
+
+      return res.status(200).json({ success: true, mensaje: 'Si tu cuenta existe y no está verificada, recibirás un email.' });
+    } catch (error) {
+      logger.error('Error en resendVerificationEmail:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+}
