@@ -1,11 +1,15 @@
 import express from 'express';
 import UploadController from '../controllers/UploadController.js';
-import { verificarTokenCliente } from '../middleware/authMiddleware.js';
+import { verificarTokenCliente, verificarToken, verificarRol } from '../middleware/authMiddleware.js';
+import { ROLES } from '../constants/roles.js';
 
 const router = express.Router();
 
 // Configurar multer para múltiples archivos
 const upload = UploadController.getMulterConfig();
+
+// Configurar multer para logo de marca
+const uploadMarca = UploadController.getMarcaMulterConfig();
 
 // Ruta para subir imágenes de comentarios
 router.post('/comment-images',
@@ -23,6 +27,14 @@ router.post('/product-images',
 // Ruta para obtener información de directorios
 router.get('/directories-info',
   UploadController.getDirectoriesInfo
+);
+
+// Ruta para subir logo de marca (solo admin)
+router.post('/marca-logo/:id_marca',
+  verificarToken,
+  verificarRol([ROLES.ADMIN]),
+  uploadMarca.single('logo'),
+  UploadController.uploadMarcaLogo
 );
 
 export default router;
