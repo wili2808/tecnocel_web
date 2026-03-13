@@ -19,6 +19,8 @@ router.post('/login', loginRateLimit, ClienteController.login);
 router.post('/google-login', loginRateLimit, GoogleAuthController.googleLogin);
 // Verificación de email
 router.get('/verify-email', ClienteController.verifyEmail);
+// Reenviar email de verificación
+router.post('/verify-email/resend', ClienteController.resendVerificationEmail);
 // Solicitud de recuperación de contraseña
 router.post('/forgot-password', ClienteController.forgotPassword);
 // Restablecimiento de contraseña
