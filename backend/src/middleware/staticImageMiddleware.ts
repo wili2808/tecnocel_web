@@ -66,6 +66,8 @@ interface ImageMiddlewareOptions {
   defaultCommentImage?: string;
   maxAge?: number;
   endpoint?: string;
+  marcaImagesPath: string;
+  defaultMarcaImage?: string;
 }
 
 /**
@@ -96,6 +98,8 @@ class StaticImageMiddleware {
   private defaultCommentImage: string;
   private maxAge: number;
   private endpoint: string;
+  private marcaImagesPath: string;
+  private defaultMarcaImage: string;
 
   constructor(options: ImageMiddlewareOptions) {
     this.basePath = options.basePath;
@@ -105,6 +109,8 @@ class StaticImageMiddleware {
     this.defaultCommentImage = options.defaultCommentImage || 'default-comment.png';
     this.maxAge = options.maxAge || 86400;
     this.endpoint = options.endpoint || '/images';
+    this.marcaImagesPath = options.marcaImagesPath;
+    this.defaultMarcaImage = options.defaultMarcaImage || 'default-marca.png';
   }
 
   /**
@@ -293,6 +299,35 @@ class StaticImageMiddleware {
     }
   };
 
+  public serveMarcaImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const filename = req.params[0];
+
+      logger.debug(`Solicitud de logo de marca recibida: ${filename}`, {
+        originalUrl: req.originalUrl,
+        method: req.method
+      });
+
+      if (!filename || !this.isValidFilename(filename)) {
+        logger.warn(`Nombre de logo de marca inválido: ${filename}`);
+        return this.serveDefaultMarcaImage(res);
+      }
+
+      const filePath = path.join(this.marcaImagesPath, filename);
+
+      if (!this.fileExists(filePath)) {
+        logger.warn(`Logo de marca no encontrado: ${filePath}`);
+        return this.serveDefaultMarcaImage(res);
+      }
+
+      this.sendImage(res, filePath, filename);
+
+    } catch (error) {
+      logger.error('Error al servir logo de marca:', error);
+      this.serveDefaultMarcaImage(res);
+    }
+  };
+
   /**
    * Método legacy para compatibilidad (sirve imágenes de productos)
    */
@@ -347,6 +382,15 @@ class StaticImageMiddleware {
       this.sendImage(res, defaultPath, this.defaultCommentImage);
     } else {
       res.status(404).json({ error: 'Imagen de comentario no encontrada' });
+    }
+  }
+
+  private serveDefaultMarcaImage(res: Response): void {
+    const defaultPath = path.join(this.marcaImagesPath, this.defaultMarcaImage);
+    if (this.fileExists(defaultPath)) {
+      this.sendImage(res, defaultPath, this.defaultMarcaImage);
+    } else {
+      res.status(404).json({ error: 'Logo de marca no encontrado' });
     }
   }
 
@@ -436,7 +480,8 @@ class StaticImageMiddleware {
       const directories = [
         this.basePath,
         this.productImagesPath,
-        this.commentImagesPath
+        this.commentImagesPath,
+        this.marcaImagesPath
       ];
 
       for (const dir of directories) {
@@ -455,7 +500,8 @@ class StaticImageMiddleware {
       logger.info(`Directorios de imágenes configurados correctamente:`, {
         basePath: this.basePath,
         productImagesPath: this.productImagesPath,
-        commentImagesPath: this.commentImagesPath
+        commentImagesPath: this.commentImagesPath,
+        marcaImagesPath: this.marcaImagesPath
       });
       return true;
     } catch (error) {
@@ -498,11 +544,14 @@ class StaticImageMiddleware {
     basePath: string;
     productImagesPath: string;
     commentImagesPath: string;
+    marcaImagesPath: string;
     productImagesCount: number;
     commentImagesCount: number;
+    marcaImagesCount: number;
   } {
     let productImagesCount = 0;
     let commentImagesCount = 0;
+    let marcaImagesCount = 0;
 
     try {
       if (fs.existsSync(this.productImagesPath)) {
@@ -520,6 +569,14 @@ class StaticImageMiddleware {
           return ALLOWED_IMAGE_TYPES.includes(ext);
         }).length;
       }
+
+      if (fs.existsSync(this.marcaImagesPath)) {
+        const marcaFiles = fs.readdirSync(this.marcaImagesPath);
+        marcaImagesCount = marcaFiles.filter(file => {
+          const ext = path.extname(file).toLowerCase();
+          return ALLOWED_IMAGE_TYPES.includes(ext);
+        }).length;
+      }
     } catch (error) {
       logger.error('Error al contar imágenes:', error);
     }
@@ -528,8 +585,10 @@ class StaticImageMiddleware {
       basePath: this.basePath,
       productImagesPath: this.productImagesPath,
       commentImagesPath: this.commentImagesPath,
+      marcaImagesPath: this.marcaImagesPath,
       productImagesCount,
-      commentImagesCount
+      commentImagesCount,
+      marcaImagesCount
     };
   }
 }
