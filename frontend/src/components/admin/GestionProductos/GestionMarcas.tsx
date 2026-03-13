@@ -30,9 +30,13 @@ const GestionMarcas: React.FC = memo(() => {
   const [loading, setLoading] = useState(true);
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<EditMarcaForm>({ nombre_marca: '', descripcion_marca: '' });
+  const [editLogoFile, setEditLogoFile] = useState<File | null>(null);
+  const [editLogoPreview, setEditLogoPreview] = useState<string | null>(null);
   const [eliminandoId, setEliminandoId] = useState<number | null>(null);
   const [creando, setCreando] = useState(false);
   const [nuevoForm, setNuevoForm] = useState<NuevaMarcaForm>({ nombre_marca: '', descripcion_marca: '' });
+  const [nuevoLogoFile, setNuevoLogoFile] = useState<File | null>(null);
+  const [nuevoLogoPreview, setNuevoLogoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>('nombre');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
@@ -53,18 +57,37 @@ const GestionMarcas: React.FC = memo(() => {
     cargarMarcas();
   }, [cargarMarcas]);
 
+  const handleLogoFileChange = (
+    file: File | null,
+    setFile: (f: File | null) => void,
+    setPreview: (p: string | null) => void
+  ) => {
+    setFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setPreview(null);
+    }
+  };
+
   const iniciarEdicion = useCallback((marca: Marca) => {
     setEditandoId(marca.id_marca);
     setEditForm({
       nombre_marca: marca.nombre_marca,
       descripcion_marca: marca.descripcion_marca || '',
     });
+    setEditLogoFile(null);
+    setEditLogoPreview(null);
     setEliminandoId(null);
   }, []);
 
   const cancelarEdicion = useCallback(() => {
     setEditandoId(null);
     setEditForm({ nombre_marca: '', descripcion_marca: '' });
+    setEditLogoFile(null);
+    setEditLogoPreview(null);
   }, []);
 
   const guardarEdicion = async (id: number) => {
@@ -78,8 +101,13 @@ const GestionMarcas: React.FC = memo(() => {
         nombre_marca: editForm.nombre_marca.trim(),
         descripcion_marca: editForm.descripcion_marca.trim() || undefined,
       });
+      if (editLogoFile) {
+        await adminProductService.uploadMarcaLogo(id, editLogoFile);
+      }
       showNotification('Marca actualizada exitosamente', 'success');
       setEditandoId(null);
+      setEditLogoFile(null);
+      setEditLogoPreview(null);
       await cargarMarcas();
     } catch (err: any) {
       showNotification(
@@ -120,6 +148,8 @@ const GestionMarcas: React.FC = memo(() => {
   const iniciarCreacion = useCallback(() => {
     setCreando(true);
     setNuevoForm({ nombre_marca: '', descripcion_marca: '' });
+    setNuevoLogoFile(null);
+    setNuevoLogoPreview(null);
     setEditandoId(null);
     setEliminandoId(null);
   }, []);
@@ -127,6 +157,8 @@ const GestionMarcas: React.FC = memo(() => {
   const cancelarCreacion = useCallback(() => {
     setCreando(false);
     setNuevoForm({ nombre_marca: '', descripcion_marca: '' });
+    setNuevoLogoFile(null);
+    setNuevoLogoPreview(null);
   }, []);
 
   const guardarNueva = async () => {
@@ -136,12 +168,17 @@ const GestionMarcas: React.FC = memo(() => {
     }
     setSaving(true);
     try {
-      await adminProductService.crearMarca({
+      const nuevaMarca = await adminProductService.crearMarca({
         nombre_marca: nuevoForm.nombre_marca.trim(),
         descripcion_marca: nuevoForm.descripcion_marca.trim() || undefined,
       });
+      if (nuevoLogoFile) {
+        await adminProductService.uploadMarcaLogo(nuevaMarca.id_marca, nuevoLogoFile);
+      }
       showNotification('Marca creada exitosamente', 'success');
       setCreando(false);
+      setNuevoLogoFile(null);
+      setNuevoLogoPreview(null);
       await cargarMarcas();
     } catch (err: any) {
       showNotification(
@@ -223,6 +260,7 @@ const GestionMarcas: React.FC = memo(() => {
           <table className={styles.table}>
             <thead>
               <tr>
+                <th className={styles.th}>Logo</th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
                   <span className={styles.sortableHeaderContent}>
                     Nombre
@@ -248,6 +286,23 @@ const GestionMarcas: React.FC = memo(() => {
             <tbody>
               {creando && (
                 <tr className={styles.newRow}>
+                  <td className={styles.td}>
+                    <div className={styles.logoCell}>
+                      {nuevoLogoPreview && (
+                        <img src={nuevoLogoPreview} alt="Preview" className={styles.logoPreview} />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className={styles.logoFileInput}
+                        onChange={e => handleLogoFileChange(
+                          e.target.files?.[0] ?? null,
+                          setNuevoLogoFile,
+                          setNuevoLogoPreview
+                        )}
+                      />
+                    </div>
+                  </td>
                   <td className={styles.td}>
                     <input
                       className={styles.editInput}
@@ -292,14 +347,14 @@ const GestionMarcas: React.FC = memo(() => {
 
               {sortedMarcas.length === 0 && !creando ? (
                 <tr>
-                  <td colSpan={5} className={styles.emptyMessage}>No hay marcas registradas</td>
+                  <td colSpan={6} className={styles.emptyMessage}>No hay marcas registradas</td>
                 </tr>
               ) : (
                 sortedMarcas.map(marca => {
                   if (eliminandoId === marca.id_marca) {
                     return (
                       <tr key={marca.id_marca} className={styles.confirmRow}>
-                        <td colSpan={4} className={styles.td}>
+                        <td colSpan={5} className={styles.td}>
                           <span className={styles.confirmText}>
                             ¿Eliminar <strong>«{marca.nombre_marca}»</strong>? Esta acción no se puede deshacer.
                           </span>
@@ -331,6 +386,27 @@ const GestionMarcas: React.FC = memo(() => {
                   if (editandoId === marca.id_marca) {
                     return (
                       <tr key={marca.id_marca} className={styles.editRow}>
+                        <td className={styles.td}>
+                          <div className={styles.logoCell}>
+                            {(editLogoPreview || marca.logo_marca) && (
+                              <img
+                                src={editLogoPreview || marca.logo_marca!}
+                                alt={marca.nombre_marca}
+                                className={styles.logoPreview}
+                              />
+                            )}
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp"
+                              className={styles.logoFileInput}
+                              onChange={e => handleLogoFileChange(
+                                e.target.files?.[0] ?? null,
+                                setEditLogoFile,
+                                setEditLogoPreview
+                              )}
+                            />
+                          </div>
+                        </td>
                         <td className={styles.td}>
                           <input
                             className={styles.editInput}
@@ -379,6 +455,13 @@ const GestionMarcas: React.FC = memo(() => {
 
                   return (
                     <tr key={marca.id_marca}>
+                      <td className={styles.td}>
+                        {marca.logo_marca ? (
+                          <img src={marca.logo_marca} alt={marca.nombre_marca} className={styles.logoThumb} />
+                        ) : (
+                          <span className={`material-icons ${styles.logoPlaceholder}`}>image_not_supported</span>
+                        )}
+                      </td>
                       <td className={styles.td}>{marca.nombre_marca}</td>
                       <td className={styles.td}>{marca.descripcion_marca || <span className={styles.emptyValue}>—</span>}</td>
                       <td className={styles.td}>

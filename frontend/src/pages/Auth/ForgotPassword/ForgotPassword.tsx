@@ -24,7 +24,7 @@ const ForgotPassword: React.FC = memo(() => {
       await axiosInstance.post('/clientes/forgot-password', { email_cliente: emailTrim });
       setEnviado(true);
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { error?: string; mensaje?: string } } };
+      const e = err as { response?: { status?: number; data?: { error?: string; mensaje?: string } } };
       const msg = e.response?.data?.error ?? e.response?.data?.mensaje;
       if (e.response?.status === 429) {
         setError(msg ?? 'Demasiados intentos. Esperá 15 minutos e intentá de nuevo.');
