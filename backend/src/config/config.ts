@@ -7,6 +7,7 @@ dotenv.config();
 const IMAGES_BASE_PATH = process.env.IMAGES_BASE_PATH || 'C:/xampp/htdocs/tecnocel';
 const PRODUCT_IMAGES_PATH = process.env.PRODUCT_IMAGES_PATH || path.join(IMAGES_BASE_PATH, 'products');
 const COMMENT_IMAGES_PATH = process.env.COMMENT_IMAGES_PATH || path.join(IMAGES_BASE_PATH, 'comments');
+const MARCA_IMAGES_PATH = process.env.MARCA_IMAGES_PATH || path.join(IMAGES_BASE_PATH, 'marcas');
 
 const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
 
@@ -43,10 +44,12 @@ export const config = {
     basePath: IMAGES_BASE_PATH,
     productImagesPath: PRODUCT_IMAGES_PATH,
     commentImagesPath: COMMENT_IMAGES_PATH,
+    marcaImagesPath: MARCA_IMAGES_PATH,
 
     // Imágenes por defecto
     defaultProductImage: process.env.DEFAULT_PRODUCT_IMAGE || 'default-product.png',
     defaultCommentImage: process.env.DEFAULT_COMMENT_IMAGE || 'default-comment.png',
+    defaultMarcaImage: process.env.DEFAULT_MARCA_IMAGE || 'default-marca.png',
 
     // Cloudinary
     cloudinary: {
