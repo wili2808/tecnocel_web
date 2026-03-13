@@ -7,7 +7,8 @@ import sequelize from '../config/database.js';
 // Tipos de imagen soportados
 export enum ImageType {
   PRODUCT = 'product',
-  COMMENT = 'comment'
+  COMMENT = 'comment',
+  BRAND = 'brand'
 }
 
 interface ImageServiceConfig {
@@ -19,6 +20,8 @@ interface ImageServiceConfig {
   defaultCommentImage: string;
   endpoint: string;
   useCloudinary?: boolean;
+  marcaImagesPath: string;
+  defaultMarcaImage: string;
 }
 
 interface ImageInfo {
@@ -50,7 +53,8 @@ class ImageService {
     const directories = [
       this.config.basePath,
       this.config.productImagesPath,
-      this.config.commentImagesPath
+      this.config.commentImagesPath,
+      this.config.marcaImagesPath
     ];
 
     directories.forEach(dir => {
@@ -74,6 +78,8 @@ class ImageService {
         return this.config.productImagesPath;
       case ImageType.COMMENT:
         return this.config.commentImagesPath;
+      case ImageType.BRAND:
+        return this.config.marcaImagesPath;
       default:
         return this.config.basePath;
     }
@@ -88,6 +94,8 @@ class ImageService {
         return this.config.defaultProductImage;
       case ImageType.COMMENT:
         return this.config.defaultCommentImage;
+      case ImageType.BRAND:
+        return this.config.defaultMarcaImage;
       default:
         return this.config.defaultProductImage;
     }
@@ -110,7 +118,11 @@ class ImageService {
       return this.getDefaultImageUrl(imageType);
     }
 
-    const endpoint = imageType === ImageType.COMMENT ? 'comment-images' : 'images';
+    const endpoint = imageType === ImageType.BRAND
+      ? 'marca-images'
+      : imageType === ImageType.COMMENT
+      ? 'comment-images'
+      : 'images';
     return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/${endpoint}/${imageName}`;
   }
 
@@ -122,7 +134,11 @@ class ImageService {
     if (/^https?:\/\//i.test(defaultImage)) {
       return defaultImage;
     }
-    const endpoint = imageType === ImageType.COMMENT ? 'comment-images' : 'images';
+    const endpoint = imageType === ImageType.BRAND
+      ? 'marca-images'
+      : imageType === ImageType.COMMENT
+      ? 'comment-images'
+      : 'images';
     return `${this.config.baseUrl}:${process.env.PORT || 3000}/api/${endpoint}/${defaultImage}`;
   }
 
@@ -345,7 +361,8 @@ class ImageService {
     const directories = [
       this.config.basePath,
       this.config.productImagesPath,
-      this.config.commentImagesPath
+      this.config.commentImagesPath,
+      this.config.marcaImagesPath
     ];
 
     for (const dir of directories) {
@@ -365,6 +382,11 @@ class ImageService {
 
     if (!fs.existsSync(defaultCommentPath)) {
       logger.warn(`Imagen por defecto de comentarios no encontrada: ${defaultCommentPath}`);
+    }
+
+    const defaultMarcaPath = path.join(this.config.marcaImagesPath, this.config.defaultMarcaImage);
+    if (!fs.existsSync(defaultMarcaPath)) {
+      logger.warn(`Imagen por defecto de marcas no encontrada: ${defaultMarcaPath}`);
     }
 
     return true;
