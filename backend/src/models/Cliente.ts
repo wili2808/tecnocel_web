@@ -13,6 +13,7 @@ class Cliente extends Model {
   declare last_login: Date | null;
   declare email_verified: boolean;
   declare verification_token: string | null;
+  declare verification_token_expires: Date | null;
   declare reset_token: string | null;
   declare reset_token_expires: Date | null;
   declare google_id: string | null;
@@ -69,6 +70,10 @@ Cliente.init({
   },
   verification_token: {
     type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  verification_token_expires: {
+    type: DataTypes.DATE,
     allowNull: true
   },
   reset_token: {
