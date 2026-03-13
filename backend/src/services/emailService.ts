@@ -9,6 +9,19 @@ const __dirname = path.dirname(__filename);
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'email');
 
 // ──────────────────────────────────────────────
+// Caché de plantillas HTML (evita leer disco en cada envío)
+// ──────────────────────────────────────────────
+const templateCache = new Map<string, string>();
+
+function getTemplate(name: string): string {
+  if (!templateCache.has(name)) {
+    const filePath = path.join(TEMPLATES_DIR, `${name}.html`);
+    templateCache.set(name, fs.readFileSync(filePath, 'utf-8'));
+  }
+  return templateCache.get(name)!;
+}
+
+// ──────────────────────────────────────────────
 // Transporter (Brevo SMTP — solo cambiar .env)
 // ──────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
@@ -25,13 +38,10 @@ const transporter = nodemailer.createTransport({
 // Motor de plantillas
 // ──────────────────────────────────────────────
 function renderTemplate(templateName: string, variables: Record<string, string>): string {
-  const basePath = path.join(TEMPLATES_DIR, 'base.html');
-  const contentPath = path.join(TEMPLATES_DIR, `${templateName}.html`);
+  const base = getTemplate('base');
+  let content = getTemplate(templateName);
 
-  let base = fs.readFileSync(basePath, 'utf-8');
-  let content = fs.readFileSync(contentPath, 'utf-8');
-
-  // Reemplazar variables en el contenido
+  // Reemplazar variables en el contenido (modifica la copia local, no el caché)
   for (const [key, value] of Object.entries(variables)) {
     content = content.replaceAll(`{{${key}}}`, value);
   }
@@ -132,6 +142,15 @@ function maskEmail(email: string): string {
   return `${user.slice(0, 2)}***@${domain}`;
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 // ──────────────────────────────────────────────
 // Funciones exportadas
 // ──────────────────────────────────────────────
@@ -210,7 +229,7 @@ export async function sendOrderConfirmationEmail(email: string, venta: Confirmac
 export async function sendCancellationEmail(email: string, venta: VentaEmailData): Promise<void> {
   const motivoHtml = venta.motivo
     ? `<div style="background-color:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:4px;margin:16px 0;">
-         <p style="margin:0;color:#991B1B;font-size:13px;"><strong>Motivo de cancelación:</strong> ${venta.motivo}</p>
+         <p style="margin:0;color:#991B1B;font-size:13px;"><strong>Motivo de cancelación:</strong> ${escapeHtml(venta.motivo)}</p>
        </div>`
     : '';
   try {
@@ -260,10 +279,10 @@ export async function sendCommentReplyEmail(email: string, data: CommentReplyEma
   const productoUrl = `${FRONTEND_URL}/productos/${data.id_producto}`;
   try {
     const html = renderTemplate('comment-reply', {
-      nombre_cliente: data.nombre_cliente,
-      nombre_producto: data.nombre_producto,
-      texto_comentario: data.texto_comentario,
-      texto_respuesta: data.texto_respuesta,
+      nombre_cliente: escapeHtml(data.nombre_cliente),
+      nombre_producto: escapeHtml(data.nombre_producto),
+      texto_comentario: escapeHtml(data.texto_comentario),
+      texto_respuesta: escapeHtml(data.texto_respuesta),
       producto_url: productoUrl,
     });
     await transporter.sendMail({

@@ -21,11 +21,17 @@ const forgotPasswordAttempts = new Map<string, { count: number; resetAt: number 
 const RATE_LIMIT_MAX_ATTEMPTS = 3;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutos
 
+// Rate limiting para resend-verification (en memoria)
+const resendAttempts = new Map<string, { count: number; resetAt: number }>();
+
 // Cleanup periódico para evitar memory leak
 setInterval(() => {
   const now = Date.now();
   for (const [key, value] of forgotPasswordAttempts.entries()) {
     if (now >= value.resetAt) forgotPasswordAttempts.delete(key);
+  }
+  for (const [key, value] of resendAttempts.entries()) {
+    if (now >= value.resetAt) resendAttempts.delete(key);
   }
 }, 60 * 60 * 1000);
 
@@ -155,6 +161,13 @@ export default class ClienteController {
         logger.warn(`Login fallido: Acceso web deshabilitado (${email_cliente})`);
         return res.status(403).json({ mensaje: 'Esta cuenta no está habilitada para acceso web. Por favor, contacta con soporte.' });
       }
+      if (!cliente.email_verified) {
+        logger.warn(`Login fallido: Email no verificado (${email_cliente})`);
+        return res.status(403).json({
+          mensaje: 'Debés verificar tu email antes de iniciar sesión.',
+          requiresVerification: true
+        });
+      }
       if (!cliente.password_hash) {
         logger.warn(`Login fallido: contraseña no establecida (${email_cliente})`);
         return res.status(403).json({ mensaje: 'Debes establecer una contraseña para acceder o usar un acceso social.' });
@@ -188,7 +201,7 @@ export default class ClienteController {
         email: req.body.email_cliente,
         error: error instanceof Error ? error.message : error
       });
-      return res.status(500).json({ mensaje: 'Hubo un error al procesar tu solicitud.', error });
+      return res.status(500).json({ mensaje: 'Hubo un error al procesar tu solicitud.' });
     }
   }
 
@@ -403,7 +416,7 @@ export default class ClienteController {
       }
 
       // Rate limiting por email
-      const emailKey = (req.body.email as string ?? email_cliente).toLowerCase().trim();
+      const emailKey = email_cliente.toLowerCase().trim();
       const now = Date.now();
       const attempt = forgotPasswordAttempts.get(emailKey);
 
@@ -493,7 +506,7 @@ export default class ClienteController {
    */
   static async resetPassword(req: Request, res: Response) {
     try {
-      const { reset_token, nueva_contrasena } = req.body;
+      const { token: reset_token, nueva_contrasena } = req.body;
 
       logger.debug('Procesando restablecimiento de contraseña');
 
@@ -517,10 +530,10 @@ export default class ClienteController {
       // Hashear la nueva contraseña
       cliente.password_hash = await bcrypt.hash(nueva_contrasena, BCRYPT_SALT_ROUNDS);
 
-      // Limpiar tokens y habilitar acceso (Sequelize actualizará 'fyh_actualizacion' automáticamente)
+      // Limpiar tokens (Sequelize actualizará 'fyh_actualizacion' automáticamente)
+      // Nota: is_web_enabled solo se activa al verificar el email, no al resetear la contraseña
       cliente.reset_token = null;
       cliente.reset_token_expires = null;
-      cliente.is_web_enabled = true;
 
       await cliente.save();
 
@@ -898,6 +911,20 @@ export default class ClienteController {
 
       if (!email) {
         return res.status(400).json({ error: 'Email requerido' });
+      }
+
+      // Rate limiting por email
+      const emailKeyResend = (email as string).toLowerCase().trim();
+      const nowResend = Date.now();
+      const resendAttempt = resendAttempts.get(emailKeyResend);
+
+      if (resendAttempt && nowResend < resendAttempt.resetAt) {
+        if (resendAttempt.count >= 3) {
+          return res.status(429).json({ error: 'Demasiados intentos. Esperá 15 minutos.' });
+        }
+        resendAttempts.set(emailKeyResend, { count: resendAttempt.count + 1, resetAt: resendAttempt.resetAt });
+      } else {
+        resendAttempts.set(emailKeyResend, { count: 1, resetAt: nowResend + 15 * 60 * 1000 });
       }
 
       const cliente = await Cliente.findOne({ where: { email_cliente: email } });
