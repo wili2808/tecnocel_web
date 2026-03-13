@@ -1,80 +1,77 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import logger from './loggerService.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'email');
+
+// ──────────────────────────────────────────────
+// Transporter (Brevo SMTP — solo cambiar .env)
+// ──────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: Number(process.env.EMAIL_PORT),
-  secure: Number(process.env.EMAIL_PORT) === 465, // true para 465, false para otros
+  secure: Number(process.env.EMAIL_PORT) === 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-export async function sendVerificationEmail(email: string, token: string) {
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verificar-email?token=${token}`;
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Verifica tu cuenta en TecnoCel',
-      html: `
-        <h2>¡Bienvenido a TecnoCel!</h2>
-        <p>Haz clic en el siguiente enlace para verificar tu cuenta:</p>
-        <a href="${verificationUrl}">${verificationUrl}</a>
-      `,
-    });
-    logger.info('Correo de verificación enviado', { email: email });
-  } catch (error) {
-    logger.error('Error enviando correo de verificación:', error);
-    throw new Error('No se pudo enviar el correo de verificación');
+// ──────────────────────────────────────────────
+// Motor de plantillas
+// ──────────────────────────────────────────────
+function renderTemplate(templateName: string, variables: Record<string, string>): string {
+  const basePath = path.join(TEMPLATES_DIR, 'base.html');
+  const contentPath = path.join(TEMPLATES_DIR, `${templateName}.html`);
+
+  let base = fs.readFileSync(basePath, 'utf-8');
+  let content = fs.readFileSync(contentPath, 'utf-8');
+
+  // Reemplazar variables en el contenido
+  for (const [key, value] of Object.entries(variables)) {
+    content = content.replaceAll(`{{${key}}}`, value);
   }
+
+  // Inyectar contenido en el layout base
+  return base.replace('{{content}}', content);
 }
 
-export async function sendResetPasswordEmail(email: string, token: string) {
-  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Restablecer tu contraseña en TecnoCel',
-      html: `
-        <h2>Restablecer Contraseña</h2>
-        <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-        <a href="${resetUrl}">${resetUrl}</a>
-        <p>Este enlace expirará en 1 hora.</p>
-      `,
-    });
-    logger.info('Correo de restablecimiento enviado', { email: email });
-  } catch (error) {
-    logger.error('Error enviando correo de restablecimiento:', error);
-    throw new Error('No se pudo enviar el correo de restablecimiento');
-  }
+function buildItemsTable(items: ItemEmail[]): string {
+  const filas = items.map(item => {
+    const nombre = item.nombre_producto ?? item.nombre ?? 'Producto';
+    const precioUnit = `$${item.precio_unitario.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+    const subtotal = `$${item.subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+    return `
+      <tr>
+        <td style="padding:8px;border-bottom:1px solid #F1F5F9;color:#374151;">${nombre}</td>
+        <td style="padding:8px;border-bottom:1px solid #F1F5F9;text-align:center;color:#374151;">${item.cantidad}</td>
+        <td style="padding:8px;border-bottom:1px solid #F1F5F9;text-align:right;color:#374151;">${precioUnit}</td>
+        <td style="padding:8px;border-bottom:1px solid #F1F5F9;text-align:right;font-weight:600;color:#0F172A;">${subtotal}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:16px;border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;">
+      <thead>
+        <tr style="background-color:#F8FAFC;">
+          <th style="padding:10px 8px;text-align:left;font-size:13px;color:#64748B;font-weight:600;">Producto</th>
+          <th style="padding:10px 8px;text-align:center;font-size:13px;color:#64748B;font-weight:600;">Cant.</th>
+          <th style="padding:10px 8px;text-align:right;font-size:13px;color:#64748B;font-weight:600;">Precio unit.</th>
+          <th style="padding:10px 8px;text-align:right;font-size:13px;color:#64748B;font-weight:600;">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>${filas}</tbody>
+    </table>`;
 }
 
-export async function sendWelcomeEmail(email: string, nombre: string) {
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: '¡Bienvenido/a a TecnoCel!',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0EA5E9;">¡Bienvenido/a a TecnoCel, ${nombre}!</h2>
-          <p>Tu cuenta ha sido creada exitosamente. Ya podés explorar nuestro catálogo de productos tecnológicos.</p>
-          <p>Si tenés alguna consulta, no dudes en contactarnos.</p>
-          <p style="color: #666; font-size: 14px;">— El equipo de TecnoCel</p>
-        </div>
-      `,
-    });
-    logger.info('Correo de bienvenida enviado', { email });
-  } catch (error) {
-    logger.error('Error enviando correo de bienvenida:', error);
-    throw new Error('No se pudo enviar el correo de bienvenida');
-  }
-}
-
-interface ItemEmail {
+// ──────────────────────────────────────────────
+// Interfaces
+// ──────────────────────────────────────────────
+export interface ItemEmail {
   nombre_producto?: string;
   nombre?: string;
   cantidad: number;
@@ -82,99 +79,202 @@ interface ItemEmail {
   subtotal: number;
 }
 
-interface VentaEmailData {
+export interface VentaEmailData {
   nro_venta: string;
   total_pagado: number;
   motivo?: string | null;
   items: ItemEmail[];
 }
 
-interface ConfirmacionEmailData {
+export interface ConfirmacionEmailData {
   nro_venta: string;
   nombre_cliente: string;
   total_pagado: number;
   items: ItemEmail[];
 }
 
-function buildItemsTable(items: ItemEmail[]): string {
-  const filas = items.map(item => {
-    const nombre = item.nombre_producto || item.nombre || 'Producto';
-    return `
-      <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #eee;">${nombre}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.cantidad}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${item.precio_unitario.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${item.subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
-      </tr>
-    `;
-  }).join('');
-  return `
-    <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
-      <thead>
-        <tr style="background: #f3f4f6;">
-          <th style="padding: 8px; text-align: left;">Producto</th>
-          <th style="padding: 8px; text-align: center;">Cant.</th>
-          <th style="padding: 8px; text-align: right;">Precio unit.</th>
-          <th style="padding: 8px; text-align: right;">Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>${filas}</tbody>
-    </table>
-  `;
+export interface EstadoVentaEmailData {
+  nro_venta: string;
+  nombre_cliente: string;
+  nuevo_estado: 'en_preparacion' | 'enviado' | 'entregado';
 }
 
-export async function sendCancellationEmail(email: string, venta: VentaEmailData) {
-  try {
-    const motivoHtml = venta.motivo
-      ? `<p><strong>Motivo de cancelación:</strong> ${venta.motivo}</p>`
-      : '';
-    const totalFormateado = `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+export interface CommentReplyEmailData {
+  nombre_cliente: string;
+  nombre_producto: string;
+  id_producto: number;
+  texto_comentario: string;
+  texto_respuesta: string;
+}
 
+// ──────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173';
+
+const ESTADO_LABELS: Record<string, { label: string; descripcion: string }> = {
+  en_preparacion: {
+    label: '🔧 En preparación',
+    descripcion: 'Estamos preparando tu pedido. Pronto estará listo.',
+  },
+  enviado: {
+    label: '🚚 En camino',
+    descripcion: 'Tu pedido ya fue despachado y está en camino.',
+  },
+  entregado: {
+    label: '✅ Entregado',
+    descripcion: 'Tu pedido fue entregado. ¡Esperamos que lo disfrutes!',
+  },
+};
+
+function maskEmail(email: string): string {
+  const [user, domain] = email.split('@');
+  return `${user.slice(0, 2)}***@${domain}`;
+}
+
+// ──────────────────────────────────────────────
+// Funciones exportadas
+// ──────────────────────────────────────────────
+
+export async function sendVerificationEmail(email: string, nombre: string, token: string): Promise<void> {
+  const verificationUrl = `${FRONTEND_URL}/verificar-email?token=${token}`;
+  try {
+    const html = renderTemplate('verification', { nombre, verification_url: verificationUrl });
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: email,
-      subject: `Tu venta ${venta.nro_venta} ha sido cancelada — TecnoCel`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #EF4444;">Venta cancelada: ${venta.nro_venta}</h2>
-          <p>Te informamos que tu venta <strong>${venta.nro_venta}</strong> ha sido cancelada.</p>
-          ${motivoHtml}
-          <p><strong>Total de la venta:</strong> ${totalFormateado}</p>
-          ${buildItemsTable(venta.items)}
-          <p style="margin-top: 24px;">Si tenés alguna consulta sobre este proceso, no dudes en contactarnos.</p>
-          <p style="color: #666; font-size: 14px;">— El equipo de TecnoCel</p>
-        </div>
-      `,
+      subject: 'Activá tu cuenta en TecnoCel',
+      html,
     });
-    logger.info('Correo de cancelación enviado', { email, nro_venta: venta.nro_venta });
+    logger.info('Email de verificación enviado', { email: maskEmail(email) });
   } catch (error) {
-    logger.error('Error enviando correo de cancelación:', error);
-    throw new Error('No se pudo enviar el correo de cancelación');
+    logger.error('Error enviando email de verificación:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de verificación');
   }
 }
 
-export async function sendOrderConfirmationEmail(email: string, venta: ConfirmacionEmailData) {
+export async function sendResetPasswordEmail(email: string, token: string): Promise<void> {
+  const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
   try {
-    const totalFormateado = `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+    const html = renderTemplate('reset-password', { reset_url: resetUrl });
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: 'Restablecer contraseña — TecnoCel',
+      html,
+    });
+    logger.info('Email de reset de contraseña enviado', { email: maskEmail(email) });
+  } catch (error) {
+    logger.error('Error enviando email de reset:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de restablecimiento');
+  }
+}
 
+export async function sendWelcomeEmail(email: string, nombre: string): Promise<void> {
+  try {
+    const html = renderTemplate('welcome', { nombre, frontend_url: FRONTEND_URL });
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: '¡Tu cuenta está activa! Bienvenido/a a TecnoCel',
+      html,
+    });
+    logger.info('Email de bienvenida enviado', { email: maskEmail(email) });
+  } catch (error) {
+    logger.error('Error enviando email de bienvenida:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de bienvenida');
+  }
+}
+
+export async function sendOrderConfirmationEmail(email: string, venta: ConfirmacionEmailData): Promise<void> {
+  try {
+    const html = renderTemplate('order-confirmation', {
+      nro_venta: venta.nro_venta,
+      nombre_cliente: venta.nombre_cliente,
+      total_pagado: `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`,
+      items_table: buildItemsTable(venta.items),
+    });
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: email,
       subject: `¡Pedido confirmado! ${venta.nro_venta} — TecnoCel`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0EA5E9;">¡Gracias por tu compra, ${venta.nombre_cliente}!</h2>
-          <p>Tu pedido <strong>${venta.nro_venta}</strong> ha sido confirmado exitosamente.</p>
-          ${buildItemsTable(venta.items)}
-          <p style="margin-top: 16px;"><strong>Total:</strong> ${totalFormateado}</p>
-          <p>Nos pondremos en contacto para coordinar la entrega o el retiro en tienda.</p>
-          <p style="color: #666; font-size: 14px;">— El equipo de TecnoCel</p>
-        </div>
-      `,
+      html,
     });
-    logger.info('Correo de confirmación de compra enviado', { email, nro_venta: venta.nro_venta });
+    logger.info('Email de confirmación de compra enviado', { email: maskEmail(email), nro_venta: venta.nro_venta });
   } catch (error) {
-    logger.error('Error enviando correo de confirmación de compra:', error);
+    logger.error('Error enviando email de confirmación de compra:', { error: (error as Error).message });
     throw new Error('No se pudo enviar el correo de confirmación de compra');
+  }
+}
+
+export async function sendCancellationEmail(email: string, venta: VentaEmailData): Promise<void> {
+  const motivoHtml = venta.motivo
+    ? `<div style="background-color:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:4px;margin:16px 0;">
+         <p style="margin:0;color:#991B1B;font-size:13px;"><strong>Motivo de cancelación:</strong> ${venta.motivo}</p>
+       </div>`
+    : '';
+  try {
+    const html = renderTemplate('order-cancelled', {
+      nro_venta: venta.nro_venta,
+      motivo_html: motivoHtml,
+      total_pagado: `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`,
+      items_table: buildItemsTable(venta.items),
+    });
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: `Tu pedido ${venta.nro_venta} fue cancelado — TecnoCel`,
+      html,
+    });
+    logger.info('Email de cancelación enviado', { email: maskEmail(email), nro_venta: venta.nro_venta });
+  } catch (error) {
+    logger.error('Error enviando email de cancelación:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de cancelación');
+  }
+}
+
+export async function sendOrderStatusEmail(email: string, data: EstadoVentaEmailData): Promise<void> {
+  const estadoInfo = ESTADO_LABELS[data.nuevo_estado];
+  if (!estadoInfo) return;
+  try {
+    const html = renderTemplate('order-status', {
+      nro_venta: data.nro_venta,
+      nombre_cliente: data.nombre_cliente,
+      estado_label: estadoInfo.label,
+      estado_descripcion: estadoInfo.descripcion,
+    });
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: `Actualización de tu pedido ${data.nro_venta} — TecnoCel`,
+      html,
+    });
+    logger.info('Email de estado de venta enviado', { email: maskEmail(email), nro_venta: data.nro_venta, estado: data.nuevo_estado });
+  } catch (error) {
+    logger.error('Error enviando email de estado de venta:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de estado de venta');
+  }
+}
+
+export async function sendCommentReplyEmail(email: string, data: CommentReplyEmailData): Promise<void> {
+  const productoUrl = `${FRONTEND_URL}/productos/${data.id_producto}`;
+  try {
+    const html = renderTemplate('comment-reply', {
+      nombre_cliente: data.nombre_cliente,
+      nombre_producto: data.nombre_producto,
+      texto_comentario: data.texto_comentario,
+      texto_respuesta: data.texto_respuesta,
+      producto_url: productoUrl,
+    });
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: `Respondieron tu comentario en TecnoCel`,
+      html,
+    });
+    logger.info('Email de respuesta a comentario enviado', { email: maskEmail(email) });
+  } catch (error) {
+    logger.error('Error enviando email de respuesta a comentario:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de respuesta a comentario');
   }
 }
