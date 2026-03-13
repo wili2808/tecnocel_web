@@ -1,9 +1,27 @@
 import { Request, Response } from 'express';
 import Marca from '../models/Marca.js';
 import logger from '../services/loggerService.js';
+import { getImageService, ImageType } from '../services/imageService.js';
 
 interface CreateMarcaBody { nombre_marca: string; logo_marca?: string; descripcion_marca?: string; }
 interface UpdateMarcaBody extends Partial<CreateMarcaBody> { activo?: boolean; }
+
+/**
+ * Enriquece datos de marca con URL completa del logo
+ * @param marca - Instancia Sequelize de Marca o datos planos
+ * @returns Datos de marca con logo_marca transformado a URL completa (o null)
+ */
+function enriquecerLogoMarca(marca: any): any {
+  const imageService = getImageService();
+  if (!imageService) return marca.toJSON ? marca.toJSON() : marca;
+  const data = marca.toJSON ? marca.toJSON() : marca;
+  return {
+    ...data,
+    logo_marca: data.logo_marca
+      ? imageService.generateImageUrl(data.logo_marca, ImageType.BRAND)
+      : null
+  };
+}
 
 /**
  * Controlador para gestión de marcas de productos
@@ -44,7 +62,7 @@ export class MarcaController {
 
       res.json({
         success: true,
-        data: marcas,
+        data: marcas.map(enriquecerLogoMarca),
         count: marcas.length
       });
     } catch (error) {
@@ -97,7 +115,7 @@ export class MarcaController {
 
       res.json({
         success: true,
-        data: marca
+        data: enriquecerLogoMarca(marca)
       });
     } catch (error) {
       logger.error('Error obteniendo marca por ID:', {
