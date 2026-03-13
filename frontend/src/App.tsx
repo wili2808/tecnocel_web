@@ -33,6 +33,7 @@ const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
 const Offers = lazy(() => import('./pages/Offers/Offers'));
 const Brands = lazy(() => import('./pages/Brands/Brands'));
 const Contacto = lazy(() => import('./pages/Contacto'));
+const VerificarEmail = lazy(() => import('./pages/Auth/VerificarEmail/VerificarEmail'));
 // Componentes de administración
 const AdminLogin = lazy(() => import('./pages/AdminLogin/AdminLogin'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel'));
@@ -96,6 +97,7 @@ function App() {
                                     <Register />
                                   </PublicOnlyRoute>
                                 } />
+                                <Route path="/verificar-email" element={<VerificarEmail />} />
                                 {/* Rutas protegidas de cliente */}
                                 <Route path="/panel" element={
                                   <ProtectedRoute allowedUserTypes={['cliente']}>

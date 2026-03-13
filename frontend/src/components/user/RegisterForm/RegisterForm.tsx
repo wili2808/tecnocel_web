@@ -172,30 +172,10 @@ const RegisterForm = () => {
       }
 
       // ✅ EJECUTAR REGISTRO con datos validados
-      const response = await register(formData);
+      await register(formData);
 
-      // ✅ MOSTRAR MENSAJE DE ÉXITO y limpiar formulario
-      showNotification(
-        response.mensaje || "¡Cuenta creada exitosamente! Ya estás logeado.",
-        "success"
-      );
-
-      // ✅ LIMPIAR FORMULARIO completo después de éxito
-      setFormData({
-        nombre: "",
-        apellido: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        celular: "",
-        nitCi: "",
-      });
-      setFormErrors({});
-
-      // ✅ REDIRIGIR a la página principal (usuario ya logeado)
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      // ✅ REDIRIGIR a la página de verificación de email
+      navigate("/verificar-email");
     } catch (error: any) {
       // ✅ MANEJO DE ERRORES con mensajes descriptivos
       const errorMessage =
