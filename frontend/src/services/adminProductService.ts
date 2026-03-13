@@ -168,6 +168,17 @@ const adminProductService = {
     await adminApi.delete(`/marcas/${id}`);
   },
 
+  /**
+   * Sube el logo de una marca al servidor
+   * @returns Objeto con filename y url del logo subido
+   */
+  uploadMarcaLogo: async (id_marca: number, file: File): Promise<{ filename: string; url: string }> => {
+    const formData = new FormData();
+    formData.append('logo', file);
+    const { data } = await adminApi.post(`/upload/marca-logo/${id_marca}`, formData);
+    return data.data;
+  },
+
   // ============================================================================
   // CRUD COMPLETO — CATEGORÍAS
   // ============================================================================
