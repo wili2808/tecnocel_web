@@ -234,6 +234,7 @@ async function main() {
     await createDefaultMarca(DEST_DIR);
   } catch (err: any) {
     log.error(`Error al crear default-marca.png: ${err.message}`);
+    errors++;
   }
 
   // 8. Resumen final
