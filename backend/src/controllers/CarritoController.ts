@@ -1462,12 +1462,15 @@ export default class CarritoController {
             nro_venta:      `V-${nroVenta.toString().padStart(5, '0')}`,
             nombre_cliente: cliente.nombre_cliente,
             total_pagado:   total_en_moneda,
-            items: (carrito.items || []).map(item => ({
-              nombre_producto: item.producto?.nombre || 'Producto',
-              cantidad:        item.cantidad,
-              precio_unitario: item.precio_unitario,
-              subtotal:        item.subtotal
-            }))
+            items: (carrito.items || []).map(item => {
+              const precioUSD = preciosMap.get(item.id_item) ?? parseFloat(item.precio_unitario.toString());
+              return {
+                nombre_producto: item.producto?.nombre || 'Producto',
+                cantidad:        item.cantidad,
+                precio_unitario: parseFloat((precioUSD * factor).toFixed(2)),
+                subtotal:        parseFloat((precioUSD * item.cantidad * factor).toFixed(2)),
+              };
+            })
           }).catch(err => logger.error('Error enviando email de confirmación de compra:', { error: err.message }));
         }
       }).catch(err => logger.error('Error buscando cliente para email confirmación:', { error: err.message }));

@@ -1084,19 +1084,19 @@ class ComentarioController {
         const comentarioConDatos = await Comentario.findByPk(comentarioId, {
           include: [
             { model: Cliente, as: 'cliente', attributes: ['email_cliente', 'nombre_cliente'] },
-            { model: Almacen, as: 'producto', attributes: ['nombre', 'id_almacen'] },
+            { model: Almacen, as: 'producto', attributes: ['nombre'] },
           ],
         });
 
         const datos = comentarioConDatos?.toJSON() as Record<string, unknown> | undefined;
         const clienteDatos = datos?.['cliente'] as { email_cliente: string; nombre_cliente: string } | undefined;
-        const productoDatos = datos?.['producto'] as { nombre: string; id_almacen: number } | undefined;
+        const productoDatos = datos?.['producto'] as { nombre: string } | undefined;
 
         if (clienteDatos?.email_cliente) {
           sendCommentReplyEmail(clienteDatos.email_cliente, {
             nombre_cliente: clienteDatos.nombre_cliente,
             nombre_producto: productoDatos?.nombre ?? 'producto',
-            id_producto: productoDatos?.id_almacen ?? 0,
+            id_producto: (datos?.['id_producto'] as number) ?? 0,
             texto_comentario: (datos?.['comentario'] as string ?? '').substring(0, 200),
             texto_respuesta: contenido,
           }).catch(err => logger.error('Error enviando email de respuesta a comentario:', { error: (err as Error).message }));

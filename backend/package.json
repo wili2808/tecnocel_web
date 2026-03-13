@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').cpSync('src/templates', 'dist/templates', {recursive: true})\"",
     "start": "node dist/index.js",
     "dev": "concurrently \"tsc --watch\" \"nodemon\"",
     "dev:local": "node switch-env.js local && npm run dev",

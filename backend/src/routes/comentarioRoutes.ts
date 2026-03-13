@@ -263,6 +263,7 @@ router.delete(
   '/respuestas/:id_respuesta/admin',
   verificarToken,
   validateRespuestaIdParam,
+  (req: Request, _res: Response, next: NextFunction) => { req.body.estado = 'eliminado'; next(); },
   (req: Request, res: Response) => comentarioController.moderarRespuesta(req, res)
 );
 
