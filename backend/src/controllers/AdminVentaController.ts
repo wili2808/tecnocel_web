@@ -32,7 +32,7 @@ import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
-import { sendCancellationEmail } from '../services/emailService.js';
+import { sendCancellationEmail, sendOrderStatusEmail } from '../services/emailService.js';
 import notificationService from '../services/notificationService.js';
 
 /** Type guard para verificar que el usuario es del sistema (tiene idRol) */
@@ -679,6 +679,61 @@ export default class AdminVentaController {
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
       return res.status(500).json({ mensaje: 'Error al actualizar tipo de cambio' });
+    }
+  }
+
+  /**
+   * Actualiza el estado de una venta (en_preparacion, enviado, entregado)
+   * PATCH /api/ventas/admin/:id_venta/estado
+   *
+   * Roles: admin (1), gerente (2), vendedor (3)
+   * Envía email al cliente de forma no bloqueante al actualizar el estado.
+   */
+  static async actualizarEstadoVenta(req: Request, res: Response) {
+    try {
+      const { id_venta } = req.params;
+      const { estado } = req.body as { estado: string };
+
+      const estadosValidos = ['en_preparacion', 'enviado', 'entregado'] as const;
+      type EstadoValidoVenta = typeof estadosValidos[number];
+
+      if (!estadosValidos.includes(estado as EstadoValidoVenta)) {
+        return res.status(400).json({ error: `Estado inválido. Valores permitidos: ${estadosValidos.join(', ')}` });
+      }
+
+      const venta = await Venta.findByPk(parseInt(id_venta), {
+        include: [{ model: Cliente, attributes: ['email_cliente', 'nombre_cliente'] }]
+      });
+
+      if (!venta) {
+        return res.status(404).json({ error: 'Venta no encontrada' });
+      }
+
+      if (venta.estado === 'cancelada') {
+        return res.status(400).json({ error: 'No se puede actualizar el estado de una venta cancelada' });
+      }
+
+      await venta.update({ estado, fyh_actualizacion: new Date() });
+
+      logger.info('Estado de venta actualizado', { id_venta, estado, id_usuario: req.usuario?.id });
+
+      // Enviar email al cliente (no bloqueante)
+      const ventaJson = venta.toJSON() as Record<string, unknown>;
+      const clienteData = ventaJson['Cliente'] as { email_cliente: string; nombre_cliente: string } | undefined;
+
+      if (clienteData?.email_cliente) {
+        const nroVenta = `V-${String(ventaJson['nro_venta']).padStart(5, '0')}`;
+        sendOrderStatusEmail(clienteData.email_cliente, {
+          nro_venta: nroVenta,
+          nombre_cliente: clienteData.nombre_cliente,
+          nuevo_estado: estado as EstadoValidoVenta,
+        }).catch(err => logger.error('Error enviando email de estado de venta:', { error: err.message }));
+      }
+
+      return res.status(200).json({ success: true, mensaje: `Estado actualizado a: ${estado}` });
+    } catch (error) {
+      logger.error('Error en actualizarEstadoVenta:', error);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 }

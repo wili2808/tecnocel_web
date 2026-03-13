@@ -90,6 +90,17 @@ router.patch('/admin/:id_venta/cancelar',
 );
 
 /**
+ * PATCH /api/ventas/admin/:id_venta/estado
+ * Actualiza el estado de una venta (en_preparacion, enviado, entregado)
+ * Roles: admin (1), gerente (2), vendedor (3)
+ */
+router.patch('/admin/:id_venta/estado',
+  verificarToken,
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  AdminVentaController.actualizarEstadoVenta.bind(AdminVentaController)
+);
+
+/**
  * GET /api/ventas/admin/tipo-cambio
  * Obtiene la cotización USD/ARS configurada
  * Roles: admin (1), empleado (2), vendedor (3)
