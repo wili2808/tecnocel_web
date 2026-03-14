@@ -19,7 +19,7 @@
 /* Search Input */
 .searchInput {
   flex: 1;
-  min-width: 180px;
+  min-width: 0;
   padding: var(--spacing-md);
   padding-right: 3.5rem; /* Espacio para botones */
   border: var(--border-width-thin) solid var(--border-color);

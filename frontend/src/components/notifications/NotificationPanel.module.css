@@ -173,8 +173,13 @@
 
 @media (max-width: 480px) {
   .panel {
-    width: calc(100vw - var(--spacing-xl));
-    right: 0;
+    /* Anclar al viewport, no al wrapper, porque la campana no está en el borde derecho */
+    position: fixed;
+    top: calc(var(--navbar-height-mobile) + 8px);
+    right: var(--spacing-md);
+    left: var(--spacing-md);
+    width: auto;
+    max-width: none;
   }
 
   .body {

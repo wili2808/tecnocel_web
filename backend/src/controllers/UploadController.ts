@@ -120,13 +120,7 @@ class UploadController {
         .replace(/[^a-zA-Z0-9]/g, '_')
         .substring(0, 20)
         .toLowerCase();
-      const timestamp = Date.now();
-      const uniqueId = uuidv4().split('-')[0];
-      // Always output .png regardless of input format (logos need transparency support)
-      const fileName = `marca_${sanitizedName}_${timestamp}_${uniqueId}.png`;
-      const filePath = path.join(this.marcaImagesPath, fileName);
 
-      // Use .toBuffer() + writeFile pattern consistent with the rest of the codebase
       const processedBuffer = await sharp(file.buffer)
         .resize(300, 300, {
           fit: 'contain',
@@ -135,8 +129,21 @@ class UploadController {
         .png({ compressionLevel: 8 })
         .toBuffer();
 
-      await fs.promises.writeFile(filePath, processedBuffer);
+      if (this.useCloudinary) {
+        const result = await uploadBufferToCloudinary(
+          processedBuffer,
+          config.images.cloudinary.marcaFolder,
+          `marca_${sanitizedName}`,
+          file.originalname,
+        );
+        return result.secureUrl;
+      }
 
+      const timestamp = Date.now();
+      const uniqueId = uuidv4().split('-')[0];
+      const fileName = `marca_${sanitizedName}_${timestamp}_${uniqueId}.png`;
+      const filePath = path.join(this.marcaImagesPath, fileName);
+      await fs.promises.writeFile(filePath, processedBuffer);
       return fileName;
     } catch (error) {
       logger.error('Error al procesar logo de marca:', error);
@@ -388,10 +395,18 @@ class UploadController {
 
       // Delete previous logo if exists
       if (marca.logo_marca) {
-        const oldPath = path.join(this.marcaImagesPath, marca.logo_marca);
-        if (fs.existsSync(oldPath)) {
-          await fs.promises.unlink(oldPath);
-          logger.info('[UPLOAD] Logo anterior de marca eliminado', { archivo: marca.logo_marca });
+        if (this.useCloudinary) {
+          const publicId = extractCloudinaryPublicId(marca.logo_marca);
+          if (publicId) {
+            await deleteCloudinaryByPublicId(publicId);
+            logger.info('[UPLOAD] Logo anterior de marca eliminado (CLOUDINARY)', { publicId });
+          }
+        } else {
+          const oldPath = path.join(this.marcaImagesPath, marca.logo_marca);
+          if (fs.existsSync(oldPath)) {
+            await fs.promises.unlink(oldPath);
+            logger.info('[UPLOAD] Logo anterior de marca eliminado', { archivo: marca.logo_marca });
+          }
         }
       }
 
@@ -414,7 +429,8 @@ class UploadController {
       logger.info('[UPLOAD] ✅ Logo de marca subido exitosamente', {
         marca_id: id_marca,
         nombre_marca: marca.nombre_marca,
-        archivo: fileName
+        archivo: fileName,
+        destino: this.useCloudinary ? 'CLOUDINARY' : 'FILESYSTEM'
       });
 
       res.status(200).json({
@@ -452,11 +468,13 @@ class UploadController {
           storage: 'cloudinary',
           directorios: {
             productos: config.images.cloudinary.productFolder,
-            comentarios: config.images.cloudinary.commentFolder
+            comentarios: config.images.cloudinary.commentFolder,
+            marcas: config.images.cloudinary.marcaFolder
           },
           estadisticas: {
             imagenes_productos: null,
             imagenes_comentarios: null,
+            imagenes_marcas: null,
             total: null
           }
         });
@@ -477,16 +495,25 @@ class UploadController {
         }).length
         : 0;
 
+      const marcaFiles = fs.existsSync(this.marcaImagesPath)
+        ? fs.readdirSync(this.marcaImagesPath).filter(file => {
+          const ext = path.extname(file).toLowerCase();
+          return ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext);
+        }).length
+        : 0;
+
       res.json({
         storage: 'filesystem',
         directorios: {
           productos: this.productImagesPath,
-          comentarios: this.commentImagesPath
+          comentarios: this.commentImagesPath,
+          marcas: this.marcaImagesPath
         },
         estadisticas: {
           imagenes_productos: productFiles,
           imagenes_comentarios: commentFiles,
-          total: productFiles + commentFiles
+          imagenes_marcas: marcaFiles,
+          total: productFiles + commentFiles + marcaFiles
         }
       });
     } catch (error) {

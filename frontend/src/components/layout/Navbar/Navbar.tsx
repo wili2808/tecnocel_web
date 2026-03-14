@@ -126,7 +126,37 @@ const Navbar: React.FC = () => {
     );
   }
 
-  /** Botones de tema, notificaciones y carrito — instancia única */
+  /** Botón de carrito compartido */
+  function CartButton() {
+    return (
+      <IconButton
+        icon="shopping_cart"
+        onClick={() => {
+          if (isCliente) {
+            navigate('/carrito');
+            handleLinkClick();
+          } else if (isAuthenticated) {
+            showNotification('Inicia sesión como cliente para acceder al carrito', 'info', 4000, {
+              label: 'Ir a login',
+              onClick: () => { navigate('/login'); handleLinkClick(); },
+            });
+          } else {
+            navigate('/login');
+            handleLinkClick();
+          }
+        }}
+        ariaLabel="Carrito de compras"
+        disabled={!isCliente}
+        variant="ghost"
+        size="sm"
+        className={`${navbarStyle.cartButton} ${!isCliente ? navbarStyle.cartButtonDisabled : ''}`}
+      >
+        <span className={navbarStyle.cartBadge}>{cartItemCount}</span>
+      </IconButton>
+    );
+  }
+
+  /** Botones de tema, notificaciones y carrito — desktop */
   function ControlButtons() {
     return (
       <div className={navbarStyle.controlsGroup}>
@@ -138,34 +168,18 @@ const Navbar: React.FC = () => {
           size="sm"
           className={navbarStyle.themeToggle}
         />
-
-        {/* Campana de notificaciones — solo para clientes autenticados */}
         {isCliente && <NotificationBell />}
+        {CartButton()}
+      </div>
+    );
+  }
 
-        <IconButton
-          icon="shopping_cart"
-          onClick={() => {
-            if (isCliente) {
-              navigate('/carrito');
-              handleLinkClick();
-            } else if (isAuthenticated) {
-              showNotification('Inicia sesión como cliente para acceder al carrito', 'info', 4000, {
-                label: 'Ir a login',
-                onClick: () => { navigate('/login'); handleLinkClick(); },
-              });
-            } else {
-              navigate('/login');
-              handleLinkClick();
-            }
-          }}
-          ariaLabel="Carrito de compras"
-          disabled={!isCliente}
-          variant="ghost"
-          size="sm"
-          className={`${navbarStyle.cartButton} ${!isCliente ? navbarStyle.cartButtonDisabled : ''}`}
-        >
-          <span className={navbarStyle.cartBadge}>{cartItemCount}</span>
-        </IconButton>
+  /** Botones de notificaciones y carrito — mobile (sin tema para ahorrar espacio) */
+  function MobileControlButtons() {
+    return (
+      <div className={navbarStyle.controlsGroup}>
+        {isCliente && <NotificationBell />}
+        {CartButton()}
       </div>
     );
   }
@@ -280,6 +294,20 @@ const Navbar: React.FC = () => {
               </div>
             </>
           )}
+
+          <div className={navbarStyle.mobileSeparator} />
+          <button
+            className={navbarStyle.mobileThemeToggle}
+            onClick={() => { toggleTheme(); handleLinkClick(); }}
+            aria-label={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+          >
+            <span className="material-icons">
+              {theme === 'light' ? 'dark_mode' : 'light_mode'}
+            </span>
+            <span className={navbarStyle.mobileThemeText}>
+              Modo {theme === 'light' ? 'oscuro' : 'claro'}
+            </span>
+          </button>
         </div>
       </div>
     );
@@ -311,7 +339,7 @@ const Navbar: React.FC = () => {
             </div>
 
             <div className={navbarStyle.mobileControlsSection}>
-              {ControlButtons()}
+              {MobileControlButtons()}
               {/* span con ref para que el click-outside identifique el botón como parte del menú */}
               <span ref={menuBtnRef}>
                 <IconButton

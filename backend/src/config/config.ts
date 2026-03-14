@@ -57,7 +57,8 @@ export const config = {
       apiKey: process.env.CLOUDINARY_API_KEY || '',
       apiSecret: process.env.CLOUDINARY_API_SECRET || '',
       productFolder: process.env.CLOUDINARY_PRODUCT_FOLDER || 'tecnocel/productos',
-      commentFolder: process.env.CLOUDINARY_COMMENT_FOLDER || 'tecnocel/comentarios'
+      commentFolder: process.env.CLOUDINARY_COMMENT_FOLDER || 'tecnocel/comentarios',
+      marcaFolder: process.env.CLOUDINARY_MARCA_FOLDER || 'tecnocel/marcas'
     }
   }
 };
