@@ -319,7 +319,7 @@
 
 .logoCell {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 4px;
   min-width: 100px;
 }
@@ -334,8 +334,8 @@
 
 .logoFileInput {
   display: block;
-  font-size: 11px;
-  max-width: 150px;
+  font-size: var(--font-size-xs);
+  max-width: 250px;
   color: var(--text-secondary);
 }
 

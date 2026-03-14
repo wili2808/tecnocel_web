@@ -1,10 +1,13 @@
 /**
  * Componente Navbar - Navegación principal de la aplicación
- * Proporciona navegación global, búsqueda de productos, controles de tema y autenticación
- * Incluye diseño responsive con menú móvil y navegación desktop
- * Maneja estados de autenticación, carrito y tema de la aplicación
+ * Renderiza un único layout según el viewport (desktop o mobile) usando useIsMobile,
+ * evitando instancias duplicadas de componentes como NotificationBell o ControlButtons.
+ *
+ * Los render helpers (ControlButtons, AuthSection, etc.) se invocan como funciones
+ * normales en lugar de JSX para evitar que React los trate como nuevos tipos de
+ * componente en cada render, lo que causaría unmount/remount de hijos con estado.
  */
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/tecnocel.svg';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -18,13 +21,10 @@ import NotificationBell from '../../notifications/NotificationBell';
 import navbarStyle from './Navbar.module.css';
 
 // ============================================================================
-// CONFIGURACIÓN Y CONSTANTES
+// CONFIGURACIÓN
 // ============================================================================
 
-/**
- * Rutas de navegación secundaria disponibles en la aplicación
- * Define las páginas principales accesibles desde el navbar
- */
+/** Rutas de navegación principal */
 const SECONDARY_NAV_ROUTES = [
   { path: '/productos', label: 'PRODUCTOS' },
   { path: '/ofertas', label: 'OFERTAS' },
@@ -37,9 +37,6 @@ const SECONDARY_NAV_ROUTES = [
 // ============================================================================
 
 const Navbar: React.FC = () => {
-  // ============================================================================
-  // HOOKS Y CONTEXTOS
-  // ============================================================================
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout, isCliente } = useAuth();
@@ -48,70 +45,78 @@ const Navbar: React.FC = () => {
   const { showNotification } = useNotification();
   const isMobile = useIsMobile();
 
-  // ============================================================================
-  // ESTADOS LOCALES
-  // ============================================================================
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // ============================================================================
-  // CÁLCULOS MEMOIZADOS
-  // ============================================================================
-
-  /**
-   * Contador total de items en el carrito - MEMOIZADO
-   * Calcula la suma de todas las cantidades para evitar re-renders innecesarios
-   */
-  const cartItemCount = useMemo(() => {
-    return estado?.items?.reduce((total, item) => total + item.cantidad, 0) || 0;
-  }, [estado?.items]);
+  // Refs para el click-outside del menú móvil:
+  // menuBtnRef → span que envuelve el botón hamburguesa
+  // menuRef    → div raíz del dropdown
+  const menuBtnRef = useRef<HTMLSpanElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
-  // MANEJADORES DE EVENTOS
+  // CÁLCULOS
   // ============================================================================
 
-  /**
-   * Cerrar menú móvil al hacer clic en un enlace
-   * Mejora la UX en dispositivos móviles
-   */
+  const cartItemCount = useMemo(
+    () => estado?.items?.reduce((total, item) => total + item.cantidad, 0) || 0,
+    [estado?.items]
+  );
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  /** Cierra el menú móvil. Se pasa como onClick a los enlaces del dropdown. */
   const handleLinkClick = useCallback(() => setIsMenuOpen(false), []);
 
-  /**
-   * Alternar estado del menú móvil
-   * Controla la visibilidad del dropdown en dispositivos móviles
-   */
   const toggleMobileMenu = useCallback(() => setIsMenuOpen((prev) => !prev), []);
 
-  /**
-   * Manejar clic en botón de autenticación
-   * Navega al panel de usuario si está autenticado, o al login si no
-   */
   const handleAuthClick = useCallback(() => {
-    if (isAuthenticated) {
-      navigate('/panel');
-    } else {
-      navigate('/login');
-    }
+    navigate(isAuthenticated ? '/panel' : '/login');
     handleLinkClick();
   }, [isAuthenticated, navigate, handleLinkClick]);
 
-  // ============================================================================
-  // COMPONENTES INTERNOS
-  // ============================================================================
-
   /**
-   * Enlaces de navegación secundaria
-   * Renderiza los enlaces principales de la aplicación
-   *
-   * @param isMobile - Si se debe renderizar en versión móvil
+   * Cierra el menú al hacer click fuera del botón hamburguesa y del dropdown.
+   * El listener solo existe mientras el menú está abierto.
    */
-  function SecondaryNavLinks({ isMobile = false }: { isMobile?: boolean }) {
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      const isInsideMenu = menuRef.current?.contains(e.target as Node);
+      const isInsideBtn = menuBtnRef.current?.contains(e.target as Node);
+      if (!isInsideMenu && !isInsideBtn) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isMenuOpen]);
+
+  // Cerrar menú al pasar a desktop (ej: rotar dispositivo)
+  useEffect(() => {
+    if (!isMobile) setIsMenuOpen(false);
+  }, [isMobile]);
+
+  // ============================================================================
+  // RENDER HELPERS
+  // ============================================================================
+  // Estos helpers se invocan como funciones ({ControlButtons()}) no como JSX
+  // (<ControlButtons />) para evitar remount de hijos con estado en cada render.
+
+  /** Links de navegación principal */
+  function SecondaryNavLinks({ mobile = false }: { mobile?: boolean }) {
     return (
-      <div className={isMobile ? navbarStyle.mobileNavLinks : navbarStyle.secondaryNavLinks}>
+      <div className={mobile ? navbarStyle.mobileNavLinks : navbarStyle.secondaryNavLinks}>
         {SECONDARY_NAV_ROUTES.map(({ path, label }) => (
           <Link
             key={path}
             to={path}
-            className={`${isMobile ? navbarStyle.mobileDropdownLink : navbarStyle.secondaryNavLink} ${location.pathname === path ? navbarStyle.active : ''}`}
+            className={`${mobile ? navbarStyle.mobileDropdownLink : navbarStyle.secondaryNavLink} ${
+              location.pathname === path ? navbarStyle.active : ''
+            }`}
             onClick={handleLinkClick}
           >
             {label}
@@ -121,48 +126,34 @@ const Navbar: React.FC = () => {
     );
   }
 
-  /**
-   * Botones de control (tema y carrito)
-   * Maneja la funcionalidad de cambio de tema y acceso al carrito
-   */
+  /** Botones de tema, notificaciones y carrito — instancia única */
   function ControlButtons() {
     return (
       <div className={navbarStyle.controlsGroup}>
-        {/* Botón de cambio de tema */}
         <IconButton
           icon={theme === 'light' ? 'dark_mode' : 'light_mode'}
-          onClick={() => {
-            toggleTheme();
-            handleLinkClick();
-          }}
+          onClick={() => { toggleTheme(); handleLinkClick(); }}
           ariaLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
           variant="ghost"
           size="sm"
           className={navbarStyle.themeToggle}
         />
 
-        {/* Campana de notificaciones — solo para clientes */}
+        {/* Campana de notificaciones — solo para clientes autenticados */}
         {isCliente && <NotificationBell />}
 
-        {/* Botón del carrito de compras */}
         <IconButton
           icon="shopping_cart"
           onClick={() => {
             if (isCliente) {
-              // Cliente autenticado → ir al carrito
               navigate('/carrito');
               handleLinkClick();
             } else if (isAuthenticated) {
-              // Admin/empleado → mostrar notificación
               showNotification('Inicia sesión como cliente para acceder al carrito', 'info', 4000, {
                 label: 'Ir a login',
-                onClick: () => {
-                  navigate('/login');
-                  handleLinkClick();
-                },
+                onClick: () => { navigate('/login'); handleLinkClick(); },
               });
             } else {
-              // No autenticado → ir a login
               navigate('/login');
               handleLinkClick();
             }
@@ -179,27 +170,18 @@ const Navbar: React.FC = () => {
     );
   }
 
-  /**
-   * Sección de autenticación del usuario
-   * Muestra botones de login/registro o perfil del usuario autenticado
-   *
-   * @param isMobile - Si se debe renderizar en versión móvil
-   */
-  function AuthSection({ isMobile = false }: { isMobile?: boolean }) {
-    const baseClass = isMobile ? navbarStyle.mobileAuthSection : navbarStyle.authButtonsGroup;
+  /** Sección de login/registro o perfil del usuario autenticado */
+  function AuthSection({ mobile = false }: { mobile?: boolean }) {
+    const baseClass = mobile ? navbarStyle.mobileAuthSection : navbarStyle.authButtonsGroup;
 
     if (isAuthenticated && user) {
       return (
         <div className={baseClass}>
-          {isMobile ? (
-            /* Versión móvil del perfil de usuario */
+          {mobile ? (
             <div className={navbarStyle.mobileUserProfile}>
               <button
                 className={navbarStyle.mobileUserInfo}
-                onClick={() => {
-                  handleAuthClick();
-                  handleLinkClick();
-                }}
+                onClick={handleAuthClick}
                 aria-label="Ir al panel de usuario"
               >
                 <span className="material-icons">account_circle</span>
@@ -209,7 +191,6 @@ const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            /* Versión desktop del perfil de usuario */
             <IconButton
               icon="account_circle"
               onClick={handleAuthClick}
@@ -230,8 +211,7 @@ const Navbar: React.FC = () => {
 
     return (
       <div className={baseClass}>
-        {isMobile ? (
-          /* Versión móvil de botones de autenticación */
+        {mobile ? (
           <div className={navbarStyle.mobileAuthButtons}>
             <Link
               to="/login"
@@ -253,52 +233,43 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
         ) : (
-          /* Versión desktop de botones de autenticación */
-          <>
-            <IconButton
-              icon="login"
-              onClick={handleAuthClick}
-              ariaLabel="Iniciar sesión"
-              variant="ghost"
-              size="sm"
-              className={navbarStyle.authButton}
-              children={<span className={navbarStyle.authButtonText}>Ingresar</span>}
-            />
-          </>
+          <IconButton
+            icon="login"
+            onClick={handleAuthClick}
+            ariaLabel="Iniciar sesión"
+            variant="ghost"
+            size="sm"
+            className={navbarStyle.authButton}
+            children={<span className={navbarStyle.authButtonText}>Ingresar</span>}
+          />
         )}
       </div>
     );
   }
 
   /**
-   * Menú desplegable para dispositivos móviles
-   * Contiene todas las opciones de navegación en formato vertical
+   * Dropdown del menú móvil.
+   * Recibe menuRef para que el useEffect de click-outside pueda detectar
+   * si el click fue dentro del dropdown.
    */
-  function MobileMenu() {
+  function MobileMenu({ menuRef: ref }: { menuRef: React.RefObject<HTMLDivElement> }) {
     return (
-      <div className={`${navbarStyle.mobileDropdown} ${isMenuOpen ? navbarStyle.active : ''}`}>
+      <div
+        ref={ref}
+        className={`${navbarStyle.mobileDropdown} ${isMenuOpen ? navbarStyle.active : ''}`}
+      >
         <div className={navbarStyle.mobileDropdownContent}>
-          {/* Sección de autenticación móvil */}
-          <AuthSection isMobile={true} />
+          {AuthSection({ mobile: true })}
+          <div className={navbarStyle.mobileSeparator} />
+          {SecondaryNavLinks({ mobile: true })}
 
-          <div className={navbarStyle.mobileSeparator}></div>
-
-          {/* Enlaces de navegación móvil */}
-          <SecondaryNavLinks isMobile={true} />
-
-          <div className={navbarStyle.mobileSeparator}></div>
-
-          {/* Botón de logout para usuarios autenticados */}
           {isAuthenticated && user && (
             <>
-              <div className={navbarStyle.mobileSeparator}></div>
+              <div className={navbarStyle.mobileSeparator} />
               <div className={navbarStyle.mobileLogoutSection}>
                 <IconButton
                   icon="logout"
-                  onClick={() => {
-                    logout();
-                    handleLinkClick();
-                  }}
+                  onClick={() => { logout(); handleLinkClick(); }}
                   ariaLabel="Cerrar sesión"
                   variant="ghost"
                   size="md"
@@ -321,95 +292,74 @@ const Navbar: React.FC = () => {
   return (
     <header className={`${navbarStyle.navbar} theme-transition`}>
       <nav className={navbarStyle.mainNavbar}>
-        {/* Contenedor Desktop - Navegación para pantallas grandes */}
-        <div className={navbarStyle.desktopContainer}>
-          <div className={navbarStyle.leftSection}>
-            {/* Sección de marca y logo */}
-            <div className={navbarStyle.brandSection}>
-              <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
-                <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
-              </Link>
-            </div>
-
-            {/* Navegación secundaria izquierda */}
-            <div className={navbarStyle.leftNavigation}>
-              <SecondaryNavLinks />
-            </div>
-          </div>
-
-          {/* Sección de búsqueda central - solo se monta en desktop */}
-          <div className={navbarStyle.searchSection}>
-            {!isMobile && (
-              <ProductSearch
-                placeholder="Buscar productos, marcas y mas ..."
-                showClearButton={true}
-                showHistory={true}
-                onSearch={handleLinkClick}
-              />
-            )}
-          </div>
-
-          {/* Sección de controles y autenticación derecha */}
-          <div className={navbarStyle.controlsSection}>
-            <div className={navbarStyle.allControls}>
-              <ControlButtons />
-              <AuthSection />
-
-              {/* Botón de menú móvil (oculto en desktop) */}
-              <IconButton
-                icon={isMenuOpen ? 'close' : 'menu'}
-                onClick={toggleMobileMenu}
-                ariaLabel="Abrir menú"
-                variant="ghost"
-                size="md"
-                className={navbarStyle.menuToggle}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Contenedor Mobile - Navegación para dispositivos móviles */}
-        <div className={navbarStyle.mobileContainer}>
+        {isMobile ? (
+          /* Layout mobile — fila: logo | búsqueda | controles + hamburguesa */
           <div className={navbarStyle.mobileRow}>
-            {/* Logo en versión móvil */}
             <div className={navbarStyle.mobileBrandSection}>
               <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
                 <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
               </Link>
             </div>
 
-            {/* Búsqueda móvil - solo se monta en mobile */}
             <div className={navbarStyle.mobileSearchSection}>
-              {isMobile && (
-                <ProductSearch
-                  placeholder="Buscar productos, marcas y mas ..."
-                  showClearButton={true}
-                  showHistory={false}
-                  onSearch={handleLinkClick}
-                />
-              )}
-            </div>
-
-            {/* Controles móviles */}
-            <div className={navbarStyle.mobileControlsSection}>
-              <ControlButtons />
-
-              {/* Botón de menú móvil */}
-              <IconButton
-                icon={isMenuOpen ? 'close' : 'menu'}
-                onClick={toggleMobileMenu}
-                ariaLabel="Abrir menú"
-                variant="ghost"
-                size="md"
-                className={navbarStyle.menuToggle}
+              <ProductSearch
+                placeholder="Buscar productos, marcas y mas ..."
+                showClearButton={true}
+                showHistory={false}
+                onSearch={handleLinkClick}
               />
             </div>
+
+            <div className={navbarStyle.mobileControlsSection}>
+              {ControlButtons()}
+              {/* span con ref para que el click-outside identifique el botón como parte del menú */}
+              <span ref={menuBtnRef}>
+                <IconButton
+                  icon={isMenuOpen ? 'close' : 'menu'}
+                  onClick={toggleMobileMenu}
+                  ariaLabel={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                  variant="ghost"
+                  size="md"
+                  className={navbarStyle.menuToggle}
+                />
+              </span>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Layout desktop — grid de 3 columnas: logo+nav | búsqueda | controles */
+          <div className={navbarStyle.desktopContainer}>
+            <div className={navbarStyle.leftSection}>
+              <div className={navbarStyle.brandSection}>
+                <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
+                  <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
+                </Link>
+              </div>
+              <div className={navbarStyle.leftNavigation}>
+                {SecondaryNavLinks({})}
+              </div>
+            </div>
+
+            <div className={navbarStyle.searchSection}>
+              <ProductSearch
+                placeholder="Buscar productos, marcas y mas ..."
+                showClearButton={true}
+                showHistory={true}
+                onSearch={handleLinkClick}
+              />
+            </div>
+
+            <div className={navbarStyle.controlsSection}>
+              <div className={navbarStyle.allControls}>
+                {ControlButtons()}
+                {AuthSection({})}
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* Menú desplegable móvil */}
-      <MobileMenu />
+      {/* Dropdown — solo existe en el DOM cuando se está en mobile */}
+      {isMobile && MobileMenu({ menuRef })}
     </header>
   );
 };

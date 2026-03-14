@@ -1,6 +1,7 @@
 /* ============================================================================
    NAVBAR — Silicon Precision
-   Glass translúcido, links precisos con subrayado animado, badge minimal.
+   Glass translúcido, links con subrayado animado, badge minimal.
+   Layout condicional: DesktopLayout o MobileLayout, nunca ambos en el DOM.
    ============================================================================ */
 
 .navbar {
@@ -19,7 +20,7 @@
 .mainNavbar { width: 100%; }
 
 /* ============================================================================
-   DESKTOP
+   DESKTOP LAYOUT — grid de 3 columnas: logo+nav | búsqueda | controles
    ============================================================================ */
 
 .desktopContainer {
@@ -31,9 +32,7 @@
   padding: 0 var(--spacing-xl);
 }
 
-.mobileContainer { display: none; }
-
-/* Brand */
+/* Brand + links izquierda */
 .leftSection {
   display: flex;
   align-items: center;
@@ -57,14 +56,7 @@
   border-radius: var(--border-radius-sm);
 }
 
-.logoText {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-/* Nav links secundarios */
+/* Nav links desktop */
 .leftNavigation { display: flex; }
 
 .secondaryNavLinks {
@@ -84,6 +76,7 @@
   transition: color var(--transition-fast) var(--transition-curve);
 }
 
+/* Subrayado animado en hover/active */
 .secondaryNavLink::after {
   content: '';
   position: absolute;
@@ -98,16 +91,12 @@
 }
 
 .secondaryNavLink:hover,
-.secondaryNavLink.active {
-  color: var(--color-primary);
-}
+.secondaryNavLink.active { color: var(--color-primary); }
 
 .secondaryNavLink:hover::after,
-.secondaryNavLink.active::after {
-  transform: scaleX(1);
-}
+.secondaryNavLink.active::after { transform: scaleX(1); }
 
-/* Búsqueda */
+/* Búsqueda centrada */
 .searchSection {
   display: flex;
   align-items: center;
@@ -117,14 +106,15 @@
   margin: 0 auto;
 }
 
-/* Controles */
+/* Controles + auth derecha */
 .controlsSection {
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
-.allControls, .controlsGroup, .mobileControlsGroup {
+.allControls,
+.controlsGroup {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -156,8 +146,6 @@
   white-space: nowrap;
 }
 
-/* themeToggle hereda estilos del ghost variant de IconButton */
-
 /* Badge del carrito */
 .cartBadge {
   position: absolute;
@@ -183,7 +171,33 @@
   pointer-events: none;
 }
 
-.menuToggle { display: none; }
+/* ============================================================================
+   MOBILE LAYOUT — fila: logo | búsqueda | controles + hamburguesa
+   Solo existe en el DOM cuando isMobile === true (renderizado condicional).
+   ============================================================================ */
+
+.mobileRow {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-sm);
+  width: 100%;
+  min-height: var(--navbar-height-mobile);
+}
+
+.mobileBrandSection { flex-shrink: 0; }
+
+.mobileSearchSection {
+  flex: 1;
+  margin: 0 var(--spacing-sm);
+}
+
+.mobileControlsSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
 
 /* ============================================================================
    MENÚ DESPLEGABLE MÓVIL
@@ -196,7 +210,7 @@
   background: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   min-width: 260px;
   opacity: 0;
   visibility: hidden;
@@ -216,7 +230,6 @@
 
 .mobileDropdownContent { padding: var(--spacing-md); }
 
-/* Móvil: auth */
 .mobileAuthSection { margin-bottom: var(--spacing-xs); }
 
 .mobileUserProfile {
@@ -241,9 +254,7 @@
   transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
-.mobileUserInfo:hover {
-  border-color: var(--color-primary);
-}
+.mobileUserInfo:hover { border-color: var(--color-primary); }
 
 .mobileUserText {
   font-size: var(--font-size-sm);
@@ -279,9 +290,8 @@
   background: rgba(var(--color-primary-rgb), 0.04);
 }
 
-.mobileAuthText, .mobileLogoutText {
-  flex: 1;
-}
+.mobileAuthText,
+.mobileLogoutText { flex: 1; }
 
 .mobileRegisterButton {
   background: var(--color-primary);
@@ -312,6 +322,7 @@
 }
 
 .mobileLogoutButton:hover { background: rgba(var(--color-error-rgb), 0.06); }
+
 .mobileLogoutSection { margin-top: var(--spacing-xs); }
 
 .mobileSeparator {
@@ -349,7 +360,7 @@
 }
 
 /* ============================================================================
-   RESPONSIVE
+   RESPONSIVE — ajustes de espaciado, sin show/hide de contenedores
    ============================================================================ */
 
 @media (max-width: 1024px) {
@@ -358,43 +369,14 @@
   .searchSection    { max-width: 360px; }
 }
 
-@media (max-width: 768px) {
-  .desktopContainer { display: none; }
-  .mobileContainer  { display: flex; width: 100%; }
-  .menuToggle       { display: flex; }
-
-  .mobileRow {
-    display: flex;
-    align-items: center;
-    padding: var(--spacing-xs) var(--spacing-md);
-    gap: var(--spacing-sm);
-    width: 100%;
-    min-height: var(--navbar-height-mobile);
-  }
-
-  .mobileBrandSection { flex-shrink: 0; }
-
-  .mobileSearchSection {
-    flex: 1;
-    margin: 0 var(--spacing-sm);
-  }
-
-  .mobileControlsSection {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    flex-shrink: 0;
-  }
-}
-
 @media (max-width: 480px) {
-  .mobileRow { padding: var(--spacing-xs) var(--spacing-sm); gap: var(--spacing-xs); }
-  .logoImage { height: 30px; }
+  .mobileRow           { padding: var(--spacing-xs) var(--spacing-sm); gap: var(--spacing-xs); }
+  .logoImage           { height: 30px; }
   .mobileSearchSection { margin: 0 var(--spacing-xs); }
-  .mobileDropdown { right: var(--spacing-sm); min-width: 240px; }
+  .mobileDropdown      { right: var(--spacing-sm); min-width: 240px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mobileDropdown { transition: none; }
+  .mobileDropdown          { transition: none; }
   .secondaryNavLink::after { transition: none; }
 }

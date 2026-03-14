@@ -1,8 +1,10 @@
 /**
  * Componente NotificationBell - Botón de campana con badge de conteo
- * Muestra el número de notificaciones no leídas y abre/cierra el panel al hacer click
+ * Muestra el número de notificaciones no leídas y abre/cierra el panel al hacer click.
+ * El wrapperRef apunta al div raíz que envuelve botón + panel, permitiendo que
+ * NotificationPanel detecte clicks externos sin atributos custom en el DOM.
  */
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import { useNotificaciones } from '../../contexts/NotificacionesContext';
 import NotificationPanel from './NotificationPanel';
 import styles from './NotificationBell.module.css';
@@ -13,6 +15,10 @@ import styles from './NotificationBell.module.css';
 
 const NotificationBell: React.FC = memo(() => {
   const { noLeidas, panelAbierto, abrirPanel, cerrarPanel } = useNotificaciones();
+
+  // Ref al div raíz — cubre tanto el botón como el panel desplegado.
+  // Se pasa a NotificationPanel para detectar clicks fuera del componente completo.
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = useCallback(() => {
     if (panelAbierto) {
@@ -26,15 +32,11 @@ const NotificationBell: React.FC = memo(() => {
   const icono = noLeidas > 0 ? 'notifications_active' : 'notifications';
 
   return (
-    <div className={styles.wrapper} data-notification-panel>
+    <div ref={wrapperRef} className={styles.wrapper}>
       <button
         className={styles.bell}
         onClick={handleToggle}
-        aria-label={
-          noLeidas > 0
-            ? `Notificaciones — ${noLeidas} sin leer`
-            : 'Notificaciones'
-        }
+        aria-label={noLeidas > 0 ? `Notificaciones — ${noLeidas} sin leer` : 'Notificaciones'}
         aria-expanded={panelAbierto}
         aria-haspopup="dialog"
         type="button"
@@ -49,8 +51,8 @@ const NotificationBell: React.FC = memo(() => {
         )}
       </button>
 
-      {/* Panel de notificaciones */}
-      {panelAbierto && <NotificationPanel onClose={cerrarPanel} />}
+      {/* Panel de notificaciones — montado solo cuando está abierto */}
+      {panelAbierto && <NotificationPanel wrapperRef={wrapperRef} onClose={cerrarPanel} />}
     </div>
   );
 });

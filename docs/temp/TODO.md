@@ -6,14 +6,14 @@
 
 ## 🟠 ALTA PRIORIDAD (Funcionalidades esenciales)
 
-- [ ] **Restablecimiento/Recuperación de contraseña** - Implementar endpoint y flujo frontend (token temporal, email, validación)
-- [ ] **Email de activación de cuenta** - Verificación de email al registrarse (con token, link de confirmación)
+- [ ] **Restablecimiento/Recuperación de contraseña** - Implementar endpoint y flujo frontend (token temporal, email, validación) ✅
+- [ ] **Email de activación de cuenta** - Verificación de email al registrarse (con token, link de confirmación) ✅
 - [ ] **Sistema de emailing transaccional** - Implementar envíos para:
-  - Confirmación de compra
+  - Confirmación de compra ✅
   - Cambio de estado de venta (procesando, envío, entregado, cancelado)
-  - Recuperación de contraseña
-  - Activación de cuenta
-  - Nuevas respuestas a comentarios
+  - Recuperación de contraseña ✅
+  - Activación de cuenta ✅
+  - Nuevas respuestas a comentarios ✅
 - [ ] **Sistema de mensajería de clientes** - Nueva tabla `tb_mensajes_cliente` + controlador para:
   - Formulario de contacto (cliente → admin)
   - Respuestas de admin
@@ -23,7 +23,7 @@
 
 - [ ] **Permisos/RBAC mejorado en gestión de negocio** - Revisar y refinar permisos por rol en panel admin
 - [ ] **Avatar de cliente y usuario** - Subida y gestión de fotos de perfil
-- [ ] **Google Auth - Botones diferenciados + fix bug cancelación** - Estilos diferentes para login vs register + arreglar bug de botones bugueados al cancelar
+- [ ] **Google Auth - Botones diferenciados + fix bug cancelación** - Estilos diferentes para login vs register + arreglar bug de botones bugueados al cancelar ✅
 - [ ] **Calificación de producto más visible** - Mostrar rating cerca del nombre en ProductPage y ProductCard
 - [ ] **Imágenes de marcas** - Agregar soporte para logos/imágenes de marcas (crear tabla `tb_marca_imagen` o campo en Marca)
 - [ ] **Categorías y redirecciones en footer** - Revisar links rotos/redirecciones incorrectas en footer

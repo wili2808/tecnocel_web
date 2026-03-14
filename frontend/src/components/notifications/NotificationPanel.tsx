@@ -1,27 +1,20 @@
 /**
  * Componente NotificationPanel - Panel dropdown de notificaciones
- * Muestra la lista de notificaciones con acciones de marcar leídas y eliminar
- * Se cierra al hacer click fuera o presionar Escape
- *
- * NOTA: El Navbar renderiza ControlButtons dos veces (desktop + mobile), lo que
- * genera dos instancias de NotificationBell y dos NotificationPanel simultáneos.
- * El check de "click externo" usa data-notification-panel para detectar si el
- * click fue dentro de CUALQUIER panel, no solo este, evitando que el panel
- * oculto cierre el panel visible.
+ * Muestra la lista de notificaciones con acciones de marcar leídas y eliminar.
+ * Se cierra al hacer click fuera del wrapper de NotificationBell o al presionar Escape.
  */
 import React, { memo, useEffect, useCallback } from 'react';
 import { useNotificaciones } from '../../contexts/NotificacionesContext';
 import NotificationItem from './NotificationItem';
 import styles from './NotificationPanel.module.css';
 
-// Atributo usado para identificar todos los paneles de notificación en el DOM
-const PANEL_ATTR = 'data-notification-panel';
-
 // ============================================================================
 // PROPS
 // ============================================================================
 
 interface NotificationPanelProps {
+  /** Ref al div raíz de NotificationBell — cubre botón + panel para detectar clicks externos */
+  wrapperRef: React.RefObject<HTMLDivElement>;
   onClose: () => void;
 }
 
@@ -29,30 +22,23 @@ interface NotificationPanelProps {
 // COMPONENTE
 // ============================================================================
 
-const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ onClose }) => {
+const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ wrapperRef, onClose }) => {
   const { notificaciones, noLeidas, cargando, marcarTodasLeidas } = useNotificaciones();
 
-  // Cerrar al hacer click fuera de CUALQUIER panel de notificaciones
-  // (Navbar renderiza dos NotificationPanel simultáneos: desktop + mobile)
+  // Cerrar al hacer click fuera del wrapper (que incluye botón + panel)
   const handleOutsideClick = useCallback(
     (e: MouseEvent) => {
-      const panels = document.querySelectorAll(`[${PANEL_ATTR}]`);
-      const isInsideAnyPanel = Array.from(panels).some((panel) =>
-        panel.contains(e.target as Node)
-      );
-      if (!isInsideAnyPanel) {
+      if (!wrapperRef.current?.contains(e.target as Node)) {
         onClose();
       }
     },
-    [onClose]
+    [wrapperRef, onClose]
   );
 
   // Cerrar al presionar Escape
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+      if (e.key === 'Escape') onClose();
     },
     [onClose]
   );
@@ -76,7 +62,6 @@ const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ onClose }) =
 
   return (
     <div
-      {...{ [PANEL_ATTR]: true }}
       className={styles.panel}
       role="dialog"
       aria-label="Panel de notificaciones"
