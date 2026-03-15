@@ -16,6 +16,8 @@ import NotificationContainer from './components/common/NotificationContainer';
 import SearchSync from './components/common/SearchSync';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicOnlyRoute from './components/common/PublicOnlyRoute';
+import ErrorBoundary from './components/common/ErrorBoundary/ErrorBoundary';
+import ScrollToTop from './components/common/ScrollToTop/ScrollToTop';
 import { useAutoLogout } from './hooks/useAutoLogout';
 import { useAuth } from './contexts/AuthContext';
 import './styles/global.css';
@@ -39,6 +41,7 @@ const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword/ForgotPass
 // Componentes de administración
 const AdminLogin = lazy(() => import('./pages/AdminLogin/AdminLogin'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel'));
+const NotFound = lazy(() => import('./pages/NotFound/NotFound'));
 
 // Componente de carga
 const LoadingFallback = () => (
@@ -68,6 +71,7 @@ const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
+    <ErrorBoundary>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
       <AuthProvider>
         <AutoLogoutWrapper>
@@ -79,6 +83,7 @@ function App() {
                   <TipoCambioProvider>
                   <ProductProvider>
                     <Router>
+                      <ScrollToTop />
                       <SearchProvider>
                         <CarritoProvider>
                           {/* Sincronización global entre SearchContext y ProductContext */}
@@ -144,6 +149,10 @@ function App() {
                                   <AdminPanel />
                                 </ProtectedRoute>
                               } />
+                              {/* Catch-all: 404 con Layout */}
+                              <Route element={<Layout />}>
+                                <Route path="*" element={<NotFound />} />
+                              </Route>
                             </Routes>
                           </Suspense>
                           <NotificationContainer />
@@ -160,6 +169,7 @@ function App() {
         </AutoLogoutWrapper>
       </AuthProvider>
     </GoogleOAuthProvider>
+    </ErrorBoundary>
   )
 }
 

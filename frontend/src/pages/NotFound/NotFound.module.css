@@ -1,0 +1,103 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--spacing-xl, 40px) var(--spacing-md, 24px);
+}
+
+.content {
+  text-align: center;
+  max-width: 480px;
+}
+
+.code {
+  display: block;
+  font-size: 7rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-sky-500, #0EA5E9);
+  font-family: var(--font-primary, 'Poppins', sans-serif);
+  margin-bottom: var(--spacing-sm, 16px);
+  opacity: 0.15;
+}
+
+.title {
+  font-size: var(--font-size-2xl, 28px);
+  font-weight: 700;
+  color: var(--color-text-primary, #2d2d2d);
+  margin: 0 0 var(--spacing-sm, 16px);
+  font-family: var(--font-primary, 'Poppins', sans-serif);
+}
+
+.description {
+  font-size: var(--font-size-md, 16px);
+  color: var(--color-text-secondary, #6e6e6e);
+  margin: 0 0 var(--spacing-lg, 32px);
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-sm, 16px);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.backButton {
+  padding: 10px 24px;
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-primary, #2d2d2d);
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.backButton:hover {
+  border-color: var(--color-sky-500, #0EA5E9);
+  color: var(--color-sky-500, #0EA5E9);
+}
+
+.homeLink {
+  padding: 10px 24px;
+  border-radius: 8px;
+  background: var(--color-sky-500, #0EA5E9);
+  color: #fff;
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.homeLink:hover {
+  background: var(--color-sky-600, #0284C7);
+}
+
+/* Tema oscuro */
+[data-theme='dark'] .title {
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+[data-theme='dark'] .description {
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+[data-theme='dark'] .backButton {
+  color: var(--color-text-primary, #f1f5f9);
+  border-color: var(--color-zinc-700, #3F3F46);
+}
+
+[data-theme='dark'] .backButton:hover {
+  border-color: var(--color-sky-500, #0EA5E9);
+  color: var(--color-sky-400, #38BDF8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
