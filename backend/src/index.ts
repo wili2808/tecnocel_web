@@ -60,6 +60,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Log de inicio — primera línea visible en consola
+logger.info('Iniciando TecnoCel Web API', {
+  port: process.env.PORT || 3000,
+  environment: process.env.NODE_ENV || 'development',
+  nodeVersion: process.version
+});
+
 // Configurar servicio de imágenes usando la configuración centralizada
 const {
   basePath,
@@ -74,25 +81,6 @@ const {
   useCloudinary,
   cloudinary
 } = config.images;
-
-// Log diferenciado según el modo de almacenamiento
-if (useCloudinary) {
-  const cloudinaryConfigured = !!(cloudinary.cloudName && cloudinary.apiKey && cloudinary.apiSecret);
-  logger.info('[IMAGE SERVICE] Inicializando en modo CLOUDINARY', {
-    status: cloudinaryConfigured ? '✅ Configurado' : '⚠️ FALTAN CREDENCIALES',
-    cloudName: cloudinary.cloudName ? '***' : 'NO CONFIGURADO',
-    productFolder: cloudinary.productFolder,
-    commentFolder: cloudinary.commentFolder
-  });
-} else {
-  logger.info('[IMAGE SERVICE] Inicializando en modo FILESYSTEM LOCAL', {
-    basePath,
-    productImagesPath,
-    commentImagesPath,
-    baseUrl,
-    staticEndpoint: endpoint || '/api'
-  });
-}
 
 // Configurar middleware de imágenes estáticas
 const imageMiddleware = new StaticImageMiddleware({
@@ -125,21 +113,16 @@ if (useCloudinary || imageMiddleware.validateImagesDirectory()) {
   imageServiceInitialized = true;
 
   if (useCloudinary) {
-    logger.info('[IMAGE SERVICE] ✅ Servicio de imágenes ACTIVO: CLOUDINARY', {
-      mode: 'cloudinary',
-      uploads: 'Buffer → Cloudinary CDN',
-      retrieval: 'URLs de Cloudinary desde BD',
-      cdn: 'Servido por CDN global de Cloudinary',
-      cacheControl: '24h'
+    logger.info('[IMAGE SERVICE] ✅ Cloudinary activo', {
+      cloudName: cloudinary.cloudName,
+      cache: '24h'
     });
   } else {
-    logger.info('[IMAGE SERVICE] ✅ Servicio de imágenes ACTIVO: FILESYSTEM LOCAL', {
-      mode: 'filesystem',
-      uploads: `Buffer → ${productImagesPath}`,
-      comments: `Buffer → ${commentImagesPath}`,
-      retrieval: 'Middleware estático /api/images/*',
-      storage: 'Disco local (C:/xampp/htdocs)',
-      cacheControl: '24h'
+    logger.info('[IMAGE SERVICE] ✅ Filesystem local activo', {
+      productos: 'uploads/productos',
+      comentarios: 'uploads/comentarios',
+      marcas: 'uploads/marcas',
+      cache: '24h'
     });
   }
 } else {
@@ -235,19 +218,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // Inicializar base de datos y servidor
 const startServer = async () => {
   try {
-    logger.info('Iniciando servidor...', {
-      port: PORT,
-      environment: process.env.NODE_ENV || 'development',
-      nodeVersion: process.version
-    });
-
     await initDatabase();
 
     const server = app.listen(Number(PORT), () => {
-      logger.info('Servidor iniciado exitosamente', {
-        port: PORT,
-        environment: process.env.NODE_ENV || 'development',
-        timestamp: new Date().toISOString()
+      logger.info(`✅ API lista en :${PORT}`, {
+        environment: process.env.NODE_ENV || 'development'
       });
     });
 

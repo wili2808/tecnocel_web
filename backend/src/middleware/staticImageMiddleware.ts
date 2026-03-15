@@ -497,7 +497,7 @@ class StaticImageMiddleware {
         }
       }
 
-      logger.info(`Directorios de imágenes configurados correctamente:`, {
+      logger.debug(`Directorios de imágenes configurados correctamente:`, {
         basePath: this.basePath,
         productImagesPath: this.productImagesPath,
         commentImagesPath: this.commentImagesPath,

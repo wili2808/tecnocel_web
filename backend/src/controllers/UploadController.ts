@@ -37,11 +37,11 @@ class UploadController {
 
     if (!this.useCloudinary) {
       this.ensureDirectoriesExist();
-      logger.info('[UPLOAD CONTROLLER] ✅ Modo FILESYSTEM: Directorios locales validados');
+      logger.debug('[UPLOAD CONTROLLER] Modo FILESYSTEM: Directorios locales validados');
     } else if (!isCloudinaryConfigured()) {
       logger.error('[UPLOAD CONTROLLER] ❌ CRÍTICO: USE_CLOUDINARY=true pero faltan credenciales CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY o CLOUDINARY_API_SECRET');
     } else {
-      logger.info('[UPLOAD CONTROLLER] ✅ Modo CLOUDINARY: Credenciales válidas, listo para uploads');
+      logger.debug('[UPLOAD CONTROLLER] Modo CLOUDINARY: Credenciales válidas, listo para uploads');
     }
   }
 
