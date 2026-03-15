@@ -220,12 +220,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
       } catch (error: any) {
         clearClienteData();
-        updateState({
-          user: null,
-          userType: null,
-          token: null,
-          error: error.message || 'Error al iniciar sesión',
-        });
+        updateState({ user: null, userType: null, token: null });
         throw error;
       }
     },
