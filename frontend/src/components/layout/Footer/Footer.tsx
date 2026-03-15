@@ -27,10 +27,10 @@ const Footer = () => {
 
                     <div className={styles.footerLinks}>
                         <h4 className={styles.linksTitle}>Categorías</h4>
-                        <Link to="/productos/laptops">Laptops</Link>
-                        <Link to="/productos/smartphones">Smartphones</Link>
-                        <Link to="/productos/accesorios">Accesorios</Link>
-                        <Link to="/productos/componentes">Componentes</Link>
+                        <Link to="/productos?categoria=1">Smartphones</Link>
+                        <Link to="/productos?categoria=2">Laptops</Link>
+                        <Link to="/productos?categoria=3">Tablets</Link>
+                        <Link to="/productos?categoria=7">Consolas</Link>
                     </div>
 
                     <div className={styles.footerLinks}>
