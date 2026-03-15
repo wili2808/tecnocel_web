@@ -1,0 +1,21 @@
+
+╔══════════════════════════════════════════════════════════╗
+║          REPORTE DE MIGRACIÓN — LOGOS DE MARCAS          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 ESTADÍSTICAS:
+   • Marcas con logo local encontradas: 15
+   • Migradas exitosamente:             15
+   • Saltadas (archivo no encontrado):  0
+   • Errores:                           0
+   • Tiempo total:                      28s
+
+🎯 RESULTADO: ✅ EXITOSO
+
+
+📁 PRÓXIMOS PASOS:
+   • Los logos locales siguen en disco — podés eliminarlos manualmente
+     una vez validado que Cloudinary los sirve correctamente
+   • Carpeta Cloudinary: tecnocel/marcas
+
+═══════════════════════════════════════════════════════════

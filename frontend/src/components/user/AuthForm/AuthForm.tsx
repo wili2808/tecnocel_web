@@ -15,7 +15,7 @@ const AuthForm = () => {
   // ============================================================================
   // HOOKS Y CONTEXTOS
   // ============================================================================
-  const { login, googleLogin, error: authError } = useAuth();
+  const { login, googleLogin, error: authError, clearError } = useAuth();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
@@ -30,12 +30,16 @@ const AuthForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  // Resetea el spinner si Google OAuth falla o el usuario cierra el popup
+  // Maneja errores de Google OAuth (el flujo no permite async/await directo)
   useEffect(() => {
     if (authError) {
       setIsLoading(false);
+      if (authError !== 'popup_closed') {
+        showNotification(authError, 'error');
+      }
+      clearError();
     }
-  }, [authError]);
+  }, [authError, showNotification, clearError]);
 
   // ============================================================================
   // MANEJADORES DE EVENTOS

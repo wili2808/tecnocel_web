@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,6 +7,12 @@ import logger from './loggerService.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'email');
+
+// ──────────────────────────────────────────────
+// Cliente Resend (HTTP API — funciona en cualquier cloud)
+// ──────────────────────────────────────────────
+const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = process.env.EMAIL_FROM ?? 'TecnoCel <onboarding@resend.dev>';
 
 // ──────────────────────────────────────────────
 // Caché de plantillas HTML (evita leer disco en cada envío)
@@ -20,19 +26,6 @@ function getTemplate(name: string): string {
   }
   return templateCache.get(name)!;
 }
-
-// ──────────────────────────────────────────────
-// Transporter (Brevo SMTP — solo cambiar .env)
-// ──────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT),
-  secure: Number(process.env.EMAIL_PORT) === 465,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 // ──────────────────────────────────────────────
 // Motor de plantillas
@@ -159,12 +152,8 @@ export async function sendVerificationEmail(email: string, nombre: string, token
   const verificationUrl = `${FRONTEND_URL}/verificar-email?token=${token}`;
   try {
     const html = renderTemplate('verification', { nombre, verification_url: verificationUrl });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Activá tu cuenta en TecnoCel',
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Activá tu cuenta en TecnoCel', html });
+    if (error) throw new Error(error.message);
     logger.info('Email de verificación enviado', { email: maskEmail(email) });
   } catch (error) {
     logger.error('Error enviando email de verificación:', { error: (error as Error).message });
@@ -176,12 +165,8 @@ export async function sendResetPasswordEmail(email: string, token: string): Prom
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
   try {
     const html = renderTemplate('reset-password', { reset_url: resetUrl });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Restablecer contraseña — TecnoCel',
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Restablecer contraseña — TecnoCel', html });
+    if (error) throw new Error(error.message);
     logger.info('Email de reset de contraseña enviado', { email: maskEmail(email) });
   } catch (error) {
     logger.error('Error enviando email de reset:', { error: (error as Error).message });
@@ -192,12 +177,8 @@ export async function sendResetPasswordEmail(email: string, token: string): Prom
 export async function sendWelcomeEmail(email: string, nombre: string): Promise<void> {
   try {
     const html = renderTemplate('welcome', { nombre, frontend_url: FRONTEND_URL });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: '¡Tu cuenta está activa! Bienvenido/a a TecnoCel',
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: '¡Tu cuenta está activa! Bienvenido/a a TecnoCel', html });
+    if (error) throw new Error(error.message);
     logger.info('Email de bienvenida enviado', { email: maskEmail(email) });
   } catch (error) {
     logger.error('Error enviando email de bienvenida:', { error: (error as Error).message });
@@ -213,12 +194,8 @@ export async function sendOrderConfirmationEmail(email: string, venta: Confirmac
       total_pagado: `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`,
       items_table: buildItemsTable(venta.items),
     });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: `¡Pedido confirmado! ${venta.nro_venta} — TecnoCel`,
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: `¡Pedido confirmado! ${venta.nro_venta} — TecnoCel`, html });
+    if (error) throw new Error(error.message);
     logger.info('Email de confirmación de compra enviado', { email: maskEmail(email), nro_venta: venta.nro_venta });
   } catch (error) {
     logger.error('Error enviando email de confirmación de compra:', { error: (error as Error).message });
@@ -239,12 +216,8 @@ export async function sendCancellationEmail(email: string, venta: VentaEmailData
       total_pagado: `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`,
       items_table: buildItemsTable(venta.items),
     });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: `Tu pedido ${venta.nro_venta} fue cancelado — TecnoCel`,
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: `Tu pedido ${venta.nro_venta} fue cancelado — TecnoCel`, html });
+    if (error) throw new Error(error.message);
     logger.info('Email de cancelación enviado', { email: maskEmail(email), nro_venta: venta.nro_venta });
   } catch (error) {
     logger.error('Error enviando email de cancelación:', { error: (error as Error).message });
@@ -262,12 +235,8 @@ export async function sendOrderStatusEmail(email: string, data: EstadoVentaEmail
       estado_label: estadoInfo.label,
       estado_descripcion: estadoInfo.descripcion,
     });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: `Actualización de tu pedido ${data.nro_venta} — TecnoCel`,
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: `Actualización de tu pedido ${data.nro_venta} — TecnoCel`, html });
+    if (error) throw new Error(error.message);
     logger.info('Email de estado de venta enviado', { email: maskEmail(email), nro_venta: data.nro_venta, estado: data.nuevo_estado });
   } catch (error) {
     logger.error('Error enviando email de estado de venta:', { error: (error as Error).message });
@@ -285,12 +254,8 @@ export async function sendCommentReplyEmail(email: string, data: CommentReplyEma
       texto_respuesta: escapeHtml(data.texto_respuesta),
       producto_url: productoUrl,
     });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: `Respondieron tu comentario en TecnoCel`,
-      html,
-    });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Respondieron tu comentario en TecnoCel', html });
+    if (error) throw new Error(error.message);
     logger.info('Email de respuesta a comentario enviado', { email: maskEmail(email) });
   } catch (error) {
     logger.error('Error enviando email de respuesta a comentario:', { error: (error as Error).message });
