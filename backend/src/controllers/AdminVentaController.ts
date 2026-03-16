@@ -32,7 +32,9 @@ import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
-import { sendCancellationEmail, sendOrderStatusEmail } from '../services/emailService.js';
+import { sendCancellationEmail, sendOrderStatusEmail, sendComprobanteEmail } from '../services/emailService.js';
+import { generarComprobantePDF } from '../services/comprobanteService.js';
+import type { DetalleParaComprobante } from '../services/comprobanteService.js';
 import notificationService from '../services/notificationService.js';
 
 /** Type guard para verificar que el usuario es del sistema (tiene idRol) */
@@ -734,6 +736,237 @@ export default class AdminVentaController {
     } catch (error) {
       logger.error('Error en actualizarEstadoVenta:', error);
       return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * Genera y descarga el comprobante de una venta en PDF
+   * GET /api/ventas/admin/:id_venta/comprobante
+   * Roles: admin (1), gerente (2), vendedor (3)
+   */
+  static async descargarComprobante(req: Request, res: Response) {
+    try {
+      const { id_venta } = req.params;
+
+      const venta = await Venta.findOne({
+        where: { id_venta },
+        include: [
+          {
+            model: Cliente,
+            attributes: ['id_cliente', 'nombre_cliente', 'apellido_cliente', 'email_cliente'],
+            required: false,
+          },
+          {
+            model: Usuario,
+            as: 'vendedor',
+            attributes: ['id_usuario', 'nombres'],
+            required: false,
+          },
+          {
+            model: VentaItem,
+            as: 'items',
+            include: [
+              {
+                model: Almacen,
+                as: 'producto',
+                attributes: ['id_producto', 'nombre', 'codigo'],
+              },
+            ],
+          },
+          {
+            model: Envio,
+            as: 'envio',
+            required: false,
+            include: [
+              {
+                model: Direccion,
+                as: 'direccion_envio',
+                required: false,
+                attributes: ['calle', 'numero', 'piso', 'departamento', 'barrio', 'ciudad', 'provincia'],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!venta) {
+        return res.status(404).json({ error: 'Venta no encontrada' });
+      }
+
+      const v = venta.toJSON() as Record<string, any>;
+      const nroVenta = `V-${v.nro_venta.toString().padStart(5, '0')}`;
+
+      const detalle: DetalleParaComprobante = {
+        id_venta:     v.id_venta,
+        nro_venta:    nroVenta,
+        fyh_creacion: v.fyh_creacion,
+        total_pagado: parseFloat(v.total_pagado),
+        estado:       v.estado,
+        metodo_pago:  v.metodo_pago,
+        tipo_venta:   v.tipo_venta,
+        moneda:       v.moneda,
+        observaciones: v.observaciones,
+        cliente: v.Cliente ? {
+          id_cliente:      v.Cliente.id_cliente,
+          nombre_cliente:  v.Cliente.nombre_cliente,
+          apellido_cliente: v.Cliente.apellido_cliente,
+          correo:          v.Cliente.email_cliente,
+        } : null,
+        vendedor: v.vendedor ? {
+          id_vendedor: v.vendedor.id_usuario,
+          nombres:     v.vendedor.nombres,
+        } : null,
+        envio: v.envio ? {
+          tipo_entrega: v.envio.tipo_entrega,
+          direccion_envio: (v.envio.envio_calle || v.envio.direccion_envio) ? {
+            calle:       v.envio.envio_calle       || v.envio.direccion_envio?.calle       || null,
+            numero:      v.envio.envio_numero      || v.envio.direccion_envio?.numero      || null,
+            piso:        v.envio.envio_piso        || v.envio.direccion_envio?.piso        || null,
+            departamento: v.envio.envio_departamento || v.envio.direccion_envio?.departamento || null,
+            barrio:      v.envio.envio_barrio      || v.envio.direccion_envio?.barrio      || null,
+            ciudad:      v.envio.envio_ciudad      || v.envio.direccion_envio?.ciudad      || null,
+            provincia:   v.envio.envio_provincia   || v.envio.direccion_envio?.provincia   || null,
+          } : null,
+        } : null,
+        items: (v.items || []).map((item: any) => ({
+          nombre_producto: item.producto?.nombre || 'Producto no disponible',
+          codigo:          item.producto?.codigo || null,
+          cantidad:        item.cantidad,
+          precio_unitario: parseFloat(item.precio_unitario),
+          subtotal:        parseFloat(item.subtotal),
+        })),
+      };
+
+      const pdfBuffer = await generarComprobantePDF(detalle);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="comprobante-${nroVenta}.pdf"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      return res.end(pdfBuffer);
+    } catch (error) {
+      logger.error('Error generando comprobante PDF:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        id_venta: req.params.id_venta,
+      });
+      return res.status(500).json({ error: 'Error al generar el comprobante' });
+    }
+  }
+
+  /**
+   * Envía el comprobante de una venta por email al cliente
+   * POST /api/ventas/admin/:id_venta/enviar-comprobante
+   * Roles: admin (1), gerente (2), vendedor (3)
+   * Requiere que la venta tenga cliente con correo registrado
+   */
+  static async enviarComprobante(req: Request, res: Response) {
+    try {
+      const { id_venta } = req.params;
+
+      const venta = await Venta.findOne({
+        where: { id_venta },
+        include: [
+          {
+            model: Cliente,
+            attributes: ['id_cliente', 'nombre_cliente', 'apellido_cliente', 'email_cliente'],
+            required: false,
+          },
+          {
+            model: Usuario,
+            as: 'vendedor',
+            attributes: ['id_usuario', 'nombres'],
+            required: false,
+          },
+          {
+            model: VentaItem,
+            as: 'items',
+            include: [
+              {
+                model: Almacen,
+                as: 'producto',
+                attributes: ['id_producto', 'nombre', 'codigo'],
+              },
+            ],
+          },
+          {
+            model: Envio,
+            as: 'envio',
+            required: false,
+            include: [
+              {
+                model: Direccion,
+                as: 'direccion_envio',
+                required: false,
+                attributes: ['calle', 'numero', 'piso', 'departamento', 'barrio', 'ciudad', 'provincia'],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!venta) {
+        return res.status(404).json({ error: 'Venta no encontrada' });
+      }
+
+      const v = venta.toJSON() as Record<string, any>;
+
+      if (!v.Cliente?.email_cliente) {
+        return res.status(400).json({ error: 'Esta venta no tiene cliente con correo registrado' });
+      }
+
+      const nroVenta = `V-${v.nro_venta.toString().padStart(5, '0')}`;
+
+      const detalle: DetalleParaComprobante = {
+        id_venta:     v.id_venta,
+        nro_venta:    nroVenta,
+        fyh_creacion: v.fyh_creacion,
+        total_pagado: parseFloat(v.total_pagado),
+        estado:       v.estado,
+        metodo_pago:  v.metodo_pago,
+        tipo_venta:   v.tipo_venta,
+        moneda:       v.moneda,
+        observaciones: v.observaciones,
+        cliente: {
+          id_cliente:      v.Cliente.id_cliente,
+          nombre_cliente:  v.Cliente.nombre_cliente,
+          apellido_cliente: v.Cliente.apellido_cliente,
+          correo:          v.Cliente.email_cliente,
+        },
+        vendedor: v.vendedor ? {
+          id_vendedor: v.vendedor.id_usuario,
+          nombres:     v.vendedor.nombres,
+        } : null,
+        envio: v.envio ? {
+          tipo_entrega: v.envio.tipo_entrega,
+          direccion_envio: (v.envio.envio_calle || v.envio.direccion_envio) ? {
+            calle:       v.envio.envio_calle       || v.envio.direccion_envio?.calle       || null,
+            numero:      v.envio.envio_numero      || v.envio.direccion_envio?.numero      || null,
+            piso:        v.envio.envio_piso        || v.envio.direccion_envio?.piso        || null,
+            departamento: v.envio.envio_departamento || v.envio.direccion_envio?.departamento || null,
+            barrio:      v.envio.envio_barrio      || v.envio.direccion_envio?.barrio      || null,
+            ciudad:      v.envio.envio_ciudad      || v.envio.direccion_envio?.ciudad      || null,
+            provincia:   v.envio.envio_provincia   || v.envio.direccion_envio?.provincia   || null,
+          } : null,
+        } : null,
+        items: (v.items || []).map((item: any) => ({
+          nombre_producto: item.producto?.nombre || 'Producto no disponible',
+          codigo:          item.producto?.codigo || null,
+          cantidad:        item.cantidad,
+          precio_unitario: parseFloat(item.precio_unitario),
+          subtotal:        parseFloat(item.subtotal),
+        })),
+      };
+
+      const pdfBuffer = await generarComprobantePDF(detalle);
+      const nombreCliente = `${v.Cliente.nombre_cliente} ${v.Cliente.apellido_cliente}`;
+      await sendComprobanteEmail(v.Cliente.email_cliente, nroVenta, nombreCliente, pdfBuffer);
+
+      return res.json({ mensaje: `Comprobante enviado a ${v.Cliente.email_cliente}` });
+    } catch (error) {
+      logger.error('Error enviando comprobante por email:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        id_venta: req.params.id_venta,
+      });
+      return res.status(500).json({ error: 'Error al enviar el comprobante por email' });
     }
   }
 }
