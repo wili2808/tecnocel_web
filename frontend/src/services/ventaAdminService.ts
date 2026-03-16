@@ -119,6 +119,40 @@ export const ventaAdminService = {
     }
   },
 
+  /**
+   * Descarga el comprobante de una venta como archivo PDF
+   * Usa responseType: 'blob' para recibir el binario y disparar la descarga en el navegador
+   */
+  async descargarComprobante(id_venta: number, nroVenta: string): Promise<void> {
+    try {
+      const response = await adminApi.get(`/ventas/admin/${id_venta}/comprobante`, {
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `comprobante-${nroVenta}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || 'Error al descargar el comprobante');
+    }
+  },
+
+  /**
+   * Envía el comprobante de una venta por email al cliente registrado
+   */
+  async enviarComprobante(id_venta: number): Promise<{ mensaje: string }> {
+    try {
+      const response = await adminApi.post(`/ventas/admin/${id_venta}/enviar-comprobante`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || 'Error al enviar el comprobante');
+    }
+  },
+
   // ── Helpers de formato ────────────────────────────────────────────────────
 
   formatearMetodoPago(metodo: string | null): string {
