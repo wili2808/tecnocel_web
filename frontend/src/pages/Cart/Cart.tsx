@@ -6,6 +6,7 @@
  */
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import { useCarrito } from '../../contexts/CarritoContext';
 import CartItemCard from '../../components/cart/CartItemCard';
 import CartSummary from '../../components/cart/CartSummary/CartSummary';
@@ -84,6 +85,7 @@ const Cart: React.FC = () => {
     
     return (
         <div className={styles.cartContainer}>
+            <PageMeta title="Mi carrito" noIndex />
             {isEmpty ? (
                 // ============================================================================
                 // ESTADO DE CARRITO VACÍO

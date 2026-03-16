@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { FiZap, FiShield, FiRefreshCw, FiHeadphones } from 'react-icons/fi';
+import PageMeta from '../components/common/PageMeta/PageMeta';
 import HeroSection from '../components/layout/HeroSection';
 import FeaturedProducts from '../components/product/FeaturedProducts';
 import CTASection from '../components/common/CTASection';
@@ -33,6 +34,11 @@ const Home = () => {
 
   return (
     <>
+      <PageMeta
+        title="Tecnología al mejor precio"
+        description="TecnoCel — Celulares, accesorios y productos tecnológicos en Argentina. Envío rápido, garantía oficial y los mejores precios."
+        url="/"
+      />
       {/* 1. Hero principal */}
       <HeroSection />
 

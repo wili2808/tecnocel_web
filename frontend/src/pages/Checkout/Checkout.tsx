@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import { useCarrito } from '../../contexts/CarritoContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import DeliveryTypeSelector from '../../components/checkout/DeliveryTypeSelector';
@@ -132,6 +133,7 @@ const Checkout = () => {
 
   return (
     <div className={styles.container}>
+      <PageMeta title="Finalizar compra" noIndex />
       <div className={styles.header}>
         <button onClick={() => navigate('/carrito')} className={styles.backButton} type="button">
           <span className="material-icons">arrow_back</span>

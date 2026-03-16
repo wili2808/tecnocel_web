@@ -4,6 +4,7 @@
  */
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import { useProductActions } from '../../hooks/useProductActions';
 import ProductImage from '../../components/product/ProductImage';
 import ProductInfo from '../../components/product/ProductInfo';
@@ -116,8 +117,20 @@ const ProductPage: React.FC = () => {
             ? Math.round(((Number(product.precio_venta) - product.precio_oferta) / Number(product.precio_venta)) * 100)
             : 0);
 
+    const productImage = product.imagenes?.[0]?.url_imagen || product.imagen_url || undefined;
+    const productPrice = product.precio_final ?? Number(product.precio_venta);
+    const productDescription = product.descripcion
+        ? product.descripcion.slice(0, 155)
+        : `Comprá ${product.nombre} en TecnoCel. Precio: $${productPrice.toLocaleString('es-AR')}. Envío rápido y garantía oficial en Argentina.`;
+
     return (
         <div className={styles.productPage}>
+            <PageMeta
+                title={product.nombre}
+                description={productDescription}
+                image={productImage}
+                url={`/productos/${id}`}
+            />
             <div className={styles.productContent}>
 
                 {/* Breadcrumb */}

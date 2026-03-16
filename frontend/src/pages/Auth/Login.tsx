@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import AuthForm from '../../components/user/AuthForm';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import styles from './Login.module.css';
 
 /**
@@ -9,6 +10,7 @@ import styles from './Login.module.css';
 const Login = () => {
     return (
         <div className={styles.loginPage}>
+            <PageMeta title="Iniciar sesión" noIndex />
             <div className={styles.loginContainer}>
                 {/* Formulario de login */}
                 <AuthForm />

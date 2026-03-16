@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import ProductFilters from '../../components/product/ProductFilters';
 import ProductGrid from '../../components/product/ProductGrid';
 import { useProductActions } from '../../hooks/useProductActions';
@@ -233,8 +234,19 @@ const ProductCatalog: React.FC = () => {
     // ============================================================================
     // RENDERIZADO OPTIMIZADO
     // ============================================================================
+    const catalogTitle = debouncedSearchQuery
+        ? `"${debouncedSearchQuery}" en productos`
+        : filters.categoria
+            ? 'Catálogo de productos'
+            : 'Todos los productos';
+
     return (
         <div className={styles.catalogFullscreen}>
+            <PageMeta
+                title={catalogTitle}
+                description="Explorá el catálogo completo de TecnoCel. Celulares, accesorios, auriculares y más con los mejores precios en Argentina."
+                url="/productos"
+            />
             <div className={styles.catalogContainer}>
                 {/* Sidebar con filtros fijo a la izquierda */}
                 <aside className={styles.filtersSidebar}>

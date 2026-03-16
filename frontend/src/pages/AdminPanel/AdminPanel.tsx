@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import type { AdminUser } from '../../types/usuario';
 import DashboardAdmin from '../../components/admin/DashboardAdmin/DashboardAdmin';
 import GestionUsuarios from '../../components/admin/GestionUsuarios/GestionUsuarios';
@@ -210,6 +211,7 @@ const AdminPanel = () => {
 
   return (
     <div className={`${adminPanelStyles.adminPanel} ${adminPanelStyles.themeAware}`}>
+      <PageMeta title="Panel de administración" noIndex />
       <div className={adminPanelStyles.container}>
         {/* Sidebar del panel con navegación e información del usuario */}
         <aside className={adminPanelStyles.sidebar}>

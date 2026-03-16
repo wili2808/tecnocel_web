@@ -5,6 +5,7 @@
  */
 import React, { useMemo } from 'react';
 import { useOfertasPagination } from '../../hooks/useOfertasPagination';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import OfferCard from '../../components/product/OfferCard';
 import ProductCard from '../../components/product/ProductCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -78,7 +79,11 @@ const Offers: React.FC = () => {
 
   return (
     <div className={styles.offersPage}>
-
+      <PageMeta
+        title="Ofertas del día"
+        description="Las mejores ofertas en celulares y tecnología. Descuentos reales en TecnoCel Argentina."
+        url="/ofertas"
+      />
       {/* ── Header ──────────────────────────────────────────────────── */}
       <header className={styles.pageHeader}>
         <div className={styles.headerInner}>

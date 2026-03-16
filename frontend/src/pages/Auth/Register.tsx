@@ -1,4 +1,5 @@
 import RegisterForm from '../../components/user/RegisterForm';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import styles from './Register.module.css';
 
 /**
@@ -8,6 +9,7 @@ import styles from './Register.module.css';
 const Register = () => {
     return (
         <div className={styles.registerPage}>
+            <PageMeta title="Crear cuenta" noIndex />
             <div className={styles.registerContainer}>
                 {/* Formulario de registro */}
                 <RegisterForm />

@@ -6,6 +6,7 @@
  */
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import type { Cliente } from '../../types/cliente';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DatosCuenta from '../../components/user/DatosCuenta';
@@ -173,6 +174,7 @@ const UserPanel = () => {
 
   return (
     <div className={`${userPanelStyles.userPanel} ${userPanelStyles.themeAware}`}>
+      <PageMeta title="Mi cuenta" noIndex />
       <div className={userPanelStyles.container}>
         {/* Sidebar del panel con navegación y información del usuario */}
         <aside className={userPanelStyles.sidebar}>

@@ -1,5 +1,6 @@
 import React from 'react';
 import ContactForm from '../../components/contact/ContactForm';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import ContactMethods from '../../components/contact/ContactMethods';
 import LocationSection from '../../components/location/LocationSection';
 import styles from './Contacto.module.css';
@@ -21,6 +22,11 @@ const Contacto: React.FC = () => {
 
     return (
         <div className={styles.contactoPage}>
+            <PageMeta
+                title="Contacto"
+                description="Contactate con TecnoCel. Respondemos en menos de 24 horas hábiles. Lunes a viernes 9–20 hs, sábados 9–13 hs."
+                url="/contacto"
+            />
             {/* Hero Section */}
             <section className={styles.hero}>
                 <div className={styles.heroContainer}>

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Layout from './components/layout/Layout';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -71,6 +72,7 @@ const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
+    <HelmetProvider>
     <ErrorBoundary>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
       <AuthProvider>
@@ -170,6 +172,7 @@ function App() {
       </AuthProvider>
     </GoogleOAuthProvider>
     </ErrorBoundary>
+    </HelmetProvider>
   )
 }
 

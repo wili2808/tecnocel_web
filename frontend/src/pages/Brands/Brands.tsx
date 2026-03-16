@@ -6,6 +6,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BrandGrid from '../../components/brand/BrandGrid';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { useBrands } from '../../hooks/useBrands';
 import styles from './Brands.module.css';
@@ -85,6 +86,11 @@ const Brands = () => {
 
   return (
     <div className={styles.brandsPage}>
+      <PageMeta
+        title="Marcas"
+        description="Explorá todas las marcas disponibles en TecnoCel. Samsung, Apple, Xiaomi, Motorola y más."
+        url="/marcas"
+      />
       {/* Header de la página */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
