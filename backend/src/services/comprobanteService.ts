@@ -244,6 +244,12 @@ export async function generarComprobantePDF(detalle: DetalleParaComprobante): Pr
         y += 16;
       });
 
+      // Verificar espacio para el total antes de renderizarlo
+      if (y + 30 > doc.page.height - 80) {
+        doc.addPage();
+        y = 50;
+      }
+
       // Fila total
       doc.moveTo(50, y).lineTo(545, y).strokeColor('#CCCCCC').stroke();
       y += 8;
