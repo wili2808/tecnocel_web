@@ -114,7 +114,7 @@ export async function generarComprobantePDF(detalle: DetalleParaComprobante): Pr
       doc.on('error', reject);
 
       const pageWidth = doc.page.width - 100; // ancho útil (margen 50 c/lado)
-      const COL = { producto: 0, codigo: 220, cant: 310, precio: 365, subtotal: 440 };
+      const COL = { producto: 0, codigo: 220, cant: 310, precio: 365, subtotal: 430 };
 
       // ── Encabezado ──────────────────────────────────────────────────────────
       doc
@@ -210,12 +210,28 @@ export async function generarComprobantePDF(detalle: DetalleParaComprobante): Pr
          .text('CÓDIGO',         50 + COL.codigo,   y + 4, { width: 80 })
          .text('CANT.',          50 + COL.cant,     y + 4, { width: 45, align: 'right' })
          .text('PRECIO UNIT.',   50 + COL.precio,   y + 4, { width: 65, align: 'right' })
-         .text('SUBTOTAL',       50 + COL.subtotal, y + 4, { width: 65, align: 'right' });
+         .text('SUBTOTAL',       50 + COL.subtotal, y + 4, { width: 60, align: 'right' });
       doc.fillColor('#000000');
       y += 18;
 
       // Filas de productos
       detalle.items.forEach((item, idx) => {
+        // Verificar overflow de página
+        if (y + 16 > doc.page.height - 80) {
+          doc.addPage();
+          y = 50;
+          // Re-renderizar encabezado de tabla en la nueva página
+          doc.fontSize(8).font('Helvetica-Bold').fillColor('#FFFFFF');
+          doc.rect(50, y, pageWidth, 16).fill('#374151');
+          doc.text('PRODUCTO',       50 + COL.producto, y + 4, { width: 160 })
+             .text('CÓDIGO',         50 + COL.codigo,   y + 4, { width: 80 })
+             .text('CANT.',          50 + COL.cant,     y + 4, { width: 45, align: 'right' })
+             .text('PRECIO UNIT.',   50 + COL.precio,   y + 4, { width: 65, align: 'right' })
+             .text('SUBTOTAL',       50 + COL.subtotal, y + 4, { width: 60, align: 'right' });
+          doc.fillColor('#000000');
+          y += 18;
+        }
+
         if (idx % 2 === 0) {
           doc.rect(50, y - 2, pageWidth, 16).fill('#F9FAFB');
         }
@@ -224,7 +240,7 @@ export async function generarComprobantePDF(detalle: DetalleParaComprobante): Pr
           .text(item.codigo || '—',              50 + COL.codigo,   y, { width: 80 })
           .text(String(item.cantidad),           50 + COL.cant,     y, { width: 45, align: 'right' })
           .text(`$${formatMonto(item.precio_unitario)}`, 50 + COL.precio, y, { width: 65, align: 'right' })
-          .text(`$${formatMonto(item.subtotal)}`, 50 + COL.subtotal, y, { width: 65, align: 'right' });
+          .text(`$${formatMonto(item.subtotal)}`, 50 + COL.subtotal, y, { width: 60, align: 'right' });
         y += 16;
       });
 
@@ -233,7 +249,7 @@ export async function generarComprobantePDF(detalle: DetalleParaComprobante): Pr
       y += 8;
       doc.fontSize(10).font('Helvetica-Bold')
         .text('TOTAL', 50 + COL.precio, y, { width: 65, align: 'right' })
-        .text(`$${formatMonto(detalle.total_pagado)}`, 50 + COL.subtotal, y, { width: 65, align: 'right' });
+        .text(`$${formatMonto(detalle.total_pagado)}`, 50 + COL.subtotal, y, { width: 60, align: 'right' });
 
       // ── Pie de página ────────────────────────────────────────────────────
       doc
