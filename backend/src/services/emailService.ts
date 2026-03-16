@@ -262,3 +262,32 @@ export async function sendCommentReplyEmail(email: string, data: CommentReplyEma
     throw new Error('No se pudo enviar el correo de respuesta a comentario');
   }
 }
+
+export async function sendComprobanteEmail(
+  email: string,
+  nroVenta: string,
+  nombreCliente: string,
+  pdfBuffer: Buffer
+): Promise<void> {
+  try {
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: email,
+      subject: `Comprobante de venta ${nroVenta} — TecnoCel`,
+      html: `<p>Hola ${escapeHtml(nombreCliente)},</p>
+             <p>Adjuntamos el comprobante de tu venta <strong>${nroVenta}</strong>.</p>
+             <p>Gracias por tu compra en TecnoCel.</p>`,
+      attachments: [
+        {
+          filename: `comprobante-${nroVenta}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    });
+    if (error) throw new Error(error.message);
+    logger.info('Email de comprobante enviado', { email: maskEmail(email), nro_venta: nroVenta });
+  } catch (error) {
+    logger.error('Error enviando email de comprobante:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el comprobante por email');
+  }
+}
