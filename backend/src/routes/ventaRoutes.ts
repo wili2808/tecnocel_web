@@ -4,11 +4,13 @@
  * Define los endpoints REST para ventas.
  *
  * RUTAS ADMIN (requieren verificarToken + verificarRol):
- * - GET  /api/ventas/admin/estadisticas  - Stats rápidas (hoy, semana, mes, ingresos)
- * - GET  /api/ventas/admin/listar        - Listado con filtros y paginación
- * - POST /api/ventas/admin/registrar     - Registrar venta manual
- * - PATCH /api/ventas/admin/:id/cancelar - Cancelar venta (solo admin rol 1)
- * - GET  /api/ventas/admin/:id_venta     - Detalle sin restricción de cliente
+ * - GET  /api/ventas/admin/estadisticas           - Stats rápidas (hoy, semana, mes, ingresos)
+ * - GET  /api/ventas/admin/listar                 - Listado con filtros y paginación
+ * - POST /api/ventas/admin/registrar              - Registrar venta manual
+ * - PATCH /api/ventas/admin/:id/cancelar          - Cancelar venta (solo admin rol 1)
+ * - GET  /api/ventas/admin/:id_venta/comprobante  - Descargar PDF del comprobante
+ * - POST /api/ventas/admin/:id_venta/enviar-comprobante - Enviar comprobante por email
+ * - GET  /api/ventas/admin/:id_venta              - Detalle sin restricción de cliente
  *
  * RUTAS CLIENTE (requieren verificarTokenCliente):
  * - GET /api/ventas/historial            - Historial del cliente autenticado
@@ -121,6 +123,28 @@ router.put('/admin/tipo-cambio',
   verificarRol([ROLES.ADMIN, ROLES.GERENTE]),
   validateTipoCambio,
   AdminVentaController.actualizarTipoCambio
+);
+
+/**
+ * GET /api/ventas/admin/:id_venta/comprobante
+ * Genera y descarga el comprobante de una venta en PDF
+ * Roles: admin (1), gerente (2), vendedor (3)
+ */
+router.get('/admin/:id_venta/comprobante',
+  verificarToken,
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  AdminVentaController.descargarComprobante.bind(AdminVentaController)
+);
+
+/**
+ * POST /api/ventas/admin/:id_venta/enviar-comprobante
+ * Envía el comprobante por email al cliente registrado en la venta
+ * Roles: admin (1), gerente (2), vendedor (3)
+ */
+router.post('/admin/:id_venta/enviar-comprobante',
+  verificarToken,
+  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  AdminVentaController.enviarComprobante.bind(AdminVentaController)
 );
 
 /**
