@@ -30,6 +30,8 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
   const [detalle, setDetalle] = useState<VentaDetalle | null>(null);
   const [cargando, setCargando] = useState(true);
   const [mostrarCancelacionModal, setMostrarCancelacionModal] = useState(false);
+  const [descargando, setDescargando] = useState(false);
+  const [enviando, setEnviando] = useState(false);
 
   // ── Cargar detalle ─────────────────────────────────────────────────────────
 
@@ -64,6 +66,35 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose, mostrarCancelacionModal]);
+
+  // ── Acciones de comprobante ────────────────────────────────────────────────
+
+  const handleDescargar = async () => {
+    if (!detalle) return;
+    setDescargando(true);
+    try {
+      await ventaAdminService.descargarComprobante(detalle.id_venta, detalle.nro_venta);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al descargar el comprobante';
+      showNotification(message, 'error');
+    } finally {
+      setDescargando(false);
+    }
+  };
+
+  const handleEnviarEmail = async () => {
+    if (!detalle) return;
+    setEnviando(true);
+    try {
+      const result = await ventaAdminService.enviarComprobante(detalle.id_venta);
+      showNotification(result.mensaje, 'success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al enviar el comprobante';
+      showNotification(message, 'error');
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   // ── Helpers de formato ─────────────────────────────────────────────────────
 
@@ -293,9 +324,39 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                 Cancelar Venta
               </button>
             )}
-            <button className={styles.cancelButton} onClick={onClose}>
-              Cerrar
-            </button>
+            <div className={styles.modalFooterActions}>
+              {detalle && !cargando && (
+                <>
+                  <button
+                    className={styles.comprobanteButton}
+                    onClick={handleDescargar}
+                    disabled={descargando}
+                    title="Descargar comprobante en PDF"
+                  >
+                    <span className="material-icons">
+                      {descargando ? 'hourglass_empty' : 'download'}
+                    </span>
+                    {descargando ? 'Descargando...' : 'Descargar PDF'}
+                  </button>
+                  {detalle.cliente?.correo && (
+                    <button
+                      className={styles.comprobanteButton}
+                      onClick={handleEnviarEmail}
+                      disabled={enviando}
+                      title={`Enviar comprobante a ${detalle.cliente.correo}`}
+                    >
+                      <span className="material-icons">
+                        {enviando ? 'hourglass_empty' : 'email'}
+                      </span>
+                      {enviando ? 'Enviando...' : 'Enviar email'}
+                    </button>
+                  )}
+                </>
+              )}
+              <button className={styles.cancelButton} onClick={onClose}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       </div>

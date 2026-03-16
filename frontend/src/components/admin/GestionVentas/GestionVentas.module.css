@@ -1718,3 +1718,40 @@
     transition: none !important;
   }
 }
+
+/* ── Botones de comprobante en el footer del modal ── */
+.comprobanteButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: none;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast) var(--transition-curve),
+              opacity var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.comprobanteButton:hover:not(:disabled) {
+  background: var(--color-primary-100);
+}
+
+.comprobanteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.comprobanteButton .material-icons {
+  font-size: 16px;
+}
+
+.modalFooterActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
