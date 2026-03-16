@@ -422,11 +422,13 @@ class StaticImageMiddleware {
    */
   private sendImage(res: Response, filePath: string, filename: string): void {
     const mimeType = this.getMimeType(filename);
+    const stat = fs.statSync(filePath);
+    const etag = `"${filename}-${stat.mtimeMs}"`;
 
     res.set({
       'Content-Type': mimeType,
       'Cache-Control': `public, max-age=${this.maxAge}`,
-      'ETag': `"${filename}-${Date.now()}"`,
+      'ETag': etag,
       'X-Content-Type-Options': 'nosniff'
     });
 

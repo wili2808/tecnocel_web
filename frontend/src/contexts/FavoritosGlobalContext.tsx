@@ -174,8 +174,16 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
     const syncCache = useCallback(() => {
         // Solo sincronizar cache para clientes autenticados (no admin/empleado)
         if (!isAuthenticated || !user?.id || userType !== 'cliente') {
-            // Usuario no autenticado o no es cliente, limpiar cache
+            // Usuario no autenticado o no es cliente, limpiar cache y estado
             localStorage.removeItem(FAVORITOS_CACHE_KEY);
+            if (state.favoritos.size > 0 || state.favoritosCompletos.length > 0) {
+                setState(prev => ({
+                    ...prev,
+                    favoritos: new Map(),
+                    favoritosCompletos: [],
+                    lastUpdated: null
+                }));
+            }
             return;
         }
 
