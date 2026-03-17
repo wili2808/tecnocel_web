@@ -129,7 +129,6 @@ const Reportes: React.FC = memo(() => {
 
   // Vendedores para el filtro (se usa en el dropdown — próximo commit)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // @ts-expect-error vendedores se usa en el siguiente commit (dropdown de filtro)
   const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
   const [vendedorSeleccionado, setVendedorSeleccionado] = useState<number | 'null' | undefined>(undefined);
 
@@ -271,18 +270,41 @@ const Reportes: React.FC = memo(() => {
           />
         </div>
         {activeTab === 'ventas' && (
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Agrupacion</label>
-            <select
-              className={styles.filterSelect}
-              value={filtros.agrupacion || 'dia'}
-              onChange={(e) => handleFiltroChange('agrupacion', e.target.value)}
-            >
-              <option value="dia">Por dia</option>
-              <option value="semana">Por semana</option>
-              <option value="mes">Por mes</option>
-            </select>
-          </div>
+          <>
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>Agrupacion</label>
+              <select
+                className={styles.filterSelect}
+                value={filtros.agrupacion || 'dia'}
+                onChange={(e) => handleFiltroChange('agrupacion', e.target.value)}
+              >
+                <option value="dia">Por dia</option>
+                <option value="semana">Por semana</option>
+                <option value="mes">Por mes</option>
+              </select>
+            </div>
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>Vendedor</label>
+              <select
+                className={styles.filterSelect}
+                value={vendedorSeleccionado === undefined ? '' : String(vendedorSeleccionado)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '') setVendedorSeleccionado(undefined);
+                  else if (val === 'null') setVendedorSeleccionado('null');
+                  else setVendedorSeleccionado(parseInt(val, 10));
+                }}
+              >
+                <option value="">Todos los vendedores</option>
+                <option value="null">Venta Web</option>
+                {vendedores.map((v) => (
+                  <option key={v.id_usuario} value={String(v.id_usuario)}>
+                    {v.nombres}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
         )}
         <div className={styles.filterActions}>
           <button className={styles.filterButton} onClick={cargarDatos}>
