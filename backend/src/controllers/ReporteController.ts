@@ -446,10 +446,23 @@ export default class ReporteController {
         ? 'AND ca.fyh_cancelacion BETWEEN :fecha_inicio AND :fecha_fin_full'
         : '';
 
-      const replacements = {
+      const replacements: Record<string, unknown> = {
         fecha_inicio: fecha_inicio as string,
         fecha_fin_full: `${fecha_fin as string} 23:59:59`
       };
+
+      const idVendedorRawCsv = req.query.id_vendedor as string | undefined;
+      let filtroVendedorCsv = '';
+
+      if (idVendedorRawCsv === 'null') {
+        filtroVendedorCsv = 'AND v.id_vendedor IS NULL';
+      } else {
+        const parsed = parseInt(idVendedorRawCsv ?? '', 10);
+        if (parsed > 0) {
+          filtroVendedorCsv = 'AND v.id_vendedor = :id_vendedor';
+          replacements['id_vendedor'] = parsed;
+        }
+      }
 
       let csvContent = '';
       let filename = '';
@@ -469,10 +482,12 @@ export default class ReporteController {
                COALESCE(v.metodo_pago, 'N/A') AS "Metodo Pago",
                v.tipo_venta AS "Tipo",
                v.estado AS "Estado",
-               COALESCE(CONCAT(c.nombre_cliente, ' ', c.apellido_cliente), 'Venta manual') AS "Cliente"
+               COALESCE(CONCAT(c.nombre_cliente, ' ', c.apellido_cliente), 'Venta manual') AS "Cliente",
+               COALESCE(u.nombres, 'Venta Web') AS "Vendedor"
              FROM tb_ventas v
              LEFT JOIN tb_clientes c ON c.id_cliente = v.id_cliente
-             WHERE v.estado = 'completada' ${fechaCondition}
+             LEFT JOIN tb_usuarios u ON u.id_usuario = v.id_vendedor
+             WHERE v.estado = 'completada' ${fechaCondition} ${filtroVendedorCsv}
              ORDER BY v.fyh_creacion DESC`,
             { replacements, type: QueryTypes.SELECT }
           );
