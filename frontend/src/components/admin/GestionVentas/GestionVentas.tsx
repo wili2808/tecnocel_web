@@ -17,6 +17,7 @@ import styles from './GestionVentas.module.css';
 import DetalleVentaModal from './DetalleVentaModal';
 import RegistrarVentaModal from './RegistrarVentaModal';
 import CancelacionModal from './CancelacionModal';
+import GestionEnvios from './GestionEnvios';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ventaAdminService } from '../../../services/ventaAdminService';
@@ -79,6 +80,10 @@ const GestionVentas: React.FC = () => {
   const [editandoCambio, setEditandoCambio]   = useState(false);
   const [tipoCambioInput, setTipoCambioInput] = useState('');
   const [guardandoCambio, setGuardandoCambio] = useState(false);
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<'ventas' | 'envios'>('ventas');
+  const [enviosPendientes, setEnviosPendientes] = useState(0);
 
   // ── Modales ────────────────────────────────────────────────────────────────
   const [idDetalleAbierto, setIdDetalleAbierto] = useState<number | null>(null);
@@ -245,6 +250,33 @@ const GestionVentas: React.FC = () => {
 
   return (
     <div className={styles.container}>
+
+      {/* Tabs */}
+      <div className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${activeTab === 'ventas' ? styles.tabActivo : ''}`}
+          onClick={() => setActiveTab('ventas')}
+        >
+          <span className="material-icons">receipt_long</span>
+          Ventas
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'envios' ? styles.tabActivo : ''}`}
+          onClick={() => setActiveTab('envios')}
+        >
+          <span className="material-icons">local_shipping</span>
+          Envíos a domicilio
+          {enviosPendientes > 0 && (
+            <span className={styles.tabBadge}>{enviosPendientes}</span>
+          )}
+        </button>
+      </div>
+
+      {activeTab === 'envios' && (
+        <GestionEnvios onPendientesChange={setEnviosPendientes} />
+      )}
+
+      {activeTab === 'ventas' && <>
 
       {/* Encabezado */}
       <div className={styles.header}>
@@ -666,6 +698,8 @@ const GestionVentas: React.FC = () => {
           onCancelada={() => { setCancelacionModal(null); refreshTodo(); }}
         />
       )}
+
+      </>}
 
     </div>
   );

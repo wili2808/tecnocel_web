@@ -92,7 +92,7 @@ interface FacturaPDFProps {
     estado?: string;
     envio?: {
       tipo_entrega: 'envio' | 'retiro_en_tienda';
-      fecha_despacho: string | null;
+      fyh_despacho: string | null;
       direccion_envio: DireccionEnvioPDF | null;
     } | null;
     cancelacion?: {

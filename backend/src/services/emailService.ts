@@ -263,6 +263,96 @@ export async function sendCommentReplyEmail(email: string, data: CommentReplyEma
   }
 }
 
+export interface ShippingEmailItem {
+  nombre: string;
+  cantidad: number;
+}
+
+export async function sendShippingInTransitEmail(
+  email: string,
+  data: {
+    nombre_cliente: string;
+    nro_venta: string;
+    nro_seguimiento?: string | null;
+    direccion_destino: string;
+    items: ShippingEmailItem[];
+  }
+): Promise<void> {
+  const itemsHtml = data.items
+    .map(i => `<li style="padding:4px 0;color:#374151;">${i.cantidad}x ${escapeHtml(i.nombre)}</li>`)
+    .join('');
+
+  const seguimientoHtml = data.nro_seguimiento
+    ? `<div style="background-color:#EFF6FF;border-left:4px solid #3B82F6;padding:12px 16px;border-radius:4px;margin:16px 0;">
+         <p style="margin:0;color:#1E40AF;font-size:13px;"><strong>Número de seguimiento:</strong> <code>${escapeHtml(data.nro_seguimiento)}</code></p>
+       </div>`
+    : '';
+
+  try {
+    const html = `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#0EA5E9;">🚚 Tu pedido está en camino</h2>
+        <p>Hola <strong>${escapeHtml(data.nombre_cliente)}</strong>,</p>
+        <p>Tu pedido <strong>${data.nro_venta}</strong> ha sido despachado y está en camino.</p>
+        ${seguimientoHtml}
+        <p><strong>Dirección de entrega:</strong> ${escapeHtml(data.direccion_destino)}</p>
+        <p><strong>Productos enviados:</strong></p>
+        <ul style="margin:8px 0;padding-left:20px;">${itemsHtml}</ul>
+        <p style="color:#64748B;font-size:13px;">Te avisaremos cuando sea entregado.</p>
+        <p>¡Gracias por tu compra en TecnoCel!</p>
+      </div>`;
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: email,
+      subject: `Tu pedido ${data.nro_venta} está en camino 🚚`,
+      html,
+    });
+    if (error) throw new Error(error.message);
+    logger.info('Email de envío en camino enviado', { email: maskEmail(email), nro_venta: data.nro_venta });
+  } catch (error) {
+    logger.error('Error enviando email en camino:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de envío en camino');
+  }
+}
+
+export async function sendShippingDeliveredEmail(
+  email: string,
+  data: {
+    nombre_cliente: string;
+    nro_venta: string;
+    fecha_entrega: string;
+    items: ShippingEmailItem[];
+  }
+): Promise<void> {
+  const itemsHtml = data.items
+    .map(i => `<li style="padding:4px 0;color:#374151;">${i.cantidad}x ${escapeHtml(i.nombre)}</li>`)
+    .join('');
+
+  try {
+    const html = `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#22C55E;">✅ Tu pedido fue entregado</h2>
+        <p>Hola <strong>${escapeHtml(data.nombre_cliente)}</strong>,</p>
+        <p>Tu pedido <strong>${data.nro_venta}</strong> fue entregado el ${escapeHtml(data.fecha_entrega)}.</p>
+        <p><strong>Productos entregados:</strong></p>
+        <ul style="margin:8px 0;padding-left:20px;">${itemsHtml}</ul>
+        <p>Esperamos que disfrutes tu compra. Si tenés algún problema, no dudes en contactarnos.</p>
+        <p>¡Gracias por elegir TecnoCel!</p>
+      </div>`;
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: email,
+      subject: `Tu pedido ${data.nro_venta} fue entregado ✅`,
+      html,
+    });
+    if (error) throw new Error(error.message);
+    logger.info('Email de entrega enviado', { email: maskEmail(email), nro_venta: data.nro_venta });
+  } catch (error) {
+    logger.error('Error enviando email entregado:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de entrega');
+  }
+}
+
 export async function sendComprobanteEmail(
   email: string,
   nroVenta: string,

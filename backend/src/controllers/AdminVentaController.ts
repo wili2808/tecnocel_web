@@ -271,7 +271,7 @@ export default class AdminVentaController {
         envio: v.envio ? {
           tipo_entrega:    v.envio.tipo_entrega,
           estado_envio:    v.envio.estado_envio,
-          fecha_despacho:  v.envio.fecha_despacho || null,
+          fecha_despacho:  v.envio.fyh_despacho || null,
           direccion_envio: (v.envio.envio_calle || v.envio.direccion_envio) ? {
             nombre_direccion: v.envio.envio_nombre_direccion || null,
             calle:        v.envio.envio_calle || v.envio.direccion_envio?.calle || null,
@@ -549,7 +549,7 @@ export default class AdminVentaController {
       }
 
       // Regla: ventas web solo cancelables si aún no fueron despachadas
-      if (ventaData.tipo_venta === 'web' && ventaData.envio?.fecha_despacho != null) {
+      if (ventaData.tipo_venta === 'web' && ventaData.envio?.fyh_despacho != null) {
         await transaction.rollback();
         return res.status(400).json({
           mensaje: 'No se puede cancelar una venta web que ya fue despachada'

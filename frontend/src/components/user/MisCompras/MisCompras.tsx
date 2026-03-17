@@ -31,7 +31,7 @@ interface DireccionEnvio {
 interface EnvioInfo {
     tipo_entrega: 'envio' | 'retiro_en_tienda';
     estado_envio: string;
-    fecha_despacho: string | null;
+    fyh_despacho: string | null;
     direccion_envio: DireccionEnvio | null;
 }
 
@@ -286,10 +286,10 @@ const MisCompras = () => {
                                     })()}
 
                                     {/* Fecha de despacho */}
-                                    {venta.envio?.fecha_despacho && (
+                                    {venta.envio?.fyh_despacho && (
                                         <div className={styles.despachoRow}>
                                             <span className="material-icons">local_shipping</span>
-                                            <span>Despachado el: {formatearFecha(venta.envio.fecha_despacho)}</span>
+                                            <span>Despachado el: {formatearFecha(venta.envio.fyh_despacho)}</span>
                                         </div>
                                     )}
 

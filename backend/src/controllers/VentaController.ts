@@ -111,7 +111,7 @@ export default class VentaController {
           envio: ventaData.envio ? {
             tipo_entrega:    ventaData.envio.tipo_entrega,
             estado_envio:    ventaData.envio.estado_envio,
-            fecha_despacho:  ventaData.envio.fecha_despacho || null,
+            fecha_despacho:  ventaData.envio.fyh_despacho || null,
             direccion_envio: (ventaData.envio.envio_calle || ventaData.envio.direccion_envio) ? {
               nombre_direccion: ventaData.envio.envio_nombre_direccion || null,
               calle:        ventaData.envio.envio_calle || ventaData.envio.direccion_envio?.calle || null,

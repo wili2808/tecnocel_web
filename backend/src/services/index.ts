@@ -8,6 +8,8 @@ export {
   sendCancellationEmail,
   sendOrderStatusEmail,
   sendCommentReplyEmail,
+  sendShippingInTransitEmail,
+  sendShippingDeliveredEmail,
 } from './emailService.js';
 export { initializeImageService } from './imageService.js';
 

@@ -19,7 +19,8 @@ class Envio extends Model {
   declare envio_referencia: string | null;
   declare envio_telefono_contacto: string | null;
   declare estado_envio: 'pendiente' | 'en_preparacion' | 'en_camino' | 'entregado' | 'no_aplica';
-  declare fecha_despacho: Date | null;
+  declare nro_seguimiento: string | null;
+  declare fyh_despacho: Date | null;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
@@ -105,7 +106,11 @@ Envio.init({
     allowNull: false,
     defaultValue: 'pendiente'
   },
-  fecha_despacho: {
+  nro_seguimiento: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  fyh_despacho: {
     type: DataTypes.DATE,
     allowNull: true
   },

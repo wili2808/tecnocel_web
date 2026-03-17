@@ -1755,3 +1755,485 @@
   align-items: center;
   gap: 8px;
 }
+
+/* ============================================================================
+   SISTEMA DE TABS (Ventas / Envíos)
+   ============================================================================ */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+  position: relative;
+}
+
+.tab .material-icons {
+  font-size: 17px;
+}
+
+.tab:hover {
+  color: var(--color-primary);
+}
+
+.tabActivo {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--color-error);
+  color: white;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ============================================================================
+   BARRA DE FILTROS — ENVÍOS (compacta, en línea)
+   ============================================================================ */
+
+.filtrosBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  margin-bottom: 14px;
+}
+
+.filtroSelect,
+.filtroInput,
+.filtroFecha {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
+  background: var(--background-primary);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
+}
+
+.filtroSelect:focus,
+.filtroInput:focus,
+.filtroFecha:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.filtroSelect {
+  min-width: 150px;
+}
+
+.filtroInput {
+  flex: 1;
+  min-width: 180px;
+}
+
+.filtroFecha {
+  min-width: 130px;
+}
+
+.btnFiltrar {
+  padding: 6px 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.btnFiltrar:hover {
+  background: var(--color-primary-dark);
+}
+
+.btnLimpiar {
+  padding: 6px 12px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-family-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.btnLimpiar:hover {
+  background: var(--background-hover);
+  border-color: var(--text-secondary);
+}
+
+/* ============================================================================
+   TABLA — ENVÍOS (alias + helpers)
+   ============================================================================ */
+
+/* Alias: reutiliza tableWrapper y aplica la misma lógica que .table */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--background-primary);
+  font-size: 13px;
+}
+
+.tabla thead {
+  background: var(--background-neutral);
+}
+
+.tabla th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.tabla td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.tabla tbody tr {
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
+.tabla tbody tr:hover {
+  background: var(--color-primary-25);
+}
+
+.tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Mensajes de estado */
+.loadingMsg,
+.emptyMsg,
+.errorMsg {
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.errorMsg {
+  color: var(--color-error);
+}
+
+/* Helpers de celda */
+.sinDatos {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.direccion {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nroSeguimiento {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+}
+
+/* ============================================================================
+   PAGINACIÓN — ENVÍOS
+   ============================================================================ */
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.paginacionBtns {
+  display: flex;
+  gap: 8px;
+}
+
+.btnPag {
+  padding: 5px 12px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
+}
+
+.btnPag:hover:not(:disabled) {
+  background: var(--color-primary-100);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btnPag:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   BOTONES DE FILA — ENVÍOS
+   ============================================================================ */
+
+.btnPrimario {
+  padding: 5px 11px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.btnPrimario:hover {
+  background: var(--color-primary-dark);
+}
+
+.btnSecundario {
+  padding: 5px 11px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-family-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.btnSecundario:hover {
+  background: var(--background-hover);
+}
+
+/* ============================================================================
+   BADGES DE ESTADO — ENVÍOS
+   ============================================================================ */
+
+.estadoBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.estadoPendiente {
+  background: var(--color-warning-100, #fef3c7);
+  color: var(--color-warning, #d97706);
+}
+
+.estadoEnPreparacion {
+  background: var(--color-primary-100);
+  color: var(--color-primary);
+}
+
+.estadoEnCamino {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.estadoEntregado {
+  background: var(--color-success-100);
+  color: var(--color-success);
+}
+
+/* ============================================================================
+   STEPPER — MODAL DE ENVÍOS
+   ============================================================================ */
+
+.envioStepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+.stepperItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.stepperCirculo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--background-neutral);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
+  flex-shrink: 0;
+}
+
+.stepperLabel {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.stepperConector {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  align-self: center;
+  margin-bottom: 16px;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
+.stepperConectorCompletado {
+  background: var(--color-success);
+}
+
+.stepperActual > .stepperCirculo {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.stepperActual > .stepperLabel {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.stepperCompletado > .stepperCirculo {
+  background: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.stepperCompletado > .stepperLabel {
+  color: var(--color-success);
+}
+
+/* ============================================================================
+   PANEL DE ACCIÓN — MODAL DE ENVÍOS
+   ============================================================================ */
+
+.envioAccionPanel {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.envioConfirmar {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.envioConfirmarTitulo {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.envioEmailAviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-info-100);
+  border: 1px solid var(--color-info);
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.envioEmailAviso .material-icons {
+  color: var(--color-info);
+  flex-shrink: 0;
+}
+
+.envioConfirmarBtns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.requerido {
+  color: var(--color-error);
+}

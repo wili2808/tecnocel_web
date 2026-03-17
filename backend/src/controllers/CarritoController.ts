@@ -1396,7 +1396,7 @@ export default class CarritoController {
         envio_referencia: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.referencia ?? null) : null,
         envio_telefono_contacto: tipoEntregaNormalizado === 'envio' ? (direccionEntrega?.telefono_contacto ?? null) : null,
         estado_envio: tipoEntregaNormalizado === 'envio' ? 'pendiente' : 'no_aplica',
-        fecha_despacho: null,
+        fyh_despacho: null,
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       }, { transaction });

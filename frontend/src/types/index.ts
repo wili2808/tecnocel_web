@@ -23,3 +23,6 @@ export * from './reporte';
 
 // Exportar tipos de notificaciones
 export * from './notificacion';
+
+// Exportar tipos de envíos (admin)
+export * from './envio';

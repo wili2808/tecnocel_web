@@ -27,7 +27,7 @@ export interface EnvioDireccionResumen {
 export interface EnvioResumen {
   tipo_entrega: string;
   estado_envio: string;
-  fecha_despacho?: string | null;
+  fyh_despacho?: string | null;
   direccion_envio: EnvioDireccionResumen | null;
 }
 

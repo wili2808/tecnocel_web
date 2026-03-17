@@ -50,7 +50,7 @@ export interface VentaDetalle {
   envio: {
     tipo_entrega:   'envio' | 'retiro_en_tienda';
     estado_envio:   'pendiente' | 'en_preparacion' | 'en_camino' | 'entregado' | 'no_aplica';
-    fecha_despacho: string | null;
+    fyh_despacho: string | null;
     direccion_envio: {
       calle: string; numero: string; piso: string | null;
       departamento: string | null; barrio: string; ciudad: string; provincia: string;
