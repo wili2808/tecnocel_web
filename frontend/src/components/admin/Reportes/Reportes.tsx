@@ -127,8 +127,7 @@ const Reportes: React.FC = memo(() => {
   const [clientesData, setClientesData] = useState<ReporteClientesResponse | null>(null);
   const [cancelacionesData, setCancelacionesData] = useState<ReporteCancelacionesResponse | null>(null);
 
-  // Vendedores para el filtro (se usa en el dropdown — próximo commit)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Lista de vendedores para el dropdown de filtro
   const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
   const [vendedorSeleccionado, setVendedorSeleccionado] = useState<number | 'null' | undefined>(undefined);
 
