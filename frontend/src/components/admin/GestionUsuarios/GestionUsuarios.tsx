@@ -550,6 +550,7 @@ const GestionUsuarios = () => {
                   onChange={handleEditFormChange}
                   className={styles.input}
                   placeholder="Dejar vacío para no cambiar"
+                  autoComplete="new-password"
                 />
               </div>
             </div>
@@ -568,6 +569,7 @@ const GestionUsuarios = () => {
                     onChange={handleEditFormChange}
                     className={styles.input}
                     placeholder="Repite la nueva contraseña"
+                    autoComplete="new-password"
                   />
                 </div>
               )}
