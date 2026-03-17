@@ -50,6 +50,24 @@ export default class ReporteController {
         tipo_venta
       } = req.query;
 
+      // Parsear id_vendedor con validación explícita
+      const idVendedorRaw = req.query.id_vendedor as string | undefined;
+      let filtroVendedor = '';
+      let filtroVendedorV = '';
+      let idVendedorNum: number | undefined;
+
+      if (idVendedorRaw === 'null') {
+        filtroVendedor  = 'AND id_vendedor IS NULL';
+        filtroVendedorV = 'AND v.id_vendedor IS NULL';
+      } else {
+        const parsed = parseInt(idVendedorRaw ?? '', 10);
+        if (parsed > 0) {
+          idVendedorNum   = parsed;
+          filtroVendedor  = 'AND id_vendedor = :id_vendedor';
+          filtroVendedorV = 'AND v.id_vendedor = :id_vendedor';
+        }
+      }
+
       const hasFechas = fecha_inicio && fecha_fin;
       const filtroFechas = hasFechas
         ? 'AND fyh_creacion BETWEEN :fecha_inicio AND :fecha_fin_full'
@@ -66,8 +84,14 @@ export default class ReporteController {
         fecha_inicio: fecha_inicio as string,
         fecha_fin_full: `${fecha_fin as string} 23:59:59`,
         metodo_pago: metodo_pago as string,
-        tipo_venta: tipo_venta as string
+        tipo_venta: tipo_venta as string,
+        ...(idVendedorNum !== undefined && { id_vendedor: idVendedorNum }),
       };
+
+      const vendedorParaBuildWhere =
+        idVendedorRaw === 'null' ? null :
+        idVendedorNum !== undefined ? idVendedorNum :
+        undefined;
 
       // ── Resumen general con montos duales ───────────────────────────────
       const [resumenRows, ventasWeb, ventasManual, metodoPagoResult] = await Promise.all([
@@ -79,15 +103,15 @@ export default class ReporteController {
              COALESCE(SUM(CASE WHEN v.moneda = 'ARS' OR v.moneda IS NULL THEN 1 ELSE 0 END), 0) AS ventas_ars,
              COALESCE(SUM(CASE WHEN v.moneda = 'USD' THEN 1 ELSE 0 END), 0) AS ventas_usd
            FROM tb_ventas v
-           WHERE v.estado = 'completada' ${filtroFechasV} ${filtroMetodoV} ${filtroTipoV}`,
+           WHERE v.estado = 'completada' ${filtroFechasV} ${filtroMetodoV} ${filtroTipoV} ${filtroVendedorV}`,
           { replacements, type: QueryTypes.SELECT }
         ),
-        Venta.count({ where: buildWhere({ estado: 'completada', fecha_inicio, fecha_fin, metodo_pago, tipo_venta: 'web' }) }),
-        Venta.count({ where: buildWhere({ estado: 'completada', fecha_inicio, fecha_fin, metodo_pago, tipo_venta: 'manual' }) }),
+        Venta.count({ where: buildWhere({ estado: 'completada', fecha_inicio, fecha_fin, metodo_pago, tipo_venta: 'web',    id_vendedor: vendedorParaBuildWhere }) }),
+        Venta.count({ where: buildWhere({ estado: 'completada', fecha_inicio, fecha_fin, metodo_pago, tipo_venta: 'manual', id_vendedor: vendedorParaBuildWhere }) }),
         sequelize.query<ReporteMetodoPago>(
           `SELECT metodo_pago, COUNT(*) AS total
            FROM tb_ventas
-           WHERE estado = 'completada' ${filtroFechas} ${filtroMetodo} ${filtroTipo}
+           WHERE estado = 'completada' ${filtroFechas} ${filtroMetodo} ${filtroTipo} ${filtroVendedor}
              AND metodo_pago IS NOT NULL
            GROUP BY metodo_pago
            ORDER BY total DESC
@@ -114,7 +138,7 @@ export default class ReporteController {
            COALESCE(SUM(${SQL_USD()}), 0) AS ingresos_usd,
            COALESCE(ROUND(AVG(${SQL_ARS()}), 0), 0) AS ticket_promedio
          FROM tb_ventas v
-         WHERE v.estado = 'completada' ${filtroFechasV} ${filtroMetodoV} ${filtroTipoV}
+         WHERE v.estado = 'completada' ${filtroFechasV} ${filtroMetodoV} ${filtroTipoV} ${filtroVendedorV}
          GROUP BY periodo
          ORDER BY periodo DESC`,
         { replacements: { ...replacements, dateFormat }, type: QueryTypes.SELECT }
@@ -573,6 +597,7 @@ function buildWhere(opts: {
   fecha_fin?: unknown;
   metodo_pago?: unknown;
   tipo_venta?: string;
+  id_vendedor?: number | null;
 }): Record<string, unknown> {
   const w: Record<string, unknown> = {};
   if (opts.estado) w['estado'] = opts.estado;
@@ -582,6 +607,11 @@ function buildWhere(opts: {
     w['fyh_creacion'] = {
       [Op.between]: [opts.fecha_inicio as string, `${opts.fecha_fin as string} 23:59:59`]
     };
+  }
+  if (opts.id_vendedor !== undefined) {
+    w['id_vendedor'] = opts.id_vendedor === null
+      ? { [Op.is]: null }
+      : opts.id_vendedor;
   }
   return w;
 }
