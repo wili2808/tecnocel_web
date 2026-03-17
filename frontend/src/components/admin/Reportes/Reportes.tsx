@@ -1,6 +1,7 @@
 import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
+import adminApi from '../../../api/axiosAdminConfig';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -126,7 +127,10 @@ const Reportes: React.FC = memo(() => {
   const [clientesData, setClientesData] = useState<ReporteClientesResponse | null>(null);
   const [cancelacionesData, setCancelacionesData] = useState<ReporteCancelacionesResponse | null>(null);
 
-  // Vendedor seleccionado para filtro
+  // Vendedores para el filtro (se usa en el dropdown — próximo commit)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // @ts-expect-error vendedores se usa en el siguiente commit (dropdown de filtro)
+  const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
   const [vendedorSeleccionado, setVendedorSeleccionado] = useState<number | 'null' | undefined>(undefined);
 
   // Cargar datos según pestaña activa
@@ -171,6 +175,18 @@ const Reportes: React.FC = memo(() => {
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
+
+  // Cargar lista de vendedores al montar (una sola vez)
+  useEffect(() => {
+    adminApi.get('/usuarios/admin/usuarios')
+      .then((res) => {
+        const lista = res.data?.data?.usuarios ?? res.data?.usuarios ?? [];
+        setVendedores(lista);
+      })
+      .catch(() => {
+        // No bloqueante: si falla, el dropdown queda sin opciones de usuario
+      });
+  }, []);
 
   const handleTabChange = useCallback((tab: ReporteTab) => {
     setActiveTab(tab);
