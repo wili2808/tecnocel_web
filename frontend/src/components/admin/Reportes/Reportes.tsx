@@ -1,7 +1,6 @@
 import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
-import adminApi from '../../../api/axiosAdminConfig';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -127,8 +126,7 @@ const Reportes: React.FC = memo(() => {
   const [clientesData, setClientesData] = useState<ReporteClientesResponse | null>(null);
   const [cancelacionesData, setCancelacionesData] = useState<ReporteCancelacionesResponse | null>(null);
 
-  // Vendedores para el filtro
-  const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
+  // Vendedor seleccionado para filtro
   const [vendedorSeleccionado, setVendedorSeleccionado] = useState<number | 'null' | undefined>(undefined);
 
   // Cargar datos según pestaña activa
@@ -174,20 +172,6 @@ const Reportes: React.FC = memo(() => {
     cargarDatos();
   }, [cargarDatos]);
 
-  // Cargar lista de vendedores al montar (una sola vez)
-  // vendedores se usa en el dropdown de filtro (tarea siguiente)
-  useEffect(() => {
-    adminApi.get('/usuarios/admin/usuarios')
-      .then((res) => {
-        const lista: { id_usuario: number; nombres: string }[] = res.data?.data?.usuarios ?? res.data?.usuarios ?? [];
-        setVendedores(lista);
-      })
-      .catch(() => {
-        // No bloqueante: si falla, el dropdown queda sin opciones de usuario
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleTabChange = useCallback((tab: ReporteTab) => {
     setActiveTab(tab);
   }, []);
@@ -216,12 +200,6 @@ const Reportes: React.FC = memo(() => {
       setExporting(false);
     }
   }, [activeTab, filtros, vendedorSeleccionado]);
-
-  // Opciones para el dropdown de vendedor (preparado para el filterBar)
-  const vendedoresOptions = useMemo(
-    () => vendedores.map((v) => ({ value: v.id_usuario, label: v.nombres })),
-    [vendedores],
-  );
 
   return (
     <div className={styles.container}>
@@ -257,7 +235,7 @@ const Reportes: React.FC = memo(() => {
       </div>
 
       {/* Filtros */}
-      <div className={styles.filterBar} data-vendedores={vendedoresOptions.length}>
+      <div className={styles.filterBar}>
         <div className={styles.filterGroup}>
           <label className={styles.filterLabel}>Fecha inicio</label>
           <input
