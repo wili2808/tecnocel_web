@@ -12,6 +12,7 @@ export interface FiltrosReporte {
 export interface FiltrosReporteVentas extends FiltrosReporte {
   metodo_pago?: string;
   tipo_venta?: string;
+  id_vendedor?: number | 'null';
 }
 
 export interface FiltrosReporteProductos extends FiltrosReporte {
