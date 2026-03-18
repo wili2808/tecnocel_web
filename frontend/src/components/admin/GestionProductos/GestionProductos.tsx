@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useDebounce } from '../../../hooks/useDebounce';
 import adminProductService from '../../../services/adminProductService';
 import ProductoForm from './ProductoForm';
 import GestionMarcas from './GestionMarcas';
@@ -38,6 +39,7 @@ const GestionProductos = () => {
   // Búsqueda y paginación
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 500);
   const [page, setPage] = useState(1);
 
   // Ordenamiento
@@ -139,11 +141,11 @@ const GestionProductos = () => {
     }
   }, [cargarProductos, vista]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  // ── Actualizar búsqueda con debounce ────────────────────────────────────
+  useEffect(() => {
     setPage(1);
-    setSearchTerm(searchInput);
-  };
+    setSearchTerm(debouncedSearch);
+  }, [debouncedSearch]);
 
   const handleClearSearch = () => {
     setSearchInput('');
@@ -261,7 +263,7 @@ const GestionProductos = () => {
       {activeTab === 'productos' && (
       <>
       {/* Barra de búsqueda */}
-      <form onSubmit={handleSearch} className={styles.searchForm}>
+      <div className={styles.searchForm}>
         <div className={styles.searchInputWrapper}>
           <span className="material-icons">search</span>
           <input
@@ -290,10 +292,7 @@ const GestionProductos = () => {
           <span className="material-icons">star</span>
           <span>Solo destacados</span>
         </button>
-        <button type="submit" className={styles.searchButton}>
-          Buscar
-        </button>
-      </form>
+      </div>
 
       {/* Estado de carga */}
       {loading && (

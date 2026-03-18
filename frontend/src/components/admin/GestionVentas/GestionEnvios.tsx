@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import styles from './GestionVentas.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { envioAdminService } from '../../../services/envioAdminService';
+import { useDebounce } from '../../../hooks/useDebounce';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
 import GestionEnviosModal from './GestionEnviosModal';
@@ -34,8 +35,9 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
   const [error, setError] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
 
-  const [filtrosTmp, setFiltrosTmp] = useState<FiltrosEnviosAdmin>({});
   const [filtros, setFiltros] = useState<FiltrosEnviosAdmin>({});
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 500);
 
   const [envioSeleccionado, setEnvioSeleccionado] = useState<EnvioAdminListItem | null>(null);
 
@@ -71,13 +73,14 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
     cargarEnvios(filtros, offset);
   }, [filtros, offset, cargarEnvios]);
 
-  const aplicarFiltros = () => {
+  // ── Actualizar búsqueda con debounce ────────────────────────────────────
+  useEffect(() => {
+    setFiltros(prev => ({ ...prev, search: debouncedSearch || undefined }));
     setOffset(0);
-    setFiltros(filtrosTmp);
-  };
+  }, [debouncedSearch]);
 
   const limpiarFiltros = () => {
-    setFiltrosTmp({});
+    setSearchInput('');
     setOffset(0);
     setFiltros({});
   };
@@ -97,8 +100,8 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
       {/* Filtros */}
       <div className={styles.filtrosBar}>
         <select
-          value={filtrosTmp.estado_envio ?? ''}
-          onChange={e => setFiltrosTmp(prev => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))}
+          value={filtros.estado_envio ?? ''}
+          onChange={e => setFiltros(prev => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))}
           className={styles.filtroSelect}
         >
           <option value="">Todos los estados</option>
@@ -110,25 +113,24 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
         <input
           type="text"
           placeholder="Buscar por nro. venta o cliente..."
-          value={filtrosTmp.search ?? ''}
-          onChange={e => setFiltrosTmp(prev => ({ ...prev, search: e.target.value || undefined }))}
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
           className={styles.filtroInput}
         />
 
         <input
           type="date"
-          value={filtrosTmp.fecha_inicio ?? ''}
-          onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+          value={filtros.fecha_inicio ?? ''}
+          onChange={e => setFiltros(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
           className={styles.filtroFecha}
         />
         <input
           type="date"
-          value={filtrosTmp.fecha_fin ?? ''}
-          onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+          value={filtros.fecha_fin ?? ''}
+          onChange={e => setFiltros(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
           className={styles.filtroFecha}
         />
 
-        <button onClick={aplicarFiltros} className={styles.btnFiltrar}>Filtrar</button>
         <button onClick={limpiarFiltros} className={styles.btnLimpiar}>Limpiar</button>
       </div>
 

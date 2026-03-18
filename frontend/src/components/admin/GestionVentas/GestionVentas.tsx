@@ -23,6 +23,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ventaAdminService } from '../../../services/ventaAdminService';
 import { envioAdminService } from '../../../services/envioAdminService';
+import { useDebounce } from '../../../hooks/useDebounce';
 import type {
   VentaListItem,
   EstadisticasVentas,
@@ -69,7 +70,8 @@ const GestionVentas: React.FC = () => {
 
   // ── Estado de filtros ──────────────────────────────────────────────────────
   const [filtros, setFiltros] = useState<FiltrosVentasAdmin>({});
-  const [filtrosTmp, setFiltrosTmp] = useState<FiltrosVentasAdmin>({});
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 500);
 
   // ── Paginación y ordenación ────────────────────────────────────────────────
   const [offset, setOffset] = useState(0);
@@ -189,16 +191,16 @@ const GestionVentas: React.FC = () => {
     cargarVentas(filtros, offset);
   }, [cargarVentas, filtros, offset]);
 
-  // ── Aplicar filtros ────────────────────────────────────────────────────────
-  const aplicarFiltros = () => {
-    setFiltros(filtrosTmp);
+  // ── Actualizar búsqueda con debounce ────────────────────────────────────
+  useEffect(() => {
+    setFiltros(prev => ({ ...prev, search: debouncedSearch || undefined }));
     setOffset(0);
-  };
+  }, [debouncedSearch]);
 
+  // ── Limpiar filtros ────────────────────────────────────────────────────────
   const limpiarFiltros = () => {
-    const vacios: FiltrosVentasAdmin = {};
-    setFiltrosTmp(vacios);
-    setFiltros(vacios);
+    setSearchInput('');
+    setFiltros({});
     setOffset(0);
   };
 
@@ -452,8 +454,8 @@ const GestionVentas: React.FC = () => {
             <input
               type="date"
               className={styles.filterInput}
-              value={filtrosTmp.fecha_inicio || ''}
-              onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+              value={filtros.fecha_inicio || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
             />
           </div>
           <div className={styles.filterGroup}>
@@ -461,16 +463,16 @@ const GestionVentas: React.FC = () => {
             <input
               type="date"
               className={styles.filterInput}
-              value={filtrosTmp.fecha_fin || ''}
-              onChange={e => setFiltrosTmp(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+              value={filtros.fecha_fin || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
             />
           </div>
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Estado</label>
             <select
               className={styles.filterSelect}
-              value={filtrosTmp.estado || ''}
-              onChange={e => setFiltrosTmp(prev => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))}
+              value={filtros.estado || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))}
             >
               <option value="">Todos</option>
               <option value="completada">Completada</option>
@@ -482,8 +484,8 @@ const GestionVentas: React.FC = () => {
             <label className={styles.filterLabel}>Tipo</label>
             <select
               className={styles.filterSelect}
-              value={filtrosTmp.tipo_venta || ''}
-              onChange={e => setFiltrosTmp(prev => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))}
+              value={filtros.tipo_venta || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))}
             >
               <option value="">Todos</option>
               <option value="web">Web</option>
@@ -494,8 +496,8 @@ const GestionVentas: React.FC = () => {
             <label className={styles.filterLabel}>Método pago</label>
             <select
               className={styles.filterSelect}
-              value={filtrosTmp.metodo_pago || ''}
-              onChange={e => setFiltrosTmp(prev => ({ ...prev, metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'] }))}
+              value={filtros.metodo_pago || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'] }))}
             >
               <option value="">Todos</option>
               <option value="efectivo">Efectivo</option>
@@ -514,16 +516,11 @@ const GestionVentas: React.FC = () => {
               type="text"
               className={styles.filterInput}
               placeholder="N° venta, cliente..."
-              value={filtrosTmp.search || ''}
-              onChange={e => setFiltrosTmp(prev => ({ ...prev, search: e.target.value || undefined }))}
-              onKeyDown={e => { if (e.key === 'Enter') aplicarFiltros(); }}
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
             />
           </div>
           <div className={styles.filterActions}>
-            <button className={styles.filterButton} onClick={aplicarFiltros}>
-              <span className="material-icons">filter_list</span>
-              Filtrar
-            </button>
             <button className={styles.clearButton} onClick={limpiarFiltros}>
               <span className="material-icons">clear</span>
               Limpiar

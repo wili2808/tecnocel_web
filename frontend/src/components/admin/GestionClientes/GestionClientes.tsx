@@ -40,7 +40,7 @@ const GestionClientes = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await usuarioService.listarClientes(50, 0, searchTerm);
+      const data = await usuarioService.listarClientes(50, 0);
       setClientes(data.clientes || []);
     } catch (err: any) {
       setError(err.message || 'Error al cargar clientes');
@@ -50,10 +50,16 @@ const GestionClientes = () => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    cargarClientes();
-  };
+  // ── Filtrado local por búsqueda ──────────────────────────────────────────
+  const filteredClientes = useMemo(() => {
+    if (!searchTerm) return clientes;
+    const term = searchTerm.toLowerCase();
+    return clientes.filter(c =>
+      `${c.nombre_cliente} ${c.apellido_cliente}`.toLowerCase().includes(term) ||
+      c.email_cliente.toLowerCase().includes(term) ||
+      (c.celular_cliente || '').toLowerCase().includes(term)
+    );
+  }, [clientes, searchTerm]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -89,7 +95,7 @@ const GestionClientes = () => {
   // ── Sorting ────────────────────────────────────────────────────────────────
 
   const sortedClientes = useMemo(() => {
-    const sorted = [...clientes];
+    const sorted = [...filteredClientes];
     sorted.sort((a, b) => {
       let valA: string | number = '';
       let valB: string | number = '';
@@ -126,7 +132,7 @@ const GestionClientes = () => {
       return 0;
     });
     return sorted;
-  }, [clientes, sortKey, sortDir]);
+  }, [filteredClientes, sortKey, sortDir]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -167,7 +173,7 @@ const GestionClientes = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSearch} className={styles.searchForm}>
+        <div className={styles.searchForm}>
           <input
             type="text"
             placeholder="Buscar por nombre, email o celular..."
@@ -175,11 +181,7 @@ const GestionClientes = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
           />
-          <button type="submit" className={styles.searchButton}>
-            <span className="material-icons">search</span>
-            Buscar
-          </button>
-        </form>
+        </div>
 
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
