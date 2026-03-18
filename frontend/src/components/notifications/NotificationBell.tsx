@@ -5,7 +5,7 @@
  * NotificationPanel detecte clicks externos sin atributos custom en el DOM.
  */
 import React, { memo, useCallback, useRef } from 'react';
-import { useNotificaciones } from '../../contexts/NotificacionesContext';
+import { useNotificaciones } from '../../hooks/useNotificaciones';
 import NotificationPanel from './NotificationPanel';
 import styles from './NotificationBell.module.css';
 

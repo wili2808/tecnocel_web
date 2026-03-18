@@ -4,7 +4,7 @@
  * Se cierra al hacer click fuera del wrapper de NotificationBell o al presionar Escape.
  */
 import React, { memo, useEffect, useCallback } from 'react';
-import { useNotificaciones } from '../../contexts/NotificacionesContext';
+import { useNotificaciones } from '../../hooks/useNotificaciones';
 import NotificationItem from './NotificationItem';
 import styles from './NotificationPanel.module.css';
 

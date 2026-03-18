@@ -330,8 +330,8 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                   <button
                     className={styles.comprobanteButton}
                     onClick={handleDescargar}
-                    disabled={descargando}
-                    title="Descargar comprobante en PDF"
+                    disabled={descargando || detalle.estado === 'cancelada'}
+                    title={detalle.estado === 'cancelada' ? 'No se puede descargar PDF de una venta cancelada' : 'Descargar comprobante en PDF'}
                   >
                     <span className="material-icons">
                       {descargando ? 'hourglass_empty' : 'download'}
@@ -342,8 +342,8 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                     <button
                       className={styles.comprobanteButton}
                       onClick={handleEnviarEmail}
-                      disabled={enviando}
-                      title={`Enviar comprobante a ${detalle.cliente.correo}`}
+                      disabled={enviando || detalle.estado === 'cancelada'}
+                      title={detalle.estado === 'cancelada' ? 'No se puede enviar email de una venta cancelada' : `Enviar comprobante a ${detalle.cliente.correo}`}
                     >
                       <span className="material-icons">
                         {enviando ? 'hourglass_empty' : 'email'}

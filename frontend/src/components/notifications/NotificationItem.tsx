@@ -6,7 +6,7 @@
 import React, { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Notificacion, TipoNotificacion } from '../../types/notificacion';
-import { useNotificaciones } from '../../contexts/NotificacionesContext';
+import { useNotificaciones } from '../../hooks/useNotificaciones';
 import styles from './NotificationItem.module.css';
 
 // ============================================================================

@@ -2,14 +2,14 @@
  * Contexto de Notificaciones - Maneja el estado global de notificaciones del cliente
  * Incluye polling cada 45s para el conteo de no leídas y carga bajo demanda del listado
  */
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { notificacionService } from '../services/notificacionService';
 import type { Notificacion } from '../types/notificacion';
 
 const POLLING_INTERVAL = 45000;
 
-interface NotificacionesContextType {
+export interface NotificacionesContextType {
   noLeidas: number;
   notificaciones: Notificacion[];
   cargando: boolean;
@@ -21,18 +21,7 @@ interface NotificacionesContextType {
   eliminarNotificacion: (id: number) => Promise<void>;
 }
 
-const NotificacionesContext = createContext<NotificacionesContextType | undefined>(undefined);
-
-/**
- * Hook personalizado para usar el contexto de notificaciones
- */
-export const useNotificaciones = (): NotificacionesContextType => {
-  const context = useContext(NotificacionesContext);
-  if (context === undefined) {
-    throw new Error('useNotificaciones debe ser usado dentro de un NotificacionesProvider');
-  }
-  return context;
-};
+export const NotificacionesContext = createContext<NotificacionesContextType | undefined>(undefined);
 
 interface NotificacionesProviderProps {
   children: React.ReactNode;
