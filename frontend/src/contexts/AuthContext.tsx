@@ -193,6 +193,47 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     verifyToken();
   }, [verifyToken]);
 
+  /**
+   * Sincronización cross-tab de autenticación
+   * Escucha cambios en localStorage desde otras pestañas/ventanas del navegador
+   * Detecta logout o cambios de cuenta en otras tabs y sincroniza el estado
+   */
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === TOKEN_KEY || e.key === ADMIN_TOKEN_KEY) {
+        // Si el token fue eliminado en otra tab (logout), sincronizar
+        if (!e.newValue) {
+          clearClienteData();
+          usuarioService.clearAuthToken();
+          updateState({
+            user: null,
+            userType: null,
+            token: null,
+            isVerifying: false,
+            error: null,
+          });
+        } else {
+          // Si apareció un nuevo token en otra tab, recargar autenticación
+          verifyToken();
+        }
+      }
+    };
+
+    try {
+      window.addEventListener('storage', handleStorageChange);
+    } catch (error) {
+      console.error('Error al configurar listener de storage para auth:', error);
+    }
+
+    return () => {
+      try {
+        window.removeEventListener('storage', handleStorageChange);
+      } catch (error) {
+        console.error('Error al limpiar listener de storage:', error);
+      }
+    };
+  }, [verifyToken, updateState, clearClienteData]);
+
   // ============================================================================
   // FUNCIONES DE AUTENTICACIÓN
   // ============================================================================

@@ -25,6 +25,12 @@ const estadoInicial: EstadoCarrito = {
 };
 
 /**
+ * Constantes de localStorage para sincronización multi-tab del carrito
+ */
+const CARRITO_CACHE_KEY = 'carrito_cache';
+const CARRITO_TIMESTAMP_KEY = 'carrito_timestamp';
+
+/**
  * Función auxiliar para calcular el total del carrito
  * Excluye items sin stock del cálculo
  * @param items - Array de items del carrito
@@ -32,6 +38,43 @@ const estadoInicial: EstadoCarrito = {
  */
 function calcularTotalConStock(items: any[]): number {
   return items.filter((item) => item.tiene_stock !== false).reduce((total, item) => total + item.subtotal, 0);
+}
+
+/**
+ * Guarda el carrito en localStorage para sincronización multi-tab
+ * @param estado - Estado actual del carrito a guardar
+ */
+function guardarCarritoEnCache(estado: EstadoCarrito): void {
+  try {
+    const cacheData = {
+      id_carrito: estado.id_carrito,
+      estado: estado.estado,
+      items: estado.items,
+      total_carrito: estado.total_carrito,
+      cantidad_items: estado.cantidad_items,
+      tiene_items_sin_stock: estado.tiene_items_sin_stock,
+      items_sin_stock: estado.items_sin_stock,
+      tiene_cambios_precio: estado.tiene_cambios_precio,
+      items_con_cambio_precio: estado.items_con_cambio_precio,
+      diferencia_total: estado.diferencia_total,
+    };
+    localStorage.setItem(CARRITO_CACHE_KEY, JSON.stringify(cacheData));
+    localStorage.setItem(CARRITO_TIMESTAMP_KEY, Date.now().toString());
+  } catch (error) {
+    console.error('Error al guardar carrito en caché:', error);
+  }
+}
+
+/**
+ * Limpia el carrito del localStorage
+ */
+function limpiarCacheCarrito(): void {
+  try {
+    localStorage.removeItem(CARRITO_CACHE_KEY);
+    localStorage.removeItem(CARRITO_TIMESTAMP_KEY);
+  } catch (error) {
+    console.error('Error al limpiar caché del carrito:', error);
+  }
 }
 
 // ============================================================================
@@ -412,7 +455,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   /**
    * Vacía completamente el carrito
-   * Limpia todos los items y resetea totales
+   * Limpia todos los items, resetea totales y elimina caché
    */
   const vaciarCarrito = useCallback(async () => {
     if (!isAuthenticated) {
@@ -426,6 +469,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       await vaciarCarritoService();
       dispatch({ type: 'VACIAR_CARRITO' });
+      limpiarCacheCarrito();
     } catch (error: any) {
       console.error('Error al vaciar carrito:', error);
       dispatch({ type: 'ESTABLECER_ERROR', payload: error.message });
@@ -452,6 +496,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         // Limpiar carrito después de compra exitosa
         dispatch({ type: 'VACIAR_CARRITO' });
+        limpiarCacheCarrito();
         return venta;
       } catch (error: any) {
         console.error('Error al confirmar compra:', error);
@@ -488,8 +533,55 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       obtenerCarrito();
     } else {
       dispatch({ type: 'INICIALIZAR_CARRITO_VACIO' });
+      limpiarCacheCarrito();
     }
   }, [isAuthenticated, userType, obtenerCarrito]);
+
+  /**
+   * Guarda el carrito en localStorage cada vez que cambia
+   * Permite sincronización multi-tab y restauración después de recargar
+   */
+  useEffect(() => {
+    if (estado.id_carrito && estado.items.length > 0) {
+      guardarCarritoEnCache(estado);
+    }
+  }, [estado]);
+
+  /**
+   * Sincronización cross-tab del carrito
+   * Escucha cambios en localStorage desde otras pestañas/ventanas del navegador
+   * Permite que cambios en el carrito (agregar/quitar items) se reflejen automáticamente
+   */
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === CARRITO_CACHE_KEY && e.newValue) {
+        try {
+          const carritoCacheado = JSON.parse(e.newValue);
+          // Cargar carrito desde la otra tab
+          dispatch({
+            type: 'INICIALIZAR_CARRITO',
+            payload: carritoCacheado,
+          });
+        } catch (error) {
+          console.error('Error al sincronizar carrito desde otra tab:', error);
+        }
+      }
+    };
+
+    try {
+      window.addEventListener('storage', handleStorageChange);
+    } catch (error) {
+      console.error('Error al configurar listener de storage para carrito:', error);
+    }
+
+    return () => {
+      try {
+        window.removeEventListener('storage', handleStorageChange);
+      } catch (error) {
+        console.error('Error al limpiar listener de storage:', error);
+      }
+    };
+  }, []);
 
   // ============================================================================
   // MÉTODOS DE UTILIDAD

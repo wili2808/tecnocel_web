@@ -609,6 +609,34 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
         loadFavoritos();
     }, [loadFavoritos]);
 
+    /**
+     * Sincronización cross-tab de favoritos
+     * Escucha cambios en localStorage desde otras pestañas/ventanas del navegador
+     * Permite que favoritos agregados en Tab1 se reflejen automáticamente en Tab2
+     */
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === FAVORITOS_CACHE_KEY) {
+                // Recargar favoritos desde localStorage cuando otra tab los actualiza
+                loadFavoritos();
+            }
+        };
+
+        try {
+            window.addEventListener('storage', handleStorageChange);
+        } catch (error) {
+            console.error('Error al configurar listener de storage para favoritos:', error);
+        }
+
+        return () => {
+            try {
+                window.removeEventListener('storage', handleStorageChange);
+            } catch (error) {
+                console.error('Error al limpiar listener de storage:', error);
+            }
+        };
+    }, [loadFavoritos]);
+
     return (
         <FavoritosContext.Provider value={contextValue}>
             {children}

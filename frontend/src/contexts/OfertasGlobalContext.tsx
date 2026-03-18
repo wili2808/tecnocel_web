@@ -221,10 +221,11 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
         try {
             setState(prev => ({ ...prev, loading: true, error: null }));
 
-            // Usar el servicio mejorado con retry logic y cache integrado
+            // Usar el servicio con retry logic
+            // El caché es manejado a nivel de contexto, no en el servicio
             const [ofertasData, productosData] = await Promise.all([
-                ofertaService.getOfertasActivas(true), // Usar cache del servicio
-                ofertaService.getProductosEnOferta(100, 0, true) // Usar cache del servicio
+                ofertaService.getOfertasActivas(),
+                ofertaService.getProductosEnOferta(100, 0)
             ]);
 
             // Separar ofertas activas y expiradas
@@ -377,9 +378,8 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
                 ofertasExpiradas: new Set()
             }
         });
-        // Limpiar cache de localStorage y del servicio
+        // Limpiar cache de localStorage
         localStorage.removeItem(OFERTAS_CACHE_KEY);
-        ofertaService.clearCache();
     }, []);
 
     /**

@@ -157,6 +157,34 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     };
   }, []);
 
+  /**
+   * Sincronización cross-tab del tema
+   * Escucha cambios en localStorage desde otras pestañas/ventanas del navegador
+   * Permite que cambios de tema en Tab1 se reflejen automáticamente en Tab2
+   */
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'theme' && e.newValue) {
+        const newTheme = e.newValue as Theme;
+        setThemeState(newTheme);
+      }
+    };
+
+    try {
+      window.addEventListener('storage', handleStorageChange);
+    } catch (error) {
+      console.error('Error al configurar listener de storage:', error);
+    }
+
+    return () => {
+      try {
+        window.removeEventListener('storage', handleStorageChange);
+      } catch (error) {
+        console.error('Error al limpiar listener de storage:', error);
+      }
+    };
+  }, []);
+
   // ============================================================================
   // VALOR DEL CONTEXTO
   // ============================================================================
