@@ -13,6 +13,7 @@ export interface EnvioAdminListItem {
   fyh_despacho: string | null;
   fyh_creacion: string;
   fyh_actualizacion: string;
+  tipo_entrega?: 'envio' | 'retiro_en_tienda';
 }
 
 export interface EnvioAdminDetalle extends EnvioAdminListItem {
@@ -47,6 +48,7 @@ export interface FiltrosEnviosAdmin {
   search?: string;
   limit?: number;
   offset?: number;
+  tipo_entrega?: 'envio' | 'retiro_en_tienda';
 }
 
 // Mapa de transiciones válidas (solo avanzar, secuencial)

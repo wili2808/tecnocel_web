@@ -18,9 +18,11 @@ import DetalleVentaModal from './DetalleVentaModal';
 import RegistrarVentaModal from './RegistrarVentaModal';
 import CancelacionModal from './CancelacionModal';
 import GestionEnvios from './GestionEnvios';
+import GestionRetiros from './GestionRetiros';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ventaAdminService } from '../../../services/ventaAdminService';
+import { envioAdminService } from '../../../services/envioAdminService';
 import type {
   VentaListItem,
   EstadisticasVentas,
@@ -82,8 +84,9 @@ const GestionVentas: React.FC = () => {
   const [guardandoCambio, setGuardandoCambio] = useState(false);
 
   // ── Tabs ───────────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<'ventas' | 'envios'>('ventas');
+  const [activeTab, setActiveTab] = useState<'ventas' | 'envios' | 'retiros'>('ventas');
   const [enviosPendientes, setEnviosPendientes] = useState(0);
+  const [retirosPendientes, setRetirosPendientes] = useState(0);
 
   // ── Modales ────────────────────────────────────────────────────────────────
   const [idDetalleAbierto, setIdDetalleAbierto] = useState<number | null>(null);
@@ -99,6 +102,14 @@ const GestionVentas: React.FC = () => {
       const data = await ventaAdminService.getTipoCambio();
       setTipoCambio(data.valor);
       setTipoCambioFecha(data.fyh_actualizacion);
+    } catch { /* no crítico */ }
+  }, []);
+
+  // ── Cargar conteo inicial de retiros pendientes ────────────────────────────
+  const cargarRetirosPendientes = useCallback(async () => {
+    try {
+      const r = await envioAdminService.listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 });
+      setRetirosPendientes(r.total);
     } catch { /* no crítico */ }
   }, []);
 
@@ -159,10 +170,20 @@ const GestionVentas: React.FC = () => {
   }, [showNotification]);
 
   // ── Carga inicial ──────────────────────────────────────────────────────────
+  // ── Cargar conteo inicial de envíos pendientes ──────────────────────────
+  const cargarEnviosPendientes = useCallback(async () => {
+    try {
+      const r = await envioAdminService.listarEnvios({ estado_envio: 'pendiente', limit: 1, offset: 0 });
+      setEnviosPendientes(r.total);
+    } catch { /* no crítico */ }
+  }, []);
+
   useEffect(() => {
     cargarStats();
     cargarTipoCambio();
-  }, [cargarStats, cargarTipoCambio]);
+    cargarRetirosPendientes();
+    cargarEnviosPendientes();
+  }, [cargarStats, cargarTipoCambio, cargarRetirosPendientes, cargarEnviosPendientes]);
 
   useEffect(() => {
     cargarVentas(filtros, offset);
@@ -270,10 +291,24 @@ const GestionVentas: React.FC = () => {
             <span className={styles.tabBadge}>{enviosPendientes}</span>
           )}
         </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'retiros' ? styles.tabActivo : ''}`}
+          onClick={() => setActiveTab('retiros')}
+        >
+          <span className="material-icons">store</span>
+          Retiro en tienda
+          {retirosPendientes > 0 && (
+            <span className={styles.tabBadge}>{retirosPendientes}</span>
+          )}
+        </button>
       </div>
 
       {activeTab === 'envios' && (
         <GestionEnvios onPendientesChange={setEnviosPendientes} />
+      )}
+
+      {activeTab === 'retiros' && (
+        <GestionRetiros onPendientesChange={setRetirosPendientes} />
       )}
 
       {activeTab === 'ventas' && <>

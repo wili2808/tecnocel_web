@@ -27,15 +27,18 @@ export class EnvioController {
         search,
         limit = 20,
         offset = 0,
+        tipo_entrega = 'envio',
       } = req.query as unknown as FiltrosEnviosAdmin;
 
       const limitNum = Math.min(Number(limit), 100);
       const offsetNum = Number(offset);
 
-      const whereEnvio: Record<string, unknown> = {
-        tipo_entrega: 'envio',
-        estado_envio: { [Op.ne]: 'no_aplica' },
-      };
+      const whereEnvio: Record<string, unknown> = { tipo_entrega };
+      if (tipo_entrega !== 'retiro_en_tienda') {
+        // Para envíos a domicilio, excluir 'no_aplica'
+        whereEnvio['estado_envio'] = { [Op.ne]: 'no_aplica' };
+      }
+      // Para retiros no se filtra 'no_aplica' porque registros legacy lo usan como estado inicial
       if (estado_envio) whereEnvio['estado_envio'] = estado_envio;
 
       const whereVenta: Record<string, unknown> = {};
@@ -206,11 +209,6 @@ export class EnvioController {
 
       const { estado_envio, nro_seguimiento } = req.body as ActualizarEstadoEnvioBody;
 
-      const estadosValidos = ['en_preparacion', 'en_camino', 'entregado'] as const;
-      if (!estadosValidos.includes(estado_envio)) {
-        return res.status(400).json({ error: `Estado inválido. Valores permitidos: ${estadosValidos.join(', ')}` });
-      }
-
       const envio = await Envio.findByPk(idEnvio, {
         include: [
           {
@@ -230,6 +228,32 @@ export class EnvioController {
       });
 
       if (!envio) return res.status(404).json({ error: 'Envío no encontrado' });
+
+      const e = envio.toJSON() as Record<string, unknown>;
+      const tipoEntrega = e['tipo_entrega'] as string;
+
+      // ── Retiro en tienda: flujo simplificado pendiente → entregado ──────────
+      if (tipoEntrega === 'retiro_en_tienda') {
+        if (estado_envio !== 'entregado') {
+          return res.status(400).json({ error: 'Solo se puede marcar como entregado un retiro en tienda' });
+        }
+        if (envio.estado_envio === 'entregado') {
+          return res.status(400).json({ error: 'Este retiro ya fue entregado' });
+        }
+        if (envio.estado_envio !== 'pendiente' && envio.estado_envio !== 'no_aplica') {
+          return res.status(400).json({ error: 'Estado inválido para retiro en tienda' });
+        }
+
+        await envio.update({ estado_envio: 'entregado', fyh_actualizacion: new Date() });
+        logger.info('Retiro en tienda entregado', { id_envio: idEnvio, id_usuario: req.usuario?.id });
+        return res.status(200).json({ success: true, mensaje: 'Retiro marcado como entregado' });
+      }
+
+      // ── Envío a domicilio: flujo secuencial existente ───────────────────────
+      const estadosValidos = ['en_preparacion', 'en_camino', 'entregado'] as const;
+      if (!estadosValidos.includes(estado_envio)) {
+        return res.status(400).json({ error: `Estado inválido. Valores permitidos: ${estadosValidos.join(', ')}` });
+      }
 
       // Validar transición secuencial
       const transicionEsperada = TRANSICIONES_ENVIO[envio.estado_envio];
@@ -251,7 +275,6 @@ export class EnvioController {
 
       // Enviar email (fire-and-forget)
       if (estado_envio === 'en_camino' || estado_envio === 'entregado') {
-        const e = envio.toJSON() as Record<string, unknown>;
         const venta = e['venta'] as Record<string, unknown>;
         const cliente = venta?.['Cliente'] as Record<string, unknown> | undefined;
         const ventaItems = (venta?.['items'] ?? []) as Array<Record<string, unknown>>;

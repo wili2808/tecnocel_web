@@ -12,6 +12,13 @@ export const envioAdminService = {
     return data;
   },
 
+  listarRetiros: async (filtros: Omit<FiltrosEnviosAdmin, 'tipo_entrega'> = {}): Promise<ListarEnviosResponse> => {
+    const { data } = await adminApi.get('/envios/admin', {
+      params: { ...filtros, tipo_entrega: 'retiro_en_tienda' },
+    });
+    return data;
+  },
+
   obtenerDetalle: async (id: number): Promise<EnvioAdminDetalle> => {
     const { data } = await adminApi.get(`/envios/admin/${id}`);
     return data.data;
