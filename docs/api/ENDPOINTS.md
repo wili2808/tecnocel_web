@@ -200,6 +200,36 @@ Gestión de direcciones de envío.
 
 ---
 
+### 11. [Notificaciones](./endpoints/notificaciones.md)
+
+Sistema de notificaciones in-app para clientes.
+
+**5 endpoints** | Autenticación: Requerida 🔒
+
+- `GET /notificaciones` - Listar todas las notificaciones
+- `GET /notificaciones/no-leidas` - Notificaciones no leídas
+- `PUT /notificaciones/leer-todas` - Marcar todas como leídas
+- `PUT /notificaciones/:id/leer` - Marcar notificación como leída
+- `DELETE /notificaciones/:id` - Eliminar notificación
+
+[Ver documentación completa →](./endpoints/notificaciones.md)
+
+---
+
+### 12. [Envíos (Admin)](./endpoints/envios.md)
+
+Gestión administrativa de envíos y rastreo.
+
+**3 endpoints** | Autenticación: Admin 🔒
+
+- `GET /envios/admin` - Listar todos los envíos
+- `GET /envios/admin/:id` - Obtener detalle de envío
+- `PATCH /envios/admin/:id/estado` - Actualizar estado del envío
+
+[Ver documentación completa →](./endpoints/envios.md)
+
+---
+
 ## Resumen de la API
 
 | Módulo          | Endpoints | Auth Requerida | Documentación                           |
@@ -214,7 +244,9 @@ Gestión de direcciones de envío.
 | Upload          | 3         | Sí 🔒          | [Ver →](./endpoints/upload.md)          |
 | Marcas          | 5         | Mixta          | [Ver →](./endpoints/marcas.md)          |
 | Direcciones     | 7         | Sí 🔒          | [Ver →](./endpoints/direcciones.md)     |
-| **TOTAL**       | **64**    | -              | -                                       |
+| Notificaciones  | 5         | Sí 🔒          | [Ver →](./endpoints/notificaciones.md)  |
+| Envíos (Admin)  | 3         | Admin 🔒       | [Ver →](./endpoints/envios.md)          |
+| **TOTAL**       | **76**    | -              | -                                       |
 
 ---
 

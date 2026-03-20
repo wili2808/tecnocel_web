@@ -132,6 +132,11 @@ Ver estructura completa → [docs/api/README.md](../docs/api/README.md)
 | **Marcas**      | `/api/marcas`      | No      | Marcas de productos         |
 | **Direcciones** | `/api/direcciones` | Sí      | Direcciones de envío        |
 | **Upload**      | `/api/upload`      | Sí      | Subida de imágenes          |
+| **Usuarios** | `/api/usuarios`   | Parcial | Login admin/empleado        |
+| **Ventas Admin** | `/api/ventas`      | Sí      | Gestión de ventas admin     |
+| **Envíos** | `/api/envios`      | Sí      | Gestión de envíos admin     |
+| **Notificaciones** | `/api/notificaciones` | Sí | Notificaciones del cliente  |
+| **Reportes** | `/api/reportes`    | Sí      | Reportes analíticos         |
 
 Ver documentación completa de endpoints → [docs/api/ENDPOINTS.md](../docs/api/ENDPOINTS.md)
 

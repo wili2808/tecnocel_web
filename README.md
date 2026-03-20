@@ -61,7 +61,7 @@ Para acceder a la documentación completa del proyecto:
 - [Guía de desarrollo](docs/guides/DEVELOPMENT.md) - Guia para desarrolladores
 - [Guía de Autenticación](docs/api/guides/AUTHENTICATION.md) - JWT y Google OAuth
 - [API Endpoints](docs/api/ENDPOINTS.md) - Documentación de la API REST
-- [Base de Datos](docs/database/SCHEMA.md) - Esquema y modelos
+- [Base de Datos](docs/database/DIAGRAMS.md) - Esquema y modelos
 - [Stack Tecnológico](docs/project/TECNOLOGIAS.md) - Tecnologías utilizadas
 - [Configuración](docs/deployment/ENVIRONMENT.md) - Variables de entorno
 
@@ -101,7 +101,7 @@ Consulta la documentación completa para conocer las convenciones y el flujo de 
 
 ---
 
-**Última actualización**: 7 de Octubre, 2025
+**Última actualización**: 20 de Marzo, 2026
 **Versión**: 1.0
 **Estado**: En desarrollo
 **Stack**: React 18 + TypeScript + Node.js + Express + MySQL

@@ -2,7 +2,7 @@
 
 # Hooks Personalizados del Frontend
 
-> Documentación completa de los 14 hooks personalizados de React en Tecnocel Web.
+> Documentación completa de los 18+ hooks personalizados de React en Tecnocel Web.
 
 ---
 
@@ -28,9 +28,16 @@
     - [useOfertasPagination](#useofertaspagination)
   - [Productos](#productos)
     - [useProductActions](#useproductactions)
+  - [Búsqueda y Filtros](#búsqueda-y-filtros)
+    - [useUrlFilters](#useurlfilters)
+    - [useDebounce](#usedebounce) ⭐
+    - [useSearchHistory](#usesearchhistory)
   - [Otros](#otros)
     - [useDirecciones](#usedirecciones)
     - [useEscapeKey](#useescapekey)
+    - [useIsMobile](#useismobile) ⭐
+    - [useBrands](#usebrands) ⭐
+    - [useNotificaciones](#usenotificaciones) ⭐
 - [Patrones de Uso](#patrones-de-uso)
 - [Mejores Prácticas](#mejores-prácticas)
 
@@ -38,7 +45,7 @@
 
 ## Introducción
 
-Los **hooks personalizados** en Tecnocel Web encapsulan lógica reutilizable y compleja en funciones simples y componibles. Este documento describe los **14 hooks personalizados** implementados, organizados por funcionalidad.
+Los **hooks personalizados** en Tecnocel Web encapsulan lógica reutilizable y compleja en funciones simples y componibles. Este documento describe los **18+ hooks personalizados** implementados, organizados por funcionalidad.
 
 ### Características Principales
 
@@ -52,14 +59,15 @@ Los **hooks personalizados** en Tecnocel Web encapsulan lógica reutilizable y c
 
 ## Categorías de Hooks
 
-Los hooks están organizados en 5 categorías principales:
+Los hooks están organizados en 6+ categorías principales:
 
 1. **Autenticación** (3 hooks) - Login, registro, auto-logout
 2. **Carrito** (3 hooks) - Gestión del carrito de compras
 3. **Favoritos** (2 hooks) - Sistema de favoritos
 4. **Ofertas** (3 hooks) - Gestión de ofertas y productos en oferta
 5. **Productos** (1 hook) - Acciones de productos
-6. **Otros** (2 hooks) - Utilidades y funcionalidades diversas
+6. **Búsqueda y Filtros** (3 hooks) - Búsqueda, debounce, historial
+7. **Otros** (5+ hooks) - Utilidades y funcionalidades diversas
 
 ---
 
@@ -1232,6 +1240,73 @@ const SearchBar = () => {
 - **Auto-limpieza** - Limpia event listener al desmontar
 - **Reutilizable** - Puede usarse en múltiples componentes
 - **Sin Dependencias** - Solo usa React hooks nativos
+
+### Búsqueda y Filtros
+
+#### useDebounce ⭐
+
+**Ubicación**: `frontend/src/hooks/useDebounce.ts`
+
+**Descripción**: Implementa debounce genérico para cualquier valor con delay configurable.
+
+**Interfaz**:
+
+```typescript
+const debouncedValue = useDebounce(value, delayMs);
+// value: T - valor a debounce
+// delayMs: number - delay en milisegundos (default: 300)
+// returns: T - valor debouncido
+```
+
+**Uso**:
+```typescript
+const [searchQuery, setSearchQuery] = useState('');
+const debouncedQuery = useDebounce(searchQuery, 300);
+
+// debouncedQuery se actualiza 300ms después de que searchQuery cambia
+```
+
+#### useIsMobile ⭐
+
+**Ubicación**: `frontend/src/hooks/useIsMobile.ts`
+
+**Descripción**: Detecta si el viewport es móvil (width < 768px).
+
+**Interfaz**:
+```typescript
+const isMobile = useIsMobile();
+// returns: boolean
+```
+
+#### useBrands ⭐
+
+**Ubicación**: `frontend/src/hooks/useBrands.ts`
+
+**Descripción**: Hook para gestión de marcas (obtener lista, crear, actualizar).
+
+**Interfaz**:
+```typescript
+const { brands, loadBrands, createBrand, updateBrand, deleteBrand, isLoading } = useBrands();
+```
+
+#### useNotificaciones ⭐
+
+**Ubicación**: `frontend/src/hooks/useNotificaciones.ts`
+
+**Descripción**: Hook para acceder al contexto de notificaciones con validación de cliente.
+
+**Interfaz**:
+```typescript
+const {
+  notificaciones,
+  noLeidasCount,
+  cargarNotificaciones,
+  marcarComoLeida,
+  marcarTodasComoLeidas,
+  eliminarNotificacion,
+  isLoading
+} = useNotificaciones();
+```
 
 ---
 

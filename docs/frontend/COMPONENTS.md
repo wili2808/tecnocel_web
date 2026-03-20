@@ -4,7 +4,7 @@
 
 # 💻 Componentes del Frontend - TecnoCel Web
 
-**Última actualización**: 13 de Febrero, 2026 | **Versión**: 1.2
+**Última actualización**: 20 de Marzo, 2026 | **Versión**: 1.3
 
 ---
 
@@ -37,14 +37,18 @@ El frontend de TecnoCel Web está construido con **React 18** + **TypeScript** u
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de componentes** | 48 |
+| **Total de componentes** | 96+ |
 | **Componentes comunes** | 8 |
-| **Componentes de productos** | 14 |
-| **Componentes de carrito** | 3 |
+| **Componentes de productos** | 18+ |
+| **Componentes de carrito** | 5 |
+| **Componentes de checkout** | 5 |
 | **Componentes de layout** | 4 |
-| **Componentes de usuario** | 9 |
+| **Componentes de usuario** | 10 |
 | **Componentes de ubicación** | 4 |
-| **Páginas especiales** | 6 |
+| **Componentes de admin** | 22+ |
+| **Componentes de notificaciones** | 3 |
+| **Componentes de contacto** | 2 |
+| **Componentes de marcas** | 2 |
 
 ---
 

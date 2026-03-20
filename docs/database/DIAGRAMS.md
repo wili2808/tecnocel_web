@@ -2,7 +2,7 @@
 
 **Base de datos**: `db_tecnocel_v4`
 **Motor**: MariaDB 10.4.27 / MySQL 8.0+
-**Total de tablas**: 26
+**Total de tablas**: 28
 
 ---
 
@@ -18,7 +18,7 @@
 
 ## Diagrama ER General - Vista Completa
 
-Este diagrama muestra todas las relaciones entre las 26 tablas del sistema.
+Este diagrama muestra todas las relaciones entre las 28 tablas del sistema.
 
 ```mermaid
 erDiagram
@@ -76,6 +76,13 @@ erDiagram
 
     %% CARRITO POS (LEGACY)
     tb_carrito }o--|| tb_almacen : "producto"
+
+    %% NOTIFICACIONES
+    tb_notificaciones }o--|| tb_clientes : "para"
+
+    %% ENVÍOS
+    tb_envios }o--|| tb_ventas : "de venta"
+    tb_envios }o--|| tb_direcciones : "entrega en"
 ```
 
 **Leyenda de Cardinalidad**:

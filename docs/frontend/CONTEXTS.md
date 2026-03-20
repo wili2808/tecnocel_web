@@ -4,7 +4,7 @@
 
 # Contextos del Frontend
 
-> Documentación completa de los 8 contextos globales de React en Tecnocel Web.
+> Documentación completa de los 10 contextos globales de React en Tecnocel Web.
 
 ---
 
@@ -21,6 +21,8 @@
   - [SearchContext](#searchcontext)
   - [ThemeContext](#themecontext)
   - [NotificationContext](#notificationcontext)
+  - [NotificacionesContext](#notificacionescontext) ⭐
+  - [TipoCambioContext](#tipocambiocontext) ⭐
 - [Integración de Contextos](#integración-de-contextos)
 - [Optimizaciones y Mejores Prácticas](#optimizaciones-y-mejores-prácticas)
 - [Ejemplos de Uso](#ejemplos-de-uso)
@@ -29,7 +31,7 @@
 
 ## Introducción
 
-El sistema de **Context API** de React es utilizado en Tecnocel Web para manejar el estado global de la aplicación. Este documento describe los **8 contextos principales** implementados, su estructura, API pública y patrones de uso.
+El sistema de **Context API** de React es utilizado en Tecnocel Web para manejar el estado global de la aplicación. Este documento describe los **10 contextos principales** implementados, su estructura, API pública y patrones de uso.
 
 ### Características Principales
 
@@ -844,6 +846,83 @@ showNotification('Error al cargar datos', 'error', 5000, {
 - **Acciones Personalizables** - Botones de acción opcionales
 - **useRef Pattern** - Evita dependencias circulares
 - **ID Único** - Usa timestamp para IDs únicos
+
+---
+
+### NotificacionesContext ⭐
+
+**Ubicación**: `frontend/src/contexts/NotificacionesContext.tsx`
+**Hook**: `useNotificaciones()`
+
+#### Descripción
+
+Gestiona las **notificaciones in-app** del cliente (respuestas de comentarios, confirmación de ventas, cancelaciones, etc.). Implementa polling cada 45 segundos para sincronizar con el servidor.
+
+#### Estado
+
+```typescript
+interface Notificacion {
+  id_notificacion: number;
+  tipo: 'respuesta_admin' | 'respuesta_cliente' | 'comentario_moderado' | 'venta_confirmada' | 'venta_cancelada';
+  titulo: string;
+  mensaje: string;
+  referencia_id: number;
+  referencia_tipo: string;
+  leida: boolean;
+  fyh_creacion: string;
+}
+
+interface NotificacionesContextType {
+  notificaciones: Notificacion[];
+  noLeidasCount: number;
+  cargarNotificaciones: () => Promise<void>;
+  marcarComoLeida: (id: number) => Promise<void>;
+  marcarTodasComoLeidas: () => Promise<void>;
+  eliminarNotificacion: (id: number) => Promise<void>;
+  isLoading: boolean;
+}
+```
+
+#### Características Especiales
+
+- **Polling Automático** - Sincronización cada 45 segundos
+- **Caché Local** - Retiene notificaciones en memoria
+- **Contador de No Leídas** - Actualización automática
+- **Fire-and-Forget** - No bloquea UI durante actualizaciones
+- **useRef para callbacks** - Evita re-renders innecesarios
+
+---
+
+### TipoCambioContext ⭐
+
+**Ubicación**: `frontend/src/contexts/TipoCambioContext.tsx`
+**Hook**: `useTipoCambio()`
+
+#### Descripción
+
+Gestiona el **tipo de cambio ARS/USD** dinámico desde la tabla de configuración del sistema. Permite mostrar precios en ambas monedas.
+
+#### Estado
+
+```typescript
+interface TipoCambioContextType {
+  tipoCambioArsUsd: number;
+  monedaPrincipal: 'ARS' | 'USD';
+  convertirAUSD: (montoxARS: number) => number;
+  convertirAARS: (montoUSD: number) => number;
+  formatoPrecio: (monto: number, moneda?: 'ARS' | 'USD') => string;
+  isLoading: boolean;
+  error: string | null;
+}
+```
+
+#### Características Especiales
+
+- **Sincronización con BD** - Obtiene tipo de cambio de tabla Configuracion
+- **Caché Automático** - Evita requests repetidos
+- **Helpers de Conversión** - `convertirAUSD()`, `convertirAARS()`
+- **Formateo Automático** - `formatoPrecio()` con símbolo correcto
+- **Fallback** - Usa tipo de cambio fijo si la BD no responde
 
 ---
 

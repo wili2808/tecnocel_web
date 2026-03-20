@@ -29,10 +29,10 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Fecha de análisis** | 2 de Marzo, 2026 |
+| **Fecha de análisis** | 20 de Marzo, 2026 |
 | **Versión del proyecto** | En desarrollo activo |
 | **Base de datos** | v4 (db_tecnocel_v4) |
-| **Rama actual** | `note` |
+| **Rama actual** | `main` |
 
 ---
 
@@ -46,8 +46,8 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 
 | Área | Estado | Detalles |
 |------|--------|----------|
-| Backend | Completo | 15 controladores, 85+ endpoints, 28 modelos |
-| Frontend | Completo | 14 páginas, 70 componentes, 8 contextos |
+| Backend | Completo | 18 controladores, 85+ endpoints, 32 modelos |
+| Frontend | Completo | 14 páginas, 96 componentes, 10 contextos |
 | Base de Datos | Completo | 28 tablas con relaciones Sequelize |
 | Autenticación | Completo | JWT dual (cliente/admin) + Google OAuth 2.0 |
 | Panel Usuario | Completo | 7 secciones funcionales |
@@ -64,9 +64,9 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 
 | Elemento | Cantidad |
 |----------|----------|
-| **Controladores** | 15 |
-| **Modelos Sequelize** | 28 |
-| **Archivos de Rutas** | 13 |
+| **Controladores** | 18 |
+| **Modelos Sequelize** | 32 |
+| **Archivos de Rutas** | 15 |
 | **Middleware** | 7 |
 | **Servicios** | 5 |
 | **Tipos TypeScript** | 3 archivos |
@@ -78,10 +78,10 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | Elemento | Cantidad |
 |----------|----------|
 | **Páginas** | 14 |
-| **Componentes** | 70 |
-| **Contextos Globales** | 8 |
-| **Hooks Personalizados** | 18 |
-| **Servicios** | 10 |
+| **Componentes** | 96 |
+| **Contextos Globales** | 10 |
+| **Hooks Personalizados** | 18+ |
+| **Servicios** | 17 |
 | **Archivos de Tipos** | 7 |
 | **Variables CSS** | 100+ |
 | **Líneas de código (aprox.)** | ~18,000 |

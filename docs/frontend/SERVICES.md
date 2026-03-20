@@ -1,6 +1,6 @@
 # Servicios del Frontend
 
-> Documentación completa de los 9 servicios de API del frontend en Tecnocel Web.
+> Documentación completa de los 17+ servicios de API del frontend en Tecnocel Web.
 
 ---
 
@@ -18,6 +18,15 @@
   - [ofertaService](#ofertaservice)
   - [productService](#productservice)
   - [uploadService](#uploadservice)
+  - [adminProductService](#adminproductservice) ⭐
+  - [adminCommentService](#admincommentservice) ⭐
+  - [adminOfertaService](#adminofertaservice) ⭐
+  - [ventaAdminService](#ventaadminservice) ⭐
+  - [envioAdminService](#envioadminservice) ⭐
+  - [notificacionService](#notificacionservice) ⭐
+  - [reporteService](#reporteservice) ⭐
+  - [usuarioService](#usuarioservice) ⭐
+  - [UsuarioAdminService](#usuarioadminservice) ⭐
 - [Patrones Comunes](#patrones-comunes)
 - [Manejo de Errores](#manejo-de-errores)
 - [Mejores Prácticas](#mejores-prácticas)
@@ -490,6 +499,155 @@ const sizeText = uploadService.formatFileSize(file.size); // "2.5 MB"
 - Formatos permitidos: JPG, PNG, WEBP, GIF
 - Tamaño máximo: 10MB por imagen
 - Timeout: 30 segundos
+
+### Servicios Administrativos ⭐
+
+#### adminProductService
+
+**Ubicación**: `frontend/src/services/adminProductService.ts`
+
+**Descripción**: CRUD completo de productos desde panel admin.
+
+**API Pública**:
+```typescript
+const {
+  crearProducto: (data: CreateProductoBody) => Promise<Almacen>,
+  actualizarProducto: (id: number, data: UpdateProductoBody) => Promise<Almacen>,
+  eliminarProducto: (id: number) => Promise<void>,
+  actualizarStock: (id: number, data: UpdateStockBody) => Promise<void>,
+  obtenerProductoAdmin: (id: number) => Promise<TransformedProduct>,
+} = adminProductService;
+```
+
+#### adminCommentService
+
+**Ubicación**: `frontend/src/services/adminCommentService.ts`
+
+**Descripción**: Moderación y gestión de comentarios desde admin.
+
+**API Pública**:
+```typescript
+const {
+  obtenerComentarios: (filtros?: GetComentariosQuery) => Promise<Comentario[]>,
+  responderComentario: (id: number, respuesta: string) => Promise<void>,
+  ocultarComentario: (id: number) => Promise<void>,
+  eliminarComentario: (id: number) => Promise<void>,
+} = adminCommentService;
+```
+
+#### adminOfertaService
+
+**Ubicación**: `frontend/src/services/adminOfertaService.ts`
+
+**Descripción**: CRUD de ofertas desde admin.
+
+**API Pública**:
+```typescript
+const {
+  crearOferta: (data: CreateOfertaBody) => Promise<Oferta>,
+  actualizarOferta: (id: number, data: UpdateOfertaBody) => Promise<Oferta>,
+  eliminarOferta: (id: number) => Promise<void>,
+  asignarProductos: (idOferta: number, productIds: number[]) => Promise<void>,
+} = adminOfertaService;
+```
+
+#### ventaAdminService
+
+**Ubicación**: `frontend/src/services/ventaAdminService.ts`
+
+**Descripción**: Gestión de ventas, estados y cancelaciones desde admin.
+
+**API Pública**:
+```typescript
+const {
+  obtenerVentas: (filtros?) => Promise<VentaAdminDetalle[]>,
+  obtenerDetalleVenta: (id: number) => Promise<VentaAdminDetalle>,
+  cancelarVenta: (id: number, motivo: string) => Promise<void>,
+  registrarVentaManual: (data: RegistrarVentaManualBody) => Promise<Venta>,
+} = ventaAdminService;
+```
+
+#### envioAdminService ⭐
+
+**Ubicación**: `frontend/src/services/envioAdminService.ts`
+
+**Descripción**: Gestión de envíos y rastreo desde admin.
+
+**API Pública**:
+```typescript
+const {
+  listarEnvios: (filtros?) => Promise<Envio[]>,
+  obtenerEnvio: (id: number) => Promise<Envio>,
+  actualizarEstado: (id: number, estado: string, observaciones?: string) => Promise<void>,
+} = envioAdminService;
+```
+
+#### notificacionService ⭐
+
+**Ubicación**: `frontend/src/services/notificacionService.ts`
+
+**Descripción**: Gestión de notificaciones del cliente.
+
+**API Pública**:
+```typescript
+const {
+  obtenerNotificaciones: () => Promise<Notificacion[]>,
+  obtenerNoLeidasCount: () => Promise<number>,
+  marcarComoLeida: (id: number) => Promise<void>,
+  marcarTodasComoLeidas: () => Promise<void>,
+  eliminarNotificacion: (id: number) => Promise<void>,
+} = notificacionService;
+```
+
+#### reporteService ⭐
+
+**Ubicación**: `frontend/src/services/reporteService.ts`
+
+**Descripción**: Reportes analíticos (ventas, productos, clientes, cancelaciones).
+
+**API Pública**:
+```typescript
+const {
+  obtenerReporteVentas: (filtros: FiltroReporte) => Promise<ReporteVentas>,
+  obtenerReporteProductos: (filtros: FiltroReporte) => Promise<ReporteProductos>,
+  obtenerReporteClientes: (filtros: FiltroReporte) => Promise<ReporteClientes>,
+  obtenerReporteCancelaciones: (filtros: FiltroReporte) => Promise<ReporteCancelaciones>,
+  exportarCSV: (tipo: string, filtros: FiltroReporte) => Promise<Blob>,
+} = reporteService;
+```
+
+#### usuarioService ⭐
+
+**Ubicación**: `frontend/src/services/usuarioService.ts`
+
+**Descripción**: Login y gestión de usuarios del sistema (admin/gerente/vendedor).
+
+**API Pública**:
+```typescript
+const {
+  loginUsuario: (email: string, password: string) => Promise<{ token: string; usuario: AdminUser }>,
+  obtenerPerfil: () => Promise<AdminUser>,
+  cambiarContraseña: (passwordActual: string, passwordNueva: string) => Promise<void>,
+} = usuarioService;
+```
+
+#### UsuarioAdminService ⭐
+
+**Ubicación**: `frontend/src/services/UsuarioAdminService.ts`
+
+**Descripción**: CRUD de usuarios desde admin y gestión de clientes.
+
+**API Pública**:
+```typescript
+const {
+  crearUsuario: (data: CreateUsuarioBody) => Promise<AdminUser>,
+  actualizarUsuario: (id: number, data: UpdateUsuarioBody) => Promise<AdminUser>,
+  eliminarUsuario: (id: number) => Promise<void>,
+  listarClientes: (filtros?) => Promise<ClienteListItem[]>,
+  habilitarCliente: (id: number) => Promise<void>,
+  deshabilitarCliente: (id: number) => Promise<void>,
+} = UsuarioAdminService;
+```
 
 ---
 
