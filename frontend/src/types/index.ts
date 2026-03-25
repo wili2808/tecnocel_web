@@ -26,3 +26,6 @@ export * from './notificacion';
 
 // Exportar tipos de envíos (admin)
 export * from './envio';
+
+// Exportar tipos de compras a proveedores (admin)
+export * from './compra';

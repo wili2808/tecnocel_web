@@ -25,6 +25,8 @@
   - [Ofertas](api/endpoints/ofertas.md)
   - [Notificaciones](api/endpoints/notificaciones.md) ⭐
   - [Envíos](api/endpoints/envios.md) ⭐
+  - [Compras a Proveedores](api/endpoints/compras.md) ⭐ **NUEVO**
+  - [Proveedores](api/endpoints/proveedores.md) ⭐ **NUEVO**
   - Y más... ([ver todos](api/endpoints/))
 
 - **Guías de Integración:**
@@ -34,10 +36,10 @@
   - [Manejo de Errores](api/guides/ERROR_HANDLING.md)
 
 ### Frontend React
-- **[Componentes](frontend/COMPONENTS.md)** — 96+ componentes organizados por dominio
+- **[Componentes](frontend/COMPONENTS.md)** — 101+ componentes organizados por dominio
 - **[Contextos Globales](frontend/CONTEXTS.md)** — 10 contextos de estado
 - **[Hooks Personalizados](frontend/HOOKS.md)** — 18+ hooks reutilizables
-- **[Servicios API](frontend/SERVICES.md)** — 17 servicios cliente
+- **[Servicios API](frontend/SERVICES.md)** — 19 servicios cliente
 - **[Gestión de Estado](frontend/STATE_MANAGEMENT.md)** — Patrones y arquitectura
 - **[Estilos y Temas](frontend/STYLING_AND_THEMING.md)** — CSS Modules + Variables CSS
 - **[Enrutamiento](frontend/ROUTING.md)** — Rutas y protección
@@ -63,18 +65,18 @@
 
 ---
 
-## 📊 Métricas del Proyecto (~94% completitud)
+## 📊 Métricas del Proyecto (~98% completitud)
 
 | Área | Cantidad |
 |------|----------|
-| **Controladores backend** | 18 |
-| **Componentes React** | 96+ |
+| **Controladores backend** | 20 |
+| **Componentes React** | 101+ |
 | **Contextos globales** | 10 |
 | **Hooks personalizados** | 18+ |
-| **Servicios API frontend** | 17 |
+| **Servicios API frontend** | 19 |
 | **Modelos Sequelize** | 32 |
-| **Rutas API** | 15+ |
-| **Endpoints** | 85+ |
+| **Rutas API** | 17+ |
+| **Endpoints** | 86+ |
 
 ---
 

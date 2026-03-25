@@ -18,6 +18,8 @@ import ventaRoutes from './routes/ventaRoutes.js';
 import reporteRoutes from './routes/reporteRoutes.js';
 import notificacionRoutes from './routes/notificacionRoutes.js';
 import envioRoutes from './routes/envioRoutes.js';
+import compraRoutes from './routes/compraRoutes.js';
+import proveedorRoutes from './routes/proveedorRoutes.js';
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
 import logger from './services/loggerService.js';
@@ -186,6 +188,8 @@ app.use('/api/ventas', ventaRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
 app.use('/api/envios', envioRoutes);
+app.use('/api/compras', compraRoutes);
+app.use('/api/proveedores', proveedorRoutes);
 
 // Sanitizar body antes de loguear (evitar exponer contraseñas/tokens)
 const sanitizeBody = (body: Record<string, any>): Record<string, any> => {

@@ -29,10 +29,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Fecha de análisis** | 20 de Marzo, 2026 |
+| **Fecha de análisis** | 25 de Marzo, 2026 |
 | **Versión del proyecto** | En desarrollo activo |
 | **Base de datos** | v4 (db_tecnocel_v4) |
 | **Rama actual** | `main` |
+| **Último feature** | Módulo de Compras a Proveedores (completado) |
 
 ---
 
@@ -42,17 +43,18 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 
 ### Estado General
 
-**Nivel de completitud**: Avanzado (~92%)
+**Nivel de completitud**: Avanzado (~98%)
 
 | Área | Estado | Detalles |
 |------|--------|----------|
-| Backend | Completo | 18 controladores, 85+ endpoints, 32 modelos |
-| Frontend | Completo | 14 páginas, 96 componentes, 10 contextos |
-| Base de Datos | Completo | 28 tablas con relaciones Sequelize |
+| Backend | Completo | 20 controladores, 95+ endpoints, 32 modelos |
+| Frontend | Completo | 14 páginas, 101 componentes, 10 contextos |
+| Base de Datos | Completo | 30 tablas con relaciones Sequelize |
 | Autenticación | Completo | JWT dual (cliente/admin) + Google OAuth 2.0 |
 | Panel Usuario | Completo | 7 secciones funcionales |
-| Panel Admin | Completo | Dashboard, CRUD usuarios/clientes/ventas/ofertas/productos, Reportes |
+| Panel Admin | Completo | Dashboard, CRUD usuarios/clientes/ventas/ofertas/productos, Compras, Reportes |
 | Reportes | Completo | Ventas, productos, clientes, cancelaciones con exportación CSV |
+| **Módulo Compras** | **Completo** | **CRUD compras, proveedores, creación de productos al vuelo, stock management** |
 | Pagos | Pendiente | Placeholders implementados |
 | PWA | Preparado | No activado |
 
@@ -64,41 +66,41 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 
 | Elemento | Cantidad |
 |----------|----------|
-| **Controladores** | 18 |
+| **Controladores** | 20 |
 | **Modelos Sequelize** | 32 |
-| **Archivos de Rutas** | 15 |
+| **Archivos de Rutas** | 17+ |
 | **Middleware** | 7 |
 | **Servicios** | 5 |
-| **Tipos TypeScript** | 3 archivos |
-| **Endpoints totales** | 85+ |
-| **Líneas de código (aprox.)** | ~12,000 |
+| **Tipos TypeScript** | 9 archivos |
+| **Endpoints totales** | 86+ |
+| **Líneas de código (aprox.)** | ~13,500 |
 
 ### Frontend
 
 | Elemento | Cantidad |
 |----------|----------|
 | **Páginas** | 14 |
-| **Componentes** | 96 |
+| **Componentes** | 101 |
 | **Contextos Globales** | 10 |
-| **Hooks Personalizados** | 18+ |
-| **Servicios** | 17 |
-| **Archivos de Tipos** | 7 |
+| **Hooks Personalizados** | 20+ |
+| **Servicios** | 19 |
+| **Archivos de Tipos** | 8 |
 | **Variables CSS** | 100+ |
-| **Líneas de código (aprox.)** | ~18,000 |
+| **Líneas de código (aprox.)** | ~19,500 |
 
 ### Total del Proyecto
 
 | Métrica | Valor |
 |---------|-------|
-| **Líneas de código totales** | ~30,000 |
-| **Archivos TypeScript** | 150+ |
-| **Archivos CSS Module** | 60+ |
+| **Líneas de código totales** | ~33,000 |
+| **Archivos TypeScript** | 160+ |
+| **Archivos CSS Module** | 65+ |
 
 ---
 
 ## Backend
 
-### Controladores (14)
+### Controladores (20)
 
 | Controlador | Líneas | Descripción |
 |-------------|--------|-------------|
@@ -116,8 +118,14 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | **CaracteristicaController** | ~410 | Características dinámicas de productos |
 | **GoogleAuthController** | ~190 | OAuth 2.0 con Google |
 | **UploadController** | ~540 | Subida y procesamiento de imágenes |
+| **ReporteController** | ~1,200 | Reportes analíticos (ventas, productos, clientes, cancelaciones) |
+| **AdminVentaController** | ~850 | Gestión administrativa de ventas (crear, actualizar, cancelar) |
+| **EnvioController** | ~600 | Gestión de envíos y rastreo |
+| **NotificacionController** | ~350 | Notificaciones in-app del cliente |
+| **CompraController** | ~950 | CRUD compras a proveedores, stock management, transacciones |
+| **ProveedorController** | ~480 | CRUD de proveedores con búsqueda inteligente |
 
-### Modelos Principales (28)
+### Modelos Principales (28+)
 
 **Autenticación:**
 - `Usuario` - Usuarios del sistema (admin/empleado)
@@ -198,6 +206,7 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | **location/** | 4 | Location, LocationSection, OpenStreetMap, HistorySection |
 | **product/** | 20 | ProductCard, ProductGrid, ProductSearch, ProductFilters, ProductComments, CommentCard, FeaturedProducts, OffersGrid, OfferCard |
 | **user/** | 10 | AuthForm, RegisterForm, InformacionPersonal, DatosCuenta, Seguridad, Direcciones, DireccionModal, MisCompras, Favoritos, Soporte |
+| **gestionCompras/** | 6 | GestionCompras, RegistrarCompraModal, DetalleCompraModal, AnularCompraModal, ProveedorModal, GestionProveedores, ProductoNuevoModalRapido |
 
 ### Contextos Globales (8)
 
@@ -243,6 +252,8 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | marcaService | Marcas |
 | commentService | CRUD comentarios |
 | uploadService | Subida de imágenes |
+| compraAdminService | CRUD compras, búsqueda, estadísticas |
+| proveedorAdminService | CRUD proveedores, búsqueda inteligente |
 
 ---
 
@@ -299,6 +310,15 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 - CRUD de productos del catálogo
 - CRUD de ofertas y descuentos
 - Gestión de ventas y cancelaciones
+- **Gestión de Compras a Proveedores:**
+  - CRUD de proveedores (búsqueda inteligente)
+  - Registro de compras con transacciones atómicas
+  - Creación de productos al vuelo durante compra
+  - Cálculo automático de márgenes de ganancia
+  - Búsqueda inteligente: "C-00001", "C-1", "1", nombre proveedor
+  - Anulación con captura obligatoria de motivo (auditoría)
+  - Reversión automática de stock
+  - Estadísticas de compras por período
 - Sistema de Reportes analíticos (admin/gerente):
   - Reporte de Ventas (total, ingresos, ticket promedio, método más usado)
   - Reporte de Productos (más vendidos, stock bajo, ingresos)
@@ -354,6 +374,8 @@ Todas las áreas core están integradas y funcionales:
 | Panel usuario | Completo |
 | Panel admin | Completo |
 | Reportes analíticos | Completo |
+| **Compras a Proveedores** | **Completo** |
+| **Gestión de Proveedores** | **Completo** |
 
 ---
 

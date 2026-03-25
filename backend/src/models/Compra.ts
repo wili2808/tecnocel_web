@@ -9,6 +9,9 @@ class Compra extends Model {
   declare comprobante: string;
   declare id_usuario: number;
   declare precio_total: string;
+  declare estado: 'activa' | 'anulada';
+  declare observaciones?: string;
+  declare motivo_anulacion?: string;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
@@ -50,6 +53,19 @@ Compra.init({
   precio_total: {
     type: DataTypes.STRING(50),
     allowNull: false
+  },
+  estado: {
+    type: DataTypes.ENUM('activa', 'anulada'),
+    allowNull: false,
+    defaultValue: 'activa'
+  },
+  observaciones: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  motivo_anulacion: {
+    type: DataTypes.TEXT,
+    allowNull: true
   },
   fyh_creacion: {
     type: DataTypes.DATE,

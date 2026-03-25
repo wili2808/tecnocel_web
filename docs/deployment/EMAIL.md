@@ -2,11 +2,14 @@
 
 ## Situación actual
 
-El sistema de emails **funciona en producción solo para el email registrado en Resend** (la cuenta con la que te diste de alta en resend.com).
+✅ **El sistema de emails funciona correctamente en producción con dominio verificado.**
 
-Esto se debe a que se usa el remitente `onboarding@resend.dev`, que es el dominio de prueba de Resend. Con ese remitente, Resend solo permite enviar a la dirección verificada de tu cuenta — cualquier otro destinatario es bloqueado silenciosamente.
+Se usa el dominio `tecnocel.website` verificado en Resend, con entrega vía **Amazon SES**. Los emails se envían exitosamente a cualquier destinatario (Gmail, Hotmail, etc.).
 
-**Para enviar emails a cualquier usuario** se necesita verificar un dominio propio en Resend (ver sección "Pasos para producción real" más abajo).
+**Configuración activa:**
+- Remitente: `TecnoCel <noreply@tecnocel.website>`
+- Proveedor: Resend (HTTP API)
+- Transporte: Amazon SES (sa-east-1)
 
 ---
 
@@ -81,11 +84,32 @@ Con eso los emails llegan a cualquier destinatario.
 
 ## Configuración actual en producción (Render)
 
+```env
+RESEND_API_KEY=re_...                          ← API key de resend.com
+EMAIL_FROM=TecnoCel <noreply@tecnocel.website>
+FRONTEND_URL=https://tu-app.vercel.app         ← importante para los links en los emails
 ```
-RESEND_API_KEY=re_...        ← API key de resend.com
-EMAIL_FROM=TecnoCel <onboarding@resend.dev>
-FRONTEND_URL=https://tu-app.vercel.app   ← importante para los links en los emails
-```
+
+## Registros DNS requeridos
+
+Para verificar un dominio en Resend, necesitas agregar **4 registros DNS** en tu proveedor (ej: DonWeb, Namecheap, NIC Argentina).
+
+Resend proporciona los valores exactos al agregar el dominio. Ejemplo para `tecnocel.website`:
+
+| Tipo | Nombre | Contenido | Prioridad | TTL |
+|------|--------|-----------|-----------|-----|
+| **MX** | `send.tecnocel.website` | `feedback-smtp.sa-east-1.amazonses.com` | 10 | 3600 |
+| **TXT** (DKIM) | `resend._domainkey.tecnocel.website` | `p=MIGfMA0GCSqG...` | — | 3600 |
+| **TXT** (SPF) | `send.tecnocel.website` | `v=spf1 include:amazonses.com ~all` | — | 3600 |
+| **TXT** (DMARC) | `_dmarc.tecnocel.website` | `v=DMARC1; p=none; rua=mailto:noreply@tecnocel.website` | — | 3600 |
+
+**Notas importantes:**
+- El **nombre completo del dominio** es requerido (ej: `resend._domainkey.tecnocel.website`, no solo `resend._domainkey`)
+- Algunos proveedores como DonWeb piden el nombre con la raíz incluida
+- Después de agregar los registros, espera 5-15 minutos para que se propaguen
+- En Resend, verifica que todos los registros muestren ✅ (estado verde)
+
+---
 
 ## Emails que envía el sistema
 

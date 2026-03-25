@@ -15,6 +15,7 @@ import GestionClientes from '../../components/admin/GestionClientes/GestionClien
 import GestionProductos from '../../components/admin/GestionProductos/GestionProductos';
 import GestionOfertas from '../../components/admin/GestionOfertas/GestionOfertas';
 import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
+import GestionCompras from '../../components/admin/GestionCompras/GestionCompras';
 import Reportes from '../../components/admin/Reportes/Reportes';
 import adminPanelStyles from './AdminPanel.module.css';
 import { ROLES } from '../../constants/roles';
@@ -51,6 +52,7 @@ const MENU_OPTIONS: MenuOption[] = [
   { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
   { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
   { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
+  { id: 'compras', label: 'Gestión de Compras', icon: 'shopping_cart', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR] },
   { id: 'ventas', label: 'Gestión de Ventas', icon: 'receipt_long' },
   { id: 'reportes', label: 'Reportes', icon: 'assessment', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
 ];
@@ -113,6 +115,9 @@ const ContentSection = ({
 
       case 'ofertas':
         return <GestionOfertas />;
+
+      case 'compras':
+        return <GestionCompras />;
 
       case 'ventas':
         return <GestionVentas />;

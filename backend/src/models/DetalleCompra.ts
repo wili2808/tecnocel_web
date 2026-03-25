@@ -6,6 +6,8 @@ class DetalleCompra extends Model {
   declare nro_compra: number;
   declare id_producto: number;
   declare cantidad: number;
+  declare precio_unitario: number;
+  declare subtotal: number;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
@@ -31,6 +33,16 @@ DetalleCompra.init({
   cantidad: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  precio_unitario: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0.00
+  },
+  subtotal: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0.00
   },
   fyh_creacion: {
     type: DataTypes.DATE,

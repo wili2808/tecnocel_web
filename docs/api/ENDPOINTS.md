@@ -230,23 +230,57 @@ Gestión administrativa de envíos y rastreo.
 
 ---
 
+### 13. [Compras a Proveedores (Admin)](./endpoints/compras.md)
+
+Gestión de compras internas a proveedores con control de stock.
+
+**5 endpoints** | Autenticación: Admin/Gerente/Vendedor 🔒
+
+- `GET /compras/admin/listar` - Listar compras con filtros
+- `GET /compras/admin/:id` - Obtener detalle de compra
+- `POST /compras/admin/registrar` - Registrar compra (con transacción de stock)
+- `PATCH /compras/admin/:id/anular` - Anular compra (reversión automática de stock)
+- `GET /compras/admin/estadisticas` - Estadísticas de compras
+
+[Ver documentación completa →](./endpoints/compras.md)
+
+---
+
+### 14. [Proveedores](./endpoints/proveedores.md)
+
+Gestión de proveedores para compras internas.
+
+**5 endpoints** | Autenticación: Admin/Gerente/Vendedor (lectura), Admin/Gerente (escritura) 🔒
+
+- `GET /proveedores` - Listar proveedores con búsqueda
+- `GET /proveedores/:id` - Obtener detalle de proveedor
+- `POST /proveedores` - Crear proveedor
+- `PUT /proveedores/:id` - Actualizar proveedor
+- `DELETE /proveedores/:id` - Eliminar proveedor
+
+[Ver documentación completa →](./endpoints/proveedores.md)
+
+---
+
 ## Resumen de la API
 
-| Módulo          | Endpoints | Auth Requerida | Documentación                           |
-| --------------- | --------- | -------------- | --------------------------------------- |
-| Productos       | 11        | Mixta          | [Ver →](./endpoints/productos.md)       |
-| Carrito         | 7         | Sí 🔒          | [Ver →](./endpoints/carrito.md)         |
-| Clientes        | 7         | Mixta          | [Ver →](./endpoints/clientes.md)        |
-| Comentarios     | 6         | Mixta          | [Ver →](./endpoints/comentarios.md)     |
-| Ofertas         | 6         | Mixta          | [Ver →](./endpoints/ofertas.md)         |
-| Favoritos       | 6         | Sí 🔒          | [Ver →](./endpoints/favoritos.md)       |
-| Características | 6         | Mixta          | [Ver →](./endpoints/caracteristicas.md) |
-| Upload          | 3         | Sí 🔒          | [Ver →](./endpoints/upload.md)          |
-| Marcas          | 5         | Mixta          | [Ver →](./endpoints/marcas.md)          |
-| Direcciones     | 7         | Sí 🔒          | [Ver →](./endpoints/direcciones.md)     |
-| Notificaciones  | 5         | Sí 🔒          | [Ver →](./endpoints/notificaciones.md)  |
-| Envíos (Admin)  | 3         | Admin 🔒       | [Ver →](./endpoints/envios.md)          |
-| **TOTAL**       | **76**    | -              | -                                       |
+| Módulo                | Endpoints | Auth Requerida | Documentación                           |
+| --------------------- | --------- | -------------- | --------------------------------------- |
+| Productos             | 11        | Mixta          | [Ver →](./endpoints/productos.md)       |
+| Carrito               | 7         | Sí 🔒          | [Ver →](./endpoints/carrito.md)         |
+| Clientes              | 7         | Mixta          | [Ver →](./endpoints/clientes.md)        |
+| Comentarios           | 6         | Mixta          | [Ver →](./endpoints/comentarios.md)     |
+| Ofertas               | 6         | Mixta          | [Ver →](./endpoints/ofertas.md)         |
+| Favoritos             | 6         | Sí 🔒          | [Ver →](./endpoints/favoritos.md)       |
+| Características       | 6         | Mixta          | [Ver →](./endpoints/caracteristicas.md) |
+| Upload                | 3         | Sí 🔒          | [Ver →](./endpoints/upload.md)          |
+| Marcas                | 5         | Mixta          | [Ver →](./endpoints/marcas.md)          |
+| Direcciones           | 7         | Sí 🔒          | [Ver →](./endpoints/direcciones.md)     |
+| Notificaciones        | 5         | Sí 🔒          | [Ver →](./endpoints/notificaciones.md)  |
+| Envíos (Admin)        | 3         | Admin 🔒       | [Ver →](./endpoints/envios.md)          |
+| Compras a Proveedores | 5         | Sí 🔒          | [Ver →](./endpoints/compras.md)         |
+| Proveedores           | 5         | Mixta          | [Ver →](./endpoints/proveedores.md)     |
+| **TOTAL**             | **86**    | -              | -                                       |
 
 ---
 
@@ -480,9 +514,9 @@ Ver [Upload API](./endpoints/upload.md) para detalles de carga y procesamiento.
 - [Guía de Autenticación](./guides/AUTHENTICATION.md) - Detalles de autenticación
 - [Volver al índice de documentación](../README.md)
 
-**Última actualización**: 7 de Octubre, 2025
-**Versión**: 1.1
-**Total endpoints**: 64 en 10 módulos
+**Última actualización**: 25 de Marzo, 2026
+**Versión**: 1.2
+**Total endpoints**: 86 en 14 módulos
 
 ---
 

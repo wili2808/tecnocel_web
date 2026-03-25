@@ -1,6 +1,6 @@
 # Servicios del Frontend
 
-> Documentación completa de los 17+ servicios de API del frontend en Tecnocel Web.
+> Documentación completa de los 19+ servicios de API del frontend en Tecnocel Web.
 
 ---
 
@@ -27,6 +27,8 @@
   - [reporteService](#reporteservice) ⭐
   - [usuarioService](#usuarioservice) ⭐
   - [UsuarioAdminService](#usuarioadminservice) ⭐
+  - [compraAdminService](#compraadminservice) ⭐
+  - [proveedorAdminService](#proveedoradminservice) ⭐
 - [Patrones Comunes](#patrones-comunes)
 - [Manejo de Errores](#manejo-de-errores)
 - [Mejores Prácticas](#mejores-prácticas)
@@ -647,6 +649,40 @@ const {
   habilitarCliente: (id: number) => Promise<void>,
   deshabilitarCliente: (id: number) => Promise<void>,
 } = UsuarioAdminService;
+```
+
+#### compraAdminService ⭐
+
+**Ubicación**: `frontend/src/services/compraAdminService.ts`
+
+**Descripción**: CRUD de compras a proveedores, búsqueda inteligente, anulación con transacciones de stock y estadísticas.
+
+**API Pública**:
+```typescript
+const {
+  listarCompras: (filtros: FiltrosComprasAdmin, limit?: number, offset?: number) => Promise<{ data: CompraListItem[]; total: number; limit: number; offset: number }>,
+  obtenerDetalle: (id: number) => Promise<CompraDetalle>,
+  registrarCompra: (data: RegistrarCompraData) => Promise<CompraListItem>,
+  anularCompra: (id: number, motivo?: string) => Promise<void>,
+  obtenerEstadisticas: () => Promise<EstadisticasCompras>,
+} = compraAdminService;
+```
+
+#### proveedorAdminService ⭐
+
+**Ubicación**: `frontend/src/services/proveedorAdminService.ts`
+
+**Descripción**: CRUD de proveedores con búsqueda inteligente en nombre, empresa, celular y email.
+
+**API Pública**:
+```typescript
+const {
+  listarProveedores: (search?: string) => Promise<ProveedorListItem[]>,
+  obtenerProveedor: (id: number) => Promise<ProveedorListItem>,
+  crearProveedor: (data: CreateProveedorData) => Promise<ProveedorListItem>,
+  actualizarProveedor: (id: number, data: UpdateProveedorData) => Promise<ProveedorListItem>,
+  eliminarProveedor: (id: number) => Promise<void>,
+} = proveedorAdminService;
 ```
 
 ---
