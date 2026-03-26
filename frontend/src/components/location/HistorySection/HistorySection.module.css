@@ -1,7 +1,7 @@
 /* ============================================================================
-   HISTORY SECTION — Silicon Precision / Dark Panel
-   Diseñado para vivir sobre el fondo oscuro #111113 del LocationSection.
-   Tipografía clara, items de contacto como filas limpias.
+   HISTORY SECTION — Silicon Precision
+   Panel elegante adaptable a tema con variables CSS del sistema.
+   Tipografía refinada, items de contacto como filas limpias.
    ============================================================================ */
 
 .historySection {
@@ -12,23 +12,26 @@
 }
 
 /* Header */
-.header { }
+.header {
+}
 
 .title {
   font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #f4f4f5;
+  color: var(--text-primary);
   margin: 0 0 var(--spacing-md) 0;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  transition: var(--theme-transition);
 }
 
 .description {
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
-  color: #a1a1aa;
+  color: var(--text-secondary);
   margin: 0;
+  transition: var(--theme-transition);
 }
 
 /* Contacto */
@@ -43,13 +46,17 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--border-color);
   transition: padding-left var(--transition-fast) var(--transition-curve);
 }
 
-.contactItem:last-child { border-bottom: none; }
+.contactItem:last-child {
+  border-bottom: none;
+}
 
-.contactItem:hover { padding-left: var(--spacing-xs); }
+.contactItem:hover {
+  padding-left: var(--spacing-xs);
+}
 
 .iconWrapper {
   display: flex;
@@ -58,15 +65,17 @@
   width: 40px;
   height: 40px;
   min-width: 40px;
-  background: rgba(14, 165, 233, 0.15);
+  background: var(--color-primary-100);
   border-radius: var(--border-radius-md);
-  border: 1px solid rgba(14, 165, 233, 0.2);
+  border: 1px solid var(--color-primary-200);
+  transition: var(--theme-transition);
 }
 
 .icon {
   width: 18px;
   height: 18px;
-  color: var(--color-sky-400);
+  color: var(--color-primary);
+  transition: var(--theme-transition);
 }
 
 .contactText {
@@ -80,17 +89,19 @@
   margin: 0;
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: #71717a;
+  color: var(--text-muted);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  transition: var(--theme-transition);
 }
 
 .contactText p {
   margin: 0;
   font-size: var(--font-size-sm);
-  color: #e4e4e7;
+  color: var(--text-primary);
   font-weight: 400;
   line-height: 1.4;
+  transition: var(--theme-transition);
 }
 
 /* Responsive */

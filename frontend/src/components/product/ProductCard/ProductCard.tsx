@@ -72,6 +72,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }, [precio_venta, precio_original, precio_oferta]);
 
   /**
+   * Stock Confidence Score — Indicador visual de disponibilidad
+   * Calcula qué porcentaje de la barra se llena (10 = 100%, 5 = 50%, etc)
+   * Máximo de 50 unidades como referencia
+   */
+  const stockConfidence = useMemo(() => {
+    const maxReference = 50;
+    const percentage = Math.min((stock / maxReference) * 100, 100);
+    return percentage;
+  }, [stock]);
+
+  /**
    * Click en la tarjeta del producto
    * La navegación se maneja automáticamente por el Link
    * Solo registrar analytics si es necesario
@@ -205,7 +216,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       tabIndex={isOutOfStock ? -1 : 0}
     >
       <article className={`${styles.productCard} ${className || ''}`}>
-        {/* Contenedor de imagen con indicadores superpuestos */}
+        {/* Contenedor de imagen — Protagonista limpio */}
         <div className={styles.imageContainer}>
           {/* Imagen principal del producto */}
           <ProductImage
@@ -216,7 +227,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
             mode="simple"
           />
 
-          {/* Indicador de oferta reutilizable - Solo visible si hay descuento */}
+          {/* Stock Confidence Badge — Indicador visual de disponibilidad */}
+          <div className={styles.stockBadge}>
+            <div
+              className={styles.stockFill}
+              style={{ width: `${stockConfidence}%` }}
+              aria-label={`Disponibilidad: ${stock} unidades`}
+            />
+          </div>
+
+          {/* Indicador de oferta — Superior izquierda */}
           {(en_oferta || (precio_oferta && precio_oferta < Number(precio_venta))) && (
             <OfferIndicator
               descuentoPorcentaje={
@@ -230,10 +250,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
             />
           )}
 
-          {/* Indicador de carrito - POSICIONADO EN ESQUINA INFERIOR DERECHA */}
+          {/* Indicador de carrito — Inferior derecha */}
           <CartIndicator productId={id_producto} size="small" showQuantity={true} />
 
-          {/* Botón de favoritos - FUERA DEL LINK PARA EVITAR NAVEGACIÓN */}
+          {/* Botón de favoritos — Superior derecha, siempre visible */}
           <FavoriteButtonReusable
             productId={id_producto}
             productName={nombre}
@@ -331,26 +351,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
           })()}
         </div>
 
-        {/* Información del producto debajo de la imagen */}
+        {/* Información del producto — Jerarquía: Precio > Nombre > Descripción */}
         <div className={styles.productInfo}>
-          {/* Encabezado con título y precios */}
+          {/* Encabezado con precios PRIMERO (jerarquía clara) */}
           <div className={styles.productHeader}>
-            <h3 className={styles.productTitle}>{nombre}</h3>
+            {/* Precio destacado — El elemento más importante */}
             <div className={styles.priceContainer}>
               {priceInfo.hasDiscount ? (
                 <>
-                  {/* Precio con descuento y original en la misma línea */}
-                  <span className={styles.originalPrice}>{formatARS(priceInfo.original, tipoCambio)}</span>
                   <span className={styles.price}>{formatARS(priceInfo.current, tipoCambio)}</span>
+                  <span className={styles.originalPrice}>{formatARS(priceInfo.original, tipoCambio)}</span>
                 </>
               ) : (
-                /* Precio único sin descuento */
                 <span className={styles.price}>{formatARS(priceInfo.current, tipoCambio)}</span>
               )}
             </div>
+
+            {/* Nombre del producto — Secundario, después del precio */}
+            <h3 className={styles.productTitle}>{nombre}</h3>
           </div>
 
-          {/* Descripción del producto - Solo visible si existe */}
+          {/* Descripción del producto — Terciaria, informativa */}
           {descripcion && (
             <p className={styles.productDescription} title={descripcion}>
               {descripcion}

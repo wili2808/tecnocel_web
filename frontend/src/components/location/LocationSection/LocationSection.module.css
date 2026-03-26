@@ -1,7 +1,7 @@
 /* ============================================================================
    LOCATION SECTION — Silicon Precision / Editorial
-   Layout asimétrico: mapa fotográfico a la izquierda, panel oscuro a la derecha.
-   Inversión visual de tema para un momento memorablemente diferente.
+   Layout asimétrico: mapa fotográfico a la izquierda, panel elegante a la derecha.
+   Diseño responsivo a tema con variables CSS del sistema.
    ============================================================================ */
 
 .locationSection {
@@ -94,18 +94,18 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--background-primary);
   backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-full);
   box-shadow: var(--shadow-lg);
   z-index: 10;
+  transition: var(--theme-transition);
 }
 
-:root[data-theme="dark"] .mapLabel {
-  background: rgba(39, 39, 42, 0.92);
+.mapLabelIcon {
+  font-size: var(--font-size-lg);
 }
-
-.mapLabelIcon { font-size: var(--font-size-lg); }
 
 .mapLabelText {
   font-family: var(--font-family-primary);
@@ -116,20 +116,21 @@
 }
 
 /* ============================================================================
-   PANEL DE INFO — oscuro editorial
+   PANEL DE INFO — elegante y adaptable
    ============================================================================ */
 
 .infoWrapper {
-  background: #111113;
+  background: var(--background-elevated);
   padding: var(--spacing-2xl) var(--spacing-xl);
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  transition: var(--theme-transition);
 }
 
-/* Glow decorativo */
+/* Glow decorativo — adaptable al tema */
 .infoWrapper::before {
   content: '';
   position: absolute;
@@ -138,7 +139,7 @@
   width: 60%;
   height: 60%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-primary-100) 0%, transparent 70%);
   pointer-events: none;
 }
 

@@ -1,14 +1,15 @@
 /* ============================================================================
-   FOOTER — Silicon Precision
-   Oscuro permanente: contrasta con el fondo del contenido.
-   Minimalismo editorial con información esencial.
+   FOOTER — Silicon Precision / Elegante
+   Adaptable a tema claro/oscuro con variables CSS del sistema.
+   Minimalismo editorial con información esencial y jerarquía clara.
    ============================================================================ */
 
 .footer {
-  background: #0c0c0e;
-  color: #71717a;
+  background: var(--background-secondary);
+  color: var(--text-secondary);
   padding: var(--spacing-3xl) var(--container-padding) var(--spacing-xl);
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-color);
+  transition: var(--theme-transition);
 }
 
 .footerContainer {
@@ -21,28 +22,34 @@
   grid-template-columns: 1.5fr repeat(2, 1fr);
   gap: var(--spacing-3xl);
   padding-bottom: var(--spacing-2xl);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: var(--spacing-xl);
 }
 
-/* Brand */
+/* ============================================================================
+   BRAND SECTION
+   ============================================================================ */
+
 .footerBrand .footerTitle {
   font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #f4f4f5;
+  color: var(--text-primary);
   margin: 0 0 var(--spacing-md) 0;
   letter-spacing: -0.02em;
+  transition: var(--theme-transition);
 }
 
 .footerDescription {
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
-  color: #52525b;
+  color: var(--text-secondary);
   margin: 0 0 var(--spacing-lg) 0;
   max-width: 280px;
+  transition: var(--theme-transition);
 }
 
+/* Social Links */
 .socialLinks {
   display: flex;
   gap: var(--spacing-md);
@@ -55,64 +62,105 @@
   width: 36px;
   height: 36px;
   border-radius: var(--border-radius-md);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #71717a;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-size: var(--font-size-md);
   transition: color var(--transition-fast) var(--transition-curve),
               border-color var(--transition-fast) var(--transition-curve),
-              background var(--transition-fast) var(--transition-curve);
+              background-color var(--transition-fast) var(--transition-curve),
+              transform var(--transition-fast) var(--transition-curve);
 }
 
 .socialLinks a:hover {
-  color: #f4f4f5;
-  border-color: rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.05);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-100);
+  transform: translateY(-2px);
 }
 
-/* Links columns */
+/* ============================================================================
+   LINKS COLUMNS
+   ============================================================================ */
+
 .footerLinks .linksTitle {
   font-size: var(--font-size-xs);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #a1a1aa;
+  color: var(--text-muted);
   margin: 0 0 var(--spacing-lg) 0;
+  transition: var(--theme-transition);
 }
 
 .footerLinks a {
   display: block;
   margin-bottom: var(--spacing-sm);
   font-size: var(--font-size-sm);
-  color: #52525b;
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--transition-fast) var(--transition-curve);
 }
 
-.footerLinks a:hover { color: #a1a1aa; }
+.footerLinks a:hover {
+  color: var(--color-primary);
+}
 
-/* Copyright */
+/* ============================================================================
+   COPYRIGHT
+   ============================================================================ */
+
 .footerCopyright {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: var(--font-size-xs);
-  color: #3f3f46;
+  color: var(--text-muted);
+  transition: var(--theme-transition);
 }
 
-.footerCopyright span { color: #3f3f46; }
+.footerCopyright span {
+  color: var(--text-muted);
+}
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
 @media (max-width: 768px) {
   .footerGrid {
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-2xl);
   }
-  .footerBrand { grid-column: 1 / -1; }
-  .footerDescription { max-width: 100%; }
+  .footerBrand {
+    grid-column: 1 / -1;
+  }
+  .footerDescription {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
-  .footer { padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-lg); }
-  .footerGrid { grid-template-columns: 1fr; gap: var(--spacing-xl); }
-  .footerCopyright { flex-direction: column; gap: var(--spacing-xs); text-align: center; }
+  .footer {
+    padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-lg);
+  }
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+  .footerCopyright {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer,
+  .socialLinks a,
+  .footerLinks a {
+    transition: none;
+  }
+  .socialLinks a:hover {
+    transform: none;
+  }
 }

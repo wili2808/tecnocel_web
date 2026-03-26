@@ -1,24 +1,41 @@
 /* ============================================================================
-   CTA SECTION — Silicon Precision / Dark Editorial
-   Sección oscura de impacto: contrasta con el fondo claro del catálogo.
-   Funciona en ambos temas (fondo fijo oscuro para crear drama visual).
+   CTA SECTION — Silicon Precision / Elegante
+   Sección de llamada a la acción adaptable a tema.
+   Múltiples variantes con coherencia visual total.
    ============================================================================ */
 
 .ctaSection {
   padding: var(--spacing-3xl) var(--container-padding);
   position: relative;
   overflow: hidden;
+  transition: var(--theme-transition);
 }
 
-/* === VARIANTE GRADIENT (default de Home) — dark editorial === */
+/* ============================================================================
+   VARIANTES DE FONDO
+   ============================================================================ */
+
+/* Variante gradient — fondo oscuro editorial */
 .ctaSection.gradient {
-  background: #0c0c0e;
+  background: var(--background-dark);
 }
 
 /* Variantes claras */
-.ctaSection.primary   { background: var(--color-primary); }
-.ctaSection.secondary { background: var(--background-secondary); }
-.ctaSection.accent    { background: var(--background-elevated); }
+.ctaSection.primary {
+  background: var(--color-primary);
+}
+
+.ctaSection.secondary {
+  background: var(--background-secondary);
+}
+
+.ctaSection.accent {
+  background: var(--background-elevated);
+}
+
+/* ============================================================================
+   DECORACIONES — GLOW Y LÍNEA SUPERIOR
+   ============================================================================ */
 
 /* Glow central solo en gradient */
 .ctaSection.gradient::before {
@@ -31,7 +48,7 @@
   height: 200%;
   background: radial-gradient(
     ellipse at center,
-    rgba(14, 165, 233, 0.08) 0%,
+    var(--color-primary-100) 0%,
     transparent 60%
   );
   pointer-events: none;
@@ -45,10 +62,13 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.4), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-primary-300), transparent);
 }
 
-/* Container */
+/* ============================================================================
+   CONTAINER Y LAYOUT
+   ============================================================================ */
+
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -66,7 +86,13 @@
 }
 
 /* Columna de texto */
-.textContent { max-width: 580px; }
+.textContent {
+  max-width: 580px;
+}
+
+/* ============================================================================
+   EYEBROW Y TIPOGRAFÍA
+   ============================================================================ */
 
 /* Eyebrow — solo en variante gradient */
 .gradient .textContent::before {
@@ -76,7 +102,7 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-sky-400);
+  color: var(--color-primary-light);
   margin-bottom: var(--spacing-md);
 }
 
@@ -87,25 +113,40 @@
   line-height: 1.1;
   letter-spacing: -0.03em;
   margin: 0 0 var(--spacing-md) 0;
+  transition: var(--theme-transition);
 }
 
-.gradient .title   { color: #f4f4f5; }
+.gradient .title {
+  color: var(--text-primary);
+}
+
 .primary .title,
 .secondary .title,
-.accent .title     { color: var(--text-primary); }
+.accent .title {
+  color: var(--text-primary);
+}
 
 .description {
   font-size: var(--font-size-md);
   line-height: var(--line-height-relaxed);
   margin: 0;
+  transition: var(--theme-transition);
 }
 
-.gradient .description   { color: #71717a; }
+.gradient .description {
+  color: var(--text-secondary);
+}
+
 .primary .description,
 .secondary .description,
-.accent .description     { color: var(--text-secondary); }
+.accent .description {
+  color: var(--text-secondary);
+}
 
-/* Botones */
+/* ============================================================================
+   BOTONES
+   ============================================================================ */
+
 .buttonGroup {
   display: flex;
   flex-direction: column;
@@ -130,14 +171,15 @@
   transition: background var(--transition-fast) var(--transition-curve),
               border-color var(--transition-fast) var(--transition-curve),
               transform var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
+              box-shadow var(--transition-fast) var(--transition-curve),
+              color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
 }
 
 /* Botón primario */
 .button.primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .button.primary:hover {
@@ -146,17 +188,18 @@
   transform: translateY(-1px);
 }
 
-/* Botón secundario — ghost sobre oscuro */
+/* Botón secundario — ghost sobre gradient */
 .gradient .button.secondary {
-  background: rgba(255,255,255,0.07);
-  color: #a1a1aa;
-  border: 1px solid rgba(255,255,255,0.12);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast) var(--transition-curve);
 }
 
 .gradient .button.secondary:hover {
-  background: rgba(255,255,255,0.12);
-  color: #f4f4f5;
-  border-color: rgba(255,255,255,0.25);
+  background: var(--color-primary-100);
+  color: var(--text-primary);
+  border-color: var(--color-primary);
   transform: translateY(-1px);
 }
 
@@ -176,7 +219,9 @@
   transform: translateY(-1px);
 }
 
-.button:active { transform: translateY(0); }
+.button:active {
+  transform: translateY(0);
+}
 
 .buttonIcon {
   width: 16px;
@@ -184,11 +229,15 @@
   transition: transform var(--transition-fast) var(--transition-curve);
 }
 
-.button:hover .buttonIcon { transform: translateX(3px); }
+.button:hover .buttonIcon {
+  transform: translateX(3px);
+}
 
 /* Elementos decorativos — ocultos en el nuevo diseño */
 .decorativeCircle,
-.decorativeCircle2 { display: none; }
+.decorativeCircle2 {
+  display: none;
+}
 
 /* ============================================================================
    RESPONSIVE

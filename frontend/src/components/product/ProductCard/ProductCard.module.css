@@ -1,6 +1,6 @@
 /* ============================================================================
-   PRODUCT CARD — Silicon Precision
-   Elegancia minimalista: imagen limpia, precio prominente, hover sutil.
+   PRODUCT CARD — Elegancia Minimalista con Stock Confidence
+   Jerarquía clara: imagen protagonista, precio visible, acciones contextuales
    ============================================================================ */
 
 .productLink {
@@ -11,7 +11,7 @@
   transition: transform var(--transition-fast) var(--transition-curve);
 }
 
-.productLink:hover { transform: translateY(-3px); }
+.productLink:hover { transform: translateY(-2px); }
 
 .productLink:focus-visible {
   outline: 2px solid var(--color-primary);
@@ -19,7 +19,7 @@
   border-radius: var(--border-radius-lg);
 }
 
-/* Tarjeta */
+/* Tarjeta — Superficie elevada sutil */
 .productCard {
   background: var(--background-secondary);
   border: 1px solid var(--border-color-light);
@@ -34,16 +34,19 @@
 
 .productLink:hover .productCard {
   border-color: var(--color-primary);
-  box-shadow: 0 8px 24px rgba(var(--color-primary-rgb), 0.1);
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.08);
 }
 
-/* Imagen */
+/* Contenedor de imagen — Protagonista limpio */
 .imageContainer {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--background-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .productImage {
@@ -53,18 +56,56 @@
   transition: transform var(--transition-normal) var(--transition-curve);
 }
 
-.productLink:hover .productImage { transform: scale(1.04); }
+.productLink:hover .productImage { transform: scale(1.05); }
 
-/* Favorito */
+/* Stock Confidence Badge — Indicador visual de disponibilidad */
+.stockBadge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.stockFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: width var(--transition-slow) var(--transition-curve);
+}
+
+/* Favorito — Siempre visible, esquina sutil */
 .favoriteButton {
   position: absolute;
   top: var(--spacing-sm);
   right: var(--spacing-sm);
   z-index: var(--z-catalog);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+/* Dark mode */
+[data-theme="dark"] .favoriteButton {
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.favoriteButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================================================
-   OVERLAYS DE IMAGEN
+   OVERLAYS ELEGANTES — Aparición suave, contexto claro
    ============================================================================ */
 
 .imageOverlay {
@@ -75,109 +116,131 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity var(--transition-fast) var(--transition-curve);
+  transition: opacity var(--transition-fast) var(--transition-curve),
+              backdrop-filter var(--transition-fast) var(--transition-curve);
   border: none;
   cursor: pointer;
   font-family: inherit;
-  z-index: 1;
+  z-index: 2;
   color: #fff;
+  backdrop-filter: blur(0px);
 }
 
-/* Agregar al carrito */
-.addToCartOverlay { background: rgba(var(--color-primary-rgb), 0.82); }
-.productLink:hover .addToCartOverlay { opacity: 1; }
-.addToCartOverlay:disabled { cursor: not-allowed; opacity: 0.6; }
+/* Agregar al carrito — Overlay minimalista */
+.addToCartOverlay {
+  background: rgba(var(--color-primary-rgb), 0.78);
+  backdrop-filter: blur(4px);
+}
 
-/* Éxito */
+.productLink:hover .addToCartOverlay {
+  opacity: 1;
+  backdrop-filter: blur(6px);
+}
+
+.addToCartOverlay:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Éxito — Celebración sutil */
 .successOverlay {
-  background: rgba(16, 185, 129, 0.85);
+  background: rgba(16, 185, 129, 0.82);
   opacity: 1 !important;
-  animation: pulseIn 0.4s ease-out;
+  backdrop-filter: blur(4px);
+  animation: slideInSuccess 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Límite alcanzado */
-.limitReachedOverlay { background: rgba(239, 68, 68, 0.82); }
+/* Límite alcanzado — Advertencia clara */
+.limitReachedOverlay {
+  background: rgba(239, 68, 68, 0.78);
+  backdrop-filter: blur(4px);
+}
+
 .productLink:hover .limitReachedOverlay { opacity: 1; }
 .limitReachedOverlay:hover { opacity: 1 !important; }
 
-/* Agotado */
+/* Agotado — Información sutil */
 .outOfStockOverlay {
-  background: rgba(100, 116, 139, 0.65);
+  background: rgba(100, 116, 139, 0.6);
+  backdrop-filter: blur(2px);
   opacity: 1;
   cursor: not-allowed;
 }
 
-/* Contenido del overlay */
+/* Contenido del overlay — Tipografía clara */
 .overlayIcon {
-  font-size: 28px;
-  margin-bottom: var(--spacing-xs);
+  font-size: 32px;
+  margin-bottom: var(--spacing-sm);
   transition: transform var(--transition-fast) var(--transition-curve);
 }
 
-.addToCartOverlay:hover .overlayIcon { transform: scale(1.1); }
+.addToCartOverlay:hover .overlayIcon {
+  transform: scale(1.08);
+}
 
 .overlayText {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-align: center;
+  line-height: 1.3;
 }
 
 .overlaySubtext, .overlayAction {
   font-size: var(--font-size-xs);
-  opacity: 0.88;
+  opacity: 0.85;
   text-align: center;
-  margin-top: 2px;
+  margin-top: var(--spacing-xs);
+  line-height: 1.4;
 }
 
-.overlayAction { text-decoration: underline; }
+.overlayAction {
+  opacity: 0.75;
+  font-size: var(--font-size-xxs);
+  margin-top: var(--spacing-sm);
+}
 
-/* Iconos especiales */
+/* Iconos con significado visual */
 .loadingIcon { animation: spin 1s linear infinite; }
-.successIcon { animation: popIn 0.35s ease-out; }
-.outOfStockIcon { opacity: 0.8; }
+.successIcon { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.outOfStockIcon { opacity: 0.85; }
 .limitIcon { opacity: 0.9; }
 
-/* Producto agotado */
-.outOfStockLink .productImage { filter: grayscale(100%); opacity: 0.5; }
-.outOfStockLink .addToCartOverlay { display: none; }
+/* Producto agotado — Desvanecimiento visual */
+.outOfStockLink .productImage {
+  filter: grayscale(100%);
+  opacity: 0.55;
+}
+
+.outOfStockLink .addToCartOverlay {
+  display: none;
+}
 
 /* ============================================================================
-   INFORMACIÓN
+   INFORMACIÓN DEL PRODUCTO — Jerarquía clara: precio > título > descripción
    ============================================================================ */
 
 .productInfo {
-  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
 }
 
+/* Encabezado con precio PRIMERO (reordenado en JSX) */
 .productHeader {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--spacing-sm);
+  order: -1; /* Fuerza que sea el primero visualmente */
 }
 
-.productTitle {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.35;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
+/* Precio destacado — Elemento más importante */
 .priceContainer {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
@@ -186,40 +249,67 @@
   font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-primary);
-  line-height: 1;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 
 .originalPrice {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
   text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
-.productDescription {
-  font-size: var(--font-size-xs);
+/* Título — Secundario, después del precio */
+.productTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
+  text-transform: none;
+}
+
+/* Descripción — Informativa, última */
+.productDescription {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  opacity: 0.85;
 }
 
 /* ============================================================================
-   ANIMACIONES
+   ANIMACIONES — Suave, confianza, profesional
    ============================================================================ */
 
-@keyframes pulseIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+@keyframes slideInSuccess {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes popIn {
-  0%   { transform: scale(0.7); }
-  60%  { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes spin {
@@ -228,16 +318,72 @@
 }
 
 /* ============================================================================
-   RESPONSIVE
+   RESPONSIVE — Desktop-first, optimizado para móvil
    ============================================================================ */
 
-@media (max-width: 768px) {
-  .productLink:hover { transform: none; }
-  .productInfo { padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-sm); }
-  .price { font-size: var(--font-size-md); }
+@media (max-width: 1024px) {
+  .productLink:hover { transform: translateY(-1px); }
+  .productImage { transition: transform var(--transition-normal) var(--transition-curve); }
+  .productLink:hover .productImage { transform: scale(1.03); }
 }
+
+@media (max-width: 768px) {
+  /* Mobile: sin transform hover (no hay cursor) */
+  .productLink:hover { transform: none; }
+
+  /* Info más compacta pero con aire */
+  .productInfo { padding: var(--spacing-md) var(--spacing-md) var(--spacing-md); }
+
+  /* Precio discreto en mobile */
+  .price { font-size: var(--font-size-md); }
+
+  /* Favorito más accesible en mobile */
+  .favoriteButton {
+    width: 40px;
+    height: 40px;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+  }
+
+  /* Overlay siempre visible en mobile (no hover) */
+  .addToCartOverlay {
+    opacity: 1;
+    background: rgba(var(--color-primary-rgb), 0.85);
+  }
+
+  .limitReachedOverlay {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .productInfo { padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md); }
+
+  .price { font-size: var(--font-size-md); }
+
+  .productTitle { font-size: var(--font-size-xs); }
+
+  .productDescription { display: none; }
+
+  .favoriteButton {
+    width: 36px;
+    height: 36px;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+
+  .overlayIcon { font-size: 28px; }
+  .overlayText { font-size: var(--font-size-sm); }
+}
+
+/* ============================================================================
+   ACCESIBILIDAD — Respeta preferencias del usuario
+   ============================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
   .productLink:hover { transform: none; }
+  .productImage { transition: none; }
   .loadingIcon, .successIcon { animation: none; }
+  .favoriteButton { transition: none; }
+  .productCard { transition: none; }
 }
