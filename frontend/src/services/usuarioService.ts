@@ -14,7 +14,8 @@ import type {
   RolItem,
   CrearUsuarioData,
   ActualizarUsuarioData,
-  ActualizarClienteAdmin
+  ActualizarClienteAdmin,
+  CrearClienteAdminData
 } from '../types/usuario';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -300,6 +301,15 @@ export const usuarioService = {
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.mensaje || 'Error al actualizar cliente');
+    }
+  },
+
+  async crearCliente(data: CrearClienteAdminData): Promise<{ success: boolean; mensaje: string }> {
+    try {
+      const response = await adminApi.post('/usuarios/admin/clientes', data);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.mensaje || 'Error al crear el cliente');
     }
   },
 

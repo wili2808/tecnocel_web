@@ -25,6 +25,8 @@ router.post('/verify-email/resend', ClienteController.resendVerificationEmail);
 router.post('/forgot-password', ClienteController.forgotPassword);
 // Restablecimiento de contraseña
 router.post('/reset-password', ClienteController.resetPassword);
+// Activar cuenta creada por admin (establecer contraseña)
+router.post('/activar-cuenta', ClienteController.activarCuenta);
 
 // ============================================================================
 // RUTAS PROTEGIDAS (requieren autenticación)

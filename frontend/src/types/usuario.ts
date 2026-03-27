@@ -134,3 +134,14 @@ export interface ActualizarClienteAdmin {
   is_web_enabled?: boolean;
   email_verified?: boolean;
 }
+
+/**
+ * Datos para crear un cliente desde panel admin
+ */
+export interface CrearClienteAdminData {
+  nombre_cliente: string;
+  apellido_cliente: string;
+  email_cliente: string;
+  celular_cliente?: string;
+  nit_ci_cliente?: string;
+}

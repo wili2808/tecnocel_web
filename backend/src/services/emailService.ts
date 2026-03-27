@@ -381,3 +381,16 @@ export async function sendComprobanteEmail(
     throw new Error('No se pudo enviar el comprobante por email');
   }
 }
+
+export async function sendAccountCreatedByAdminEmail(email: string, nombre: string, token: string): Promise<void> {
+  const activationUrl = `${FRONTEND_URL}/activar-cuenta?token=${token}`;
+  try {
+    const html = renderTemplate('account-created-by-admin', { nombre, activation_url: activationUrl });
+    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Activá tu cuenta en TecnoCel', html });
+    if (error) throw new Error(error.message);
+    logger.info('Email de activación por admin enviado', { email: maskEmail(email) });
+  } catch (error) {
+    logger.error('Error enviando email de activación por admin:', { error: (error as Error).message });
+    throw new Error('No se pudo enviar el correo de activación');
+  }
+}

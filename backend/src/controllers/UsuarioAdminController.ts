@@ -12,6 +12,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import { ROLES } from '../constants/roles.js';
 import { Op } from 'sequelize';
 import Usuario from '../models/Usuario.js';
@@ -19,6 +20,7 @@ import Rol from '../models/Rol.js';
 import Cliente from '../models/Cliente.js';
 import Almacen from '../models/Almacen.js';
 import logger from '../services/loggerService.js';
+import { sendAccountCreatedByAdminEmail } from '../services/emailService.js';
 import { WhereOptions } from 'sequelize';
 import {
   ListarClientesResponse,
@@ -582,6 +584,61 @@ class UsuarioAdminController {
   // ============================================================================
   // GESTIÓN DE CLIENTES (VISTA ADMINISTRATIVA)
   // ============================================================================
+
+  /**
+   * Crear un nuevo cliente desde el panel de administración
+   *
+   * Crea el cliente sin contraseña y envía un email de activación para que el
+   * cliente establezca su propia contraseña. El token de activación expira en 48h.
+   * Accesible por: Admin, Gerente y Vendedor
+   *
+   * @async
+   * @param req - Express Request con body: nombre_cliente, apellido_cliente, email_cliente, celular_cliente?, nit_ci_cliente?
+   * @param res - Express Response
+   * @returns 201 con mensaje de éxito
+   * @returns 400 si faltan campos obligatorios
+   * @returns 409 si el email ya está registrado
+   * @returns 500 si ocurre un error
+   */
+  static async crearCliente(req: Request, res: Response) {
+    try {
+      const { nombre_cliente, apellido_cliente, email_cliente, celular_cliente, nit_ci_cliente } = req.body;
+
+      if (!nombre_cliente || !apellido_cliente || !email_cliente) {
+        return res.status(400).json({ mensaje: 'Nombre, apellido y email son obligatorios' });
+      }
+
+      const existente = await Cliente.findOne({ where: { email_cliente } });
+      if (existente) {
+        return res.status(409).json({ mensaje: 'Ya existe una cuenta con ese email' });
+      }
+
+      const reset_token = uuidv4();
+      const reset_token_expires = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 horas
+
+      await Cliente.create({
+        nombre_cliente,
+        apellido_cliente,
+        email_cliente,
+        celular_cliente: celular_cliente || null,
+        nit_ci_cliente: nit_ci_cliente || null,
+        password_hash: null,
+        is_web_enabled: false,
+        email_verified: false,
+        reset_token,
+        reset_token_expires,
+      });
+
+      sendAccountCreatedByAdminEmail(email_cliente, nombre_cliente, reset_token)
+        .catch(err => logger.error('Error enviando email de activación por admin:', { error: err.message }));
+
+      logger.info(`Cliente creado por admin: ${email_cliente}`);
+      return res.status(201).json({ success: true, mensaje: 'Cliente creado. Se envió un email de activación.' });
+    } catch (error) {
+      logger.error('Error al crear cliente desde admin:', { error: error instanceof Error ? error.message : error });
+      return res.status(500).json({ mensaje: 'Error al crear el cliente' });
+    }
+  }
 
   /**
    * Listar todos los clientes registrados en la tienda web

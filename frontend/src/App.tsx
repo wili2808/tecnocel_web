@@ -39,6 +39,7 @@ const Contacto = lazy(() => import('./pages/Contacto'));
 const VerificarEmail = lazy(() => import('./pages/Auth/VerificarEmail/VerificarEmail'));
 const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword/ResetPassword'));
 const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword/ForgotPassword'));
+const ActivarCuenta = lazy(() => import('./pages/Auth/ActivarCuenta/ActivarCuenta'));
 // Componentes de administración
 const AdminLogin = lazy(() => import('./pages/AdminLogin/AdminLogin'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel'));
@@ -109,6 +110,7 @@ function App() {
                                 <Route path="/verificar-email" element={<VerificarEmail />} />
                                 <Route path="/reset-password" element={<ResetPassword />} />
                                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                                <Route path="/activar-cuenta" element={<ActivarCuenta />} />
                                 {/* Rutas protegidas de cliente */}
                                 <Route path="/panel" element={
                                   <ProtectedRoute allowedUserTypes={['cliente']}>

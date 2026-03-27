@@ -12,6 +12,7 @@ import { usuarioService } from '../../../services/usuarioService';
 import type { ClienteListItem } from '../../../types/usuario';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
+import CrearClienteModal from './CrearClienteModal';
 import styles from './GestionClientes.module.css';
 
 type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha';
@@ -31,6 +32,7 @@ const GestionClientes = () => {
   // Modal state
   const [clienteSeleccionado, setClienteSeleccionado] = useState<ClienteListItem | null>(null);
   const [tipoModal, setTipoModal] = useState<'detalle' | 'editar' | null>(null);
+  const [showCrearModal, setShowCrearModal] = useState(false);
 
   useEffect(() => {
     cargarClientes();
@@ -164,13 +166,25 @@ const GestionClientes = () => {
     <>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>
-            <span className="material-icons">people</span>
-            Gestión de Clientes
-          </h2>
-          <p className={styles.subtitle}>
-            Visualiza y administra los clientes registrados en la plataforma
-          </p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+            <div>
+              <h2 className={styles.title}>
+                <span className="material-icons">people</span>
+                Gestión de Clientes
+              </h2>
+              <p className={styles.subtitle}>
+                Visualiza y administra los clientes registrados en la plataforma
+              </p>
+            </div>
+            <button
+              className={styles.searchButton}
+              onClick={() => setShowCrearModal(true)}
+              style={{ flexShrink: 0, marginTop: 2 }}
+            >
+              <span className="material-icons" style={{ fontSize: 16 }}>person_add</span>
+              Crear cliente
+            </button>
+          </div>
         </div>
 
         <div className={styles.searchForm}>
@@ -304,6 +318,14 @@ const GestionClientes = () => {
           cliente={clienteSeleccionado}
           onClose={handleCerrarModal}
           onGuardado={cargarClientes}
+        />
+      )}
+
+      {/* Modal de creación de cliente */}
+      {showCrearModal && (
+        <CrearClienteModal
+          onClose={() => setShowCrearModal(false)}
+          onCreado={cargarClientes}
         />
       )}
     </>

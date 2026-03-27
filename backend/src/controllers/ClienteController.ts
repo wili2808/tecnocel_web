@@ -380,6 +380,60 @@ export default class ClienteController {
   }
 
   /**
+   * Activa una cuenta creada por un administrador y establece la contraseña del cliente
+   *
+   * Valida el token de activación, hashea la contraseña provista, habilita la cuenta
+   * y envía un email de bienvenida. El token debe estar vigente (no expirado) y la cuenta
+   * no debe estar verificada aún (email_verified: false).
+   *
+   * @param req - Express Request con body: token, nueva_contrasena
+   * @param res - Express Response
+   * @returns 200 con mensaje de éxito
+   * @returns 400 si faltan campos, la contraseña es muy corta o el token es inválido/expirado
+   * @returns 500 si ocurre un error en el servidor
+   */
+  static async activarCuenta(req: Request, res: Response) {
+    try {
+      const { token, nueva_contrasena } = req.body;
+
+      if (!token || !nueva_contrasena) {
+        return res.status(400).json({ mensaje: 'El token y la nueva contraseña son obligatorios' });
+      }
+      if (nueva_contrasena.length < 6) {
+        return res.status(400).json({ mensaje: 'La contraseña debe tener al menos 6 caracteres' });
+      }
+
+      const cliente = await Cliente.findOne({
+        where: {
+          reset_token: token,
+          reset_token_expires: { [Op.gt]: new Date() },
+          email_verified: false,
+        }
+      });
+
+      if (!cliente) {
+        return res.status(400).json({ mensaje: 'El enlace de activación es inválido o ha expirado' });
+      }
+
+      cliente.password_hash = await bcrypt.hash(nueva_contrasena, BCRYPT_SALT_ROUNDS);
+      cliente.email_verified = true;
+      cliente.is_web_enabled = true;
+      cliente.reset_token = null;
+      cliente.reset_token_expires = null;
+      await cliente.save();
+
+      sendWelcomeEmail(cliente.email_cliente, cliente.nombre_cliente)
+        .catch(err => logger.error('Error enviando email de bienvenida en activación:', { error: err.message }));
+
+      logger.info(`Cuenta activada por cliente: ${cliente.email_cliente}`);
+      return res.status(200).json({ success: true, mensaje: '¡Cuenta activada! Ya podés iniciar sesión.' });
+    } catch (error) {
+      logger.error('Error en activarCuenta:', error);
+      return res.status(500).json({ mensaje: 'Error al activar la cuenta' });
+    }
+  }
+
+  /**
    * Inicia el proceso de recuperación de contraseña
    *
    * Genera un token único de recuperación (UUID v4) con validez de 1 hora

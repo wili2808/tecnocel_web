@@ -58,6 +58,9 @@ router.delete('/admin/usuarios/:id', verificarToken, verificarRol([ROLES.ADMIN])
 // Requieren: Autenticación + Rol Admin (1), Empleado (2) o Vendedor (3)
 // ============================================================================
 
+// Crear nuevo cliente (todos los roles del sistema)
+router.post('/admin/clientes', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]), UsuarioAdminController.crearCliente);
+
 // Listar todos los clientes
 router.get('/admin/clientes', verificarToken, verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]), UsuarioAdminController.listarClientes);
 

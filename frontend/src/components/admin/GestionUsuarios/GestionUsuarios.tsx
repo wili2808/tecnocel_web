@@ -168,8 +168,6 @@ const GestionUsuarios = () => {
   };
 
   const handleEditarClick = (usuario: UsuarioListItem) => {
-    setShowCrearForm(false);
-    setFormData(INITIAL_FORM_DATA);
     setEditandoUsuario(usuario);
     setEditFormData({
       nombres: usuario.nombres,
@@ -321,6 +319,7 @@ const GestionUsuarios = () => {
   }
 
   return (
+    <>
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerTop}>
@@ -331,7 +330,7 @@ const GestionUsuarios = () => {
             </h2>
             <p className={styles.subtitle}>Administra los usuarios del sistema (administradores y gerentes)</p>
           </div>
-          {isAdmin && !showCrearForm && !editandoUsuario && (
+          {isAdmin && (
             <button className={styles.crearButton} onClick={() => setShowCrearForm(true)}>
               <span className="material-icons">person_add</span>
               <span>Crear Usuario</span>
@@ -340,261 +339,6 @@ const GestionUsuarios = () => {
         </div>
       </div>
 
-      {showCrearForm && (
-        <div className={styles.crearFormWrapper}>
-          <div className={styles.crearFormHeader}>
-            <h3 className={styles.crearFormTitle}>
-              <span className="material-icons">person_add</span>
-              Crear Nuevo Usuario
-            </h3>
-            <button className={styles.cerrarFormButton} onClick={handleCancelarCrear} aria-label="Cerrar formulario">
-              <span className="material-icons">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleCrearUsuario} className={styles.crearForm}>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="nombres" className={styles.label}>
-                  Nombre Completo *
-                </label>
-                <input
-                  type="text"
-                  id="nombres"
-                  name="nombres"
-                  value={formData.nombres}
-                  onChange={handleFormChange}
-                  className={styles.input}
-                  placeholder="Ej: Juan Pérez"
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="email" className={styles.label}>
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleFormChange}
-                  className={styles.input}
-                  placeholder="Ej: juan@tecnocel.com"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="id_rol" className={styles.label}>
-                  Rol *
-                </label>
-                <select
-                  id="id_rol"
-                  name="id_rol"
-                  value={formData.id_rol}
-                  onChange={handleFormChange}
-                  className={styles.select}
-                  required
-                >
-                  <option value={0} disabled>
-                    Seleccionar rol...
-                  </option>
-                  {roles.map((rol) => (
-                    <option key={rol.id_rol} value={rol.id_rol}>
-                      {rol.rol}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="password" className={styles.label}>
-                  Contraseña *
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleFormChange}
-                  className={styles.input}
-                  placeholder="Mínimo 6 caracteres"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="confirmPassword" className={styles.label}>
-                  Confirmar Contraseña *
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleFormChange}
-                  className={styles.input}
-                  placeholder="Repite la contraseña"
-                  required
-                />
-              </div>
-              <div className={styles.formActions}>
-                <button type="button" onClick={handleCancelarCrear} className={styles.cancelButton}>
-                  Cancelar
-                </button>
-                <button type="submit" disabled={creando} className={styles.submitButton}>
-                  {creando ? (
-                    <>
-                      <span className="material-icons">hourglass_empty</span>
-                      Creando...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-icons">person_add</span>
-                      Crear Usuario
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {editandoUsuario && (
-        <div className={styles.crearFormWrapper}>
-          <div className={styles.crearFormHeader}>
-            <h3 className={styles.crearFormTitle}>
-              <span className="material-icons">edit</span>
-              Editar Usuario: {editandoUsuario.nombres}
-            </h3>
-            <button className={styles.cerrarFormButton} onClick={handleCancelarEditar} aria-label="Cerrar formulario">
-              <span className="material-icons">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleEditarUsuario} className={styles.crearForm}>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="edit_nombres" className={styles.label}>
-                  Nombre Completo *
-                </label>
-                <input
-                  type="text"
-                  id="edit_nombres"
-                  name="nombres"
-                  value={editFormData.nombres}
-                  onChange={handleEditFormChange}
-                  className={styles.input}
-                  placeholder="Ej: Juan Pérez"
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="edit_email" className={styles.label}>
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  id="edit_email"
-                  name="email"
-                  value={editFormData.email}
-                  onChange={handleEditFormChange}
-                  className={styles.input}
-                  placeholder="Ej: juan@tecnocel.com"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="edit_id_rol" className={styles.label}>
-                  Rol *
-                </label>
-                <select
-                  id="edit_id_rol"
-                  name="id_rol"
-                  value={editFormData.id_rol}
-                  onChange={handleEditFormChange}
-                  className={styles.select}
-                  required
-                >
-                  <option value={0} disabled>
-                    Seleccionar rol...
-                  </option>
-                  {roles.map((rol) => (
-                    <option key={rol.id_rol} value={rol.id_rol}>
-                      {rol.rol}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="edit_password" className={styles.label}>
-                  Nueva Contraseña
-                </label>
-                <input
-                  type="password"
-                  id="edit_password"
-                  name="password"
-                  value={editFormData.password}
-                  onChange={handleEditFormChange}
-                  className={styles.input}
-                  placeholder="Dejar vacío para no cambiar"
-                  autoComplete="new-password"
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              {editFormData.password && (
-                <div className={styles.formGroup}>
-                  <label htmlFor="edit_confirmPassword" className={styles.label}>
-                    Confirmar Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="edit_confirmPassword"
-                    name="confirmPassword"
-                    value={editFormData.confirmPassword}
-                    onChange={handleEditFormChange}
-                    className={styles.input}
-                    placeholder="Repite la nueva contraseña"
-                    autoComplete="new-password"
-                  />
-                </div>
-              )}
-              <div className={styles.formActions}>
-                <button type="button" onClick={handleCancelarEditar} className={styles.cancelButton}>
-                  Cancelar
-                </button>
-                <button type="submit" disabled={editando} className={styles.submitButton}>
-                  {editando ? (
-                    <>
-                      <span className="material-icons">hourglass_empty</span>
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-icons">save</span>
-                      Guardar Cambios
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
@@ -722,6 +466,279 @@ const GestionUsuarios = () => {
         </table>
       </div>
     </div>
+
+    {showCrearForm && (
+      <div className={styles.modalOverlay} onClick={handleCancelarCrear}>
+        <div className={styles.modal} onClick={e => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h3 className={styles.modalTitle}>
+              <span className="material-icons">person_add</span>
+              Crear Nuevo Usuario
+            </h3>
+            <button className={styles.closeButton} onClick={handleCancelarCrear} disabled={creando}>
+              <span className="material-icons">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleCrearUsuario}>
+            <div className={styles.modalBody}>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="nombres" className={styles.label}>
+                    Nombre Completo *
+                  </label>
+                  <input
+                    type="text"
+                    id="nombres"
+                    name="nombres"
+                    value={formData.nombres}
+                    onChange={handleFormChange}
+                    className={styles.input}
+                    placeholder="Ej: Juan Pérez"
+                    disabled={creando}
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="email" className={styles.label}>
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                    className={styles.input}
+                    placeholder="Ej: juan@tecnocel.com"
+                    disabled={creando}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="id_rol" className={styles.label}>
+                    Rol *
+                  </label>
+                  <select
+                    id="id_rol"
+                    name="id_rol"
+                    value={formData.id_rol}
+                    onChange={handleFormChange}
+                    className={styles.select}
+                    disabled={creando}
+                    required
+                  >
+                    <option value={0} disabled>
+                      Seleccionar rol...
+                    </option>
+                    {roles.map((rol) => (
+                      <option key={rol.id_rol} value={rol.id_rol}>
+                        {rol.rol}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="password" className={styles.label}>
+                    Contraseña *
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleFormChange}
+                    className={styles.input}
+                    placeholder="Mínimo 6 caracteres"
+                    disabled={creando}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="confirmPassword" className={styles.label}>
+                  Confirmar Contraseña *
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleFormChange}
+                  className={styles.input}
+                  placeholder="Repite la contraseña"
+                  disabled={creando}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button type="button" onClick={handleCancelarCrear} className={styles.cancelButton} disabled={creando}>
+                Cancelar
+              </button>
+              <button type="submit" disabled={creando} className={styles.submitButton}>
+                {creando ? (
+                  <>
+                    <span className="material-icons">hourglass_empty</span>
+                    Creando...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons">person_add</span>
+                    Crear Usuario
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {editandoUsuario && (
+      <div className={styles.modalOverlay} onClick={handleCancelarEditar}>
+        <div className={styles.modal} onClick={e => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h3 className={styles.modalTitle}>
+              <span className="material-icons">edit</span>
+              Editar Usuario
+            </h3>
+            <button className={styles.closeButton} onClick={handleCancelarEditar} disabled={editando}>
+              <span className="material-icons">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleEditarUsuario}>
+            <div className={styles.modalBody}>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit_nombres" className={styles.label}>
+                    Nombre Completo *
+                  </label>
+                  <input
+                    type="text"
+                    id="edit_nombres"
+                    name="nombres"
+                    value={editFormData.nombres}
+                    onChange={handleEditFormChange}
+                    className={styles.input}
+                    placeholder="Ej: Juan Pérez"
+                    disabled={editando}
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit_email" className={styles.label}>
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="edit_email"
+                    name="email"
+                    value={editFormData.email}
+                    onChange={handleEditFormChange}
+                    className={styles.input}
+                    placeholder="Ej: juan@tecnocel.com"
+                    disabled={editando}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit_id_rol" className={styles.label}>
+                    Rol *
+                  </label>
+                  <select
+                    id="edit_id_rol"
+                    name="id_rol"
+                    value={editFormData.id_rol}
+                    onChange={handleEditFormChange}
+                    className={styles.select}
+                    disabled={editando}
+                    required
+                  >
+                    <option value={0} disabled>
+                      Seleccionar rol...
+                    </option>
+                    {roles.map((rol) => (
+                      <option key={rol.id_rol} value={rol.id_rol}>
+                        {rol.rol}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit_password" className={styles.label}>
+                    Nueva Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="edit_password"
+                    name="password"
+                    value={editFormData.password}
+                    onChange={handleEditFormChange}
+                    className={styles.input}
+                    placeholder="Dejar vacío para no cambiar"
+                    disabled={editando}
+                    autoComplete="new-password"
+                  />
+                </div>
+              </div>
+
+              {editFormData.password && (
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit_confirmPassword" className={styles.label}>
+                    Confirmar Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="edit_confirmPassword"
+                    name="confirmPassword"
+                    value={editFormData.confirmPassword}
+                    onChange={handleEditFormChange}
+                    className={styles.input}
+                    placeholder="Repite la nueva contraseña"
+                    disabled={editando}
+                    autoComplete="new-password"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button type="button" onClick={handleCancelarEditar} className={styles.cancelButton} disabled={editando}>
+                Cancelar
+              </button>
+              <button type="submit" disabled={editando} className={styles.submitButton}>
+                {editando ? (
+                  <>
+                    <span className="material-icons">hourglass_empty</span>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons">save</span>
+                    Guardar Cambios
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 
