@@ -47,7 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // ============================================================================
   // CONTEXTOS Y HOOKS
   // ============================================================================
-  const { agregarItem, getProductQuantityInCart, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
+  const { agregarItem, canAddMoreOfProduct, sincronizarCarrito } = useCarrito();
   const { isAuthenticated, userType } = useAuth();
   const { showNotification } = useNotification();
   const { tipoCambio } = useTipoCambio();
@@ -180,21 +180,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
    */
   const cannotAddMore = !canAddMoreOfProduct(id_producto, stock);
 
-  /**
-   * Determinar el tipo de overlay a mostrar
-   * Prioriza: éxito > límite alcanzado > agregar al carrito > agotado
-   */
-  const getOverlayType = () => {
-    if (isOutOfStock) return 'outOfStock';
-    if (showSuccess) return 'success';
-    if (cannotAddMore) return 'limitReached';
-    return 'addToCart';
-  };
-
-  /**
-   * Obtener la cantidad actual en el carrito para mostrar en el overlay
-   */
-  const currentQuantity = getProductQuantityInCart(id_producto);
 
   // ============================================================================
   // FUNCIONES ESPECÍFICAS DE PRODUCTCARD
@@ -263,95 +248,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
             className={styles.favoriteButton}
           />
 
-          {/* OVERLAY DINÁMICO SEGÚN EL ESTADO DEL PRODUCTO */}
-          {(() => {
-            const overlayType = getOverlayType();
-
-            switch (overlayType) {
-              case 'success':
-                // ✅ OVERLAY DE ÉXITO - Verde con check, previene navegación
-                return (
-                  <button
-                    className={`${styles.imageOverlay} ${styles.successOverlay}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // No hacer nada, solo mostrar el mensaje
-                    }}
-                    disabled={false}
-                    aria-label="Producto agregado exitosamente"
-                    type="button"
-                  >
-                    <span className={`material-icons ${styles.overlayIcon} ${styles.successIcon}`}>check_circle</span>
-                    <span className={styles.overlayText}>¡Agregado!</span>
-                  </button>
-                );
-
-              case 'limitReached':
-                // 🚫 OVERLAY DE LÍMITE ALCANZADO - Rojo con navegación al carrito
-                return (
-                  <button
-                    className={`${styles.imageOverlay} ${styles.limitReachedOverlay}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Navegar directamente al carrito
-                      navigate('/carrito');
-                    }}
-                    disabled={false}
-                    aria-label="Ir al carrito - Máximo de productos alcanzado"
-                    type="button"
-                  >
-                    <span className={`material-icons ${styles.overlayIcon} ${styles.limitIcon}`}>
-                      remove_shopping_cart
-                    </span>
-                    <span className={styles.overlayText}>Máximo alcanzado</span>
-                    <span className={styles.overlaySubtext}>
-                      Ya tienes {currentQuantity} de {stock}
-                    </span>
-                    <span className={styles.overlayAction}>Click para ir al carrito</span>
-                  </button>
-                );
-
-              case 'addToCart':
-                // 🛒 OVERLAY DE AGREGAR AL CARRITO - Azul con botón
-                return (
-                  <button
-                    className={`${styles.imageOverlay} ${styles.addToCartOverlay}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleAddToCart();
-                    }}
-                    disabled={isAddingToCart || carritoLoading}
-                    aria-label={`Agregar ${nombre} al carrito`}
-                    type="button"
-                  >
-                    <span
-                      className={`material-icons ${styles.overlayIcon} ${isAddingToCart ? styles.loadingIcon : ''}`}
-                    >
-                      {isAddingToCart ? 'hourglass_empty' : 'add_shopping_cart'}
-                    </span>
-                    <span className={styles.overlayText}>{isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}</span>
-                  </button>
-                );
-
-              case 'outOfStock':
-              default:
-                // ❌ OVERLAY DE PRODUCTO AGOTADO - Gris con información
-                return (
-                  <div className={`${styles.imageOverlay} ${styles.outOfStockOverlay}`}>
-                    <span className={`material-icons ${styles.overlayIcon} ${styles.outOfStockIcon}`}>
-                      remove_shopping_cart
-                    </span>
-                    <span className={styles.overlayText}>Agotado</span>
-                  </div>
-                );
-            }
-          })()}
         </div>
 
-        {/* Información del producto — Jerarquía: Precio > Nombre > Descripción */}
+        {/* Información del producto — Jerarquía: Precio > Nombre > Descripción > CTA */}
         <div className={styles.productInfo}>
           {/* Encabezado con precios PRIMERO (jerarquía clara) */}
           <div className={styles.productHeader}>
@@ -376,6 +275,58 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <p className={styles.productDescription} title={descripcion}>
               {descripcion}
             </p>
+          )}
+
+          {/* Botón CTA — Agregar al carrito limpio y prominente */}
+          {isOutOfStock ? (
+            <button
+              className={`${styles.ctaButton} ${styles.ctaButtonDisabled}`}
+              disabled
+              aria-label="Producto agotado"
+            >
+              <span className={`material-icons ${styles.ctaButtonIcon}`}>block</span>
+              <span className={styles.ctaButtonText}>Agotado</span>
+            </button>
+          ) : showSuccess ? (
+            <button
+              className={`${styles.ctaButton} ${styles.ctaButtonSuccess}`}
+              disabled
+              aria-label="Producto agregado"
+            >
+              <span className={`material-icons ${styles.ctaButtonIcon}`}>check_circle</span>
+              <span className={styles.ctaButtonText}>¡Agregado!</span>
+            </button>
+          ) : cannotAddMore ? (
+            <button
+              className={styles.ctaButton}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate('/carrito');
+              }}
+              aria-label="Ir al carrito"
+            >
+              <span className={`material-icons ${styles.ctaButtonIcon}`}>shopping_cart</span>
+              <span className={styles.ctaButtonText}>Ver carrito</span>
+            </button>
+          ) : (
+            <button
+              className={`${styles.ctaButton} ${isAddingToCart ? styles.ctaButtonLoading : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              disabled={isAddingToCart || carritoLoading}
+              aria-label={`Agregar ${nombre} al carrito`}
+            >
+              <span className={`material-icons ${styles.ctaButtonIcon}`}>
+                {isAddingToCart ? 'hourglass_empty' : 'add_shopping_cart'}
+              </span>
+              <span className={styles.ctaButtonText}>
+                {isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}
+              </span>
+            </button>
           )}
         </div>
       </article>

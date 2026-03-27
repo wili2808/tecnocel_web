@@ -105,106 +105,79 @@
 }
 
 /* ============================================================================
-   OVERLAYS ELEGANTES — Aparición suave, contexto claro
+   BOTÓN "AGREGAR AL CARRITO" — Limpio y prominente debajo de imagen
    ============================================================================ */
 
-.imageOverlay {
-  position: absolute;
-  inset: 0;
+.ctaButton {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity var(--transition-fast) var(--transition-curve),
-              backdrop-filter var(--transition-fast) var(--transition-curve);
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  z-index: 2;
-  color: #fff;
-  backdrop-filter: blur(0px);
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
 }
 
-/* Agregar al carrito — Overlay minimalista */
-.addToCartOverlay {
-  background: rgba(var(--color-primary-rgb), 0.78);
-  backdrop-filter: blur(4px);
+.ctaButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(var(--color-primary-rgb), 0.3);
 }
 
-.productLink:hover .addToCartOverlay {
-  opacity: 1;
-  backdrop-filter: blur(6px);
+.ctaButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.addToCartOverlay:disabled {
-  cursor: not-allowed;
+.ctaButton:disabled {
   opacity: 0.5;
+  cursor: not-allowed;
 }
 
-/* Éxito — Celebración sutil */
-.successOverlay {
-  background: rgba(16, 185, 129, 0.82);
-  opacity: 1 !important;
-  backdrop-filter: blur(4px);
+.ctaButtonLoading {
+  pointer-events: none;
+}
+
+.ctaButtonIcon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.ctaButtonText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+}
+
+/* Estado: Agotado */
+.ctaButtonDisabled {
+  background: linear-gradient(135deg, var(--border-color), var(--border-color));
+  cursor: not-allowed;
+}
+
+/* Estado: Éxito */
+.ctaButtonSuccess {
+  background: linear-gradient(135deg, var(--color-success), rgba(16, 185, 129, 0.8));
   animation: slideInSuccess 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Límite alcanzado — Advertencia clara */
-.limitReachedOverlay {
-  background: rgba(239, 68, 68, 0.78);
-  backdrop-filter: blur(4px);
+/* ============================================================================
+   BOTÓN CTA — Limpio, accesible, sin invadir imagen
+   ============================================================================ */
+
+.imageOverlay {
+  display: none; /* Eliminado: overlays invasivos */
 }
-
-.productLink:hover .limitReachedOverlay { opacity: 1; }
-.limitReachedOverlay:hover { opacity: 1 !important; }
-
-/* Agotado — Información sutil */
-.outOfStockOverlay {
-  background: rgba(100, 116, 139, 0.6);
-  backdrop-filter: blur(2px);
-  opacity: 1;
-  cursor: not-allowed;
-}
-
-/* Contenido del overlay — Tipografía clara */
-.overlayIcon {
-  font-size: 32px;
-  margin-bottom: var(--spacing-sm);
-  transition: transform var(--transition-fast) var(--transition-curve);
-}
-
-.addToCartOverlay:hover .overlayIcon {
-  transform: scale(1.08);
-}
-
-.overlayText {
-  font-size: var(--font-size-md);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  text-align: center;
-  line-height: 1.3;
-}
-
-.overlaySubtext, .overlayAction {
-  font-size: var(--font-size-xs);
-  opacity: 0.85;
-  text-align: center;
-  margin-top: var(--spacing-xs);
-  line-height: 1.4;
-}
-
-.overlayAction {
-  opacity: 0.75;
-  font-size: var(--font-size-xxs);
-  margin-top: var(--spacing-sm);
-}
-
-/* Iconos con significado visual */
-.loadingIcon { animation: spin 1s linear infinite; }
-.successIcon { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.outOfStockIcon { opacity: 0.85; }
-.limitIcon { opacity: 0.9; }
 
 /* Producto agotado — Desvanecimiento visual */
 .outOfStockLink .productImage {
@@ -212,20 +185,17 @@
   opacity: 0.55;
 }
 
-.outOfStockLink .addToCartOverlay {
-  display: none;
-}
-
 /* ============================================================================
    INFORMACIÓN DEL PRODUCTO — Jerarquía clara: precio > título > descripción
    ============================================================================ */
 
 .productInfo {
-  padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   gap: var(--spacing-sm);
+  justify-content: space-between;
 }
 
 /* Encabezado con precio PRIMERO (reordenado en JSX) */
@@ -345,14 +315,10 @@
     right: var(--spacing-md);
   }
 
-  /* Overlay siempre visible en mobile (no hover) */
-  .addToCartOverlay {
-    opacity: 1;
-    background: rgba(var(--color-primary-rgb), 0.85);
-  }
-
-  .limitReachedOverlay {
-    opacity: 1;
+  /* Botón CTA más accesible en mobile */
+  .ctaButton {
+    font-size: var(--font-size-xxs);
+    padding: var(--spacing-xs) var(--spacing-md);
   }
 }
 
