@@ -23,7 +23,7 @@ interface NotificationPanelProps {
 // ============================================================================
 
 const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ wrapperRef, onClose }) => {
-  const { notificaciones, noLeidas, cargando, marcarTodasLeidas } = useNotificaciones();
+  const { notificaciones, noLeidas, cargando, marcarTodasLeidas, eliminarTodas } = useNotificaciones();
 
   // Cerrar al hacer click fuera del wrapper (que incluye botón + panel)
   const handleOutsideClick = useCallback(
@@ -56,6 +56,10 @@ const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ wrapperRef, 
     marcarTodasLeidas();
   }, [marcarTodasLeidas]);
 
+  const handleEliminarTodas = useCallback(() => {
+    eliminarTodas();
+  }, [eliminarTodas]);
+
   // ============================================================================
   // RENDERIZADO
   // ============================================================================
@@ -70,15 +74,28 @@ const NotificationPanel: React.FC<NotificationPanelProps> = memo(({ wrapperRef, 
       {/* Header */}
       <div className={styles.header}>
         <h3 className={styles['header-title']}>Notificaciones</h3>
-        {noLeidas > 0 && (
-          <button
-            className={styles['mark-all-btn']}
-            onClick={handleMarcarTodas}
-            type="button"
-          >
-            Marcar todas como leídas
-          </button>
-        )}
+        <div className={styles['header-actions']}>
+          {noLeidas > 0 && (
+            <button
+              className={styles['mark-all-btn']}
+              onClick={handleMarcarTodas}
+              type="button"
+              aria-label="Marcar todas como leídas"
+            >
+              <span className="material-icons">done_all</span>
+            </button>
+          )}
+          {notificaciones.length > 0 && (
+            <button
+              className={styles['clear-all-btn']}
+              onClick={handleEliminarTodas}
+              type="button"
+              aria-label="Eliminar todas las notificaciones"
+            >
+              <span className="material-icons">delete_sweep</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Contenido */}

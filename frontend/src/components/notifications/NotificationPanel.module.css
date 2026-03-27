@@ -50,24 +50,49 @@
   font-family: var(--font-family-primary);
 }
 
-.mark-all-btn {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   flex-shrink: 0;
+}
+
+.mark-all-btn,
+.clear-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: var(--font-size-xs);
-  color: var(--color-primary);
-  font-family: var(--font-family-primary);
-  font-weight: var(--font-weight-medium);
-  padding: 2px 4px;
-  border-radius: var(--border-radius-xs);
+  border-radius: var(--border-radius-sm);
   transition: color var(--transition-fast) var(--transition-curve),
               background var(--transition-fast) var(--transition-curve);
+}
+
+.mark-all-btn {
+  color: var(--color-primary);
 }
 
 .mark-all-btn:hover {
   color: var(--color-primary-dark);
   background: var(--color-primary-50);
+}
+
+.clear-all-btn {
+  color: var(--text-muted);
+}
+
+.clear-all-btn:hover {
+  color: var(--color-error);
+  background: var(--color-error-100);
+}
+
+.mark-all-btn .material-icons,
+.clear-all-btn .material-icons {
+  font-size: var(--icon-size-md);
 }
 
 /* ============================================================================

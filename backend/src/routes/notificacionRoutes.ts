@@ -10,6 +10,7 @@ router.use(verificarTokenCliente);
 router.get('/', NotificacionController.getNotificaciones);
 router.get('/no-leidas', NotificacionController.getNoLeidas);
 router.put('/leer-todas', NotificacionController.marcarTodasLeidas);
+router.delete('/eliminar-todas', NotificacionController.eliminarTodas);
 router.put('/:id/leer', NotificacionController.marcarLeida);
 router.delete('/:id', NotificacionController.eliminarNotificacion);
 

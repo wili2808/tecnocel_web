@@ -78,6 +78,14 @@ const NotificationItem: React.FC<NotificationItemProps> = memo(({ notificacion }
     [eliminarNotificacion, notificacion.id_notificacion]
   );
 
+  const handleMarcarLeida = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      marcarLeida(notificacion.id_notificacion);
+    },
+    [marcarLeida, notificacion.id_notificacion]
+  );
+
   const icono = ICONOS[notificacion.tipo] ?? 'notifications';
 
   return (
@@ -101,8 +109,18 @@ const NotificationItem: React.FC<NotificationItemProps> = memo(({ notificacion }
         <span className={styles.time}>{tiempoRelativo(notificacion.fyh_creacion)}</span>
       </div>
 
-      {/* Indicador de no leída */}
-      {!notificacion.leido && <span className={styles['unread-dot']} aria-hidden="true" />}
+      {/* Indicador de no leída con acción */}
+      {!notificacion.leido && (
+        <button
+          className={styles['mark-read-btn']}
+          onClick={handleMarcarLeida}
+          aria-label="Marcar como leída"
+          tabIndex={-1}
+          type="button"
+        >
+          <span className={styles['unread-dot']} aria-hidden="true" />
+        </button>
+      )}
 
       {/* Botón de eliminar (visible en hover) */}
       <button

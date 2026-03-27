@@ -49,4 +49,11 @@ export const notificacionService = {
   async eliminarNotificacion(id: number): Promise<void> {
     await axiosInstance.delete(`/notificaciones/${id}`);
   },
+
+  /**
+   * Elimina todas las notificaciones del cliente autenticado
+   */
+  async eliminarTodas(): Promise<void> {
+    await axiosInstance.delete('/notificaciones/eliminar-todas');
+  },
 };

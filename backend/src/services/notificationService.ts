@@ -119,6 +119,17 @@ const notificationService = {
       }
     });
     return deleted > 0;
+  },
+
+  /**
+   * Elimina todas las notificaciones de un cliente.
+   * @returns Cantidad de notificaciones eliminadas.
+   */
+  async eliminarTodas(idCliente: number): Promise<number> {
+    const deleted = await Notificacion.destroy({
+      where: { id_cliente: idCliente }
+    });
+    return deleted;
   }
 };
 

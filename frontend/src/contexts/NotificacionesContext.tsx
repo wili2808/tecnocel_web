@@ -19,6 +19,7 @@ export interface NotificacionesContextType {
   marcarLeida: (id: number) => Promise<void>;
   marcarTodasLeidas: () => Promise<void>;
   eliminarNotificacion: (id: number) => Promise<void>;
+  eliminarTodas: () => Promise<void>;
 }
 
 export const NotificacionesContext = createContext<NotificacionesContextType | undefined>(undefined);
@@ -174,6 +175,28 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
     }
   }, []);
 
+  /**
+   * Elimina todas las notificaciones del cliente
+   */
+  const eliminarTodas = useCallback(async () => {
+    // Guardar estado anterior para rollback
+    const notificacionesAnteriores = notificacionesRef.current;
+    const noLeidasAnteriores = noLeidas;
+
+    // Actualización optimista
+    setNotificaciones([]);
+    setNoLeidas(0);
+
+    try {
+      await notificacionService.eliminarTodas();
+    } catch (error) {
+      console.error('Error al eliminar todas las notificaciones:', error);
+      // Revertir en caso de error
+      setNotificaciones(notificacionesAnteriores);
+      setNoLeidas(noLeidasAnteriores);
+    }
+  }, [noLeidas]);
+
   // Polling de notificaciones no leídas cada 45 segundos (solo para clientes)
   useEffect(() => {
     if (!isCliente) {
@@ -203,7 +226,8 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
     marcarLeida,
     marcarTodasLeidas,
     eliminarNotificacion,
-  }), [noLeidas, notificaciones, cargando, panelAbierto, abrirPanel, cerrarPanel, marcarLeida, marcarTodasLeidas, eliminarNotificacion]);
+    eliminarTodas,
+  }), [noLeidas, notificaciones, cargando, panelAbierto, abrirPanel, cerrarPanel, marcarLeida, marcarTodasLeidas, eliminarNotificacion, eliminarTodas]);
 
   return (
     <NotificacionesContext.Provider value={value}>

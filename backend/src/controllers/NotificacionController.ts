@@ -144,4 +144,23 @@ export class NotificacionController {
       return res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
+
+  /**
+   * Elimina todas las notificaciones del cliente autenticado.
+   *
+   * DELETE /api/notificaciones/eliminar-todas
+   *
+   * Response 200: { success: true, data: { eliminadas: number } }
+   */
+  static async eliminarTodas(req: Request, res: Response) {
+    try {
+      const cliente = req.usuario as ClienteSession;
+      const eliminadas = await notificationService.eliminarTodas(cliente.id);
+
+      return res.json({ success: true, data: { eliminadas } });
+    } catch (error) {
+      logger.error('Error eliminando todas las notificaciones:', error);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
 }
