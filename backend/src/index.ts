@@ -111,7 +111,13 @@ if (useCloudinary || imageMiddleware.validateImagesDirectory()) {
     defaultCommentImage,
     defaultMarcaImage,
     endpoint,
-    useCloudinary
+    useCloudinary,
+    cloudinary: {
+      cloudName: cloudinary.cloudName,
+      productFolder: cloudinary.productFolder,
+      commentFolder: cloudinary.commentFolder,
+      marcaFolder: cloudinary.marcaFolder
+    }
   });
   imageServiceInitialized = true;
 

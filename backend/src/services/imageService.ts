@@ -11,6 +11,13 @@ export enum ImageType {
   BRAND = 'brand'
 }
 
+interface CloudinaryConfig {
+  cloudName: string;
+  productFolder: string;
+  commentFolder: string;
+  marcaFolder: string;
+}
+
 interface ImageServiceConfig {
   baseUrl: string;
   basePath: string;
@@ -20,6 +27,7 @@ interface ImageServiceConfig {
   defaultCommentImage: string;
   endpoint: string;
   useCloudinary?: boolean;
+  cloudinary?: CloudinaryConfig;
   marcaImagesPath: string;
   defaultMarcaImage: string;
 }
@@ -102,7 +110,22 @@ class ImageService {
   }
 
   /**
-   * Genera una URL completa para una imagen según su tipo
+   * Construye una URL de Cloudinary para un nombre de archivo
+   */
+  private buildCloudinaryUrl(imageName: string, imageType: ImageType): string {
+    const cl = this.config.cloudinary!;
+    const folder = imageType === ImageType.BRAND
+      ? cl.marcaFolder
+      : imageType === ImageType.COMMENT
+      ? cl.commentFolder
+      : cl.productFolder;
+    return `https://res.cloudinary.com/${cl.cloudName}/image/upload/${folder}/${imageName}`;
+  }
+
+  /**
+   * Genera una URL completa para una imagen según su tipo.
+   * Si USE_CLOUDINARY=true y la imagen es un nombre de archivo (no URL),
+   * construye la URL de Cloudinary automáticamente.
    */
   public generateImageUrl(imageName: string | null, imageType: ImageType = ImageType.PRODUCT): string {
     if (!imageName || imageName.trim() === '') {
@@ -116,6 +139,10 @@ class ImageService {
     if (!this.isValidImageName(imageName)) {
       logger.warn(`Nombre de imagen inválido detectado: ${imageName}`);
       return this.getDefaultImageUrl(imageType);
+    }
+
+    if (this.config.useCloudinary && this.config.cloudinary?.cloudName) {
+      return this.buildCloudinaryUrl(imageName, imageType);
     }
 
     const endpoint = imageType === ImageType.BRAND
@@ -134,6 +161,11 @@ class ImageService {
     if (/^https?:\/\//i.test(defaultImage)) {
       return defaultImage;
     }
+
+    if (this.config.useCloudinary && this.config.cloudinary?.cloudName) {
+      return this.buildCloudinaryUrl(defaultImage, imageType);
+    }
+
     const endpoint = imageType === ImageType.BRAND
       ? 'marca-images'
       : imageType === ImageType.COMMENT
