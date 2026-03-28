@@ -71,16 +71,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     };
   }, [precio_venta, precio_original, precio_oferta]);
 
-  /**
-   * Stock Confidence Score — Indicador visual de disponibilidad
-   * Calcula qué porcentaje de la barra se llena (10 = 100%, 5 = 50%, etc)
-   * Máximo de 50 unidades como referencia
-   */
-  const stockConfidence = useMemo(() => {
-    const maxReference = 50;
-    const percentage = Math.min((stock / maxReference) * 100, 100);
-    return percentage;
-  }, [stock]);
 
   /**
    * Click en la tarjeta del producto
@@ -211,15 +201,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             className={styles.productImage}
             mode="simple"
           />
-
-          {/* Stock Confidence Badge — Indicador visual de disponibilidad */}
-          <div className={styles.stockBadge}>
-            <div
-              className={styles.stockFill}
-              style={{ width: `${stockConfidence}%` }}
-              aria-label={`Disponibilidad: ${stock} unidades`}
-            />
-          </div>
 
           {/* Indicador de oferta — Superior izquierda */}
           {(en_oferta || (precio_oferta && precio_oferta < Number(precio_venta))) && (

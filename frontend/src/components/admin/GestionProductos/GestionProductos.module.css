@@ -565,10 +565,6 @@
     padding: 16px;
   }
 
-  .headerTop {
-    flex-direction: column;
-  }
-
   .searchForm {
     flex-direction: column;
   }
