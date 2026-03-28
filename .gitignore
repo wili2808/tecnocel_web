@@ -7,6 +7,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Archivos de entorno
+.env
+.env.*
+!.env.example
 
 
 # Archivos de build
@@ -65,3 +68,6 @@ database/backups/*.sql
 
 # Uploads (imágenes)
 uploads
+
+# Skills y plugins
+docs/superpowers
