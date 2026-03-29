@@ -3,6 +3,7 @@ import fs from 'fs';
 import logger from './loggerService.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import sequelize from '../config/database.js';
+import { buildCloudinaryPublicId } from './cloudinaryService.js';
 
 // Tipos de imagen soportados
 export enum ImageType {
@@ -110,7 +111,9 @@ class ImageService {
   }
 
   /**
-   * Construye una URL de Cloudinary para un nombre de archivo
+   * Construye la URL de Cloudinary desde un filename.
+   * Usa buildCloudinaryPublicId para obtener el public_id canónico,
+   * conservando la extensión original del archivo.
    */
   private buildCloudinaryUrl(imageName: string, imageType: ImageType): string {
     const cl = this.config.cloudinary!;
@@ -119,7 +122,10 @@ class ImageService {
       : imageType === ImageType.COMMENT
       ? cl.commentFolder
       : cl.productFolder;
-    return `https://res.cloudinary.com/${cl.cloudName}/image/upload/${folder}/${imageName}`;
+
+    const ext = imageName.match(/\.[^/.]+$/)?.[0] ?? '';
+    const publicId = buildCloudinaryPublicId(imageName);
+    return `https://res.cloudinary.com/${cl.cloudName}/image/upload/${folder}/${publicId}${ext}`;
   }
 
   /**

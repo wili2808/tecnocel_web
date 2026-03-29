@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
 import logger from '../services/loggerService.js';
 import { config } from '../config/config.js';
@@ -12,6 +11,7 @@ import {
   isCloudinaryConfigured,
   deleteCloudinaryByPublicId,
   extractCloudinaryPublicId,
+  buildCloudinaryPublicId,
 } from '../services/cloudinaryService.js';
 
 interface UploadedFile extends Express.Multer.File {
@@ -35,13 +35,17 @@ class UploadController {
     this.marcaImagesPath = config.images.marcaImagesPath;
     this.useCloudinary = config.images.useCloudinary;
 
-    if (!this.useCloudinary) {
-      this.ensureDirectoriesExist();
-      logger.debug('[UPLOAD CONTROLLER] Modo FILESYSTEM: Directorios locales validados');
-    } else if (!isCloudinaryConfigured()) {
-      logger.error('[UPLOAD CONTROLLER] ❌ CRÍTICO: USE_CLOUDINARY=true pero faltan credenciales CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY o CLOUDINARY_API_SECRET');
+    // Siempre crear directorios: en modo Cloudinary también se escribe localmente antes de subir
+    this.ensureDirectoriesExist();
+
+    if (this.useCloudinary) {
+      if (!isCloudinaryConfigured()) {
+        logger.error('[UPLOAD CONTROLLER] ❌ CRÍTICO: USE_CLOUDINARY=true pero faltan credenciales CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY o CLOUDINARY_API_SECRET');
+      } else {
+        logger.debug('[UPLOAD CONTROLLER] Modo CLOUDINARY: Credenciales válidas, listo para uploads');
+      }
     } else {
-      logger.debug('[UPLOAD CONTROLLER] Modo CLOUDINARY: Credenciales válidas, listo para uploads');
+      logger.debug('[UPLOAD CONTROLLER] Modo FILESYSTEM: Directorios locales validados');
     }
   }
 
@@ -58,6 +62,59 @@ class UploadController {
         logger.error('Error al crear directorio de imágenes:', error);
       }
     });
+  }
+
+  /**
+   * Genera un nombre de archivo con formato: YYYY-MM-DD-HH-MM-SS-mmm-XX__name.ext
+   * El índice (XX) garantiza unicidad cuando se suben múltiples archivos en paralelo
+   * que podrían coincidir en el mismo milisegundo.
+   */
+  private generateFilename(originalname: string, ext: string, index: number = 0): string {
+    const now = new Date();
+    const pad2 = (n: number) => String(n).padStart(2, '0');
+    const pad3 = (n: number) => String(n).padStart(3, '0');
+    const dateStr = [
+      now.getFullYear(),
+      pad2(now.getMonth() + 1),
+      pad2(now.getDate()),
+      pad2(now.getHours()),
+      pad2(now.getMinutes()),
+      pad2(now.getSeconds()),
+      pad3(now.getMilliseconds()),
+      pad2(index),
+    ].join('-');
+    const baseName = path.basename(originalname, path.extname(originalname))
+      .replace(/[^a-zA-Z0-9]/g, '-')
+      .toLowerCase()
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 30);
+    return `${dateStr}__${baseName}${ext}`;
+  }
+
+  /**
+   * Genera nombre de archivo para logos de marca: YYYY-MM-DD-HH-MM-SS-mmm__marca-name.png
+   */
+  private generateMarcaFilename(nombreMarca: string): string {
+    const now = new Date();
+    const pad2 = (n: number) => String(n).padStart(2, '0');
+    const pad3 = (n: number) => String(n).padStart(3, '0');
+    const dateStr = [
+      now.getFullYear(),
+      pad2(now.getMonth() + 1),
+      pad2(now.getDate()),
+      pad2(now.getHours()),
+      pad2(now.getMinutes()),
+      pad2(now.getSeconds()),
+      pad3(now.getMilliseconds()),
+    ].join('-');
+    const baseName = nombreMarca
+      .replace(/[^a-zA-Z0-9]/g, '-')
+      .toLowerCase()
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 20);
+    return `${dateStr}__marca-${baseName}.png`;
   }
 
   public getMulterConfig() {
@@ -97,30 +154,38 @@ class UploadController {
     });
   }
 
-  private async optimizeImageBuffer(file: UploadedFile): Promise<Buffer> {
+  private async optimizeImageBuffer(file: UploadedFile): Promise<{ buffer: Buffer; ext: string }> {
     if (file.mimetype === 'image/gif') {
-      return file.buffer;
+      return { buffer: file.buffer, ext: '.gif' };
     }
 
-    return sharp(file.buffer)
-      .resize(1200, 1200, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .jpeg({
-        quality: 85,
-        progressive: true
-      })
+    if (file.mimetype === 'image/png') {
+      // Preservar PNG para mantener transparencia
+      const buffer = await sharp(file.buffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .png({ compressionLevel: 8 })
+        .toBuffer();
+      return { buffer, ext: '.png' };
+    }
+
+    if (file.mimetype === 'image/webp') {
+      // Preservar WebP para mantener transparencia (WebP también soporta canal alpha)
+      const buffer = await sharp(file.buffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 85 })
+        .toBuffer();
+      return { buffer, ext: '.webp' };
+    }
+
+    const buffer = await sharp(file.buffer)
+      .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 85, progressive: true })
       .toBuffer();
+    return { buffer, ext: '.jpg' };
   }
 
   private async processMarcaLogo(file: UploadedFile, marcaNombre: string): Promise<string> {
     try {
-      const sanitizedName = marcaNombre
-        .replace(/[^a-zA-Z0-9]/g, '_')
-        .substring(0, 20)
-        .toLowerCase();
-
       const processedBuffer = await sharp(file.buffer)
         .resize(300, 300, {
           fit: 'contain',
@@ -129,53 +194,45 @@ class UploadController {
         .png({ compressionLevel: 8 })
         .toBuffer();
 
+      const fileName = this.generateMarcaFilename(marcaNombre);
+      const filePath = path.join(this.marcaImagesPath, fileName);
+
+      await fs.promises.writeFile(filePath, processedBuffer);
+
       if (this.useCloudinary) {
-        const result = await uploadBufferToCloudinary(
+        const publicId = buildCloudinaryPublicId(fileName);
+        await uploadBufferToCloudinary(
           processedBuffer,
           config.images.cloudinary.marcaFolder,
-          `marca_${sanitizedName}`,
-          file.originalname,
+          publicId,
+          fileName,
         );
-        return result.secureUrl;
       }
 
-      const timestamp = Date.now();
-      const uniqueId = uuidv4().split('-')[0];
-      const fileName = `marca_${sanitizedName}_${timestamp}_${uniqueId}.png`;
-      const filePath = path.join(this.marcaImagesPath, fileName);
-      await fs.promises.writeFile(filePath, processedBuffer);
-      return fileName;
+      return fileName;  // siempre filename
     } catch (error) {
       logger.error('Error al procesar logo de marca:', error);
       throw new Error('Error al procesar el logo de marca');
     }
   }
 
-  private async processCommentImage(file: UploadedFile): Promise<ProcessedImage> {
+  private async processCommentImage(file: UploadedFile, index: number = 0): Promise<ProcessedImage> {
     try {
-      const processedBuffer = await this.optimizeImageBuffer(file);
-
-      if (this.useCloudinary) {
-        const result = await uploadBufferToCloudinary(
-          processedBuffer,
-          config.images.cloudinary.commentFolder,
-          'comment',
-          file.originalname,
-        );
-
-        return {
-          url_imagen: result.secureUrl,
-          alt_text: 'Imagen del comentario'
-        };
-      }
-
-      const fileExtension = path.extname(file.originalname).toLowerCase() || '.jpg';
-      const uniqueId = uuidv4();
-      const timestamp = Date.now();
-      const fileName = `comment_${timestamp}_${uniqueId}${fileExtension}`;
+      const { buffer: processedBuffer, ext } = await this.optimizeImageBuffer(file);
+      const fileName = this.generateFilename(file.originalname, ext, index);
       const filePath = path.join(this.commentImagesPath, fileName);
 
       await fs.promises.writeFile(filePath, processedBuffer);
+
+      if (this.useCloudinary) {
+        const publicId = buildCloudinaryPublicId(fileName);
+        await uploadBufferToCloudinary(
+          processedBuffer,
+          config.images.cloudinary.commentFolder,
+          publicId,
+          fileName,
+        );
+      }
 
       return {
         url_imagen: fileName,
@@ -189,35 +246,26 @@ class UploadController {
 
   private async processProductImage(file: UploadedFile, orden: number, productName?: string): Promise<ProcessedImage> {
     try {
-      const processedBuffer = await this.optimizeImageBuffer(file);
-      const sanitizedProductName = productName
-        ? productName.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20)
-        : 'product';
-
-      if (this.useCloudinary) {
-        const result = await uploadBufferToCloudinary(
-          processedBuffer,
-          config.images.cloudinary.productFolder,
-          sanitizedProductName,
-          file.originalname,
-        );
-
-        return {
-          url_imagen: result.secureUrl,
-          alt_text: productName ? `Imagen de ${productName}` : 'Imagen del producto'
-        };
-      }
-
-      const fileExtension = path.extname(file.originalname).toLowerCase() || '.jpg';
-      const uniqueId = uuidv4();
-      const timestamp = Date.now();
-      const fileName = `${sanitizedProductName}_${timestamp}_${uniqueId}${fileExtension}`;
+      const { buffer: processedBuffer, ext } = await this.optimizeImageBuffer(file);
+      const fileName = this.generateFilename(file.originalname, ext, orden);
       const filePath = path.join(this.productImagesPath, fileName);
 
+      // Siempre guardar en filesystem local
       await fs.promises.writeFile(filePath, processedBuffer);
 
+      // Si Cloudinary activo: también subir con public_id predecible desde filename
+      if (this.useCloudinary) {
+        const publicId = buildCloudinaryPublicId(fileName);
+        await uploadBufferToCloudinary(
+          processedBuffer,
+          config.images.cloudinary.productFolder,
+          publicId,
+          fileName,
+        );
+      }
+
       return {
-        url_imagen: fileName,
+        url_imagen: fileName,  // siempre filename, nunca URL
         alt_text: productName ? `Imagen de ${productName}` : 'Imagen del producto'
       };
     } catch (error) {
@@ -246,7 +294,7 @@ class UploadController {
         return;
       }
 
-      const processedImages = await Promise.all(files.map((file) => this.processCommentImage(file)));
+      const processedImages = await Promise.all(files.map((file, index) => this.processCommentImage(file, index)));
 
       if (this.useCloudinary) {
         logger.info('[UPLOAD] ✅ Imágenes de comentario subidas a CLOUDINARY', {
@@ -335,19 +383,20 @@ class UploadController {
 
   public deleteCommentImage = async (imagePath: string): Promise<boolean> => {
     try {
-      if (this.useCloudinary) {
-        const publicId = extractCloudinaryPublicId(imagePath);
-        if (!publicId) return false;
-        return await deleteCloudinaryByPublicId(publicId);
-      }
-
       const fullPath = path.join(this.commentImagesPath, path.basename(imagePath));
       if (fs.existsSync(fullPath)) {
         await fs.promises.unlink(fullPath);
         logger.info('[UPLOAD] Imagen de comentario eliminada (FILESYSTEM)', { archivo: path.basename(imagePath) });
-        return true;
       }
-      return false;
+
+      if (this.useCloudinary) {
+        const publicId = /^https?:\/\//i.test(imagePath)
+          ? extractCloudinaryPublicId(imagePath)
+          : `${config.images.cloudinary.commentFolder}/${buildCloudinaryPublicId(imagePath)}`;
+        if (publicId) await deleteCloudinaryByPublicId(publicId);
+      }
+
+      return true;
     } catch (error) {
       logger.error('Error al eliminar imagen de comentario:', error);
       return false;
@@ -356,19 +405,23 @@ class UploadController {
 
   public deleteProductImage = async (imagePath: string): Promise<boolean> => {
     try {
-      if (this.useCloudinary) {
-        const publicId = extractCloudinaryPublicId(imagePath);
-        if (!publicId) return false;
-        return await deleteCloudinaryByPublicId(publicId);
-      }
-
+      // Siempre intentar eliminar del filesystem local
       const fullPath = path.join(this.productImagesPath, path.basename(imagePath));
       if (fs.existsSync(fullPath)) {
         await fs.promises.unlink(fullPath);
         logger.info('[UPLOAD] Imagen de producto eliminada (FILESYSTEM)', { archivo: path.basename(imagePath) });
-        return true;
       }
-      return false;
+
+      if (this.useCloudinary) {
+        // Si es URL completa (Aiven DB backward compat): extraer public_id directamente
+        // Si es filename (nuevo enfoque): construir public_id desde filename
+        const publicId = /^https?:\/\//i.test(imagePath)
+          ? extractCloudinaryPublicId(imagePath)
+          : `${config.images.cloudinary.productFolder}/${buildCloudinaryPublicId(imagePath)}`;
+        if (publicId) await deleteCloudinaryByPublicId(publicId);
+      }
+
+      return true;
     } catch (error) {
       logger.error('Error al eliminar imagen de producto:', error);
       return false;
@@ -393,19 +446,21 @@ class UploadController {
         return;
       }
 
-      // Delete previous logo if exists
+      // Delete previous logo if exists (handles both filename and legacy full URL)
       if (marca.logo_marca) {
+        const oldPath = path.join(this.marcaImagesPath, path.basename(marca.logo_marca));
+        if (fs.existsSync(oldPath)) {
+          await fs.promises.unlink(oldPath);
+          logger.info('[UPLOAD] Logo anterior de marca eliminado (FILESYSTEM)', { archivo: path.basename(marca.logo_marca) });
+        }
+
         if (this.useCloudinary) {
-          const publicId = extractCloudinaryPublicId(marca.logo_marca);
+          const publicId = /^https?:\/\//i.test(marca.logo_marca)
+            ? extractCloudinaryPublicId(marca.logo_marca)
+            : `${config.images.cloudinary.marcaFolder}/${buildCloudinaryPublicId(marca.logo_marca)}`;
           if (publicId) {
             await deleteCloudinaryByPublicId(publicId);
             logger.info('[UPLOAD] Logo anterior de marca eliminado (CLOUDINARY)', { publicId });
-          }
-        } else {
-          const oldPath = path.join(this.marcaImagesPath, marca.logo_marca);
-          if (fs.existsSync(oldPath)) {
-            await fs.promises.unlink(oldPath);
-            logger.info('[UPLOAD] Logo anterior de marca eliminado', { archivo: marca.logo_marca });
           }
         }
       }

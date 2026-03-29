@@ -15,7 +15,8 @@ import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
 import { getImageService } from '../services/imageService.js';
 import { enriquecerProductoConOferta } from '../services/ofertaService.js';
-import { deleteCloudinaryByPublicId, extractCloudinaryPublicId, isCloudinaryConfigured } from '../services/cloudinaryService.js';
+import { deleteCloudinaryByPublicId, extractCloudinaryPublicId, buildCloudinaryPublicId, isCloudinaryConfigured } from '../services/cloudinaryService.js';
+import { config } from '../config/config.js';
 
 /**
  * Controlador para gestión del catálogo de productos del almacén
@@ -457,13 +458,16 @@ class AlmacenController {
         if (imagenesEliminadas.length > 0 && isCloudinaryConfigured()) {
           await Promise.allSettled(
             imagenesEliminadas.map(img => {
-              const publicId = extractCloudinaryPublicId(img.url_imagen);
+              // Backward compat: URL completa (Aiven legacy) o filename (nuevo)
+              const publicId = /^https?:\/\//i.test(img.url_imagen)
+                ? extractCloudinaryPublicId(img.url_imagen)
+                : `${config.images.cloudinary.productFolder}/${buildCloudinaryPublicId(img.url_imagen)}`;
               if (!publicId) return Promise.resolve();
               return deleteCloudinaryByPublicId(publicId).then(ok => {
                 if (ok) {
-                  logger.info('Imagen eliminada de Cloudinary', { url: img.url_imagen, publicId });
+                  logger.info('Imagen eliminada de Cloudinary', { archivo: img.url_imagen, publicId });
                 } else {
-                  logger.warn('No se pudo eliminar imagen de Cloudinary', { url: img.url_imagen, publicId });
+                  logger.warn('No se pudo eliminar imagen de Cloudinary', { archivo: img.url_imagen, publicId });
                 }
               });
             })
@@ -546,7 +550,24 @@ class AlmacenController {
       const { id } = req.params;
       logger.debug(`Eliminando producto del almacén ID: ${id}`);
       
-      // Eliminar imágenes asociadas
+      // Eliminar imágenes de Cloudinary antes de borrar los registros
+      if (isCloudinaryConfigured()) {
+        const imagenes = await ProductoImagen.findAll({
+          where: { id_producto: id },
+          attributes: ['url_imagen']
+        });
+        await Promise.allSettled(
+          imagenes.map(img => {
+            const publicId = /^https?:\/\//i.test(img.url_imagen)
+              ? extractCloudinaryPublicId(img.url_imagen)
+              : `${config.images.cloudinary.productFolder}/${buildCloudinaryPublicId(img.url_imagen)}`;
+            if (!publicId) return Promise.resolve();
+            return deleteCloudinaryByPublicId(publicId);
+          })
+        );
+      }
+
+      // Eliminar imágenes de BD
       await ProductoImagen.destroy({
         where: { id_producto: id }
       });
