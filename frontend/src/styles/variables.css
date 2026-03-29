@@ -212,13 +212,13 @@
   /* === Z-INDEX === */
   --z-dropdown: 1000;
   --z-sticky: 1020;
-  --z-fixed: 1030;
-  --z-catalog: 1035;
-  --z-modal-backdrop: 1040;
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-tooltip: 1070;
-  --z-navbar: var(--z-modal);
+  --z-fixed: 10030;
+  --z-catalog: 10035;
+  --z-modal-backdrop: 10040;
+  --z-modal: 10050;
+  --z-popover: 10060;
+  --z-tooltip: 10070;
+  --z-navbar: 10100;
 
   /* === TRANSICIONES === */
   --transition-fast: 0.15s;

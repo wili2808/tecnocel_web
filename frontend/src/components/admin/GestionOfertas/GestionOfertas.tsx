@@ -10,7 +10,6 @@ import OfertaForm from './OfertaForm';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import styles from './GestionOfertas.module.css';
 
-type Vista = 'lista' | 'crear' | 'editar';
 type SortKey = 'nombre_oferta' | 'tipo_descuento' | 'valor_descuento' | 'fecha_inicio' | 'fecha_fin' | 'activo';
 type SortDir = 'asc' | 'desc';
 type FiltroEstado = 'todas' | 'activas' | 'inactivas' | 'expiradas';
@@ -41,9 +40,10 @@ const GestionOfertas = () => {
   const { isAdmin } = useAuth();
   const { showNotification } = useNotification();
 
-  // Estado de la vista
-  const [vista, setVista] = useState<Vista>('lista');
-  const [ofertaSeleccionada, setOfertaSeleccionada] = useState<OfertaConProductos | null>(null);
+  // Estado del modal
+  const [showCrearForm, setShowCrearForm] = useState(false);
+  const [editandoOferta, setEditandoOferta] = useState<OfertaConProductos | null>(null);
+  const [modoModal, setModoModal] = useState<'crear' | 'editar'>('crear');
 
   // Estado de la lista
   const [allOfertas, setAllOfertas] = useState<OfertaConConteo[]>([]);
@@ -163,13 +163,11 @@ const GestionOfertas = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
-    if (vista === 'lista') {
-      cargarOfertas();
-    }
-  }, [cargarOfertas, vista]);
+    cargarOfertas();
+  }, [cargarOfertas]);
 
   const handleClearSearch = () => {
     setSearchInput('');
@@ -179,9 +177,10 @@ const GestionOfertas = () => {
   const handleEditar = async (id: number) => {
     try {
       const oferta = await adminOfertaService.obtenerOferta(id);
-      setOfertaSeleccionada(oferta);
-      setVista('editar');
-    } catch (err: any) {
+      setEditandoOferta(oferta);
+      setModoModal('editar');
+      setShowCrearForm(true);
+    } catch {
       showNotification('Error al cargar oferta para editar', 'error');
     }
   };
@@ -206,27 +205,17 @@ const GestionOfertas = () => {
   };
 
   const handleGuardado = () => {
-    setVista('lista');
-    setOfertaSeleccionada(null);
+    setShowCrearForm(false);
+    setEditandoOferta(null);
+    setModoModal('crear');
     cargarOfertas();
   };
 
   const handleCancelar = () => {
-    setVista('lista');
-    setOfertaSeleccionada(null);
+    setShowCrearForm(false);
+    setEditandoOferta(null);
+    setModoModal('crear');
   };
-
-  // Renderizar formulario si estamos en crear/editar
-  if (vista === 'crear' || vista === 'editar') {
-    return (
-      <OfertaForm
-        modo={vista}
-        oferta={ofertaSeleccionada}
-        onGuardado={handleGuardado}
-        onCancelar={handleCancelar}
-      />
-    );
-  }
 
   // Vista de lista
   return (
@@ -244,7 +233,11 @@ const GestionOfertas = () => {
           </div>
           <button
             className={styles.crearButton}
-            onClick={() => setVista('crear')}
+            onClick={() => {
+              setModoModal('crear');
+              setEditandoOferta(null);
+              setShowCrearForm(true);
+            }}
           >
             <span className="material-icons">add_box</span>
             <span>Nueva Oferta</span>
@@ -443,6 +436,37 @@ const GestionOfertas = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Modal para crear/editar oferta */}
+      {showCrearForm && (
+        <div className={styles.modalOverlay} onClick={handleCancelar}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                <span className="material-icons">
+                  {modoModal === 'crear' ? 'add_box' : 'edit'}
+                </span>
+                {modoModal === 'crear' ? 'Nueva Oferta' : 'Editar Oferta'}
+              </h3>
+              <button className={styles.closeButton} onClick={handleCancelar}>
+                <span className="material-icons">close</span>
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <OfertaForm
+                modo={modoModal}
+                oferta={editandoOferta}
+                onGuardado={handleGuardado}
+                onCancelar={handleCancelar}
+                isModal={true}
+              />
+            </div>
+
+            <div className={styles.modalFooter}></div>
+          </div>
+        </div>
       )}
     </div>
   );
