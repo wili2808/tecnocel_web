@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { CreateProveedorData, ProveedorListItem } from '../../../types';
+import styles from './GestionCompras.module.css';
 
 interface ProveedorModalProps {
   proveedor?: ProveedorListItem;
@@ -71,46 +72,10 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
   const isEditing = !!proveedor;
 
   const modalContent = (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-        backdropFilter: 'blur(2px)'
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: 'var(--background-primary)',
-          borderRadius: '12px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-          width: '100%',
-          maxWidth: '520px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'slideDown 0.3s ease-out'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={`${styles.modalContent} ${styles.proveedorModal}`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '20px 24px',
-            borderBottom: '1px solid var(--border-color)'
-          }}
-        >
+        <div className={styles.modalHeader}>
           <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
             {isEditing ? '✏️ Editar Proveedor' : '➕ Nuevo Proveedor'}
           </h2>
@@ -140,13 +105,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
         </div>
 
         {/* Body */}
-        <div
-          style={{
-            padding: '24px',
-            overflowY: 'auto',
-            flex: 1
-          }}
-        >
+        <div className={styles.modalBody}>
           {/* Empresa - Protagonista */}
           <div style={{ marginBottom: '24px' }}>
             <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -336,15 +295,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '12px',
-            padding: '16px 24px',
-            borderTop: '1px solid var(--border-color)',
-            backgroundColor: 'var(--background-secondary)'
-          }}
-        >
+        <div className={styles.modalFooter}>
           <button
             onClick={onClose}
             disabled={guardando}

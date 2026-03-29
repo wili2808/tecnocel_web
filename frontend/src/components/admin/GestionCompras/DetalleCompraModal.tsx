@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import type { CompraDetalle } from '../../../types';
 import { compraAdminService } from '../../../services/compraAdminService';
+import styles from './GestionCompras.module.css';
 
 interface DetalleCompraModalProps {
   idCompra: number;
@@ -34,31 +35,9 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(
 
     if (cargando) {
       return (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999
-          }}
-          onClick={onClose}
-        >
-          <div
-            style={{
-              backgroundColor: 'var(--background-primary)',
-              borderRadius: '12px',
-              padding: '40px',
-              textAlign: 'center'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ color: 'var(--text-secondary)' }}>Cargando...</div>
+        <div className={styles.modalOverlay} onClick={onClose}>
+          <div className={`${styles.modalContent} ${styles.detalleCompraModal}`} onClick={(e) => e.stopPropagation()}>
+            <div style={{ color: 'var(--text-secondary)', padding: '40px', textAlign: 'center' }}>Cargando...</div>
           </div>
         </div>
       );
@@ -66,31 +45,9 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(
 
     if (error || !detalle) {
       return (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999
-          }}
-          onClick={onClose}
-        >
-          <div
-            style={{
-              backgroundColor: 'var(--background-primary)',
-              borderRadius: '12px',
-              padding: '32px',
-              textAlign: 'center'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p style={{ color: 'var(--color-error)', margin: 0 }}>
+        <div className={styles.modalOverlay} onClick={onClose}>
+          <div className={`${styles.modalContent} ${styles.detalleCompraModal}`} onClick={(e) => e.stopPropagation()}>
+            <p style={{ color: 'var(--color-error)', margin: '32px', textAlign: 'center' }}>
               {error || 'No se encontró la compra'}
             </p>
           </div>
@@ -104,37 +61,10 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(
     const estadoColor = isActiva ? '#166534' : '#991b1b';
 
     return (
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          backdropFilter: 'blur(2px)'
-        }}
-        onClick={onClose}
-      >
-        <div
-          style={{
-            backgroundColor: 'var(--background-primary)',
-            borderRadius: '12px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-            width: '100%',
-            maxWidth: '600px',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={`${styles.modalContent} ${styles.detalleCompraModal}`} onClick={(e) => e.stopPropagation()}>
           {/* Encabezado - Documento */}
-          <div style={{ padding: '28px 28px 24px', borderBottom: '1px solid var(--border-color)' }}>
+          <div className={styles.modalHeader} style={{ padding: '28px 28px 24px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
               <div>
                 <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -185,7 +115,7 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(
           </div>
 
           {/* Body */}
-          <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
+          <div className={styles.modalBody}>
             {/* SECCIÓN: Contexto de Transacción */}
             <div style={{ marginBottom: '28px' }}>
               <h3 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -320,15 +250,7 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(
           </div>
 
           {/* Footer - Acciones */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '12px',
-              padding: '16px 24px',
-              borderTop: '1px solid var(--border-color)',
-              backgroundColor: 'var(--background-secondary)'
-            }}
-          >
+          <div className={styles.modalFooter}>
             <button
               onClick={onClose}
               style={{

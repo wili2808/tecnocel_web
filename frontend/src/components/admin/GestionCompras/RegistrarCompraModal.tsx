@@ -6,6 +6,7 @@ import adminApi from '../../../api/axiosAdminConfig';
 import { useNotification } from '../../../contexts/NotificationContext';
 import ProductoNuevoModalRapido from './ProductoNuevoModalRapido';
 import ProveedorModal from './ProveedorModal';
+import styles from './GestionCompras.module.css';
 
 interface RegistrarCompraModalProps {
   onClose: () => void;
@@ -259,37 +260,10 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
   return (
     <>
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          backdropFilter: 'blur(2px)'
-        }}
-        onClick={onClose}
-      >
-        <div
-          style={{
-            backgroundColor: 'var(--background-primary)',
-            borderRadius: '12px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-            width: '100%',
-            maxWidth: '900px',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={`${styles.modalContent} ${styles.registrarCompraModal}`} onClick={(e) => e.stopPropagation()}>
           {/* Encabezado */}
-          <div style={{ padding: '24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className={styles.modalHeader}>
             <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
               🛒 Nueva Compra a Proveedor
             </h2>
@@ -319,28 +293,21 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
           </div>
 
           {/* Cuerpo - Dos columnas */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '0', flex: 1, minHeight: '0', maxHeight: 'calc(90vh - 140px)' }}>
+          <div className={styles.registrarCompraGrid}>
 
             {/* Columna Izquierda - Formulario */}
-            <div style={{ overflowY: 'auto', padding: '24px', borderRight: '1px solid var(--border-color)' }}>
+            <div className={styles.registrarCompraLeft}>
               {/* Proveedor */}
               <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                <label className={styles.formLabel} style={{ marginBottom: '8px' }}>
                   Proveedor *
                 </label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <select
                     value={idProveedor}
                     onChange={(e) => setIdProveedor(Number(e.target.value) || '')}
-                    style={{
-                      flex: 1,
-                      padding: '8px 12px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      backgroundColor: 'var(--background-primary)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className={styles.formSelect}
+                    style={{ flex: 1 }}
                   >
                     <option value="">-- Seleccionar --</option>
                     {proveedores.map((p) => (
@@ -369,28 +336,20 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               </div>
 
               {/* Datos de compra */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+              <div className={styles.formRow2Cols}>
+                <div className={styles.formGroupInput}>
+                  <label className={styles.formLabel}>
                     Fecha *
                   </label>
                   <input
                     type="date"
                     value={fechaCompra}
                     onChange={(e) => setFechaCompra(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      backgroundColor: 'var(--background-primary)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className={styles.formInput}
                   />
                 </div>
-                <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <div className={styles.formGroupInput}>
+                  <label className={styles.formLabel}>
                     Comprobante *
                   </label>
                   <input
@@ -398,44 +357,26 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                     value={comprobante}
                     onChange={(e) => setComprobante(e.target.value)}
                     placeholder="FAC-001234"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      backgroundColor: 'var(--background-primary)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className={styles.formInput}
                   />
                 </div>
               </div>
 
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+              <div className={styles.formGroupInput} style={{ marginBottom: '16px' }}>
+                <label className={styles.formLabel}>
                   Observaciones (opcional)
                 </label>
                 <textarea
                   value={observaciones}
                   onChange={(e) => setObservaciones(e.target.value)}
                   placeholder="Notas sobre esta compra..."
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    minHeight: '70px',
-                    fontFamily: 'var(--font-family-primary)'
-                  }}
+                  className={styles.formTextarea}
                 />
               </div>
 
               {/* Búsqueda de productos */}
               <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                <label className={styles.formLabel} style={{ marginBottom: '8px' }}>
                   Buscar Producto
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -444,15 +385,8 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                     value={busqProducto}
                     onChange={(e) => handleBusqProductoChange(e.target.value)}
                     placeholder="Código o nombre..."
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px 8px 32px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      backgroundColor: 'var(--background-primary)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className={styles.formInput}
+                    style={{ paddingLeft: '32px' }}
                   />
                   <span
                     className="material-icons"
@@ -645,16 +579,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             </div>
 
             {/* Columna resumen (sticky) */}
-            <div
-              style={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '18px',
-                backgroundColor: 'var(--background-secondary)',
-                borderLeft: '4px solid var(--color-primary)'
-              }}
-            >
+            <div className={styles.registrarCompraRight}>
               <div>
                 <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   RESUMEN LIVE
@@ -730,15 +655,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
           </div>
 
           {/* Footer */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '12px',
-              padding: '16px 24px',
-              borderTop: '1px solid var(--border-color)',
-              backgroundColor: 'var(--background-secondary)'
-            }}
-          >
+          <div className={styles.modalFooter}>
             <button
               onClick={onClose}
               disabled={registrando}
