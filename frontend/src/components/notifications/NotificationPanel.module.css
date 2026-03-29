@@ -6,7 +6,7 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  z-index: var(--z-dropdown);
+  z-index: 10002;
   width: 360px;
   max-width: calc(100vw - var(--spacing-xl));
   background: var(--background-primary);

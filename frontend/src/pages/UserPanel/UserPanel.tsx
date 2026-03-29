@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
+import { MobileMenuDropdown } from '../../components/common/MobileMenuDropdown';
 import type { Cliente } from '../../types/cliente';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DatosCuenta from '../../components/user/DatosCuenta';
@@ -204,29 +205,20 @@ const UserPanel = () => {
 
           {/* Navegación principal del sidebar */}
           <nav className={userPanelStyles.sidebarNav}>
-            {/* Botón desplegable — solo visible en ≤480px */}
-            {(() => {
-              const activeOption = MENU_OPTIONS.find((o) => o.id === activeSection);
-              return (
-                <button
-                  className={userPanelStyles.mobileMenuToggle}
-                  onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                  aria-expanded={isMobileMenuOpen}
-                  aria-label="Abrir menú de navegación"
-                >
-                  <span className="material-icons">{activeOption?.icon}</span>
-                  <span>{activeOption?.label}</span>
-                  <span
-                    className={`material-icons ${userPanelStyles.mobileMenuChevron} ${isMobileMenuOpen ? userPanelStyles.mobileMenuChevronOpen : ''}`}
-                  >
-                    expand_more
-                  </span>
-                </button>
-              );
-            })()}
+            {/* Menú desplegable mobile — solo visible en ≤480px */}
+            <MobileMenuDropdown
+              options={MENU_OPTIONS}
+              activeOptionId={activeSection}
+              onSelect={setActiveSection}
+              isOpen={isMobileMenuOpen}
+              onToggle={setIsMobileMenuOpen}
+              showTriggerIcon={true}
+              triggerAriaLabel="Abrir menú de navegación"
+              containerClassName={userPanelStyles.mobileMenuWrapper}
+            />
 
-            {/* Opciones del menú principal */}
-            <div className={`${userPanelStyles.menuOptions} ${isMobileMenuOpen ? userPanelStyles.mobileMenuOpen : ''}`}>
+            {/* Opciones del menú principal — visible en desktop (>480px) */}
+            <div className={userPanelStyles.menuOptions}>
               {MENU_OPTIONS.map((option) => (
                 <MenuOption
                   key={option.id}

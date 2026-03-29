@@ -527,10 +527,6 @@
     padding: 16px;
   }
 
-  .headerTop {
-    flex-direction: column;
-  }
-
   .formRow {
     grid-template-columns: 1fr;
   }

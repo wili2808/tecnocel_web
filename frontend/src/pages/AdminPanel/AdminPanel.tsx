@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
+import { MobileMenuDropdown } from '../../components/common/MobileMenuDropdown';
 import type { AdminUser } from '../../types/usuario';
 import DashboardAdmin from '../../components/admin/DashboardAdmin/DashboardAdmin';
 import GestionUsuarios from '../../components/admin/GestionUsuarios/GestionUsuarios';
@@ -154,6 +155,7 @@ const AdminPanel = () => {
   const { user, isSystemUser, logout } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // ============================================================================
   // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN
@@ -248,7 +250,22 @@ const AdminPanel = () => {
 
           {/* Navegación principal del sidebar */}
           <nav className={adminPanelStyles.sidebarNav}>
-            {/* Opciones del menú filtradas por rol */}
+            {/* Menú desplegable mobile — solo visible en ≤480px */}
+            <MobileMenuDropdown
+              options={filteredMenuOptions}
+              activeOptionId={activeSection}
+              onSelect={(id) => {
+                setActiveSection(id);
+                setIsMobileMenuOpen(false);
+              }}
+              isOpen={isMobileMenuOpen}
+              onToggle={setIsMobileMenuOpen}
+              showTriggerIcon={true}
+              triggerAriaLabel="Abrir menú de administración"
+              containerClassName={adminPanelStyles.mobileMenuWrapper}
+            />
+
+            {/* Opciones del menú principal — visible en desktop (>480px) */}
             <div className={adminPanelStyles.menuOptions}>
               {filteredMenuOptions.map((option) => (
                 <MenuOptionItem

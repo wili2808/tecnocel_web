@@ -1,0 +1,182 @@
+/**
+ * MobileMenuDropdown - Estilos para menú desplegable mobile
+ * Diseño refinado con transiciones suaves y micro-interactions
+ */
+
+/* === CONTENEDOR PRINCIPAL === */
+.mobileMenuContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 100%;
+  position: relative;
+  z-index: 10001;
+}
+
+/* === TRIGGER BUTTON === */
+.mobileMenuTrigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  width: 100%;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-neutral);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-curve);
+  font-family: var(--font-family-primary);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mobileMenuTrigger:hover:not(:active) {
+  background-color: var(--background-light);
+  border-color: var(--color-primary-200);
+}
+
+.mobileMenuTrigger:active,
+.mobileMenuTrigger[aria-expanded='true'] {
+  background-color: var(--background-light);
+  border-color: var(--color-primary);
+}
+
+/* Icon en el trigger */
+.triggerIcon {
+  flex-shrink: 0;
+  font-size: 20px !important;
+  color: var(--color-primary);
+}
+
+/* Label del trigger */
+.triggerLabel {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+/* Chevron que rota */
+.mobileMenuChevron {
+  flex-shrink: 0;
+  font-size: 20px !important;
+  color: var(--text-secondary);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.mobileMenuChevronOpen {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* === DROPDOWN MENU === */
+.mobileMenuDropdown {
+  position: fixed;
+  z-index: 10001;
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideDownAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Position calculado con JavaScript en el componente */
+}
+
+/* === MENU ITEMS === */
+.mobileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+  text-align: left;
+  width: 100%;
+  font-family: var(--font-family-primary);
+  -webkit-user-select: none;
+  user-select: none;
+  border-left: 3px solid transparent;
+}
+
+.mobileMenuItem:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.04);
+  color: var(--text-primary);
+}
+
+.mobileMenuItem:active {
+  background-color: rgba(var(--color-primary-rgb), 0.08);
+}
+
+/* Estado activo */
+.mobileMenuItemActive {
+  background-color: rgba(var(--color-primary-rgb), 0.07);
+  color: var(--color-primary);
+  font-weight: 600;
+  border-left-color: var(--color-primary);
+}
+
+.mobileMenuItemActive:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Icon en los items */
+.optionIcon {
+  flex-shrink: 0;
+  font-size: 18px !important;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.mobileMenuItemActive .optionIcon {
+  color: var(--color-primary);
+  opacity: 1;
+}
+
+/* Label en los items */
+.optionLabel {
+  flex: 1;
+  font-weight: inherit;
+}
+
+/* === ANIMACIONES === */
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .mobileMenuTrigger,
+  .mobileMenuChevron,
+  .mobileMenuItem,
+  .mobileMenuDropdown {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* === MODO DARK === */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuDropdown {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+  }
+}
