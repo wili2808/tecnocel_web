@@ -264,7 +264,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
         <div className={`${styles.modalContent} ${styles.registrarCompraModal}`} onClick={(e) => e.stopPropagation()}>
           {/* Encabezado */}
           <div className={styles.modalHeader}>
-            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            <h2 style={{ margin: 0, fontSize: 'clamp(14px, 5vw, 18px)', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               🛒 Nueva Compra a Proveedor
             </h2>
             <button
@@ -273,17 +273,18 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: '24px',
+                fontSize: 'clamp(20px, 6vw, 24px)',
                 color: 'var(--text-secondary)',
                 cursor: 'pointer',
                 padding: '0',
-                width: '32px',
-                height: '32px',
+                width: 'clamp(28px, 8vw, 32px)',
+                height: 'clamp(28px, 8vw, 32px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '6px',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
@@ -386,7 +387,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                     onChange={(e) => handleBusqProductoChange(e.target.value)}
                     placeholder="Código o nombre..."
                     className={styles.formInput}
-                    style={{ paddingLeft: '32px' }}
+                    style={{ paddingLeft: 'clamp(24px, 8vw, 32px)' }}
                   />
                   <span
                     className="material-icons"
@@ -395,7 +396,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                       left: '8px',
                       top: '50%',
                       transform: 'translateY(-50%)',
-                      fontSize: '18px',
+                      fontSize: 'clamp(16px, 4vw, 18px)',
                       color: 'var(--text-secondary)',
                       pointerEvents: 'none'
                     }}
@@ -511,7 +512,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                                   value={item.cantidad}
                                   onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
                                   style={{
-                                    width: '60px',
+                                    width: 'clamp(45px, 12vw, 60px)',
                                     padding: '4px 6px',
                                     border: '1px solid var(--border-color)',
                                     borderRadius: '4px',
@@ -527,7 +528,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                                   value={item.precio_unitario.toFixed(2)}
                                   onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
                                   style={{
-                                    width: '80px',
+                                    width: 'clamp(55px, 15vw, 80px)',
                                     padding: '4px 6px',
                                     border: '1px solid var(--border-color)',
                                     borderRadius: '4px',

@@ -496,7 +496,7 @@
 
   /* En tablets, formulario con 2 columnas se compacta */
   .formRow2Cols {
-    grid-template-columns: 1fr 1fr;
+    flex-direction: row;
     gap: 10px;
     margin-bottom: 14px;
   }
@@ -603,7 +603,7 @@
 
   /* Formulario: 1 columna en tablets */
   .formRow2Cols {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 12px;
   }
@@ -612,6 +612,7 @@
   .formSelect {
     padding: 7px 10px;
     font-size: 12px;
+    min-height: 36px;
   }
 }
 
@@ -740,11 +741,17 @@
     gap: 0;
   }
 
-  /* Formulario: 1 columna en móviles */
+  /* Formulario: 1 columna en móviles con espaciado optimizado */
   .formRow2Cols {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    margin-bottom: 10px;
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .formGroupInput {
+    gap: 6px;
+    flex: 1;
+    width: 100%;
   }
 
   .formInput,
@@ -752,10 +759,69 @@
   .formTextarea {
     padding: 6px 10px;
     font-size: 12px;
+    height: auto;
+    min-height: 36px;
+    line-height: 1.4;
   }
 
   .formLabel {
     font-size: 11px;
+  }
+
+  /* Tabla de items en móvil: Scroll horizontal con tamaño de fuente reducido */
+  .table {
+    font-size: 10px;
+  }
+
+  .table th,
+  .table td {
+    padding: 6px 4px;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE - MÓVILES ULTRA-PEQUEÑOS (< 400px)
+   ============================================================================ */
+
+@media (max-width: 380px) {
+  /* Reducir padding en espacios muy reducidos */
+  .registrarCompraLeft {
+    padding: 10px 12px;
+  }
+
+  .registrarCompraRight {
+    padding: 10px 12px;
+  }
+
+  .modalBody {
+    padding: 10px 12px;
+  }
+
+  .formRow2Cols {
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .formInput,
+  .formSelect,
+  .formTextarea {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .formLabel {
+    font-size: 10px;
+  }
+
+  /* Tabla más compacta en móviles ultra pequeños */
+  .table {
+    font-size: 9px;
+  }
+
+  .table th,
+  .table td {
+    padding: 4px 2px;
   }
 }
 
@@ -824,8 +890,8 @@
 
 /* Formularios dentro del modal de compra */
 .formRow2Cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: row;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -834,6 +900,8 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .formLabel {
@@ -855,6 +923,7 @@
   color: var(--text-primary);
   font-family: var(--font-family-primary);
   box-sizing: border-box;
+  min-height: 40px;
 }
 
 .formTextarea {

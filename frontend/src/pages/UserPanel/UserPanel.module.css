@@ -213,7 +213,7 @@
 .logoutButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   padding: var(--spacing-md);
   border: none;
   background: none;
@@ -223,7 +223,6 @@
   border-radius: var(--border-radius-md);
   transition: var(--theme-transition);
   text-align: left;
-  width: 100%;
   font-weight: var(--font-weight-medium);
 }
 
@@ -320,10 +319,11 @@
   }
 
   .sidebar {
-    flex-wrap: wrap;
-    flex-direction: row;
+    position: unset;
+    flex: 0 0 0;
     width: 100%;
-    padding: var(--spacing-md);
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-xs);
   }
 
   .sidebarHeader {
@@ -386,6 +386,22 @@
 
   .menuOption .material-icons {
     display: none;
+  }
+
+  .logoutButton {
+    justify-content: flex-end;
+  }
+
+  .logoutSection{
+    padding-top: 0;
+  }
+
+  .sidebarHeader {
+  border-bottom: 1px solid var(--border-color);
+  }
+
+  .sidebarNav{
+    gap: var(--spacing-xs)
   }
 }
 

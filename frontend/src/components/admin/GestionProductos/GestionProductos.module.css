@@ -22,7 +22,7 @@
 }
 
 .title {
-  font-size: 16px;
+  font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 4px;
@@ -559,6 +559,15 @@
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
+
+@media (max-width: 480px) {
+  .headerTop{
+    flex-direction: column;
+  }
+  .material-icons {
+    display: none;
+  }
+}
 
 @media (max-width: 768px) {
   .container {

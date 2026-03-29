@@ -51,7 +51,7 @@ const GestionProductos = () => {
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -67,7 +67,7 @@ const GestionProductos = () => {
   // 1. Filtrar por destacados si el switch está activo
   const filteredProductos = useMemo(() => {
     if (!soloDestacados) return allProductos;
-    return allProductos.filter(p => p.es_destacado);
+    return allProductos.filter((p) => p.es_destacado);
   }, [allProductos, soloDestacados]);
 
   // 2. Ordenar los productos filtrados
@@ -154,7 +154,7 @@ const GestionProductos = () => {
   };
 
   const handleToggleDestacados = () => {
-    setSoloDestacados(prev => !prev);
+    setSoloDestacados((prev) => !prev);
     setPage(1);
   };
 
@@ -220,15 +220,10 @@ const GestionProductos = () => {
               <span className="material-icons">inventory_2</span>
               Gestión de Productos
             </h2>
-            <p className={styles.subtitle}>
-              Administra el catálogo de productos de la tienda
-            </p>
+            <p className={styles.subtitle}>Administra el catálogo de productos de la tienda</p>
           </div>
           {!isReadOnly && (
-            <button
-              className={styles.crearButton}
-              onClick={() => setVista('crear')}
-            >
+            <button className={styles.crearButton} onClick={() => setVista('crear')}>
               <span className="material-icons">add_box</span>
               <span>Agregar Producto</span>
             </button>
@@ -243,7 +238,7 @@ const GestionProductos = () => {
           { key: 'marcas', icon: 'branding_watermark', label: 'Marcas' },
           { key: 'categorias', icon: 'category', label: 'Categorías' },
           { key: 'caracteristicas', icon: 'tune', label: 'Características' },
-        ].map(tab => (
+        ].map((tab) => (
           <button
             key={tab.key}
             className={`${styles.tabBtn} ${activeTab === tab.key ? styles.tabActive : ''}`}
@@ -261,243 +256,262 @@ const GestionProductos = () => {
       {activeTab === 'caracteristicas' && <GestionCaracteristicas />}
 
       {activeTab === 'productos' && (
-      <>
-      {/* Barra de búsqueda */}
-      <div className={styles.searchForm}>
-        <div className={styles.searchInputWrapper}>
-          <span className="material-icons">search</span>
-          <input
-            type="text"
-            placeholder="Buscar por nombre o código..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className={styles.searchInput}
-          />
-          {searchInput && (
+        <>
+          {/* Barra de búsqueda */}
+          <div className={styles.searchForm}>
+            <div className={styles.searchInputWrapper}>
+              <span className="material-icons">search</span>
+              <input
+                type="text"
+                placeholder="Buscar por nombre o código..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchInput && (
+                <button type="button" onClick={handleClearSearch} className={styles.clearButton}>
+                  <span className="material-icons">close</span>
+                </button>
+              )}
+            </div>
             <button
               type="button"
-              onClick={handleClearSearch}
-              className={styles.clearButton}
+              className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
+              onClick={handleToggleDestacados}
+              title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
             >
-              <span className="material-icons">close</span>
+              <span className="material-icons">star</span>
+              <span>Solo destacados</span>
             </button>
+          </div>
+
+          {/* Estado de carga */}
+          {loading && (
+            <div className={styles.loading}>
+              <p>Cargando productos...</p>
+            </div>
           )}
-        </div>
-        <button
-          type="button"
-          className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
-          onClick={handleToggleDestacados}
-          title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
-        >
-          <span className="material-icons">star</span>
-          <span>Solo destacados</span>
-        </button>
-      </div>
 
-      {/* Estado de carga */}
-      {loading && (
-        <div className={styles.loading}>
-          <p>Cargando productos...</p>
-        </div>
-      )}
-
-      {/* Error */}
-      {error && !loading && (
-        <div className={styles.error}>
-          <span className="material-icons">error_outline</span>
-          <p>{error}</p>
-          <button onClick={cargarProductos} className={styles.retryButton}>
-            Reintentar
-          </button>
-        </div>
-      )}
-
-      {/* Tabla de productos */}
-      {!loading && !error && (
-        <>
-          <div className={styles.tableInfo}>
-            <span>
-              {total} producto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
-              {soloDestacados && <span className={styles.filterBadge}>Solo destacados</span>}
-            </span>
-          </div>
-
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('codigo')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Código</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'codigo' ? styles.sortIconActive : ''}`}>{getSortIcon('codigo')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Nombre</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('categoria')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Categoría</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'categoria' ? styles.sortIconActive : ''}`}>{getSortIcon('categoria')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('marca')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Marca</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'marca' ? styles.sortIconActive : ''}`}>{getSortIcon('marca')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('precio_venta')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Precio Venta</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'precio_venta' ? styles.sortIconActive : ''}`}>{getSortIcon('precio_venta')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('stock')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Stock</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'stock' ? styles.sortIconActive : ''}`}>{getSortIcon('stock')}</span>
-                    </span>
-                  </th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedProductos.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className={styles.emptyMessage}>
-                      {searchTerm && soloDestacados
-                        ? `No se encontraron productos destacados para "${searchTerm}"`
-                        : searchTerm
-                          ? `No se encontraron productos para "${searchTerm}"`
-                          : soloDestacados
-                            ? 'No hay productos destacados'
-                            : 'No hay productos registrados'}
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedProductos.map((producto) => {
-                    const imagenUrl = producto.imagen_url
-                      || (producto.imagenes && producto.imagenes.length > 0
-                        ? producto.imagenes[0].url
-                        : null);
-                    const stockBajo = producto.stock_minimo != null && producto.stock <= producto.stock_minimo;
-
-                    return (
-                      <tr key={producto.id_producto}>
-                        <td>
-                          <div className={styles.thumbnailWrapper}>
-                            {imagenUrl ? (
-                              <img
-                                src={imagenUrl}
-                                alt={producto.nombre}
-                                className={styles.thumbnail}
-                              />
-                            ) : (
-                              <div className={styles.thumbnailPlaceholder}>
-                                <span className="material-icons">image</span>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className={styles.codigoCell}>{producto.codigo}</td>
-                        <td>
-                          <div className={styles.nombreCell}>
-                            <span>{producto.nombre}</span>
-                            {producto.es_destacado && (
-                              <span className={styles.badgeDestacado} title="Producto destacado">
-                                <span className="material-icons">star</span>
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td>{producto.Categoria?.nombre_categoria || '-'}</td>
-                        <td>{producto.marca?.nombre_marca || '-'}</td>
-                        <td className={`${styles.precioCell} ${styles.textRight}`}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                            <span>$ {parseFloat(producto.precio_venta).toFixed(2)}</span>
-                            <span style={{
-                              marginLeft: '0px',
-                              fontSize: '0.75rem',
-                              padding: '2px 6px',
-                              borderRadius: '3px',
-                              backgroundColor: '#dbeafe',
-                              color: '#1e40af',
-                              fontWeight: '500',
-                              flexShrink: 0
-                            }}>
-                              USD
-                            </span>
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`${styles.stockBadge} ${
-                            producto.stock === 0
-                              ? styles.stockAgotado
-                              : stockBajo
-                                ? styles.stockBajoStyle
-                                : styles.stockNormal
-                          }`}>
-                            {producto.stock}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <button
-                              className={styles.actionButton}
-                              title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
-                              onClick={() => handleEditar(producto.id_producto)}
-                              disabled={isReadOnly}
-                            >
-                              <span className="material-icons">edit</span>
-                            </button>
-                            <button
-                              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                              title={!isAdmin ? 'Solo el administrador puede eliminar' : 'Eliminar'}
-                              onClick={() => handleEliminar(producto.id_producto, producto.nombre)}
-                              disabled={!isAdmin}
-                            >
-                              <span className="material-icons">delete</span>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Paginación */}
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className={styles.pageButton}
-              >
-                <span className="material-icons">chevron_left</span>
-              </button>
-              <span className={styles.pageInfo}>
-                Página {page} de {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className={styles.pageButton}
-              >
-                <span className="material-icons">chevron_right</span>
+          {/* Error */}
+          {error && !loading && (
+            <div className={styles.error}>
+              <span className="material-icons">error_outline</span>
+              <p>{error}</p>
+              <button onClick={cargarProductos} className={styles.retryButton}>
+                Reintentar
               </button>
             </div>
           )}
+
+          {/* Tabla de productos */}
+          {!loading && !error && (
+            <>
+              <div className={styles.tableInfo}>
+                <span>
+                  {total} producto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
+                  {soloDestacados && <span className={styles.filterBadge}>Solo destacados</span>}
+                </span>
+              </div>
+
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Imagen</th>
+                      <th className={styles.sortableHeader} onClick={() => handleSort('codigo')}>
+                        <span className={styles.sortableHeaderContent}>
+                          <span>Código</span>
+                          <span
+                            className={`material-icons ${styles.sortIcon} ${sortKey === 'codigo' ? styles.sortIconActive : ''}`}
+                          >
+                            {getSortIcon('codigo')}
+                          </span>
+                        </span>
+                      </th>
+                      <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
+                        <span className={styles.sortableHeaderContent}>
+                          <span>Nombre</span>
+                          <span
+                            className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
+                          >
+                            {getSortIcon('nombre')}
+                          </span>
+                        </span>
+                      </th>
+                      <th className={styles.sortableHeader} onClick={() => handleSort('categoria')}>
+                        <span className={styles.sortableHeaderContent}>
+                          <span>Categoría</span>
+                          <span
+                            className={`material-icons ${styles.sortIcon} ${sortKey === 'categoria' ? styles.sortIconActive : ''}`}
+                          >
+                            {getSortIcon('categoria')}
+                          </span>
+                        </span>
+                      </th>
+                      <th className={styles.sortableHeader} onClick={() => handleSort('marca')}>
+                        <span className={styles.sortableHeaderContent}>
+                          <span>Marca</span>
+                          <span
+                            className={`material-icons ${styles.sortIcon} ${sortKey === 'marca' ? styles.sortIconActive : ''}`}
+                          >
+                            {getSortIcon('marca')}
+                          </span>
+                        </span>
+                      </th>
+                      <th className={styles.sortableHeader} onClick={() => handleSort('precio_venta')}>
+                        <span className={styles.sortableHeaderContent}>
+                          <span>Precio Venta</span>
+                          <span
+                            className={`material-icons ${styles.sortIcon} ${sortKey === 'precio_venta' ? styles.sortIconActive : ''}`}
+                          >
+                            {getSortIcon('precio_venta')}
+                          </span>
+                        </span>
+                      </th>
+                      <th className={styles.sortableHeader} onClick={() => handleSort('stock')}>
+                        <span className={styles.sortableHeaderContent}>
+                          <span>Stock</span>
+                          <span
+                            className={`material-icons ${styles.sortIcon} ${sortKey === 'stock' ? styles.sortIconActive : ''}`}
+                          >
+                            {getSortIcon('stock')}
+                          </span>
+                        </span>
+                      </th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedProductos.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className={styles.emptyMessage}>
+                          {searchTerm && soloDestacados
+                            ? `No se encontraron productos destacados para "${searchTerm}"`
+                            : searchTerm
+                              ? `No se encontraron productos para "${searchTerm}"`
+                              : soloDestacados
+                                ? 'No hay productos destacados'
+                                : 'No hay productos registrados'}
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedProductos.map((producto) => {
+                        const imagenUrl =
+                          producto.imagen_url ||
+                          (producto.imagenes && producto.imagenes.length > 0 ? producto.imagenes[0].url : null);
+                        const stockBajo = producto.stock_minimo != null && producto.stock <= producto.stock_minimo;
+
+                        return (
+                          <tr key={producto.id_producto}>
+                            <td>
+                              <div className={styles.thumbnailWrapper}>
+                                {imagenUrl ? (
+                                  <img src={imagenUrl} alt={producto.nombre} className={styles.thumbnail} />
+                                ) : (
+                                  <div className={styles.thumbnailPlaceholder}>
+                                    <span className="material-icons">image</span>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className={styles.codigoCell}>{producto.codigo}</td>
+                            <td>
+                              <div className={styles.nombreCell}>
+                                <span>{producto.nombre}</span>
+                                {producto.es_destacado && (
+                                  <span className={styles.badgeDestacado} title="Producto destacado">
+                                    <span className="material-icons">star</span>
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td>{producto.Categoria?.nombre_categoria || '-'}</td>
+                            <td>{producto.marca?.nombre_marca || '-'}</td>
+                            <td className={`${styles.precioCell} ${styles.textRight}`}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                <span>$ {parseFloat(producto.precio_venta).toFixed(2)}</span>
+                                <span
+                                  style={{
+                                    marginLeft: '0px',
+                                    fontSize: '0.75rem',
+                                    padding: '2px 6px',
+                                    borderRadius: '3px',
+                                    backgroundColor: '#dbeafe',
+                                    color: '#1e40af',
+                                    fontWeight: '500',
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  USD
+                                </span>
+                              </span>
+                            </td>
+                            <td>
+                              <span
+                                className={`${styles.stockBadge} ${
+                                  producto.stock === 0
+                                    ? styles.stockAgotado
+                                    : stockBajo
+                                      ? styles.stockBajoStyle
+                                      : styles.stockNormal
+                                }`}
+                              >
+                                {producto.stock}
+                              </span>
+                            </td>
+                            <td>
+                              <div className={styles.actions}>
+                                <button
+                                  className={styles.actionButton}
+                                  title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
+                                  onClick={() => handleEditar(producto.id_producto)}
+                                  disabled={isReadOnly}
+                                >
+                                  <span className="material-icons">edit</span>
+                                </button>
+                                <button
+                                  className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                                  title={!isAdmin ? 'Solo el administrador puede eliminar' : 'Eliminar'}
+                                  onClick={() => handleEliminar(producto.id_producto, producto.nombre)}
+                                  disabled={!isAdmin}
+                                >
+                                  <span className="material-icons">delete</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Paginación */}
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className={styles.pageButton}
+                  >
+                    <span className="material-icons">chevron_left</span>
+                  </button>
+                  <span className={styles.pageInfo}>
+                    Página {page} de {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className={styles.pageButton}
+                  >
+                    <span className="material-icons">chevron_right</span>
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </>
-      )}
-      </>
       )}
     </div>
   );

@@ -76,8 +76,9 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 9999,
-          backdropFilter: 'blur(2px)'
+          zIndex: 10051,
+          backdropFilter: 'blur(2px)',
+          padding: '8px'
         }}
         onClick={onClose}
       >
@@ -87,7 +88,7 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
             borderRadius: '12px',
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
             width: '100%',
-            maxWidth: '480px',
+            maxWidth: 'clamp(280px, 95vw, 480px)',
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
@@ -101,11 +102,12 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '20px 24px',
-              borderBottom: '1px solid var(--border-color)'
+              padding: 'clamp(14px, 4vw, 20px) clamp(16px, 5vw, 24px)',
+              borderBottom: '1px solid var(--border-color)',
+              gap: '8px'
             }}
           >
-            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            <h2 style={{ margin: 0, fontSize: 'clamp(14px, 5vw, 16px)', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               ⊕ Crear Producto Rápido
             </h2>
             <button
@@ -114,17 +116,18 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: '24px',
+                fontSize: 'clamp(20px, 6vw, 24px)',
                 color: 'var(--text-secondary)',
                 cursor: 'pointer',
                 padding: '0',
-                width: '32px',
-                height: '32px',
+                width: 'clamp(28px, 8vw, 32px)',
+                height: 'clamp(28px, 8vw, 32px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '6px',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--background-secondary)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -136,14 +139,14 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
           {/* Body */}
           <div
             style={{
-              padding: '24px',
+              padding: 'clamp(14px, 4vw, 24px)',
               overflowY: 'auto',
               flex: 1
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(8px, 2vw, 12px)', marginBottom: 'clamp(10px, 2vw, 12px)' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Código *
                 </label>
                 <input
@@ -154,10 +157,10 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                   disabled={guardando}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: 'clamp(12px, 3vw, 13px)',
                     fontFamily: 'var(--font-family-primary)',
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
@@ -166,7 +169,7 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                 />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Nombre *
                 </label>
                 <input
@@ -177,10 +180,10 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                   disabled={guardando}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: 'clamp(12px, 3vw, 13px)',
                     fontFamily: 'var(--font-family-primary)',
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
@@ -190,9 +193,9 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(8px, 2vw, 12px)', marginBottom: 'clamp(10px, 2vw, 12px)' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Precio Compra *
                 </label>
                 <input
@@ -204,10 +207,10 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                   disabled={guardando}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: 'clamp(12px, 3vw, 13px)',
                     fontFamily: 'var(--font-family-primary)',
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
@@ -216,7 +219,7 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                 />
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Precio Venta *
                 </label>
                 <input
@@ -228,10 +231,10 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                   disabled={guardando}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: 'clamp(12px, 3vw, 13px)',
                     fontFamily: 'var(--font-family-primary)',
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
@@ -241,9 +244,9 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(8px, 2vw, 12px)', marginBottom: 'clamp(10px, 2vw, 12px)' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Categoría *
                 </label>
                 <select
@@ -252,10 +255,10 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                   disabled={guardando}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: 'clamp(12px, 3vw, 13px)',
                     fontFamily: 'var(--font-family-primary)',
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
@@ -271,7 +274,7 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                   Marca (opcional)
                 </label>
                 <select
@@ -280,10 +283,10 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
                   disabled={guardando}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: 'clamp(12px, 3vw, 13px)',
                     fontFamily: 'var(--font-family-primary)',
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
@@ -303,13 +306,13 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
             {error && (
               <div
                 style={{
-                  padding: '10px',
+                  padding: 'clamp(8px, 2vw, 10px)',
                   background: '#fee2e2',
                   border: '1px solid #fecaca',
                   borderRadius: '6px',
                   color: '#991b1b',
-                  fontSize: '13px',
-                  marginBottom: '12px'
+                  fontSize: 'clamp(11px, 3vw, 13px)',
+                  marginBottom: 'clamp(10px, 2vw, 12px)'
                 }}
               >
                 {error}
@@ -321,8 +324,8 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
           <div
             style={{
               display: 'flex',
-              gap: '12px',
-              padding: '16px 24px',
+              gap: 'clamp(8px, 2vw, 12px)',
+              padding: 'clamp(12px, 3vw, 16px) clamp(16px, 5vw, 24px)',
               borderTop: '1px solid var(--border-color)',
               backgroundColor: 'var(--background-secondary)'
             }}
@@ -332,12 +335,12 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
               disabled={guardando}
               style={{
                 flex: 1,
-                padding: '10px 16px',
+                padding: 'clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)',
                 border: '1px solid var(--border-color)',
                 backgroundColor: 'var(--background-primary)',
                 color: 'var(--text-primary)',
                 borderRadius: '6px',
-                fontSize: '13px',
+                fontSize: 'clamp(12px, 3vw, 13px)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-family-primary)',
@@ -354,12 +357,12 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
               disabled={guardando}
               style={{
                 flex: 1,
-                padding: '10px 16px',
+                padding: 'clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)',
                 background: 'var(--color-primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                fontSize: '13px',
+                fontSize: 'clamp(12px, 3vw, 13px)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-family-primary)',
