@@ -260,7 +260,7 @@ export const clienteService = {
           details: data
         };
       }
-      
+
       if (status === 409) {
         return {
           code: 'EMAIL_EXISTS',
@@ -268,7 +268,7 @@ export const clienteService = {
           details: data
         };
       }
-      
+
       if (status === 403) {
         return {
           code: 'FORBIDDEN',
@@ -276,7 +276,7 @@ export const clienteService = {
           details: data
         };
       }
-      
+
       if (status === 422) {
         return {
           code: 'VALIDATION_ERROR',
@@ -284,7 +284,15 @@ export const clienteService = {
           details: data
         };
       }
-      
+
+      if (status === 429) {
+        return {
+          code: 'TOO_MANY_REQUESTS',
+          message: data?.mensaje || 'Demasiados intentos de inicio de sesión. Por favor, espera algunos minutos e intenta nuevamente.',
+          details: data
+        };
+      }
+
       if (status && status >= 500) {
         return {
           code: 'SERVER_ERROR',

@@ -108,8 +108,23 @@ const AuthForm = () => {
       navigate('/');
     } catch (error: any) {
       // ✅ MANEJO DE ERRORES con mensajes descriptivos
-      const errorMessage =
-        error.response?.data?.mensaje || error.response?.data?.message || error.message || 'Error al iniciar sesión';
+      let errorMessage = 'Error al iniciar sesión';
+
+      // Si el error es un AuthError (con estructura { code, message, details })
+      if (error.code && error.message) {
+        errorMessage = error.message;
+      }
+      // Si es un Error normal con message
+      else if (error.message) {
+        errorMessage = error.message;
+      }
+      // Si es una respuesta de Axios con estructura de error
+      else if (error.response?.data?.mensaje) {
+        errorMessage = error.response.data.mensaje;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
       showNotification(errorMessage, 'error');
     } finally {
       setIsLoading(false);

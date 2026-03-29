@@ -57,6 +57,10 @@ export const usuarioService = {
 
       return { token, usuario };
     } catch (error: any) {
+      // Manejar error 429 específicamente
+      if (error.response?.status === 429) {
+        throw new Error('Demasiados intentos de inicio de sesión. Por favor, espera algunos minutos e intenta nuevamente.');
+      }
       throw new Error(error.response?.data?.mensaje || 'Error al iniciar sesión');
     }
   },
