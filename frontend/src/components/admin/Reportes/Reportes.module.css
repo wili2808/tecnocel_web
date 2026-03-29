@@ -496,10 +496,6 @@
    ============================================================================ */
 
 @media (max-width: 1024px) {
-  .kpiGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .kpiCard {
     border-bottom: 1px solid var(--border-color);
   }
@@ -516,10 +512,6 @@
 
   .headerTop {
     flex-direction: column;
-  }
-
-  .kpiGrid {
-    grid-template-columns: 1fr 1fr;
   }
 
   .tab {
@@ -554,14 +546,14 @@
 }
 
 @media (max-width: 480px) {
-  .kpiGrid {
-    grid-template-columns: 1fr;
-  }
-
   .tab .material-icons {
     display: none;
   }
 
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
   .kpiValue {
     font-size: 22px;
   }

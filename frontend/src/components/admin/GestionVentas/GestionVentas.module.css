@@ -1710,6 +1710,64 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .modalFooter {
+    flex-wrap: wrap;
+  }
+
+  .modalFooterActions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .modalFooterActions .comprobanteButton {
+    flex: 1;
+    min-width: 130px;
+    justify-content: center;
+  }
+
+  .dangerButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalFooter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .modalFooterLeft {
+    justify-content: flex-start;
+  }
+
+  .modalFooterActions {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .modalFooterActions .comprobanteButton {
+    width: 100%;
+    min-width: unset;
+    flex: unset;
+  }
+
+  .dangerButton {
+    width: 100%;
+  }
+
+  .comprobanteButton {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .dangerButton {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1764,7 +1822,9 @@
   display: flex;
   gap: 0;
   border-bottom: 2px solid var(--border-color);
+  padding-bottom: 2px;
   margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .tab {
