@@ -11,7 +11,9 @@ import type {
   ReporteCountResult,
   ReporteClienteTop,
   ReporteCancelacionResumen,
-  ReporteCancelacionItem
+  ReporteCancelacionItem,
+  ReporteVendedorResumen,
+  ReporteVendedorItem
 } from '../types/reporte.types.js';
 import Venta from '../models/Venta.js';
 import Cliente from '../models/Cliente.js';
@@ -425,13 +427,107 @@ export default class ReporteController {
   }
 
   /**
+   * Reporte de Vendedores - Ranking de vendedores por ventas e ingresos
+   * GET /api/reportes/vendedores
+   */
+  static async reporteVendedores(req: Request, res: Response) {
+    try {
+      const { fecha_inicio, fecha_fin } = req.query;
+
+      const hasFechas = fecha_inicio && fecha_fin;
+      const fechaCondition = hasFechas
+        ? 'AND v.fyh_creacion BETWEEN :fecha_inicio AND :fecha_fin_full'
+        : '';
+
+      const replacements = {
+        fecha_inicio: fecha_inicio as string,
+        fecha_fin_full: `${fecha_fin as string} 23:59:59`
+      };
+
+      // Resumen general para calcular porcentajes
+      const [totalVentasResult] = await sequelize.query<ReporteCountResult>(
+        `SELECT COUNT(*) AS total
+         FROM tb_ventas v
+         WHERE v.estado = 'completada' ${fechaCondition}`,
+        { replacements, type: QueryTypes.SELECT }
+      );
+
+      const totalVentas = totalVentasResult?.total || 0;
+
+      // Ranking de vendedores
+      const vendedoresData = await sequelize.query<ReporteVendedorItem>(
+        `SELECT
+           v.id_vendedor,
+           COALESCE(u.nombres, 'Venta Web') AS nombre,
+           COUNT(v.id_venta) AS ventas,
+           COALESCE(SUM(${SQL_ARS('v')}), 0) AS ingresos_ars,
+           COALESCE(SUM(${SQL_USD('v')}), 0) AS ingresos_usd,
+           CASE WHEN COUNT(v.id_venta) > 0
+                THEN ROUND(COALESCE(SUM(${SQL_ARS('v')}), 0) / COUNT(v.id_venta), 0)
+                ELSE 0
+           END AS ticket_promedio,
+           CASE WHEN :total_ventas > 0
+                THEN ROUND((COUNT(v.id_venta) * 100.0) / :total_ventas, 1)
+                ELSE 0
+           END AS porcentaje_ventas
+         FROM tb_ventas v
+         LEFT JOIN tb_usuarios u ON u.id_usuario = v.id_vendedor
+         WHERE v.estado = 'completada' ${fechaCondition}
+         GROUP BY v.id_vendedor, u.nombres
+         ORDER BY ventas DESC`,
+        { replacements: { ...replacements, total_ventas: totalVentas }, type: QueryTypes.SELECT }
+      );
+
+      // Top vendedor por ingresos
+      const topIngresos = await sequelize.query<{ nombre: string }>(
+        `SELECT COALESCE(u.nombres, 'Venta Web') AS nombre
+         FROM tb_ventas v
+         LEFT JOIN tb_usuarios u ON u.id_usuario = v.id_vendedor
+         WHERE v.estado = 'completada' ${fechaCondition}
+         GROUP BY v.id_vendedor, u.nombres
+         ORDER BY SUM(${SQL_ARS('v')}) DESC
+         LIMIT 1`,
+        { replacements, type: QueryTypes.SELECT }
+      );
+
+      // Top vendedor por volumen de ventas
+      const topVentas = await sequelize.query<{ nombre: string }>(
+        `SELECT COALESCE(u.nombres, 'Venta Web') AS nombre
+         FROM tb_ventas v
+         LEFT JOIN tb_usuarios u ON u.id_usuario = v.id_vendedor
+         WHERE v.estado = 'completada' ${fechaCondition}
+         GROUP BY v.id_vendedor, u.nombres
+         ORDER BY COUNT(v.id_venta) DESC
+         LIMIT 1`,
+        { replacements, type: QueryTypes.SELECT }
+      );
+
+      return res.json({
+        success: true,
+        data: {
+          resumen: {
+            total_vendedores_activos: vendedoresData.length,
+            total_ventas_periodo: totalVentas,
+            vendedor_top_ingresos: topIngresos[0]?.nombre || 'N/A',
+            vendedor_top_ventas: topVentas[0]?.nombre || 'N/A'
+          },
+          datos: vendedoresData
+        }
+      });
+    } catch (error) {
+      logger.error('Error en reporteVendedores:', { error: error instanceof Error ? error.message : 'Error desconocido' });
+      return res.status(500).json({ mensaje: 'Error al obtener el reporte de vendedores' });
+    }
+  }
+
+  /**
    * Exportar CSV - Genera archivo CSV descargable con montos duales
    * GET /api/reportes/exportar/:tipo
    */
   static async exportarCSV(req: Request, res: Response) {
     try {
       const { tipo } = req.params;
-      const tiposValidos = ['ventas', 'productos', 'clientes', 'cancelaciones'];
+      const tiposValidos = ['ventas', 'vendedores', 'productos', 'clientes', 'cancelaciones'];
 
       if (!tiposValidos.includes(tipo)) {
         return res.status(400).json({ mensaje: 'Tipo de reporte inválido' });
@@ -493,6 +589,30 @@ export default class ReporteController {
           );
           csvContent = ReporteController.arrayToCSV(datos);
           filename = 'reporte_ventas';
+          break;
+        }
+
+        case 'vendedores': {
+          const datos = await sequelize.query<Record<string, unknown>>(
+            `SELECT
+               COALESCE(u.nombres, 'Venta Web') AS "Vendedor",
+               COUNT(v.id_venta) AS "Total Ventas",
+               COALESCE(SUM(${SQL_ARS('v')}), 0) AS "Ingresos ARS",
+               COALESCE(SUM(${SQL_USD('v')}), 0) AS "Ingresos USD",
+               CASE WHEN COUNT(v.id_venta) > 0
+                    THEN ROUND(COALESCE(SUM(${SQL_ARS('v')}), 0) / COUNT(v.id_venta), 0)
+                    ELSE 0
+               END AS "Ticket Promedio",
+               ROUND((COUNT(v.id_venta) * 100.0) / (SELECT COUNT(*) FROM tb_ventas WHERE estado = 'completada' ${fechaCondition.replace(/v\./g, '')}), 1) AS "% del Total"
+             FROM tb_ventas v
+             LEFT JOIN tb_usuarios u ON u.id_usuario = v.id_vendedor
+             WHERE v.estado = 'completada' ${fechaCondition}
+             GROUP BY v.id_vendedor, u.nombres
+             ORDER BY COUNT(v.id_venta) DESC`,
+            { replacements, type: QueryTypes.SELECT }
+          );
+          csvContent = ReporteController.arrayToCSV(datos);
+          filename = 'reporte_vendedores';
           break;
         }
 

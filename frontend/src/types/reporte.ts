@@ -24,6 +24,10 @@ export interface FiltrosReporteClientes extends FiltrosReporte {
   limite?: number;
 }
 
+export interface FiltrosReporteVendedores extends FiltrosReporte {
+  limite?: number;
+}
+
 // ============================================================================
 // REPORTE DE VENTAS
 // ============================================================================
@@ -114,6 +118,32 @@ export interface ReporteClientesResponse {
 }
 
 // ============================================================================
+// REPORTE DE VENDEDORES
+// ============================================================================
+
+export interface ReporteVendedoresResumen {
+  total_vendedores_activos: number;
+  total_ventas_periodo: number;
+  vendedor_top_ingresos: string;
+  vendedor_top_ventas: string;
+}
+
+export interface VendedorReporteItem {
+  id_vendedor: number;
+  nombre: string;
+  ventas: number;
+  ingresos_ars: number;
+  ingresos_usd: number;
+  ticket_promedio: number;
+  porcentaje_ventas: number;
+}
+
+export interface ReporteVendedoresResponse {
+  resumen: ReporteVendedoresResumen;
+  datos: VendedorReporteItem[];
+}
+
+// ============================================================================
 // REPORTE DE CANCELACIONES
 // ============================================================================
 
@@ -145,4 +175,4 @@ export interface ReporteCancelacionesResponse {
 // TIPOS DE PESTAÑA
 // ============================================================================
 
-export type ReporteTab = 'ventas' | 'productos' | 'clientes' | 'cancelaciones';
+export type ReporteTab = 'ventas' | 'vendedores' | 'productos' | 'clientes' | 'cancelaciones';

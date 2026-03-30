@@ -150,4 +150,5 @@ export interface FiltrosVentasAdmin {
   tipo_venta?: 'web' | 'manual' | '';
   metodo_pago?: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr' | '';
   search?: string;
+  id_vendedor?: number | '';
 }

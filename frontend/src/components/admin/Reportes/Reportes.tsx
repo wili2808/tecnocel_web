@@ -1,7 +1,6 @@
 import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
-import adminApi from '../../../api/axiosAdminConfig';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -10,6 +9,7 @@ import type {
   ReporteProductosResponse,
   ReporteClientesResponse,
   ReporteCancelacionesResponse,
+  ReporteVendedoresResponse,
 } from '../../../types/reporte';
 
 // ============================================================================
@@ -28,9 +28,11 @@ type ProductosSortKey = 'nombre' | 'categoria' | 'marca' | 'unidades' | 'ingreso
 type ProductosStockSortKey = 'nombre' | 'stock_actual' | 'stock_minimo';
 type ClientesSortKey = 'nombre' | 'email' | 'compras' | 'monto' | 'ultima_compra';
 type CancelacionesSortKey = 'nro_venta' | 'fecha' | 'monto' | 'motivo' | 'cancelado_por';
+type VendedoresSortKey = 'nombre' | 'ventas' | 'ingresos_ars' | 'ticket_promedio' | 'porcentaje';
 
 const TABS: TabConfig[] = [
   { id: 'ventas', label: 'Ventas', icon: 'point_of_sale' },
+  { id: 'vendedores', label: 'Vendedores', icon: 'group' },
   { id: 'productos', label: 'Productos', icon: 'inventory_2' },
   { id: 'clientes', label: 'Clientes', icon: 'people' },
   { id: 'cancelaciones', label: 'Cancelaciones', icon: 'cancel' },
@@ -126,10 +128,9 @@ const Reportes: React.FC = memo(() => {
   const [productosData, setProductosData] = useState<ReporteProductosResponse | null>(null);
   const [clientesData, setClientesData] = useState<ReporteClientesResponse | null>(null);
   const [cancelacionesData, setCancelacionesData] = useState<ReporteCancelacionesResponse | null>(null);
+  const [vendedoresData, setVendedoresData] = useState<ReporteVendedoresResponse | null>(null);
 
-  // Lista de vendedores para el dropdown de filtro
-  const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
-  const [vendedorSeleccionado, setVendedorSeleccionado] = useState<number | 'null' | undefined>(undefined);
+
 
   // Cargar datos según pestaña activa
   const cargarDatos = useCallback(async () => {
@@ -141,10 +142,14 @@ const Reportes: React.FC = memo(() => {
         case 'ventas': {
           const filtrosVentas: FiltrosReporteVentas = {
             ...filtros,
-            ...(vendedorSeleccionado !== undefined && { id_vendedor: vendedorSeleccionado }),
           };
           const data = await reporteService.obtenerReporteVentas(filtrosVentas);
           setVentasData(data);
+          break;
+        }
+        case 'vendedores': {
+          const data = await reporteService.obtenerReporteVendedores(filtros);
+          setVendedoresData(data);
           break;
         }
         case 'productos': {
@@ -168,23 +173,11 @@ const Reportes: React.FC = memo(() => {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, filtros, vendedorSeleccionado]);
+  }, [activeTab, filtros]);
 
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
-
-  // Cargar lista de vendedores al montar (una sola vez)
-  useEffect(() => {
-    adminApi.get('/usuarios/admin/usuarios')
-      .then((res) => {
-        const lista = res.data?.data?.usuarios ?? res.data?.usuarios ?? [];
-        setVendedores(lista);
-      })
-      .catch(() => {
-        // No bloqueante: si falla, el dropdown queda sin opciones de usuario
-      });
-  }, []);
 
   const handleTabChange = useCallback((tab: ReporteTab) => {
     setActiveTab(tab);
@@ -196,24 +189,18 @@ const Reportes: React.FC = memo(() => {
 
   const handleLimpiarFiltros = useCallback(() => {
     setFiltros({ ...getDefaultDates(), agrupacion: 'dia' });
-    setVendedorSeleccionado(undefined);
   }, []);
 
   const handleExportar = useCallback(async () => {
     setExporting(true);
     try {
-      const filtrosExportar = activeTab === 'ventas'
-        ? { ...filtros, ...(vendedorSeleccionado !== undefined && { id_vendedor: vendedorSeleccionado }) }
-        : filtros;
-      // Cast necesario: exportarCSV acepta FiltrosReporte, pero el objeto puede incluir id_vendedor
-      // en runtime Axios lo serializa correctamente como query param
-      await reporteService.exportarCSV(activeTab, filtrosExportar as FiltrosReporte);
+      await reporteService.exportarCSV(activeTab, filtros);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al exportar');
     } finally {
       setExporting(false);
     }
-  }, [activeTab, filtros, vendedorSeleccionado]);
+  }, [activeTab, filtros]);
 
   return (
     <div className={styles.container}>
@@ -282,27 +269,6 @@ const Reportes: React.FC = memo(() => {
                 <option value="mes">Por mes</option>
               </select>
             </div>
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Vendedor</label>
-              <select
-                className={styles.filterSelect}
-                value={vendedorSeleccionado === undefined ? '' : String(vendedorSeleccionado)}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === '') setVendedorSeleccionado(undefined);
-                  else if (val === 'null') setVendedorSeleccionado('null');
-                  else setVendedorSeleccionado(parseInt(val, 10));
-                }}
-              >
-                <option value="">Todos los vendedores</option>
-                <option value="null">Venta Web</option>
-                {vendedores.map((v) => (
-                  <option key={v.id_usuario} value={String(v.id_usuario)}>
-                    {v.nombres}
-                  </option>
-                ))}
-              </select>
-            </div>
           </>
         )}
         <div className={styles.filterActions}>
@@ -339,6 +305,7 @@ const Reportes: React.FC = memo(() => {
       {!loading && !error && (
         <>
           {activeTab === 'ventas' && ventasData && <ReporteVentasTab data={ventasData} />}
+          {activeTab === 'vendedores' && vendedoresData && <ReporteVendedoresTab data={vendedoresData} />}
           {activeTab === 'productos' && productosData && <ReporteProductosTab data={productosData} />}
           {activeTab === 'clientes' && clientesData && <ReporteClientesTab data={clientesData} />}
           {activeTab === 'cancelaciones' && cancelacionesData && <ReporteCancelacionesTab data={cancelacionesData} />}
@@ -512,6 +479,215 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
                   </td>
                   <td className={`${styles.textRight} ${styles.monoCell}`}>
                     <MontoConBadge valor={formatCurrency(row.ticket_promedio)} moneda="ARS" />
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+});
+
+// ============================================================================
+// SUB-COMPONENTE: REPORTE DE VENDEDORES
+// ============================================================================
+
+const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo(({ data }) => {
+  const { resumen, datos } = data;
+  const [sortKey, setSortKey] = useState<VendedoresSortKey>('ventas');
+  const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
+
+  const handleSort = (key: VendedoresSortKey) => {
+    if (sortKey === key) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir('desc');
+    }
+  };
+
+  const getSortIcon = (key: VendedoresSortKey) => {
+    if (sortKey !== key) return 'unfold_more';
+    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  };
+
+  const sortedDatos = useMemo(() => {
+    const sorted = [...datos];
+    sorted.sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+
+      switch (sortKey) {
+        case 'nombre':
+          valA = a.nombre.toLowerCase();
+          valB = b.nombre.toLowerCase();
+          break;
+        case 'ventas':
+          valA = a.ventas;
+          valB = b.ventas;
+          break;
+        case 'ingresos_ars':
+          valA = a.ingresos_ars;
+          valB = b.ingresos_ars;
+          break;
+        case 'ticket_promedio':
+          valA = a.ticket_promedio;
+          valB = b.ticket_promedio;
+          break;
+        case 'porcentaje':
+          valA = a.porcentaje_ventas;
+          valB = b.porcentaje_ventas;
+          break;
+      }
+
+      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [datos, sortKey, sortDir]);
+
+  return (
+    <>
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>
+            <span className="material-icons">group</span>
+            Vendedores activos
+          </span>
+          <span className={styles.kpiValue}>{formatNumber(resumen.total_vendedores_activos)}</span>
+          <span className={styles.kpiSub}>en el periodo</span>
+        </div>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>
+            <span className="material-icons">point_of_sale</span>
+            Total ventas
+          </span>
+          <span className={styles.kpiValue}>{formatNumber(resumen.total_ventas_periodo)}</span>
+          <span className={styles.kpiSub}>ventas en el periodo</span>
+        </div>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>
+            <span className="material-icons">trending_up</span>
+            Top ingresos
+          </span>
+          <span className={styles.kpiValue} style={{ fontSize: 'var(--font-size-xl)' }}>
+            {resumen.vendedor_top_ingresos}
+          </span>
+        </div>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>
+            <span className="material-icons">leaderboard</span>
+            Top volumen
+          </span>
+          <span className={styles.kpiValue} style={{ fontSize: 'var(--font-size-xl)' }}>
+            {resumen.vendedor_top_ventas}
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
+                <span className={styles.sortableHeaderContent}>
+                  Vendedor
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('nombre')}
+                  </span>
+                </span>
+              </th>
+              <th
+                className={`${styles.sortableHeader} ${styles.textRight}`}
+                onClick={() => handleSort('ventas')}
+              >
+                <span className={styles.sortableHeaderContent}>
+                  Ventas
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ventas' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('ventas')}
+                  </span>
+                </span>
+              </th>
+              <th
+                className={`${styles.sortableHeader} ${styles.textRight}`}
+                onClick={() => handleSort('ingresos_ars')}
+              >
+                <span className={styles.sortableHeaderContent}>
+                  Ingresos ARS
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ingresos_ars' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('ingresos_ars')}
+                  </span>
+                </span>
+              </th>
+              <th className={styles.textRight}>Equiv. USD</th>
+              <th
+                className={`${styles.sortableHeader} ${styles.textRight}`}
+                onClick={() => handleSort('ticket_promedio')}
+              >
+                <span className={styles.sortableHeaderContent}>
+                  Ticket Promedio
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ticket_promedio' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('ticket_promedio')}
+                  </span>
+                </span>
+              </th>
+              <th
+                className={`${styles.sortableHeader} ${styles.textRight}`}
+                onClick={() => handleSort('porcentaje')}
+              >
+                <span className={styles.sortableHeaderContent}>
+                  % del Total
+                  <span
+                    className={`material-icons ${styles.sortIcon} ${sortKey === 'porcentaje' ? styles.sortIconActive : ''}`}
+                  >
+                    {getSortIcon('porcentaje')}
+                  </span>
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDatos.length === 0 ? (
+              <tr>
+                <td colSpan={6} className={styles.emptyMessage}>
+                  No hay datos para el periodo seleccionado
+                </td>
+              </tr>
+            ) : (
+              sortedDatos.map((row) => (
+                <tr key={row.id_vendedor}>
+                  <td style={{ fontWeight: 'var(--font-weight-semibold)' }}>{row.nombre}</td>
+                  <td className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(row.ventas)}</td>
+                  <td className={`${styles.textRight} ${styles.monoCell}`}>
+                    <MontoConBadge valor={formatCurrency(row.ingresos_ars)} moneda="ARS" />
+                  </td>
+                  <td className={`${styles.textRight} ${styles.monoCell}`}>
+                    <MontoConBadge valor={formatUSD(row.ingresos_usd)} moneda="USD" />
+                  </td>
+                  <td className={`${styles.textRight} ${styles.monoCell}`}>
+                    <MontoConBadge valor={formatCurrency(row.ticket_promedio)} moneda="ARS" />
+                  </td>
+                  <td className={`${styles.textRight} ${styles.monoCell}`}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-family-mono)',
+                        fontWeight: 600,
+                        color: row.porcentaje_ventas > 50 ? 'var(--color-primary)' : 'var(--text-primary)',
+                      }}
+                    >
+                      {row.porcentaje_ventas}%
+                    </span>
                   </td>
                 </tr>
               ))

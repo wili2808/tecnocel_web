@@ -75,3 +75,24 @@ export interface ReporteCancelacionItem {
   motivo: string;
   cancelado_por: string;
 }
+
+// ============================================================================
+// REPORTE DE VENDEDORES
+// ============================================================================
+
+export interface ReporteVendedorResumen {
+  total_vendedores_activos: number;
+  total_ventas_periodo: number;
+  vendedor_top_ingresos: string;
+  vendedor_top_ventas: string;
+}
+
+export interface ReporteVendedorItem {
+  id_vendedor: number;
+  nombre: string;
+  ventas: number;
+  ingresos_ars: number;
+  ingresos_usd: number;
+  ticket_promedio: number;
+  porcentaje_ventas: number;
+}

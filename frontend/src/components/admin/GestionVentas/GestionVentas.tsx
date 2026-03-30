@@ -21,9 +21,10 @@ import GestionEnvios from './GestionEnvios';
 import GestionRetiros from './GestionRetiros';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { ventaAdminService } from '../../../services/ventaAdminService';
 import { envioAdminService } from '../../../services/envioAdminService';
-import { useDebounce } from '../../../hooks/useDebounce';
+import { usuarioService } from '../../../services/usuarioService';
 import type {
   VentaListItem,
   EstadisticasVentas,
@@ -72,6 +73,7 @@ const GestionVentas: React.FC = () => {
   const [filtros, setFiltros] = useState<FiltrosVentasAdmin>({});
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebounce(searchInput, 500);
+  const [vendedores, setVendedores] = useState<{id_usuario: number; nombres: string}[]>([]);
 
   // ── Paginación y ordenación ────────────────────────────────────────────────
   const [offset, setOffset] = useState(0);
@@ -104,6 +106,14 @@ const GestionVentas: React.FC = () => {
       const data = await ventaAdminService.getTipoCambio();
       setTipoCambio(data.valor);
       setTipoCambioFecha(data.fyh_actualizacion);
+    } catch { /* no crítico */ }
+  }, []);
+
+  // ── Cargar vendedores ───────────────────────────────────────────────────────
+  const cargarVendedores = useCallback(async () => {
+    try {
+      const data = await usuarioService.listarUsuarios(100, 0);
+      setVendedores(data.usuarios || []);
     } catch { /* no crítico */ }
   }, []);
 
@@ -185,7 +195,8 @@ const GestionVentas: React.FC = () => {
     cargarTipoCambio();
     cargarRetirosPendientes();
     cargarEnviosPendientes();
-  }, [cargarStats, cargarTipoCambio, cargarRetirosPendientes, cargarEnviosPendientes]);
+    cargarVendedores();
+  }, [cargarStats, cargarTipoCambio, cargarRetirosPendientes, cargarEnviosPendientes, cargarVendedores]);
 
   useEffect(() => {
     cargarVentas(filtros, offset);
@@ -468,6 +479,31 @@ const GestionVentas: React.FC = () => {
             />
           </div>
           <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Tipo</label>
+            <select
+              className={styles.filterSelect}
+              value={filtros.tipo_venta || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))}
+            >
+              <option value="">Todos</option>
+              <option value="web">Web</option>
+              <option value="manual">Manual</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Vendedor</label>
+            <select
+              className={styles.filterSelect}
+              value={filtros.id_vendedor || ''}
+              onChange={e => setFiltros(prev => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))}
+            >
+              <option value="">Todos</option>
+              {vendedores.map(v => (
+                <option key={v.id_usuario} value={v.id_usuario}>{v.nombres}</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Estado</label>
             <select
               className={styles.filterSelect}
@@ -478,18 +514,6 @@ const GestionVentas: React.FC = () => {
               <option value="completada">Completada</option>
               <option value="cancelada">Cancelada</option>
               <option value="pendiente">Pendiente</option>
-            </select>
-          </div>
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Tipo</label>
-            <select
-              className={styles.filterSelect}
-              value={filtros.tipo_venta || ''}
-              onChange={e => setFiltros(prev => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))}
-            >
-              <option value="">Todos</option>
-              <option value="web">Web</option>
-              <option value="manual">Manual</option>
             </select>
           </div>
           <div className={styles.filterGroup}>
@@ -565,6 +589,7 @@ const GestionVentas: React.FC = () => {
                       Fecha {sortIcon('fyh_creacion')}
                     </span>
                   </th>
+                  <th>Vendedor</th>
                   <th
                     className={styles.sortableHeader}
                     onClick={() => toggleSort('nombre_cliente')}
@@ -598,7 +623,7 @@ const GestionVentas: React.FC = () => {
               <tbody>
                 {ventasOrdenadas.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className={styles.emptyMessage}>
+                    <td colSpan={10} className={styles.emptyMessage}>
                       No hay ventas que coincidan con los filtros aplicados
                     </td>
                   </tr>
@@ -609,6 +634,12 @@ const GestionVentas: React.FC = () => {
                         <span className={styles.nroVenta}>{venta.nro_venta}</span>
                       </td>
                       <td>{formatFecha(venta.fyh_creacion)}</td>
+                      <td>
+                        {venta.nombre_vendedor
+                          ? <span className={styles.vendedorNombre}>{venta.nombre_vendedor}</span>
+                          : <span className={styles.sinVendedor}>—</span>
+                        }
+                      </td>
                       <td>
                         {venta.nombre_cliente
                           ? <span className={styles.clienteNombre}>{venta.nombre_cliente}</span>

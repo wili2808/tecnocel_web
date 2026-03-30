@@ -1,9 +1,15 @@
 import winston from 'winston';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const LOGS_DIR = path.join(__dirname, '../logs');
+if (!fs.existsSync(LOGS_DIR)) {
+  fs.mkdirSync(LOGS_DIR, { recursive: true });
+}
 
 // Interfaces para tipar los metadatos
 interface LogMetadata {

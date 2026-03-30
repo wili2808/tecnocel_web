@@ -99,7 +99,7 @@ export default class AdminVentaController {
     try {
       const limit  = Math.min(parseInt(req.query.limit  as string) || 50, 100);
       const offset = parseInt(req.query.offset as string) || 0;
-      const { fecha_inicio, fecha_fin, estado, tipo_venta, metodo_pago, search } = req.query as Record<string, string>;
+      const { fecha_inicio, fecha_fin, estado, tipo_venta, metodo_pago, search, id_vendedor } = req.query as Record<string, string>;
 
       // Construcción dinámica del filtro WHERE
       const where: Record<string, unknown> = {};
@@ -112,6 +112,7 @@ export default class AdminVentaController {
       if (estado)      where.estado      = estado;
       if (tipo_venta)  where.tipo_venta  = tipo_venta;
       if (metodo_pago) where.metodo_pago = metodo_pago;
+      if (id_vendedor)  where.id_vendedor = parseInt(id_vendedor);
 
       // Filtro de búsqueda por nro_venta o nombre de cliente
       let clienteWhere: Record<string, unknown> | undefined;

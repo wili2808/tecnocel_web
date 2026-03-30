@@ -11,6 +11,7 @@ router.use(verificarRol([ROLES.ADMIN, ROLES.GERENTE]));
 
 // Reportes
 router.get('/ventas', ReporteController.reporteVentas);
+router.get('/vendedores', ReporteController.reporteVendedores);
 router.get('/productos', ReporteController.reporteProductos);
 router.get('/clientes', ReporteController.reporteClientes);
 router.get('/cancelaciones', ReporteController.reporteCancelaciones);

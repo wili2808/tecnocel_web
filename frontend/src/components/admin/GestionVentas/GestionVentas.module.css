@@ -388,6 +388,14 @@
   font-style: italic;
 }
 
+.vendedorNombre {
+  font-weight: 600;
+}
+
+.sinVendedor {
+  color: var(--text-muted);
+}
+
 .totalCell {
   font-weight: 600;
   font-family: var(--font-family-mono);

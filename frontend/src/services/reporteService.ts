@@ -3,10 +3,12 @@ import type {
   FiltrosReporteVentas,
   FiltrosReporteProductos,
   FiltrosReporteClientes,
+  FiltrosReporteVendedores,
   FiltrosReporte,
   ReporteVentasResponse,
   ReporteProductosResponse,
   ReporteClientesResponse,
+  ReporteVendedoresResponse,
   ReporteCancelacionesResponse
 } from '../types/reporte';
 
@@ -35,6 +37,15 @@ export const reporteService = {
       return response.data.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.mensaje || 'Error al obtener reporte de clientes');
+    }
+  },
+
+  async obtenerReporteVendedores(filtros: FiltrosReporteVendedores = {}): Promise<ReporteVendedoresResponse> {
+    try {
+      const response = await adminApi.get('/reportes/vendedores', { params: filtros });
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.mensaje || 'Error al obtener reporte de vendedores');
     }
   },
 

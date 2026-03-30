@@ -39,6 +39,7 @@ export const ventaAdminService = {
       if (filtros.tipo_venta)   params.tipo_venta   = filtros.tipo_venta;
       if (filtros.metodo_pago)  params.metodo_pago  = filtros.metodo_pago;
       if (filtros.search)       params.search       = filtros.search;
+      if (filtros.id_vendedor)  params.id_vendedor  = filtros.id_vendedor;
 
       const response = await adminApi.get('/ventas/admin/listar', { params });
       return response.data;

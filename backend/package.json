@@ -8,8 +8,7 @@
     "build": "tsc && node -e \"require('fs').cpSync('src/templates', 'dist/templates', {recursive: true})\"",
     "start": "node dist/index.js",
     "dev": "concurrently \"tsc --watch\" \"nodemon\"",
-    "test:images": "node scripts_test/test-image-endpoints.js",
-    "init:logs": "node scripts_test/init-logs-structure.js",
+
     "sync:cloudinary": "node --loader ts-node/esm scripts/migrations/syncToCloudinary.ts"
   },
   "dependencies": {
