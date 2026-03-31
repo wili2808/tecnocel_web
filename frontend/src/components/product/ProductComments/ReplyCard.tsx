@@ -1,6 +1,7 @@
 import React, { useState, memo } from 'react';
 import type { Respuesta } from '../../../services/commentService';
 import commentService from '../../../services/commentService';
+import { useAuth } from '../../../contexts/AuthContext';
 import styles from './ReplyCard.module.css';
 
 /**
@@ -9,12 +10,14 @@ import styles from './ReplyCard.module.css';
 interface ReplyCardProps {
   /** Objeto de respuesta con datos del autor, contenido y estado */
   respuesta: Respuesta;
-  /** ID del usuario autenticado actualmente, para determinar acciones disponibles */
+  /** ID del cliente autenticado (para comparar con id_cliente de respuestas de cliente) */
   currentUserId?: number;
+  /** ID del usuario del sistema autenticado (para comparar con id_usuario de respuestas admin) */
+  currentSystemUserId?: number;
   /** Si el usuario actual es un administrador o empleado del sistema */
   isSystemUser?: boolean;
-  /** Callback para eliminar la respuesta (soft delete) */
-  onDelete: (id: number) => Promise<void>;
+  /** Callback para eliminar la respuesta (recibe ID y si es owner) */
+  onDelete: (id: number, isOwner?: boolean) => Promise<void>;
   /** Callback para moderar el estado de la respuesta (solo admins) */
   onModerate?: (id: number, estado: 'activo' | 'oculto' | 'eliminado') => Promise<void>;
 }
@@ -33,16 +36,22 @@ interface ReplyCardProps {
 const ReplyCard: React.FC<ReplyCardProps> = memo(({
   respuesta,
   currentUserId,
+  currentSystemUserId,
   isSystemUser = false,
   onDelete,
   onModerate
 }) => {
+  const { tienePermiso } = useAuth();
+  const puedeModerar = isSystemUser ? tienePermiso('moderar_comentarios') : false;
+  const puedeEliminarCualquiera = isSystemUser ? tienePermiso('eliminar_comentarios') : false;
+  
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const isOwner =
-    (respuesta.tipo_autor === 'cliente' && respuesta.id_cliente === currentUserId) ||
-    (respuesta.tipo_autor === 'admin' && respuesta.id_usuario === currentUserId);
+  // Owner: cliente puede eliminar su propia respuesta; system user puede eliminar la suya si coincide id_usuario
+  const isOwner = respuesta.tipo_autor === 'cliente'
+    ? respuesta.id_cliente === currentUserId
+    : respuesta.tipo_autor === 'admin' && respuesta.id_usuario === currentSystemUserId;
 
   const autorNombre = respuesta.tipo_autor === 'admin'
     ? (respuesta.usuarioAutor?.nombres || 'Equipo TecnoCel')
@@ -56,7 +65,7 @@ const ReplyCard: React.FC<ReplyCardProps> = memo(({
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await onDelete(respuesta.id_respuesta);
+      await onDelete(respuesta.id_respuesta, isOwner);
     } catch (error) {
       console.error('Error deleting reply:', error);
     } finally {
@@ -93,7 +102,7 @@ const ReplyCard: React.FC<ReplyCardProps> = memo(({
       <p className={styles.content}>{respuesta.contenido}</p>
 
       <div className={styles.actions}>
-        {(isOwner || isSystemUser) && !showDeleteConfirm && (
+        {(isOwner || puedeEliminarCualquiera) && !showDeleteConfirm && (
           <button
             className={styles.deleteBtn}
             onClick={() => setShowDeleteConfirm(true)}
@@ -104,7 +113,7 @@ const ReplyCard: React.FC<ReplyCardProps> = memo(({
           </button>
         )}
 
-        {isSystemUser && !isOwner && onModerate && respuesta.estado === 'activo' && (
+        {isSystemUser && puedeModerar && !isOwner && onModerate && respuesta.estado === 'activo' && (
           <button
             className={styles.moderateBtn}
             onClick={() => handleModerate('oculto')}
@@ -114,7 +123,7 @@ const ReplyCard: React.FC<ReplyCardProps> = memo(({
           </button>
         )}
 
-        {isSystemUser && respuesta.estado === 'oculto' && onModerate && (
+        {isSystemUser && puedeModerar && respuesta.estado === 'oculto' && onModerate && (
           <button
             className={styles.restoreBtn}
             onClick={() => handleModerate('activo')}

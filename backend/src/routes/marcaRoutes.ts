@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { MarcaController } from '../controllers/MarcaController.js';
-import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
-import { ROLES } from '../constants/roles.js';
+import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 import {
   validateCreateMarca,
   validateUpdateMarca,
@@ -31,19 +30,18 @@ router.get('/', MarcaController.getAllMarcas);
 router.get('/:id', validateGetMarcaById, MarcaController.getMarcaById);
 
 // ============================================================================
-// RUTAS DE ADMINISTRACIÓN - Requieren autenticación de admin (rol 1)
+// RUTAS DE ADMINISTRACIÓN - Requieren permisos específicos
 // ============================================================================
 
 /**
  * POST /marcas
  * Crea una nueva marca en el sistema
- * Acceso: Solo administradores
- * Validación: nombre_marca requerido (2-100 chars), logo y descripción opcionales
+ * Acceso: Permiso crear_marca
  */
 router.post(
   '/',
   verificarToken,
-  verificarRol([ROLES.ADMIN]),
+  verificarPermiso('crear_marca'),
   validateCreateMarca,
   MarcaController.createMarca
 );
@@ -51,13 +49,12 @@ router.post(
 /**
  * PUT /marcas/:id
  * Actualiza una marca existente
- * Acceso: Solo administradores
- * Validación: ID requerido, campos opcionales
+ * Acceso: Permiso editar_marca
  */
 router.put(
   '/:id',
   verificarToken,
-  verificarRol([ROLES.ADMIN]),
+  verificarPermiso('editar_marca'),
   validateUpdateMarca,
   MarcaController.updateMarca
 );
@@ -65,13 +62,12 @@ router.put(
 /**
  * DELETE /marcas/:id
  * Elimina (soft delete) una marca del sistema
- * Acceso: Solo administradores
- * Validación: ID debe ser número entero positivo
+ * Acceso: Permiso eliminar_marca
  */
 router.delete(
   '/:id',
   verificarToken,
-  verificarRol([ROLES.ADMIN]),
+  verificarPermiso('eliminar_marca'),
   validateDeleteMarca,
   MarcaController.deleteMarca
 );

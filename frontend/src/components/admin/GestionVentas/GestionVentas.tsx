@@ -58,7 +58,14 @@ const formatIngreso = (n: number) => {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 const GestionVentas: React.FC = () => {
-  const { isAdmin, isGerente, isVendedor } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_ventas');
+  const puedeVerEnvios = tienePermiso('ver_envios');
+  const puedeGestionarEnvios = tienePermiso('gestionar_envios');
+  const puedeCrear = tienePermiso('crear_venta');
+  const puedeVerConfiguracion = tienePermiso('ver_configuracion');
+  const puedeEditarConfiguracion = tienePermiso('editar_configuracion');
+  const puedeCancelar = tienePermiso('cancelar_venta');
   const { showNotification } = useNotification();
 
   // ── Estado de datos ────────────────────────────────────────────────────────
@@ -193,10 +200,12 @@ const GestionVentas: React.FC = () => {
   useEffect(() => {
     cargarStats();
     cargarTipoCambio();
-    cargarRetirosPendientes();
-    cargarEnviosPendientes();
     cargarVendedores();
-  }, [cargarStats, cargarTipoCambio, cargarRetirosPendientes, cargarEnviosPendientes, cargarVendedores]);
+    if (puedeVerEnvios) {
+      cargarRetirosPendientes();
+      cargarEnviosPendientes();
+    }
+  }, [cargarStats, cargarTipoCambio, cargarRetirosPendientes, cargarEnviosPendientes, cargarVendedores, puedeVerEnvios]);
 
   useEffect(() => {
     cargarVentas(filtros, offset);
@@ -282,6 +291,23 @@ const GestionVentas: React.FC = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">receipt_long</span>
+            Gestión de Ventas
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver ventas</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
 
@@ -297,31 +323,35 @@ const GestionVentas: React.FC = () => {
         <button
           className={`${styles.tab} ${activeTab === 'envios' ? styles.tabActivo : ''}`}
           onClick={() => setActiveTab('envios')}
+          disabled={!puedeVerEnvios}
+          title={!puedeVerEnvios ? 'Sin permisos para ver envíos' : undefined}
         >
           <span className="material-icons">local_shipping</span>
           Envíos a domicilio
-          {enviosPendientes > 0 && (
+          {puedeVerEnvios && enviosPendientes > 0 && (
             <span className={styles.tabBadge}>{enviosPendientes}</span>
           )}
         </button>
         <button
           className={`${styles.tab} ${activeTab === 'retiros' ? styles.tabActivo : ''}`}
           onClick={() => setActiveTab('retiros')}
+          disabled={!puedeVerEnvios}
+          title={!puedeVerEnvios ? 'Sin permisos para ver retiros' : undefined}
         >
           <span className="material-icons">store</span>
           Retiro en tienda
-          {retirosPendientes > 0 && (
+          {puedeVerEnvios && retirosPendientes > 0 && (
             <span className={styles.tabBadge}>{retirosPendientes}</span>
           )}
         </button>
       </div>
 
       {activeTab === 'envios' && (
-        <GestionEnvios onPendientesChange={setEnviosPendientes} />
+        <GestionEnvios onPendientesChange={setEnviosPendientes} puedeGestionar={puedeGestionarEnvios} />
       )}
 
       {activeTab === 'retiros' && (
-        <GestionRetiros onPendientesChange={setRetirosPendientes} />
+        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarEnvios} />
       )}
 
       {activeTab === 'ventas' && <>
@@ -338,7 +368,12 @@ const GestionVentas: React.FC = () => {
               Listado de ventas web y manuales · {total} venta(s) en total
             </p>
           </div>
-          <button className={styles.crearButton} onClick={() => setMostrarRegistrar(true)}>
+          <button 
+            className={styles.crearButton} 
+            onClick={() => setMostrarRegistrar(true)}
+            disabled={!puedeCrear}
+            title={!puedeCrear ? 'Sin permisos para registrar ventas' : undefined}
+          >
             <span className="material-icons">add</span>
             Registrar Venta
           </button>
@@ -391,6 +426,7 @@ const GestionVentas: React.FC = () => {
       </div>
 
       {/* Cotización del dólar */}
+      {puedeVerConfiguracion && (
       <div className={styles.cotizacionCard}>
         <div className={styles.cotizacionHeader}>
           <span className="material-icons">attach_money</span>
@@ -442,19 +478,19 @@ const GestionVentas: React.FC = () => {
             <span className={styles.cotizacionValor}>
               1 USD = {tipoCambio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
             </span>
-            {(isAdmin || isGerente) && (
-              <button
-                className={styles.cotizacionEditBtn}
-                onClick={() => { setTipoCambioInput(tipoCambio.toString()); setEditandoCambio(true); }}
-                title="Modificar cotización"
-              >
-                <span className="material-icons">edit</span>
-                Modificar
-              </button>
-            )}
+            <button
+              className={styles.cotizacionEditBtn}
+              onClick={() => { setTipoCambioInput(tipoCambio.toString()); setEditandoCambio(true); }}
+              disabled={!puedeEditarConfiguracion}
+              title={!puedeEditarConfiguracion ? 'Sin permisos para modificar configuración' : 'Modificar cotización'}
+            >
+              <span className="material-icons">edit</span>
+              Modificar
+            </button>
           </div>
         )}
       </div>
+      )}
 
       {/* Barra de filtros */}
       <div className={styles.filterBar}>
@@ -687,8 +723,8 @@ const GestionVentas: React.FC = () => {
                             <button
                               className={`${styles.actionButton} ${styles.actionButtonDanger}`}
                               onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
-                              title={!(isAdmin || isVendedor) ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
-                              disabled={!(isAdmin || isVendedor)}
+                              title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
+                              disabled={!puedeCancelar}
                             >
                               <span className="material-icons">cancel</span>
                             </button>

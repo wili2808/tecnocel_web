@@ -17,9 +17,12 @@ import jwt from 'jsonwebtoken';
 import logger from '../services/loggerService.js';
 import Usuario from '../models/Usuario.js';
 import Cliente from '../models/Cliente.js';
+import Rol from '../models/Rol.js';
+import Permiso from '../models/Permiso.js';
 import { UsuarioSession } from '../types/express.js';
 import { UsuarioJWTPayload } from '../types/usuario.types.js';
 import { ClienteJWTPayload } from '../types/cliente.types.js';
+import { ROLES } from '../constants/roles.js';
 
 /**
  * Type guard para verificar si req.usuario es un UsuarioSession (admin/empleado)
@@ -219,6 +222,110 @@ export const verificarRol = (roles: number[]) => {
     }
 
     next();
+  };
+};
+
+export const verificarPermiso = (nombrePermiso: string) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const usuarioSistema = req.usuario && esUsuarioSistema(req.usuario) ? req.usuario : null;
+
+      if (!req.usuario) {
+        return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+      }
+
+      if (!usuarioSistema) {
+        return res.status(403).json({ mensaje: 'Acceso no autorizado para clientes' });
+      }
+
+      if (usuarioSistema.idRol === ROLES.ADMIN) {
+        return next();
+      }
+
+      const usuario = await Usuario.findByPk(usuarioSistema.id, {
+        include: [{
+          model: Rol,
+          as: 'Rol',
+          include: [{
+            model: Permiso,
+            as: 'permisos',
+            where: { nombre: nombrePermiso },
+            required: false
+          }]
+        }]
+      });
+
+      if (!usuario) {
+        return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+      }
+
+      const rol = (usuario as unknown as { Rol?: Rol & { permisos?: Permiso[] } }).Rol;
+      const tienePermiso = rol?.permisos && rol.permisos.length > 0;
+
+      if (!tienePermiso) {
+        logger.warn(`Permiso denegado: ${nombrePermiso}`, {
+          usuarioId: usuario.id_usuario,
+          rolId: usuario.id_rol
+        });
+        return res.status(403).json({
+          mensaje: `No tienes permiso para realizar esta acción: ${nombrePermiso}`
+        });
+      }
+
+      next();
+    } catch (error) {
+      logger.error('Error en verificarPermiso:', error);
+      return res.status(500).json({ mensaje: 'Error al verificar permisos' });
+    }
+  };
+};
+
+export const verificarCualquierPermiso = (nombresPermisos: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.usuario) {
+        return res.status(401).json({ mensaje: 'Usuario no autenticado' });
+      }
+
+      if (!esUsuarioSistema(req.usuario)) {
+        return res.status(403).json({ mensaje: 'Acceso no autorizado para clientes' });
+      }
+
+      if (req.usuario.idRol === ROLES.ADMIN) {
+        return next();
+      }
+
+      const usuario = await Usuario.findByPk(req.usuario.id, {
+        include: [{
+          model: Rol,
+          as: 'Rol',
+          include: [{
+            model: Permiso,
+            as: 'permisos',
+            where: { nombre: nombresPermisos },
+            required: false
+          }]
+        }]
+      });
+
+      if (!usuario) {
+        return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+      }
+
+      const rol = (usuario as unknown as { Rol?: Rol & { permisos?: Permiso[] } }).Rol;
+      const tieneAlgunPermiso = rol?.permisos && rol.permisos.length > 0;
+
+      if (!tieneAlgunPermiso) {
+        return res.status(403).json({
+          mensaje: `No tienes ninguno de los permisos requeridos`
+        });
+      }
+
+      next();
+    } catch (error) {
+      logger.error('Error en verificarCualquierPermiso:', error);
+      return res.status(500).json({ mensaje: 'Error al verificar permisos' });
+    }
   };
 };
 

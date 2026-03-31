@@ -41,6 +41,9 @@ export interface UsuarioSistemaResponse {
 
   /** Nombre del rol obtenido desde la BD (ej: "ADMINISTRADOR", "EMPLEADO", "VENDEDOR") */
   rolNombre: string;
+
+  /** Permisos del usuario (array de nombres de permisos) */
+  permisos?: string[];
 }
 
 /**

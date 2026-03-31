@@ -3,11 +3,11 @@
  *
  * Define los endpoints REST para ventas.
  *
- * RUTAS ADMIN (requieren verificarToken + verificarRol):
+ * RUTAS ADMIN (requieren verificarToken + verificarPermiso):
  * - GET  /api/ventas/admin/estadisticas           - Stats rápidas (hoy, semana, mes, ingresos)
  * - GET  /api/ventas/admin/listar                 - Listado con filtros y paginación
  * - POST /api/ventas/admin/registrar              - Registrar venta manual
- * - PATCH /api/ventas/admin/:id/cancelar          - Cancelar venta (solo admin rol 1)
+ * - PATCH /api/ventas/admin/:id/cancelar          - Cancelar venta
  * - GET  /api/ventas/admin/:id_venta/comprobante  - Descargar PDF del comprobante
  * - POST /api/ventas/admin/:id_venta/enviar-comprobante - Enviar comprobante por email
  * - GET  /api/ventas/admin/:id_venta              - Detalle sin restricción de cliente
@@ -22,8 +22,7 @@
 import { Router } from 'express';
 import VentaController from '../controllers/VentaController.js';
 import AdminVentaController from '../controllers/AdminVentaController.js';
-import { verificarToken, verificarTokenCliente, verificarRol } from '../middleware/authMiddleware.js';
-import { ROLES } from '../constants/roles.js';
+import { verificarToken, verificarTokenCliente, verificarPermiso } from '../middleware/authMiddleware.js';
 import {
   validateObtenerHistorial,
   validateObtenerDetalle,
@@ -47,22 +46,22 @@ const router = Router();
 /**
  * GET /api/ventas/admin/estadisticas
  * Estadísticas de ventas: hoy, semana, mes, ingresos del mes
- * Roles: admin (1), empleado (2), vendedor (3)
+ * Permiso: ver_ventas
  */
 router.get('/admin/estadisticas',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('ver_ventas'),
   AdminVentaController.obtenerEstadisticasVentas
 );
 
 /**
  * GET /api/ventas/admin/listar
  * Listado de ventas con filtros opcionales: fecha, estado, tipo_venta, metodo_pago, search
- * Roles: admin (1), empleado (2), vendedor (3)
+ * Permiso: ver_ventas
  */
 router.get('/admin/listar',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('ver_ventas'),
   validateListarVentasAdmin,
   AdminVentaController.listarVentasAdmin
 );
@@ -70,11 +69,11 @@ router.get('/admin/listar',
 /**
  * POST /api/ventas/admin/registrar
  * Registrar una venta manual (sin flujo de carrito web)
- * Roles: admin (1), empleado (2), vendedor (3)
+ * Permiso: crear_venta
  */
 router.post('/admin/registrar',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('crear_venta'),
   validateRegistrarVentaManual,
   AdminVentaController.registrarVentaManual
 );
@@ -82,11 +81,11 @@ router.post('/admin/registrar',
 /**
  * PATCH /api/ventas/admin/:id_venta/cancelar
  * Cancelar una venta y restaurar stock
- * Roles: admin (1) y vendedor (3)
+ * Permiso: cancelar_venta
  */
 router.patch('/admin/:id_venta/cancelar',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.VENDEDOR]),
+  verificarPermiso('cancelar_venta'),
   validateCancelarVenta,
   AdminVentaController.cancelarVenta
 );
@@ -94,33 +93,33 @@ router.patch('/admin/:id_venta/cancelar',
 /**
  * PATCH /api/ventas/admin/:id_venta/estado
  * Actualiza el estado de una venta (en_preparacion, enviado, entregado)
- * Roles: admin (1), gerente (2), vendedor (3)
+ * Permiso: editar_venta
  */
 router.patch('/admin/:id_venta/estado',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('editar_venta'),
   AdminVentaController.actualizarEstadoVenta.bind(AdminVentaController)
 );
 
 /**
  * GET /api/ventas/admin/tipo-cambio
  * Obtiene la cotización USD/ARS configurada
- * Roles: admin (1), empleado (2), vendedor (3)
+ * Permiso: ver_configuracion
  */
 router.get('/admin/tipo-cambio',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('ver_configuracion'),
   AdminVentaController.obtenerTipoCambio
 );
 
 /**
  * PUT /api/ventas/admin/tipo-cambio
  * Actualiza la cotización USD/ARS
- * Roles: SOLO admin (1) y empleado (2)
+ * Permiso: editar_configuracion
  */
 router.put('/admin/tipo-cambio',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE]),
+  verificarPermiso('editar_configuracion'),
   validateTipoCambio,
   AdminVentaController.actualizarTipoCambio
 );
@@ -128,33 +127,33 @@ router.put('/admin/tipo-cambio',
 /**
  * GET /api/ventas/admin/:id_venta/comprobante
  * Genera y descarga el comprobante de una venta en PDF
- * Roles: admin (1), gerente (2), vendedor (3)
+ * Permiso: ver_ventas
  */
 router.get('/admin/:id_venta/comprobante',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('ver_ventas'),
   AdminVentaController.descargarComprobante.bind(AdminVentaController)
 );
 
 /**
  * POST /api/ventas/admin/:id_venta/enviar-comprobante
  * Envía el comprobante por email al cliente registrado en la venta
- * Roles: admin (1), gerente (2), vendedor (3)
+ * Permiso: ver_ventas
  */
 router.post('/admin/:id_venta/enviar-comprobante',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('ver_ventas'),
   AdminVentaController.enviarComprobante.bind(AdminVentaController)
 );
 
 /**
  * GET /api/ventas/admin/:id_venta
  * Detalle completo de una venta (sin restricción de propietario)
- * Roles: admin (1), empleado (2), vendedor (3)
+ * Permiso: ver_ventas
  */
 router.get('/admin/:id_venta',
   verificarToken,
-  verificarRol([ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR]),
+  verificarPermiso('ver_ventas'),
   validateObtenerDetalleAdmin,
   AdminVentaController.obtenerDetalleAdmin
 );

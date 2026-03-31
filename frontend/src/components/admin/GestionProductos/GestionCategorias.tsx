@@ -18,7 +18,11 @@ interface EditCategoriaForm {
 
 const GestionCategorias: React.FC = memo(() => {
   const { showNotification } = useNotification();
-  const { isAdmin } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_categorias');
+  const puedeCrear = tienePermiso('crear_categoria');
+  const puedeEditar = tienePermiso('editar_categoria');
+  const puedeEliminar = tienePermiso('eliminar_categoria');
 
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +45,7 @@ const GestionCategorias: React.FC = memo(() => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
     cargarCategorias();
@@ -181,6 +185,17 @@ const GestionCategorias: React.FC = memo(() => {
     return sorted;
   }, [categorias, sortKey, sortDir]);
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver categorías</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
@@ -191,12 +206,15 @@ const GestionCategorias: React.FC = memo(() => {
           </h3>
           <p className={styles.panelSubtitle}>Administra las categorías de productos</p>
         </div>
-        {isAdmin && (
-          <button className={styles.addButton} onClick={iniciarCreacion} disabled={creando}>
+          <button 
+            className={styles.addButton} 
+            onClick={iniciarCreacion} 
+            disabled={!puedeCrear || creando}
+            title={!puedeCrear ? 'Sin permisos para crear categorías' : undefined}
+          >
             <span className="material-icons">add</span>
             Nueva Categoría
           </button>
-        )}
       </div>
 
       {loading ? (
@@ -342,19 +360,19 @@ const GestionCategorias: React.FC = memo(() => {
                           <button
                             className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
                             onClick={() => iniciarEdicion(cat)}
-                            title="Editar"
+                            title={puedeEditar ? 'Editar' : 'Sin permisos'}
+                            disabled={!puedeEditar}
                           >
                             <span className="material-icons">edit</span>
                           </button>
-                          {isAdmin && (
                             <button
                               className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
                               onClick={() => iniciarEliminacion(cat.id_categoria)}
-                              title="Eliminar"
+                              disabled={!puedeEliminar}
+                              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
                             >
                               <span className="material-icons">delete</span>
                             </button>
-                          )}
                         </div>
                       </td>
                     </tr>

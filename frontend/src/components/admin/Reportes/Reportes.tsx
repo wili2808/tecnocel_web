@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
+import { useAuth } from '../../../contexts/AuthContext';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
 import type {
@@ -114,6 +115,9 @@ const getDefaultDates = () => {
 // ============================================================================
 
 const Reportes: React.FC = memo(() => {
+  const { tienePermiso } = useAuth();
+  const puedeExportar = tienePermiso('exportar_reportes');
+  
   const [activeTab, setActiveTab] = useState<ReporteTab>('ventas');
   const [filtros, setFiltros] = useState<FiltrosReporte>({
     ...getDefaultDates(),
@@ -214,7 +218,12 @@ const Reportes: React.FC = memo(() => {
             </h1>
             <p className={styles.subtitle}>Analiza el rendimiento del negocio con reportes detallados</p>
           </div>
-          <button className={styles.exportButton} onClick={handleExportar} disabled={exporting || loading}>
+          <button 
+            className={styles.exportButton} 
+            onClick={handleExportar} 
+            disabled={exporting || loading || !puedeExportar}
+            title={!puedeExportar ? 'Sin permisos para exportar reportes' : undefined}
+          >
             <span className="material-icons">download</span>
             {exporting ? 'Exportando...' : 'Exportar CSV'}
           </button>

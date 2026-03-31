@@ -160,7 +160,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (storedAdminToken) {
       try {
         const userData = await usuarioService.verifyAdminToken();
-        const adminUser: AdminUser = { ...userData };
+        
+        const adminUser: AdminUser = {
+          id: userData.id,
+          nombres: userData.nombres,
+          email: userData.email,
+          idRol: userData.idRol,
+          rolNombre: userData.rolNombre,
+          permisos: (userData as any).permisos || []
+        };
+        
         updateState({
           user: adminUser,
           userType: getSystemUserType(adminUser),
@@ -397,10 +406,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   /**
    * Limpiar error del contexto
-   */
+    */
   const clearError = useCallback(() => {
     updateState({ error: null });
   }, [updateState]);
+
+  /**
+   * Verifica si el usuario tiene un permiso específico
+   */
+  const tienePermiso = useCallback((nombrePermiso: string): boolean => {
+    if (!state.user || !isAdminUser(state.user)) return false;
+    const userAny = state.user as any;
+    // Admin siempre tiene todos los permisos
+    if (userAny?.idRol === ROLES.ADMIN) return true;
+    // Verificar si el permiso está en la lista
+    return userAny?.permisos?.includes(nombrePermiso) ?? false;
+  }, [state.user]);
 
   // ============================================================================
   // VALOR DEL CONTEXTO
@@ -426,6 +447,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       logout,
       googleLogin,
       clearError,
+      tienePermiso,
     }),
     [
       state.user,
@@ -440,6 +462,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       logout,
       googleLogin,
       clearError,
+      tienePermiso,
     ],
   );
 

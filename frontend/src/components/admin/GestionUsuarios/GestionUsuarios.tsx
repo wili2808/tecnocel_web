@@ -3,7 +3,7 @@
  * Permite ver, crear y eliminar usuarios (admin/empleado)
  * Incluye formulario integrado de creación de usuario
  */
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { usuarioService } from '../../../services/usuarioService';
@@ -47,8 +47,13 @@ const INITIAL_EDIT_FORM: EditarUsuarioFormData = {
 };
 
 const GestionUsuarios = () => {
-  const { isAdmin } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_usuarios');
+  const puedeCrear = tienePermiso('crear_usuario');
+  const puedeEditar = tienePermiso('editar_usuario');
+  const puedeEliminar = tienePermiso('eliminar_usuario');
   const { showNotification } = useNotification();
+
   const [usuarios, setUsuarios] = useState<UsuarioListItem[]>([]);
   const [roles, setRoles] = useState<RolItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,12 +69,7 @@ const GestionUsuarios = () => {
   const editandoRef = useRef(false);
   const [editFormData, setEditFormData] = useState<EditarUsuarioFormData>(INITIAL_EDIT_FORM);
 
-  useEffect(() => {
-    cargarUsuarios();
-    cargarRoles();
-  }, []);
-
-  const cargarUsuarios = async () => {
+  const cargarUsuarios = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -81,19 +81,24 @@ const GestionUsuarios = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showNotification]);
 
-  const cargarRoles = async () => {
+  const cargarRoles = useCallback(async () => {
     try {
       const data = await usuarioService.listarRoles();
       setRoles(data);
     } catch (err: any) {
       showNotification(err.message || 'Error al cargar roles', 'error');
     }
-  };
+  }, [showNotification]);
+
+  useEffect(() => {
+    cargarUsuarios();
+    cargarRoles();
+  }, [cargarRoles, cargarUsuarios]);
 
   const handleEliminar = async (id: number) => {
-    if (!isAdmin) {
+    if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar usuarios', 'error');
       return;
     }
@@ -294,6 +299,23 @@ const GestionUsuarios = () => {
     return sorted;
   }, [usuarios, sortKey, sortDir]);
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">people</span>
+            Gestión de Usuarios
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver usuarios</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -330,12 +352,15 @@ const GestionUsuarios = () => {
             </h2>
             <p className={styles.subtitle}>Administra los usuarios del sistema (administradores y gerentes)</p>
           </div>
-          {isAdmin && (
-            <button className={styles.crearButton} onClick={() => setShowCrearForm(true)}>
+            <button 
+              className={styles.crearButton} 
+              onClick={() => setShowCrearForm(true)}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
+            >
               <span className="material-icons">person_add</span>
               <span>Crear Usuario</span>
             </button>
-          )}
         </div>
       </div>
 
@@ -443,17 +468,17 @@ const GestionUsuarios = () => {
                     <div className={styles.actions}>
                       <button
                         className={styles.actionButton}
-                        title={!isAdmin ? 'Solo el administrador puede editar usuarios' : 'Editar usuario'}
+                        title={!puedeEditar ? 'Sin permisos para editar usuarios' : 'Editar usuario'}
                         onClick={() => handleEditarClick(usuario)}
-                        disabled={!isAdmin}
+                        disabled={!puedeEditar}
                       >
                         <span className="material-icons">edit</span>
                       </button>
                       <button
                         className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                        title={!isAdmin ? 'Solo el administrador puede eliminar usuarios' : 'Eliminar'}
+                        title={!puedeEliminar ? 'Sin permisos para eliminar usuarios' : 'Eliminar'}
                         onClick={() => handleEliminar(usuario.id_usuario)}
-                        disabled={!isAdmin}
+                        disabled={!puedeEliminar}
                       >
                         <span className="material-icons">delete</span>
                       </button>

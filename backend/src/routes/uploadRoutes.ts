@@ -1,7 +1,6 @@
 import express from 'express';
 import UploadController from '../controllers/UploadController.js';
-import { verificarTokenCliente, verificarToken, verificarRol } from '../middleware/authMiddleware.js';
-import { ROLES } from '../constants/roles.js';
+import { verificarTokenCliente, verificarToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -20,6 +19,7 @@ router.post('/comment-images',
 
 // Ruta para subir imágenes de productos
 router.post('/product-images',
+  verificarToken,
   upload.array('imagenes', 10), // Máximo 10 imágenes
   UploadController.uploadProductImages
 );
@@ -29,10 +29,9 @@ router.get('/directories-info',
   UploadController.getDirectoriesInfo
 );
 
-// Ruta para subir logo de marca (solo admin)
+// Ruta para subir logo de marca
 router.post('/marca-logo/:id_marca',
   verificarToken,
-  verificarRol([ROLES.ADMIN]),
   uploadMarca.single('logo'),
   UploadController.uploadMarcaLogo
 );

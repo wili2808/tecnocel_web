@@ -5,7 +5,7 @@
  * Editar: solo visible y funcional para administradores (rol 1).
  * El backend también rechaza el PUT para roles no autorizados (defensa en profundidad).
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { usuarioService } from '../../../services/usuarioService';
@@ -19,7 +19,10 @@ type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha
 type SortDir = 'asc' | 'desc';
 
 const GestionClientes = () => {
-  const { isAdmin } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_clientes');
+  const puedeCrear = tienePermiso('crear_cliente');
+  const puedeEditar = tienePermiso('editar_cliente');
   const { showNotification } = useNotification();
 
   const [clientes, setClientes] = useState<ClienteListItem[]>([]);
@@ -34,11 +37,7 @@ const GestionClientes = () => {
   const [tipoModal, setTipoModal] = useState<'detalle' | 'editar' | null>(null);
   const [showCrearModal, setShowCrearModal] = useState(false);
 
-  useEffect(() => {
-    cargarClientes();
-  }, []);
-
-  const cargarClientes = async () => {
+  const cargarClientes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -50,7 +49,11 @@ const GestionClientes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showNotification]);
+
+  useEffect(() => {
+    cargarClientes();
+  }, [cargarClientes]);
 
   // ── Filtrado local por búsqueda ──────────────────────────────────────────
   const filteredClientes = useMemo(() => {
@@ -138,6 +141,23 @@ const GestionClientes = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">people</span>
+            Gestión de Clientes
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver clientes</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -180,6 +200,8 @@ const GestionClientes = () => {
               className={styles.searchButton}
               onClick={() => setShowCrearModal(true)}
               style={{ flexShrink: 0, marginTop: 2 }}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear clientes' : undefined}
             >
               <span className="material-icons" style={{ fontSize: 16 }}>person_add</span>
               Crear cliente
@@ -285,12 +307,12 @@ const GestionClientes = () => {
                           <span className="material-icons">visibility</span>
                         </button>
 
-                        {/* Editar: solo para administradores (rol 1) */}
+                        {/* Editar: solo para usuarios con permiso */}
                         <button
                           className={styles.actionButton}
-                          title={!isAdmin ? 'Solo el administrador puede editar clientes' : 'Editar cliente'}
+                          title={!puedeEditar ? 'Sin permisos para editar clientes' : 'Editar cliente'}
                           onClick={() => handleEditar(cliente)}
-                          disabled={!isAdmin}
+                          disabled={!puedeEditar}
                         >
                           <span className="material-icons">edit</span>
                         </button>

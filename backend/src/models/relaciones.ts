@@ -31,6 +31,8 @@ import Favorito from './Favorito.js';
 import Direccion from './Direccion.js';
 import ProductoImagen from './ProductoImagen.js';
 import Notificacion from './Notificacion.js';
+import Permiso from './Permiso.js';
+import RolPermiso from './RolPermiso.js';
 
 // Almacen
 Almacen.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'Categoria' });
@@ -99,6 +101,20 @@ Almacen.hasMany(PresupuestoDetalle, { foreignKey: 'id_producto' });
 // Usuario y Rol
 Usuario.belongsTo(Rol, { foreignKey: 'id_rol' });
 Rol.hasMany(Usuario, { foreignKey: 'id_rol' });
+
+// Rol y Permisos (muchos a muchos)
+Rol.belongsToMany(Permiso, {
+  through: RolPermiso,
+  foreignKey: 'id_rol',
+  otherKey: 'id_permiso',
+  as: 'permisos'
+});
+Permiso.belongsToMany(Rol, {
+  through: RolPermiso,
+  foreignKey: 'id_permiso',
+  otherKey: 'id_rol',
+  as: 'roles'
+});
 
 // Venta
 Venta.belongsTo(Cliente, { foreignKey: 'id_cliente' });
@@ -248,5 +264,7 @@ export {
   Favorito,
   Direccion,
   ProductoImagen,
-  Notificacion
+  Notificacion,
+  Permiso,
+  RolPermiso
 }; 

@@ -56,7 +56,11 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 
 const GestionCaracteristicas: React.FC = memo(() => {
   const { showNotification } = useNotification();
-  const { isAdmin } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_caracteristicas');
+  const puedeCrear = tienePermiso('crear_caracteristica');
+  const puedeEditar = tienePermiso('editar_caracteristica');
+  const puedeEliminar = tienePermiso('eliminar_caracteristica');
 
   const [tipos, setTipos] = useState<TipoCaracteristica[]>([]);
   const [loading, setLoading] = useState(true);
@@ -258,6 +262,17 @@ const GestionCaracteristicas: React.FC = memo(() => {
     return <span className={styles.emptyValue}>—</span>;
   };
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver características</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
@@ -268,12 +283,15 @@ const GestionCaracteristicas: React.FC = memo(() => {
           </h3>
           <p className={styles.panelSubtitle}>Administra los tipos de atributos dinámicos de productos</p>
         </div>
-        {isAdmin && (
-          <button className={styles.addButton} onClick={abrirFormCrear} disabled={showForm && editandoId === null}>
+          <button 
+            className={styles.addButton} 
+            onClick={abrirFormCrear} 
+            disabled={!puedeCrear || (showForm && editandoId === null)}
+            title={!puedeCrear ? 'Sin permisos para crear características' : undefined}
+          >
             <span className="material-icons">add</span>
             Nuevo Tipo
           </button>
-        )}
       </div>
 
       {loading ? (
@@ -367,15 +385,17 @@ const GestionCaracteristicas: React.FC = memo(() => {
                             <button
                               className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
                               onClick={() => abrirFormEditar(tipo)}
-                              title="Editar"
+                              title={puedeEditar ? 'Editar' : 'Sin permisos'}
+                              disabled={!puedeEditar}
                             >
                               <span className="material-icons">edit</span>
                             </button>
-                            {isAdmin && tipo.activo && (
+                            {tipo.activo && (
                               <button
                                 className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
                                 onClick={() => iniciarEliminacion(tipo.id_tipo)}
-                                title="Desactivar"
+                                disabled={!puedeEliminar}
+                                title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Desactivar'}
                               >
                                 <span className="material-icons">delete</span>
                               </button>

@@ -53,6 +53,44 @@ const adminCommentService = {
       console.error('Error deleting reply as admin:', error);
       throw error;
     }
+  },
+
+  /**
+   * Elimina la propia respuesta del usuario del sistema (sin permiso requerido)
+   * Solo permite eliminar si el usuario actual es owner de la respuesta
+   */
+  eliminarRespuestaPropia: async (idRespuesta: number): Promise<void> => {
+    try {
+      await adminApi.delete(`/comentarios/respuestas/${idRespuesta}/propia`);
+    } catch (error) {
+      console.error('Error deleting own reply:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina el propio comentario del usuario del sistema (sin permiso requerido)
+   * Solo permite eliminar si el usuario actual es owner del comentario
+   */
+  eliminarComentarioPropio: async (idComentario: number): Promise<void> => {
+    try {
+      await adminApi.delete(`/comentarios/${idComentario}/propio`);
+    } catch (error) {
+      console.error('Error deleting own comment:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina cualquier comentario (requiere permiso eliminar_comentarios)
+   */
+  eliminarComentarioAdmin: async (idComentario: number): Promise<void> => {
+    try {
+      await adminApi.delete(`/comentarios/${idComentario}/admin`);
+    } catch (error) {
+      console.error('Error deleting comment as admin:', error);
+      throw error;
+    }
   }
 };
 

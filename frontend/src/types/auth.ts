@@ -68,6 +68,8 @@ export interface AuthContextType {
   logout: () => void;
   googleLogin: (overrideConfig?: OverridableTokenClientConfig) => void;
   clearError: () => void;
+  /** Verifica si el usuario tiene un permiso específico */
+  tienePermiso: (nombrePermiso: string) => boolean;
 }
 
 // ============================================================================

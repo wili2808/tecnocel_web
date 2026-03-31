@@ -30,9 +30,10 @@ const getEstadoLabel = (estado: string): string => {
 
 interface GestionRetirosProps {
   onPendientesChange?: (count: number) => void;
+  puedeGestionar?: boolean;
 }
 
-const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange }) => {
+const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange, puedeGestionar = true }) => {
   const { showNotification } = useNotification();
 
   const [retiros, setRetiros] = useState<EnvioAdminListItem[]>([]);
@@ -168,12 +169,25 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
                     </span>
                   </td>
                   <td>
-                    <button
-                      className={retiro.estado_envio === 'entregado' ? styles.btnSecundario : styles.btnPrimario}
-                      onClick={() => setRetiroSeleccionado(retiro)}
-                    >
-                      {retiro.estado_envio === 'entregado' ? 'Ver detalle' : 'Gestionar'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        className={styles.btnSecundario}
+                        onClick={() => setRetiroSeleccionado(retiro)}
+                        title="Ver detalle del retiro"
+                      >
+                        Ver detalle
+                      </button>
+                      {retiro.estado_envio !== 'entregado' && (
+                        <button
+                          className={styles.btnPrimario}
+                          onClick={() => puedeGestionar && setRetiroSeleccionado(retiro)}
+                          disabled={!puedeGestionar}
+                          title={!puedeGestionar ? 'Sin permisos para gestionar retiros' : 'Gestionar estado'}
+                        >
+                          Gestionar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -17,7 +17,10 @@ const LIMIT = 20;
 type TabType = 'compras' | 'proveedores';
 
 const GestionCompras: React.FC = memo(() => {
-  const { isAdmin, isGerente } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_compras');
+  const puedeCrear = tienePermiso('crear_compra');
+  const puedeEditar = tienePermiso('editar_compra');
   const { showNotification } = useNotification();
 
   // === Estado principal ===
@@ -43,26 +46,6 @@ const GestionCompras: React.FC = memo(() => {
 
   // === Refs ===
   const cargandoRef = useRef(false);
-
-  // === Efectos ===
-  useEffect(() => {
-    if (activeTab === 'compras') {
-      cargarStats();
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    setFiltros((prev) => ({
-      ...prev,
-      search: debouncedSearch || undefined
-    }));
-  }, [debouncedSearch]);
-
-  useEffect(() => {
-    if (activeTab === 'compras') {
-      cargarCompras();
-    }
-  }, [filtros, offset, activeTab]);
 
   // === Funciones ===
   const cargarStats = useCallback(async () => {
@@ -94,6 +77,26 @@ const GestionCompras: React.FC = memo(() => {
     }
   }, [filtros, offset]);
 
+  // === Efectos ===
+  useEffect(() => {
+    if (activeTab === 'compras') {
+      cargarStats();
+    }
+  }, [activeTab, cargarStats]);
+
+  useEffect(() => {
+    setFiltros((prev) => ({
+      ...prev,
+      search: debouncedSearch || undefined
+    }));
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (activeTab === 'compras') {
+      cargarCompras();
+    }
+  }, [activeTab, cargarCompras]);
+
   const handleRegistrada = () => {
     setMostrarRegistrar(false);
     setOffset(0);
@@ -116,6 +119,23 @@ const GestionCompras: React.FC = memo(() => {
   };
 
   // === Render ===
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">shopping_cart</span>
+            Gestión de Compras
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver compras</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -128,7 +148,7 @@ const GestionCompras: React.FC = memo(() => {
             </h1>
             <p className={styles.subtitle}>Administra compras a proveedores y control de stock</p>
           </div>
-          {activeTab === 'compras' && (
+          {activeTab === 'compras' && puedeCrear && (
             <button
               className={styles.crearButton}
               onClick={() => setMostrarRegistrar(true)}
@@ -336,7 +356,7 @@ const GestionCompras: React.FC = memo(() => {
                             >
                               <span className="material-icons">visibility</span>
                             </button>
-                            {compra.estado === 'activa' && (isAdmin || isGerente) && (
+                            {compra.estado === 'activa' && puedeEditar && (
                               <button
                                 className={styles.actionBtn}
                                 title="Anular"
@@ -403,7 +423,6 @@ const GestionCompras: React.FC = memo(() => {
             setIdDetalleAbierto(null);
             setAnularModal({ id, nro });
           }}
-          userRole={isAdmin ? 'admin' : isGerente ? 'gerente' : 'vendedor'}
         />
       )}
 

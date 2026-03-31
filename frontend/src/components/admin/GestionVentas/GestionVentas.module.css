@@ -1521,6 +1521,17 @@
   color: white;
 }
 
+.cotizacionEditBtn:disabled {
+  border-color: var(--text-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.cotizacionEditBtn:disabled:hover {
+  background: transparent;
+  color: var(--text-disabled);
+}
+
 .cotizacionEdit {
   display: flex;
   align-items: center;
@@ -1863,6 +1874,16 @@
   color: var(--color-primary);
 }
 
+.tab:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tab:disabled:hover {
+  color: var(--text-disabled);
+}
+
 .tabActivo {
   color: var(--color-primary);
   border-bottom-color: var(--color-primary);
@@ -2116,6 +2137,13 @@
   background: var(--color-primary-dark);
 }
 
+.btnPrimario:disabled {
+  background: var(--text-disabled);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .btnSecundario {
   padding: 5px 11px;
   background: none;
@@ -2132,6 +2160,11 @@
 
 .btnSecundario:hover {
   background: var(--background-hover);
+}
+
+.btnSecundario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ============================================================================

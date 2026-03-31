@@ -24,8 +24,11 @@ interface DetalleVentaModalProps {
 }
 
 const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose, onCancelada }) => {
-  const { isAdmin, isVendedor } = useAuth();
+  const { tienePermiso } = useAuth();
   const { showNotification } = useNotification();
+
+  const puedeDescargarPdf = tienePermiso('descargar_pdf_venta');
+  const puedeEnviarEmail = tienePermiso('enviar_email_venta');
 
   const [detalle, setDetalle] = useState<VentaDetalle | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -71,6 +74,10 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
   const handleDescargar = async () => {
     if (!detalle) return;
+    if (!puedeDescargarPdf) {
+      showNotification('No tienes permisos para descargar el comprobante', 'error');
+      return;
+    }
     setDescargando(true);
     try {
       await ventaAdminService.descargarComprobante(detalle.id_venta, detalle.nro_venta);
@@ -84,6 +91,10 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
   const handleEnviarEmail = async () => {
     if (!detalle) return;
+    if (!puedeEnviarEmail) {
+      showNotification('No tienes permisos para enviar el comprobante', 'error');
+      return;
+    }
     setEnviando(true);
     try {
       const result = await ventaAdminService.enviarComprobante(detalle.id_venta);
@@ -124,7 +135,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
   // ── Render ─────────────────────────────────────────────────────────────────
 
   const total = detalle?.items.reduce((s, i) => s + i.subtotal, 0) ?? 0;
-  const puedeCancelar = (isAdmin || isVendedor) && detalle?.estado === 'completada';
+  const puedeCancelar = tienePermiso('cancelar_venta') && detalle?.estado === 'completada';
 
   return (
     <>
@@ -318,20 +329,23 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
           {/* Pie */}
           <div className={`${styles.modalFooter} ${puedeCancelar ? styles.modalFooterLeft : ''}`}>
-            {puedeCancelar && (
-              <button className={styles.dangerButton} onClick={() => setMostrarCancelacionModal(true)}>
-                <span className="material-icons">cancel</span>
-                Cancelar Venta
-              </button>
-            )}
+            <button 
+              className={styles.dangerButton} 
+              onClick={() => setMostrarCancelacionModal(true)}
+              disabled={!puedeCancelar || detalle?.estado === 'cancelada'}
+              title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : detalle?.estado === 'cancelada' ? 'La venta ya está cancelada' : 'Cancelar venta'}
+            >
+              <span className="material-icons">cancel</span>
+              Cancelar Venta
+            </button>
             <div className={styles.modalFooterActions}>
               {detalle && !cargando && (
                 <>
                   <button
                     className={styles.comprobanteButton}
                     onClick={handleDescargar}
-                    disabled={descargando || detalle.estado === 'cancelada'}
-                    title={detalle.estado === 'cancelada' ? 'No se puede descargar PDF de una venta cancelada' : 'Descargar comprobante en PDF'}
+                    disabled={descargando || detalle.estado === 'cancelada' || !puedeDescargarPdf}
+                    title={!puedeDescargarPdf ? 'Sin permisos para descargar PDF' : detalle.estado === 'cancelada' ? 'No se puede descargar PDF de una venta cancelada' : 'Descargar comprobante en PDF'}
                   >
                     <span className="material-icons">
                       {descargando ? 'hourglass_empty' : 'download'}
@@ -342,8 +356,8 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                     <button
                       className={styles.comprobanteButton}
                       onClick={handleEnviarEmail}
-                      disabled={enviando || detalle.estado === 'cancelada'}
-                      title={detalle.estado === 'cancelada' ? 'No se puede enviar email de una venta cancelada' : `Enviar comprobante a ${detalle.cliente.correo}`}
+                      disabled={enviando || detalle.estado === 'cancelada' || !puedeEnviarEmail}
+                      title={!puedeEnviarEmail ? 'Sin permisos para enviar email' : detalle.estado === 'cancelada' ? 'No se puede enviar email de una venta cancelada' : `Enviar comprobante a ${detalle.cliente.correo}`}
                     >
                       <span className="material-icons">
                         {enviando ? 'hourglass_empty' : 'email'}

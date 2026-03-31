@@ -2,11 +2,16 @@ import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { proveedorAdminService } from '../../../services/proveedorAdminService';
 import type { ProveedorListItem } from '../../../types';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import ProveedorModal from './ProveedorModal';
 import styles from './GestionCompras.module.css';
 
 const GestionProveedores: React.FC = memo(() => {
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_proveedores');
+  const puedeCrear = tienePermiso('crear_proveedor');
+  const puedeEditar = tienePermiso('editar_proveedor');
   const { showNotification } = useNotification();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -47,6 +52,23 @@ const GestionProveedores: React.FC = memo(() => {
     cargarProveedores();
     showNotification('Proveedor guardado exitosamente', 'success');
   };
+
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">local_shipping</span>
+            Gestión de Proveedores
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver proveedores</p>
+        </div>
+      </div>
+    );
+  }
 
   if (cargando) {
     return (
@@ -89,6 +111,8 @@ const GestionProveedores: React.FC = memo(() => {
             className={`${styles.crearButton} ${styles.filterButton}`}
             onClick={() => setModalProveedor('new')}
             style={{ marginTop: '20px' }}
+            disabled={!puedeCrear}
+            title={!puedeCrear ? 'Sin permisos para crear proveedores' : undefined}
           >
             <span className="material-icons">add</span>
             Nuevo Proveedor
@@ -131,8 +155,9 @@ const GestionProveedores: React.FC = memo(() => {
                     <div className={styles.actions}>
                       <button
                         className={styles.actionBtn}
-                        title="Editar"
+                        title={!puedeEditar ? 'Sin permisos para editar' : 'Editar'}
                         onClick={() => setModalProveedor(proveedor)}
+                        disabled={!puedeEditar}
                       >
                         <span className="material-icons">edit</span>
                       </button>

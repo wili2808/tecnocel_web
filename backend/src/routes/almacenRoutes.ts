@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import almacenController from '../controllers/AlmacenController.js';
-import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
-import { ROLES } from '../constants/roles.js';
+import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
@@ -15,16 +14,18 @@ router.get('/productos/categoria/:categoriaId', almacenController.getProductsByC
 router.get('/productos/:id', almacenController.getProductById.bind(almacenController));
 router.get('/categorias', almacenController.getAllCategories.bind(almacenController));
 
-// Rutas protegidas (requieren autenticación)
+// Rutas protegidas (requieren autenticación y permisos)
 router.use(verificarToken);
-router.post('/categorias', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), almacenController.createCategoria.bind(almacenController));
-router.put('/categorias/:id', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), almacenController.updateCategoria.bind(almacenController));
-router.delete('/categorias/:id', verificarRol([ROLES.ADMIN]), almacenController.deleteCategoria.bind(almacenController));
-router.post('/productos', almacenController.createProduct.bind(almacenController));
-router.put('/productos/:id', almacenController.updateProduct.bind(almacenController));
-router.delete('/productos/:id', almacenController.deleteProduct.bind(almacenController));
-router.patch('/productos/:id/stock', almacenController.updateStock.bind(almacenController));
 
+// Categorías
+router.post('/categorias', verificarPermiso('crear_categoria'), almacenController.createCategoria.bind(almacenController));
+router.put('/categorias/:id', verificarPermiso('editar_categoria'), almacenController.updateCategoria.bind(almacenController));
+router.delete('/categorias/:id', verificarPermiso('eliminar_categoria'), almacenController.deleteCategoria.bind(almacenController));
 
+// Productos
+router.post('/productos', verificarPermiso('crear_producto'), almacenController.createProduct.bind(almacenController));
+router.put('/productos/:id', verificarPermiso('editar_producto'), almacenController.updateProduct.bind(almacenController));
+router.delete('/productos/:id', verificarPermiso('eliminar_producto'), almacenController.deleteProduct.bind(almacenController));
+router.patch('/productos/:id/stock', verificarPermiso('editar_producto'), almacenController.updateStock.bind(almacenController));
 
-export default router; 
+export default router;

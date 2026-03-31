@@ -634,6 +634,123 @@ class ComentarioController {
   }
 
   /**
+   * Elimina el propio comentario de un usuario del sistema (admin/empleado)
+   *
+   * Endpoint protegido que permite a usuarios del sistema eliminar sus propios
+   * comentarios sin requerir permiso adicional. Solo el owner puede eliminar su comentario.
+   *
+   * @param req - Express Request con params.id_comentario y req.usuario (UsuarioSession)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje, datos: { imagenes_eliminadas, archivos_eliminados } }
+   * @returns 400 si el ID es inválido
+   * @returns 401 si no está autenticado
+   * @returns 403 si no es owner del comentario
+   * @returns 404 si el comentario no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/comentarios/5/propio
+   * Response: { "mensaje": "Comentario eliminado exitosamente", "datos": { ... } }
+   */
+  async eliminarComentarioPropio(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_comentario } = req.params;
+      const idUsuarioActual = req.usuario?.id;
+
+      const comentarioId = parseInt(id_comentario);
+      if (!comentarioId || comentarioId <= 0) {
+        res.status(400).json({
+          mensaje: 'ID de comentario inválido',
+          error: 'El ID del comentario debe ser un número positivo'
+        });
+        return;
+      }
+
+      if (!idUsuarioActual) {
+        res.status(401).json({ mensaje: 'No autenticado', error: 'Debes estar autenticado para realizar esta acción' });
+        return;
+      }
+
+      const comentario = await Comentario.findByPk(comentarioId);
+      if (!comentario || comentario.estado === 'eliminado') {
+        res.status(404).json({
+          mensaje: 'Comentario no encontrado',
+          error: 'El comentario especificado no existe'
+        });
+        return;
+      }
+
+      // Solo puede eliminar si el comentario fue hecho por un admin (tiene id_admin_respuesta)
+      if (!comentario.id_admin_respuesta || comentario.id_admin_respuesta !== idUsuarioActual) {
+        res.status(403).json({ mensaje: 'Acceso denegado', error: 'Solo puedes eliminar tus propios comentarios' });
+        return;
+      }
+
+      // Obtener todas las imágenes del comentario antes de eliminarlo
+      const imagenes = await ComentarioImagen.findAll({
+        where: { id_comentario: comentarioId }
+      });
+
+      // Eliminar archivos físicos de las imágenes
+      const { default: UploadController } = await import('../controllers/UploadController.js');
+      let archivosEliminados = 0;
+      
+      for (const imagen of imagenes) {
+        try {
+          const archivoEliminado = await UploadController.deleteCommentImage(imagen.url_imagen);
+          if (archivoEliminado) {
+            archivosEliminados++;
+          }
+        } catch (error) {
+          logger.warn('Error al eliminar archivo físico de imagen:', {
+            id_imagen: imagen.id_imagen,
+            url_imagen: imagen.url_imagen,
+            error: error instanceof Error ? error.message : 'Error desconocido'
+          });
+        }
+      }
+
+      // Eliminar registros de imágenes de la base de datos
+      await ComentarioImagen.destroy({
+        where: { id_comentario: comentarioId }
+      });
+
+      // Soft delete del comentario
+      await comentario.update({
+        estado: 'eliminado',
+        fyh_actualizacion: new Date()
+      });
+
+      logger.info('Comentario propio eliminado', {
+        id_comentario: comentarioId,
+        id_usuario: idUsuarioActual,
+        imagenes_eliminadas: imagenes.length,
+        archivos_eliminados: archivosEliminados
+      });
+
+      res.status(200).json({
+        mensaje: 'Comentario eliminado exitosamente',
+        datos: {
+          imagenes_eliminadas: imagenes.length,
+          archivos_eliminados: archivosEliminados
+        }
+      });
+
+    } catch (error) {
+      logger.error('Error al eliminar comentario propio:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        id_comentario: req.params.id_comentario,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+
+      res.status(500).json({
+        mensaje: 'Error interno del servidor',
+        error: 'No se pudo eliminar el comentario'
+      });
+    }
+  }
+
+  /**
    * Elimina una imagen específica de un comentario
    *
    * Endpoint protegido que permite a clientes eliminar imágenes individuales de sus propios comentarios.
@@ -1169,6 +1286,63 @@ class ComentarioController {
       res.status(200).json({ mensaje: 'Respuesta eliminada exitosamente' });
     } catch (error) {
       logger.error('Error al eliminar respuesta:', { error: error instanceof Error ? error.message : error });
+      res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo eliminar la respuesta' });
+    }
+  }
+
+  /**
+   * Elimina la propia respuesta de un usuario del sistema (admin/empleado)
+   *
+   * Endpoint protegido que permite a usuarios del sistema eliminar sus propias
+   * respuestas sin requerir permiso adicional. Solo el owner puede eliminar su respuesta.
+   *
+   * @param req - Express Request con params.id_respuesta y req.usuario (UsuarioSession)
+   * @param res - Express Response object
+   * @returns 200 con { mensaje }
+   * @returns 400 si el ID es inválido
+   * @returns 401 si no está autenticado
+   * @returns 403 si no es owner de la respuesta
+   * @returns 404 si la respuesta no existe
+   * @returns 500 si ocurre error en el servidor
+   *
+   * @example
+   * DELETE /api/comentarios/respuestas/12/propia
+   * Response: { "mensaje": "Respuesta eliminada exitosamente" }
+   */
+  async eliminarRespuestaPropia(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_respuesta } = req.params;
+      const idUsuarioActual = req.usuario?.id;
+
+      const respuestaId = parseInt(id_respuesta);
+      if (!respuestaId || respuestaId <= 0) {
+        res.status(400).json({ mensaje: 'ID de respuesta inválido', error: 'El ID debe ser un número positivo' });
+        return;
+      }
+
+      const respuesta = await ComentarioRespuesta.findByPk(respuestaId);
+      if (!respuesta || respuesta.estado === 'eliminado') {
+        res.status(404).json({ mensaje: 'Respuesta no encontrada', error: 'La respuesta especificada no existe' });
+        return;
+      }
+
+      if (!idUsuarioActual) {
+        res.status(401).json({ mensaje: 'No autenticado', error: 'Debes estar autenticado para realizar esta acción' });
+        return;
+      }
+
+      // Solo puede eliminar si es owner (tipo_autor = 'admin' y id_usuario coincide)
+      if (respuesta.tipo_autor !== 'admin' || respuesta.id_usuario !== idUsuarioActual) {
+        res.status(403).json({ mensaje: 'Acceso denegado', error: 'Solo puedes eliminar tus propias respuestas' });
+        return;
+      }
+
+      await respuesta.update({ estado: 'eliminado' });
+
+      logger.info('Respuesta propia eliminada', { id_respuesta: respuestaId, id_usuario: idUsuarioActual });
+      res.status(200).json({ mensaje: 'Respuesta eliminada exitosamente' });
+    } catch (error) {
+      logger.error('Error al eliminar respuesta propia:', { error: error instanceof Error ? error.message : error });
       res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo eliminar la respuesta' });
     }
   }

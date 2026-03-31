@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import ReporteController from '../controllers/ReporteController.js';
-import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
-import { ROLES } from '../constants/roles.js';
+import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-// Todas las rutas de reportes requieren autenticación + rol admin o gerente
+// Todas las rutas de reportes requieren autenticación + permiso ver_reportes
 router.use(verificarToken);
-router.use(verificarRol([ROLES.ADMIN, ROLES.GERENTE]));
+router.use(verificarPermiso('ver_reportes'));
 
 // Reportes
 router.get('/ventas', ReporteController.reporteVentas);

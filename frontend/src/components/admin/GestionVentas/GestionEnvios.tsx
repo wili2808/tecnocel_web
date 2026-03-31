@@ -24,9 +24,10 @@ const ESTADO_COLORS: Record<EstadoEnvio, string> = {
 
 interface GestionEnviosProps {
   onPendientesChange?: (count: number) => void;
+  puedeGestionar?: boolean;
 }
 
-const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }) => {
+const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, puedeGestionar = true }) => {
   const { showNotification } = useNotification();
 
   const [envios, setEnvios] = useState<EnvioAdminListItem[]>([]);
@@ -172,12 +173,25 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
                     {envio.nro_seguimiento ?? <em className={styles.sinDatos}>—</em>}
                   </td>
                   <td>
-                    <button
-                      className={envio.estado_envio === 'entregado' ? styles.btnSecundario : styles.btnPrimario}
-                      onClick={() => setEnvioSeleccionado(envio)}
-                    >
-                      {envio.estado_envio === 'entregado' ? 'Ver detalle' : 'Gestionar'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        className={styles.btnSecundario}
+                        onClick={() => setEnvioSeleccionado(envio)}
+                        title="Ver detalle del envío"
+                      >
+                        Ver detalle
+                      </button>
+                      {envio.estado_envio !== 'entregado' && (
+                        <button
+                          className={styles.btnPrimario}
+                          onClick={() => puedeGestionar && setEnvioSeleccionado(envio)}
+                          disabled={!puedeGestionar}
+                          title={!puedeGestionar ? 'Sin permisos para gestionar envíos' : 'Gestionar estado'}
+                        >
+                          Gestionar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

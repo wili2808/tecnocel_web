@@ -37,8 +37,12 @@ const formatFecha = (fecha: string) => {
 };
 
 const GestionOfertas = () => {
-  const { isAdmin } = useAuth();
+  const { tienePermiso } = useAuth();
   const { showNotification } = useNotification();
+  const puedeVer = tienePermiso('ver_ofertas');
+  const puedeCrear = tienePermiso('crear_oferta');
+  const puedeEditar = tienePermiso('editar_oferta');
+  const puedeEliminar = tienePermiso('eliminar_oferta');
 
   // Estado del modal
   const [showCrearForm, setShowCrearForm] = useState(false);
@@ -175,6 +179,10 @@ const GestionOfertas = () => {
   };
 
   const handleEditar = async (id: number) => {
+    if (!puedeEditar) {
+      showNotification('No tienes permisos para editar ofertas', 'error');
+      return;
+    }
     try {
       const oferta = await adminOfertaService.obtenerOferta(id);
       setEditandoOferta(oferta);
@@ -186,7 +194,7 @@ const GestionOfertas = () => {
   };
 
   const handleEliminar = async (id: number, nombre: string) => {
-    if (!isAdmin) {
+    if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar ofertas', 'error');
       return;
     }
@@ -218,6 +226,23 @@ const GestionOfertas = () => {
   };
 
   // Vista de lista
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">local_offer</span>
+            Gestión de Ofertas
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver ofertas</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -238,6 +263,8 @@ const GestionOfertas = () => {
               setEditandoOferta(null);
               setShowCrearForm(true);
             }}
+            disabled={!puedeCrear}
+            title={!puedeCrear ? 'Sin permisos para crear ofertas' : undefined}
           >
             <span className="material-icons">add_box</span>
             <span>Nueva Oferta</span>
@@ -390,16 +417,17 @@ const GestionOfertas = () => {
                           <div className={styles.actions}>
                             <button
                               className={styles.actionButton}
-                              title="Editar"
+                              title={!puedeEditar ? 'Sin permisos para editar ofertas' : 'Editar'}
                               onClick={() => handleEditar(oferta.id_oferta)}
+                              disabled={!puedeEditar}
                             >
                               <span className="material-icons">edit</span>
                             </button>
                             <button
                               className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                              title={!isAdmin ? 'Solo el administrador puede desactivar ofertas' : 'Desactivar'}
+                              title={!puedeEliminar ? 'Sin permisos para eliminar ofertas' : 'Desactivar'}
                               onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
-                              disabled={!isAdmin}
+                              disabled={!puedeEliminar}
                             >
                               <span className="material-icons">delete</span>
                             </button>

@@ -26,6 +26,8 @@ export interface AdminUser {
   idRol: number;
   /** Nombre del rol desde la BD (ej: "ADMINISTRADOR", "EMPLEADO", "VENDEDOR") */
   rolNombre: string;
+  /** Permisos del usuario (array de nombres de permisos) */
+  permisos?: string[];
 }
 
 /**

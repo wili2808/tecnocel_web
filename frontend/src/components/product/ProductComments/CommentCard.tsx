@@ -4,12 +4,17 @@ import type { Comentario, Respuesta } from '../../../services/commentService';
 import commentService from '../../../services/commentService';
 import adminCommentService from '../../../services/adminCommentService';
 import uploadService from '../../../services/uploadService';
+import { useAuth } from '../../../contexts/AuthContext';
 import ReplyList from './ReplyList';
 import styles from './CommentCard.module.css';
 
 interface CommentCardProps {
     comentario: Comentario;
+    /** ID del cliente autenticado (para comparar con id_cliente de comentarios de cliente) */
     currentUserId?: number;
+    /** ID del usuario del sistema autenticado (para comparar con id_admin_respuesta de comentarios) */
+    currentSystemUserId?: number;
+    /** Callback para eliminar el comentario */
     onDelete: (id: number) => void;
     onEdit: (id: number, data: { comentario?: string; calificacion?: number; imagenes?: any[] }) => void;
     onImageDelete?: (idComentario: number, idImagen: number) => void;
@@ -26,6 +31,7 @@ interface CommentCardProps {
 const CommentCard: React.FC<CommentCardProps> = ({
     comentario,
     currentUserId,
+    currentSystemUserId,
     onDelete,
     onEdit,
     onImageDelete,
@@ -38,7 +44,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
     onRepliesChange,
     onModerate,
 }) => {
+    const { tienePermiso } = useAuth();
+    const puedeModerar = isSystemUser ? tienePermiso('moderar_comentarios') : false;
+    const puedeEliminarCualquiera = isSystemUser ? tienePermiso('eliminar_comentarios') : false;
+    
     const [isEditing, setIsEditing] = useState(false);
+
+    // Owner: solo para clientes (los comentarios padres son de clientes)
+    // Los usuarios del sistema no son owners de comentarios de clientes
+    const isOwner = !isSystemUser && currentUserId === comentario.id_cliente;
     const [editText, setEditText] = useState(comentario.comentario);
     const [editRating, setEditRating] = useState(comentario.calificacion);
 
@@ -54,7 +68,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
     const [expandedImageList, setExpandedImageList] = useState<Array<{ src: string; alt: string }>>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const isOwner = currentUserId === comentario.id_cliente;
     const fechaFormateada = commentService.formatearFechaComentario(comentario.fyh_creacion);
 
     useEffect(() => {
@@ -349,18 +362,22 @@ const CommentCard: React.FC<CommentCardProps> = ({
                         >
                             <span className="material-icons">edit</span>
                         </button>
-                        <button
-                            className={styles.actionButton}
-                            onClick={() => setShowDeleteConfirm(true)}
-                            disabled={isSubmitting || isDeletingComment}
-                            title="Eliminar comentario"
-                        >
-                            <span className="material-icons">delete</span>
-                        </button>
                     </div>
                 )}
 
-                {isSystemUser && (
+                {/* Delete button: para owners O usuarios con permiso de eliminar */}
+                {(isOwner || puedeEliminarCualquiera) && !isCurrentlyEditing && (
+                    <button
+                        className={styles.actionButton}
+                        onClick={() => setShowDeleteConfirm(true)}
+                        disabled={isSubmitting || isDeletingComment}
+                        title={isOwner ? "Eliminar mi comentario" : "Eliminar comentario"}
+                    >
+                        <span className="material-icons">delete</span>
+                    </button>
+                )}
+
+                {isSystemUser && puedeModerar && (
                     <div className={styles.moderationActions}>
                         {comentario.estado === 'activo' && (
                             <button
@@ -382,14 +399,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
                                 <span className="material-icons">visibility</span>
                             </button>
                         )}
-                        <button
-                            className={styles.adminDeleteBtn}
-                            onClick={() => setShowDeleteConfirm(true)}
-                            title="Eliminar comentario"
-                            type="button"
-                        >
-                            <span className="material-icons">delete_forever</span>
-                        </button>
                     </div>
                 )}
             </div>
@@ -658,6 +667,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     idComentario={comentario.id_comentario}
                     respuestas={comentario.respuestas || []}
                     currentUserId={currentUserId}
+                    currentSystemUserId={currentSystemUserId}
                     isAuthenticated={isAuthenticated}
                     isSystemUser={isSystemUser}
                     onRepliesChange={onRepliesChange}

@@ -24,7 +24,11 @@ interface NuevaMarcaForm {
 
 const GestionMarcas: React.FC = memo(() => {
   const { showNotification } = useNotification();
-  const { isAdmin } = useAuth();
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_marcas');
+  const puedeCrear = tienePermiso('crear_marca');
+  const puedeEditar = tienePermiso('editar_marca');
+  const puedeEliminar = tienePermiso('eliminar_marca');
 
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +55,7 @@ const GestionMarcas: React.FC = memo(() => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
     cargarMarcas();
@@ -235,6 +239,17 @@ const GestionMarcas: React.FC = memo(() => {
     return sorted;
   }, [marcas, sortKey, sortDir]);
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver marcas</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
@@ -245,12 +260,15 @@ const GestionMarcas: React.FC = memo(() => {
           </h3>
           <p className={styles.panelSubtitle}>Administra las marcas del catálogo</p>
         </div>
-        {isAdmin && (
-          <button className={styles.addButton} onClick={iniciarCreacion} disabled={creando}>
+          <button 
+            className={styles.addButton} 
+            onClick={iniciarCreacion} 
+            disabled={!puedeCrear || creando}
+            title={!puedeCrear ? 'Sin permisos para crear marcas' : undefined}
+          >
             <span className="material-icons">add</span>
             Nueva Marca
           </button>
-        )}
       </div>
 
       {loading ? (
@@ -475,19 +493,19 @@ const GestionMarcas: React.FC = memo(() => {
                           <button
                             className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
                             onClick={() => iniciarEdicion(marca)}
-                            title="Editar"
+                            title={puedeEditar ? 'Editar' : 'Sin permisos'}
+                            disabled={!puedeEditar}
                           >
                             <span className="material-icons">edit</span>
                           </button>
-                          {isAdmin && (
                             <button
                               className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
                               onClick={() => iniciarEliminacion(marca.id_marca)}
-                              title="Eliminar"
+                              disabled={!puedeEliminar}
+                              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
                             >
                               <span className="material-icons">delete</span>
                             </button>
-                          )}
                         </div>
                       </td>
                     </tr>

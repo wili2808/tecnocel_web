@@ -2,6 +2,7 @@ import React, { useState, memo } from 'react';
 import type { Respuesta } from '../../../services/commentService';
 import commentService from '../../../services/commentService';
 import adminCommentService from '../../../services/adminCommentService';
+import { useAuth } from '../../../contexts/AuthContext';
 import ReplyCard from './ReplyCard';
 import ReplyForm from './ReplyForm';
 import styles from './ReplyList.module.css';
@@ -14,8 +15,10 @@ interface ReplyListProps {
   idComentario: number;
   /** Lista de respuestas del comentario (incluyendo ocultas si el usuario es admin) */
   respuestas: Respuesta[];
-  /** ID del usuario autenticado actualmente */
+  /** ID del cliente autenticado (para comparar con id_cliente de respuestas de cliente) */
   currentUserId?: number;
+  /** ID del usuario del sistema autenticado (para comparar con id_usuario de respuestas admin) */
+  currentSystemUserId?: number;
   /** Si el usuario está autenticado (muestra botón de responder) */
   isAuthenticated?: boolean;
   /** Si el usuario actual es administrador o empleado del sistema */
@@ -45,10 +48,16 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
   idComentario,
   respuestas,
   currentUserId,
+  currentSystemUserId,
   isAuthenticated = false,
   isSystemUser = false,
   onRepliesChange
 }) => {
+  const { tienePermiso } = useAuth();
+  // Clientes siempre pueden responder; system users necesitan permiso
+  const puedeResponder = isSystemUser ? tienePermiso('responder_comentarios') : true;
+  const puedeModerar = isSystemUser ? tienePermiso('moderar_comentarios') : false;
+  
   const [showForm, setShowForm] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
@@ -72,14 +81,24 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
     setShowAll(true);
   };
 
-  /** Elimina (soft delete) una respuesta usando el servicio correcto según el rol */
-  const handleDeleteReply = async (idRespuesta: number) => {
-    if (isSystemUser) {
-      await adminCommentService.eliminarRespuestaAdmin(idRespuesta);
-    } else {
-      await commentService.eliminarRespuesta(idRespuesta);
+  /** Elimina (soft delete) una respuesta */
+  const handleDeleteReply = async (idRespuesta: number, isOwner: boolean) => {
+    try {
+      if (isSystemUser) {
+        // Si es owner, usar endpoint propio; si no, necesita permiso de eliminar
+        if (isOwner) {
+          await adminCommentService.eliminarRespuestaPropia(idRespuesta);
+        } else {
+          await adminCommentService.eliminarRespuestaAdmin(idRespuesta);
+        }
+      } else {
+        await commentService.eliminarRespuesta(idRespuesta);
+      }
+      onRepliesChange(idComentario, respuestas.filter(r => r.id_respuesta !== idRespuesta));
+    } catch (error) {
+      console.error('Error deleting reply:', error);
+      throw error;
     }
-    onRepliesChange(idComentario, respuestas.filter(r => r.id_respuesta !== idRespuesta));
   };
 
   /** Cambia el estado de moderación de una respuesta (solo admins del sistema) */
@@ -95,16 +114,22 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
     <div className={styles.replyList}>
       {activeReplies.length > 0 && (
         <div className={styles.replies}>
-          {visibleReplies.map(respuesta => (
-            <ReplyCard
-              key={respuesta.id_respuesta}
-              respuesta={respuesta}
-              currentUserId={currentUserId}
-              isSystemUser={isSystemUser}
-              onDelete={handleDeleteReply}
-              onModerate={isSystemUser ? handleModerateReply : undefined}
-            />
-          ))}
+          {visibleReplies.map(respuesta => {
+            const isOwner = respuesta.tipo_autor === 'cliente'
+              ? respuesta.id_cliente === currentUserId
+              : respuesta.tipo_autor === 'admin' && respuesta.id_usuario === currentSystemUserId;
+            return (
+              <ReplyCard
+                key={respuesta.id_respuesta}
+                respuesta={respuesta}
+                currentUserId={currentUserId}
+                currentSystemUserId={currentSystemUserId}
+                isSystemUser={isSystemUser}
+                onDelete={(id) => handleDeleteReply(id, isOwner)}
+                onModerate={isSystemUser && puedeModerar ? handleModerateReply : undefined}
+              />
+            );
+          })}
 
           {hiddenCount > 0 && !showAll && (
             <button
@@ -130,6 +155,8 @@ const ReplyList: React.FC<ReplyListProps> = memo(({
         <button
           className={styles.replyBtn}
           onClick={() => setShowForm(true)}
+          disabled={!puedeResponder}
+          title={!puedeResponder ? 'Sin permisos para responder comentarios' : undefined}
         >
           <span className="material-icons">reply</span>
           Responder

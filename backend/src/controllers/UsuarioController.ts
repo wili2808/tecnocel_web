@@ -12,6 +12,7 @@ import { ROLES } from '../constants/roles.js';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
+import Permiso from '../models/Permiso.js';
 import { Request, Response } from 'express';
 import logger from '../services/loggerService.js';
 
@@ -148,11 +149,34 @@ export default class UsuarioController {
       // Registrar fecha/hora del último login
       await usuario.update({ fyh_ultimo_login: new Date() });
 
+      // Obtener permisos del usuario
+      let permisos: string[] = [];
+      
+      if (usuario.id_rol === ROLES.ADMIN) {
+        // ADMIN tiene todos los permisos
+        const todosPermisos = await Permiso.findAll({ attributes: ['nombre'] });
+        permisos = todosPermisos.map(p => p.nombre);
+      } else {
+        // Otros roles obtienen permisos de su rol
+        const rol = await Rol.findByPk(usuario.id_rol, {
+          include: [{
+            model: Permiso,
+            as: 'permisos',
+            attributes: ['nombre'],
+            through: { attributes: [] }
+          }]
+        });
+        permisos = (rol as unknown as { permisos?: { nombre: string }[] })?.permisos?.map(p => p.nombre) || [];
+      }
+
       // Responder con token y datos del usuario
       const rolNombre = (usuario as any).Rol?.rol || 'Desconocido';
       const response: AuthUsuarioResponse = {
         token,
-        usuario: this.mapearUsuarioResponse(usuario, rolNombre)
+        usuario: {
+          ...this.mapearUsuarioResponse(usuario, rolNombre),
+          permisos
+        }
       };
 
       res.json(response);
@@ -207,8 +231,28 @@ export default class UsuarioController {
         return res.status(404).json({mensaje: 'Usuario no encontrado'});
       }
 
+      // Obtener permisos del usuario
+      let permisos: string[] = [];
+      if (usuario.id_rol === ROLES.ADMIN) {
+        const todosPermisos = await Permiso.findAll({ attributes: ['nombre'] });
+        permisos = todosPermisos.map(p => p.nombre);
+      } else {
+        const rol = await Rol.findByPk(usuario.id_rol, {
+          include: [{
+            model: Permiso,
+            as: 'permisos',
+            attributes: ['nombre'],
+            through: { attributes: [] }
+          }]
+        });
+        permisos = (rol as unknown as { permisos?: { nombre: string }[] })?.permisos?.map(p => p.nombre) || [];
+      }
+
       const rolNombre = (usuario as any).Rol?.rol || 'Desconocido';
-      res.json(this.mapearUsuarioResponse(usuario, rolNombre));
+      res.json({
+        ...this.mapearUsuarioResponse(usuario, rolNombre),
+        permisos
+      });
 
     } catch (error) {
       logger.error('Error al obtener datos del usuario:', {

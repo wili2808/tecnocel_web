@@ -2,9 +2,9 @@
  * Componente AdminPanel - Panel de administración completo con navegación lateral
  * Proporciona acceso a funcionalidades de gestión para administradores y empleados
  * Incluye CRUD de usuarios, gestión de clientes, productos y configuración del sistema
- * Control de acceso basado en roles (admin vs empleado)
+ * Control de acceso basado en permisos granulares
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
@@ -18,45 +18,21 @@ import GestionOfertas from '../../components/admin/GestionOfertas/GestionOfertas
 import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
 import GestionCompras from '../../components/admin/GestionCompras/GestionCompras';
 import Reportes from '../../components/admin/Reportes/Reportes';
+import GestionPermisos from '../../components/admin/GestionPermisos/GestionPermisos';
 import adminPanelStyles from './AdminPanel.module.css';
-import { ROLES } from '../../constants/roles';
+import { MENU_PERMISOS, type MenuPermisoOption } from '../../constants/menuPermisos';
 
-// ============================================================================
-// CONFIGURACIÓN Y CONSTANTES
-// ============================================================================
-
-/**
- * Interfaz para opciones del menú
- * Incluye roles permitidos para control de acceso
- */
-interface MenuOption {
-  id: string;
-  label: string;
-  icon: string;
-  /** IDs de roles permitidos (vacío = todos los del sistema) */
-  allowedRoles?: number[];
-}
-
-/**
- * Opciones del menú del panel de administración
- * Cada opción incluye id, etiqueta, icono y roles permitidos por idRol
- * Si allowedRoles no se define, todos los usuarios del sistema pueden acceder
- */
-const MENU_OPTIONS: MenuOption[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-  {
-    id: 'productos',
-    label: 'Gestión de Productos',
-    icon: 'inventory_2',
-    allowedRoles: [ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR],
-  },
-  { id: 'usuarios', label: 'Gestión de Usuarios', icon: 'group', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
-  { id: 'clientes', label: 'Gestión de Clientes', icon: 'people' },
-  { id: 'ofertas', label: 'Gestión de Ofertas', icon: 'local_offer', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
-  { id: 'compras', label: 'Gestión de Compras', icon: 'shopping_cart', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE, ROLES.VENDEDOR] },
-  { id: 'ventas', label: 'Gestión de Ventas', icon: 'receipt_long' },
-  { id: 'reportes', label: 'Reportes', icon: 'assessment', allowedRoles: [ROLES.ADMIN, ROLES.GERENTE] },
-];
+const SECTION_DESCRIPTIONS: Record<string, string> = {
+  dashboard: 'Resumen operativo del negocio, prioridades activas y alcance del rol actual.',
+  productos: 'Catálogo, stock, marcas, categorías y estructura técnica de producto.',
+  usuarios: 'Usuarios internos, acceso al panel y administración de roles operativos.',
+  clientes: 'Base de clientes registrados, seguimiento y edición administrativa.',
+  ofertas: 'Promociones vigentes, programación comercial y control de campañas.',
+  compras: 'Abastecimiento, proveedores y trazabilidad de compras activas.',
+  ventas: 'Ventas web y manuales, logística, retiros y configuración comercial.',
+  reportes: 'Lectura analítica del rendimiento comercial y exportación de información.',
+  permisos: 'Gobernanza de permisos y seguridad del sistema administrativo.',
+};
 
 // ============================================================================
 // COMPONENTES AUXILIARES
@@ -71,7 +47,7 @@ const MenuOptionItem = ({
   isActive,
   onClick,
 }: {
-  option: MenuOption;
+  option: MenuPermisoOption;
   isActive: boolean;
   onClick: () => void;
 }) => (
@@ -126,6 +102,9 @@ const ContentSection = ({
       case 'reportes':
         return <Reportes />;
 
+      case 'permisos':
+        return <GestionPermisos />;
+
       default:
         return (
           <div className={adminPanelStyles.contentSection}>
@@ -152,10 +131,18 @@ const AdminPanel = () => {
   // ============================================================================
   // HOOKS Y ESTADO
   // ============================================================================
-  const { user, isSystemUser, logout } = useAuth();
+  const { user, isSystemUser, logout, tienePermiso } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const filteredMenuOptions = useMemo(() => {
+    return MENU_PERMISOS.filter((option) => {
+      if (option.id === 'dashboard') return true;
+      if (option.permisosRequeridos.length === 0) return true;
+
+      return option.permisosRequeridos.every(permiso => tienePermiso(permiso));
+    });
+  }, [tienePermiso]);
 
   // ============================================================================
   // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN
@@ -198,19 +185,16 @@ const AdminPanel = () => {
     );
   }
 
-  // Obtener idRol del usuario del sistema
+  // Obtener usuario del sistema
   const adminUser = user as AdminUser;
-  const userIdRol = adminUser.idRol;
-
-  // Filtrar opciones del menú según el idRol del usuario
-  const filteredMenuOptions = MENU_OPTIONS.filter((option) => {
-    if (!option.allowedRoles) return true;
-    return option.allowedRoles.includes(userIdRol);
-  });
 
   // Obtener nombre y rol del usuario dinámicamente desde el backend
   const userName = adminUser.nombres;
   const userRole = adminUser.rolNombre || 'Usuario';
+  const activeMenuOption = filteredMenuOptions.find((option) => option.id === activeSection);
+  const activeSectionLabel = activeMenuOption?.label || 'Panel de Administración';
+  const activeSectionDescription =
+    SECTION_DESCRIPTIONS[activeSection] || 'Módulo administrativo disponible según los permisos actuales.';
 
   // ============================================================================
   // RENDERIZADO PRINCIPAL DEL PANEL
@@ -289,6 +273,25 @@ const AdminPanel = () => {
 
         {/* Área de contenido principal del panel */}
         <main className={adminPanelStyles.mainContent}>
+          <div className={adminPanelStyles.mainHeader}>
+            <div className={adminPanelStyles.mainHeaderCopy}>
+              <span className={adminPanelStyles.mainEyebrow}>Panel administrativo</span>
+              <h1 className={adminPanelStyles.mainTitle}>{activeSectionLabel}</h1>
+              <p className={adminPanelStyles.mainDescription}>{activeSectionDescription}</p>
+            </div>
+
+            <div className={adminPanelStyles.mainHeaderMeta}>
+              <div className={adminPanelStyles.mainBadge}>
+                <span className="material-icons">verified_user</span>
+                <span>{userRole}</span>
+              </div>
+              <div className={adminPanelStyles.mainBadge}>
+                <span className="material-icons">view_sidebar</span>
+                <span>{filteredMenuOptions.length} módulos</span>
+              </div>
+            </div>
+          </div>
+
           <ContentSection activeSection={activeSection} onNavigate={setActiveSection} />
         </main>
       </div>

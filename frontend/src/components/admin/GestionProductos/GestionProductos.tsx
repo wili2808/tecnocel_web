@@ -22,8 +22,12 @@ type SortDir = 'asc' | 'desc';
 const ITEMS_PER_PAGE = 20;
 
 const GestionProductos = () => {
-  const { isAdmin, isVendedor } = useAuth();
-  const isReadOnly = isVendedor && !isAdmin;
+  const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_productos');
+  const puedeCrear = tienePermiso('crear_producto');
+  const puedeEditar = tienePermiso('editar_producto');
+  const puedeEliminar = tienePermiso('eliminar_producto');
+  const isReadOnly = !puedeEditar;
   const { showNotification } = useNotification();
 
   // Estado de la vista
@@ -133,7 +137,7 @@ const GestionProductos = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, showNotification]);
 
   useEffect(() => {
     if (vista === 'lista') {
@@ -163,13 +167,13 @@ const GestionProductos = () => {
       const producto = await adminProductService.obtenerProducto(id);
       setProductoSeleccionado(producto);
       setVista('editar');
-    } catch (err: any) {
+    } catch {
       showNotification('Error al cargar producto para editar', 'error');
     }
   };
 
   const handleEliminar = async (id: number, nombre: string) => {
-    if (!isAdmin) {
+    if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar productos', 'error');
       return;
     }
@@ -198,6 +202,23 @@ const GestionProductos = () => {
     setProductoSeleccionado(null);
   };
 
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            <span className="material-icons">inventory_2</span>
+            Gestión de Productos
+          </h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <p style={{ marginTop: 16 }}>No tienes permisos para ver productos</p>
+        </div>
+      </div>
+    );
+  }
+
   // Renderizar formulario si estamos en crear/editar
   if (vista === 'crear' || vista === 'editar') {
     return (
@@ -222,12 +243,15 @@ const GestionProductos = () => {
             </h2>
             <p className={styles.subtitle}>Administra el catálogo de productos de la tienda</p>
           </div>
-          {!isReadOnly && (
-            <button className={styles.crearButton} onClick={() => setVista('crear')}>
+            <button 
+              className={styles.crearButton} 
+              onClick={() => setVista('crear')}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear productos' : undefined}
+            >
               <span className="material-icons">add_box</span>
               <span>Agregar Producto</span>
             </button>
-          )}
         </div>
       </div>
 
@@ -471,9 +495,9 @@ const GestionProductos = () => {
                                 </button>
                                 <button
                                   className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                                  title={!isAdmin ? 'Solo el administrador puede eliminar' : 'Eliminar'}
+                                  title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
                                   onClick={() => handleEliminar(producto.id_producto, producto.nombre)}
-                                  disabled={!isAdmin}
+                                  disabled={!puedeEliminar}
                                 >
                                   <span className="material-icons">delete</span>
                                 </button>

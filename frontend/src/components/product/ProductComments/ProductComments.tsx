@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import commentService from '../../../services/commentService';
+import adminCommentService from '../../../services/adminCommentService';
 import uploadService from '../../../services/uploadService';
 import type { Comentario, EstadisticasComentarios, Respuesta } from '../../../services/commentService';
 import CommentForm from './CommentForm';
@@ -119,7 +120,12 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
     // Manejar eliminación de comentario
     const handleEliminarComentario = async (idComentario: number) => {
         try {
-            await commentService.eliminarComentario(idComentario);
+            if (isSystemUser) {
+                // System users need eliminar_comentarios permission to delete comments
+                await adminCommentService.eliminarComentarioAdmin(idComentario);
+            } else {
+                await commentService.eliminarComentario(idComentario);
+            }
             await cargarComentarios(currentPage);
         } catch (err) {
             setError('Error al eliminar el comentario.');
@@ -291,6 +297,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
                                 key={comentario.id_comentario}
                                 comentario={comentario}
                                 currentUserId={user?.id}
+                                currentSystemUserId={user?.id}
                                 onDelete={handleEliminarComentario}
                                 onEdit={handleEditarComentario}
                                 onImageDelete={handleEliminarImagenComentario}
