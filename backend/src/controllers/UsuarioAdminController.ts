@@ -19,6 +19,9 @@ import Usuario from '../models/Usuario.js';
 import Rol from '../models/Rol.js';
 import Cliente from '../models/Cliente.js';
 import Almacen from '../models/Almacen.js';
+import Cancelacion from '../models/Cancelacion.js';
+import ComentarioRespuesta from '../models/ComentarioRespuesta.js';
+import Compra from '../models/Compra.js';
 import logger from '../services/loggerService.js';
 import { sendAccountCreatedByAdminEmail } from '../services/emailService.js';
 import { WhereOptions } from 'sequelize';
@@ -554,6 +557,45 @@ class UsuarioAdminController {
       if (!usuario) {
         return res.status(404).json({
           mensaje: 'Usuario no encontrado'
+        });
+      }
+
+      // Verificar si el usuario tiene datos asociados en otras tablas
+      // Foreign keys en tb_usuarios previenen eliminación directa
+      const validacionesAsociaciones = await Promise.all([
+        Almacen.count({ where: { id_usuario: id } }),
+        Cancelacion.count({ where: { id_usuario: id } }),
+        ComentarioRespuesta.count({ where: { id_usuario: id } }),
+        Compra.count({ where: { id_usuario: id } })
+      ]);
+
+      const [productosCount, cancelacionesCount, respuestasCount, comprasCount] = validacionesAsociaciones;
+
+      // Compilar lista de asociaciones encontradas
+      const asociacionesEncontradas: string[] = [];
+      if (productosCount > 0) asociacionesEncontradas.push(`${productosCount} producto(s)`);
+      if (cancelacionesCount > 0) asociacionesEncontradas.push(`${cancelacionesCount} cancelación(es)`);
+      if (respuestasCount > 0) asociacionesEncontradas.push(`${respuestasCount} respuesta(s) a comentarios`);
+      if (comprasCount > 0) asociacionesEncontradas.push(`${comprasCount} compra(s) a proveedor(es)`);
+
+      if (asociacionesEncontradas.length > 0) {
+        logger.warn('Intento de eliminar usuario con datos asociados', {
+          id_usuario: id,
+          productos: productosCount,
+          cancelaciones: cancelacionesCount,
+          respuestas: respuestasCount,
+          compras: comprasCount,
+          intentado_por: req.usuario?.id
+        });
+        return res.status(409).json({
+          mensaje: 'No se puede eliminar este usuario. Tiene datos asociados en el sistema.',
+          detalles: `Registros encontrados: ${asociacionesEncontradas.join(', ')}. Resuelva estas asociaciones antes de eliminar.`,
+          asociaciones: {
+            productos: productosCount,
+            cancelaciones: cancelacionesCount,
+            respuestas_comentarios: respuestasCount,
+            compras: comprasCount
+          }
         });
       }
 
