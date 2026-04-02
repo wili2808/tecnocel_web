@@ -3,6 +3,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { compraAdminService } from '../../../services/compraAdminService';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import DetalleCompraModal from './DetalleCompraModal';
 import AnularCompraModal from './AnularCompraModal';
@@ -87,7 +88,7 @@ const GestionCompras: React.FC = memo(() => {
   useEffect(() => {
     setFiltros((prev) => ({
       ...prev,
-      search: debouncedSearch || undefined
+      search: debouncedSearch || undefined,
     }));
   }, [debouncedSearch]);
 
@@ -122,49 +123,71 @@ const GestionCompras: React.FC = memo(() => {
   if (!puedeVer) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            <span className="material-icons">shopping_cart</span>
-            Gestión de Compras
-          </h1>
-        </div>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver compras</p>
-        </div>
+        <AdminEmptyState
+          icon="lock"
+          title="Sin acceso a compras"
+          message="Tu usuario no tiene permisos para revisar compras ni proveedores desde esta sección."
+          tone="warning"
+        />
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <div>
-            <h1 className={styles.title}>
-              <span className="material-icons">shopping_cart</span>
-              Gestión de Compras
-            </h1>
-            <p className={styles.subtitle}>Administra compras a proveedores y control de stock</p>
-          </div>
-          {activeTab === 'compras' && puedeCrear && (
-            <button
-              className={styles.crearButton}
-              onClick={() => setMostrarRegistrar(true)}
-              disabled={cargando}
-            >
+      <AdminSectionActions
+        lead={null}
+        actions={
+          activeTab === 'compras' && puedeCrear ? (
+            <button className={styles.crearButton} onClick={() => setMostrarRegistrar(true)} disabled={cargando}>
               <span className="material-icons">add</span>
               Nueva Compra
             </button>
-          )}
+          ) : null
+        }
+      />
+
+      {/* Estadísticas */}
+      {stats ? (
+        <div className={styles.statsBar}>
+          <AdminStatCard
+            icon="today"
+            label="Hoy"
+            value={stats.compras_hoy}
+            variant="flush"
+            className={styles.statCard}
+          />
+          <AdminStatCard
+            icon="date_range"
+            label="Últimos 7 días"
+            value={stats.compras_semana}
+            variant="flush"
+            className={styles.statCard}
+          />
+          <AdminStatCard
+            icon="calendar_month"
+            label="Este mes"
+            value={stats.compras_mes}
+            variant="flush"
+            className={styles.statCard}
+          />
+          <AdminStatCard
+            icon="attach_money"
+            label="Gasto del mes"
+            value={`$${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}`}
+            tone="warning"
+            variant="flush"
+            className={styles.statCard}
+          />
         </div>
-      </div>
+      ) : (
+        <div className={styles.statsLoading} />
+      )}
 
       {/* Tabs */}
       <div className={styles.tabsBar}>
         <button
-          className={`${styles.tabBtn} ${activeTab === 'compras' ? styles.tabActive : ''}`}
+          className={`${styles.tab} ${activeTab === 'compras' ? styles.tabActive : ''}`}
           onClick={() => {
             setActiveTab('compras');
             setOffset(0);
@@ -174,7 +197,7 @@ const GestionCompras: React.FC = memo(() => {
           Compras
         </button>
         <button
-          className={`${styles.tabBtn} ${activeTab === 'proveedores' ? styles.tabActive : ''}`}
+          className={`${styles.tab} ${activeTab === 'proveedores' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('proveedores')}
         >
           <span className="material-icons">business</span>
@@ -185,44 +208,6 @@ const GestionCompras: React.FC = memo(() => {
       {/* Tab: Compras */}
       {activeTab === 'compras' && (
         <>
-          {/* Estadísticas */}
-          {stats ? (
-            <div className={styles.statsBar}>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>
-                  <span className="material-icons">today</span>
-                  Hoy
-                </span>
-                <span className={styles.statValue}>{stats.compras_hoy}</span>
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>
-                  <span className="material-icons">date_range</span>
-                  Últimos 7 días
-                </span>
-                <span className={styles.statValue}>{stats.compras_semana}</span>
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>
-                  <span className="material-icons">calendar_month</span>
-                  Este mes
-                </span>
-                <span className={styles.statValue}>{stats.compras_mes}</span>
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>
-                  <span className="material-icons">attach_money</span>
-                  Gasto mes
-                </span>
-                <span className={styles.statValue} style={{ fontSize: '18px' }}>
-                  ${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.statsLoading} />
-          )}
-
           {/* Filtros */}
           <div className={styles.filterBar}>
             <div className={styles.filterRow}>
@@ -258,7 +243,7 @@ const GestionCompras: React.FC = memo(() => {
                   onChange={(e) => {
                     setFiltros((prev) => ({
                       ...prev,
-                      estado: (e.target.value as 'activa' | 'anulada') || undefined
+                      estado: (e.target.value as 'activa' | 'anulada') || undefined,
                     }));
                     setOffset(0);
                   }}
@@ -290,23 +275,29 @@ const GestionCompras: React.FC = memo(() => {
 
           {/* Tabla */}
           {error ? (
-            <div className={styles.error}>
-              <span className="material-icons">error</span>
-              <p>{error}</p>
-              <button className={styles.retryButton} onClick={cargarCompras}>
-                Reintentar
-              </button>
-            </div>
+            <AdminEmptyState
+              icon="error_outline"
+              title="No pudimos cargar las compras"
+              message={error}
+              actionLabel="Reintentar"
+              onAction={cargarCompras}
+              tone="danger"
+              className={styles.errorState}
+            />
           ) : cargando ? (
-            <div className={styles.loading}>
-              <span className="material-icons">hourglass_empty</span>
-              <p>Cargando compras...</p>
-            </div>
+            <AdminEmptyState
+              icon="hourglass_empty"
+              title="Cargando compras"
+              message="Estamos obteniendo el historial de compras y sus métricas de abastecimiento."
+              className={styles.loadingState}
+            />
           ) : compras.length === 0 ? (
-            <div className={styles.loading}>
-              <span className="material-icons">inbox</span>
-              <p>No hay compras registradas</p>
-            </div>
+            <AdminEmptyState
+              icon="inventory_2"
+              title="No hay compras registradas"
+              message="Todavía no se encontraron compras para los filtros actuales."
+              className={styles.loadingState}
+            />
           ) : (
             <>
               <div className={styles.tableWrapper}>
@@ -331,7 +322,7 @@ const GestionCompras: React.FC = memo(() => {
                           {new Date(compra.fecha_compra).toLocaleDateString('es-AR', {
                             year: '2-digit',
                             month: '2-digit',
-                            day: '2-digit'
+                            day: '2-digit',
                           })}
                         </td>
                         <td>{compra.nombre_proveedor}</td>
@@ -341,9 +332,7 @@ const GestionCompras: React.FC = memo(() => {
                         </td>
                         <td style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{compra.cantidad_items}</td>
                         <td>
-                          <span
-                            className={compra.estado === 'activa' ? styles.badgeActiva : styles.badgeAnulada}
-                          >
+                          <span className={compra.estado === 'activa' ? styles.badgeActiva : styles.badgeAnulada}>
                             {compra.estado === 'activa' ? 'Activa' : 'Anulada'}
                           </span>
                         </td>

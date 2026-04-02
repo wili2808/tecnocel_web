@@ -5,7 +5,8 @@
 .productActions {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  align-items: center;
+  gap: var(--spacing-lg);
   width: 100%;
 }
 
@@ -14,15 +15,8 @@
 .quantitySection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.quantityLabel {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .quantityControls {
@@ -83,7 +77,7 @@
 }
 
 .availableStock {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-xxs);
   color: var(--text-tertiary);
 }
 
@@ -97,163 +91,21 @@
 
 .actionButtons {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.actionButton {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--border-radius-full);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-normal);
   width: 100%;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid transparent;
-}
-
-.actionButton:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.actionButton .material-icons {
-  font-size: 18px;
-}
-
-/* Comprar ahora — sólido primario */
-.buyNowButton {
-  background-color: var(--color-primary);
-  color: #fff;
-  border-color: var(--color-primary);
-}
-
-.buyNowButton:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
-  transform: translateY(-1px);
-}
-
-.buyNowButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* Agregar al carrito — ghost */
-.addToCartButton {
-  background-color: transparent;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.addToCartButton:hover:not(:disabled) {
-  background-color: rgba(var(--color-primary-rgb), 0.06);
-  transform: translateY(-1px);
-}
-
-.addToCartButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* Estado éxito */
-.successButton {
-  background-color: var(--color-success) !important;
-  border-color: var(--color-success) !important;
-  color: #fff !important;
-}
-
-/* Stock máximo en carrito */
-.maxStockButton {
-  background-color: transparent !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-tertiary) !important;
-  cursor: not-allowed !important;
-}
-
-.maxStockButton:hover {
-  transform: none !important;
-}
-
-.maxStockButton .material-icons { transform: none !important; }
-
-/* Disabled global */
-.actionButton:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-/* Spinner solo cuando está cargando (no cuando está agotado o bloqueado) */
-.actionButton:disabled:not(.disabledButton):not(.maxStockButton)::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 14px;
-  height: 14px;
-  margin: -7px 0 0 -7px;
-  border: 2px solid transparent;
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-/* Botón agotado */
-.disabledButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: 1px solid rgba(var(--color-error-rgb), 0.25);
-  border-radius: var(--border-radius-full);
-  background-color: rgba(var(--color-error-rgb), 0.05);
-  color: var(--color-error);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: not-allowed;
-  width: 100%;
-}
-
-.disabledButton .material-icons { font-size: 18px; }
-.disabledButton::after { display: none; }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
 
-@media (max-width: 1024px) {
-  .actionButtons {
-    flex-direction: row;
-  }
-
-  .actionButton,
-  .disabledButton {
-    flex: 1;
-  }
-}
-
 @media (max-width: 768px) {
-  .actionButtons { flex-direction: column; }
+  
 }
 
 @media (max-width: 480px) {
-  .actionButton,
-  .disabledButton {
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: var(--font-size-sm);
-  }
 
-  .quantitySection { align-items: flex-start; }
 }
 
 /* ============================================================
@@ -261,13 +113,7 @@
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .actionButton,
-  .quantityButton { transition: none; }
-
-  .actionButton:disabled:not(.disabledButton):not(.maxStockButton)::after {
-    animation: none;
+  .quantityButton {
+    transition: none;
   }
-
-  .buyNowButton:hover:not(:disabled),
-  .addToCartButton:hover:not(:disabled) { transform: none; }
 }

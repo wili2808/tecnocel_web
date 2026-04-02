@@ -29,13 +29,14 @@
   align-items: center;
   gap: 4px;
   margin-top: var(--spacing-xs);
+  margin-left: var(--spacing-lg);
   background: none;
   border: none;
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   cursor: pointer;
   padding: 4px var(--spacing-xs);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-md);
   transition: color 0.15s, background-color 0.15s;
 }
 

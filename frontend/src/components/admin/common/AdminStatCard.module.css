@@ -1,0 +1,115 @@
+.card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  border-radius: var(--border-radius-lg);
+  background: color-mix(in srgb, var(--background-primary) 94%, transparent);
+  transition: transform var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve),
+              background-color var(--transition-fast) var(--transition-curve);
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-primary) 24%, var(--border-color));
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  align-items: center;
+}
+
+.header .material-icons {
+  font-size: 15px !important;
+}
+
+.value {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.neutral .header .material-icons {
+  color: var(--color-primary);
+}
+
+.success .header .material-icons {
+  color: var(--color-success);
+}
+
+.warning .header .material-icons {
+  color: var(--color-warning, #d97706);
+}
+
+.danger .header .material-icons {
+  color: var(--color-error);
+}
+
+.flush {
+  padding: 16px 20px;
+  border: none;
+  border-right: 1px solid var(--border-color);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.flush:last-child {
+  border-right: none;
+}
+
+.flush:hover {
+  transform: none;
+  background: var(--background-hover);
+}
+
+@media (max-width: 1024px) {
+.card {
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+}
+
+.header {
+  font-size: 12px;
+  font-weight: 700;
+  gap: 8px;
+}
+
+.header .material-icons {
+  font-size: 10px !important;
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detail {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+}

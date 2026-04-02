@@ -4,8 +4,10 @@
    ============================================================================ */
 
 .commentStats {
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
+  background-color: rgba(var(--color-primary-rgb), 0.08);
+  border-radius: var(--border-radius-md);
 }
 
 /* ── Header ─────────────────────────────────────────────────────────── */
@@ -209,8 +211,6 @@
 }
 
 @media (max-width: 480px) {
-  .commentStats { padding: var(--spacing-lg) 0; }
-
   .statsHeader { flex-direction: column; align-items: flex-start; }
 
   .statsMetrics { gap: var(--spacing-md); }

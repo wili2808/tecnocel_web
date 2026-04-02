@@ -4,10 +4,12 @@
    ============================================================================ */
 
 .commentCard {
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
   border-bottom: 1px solid var(--border-color);
   position: relative;
   animation: fadeIn 0.25s ease-out;
+  background-color: rgba(var(--color-primary-rgb) , 0.04);
 }
 
 .commentCard:last-child {
@@ -98,7 +100,7 @@
 .actions {
   display: flex;
   gap: 4px;
-  flex-shrink: 0;
+  flex-shrink: 0
 }
 
 .actionButton {
@@ -349,7 +351,7 @@
   padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-lg);
   margin-top: var(--spacing-md);
   background: rgba(var(--color-primary-rgb), 0.03);
-  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
 }
 
 .adminHeader {
@@ -547,8 +549,6 @@
 /* ── Responsive ─────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
-  .commentCard { padding: var(--spacing-lg) 0; }
-
   .editActions { flex-direction: column-reverse; }
 
   .cancelEdit,
@@ -567,7 +567,7 @@
 }
 
 @media (max-width: 480px) {
-  .commentCard { padding: var(--spacing-md) 0; }
+  .commentCard { padding: var(--spacing-xs) }
 
   .imageContainer { width: 72px; height: 72px; }
   .commentImage { width: 72px; height: 72px; }

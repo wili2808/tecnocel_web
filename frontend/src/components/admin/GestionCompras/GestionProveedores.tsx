@@ -63,7 +63,9 @@ const GestionProveedores: React.FC = memo(() => {
           </h1>
         </div>
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
+            lock
+          </span>
           <p style={{ marginTop: 16 }}>No tienes permisos para ver proveedores</p>
         </div>
       </div>
@@ -108,7 +110,7 @@ const GestionProveedores: React.FC = memo(() => {
             />
           </div>
           <button
-            className={`${styles.crearButton} ${styles.filterButton}`}
+            className={`${styles.crearButton}`}
             onClick={() => setModalProveedor('new')}
             style={{ marginTop: '20px' }}
             disabled={!puedeCrear}
@@ -145,9 +147,7 @@ const GestionProveedores: React.FC = memo(() => {
                   <td style={{ fontWeight: 600 }}>{proveedor.nombre_proveedor}</td>
                   <td>{proveedor.empresa}</td>
                   <td style={{ fontSize: '12px' }}>{proveedor.celular}</td>
-                  <td style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                    {proveedor.email || '-'}
-                  </td>
+                  <td style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{proveedor.email || '-'}</td>
                   <td style={{ fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '200px' }}>
                     {proveedor.direccion}
                   </td>

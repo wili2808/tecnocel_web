@@ -137,7 +137,7 @@ const MobileMenuDropdown: React.FC<MobileMenuDropdownProps> = memo(
         )}
       </div>
     );
-  }
+  },
 );
 
 MobileMenuDropdown.displayName = 'MobileMenuDropdown';

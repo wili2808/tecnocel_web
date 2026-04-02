@@ -10,6 +10,10 @@ import { usuarioService } from '../../../services/usuarioService';
 import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
 import styles from './GestionUsuarios.module.css';
 import { ROLES } from '../../../constants/roles';
+import {
+  AdminEmptyState,
+  AdminSectionActions,
+} from '../common';
 
 type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha' | 'ultimo_login';
 type SortDir = 'asc' | 'desc';
@@ -302,16 +306,12 @@ const GestionUsuarios = () => {
   if (!puedeVer) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            <span className="material-icons">people</span>
-            Gestión de Usuarios
-          </h1>
-        </div>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver usuarios</p>
-        </div>
+        <AdminEmptyState
+          icon="lock"
+          title="Sin acceso a usuarios"
+          message="No cuentas con permisos para administrar usuarios internos ni sus roles."
+          tone="warning"
+        />
       </div>
     );
   }
@@ -319,9 +319,12 @@ const GestionUsuarios = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>
-          <p>Cargando usuarios...</p>
-        </div>
+        <AdminEmptyState
+          icon="hourglass_empty"
+          title="Cargando usuarios"
+          message="Estamos obteniendo el listado interno y la configuración de roles."
+          className={styles.stateBlock}
+        />
       </div>
     );
   }
@@ -329,13 +332,15 @@ const GestionUsuarios = () => {
   if (error) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <span className="material-icons">error_outline</span>
-          <p>{error}</p>
-          <button onClick={cargarUsuarios} className={styles.retryButton}>
-            Reintentar
-          </button>
-        </div>
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar los usuarios"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={cargarUsuarios}
+          tone="danger"
+          className={styles.stateBlock}
+        />
       </div>
     );
   }
@@ -343,26 +348,20 @@ const GestionUsuarios = () => {
   return (
     <>
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <div>
-            <h2 className={styles.title}>
-              <span className="material-icons">group</span>
-              Gestión de Usuarios
-            </h2>
-            <p className={styles.subtitle}>Administra los usuarios del sistema (administradores y gerentes)</p>
-          </div>
-            <button 
-              className={styles.crearButton} 
-              onClick={() => setShowCrearForm(true)}
-              disabled={!puedeCrear}
-              title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
-            >
-              <span className="material-icons">person_add</span>
-              <span>Crear Usuario</span>
-            </button>
-        </div>
-      </div>
+      <AdminSectionActions
+        lead={null}
+        actions={(
+          <button
+            className={styles.crearButton}
+            onClick={() => setShowCrearForm(true)}
+            disabled={!puedeCrear}
+            title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
+          >
+            <span className="material-icons">person_add</span>
+            <span>Crear Usuario</span>
+          </button>
+        )}
+      />
 
 
       <div className={styles.tableWrapper}>

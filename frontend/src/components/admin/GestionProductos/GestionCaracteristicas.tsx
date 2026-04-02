@@ -50,8 +50,13 @@ const parseOpciones = (opciones: unknown): string[] => {
 };
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
-  const err = error as { response?: { data?: { error?: string; message?: string; mensaje?: string } }; message?: string };
-  return err.response?.data?.error || err.response?.data?.message || err.response?.data?.mensaje || err.message || fallback;
+  const err = error as {
+    response?: { data?: { error?: string; message?: string; mensaje?: string } };
+    message?: string;
+  };
+  return (
+    err.response?.data?.error || err.response?.data?.message || err.response?.data?.mensaje || err.message || fallback
+  );
 };
 
 const GestionCaracteristicas: React.FC = memo(() => {
@@ -201,7 +206,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -251,11 +256,11 @@ const GestionCaracteristicas: React.FC = memo(() => {
       return (
         <div className={styles.opcionesList}>
           {opciones.slice(0, 3).map((op) => (
-            <span key={op} className={styles.opcionChip}>{op}</span>
+            <span key={op} className={styles.opcionChip}>
+              {op}
+            </span>
           ))}
-          {opciones.length > 3 && (
-            <span className={styles.opcionChipMore}>+{opciones.length - 3}</span>
-          )}
+          {opciones.length > 3 && <span className={styles.opcionChipMore}>+{opciones.length - 3}</span>}
         </div>
       );
     }
@@ -266,7 +271,9 @@ const GestionCaracteristicas: React.FC = memo(() => {
     return (
       <div className={styles.container}>
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
+            lock
+          </span>
           <p style={{ marginTop: 16 }}>No tienes permisos para ver características</p>
         </div>
       </div>
@@ -276,22 +283,15 @@ const GestionCaracteristicas: React.FC = memo(() => {
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
-        <div>
-          <h3 className={styles.panelTitle}>
-            <span className="material-icons">tune</span>
-            Tipos de Características
-          </h3>
-          <p className={styles.panelSubtitle}>Administra los tipos de atributos dinámicos de productos</p>
-        </div>
-          <button 
-            className={styles.addButton} 
-            onClick={abrirFormCrear} 
-            disabled={!puedeCrear || (showForm && editandoId === null)}
-            title={!puedeCrear ? 'Sin permisos para crear características' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Nuevo Tipo
-          </button>
+        <button
+          className={styles.addButton}
+          onClick={abrirFormCrear}
+          disabled={!puedeCrear || (showForm && editandoId === null)}
+          title={!puedeCrear ? 'Sin permisos para crear características' : undefined}
+        >
+          <span className="material-icons">add</span>
+          Nuevo Tipo
+        </button>
       </div>
 
       {loading ? (
@@ -305,20 +305,32 @@ const GestionCaracteristicas: React.FC = memo(() => {
                   <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
                     <span className={styles.sortableHeaderContent}>
                       Nombre
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
+                      <span
+                        className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
+                      >
+                        {getSortIcon('nombre')}
+                      </span>
                     </span>
                   </th>
                   <th className={styles.sortableHeader} onClick={() => handleSort('tipo')}>
                     <span className={styles.sortableHeaderContent}>
                       Tipo de dato
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'tipo' ? styles.sortIconActive : ''}`}>{getSortIcon('tipo')}</span>
+                      <span
+                        className={`material-icons ${styles.sortIcon} ${sortKey === 'tipo' ? styles.sortIconActive : ''}`}
+                      >
+                        {getSortIcon('tipo')}
+                      </span>
                     </span>
                   </th>
                   <th className={styles.th}>Unidad / Opciones</th>
                   <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
                     <span className={styles.sortableHeaderContent}>
                       Estado
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}>{getSortIcon('estado')}</span>
+                      <span
+                        className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}
+                      >
+                        {getSortIcon('estado')}
+                      </span>
                     </span>
                   </th>
                   <th className={styles.th}>Acciones</th>
@@ -533,7 +545,3 @@ const GestionCaracteristicas: React.FC = memo(() => {
 });
 
 export default GestionCaracteristicas;
-
-
-
-

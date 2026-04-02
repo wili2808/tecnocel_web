@@ -100,7 +100,7 @@
 .commentsList {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--spacing-sm);
 }
 
 .noComments {

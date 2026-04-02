@@ -1,0 +1,70 @@
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 18px;
+}
+
+.iconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--background-secondary) 90%, transparent);
+}
+
+.iconWrap .material-icons {
+  font-size: 26px;
+}
+
+.content {
+  display: grid;
+  gap: 6px;
+  max-width: 46ch;
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background: var(--color-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+}
+
+.neutral {
+  color: var(--color-primary);
+}
+
+.warning {
+  color: var(--color-warning, #b45309);
+}
+
+.danger {
+  color: var(--color-error);
+}

@@ -13,6 +13,7 @@ import type { ClienteListItem } from '../../../types/usuario';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
 import CrearClienteModal from './CrearClienteModal';
+import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
 import styles from './GestionClientes.module.css';
 
 type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha';
@@ -59,16 +60,17 @@ const GestionClientes = () => {
   const filteredClientes = useMemo(() => {
     if (!searchTerm) return clientes;
     const term = searchTerm.toLowerCase();
-    return clientes.filter(c =>
-      `${c.nombre_cliente} ${c.apellido_cliente}`.toLowerCase().includes(term) ||
-      c.email_cliente.toLowerCase().includes(term) ||
-      (c.celular_cliente || '').toLowerCase().includes(term)
+    return clientes.filter(
+      (c) =>
+        `${c.nombre_cliente} ${c.apellido_cliente}`.toLowerCase().includes(term) ||
+        c.email_cliente.toLowerCase().includes(term) ||
+        (c.celular_cliente || '').toLowerCase().includes(term),
     );
   }, [clientes, searchTerm]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -123,8 +125,8 @@ const GestionClientes = () => {
           valB = (b.celular_cliente || '').toLowerCase();
           break;
         case 'estado':
-          valA = (a.email_verified && a.is_web_enabled) ? 1 : 0;
-          valB = (b.email_verified && b.is_web_enabled) ? 1 : 0;
+          valA = a.email_verified && a.is_web_enabled ? 1 : 0;
+          valB = b.email_verified && b.is_web_enabled ? 1 : 0;
           break;
         case 'fecha':
           valA = a.fyh_creacion ? new Date(a.fyh_creacion).getTime() : 0;
@@ -144,16 +146,12 @@ const GestionClientes = () => {
   if (!puedeVer) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            <span className="material-icons">people</span>
-            Gestión de Clientes
-          </h1>
-        </div>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver clientes</p>
-        </div>
+        <AdminEmptyState
+          icon="lock"
+          title="Sin acceso a clientes"
+          message="Tu usuario no tiene permisos para consultar ni administrar la base de clientes."
+          tone="warning"
+        />
       </div>
     );
   }
@@ -161,9 +159,12 @@ const GestionClientes = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>
-          <p>Cargando clientes...</p>
-        </div>
+        <AdminEmptyState
+          icon="hourglass_empty"
+          title="Cargando clientes"
+          message="Estamos preparando el padrón de clientes registrados."
+          className={styles.stateBlock}
+        />
       </div>
     );
   }
@@ -171,13 +172,15 @@ const GestionClientes = () => {
   if (error) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <span className="material-icons">error_outline</span>
-          <p>{error}</p>
-          <button onClick={cargarClientes} className={styles.retryButton}>
-            Reintentar
-          </button>
-        </div>
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar los clientes"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={cargarClientes}
+          tone="danger"
+          className={styles.stateBlock}
+        />
       </div>
     );
   }
@@ -185,38 +188,38 @@ const GestionClientes = () => {
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-            <div>
-              <h2 className={styles.title}>
-                <span className="material-icons">people</span>
-                Gestión de Clientes
-              </h2>
-              <p className={styles.subtitle}>
-                Visualiza y administra los clientes registrados en la plataforma
-              </p>
-            </div>
+        <AdminSectionActions
+          lead={null}
+          actions={
             <button
-              className={styles.searchButton}
+              className={styles.crearButton}
               onClick={() => setShowCrearModal(true)}
-              style={{ flexShrink: 0, marginTop: 2 }}
               disabled={!puedeCrear}
               title={!puedeCrear ? 'Sin permisos para crear clientes' : undefined}
             >
-              <span className="material-icons" style={{ fontSize: 16 }}>person_add</span>
-              Crear cliente
+              <span className="material-icons">person_add</span>
+              <span>Crear Cliente</span>
             </button>
-          </div>
-        </div>
+          }
+        />
 
-        <div className={styles.searchForm}>
-          <input
-            type="text"
-            placeholder="Buscar por nombre, email o celular..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
+        <AdminSurface className={styles.filterShell} tone="muted">
+          <div className={styles.searchForm}>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email o celular..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+        </AdminSurface>
+
+        <div className={styles.tableInfo}>
+          <span>
+            {sortedClientes.length} cliente{sortedClientes.length !== 1 ? 's' : ''}
+            {searchTerm ? ' visibles con el filtro actual' : ' registrados'}
+          </span>
         </div>
 
         <div className={styles.tableWrapper}>
@@ -226,38 +229,62 @@ const GestionClientes = () => {
                 <th className={styles.sortableHeader} onClick={() => handleSort('id_cliente')}>
                   <span className={styles.sortableHeaderContent}>
                     ID
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'id_cliente' ? styles.sortIconActive : ''}`}>{getSortIcon('id_cliente')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'id_cliente' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('id_cliente')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
                   <span className={styles.sortableHeaderContent}>
                     Nombre Completo
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('nombre')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
                   <span className={styles.sortableHeaderContent}>
                     Email
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}>{getSortIcon('email')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('email')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('celular')}>
                   <span className={styles.sortableHeaderContent}>
                     Celular
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'celular' ? styles.sortIconActive : ''}`}>{getSortIcon('celular')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'celular' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('celular')}
+                    </span>
                   </span>
                 </th>
                 <th>NIT/CI</th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
                   <span className={styles.sortableHeaderContent}>
                     Estado
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}>{getSortIcon('estado')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('estado')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
                   <span className={styles.sortableHeaderContent}>
                     Fecha de Registro
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('fecha')}
+                    </span>
                   </span>
                 </th>
                 <th>Acciones</th>
@@ -281,21 +308,13 @@ const GestionClientes = () => {
                     <td>
                       <span
                         className={`${styles.badge} ${
-                          cliente.email_verified && cliente.is_web_enabled
-                            ? styles.badgeActive
-                            : styles.badgeInactive
+                          cliente.email_verified && cliente.is_web_enabled ? styles.badgeActive : styles.badgeInactive
                         }`}
                       >
-                        {cliente.email_verified && cliente.is_web_enabled
-                          ? 'Activo'
-                          : 'Inactivo'}
+                        {cliente.email_verified && cliente.is_web_enabled ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td>
-                      {cliente.fyh_creacion
-                        ? new Date(cliente.fyh_creacion).toLocaleDateString('es-AR')
-                        : '-'}
-                    </td>
+                    <td>{cliente.fyh_creacion ? new Date(cliente.fyh_creacion).toLocaleDateString('es-AR') : '-'}</td>
                     <td>
                       <div className={styles.actions}>
                         {/* Ver detalle: disponible para todos los roles */}
@@ -328,28 +347,16 @@ const GestionClientes = () => {
 
       {/* Modal de detalle (solo lectura) */}
       {tipoModal === 'detalle' && clienteSeleccionado && (
-        <DetalleClienteModal
-          cliente={clienteSeleccionado}
-          onClose={handleCerrarModal}
-        />
+        <DetalleClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} />
       )}
 
       {/* Modal de edición (solo admin) */}
       {tipoModal === 'editar' && clienteSeleccionado && (
-        <EditarClienteModal
-          cliente={clienteSeleccionado}
-          onClose={handleCerrarModal}
-          onGuardado={cargarClientes}
-        />
+        <EditarClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} onGuardado={cargarClientes} />
       )}
 
       {/* Modal de creación de cliente */}
-      {showCrearModal && (
-        <CrearClienteModal
-          onClose={() => setShowCrearModal(false)}
-          onCreado={cargarClientes}
-        />
-      )}
+      {showCrearModal && <CrearClienteModal onClose={() => setShowCrearModal(false)} onCreado={cargarClientes} />}
     </>
   );
 };

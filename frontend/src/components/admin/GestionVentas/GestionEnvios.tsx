@@ -175,22 +175,19 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
                   <td>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button
-                        className={styles.btnSecundario}
+                        className={envio.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
                         onClick={() => setEnvioSeleccionado(envio)}
-                        title="Ver detalle del envío"
+                        disabled={envio.estado_envio !== 'entregado' && !puedeGestionar}
+                        title={
+                          envio.estado_envio !== 'entregado'
+                            ? !puedeGestionar
+                              ? 'Sin permisos para gestionar envíos'
+                              : 'Gestionar estado'
+                            : 'Ver detalle del envío'
+                        }
                       >
-                        Ver detalle
+                        {envio.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
                       </button>
-                      {envio.estado_envio !== 'entregado' && (
-                        <button
-                          className={styles.btnPrimario}
-                          onClick={() => puedeGestionar && setEnvioSeleccionado(envio)}
-                          disabled={!puedeGestionar}
-                          title={!puedeGestionar ? 'Sin permisos para gestionar envíos' : 'Gestionar estado'}
-                        >
-                          Gestionar
-                        </button>
-                      )}
                     </div>
                   </td>
                 </tr>

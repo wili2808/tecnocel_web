@@ -78,7 +78,7 @@ const GestionCategorias: React.FC = memo(() => {
     } catch (err: any) {
       showNotification(
         err.response?.data?.error || err.response?.data?.message || err.message || 'Error al actualizar la categoría',
-        'error'
+        'error',
       );
     } finally {
       setSaving(false);
@@ -104,7 +104,7 @@ const GestionCategorias: React.FC = memo(() => {
     } catch (err: any) {
       showNotification(
         err.response?.data?.error || err.response?.data?.message || err.message || 'Error al eliminar la categoría',
-        'error'
+        'error',
       );
     } finally {
       setSaving(false);
@@ -137,7 +137,7 @@ const GestionCategorias: React.FC = memo(() => {
     } catch (err: any) {
       showNotification(
         err.response?.data?.error || err.response?.data?.message || err.message || 'Error al crear la categoría',
-        'error'
+        'error',
       );
     } finally {
       setSaving(false);
@@ -149,7 +149,7 @@ const GestionCategorias: React.FC = memo(() => {
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -189,7 +189,9 @@ const GestionCategorias: React.FC = memo(() => {
     return (
       <div className={styles.container}>
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
+            lock
+          </span>
           <p style={{ marginTop: 16 }}>No tienes permisos para ver categorías</p>
         </div>
       </div>
@@ -199,22 +201,15 @@ const GestionCategorias: React.FC = memo(() => {
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
-        <div>
-          <h3 className={styles.panelTitle}>
-            <span className="material-icons">category</span>
-            Categorías
-          </h3>
-          <p className={styles.panelSubtitle}>Administra las categorías de productos</p>
-        </div>
-          <button 
-            className={styles.addButton} 
-            onClick={iniciarCreacion} 
-            disabled={!puedeCrear || creando}
-            title={!puedeCrear ? 'Sin permisos para crear categorías' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Nueva Categoría
-          </button>
+        <button
+          className={styles.addButton}
+          onClick={iniciarCreacion}
+          disabled={!puedeCrear || creando}
+          title={!puedeCrear ? 'Sin permisos para crear categorías' : undefined}
+        >
+          <span className="material-icons">add</span>
+          Nueva Categoría
+        </button>
       </div>
 
       {loading ? (
@@ -227,13 +222,21 @@ const GestionCategorias: React.FC = memo(() => {
                 <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
                   <span className={styles.sortableHeaderContent}>
                     Nombre
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('nombre')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
                   <span className={styles.sortableHeaderContent}>
                     Fecha creación
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('fecha')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.th}>Acciones</th>
@@ -246,10 +249,12 @@ const GestionCategorias: React.FC = memo(() => {
                     <input
                       className={styles.editInput}
                       value={nuevoNombre}
-                      onChange={e => setNuevoNombre(e.target.value)}
+                      onChange={(e) => setNuevoNombre(e.target.value)}
                       placeholder="Nombre de la categoría"
                       autoFocus
-                      onKeyDown={e => { if (e.key === 'Enter') guardarNueva(); }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') guardarNueva();
+                      }}
                     />
                   </td>
                   <td className={styles.td}>—</td>
@@ -278,10 +283,12 @@ const GestionCategorias: React.FC = memo(() => {
 
               {sortedCategorias.length === 0 && !creando ? (
                 <tr>
-                  <td colSpan={3} className={styles.emptyMessage}>No hay categorías registradas</td>
+                  <td colSpan={3} className={styles.emptyMessage}>
+                    No hay categorías registradas
+                  </td>
                 </tr>
               ) : (
-                sortedCategorias.map(cat => {
+                sortedCategorias.map((cat) => {
                   if (eliminandoId === cat.id_categoria) {
                     return (
                       <tr key={cat.id_categoria} className={styles.confirmRow}>
@@ -321,9 +328,11 @@ const GestionCategorias: React.FC = memo(() => {
                           <input
                             className={styles.editInput}
                             value={editForm.nombre_categoria}
-                            onChange={e => setEditForm({ nombre_categoria: e.target.value })}
+                            onChange={(e) => setEditForm({ nombre_categoria: e.target.value })}
                             autoFocus
-                            onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(cat.id_categoria); }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') guardarEdicion(cat.id_categoria);
+                            }}
                           />
                         </td>
                         <td className={styles.td}>{formatearFecha(cat.fyh_creacion)}</td>
@@ -365,14 +374,14 @@ const GestionCategorias: React.FC = memo(() => {
                           >
                             <span className="material-icons">edit</span>
                           </button>
-                            <button
-                              className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                              onClick={() => iniciarEliminacion(cat.id_categoria)}
-                              disabled={!puedeEliminar}
-                              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
-                            >
-                              <span className="material-icons">delete</span>
-                            </button>
+                          <button
+                            className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                            onClick={() => iniciarEliminacion(cat.id_categoria)}
+                            disabled={!puedeEliminar}
+                            title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
+                          >
+                            <span className="material-icons">delete</span>
+                          </button>
                         </div>
                       </td>
                     </tr>

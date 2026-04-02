@@ -3,14 +3,13 @@
    ============================================================================ */
 
 .container {
-  padding: 20px 24px;
+  padding: var(--spacing-md);
   min-height: 100%;
-  background: var(--background-primary);
 }
 
 .header {
-  margin-bottom: 16px;
-  padding-bottom: 14px;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -19,28 +18,6 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: -0.3px;
-}
-
-.title .material-icons {
-  color: var(--color-primary);
-  font-size: 20px;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 .crearButton {
@@ -74,30 +51,32 @@
 
 .tabsBar {
   display: flex;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1px;
+  margin: var(--spacing-md) 0;
   gap: 0;
-  border-bottom: 2px solid var(--border-color);
-  margin-bottom: 16px;
-  background: var(--background-primary);
+  overflow-x: auto;
 }
 
-.tabBtn {
-  flex: 1;
-  padding: 12px 16px;
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
+  margin-bottom: -2px;
   font-size: 13px;
   font-weight: 600;
   font-family: var(--font-family-primary);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast) var(--transition-curve);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  position: relative;
+  transition: color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
+  position: relative;
 }
 
 .tabBtn:hover {
@@ -131,15 +110,16 @@
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   background: var(--background-primary);
-  margin-bottom: 16px;
 }
 
 .statCard {
-  padding: 16px 20px;
-  border-right: 1px solid var(--border-color);
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  padding: var(--spacing-sm);
+  border: none;
+  border-right: 1px solid var(--border-color);
+  border-radius: 0;
+  box-shadow: none;
   transition: background-color var(--transition-fast) var(--transition-curve);
 }
 
@@ -149,6 +129,7 @@
 
 .statCard:hover {
   background: var(--background-hover);
+  transform: none;
 }
 
 .statLabel {
@@ -195,8 +176,8 @@
   background: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  padding: 12px 16px;
-  margin-bottom: 14px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -215,12 +196,10 @@
   gap: 4px;
   min-width: 130px;
 }
-
 .filterGroupWide {
   flex: 1;
   min-width: 180px;
 }
-
 .filterLabel {
   font-size: 11px;
   font-weight: 600;
@@ -308,6 +287,11 @@
 
 .retryButton:hover {
   background: var(--color-primary-dark);
+}
+
+.loadingState,
+.errorState {
+  margin-bottom: 14px;
 }
 
 .tableWrapper {
@@ -471,10 +455,6 @@
    ============================================================================ */
 
 @media (max-width: 1024px) {
-  .filterRow {
-    flex-direction: column;
-  }
-
   .filterGroup,
   .filterGroupWide {
     width: 100%;
@@ -518,10 +498,6 @@
 @media (max-width: 768px) {
   .container {
     padding: 16px 12px;
-  }
-  
-  .statsBar {
-    grid-template-columns: repeat(2, 1fr);
   }
 
   .crearButton {
@@ -644,7 +620,7 @@
   }
 
   .filterBar {
-    padding: 10px 12px;
+    padding: var(--spacing-md);
     gap: 8px;
   }
 
@@ -659,6 +635,9 @@
   }
 
   /* === MODALES EN MÓVILES (480px) === */
+  .statsBar {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   .modalOverlay {
     padding: 8px;

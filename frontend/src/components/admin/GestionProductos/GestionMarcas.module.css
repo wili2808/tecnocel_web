@@ -8,11 +8,10 @@
 
 .panelHeader {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  justify-content: right;
   gap: var(--spacing-lg);
-  margin-bottom: 14px;
-  padding-bottom: 12px;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
 }
 

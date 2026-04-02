@@ -20,7 +20,7 @@ const ACCION_COLORES: Record<string, string> = {
   cancelar: '#f97316',
   descargar: '#7c3aed',
   enviar: '#06b6d4',
-  moderar: '#ec4899'
+  moderar: '#ec4899',
 };
 
 const ACCION_ICONS: Record<string, string> = {
@@ -35,7 +35,7 @@ const ACCION_ICONS: Record<string, string> = {
   cancelar: 'cancel',
   descargar: 'picture_as_pdf',
   enviar: 'send',
-  moderar: 'visibility_off'
+  moderar: 'visibility_off',
 };
 
 const GestionPermisos = () => {
@@ -51,14 +51,14 @@ const GestionPermisos = () => {
 
   useEffect(() => {
     cargarRoles();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (rolSeleccionado !== null) {
       cargarPermisosRol();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rolSeleccionado]);
 
   const cargarRoles = async () => {
@@ -92,10 +92,8 @@ const GestionPermisos = () => {
       showNotification('No puedes modificar los permisos del administrador', 'warning');
       return;
     }
-    setPermisosAsignados(prev =>
-      prev.includes(idPermiso)
-        ? prev.filter(id => id !== idPermiso)
-        : [...prev, idPermiso]
+    setPermisosAsignados((prev) =>
+      prev.includes(idPermiso) ? prev.filter((id) => id !== idPermiso) : [...prev, idPermiso],
     );
   };
 
@@ -109,7 +107,7 @@ const GestionPermisos = () => {
       setGuardando(true);
       await permisoService.syncPermisos({
         id_rol: rolSeleccionado,
-        permisos: permisosAsignados
+        permisos: permisosAsignados,
       });
       showNotification('Permisos guardados correctamente', 'success');
     } catch (err: unknown) {
@@ -121,9 +119,10 @@ const GestionPermisos = () => {
   };
 
   const permisosFiltrados = useMemo(() => {
-    return permisos.filter(p => {
+    return permisos.filter((p) => {
       const coincideModulo = filtroModulo === 'todos' || p.modulo === filtroModulo;
-      const coincideBusqueda = busqueda === '' ||
+      const coincideBusqueda =
+        busqueda === '' ||
         p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         p.descripcion?.toLowerCase().includes(busqueda.toLowerCase());
       return coincideModulo && coincideBusqueda;
@@ -132,20 +131,20 @@ const GestionPermisos = () => {
 
   const permisosPorModulo = useMemo(() => {
     const agrupados: Record<string, PermisoCheck[]> = {};
-    permisosFiltrados.forEach(p => {
+    permisosFiltrados.forEach((p) => {
       if (!agrupados[p.modulo]) {
         agrupados[p.modulo] = [];
       }
       agrupados[p.modulo].push({
         ...p,
-        asignado: permisosAsignados.includes(p.id_permiso)
+        asignado: permisosAsignados.includes(p.id_permiso),
       });
     });
     return agrupados;
   }, [permisosFiltrados, permisosAsignados]);
 
   const modulos = useMemo(() => {
-    const mods = new Set(permisos.map(p => p.modulo));
+    const mods = new Set(permisos.map((p) => p.modulo));
     return ['todos', ...Array.from(mods).sort()];
   }, [permisos]);
 
@@ -164,34 +163,21 @@ const GestionPermisos = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerTop}>
-        <div className={styles.headerLeft}>
-          <h1 className={styles.title}>
-            <span className="material-icons">admin_panel_settings</span>
-            Gestión de Permisos
-          </h1>
-          <p className={styles.subtitle}>
-            Asigna permisos a cada rol del sistema
-          </p>
-        </div>
-        {rolSeleccionado !== 1 && (
-          <button
-            className={styles.guardarButton}
-            onClick={handleGuardar}
-            disabled={guardando}
-          >
-            {guardando ? (
-              <>
-                <span className="material-icons spin">sync</span>
-                Guardando...
-              </>
-            ) : (
-              <>
-                <span className="material-icons">save</span>
-                Guardar Cambios
-              </>
-            )}
-          </button>
-        )}
+          {rolSeleccionado !== 1 && (
+            <button className={styles.guardarButton} onClick={handleGuardar} disabled={guardando}>
+              {guardando ? (
+                <>
+                  <span className="material-icons spin">sync</span>
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <span className="material-icons">save</span>
+                  Guardar Cambios
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -199,7 +185,7 @@ const GestionPermisos = () => {
         <aside className={styles.sidebar}>
           <h3 className={styles.sidebarTitle}>Roles</h3>
           <div className={styles.rolesList}>
-            {roles.map(rol => (
+            {roles.map((rol) => (
               <button
                 key={rol.id_rol}
                 className={`${styles.rolButton} ${rol.id_rol === rolSeleccionado ? styles.rolButtonActive : ''}`}
@@ -212,9 +198,7 @@ const GestionPermisos = () => {
                   <span className={styles.rolNombre}>{rol.rol}</span>
                   <span className={styles.rolPermisos}>{rol.cantidad_permisos} permisos</span>
                 </div>
-                {rol.id_rol === 1 && (
-                  <span className={styles.lockedBadge}>Bloqueado</span>
-                )}
+                {rol.id_rol === 1 && <span className={styles.lockedBadge}>Bloqueado</span>}
               </button>
             ))}
           </div>
@@ -227,9 +211,9 @@ const GestionPermisos = () => {
               <select
                 className={styles.filterSelect}
                 value={filtroModulo}
-                onChange={e => setFiltroModulo(e.target.value)}
+                onChange={(e) => setFiltroModulo(e.target.value)}
               >
-                {modulos.map(mod => (
+                {modulos.map((mod) => (
                   <option key={mod} value={mod}>
                     {mod === 'todos' ? 'Todos los módulos' : mod.charAt(0).toUpperCase() + mod.slice(1)}
                   </option>
@@ -243,7 +227,7 @@ const GestionPermisos = () => {
                 className={styles.searchInput}
                 placeholder="Buscar permiso..."
                 value={busqueda}
-                onChange={e => setBusqueda(e.target.value)}
+                onChange={(e) => setBusqueda(e.target.value)}
               />
             </div>
           </div>
@@ -263,29 +247,48 @@ const GestionPermisos = () => {
                   <div className={styles.moduloHeader}>
                     <span className={styles.moduloIcon}>
                       <span className="material-icons">
-                        {modulo === 'usuarios' ? 'group' :
-                         modulo === 'productos' ? 'inventory_2' :
-                         modulo === 'ventas' ? 'receipt' :
-                         modulo === 'compras' ? 'shopping_cart' :
-                         modulo === 'reportes' ? 'assessment' :
-                         modulo === 'configuracion' ? 'settings' :
-                         modulo === 'caracteristicas' ? 'list_alt' :
-                         modulo === 'clientes' ? 'people' :
-                         modulo === 'marcas' ? 'branding_watermark' :
-                         modulo === 'categorias' ? 'category' :
-                         modulo === 'ofertas' ? 'local_offer' :
-                         modulo === 'proveedores' ? 'local_shipping' :
-                         modulo === 'envios' ? 'local_shipping' :
-                         modulo === 'imagenes' ? 'image' :
-                         modulo === 'comentarios' ? 'comment' :
-                         modulo === 'roles' ? 'security' : 'folder'}
+                        {modulo === 'usuarios'
+                          ? 'group'
+                          : modulo === 'productos'
+                            ? 'inventory_2'
+                            : modulo === 'ventas'
+                              ? 'receipt'
+                              : modulo === 'compras'
+                                ? 'shopping_cart'
+                                : modulo === 'reportes'
+                                  ? 'assessment'
+                                  : modulo === 'configuracion'
+                                    ? 'settings'
+                                    : modulo === 'caracteristicas'
+                                      ? 'list_alt'
+                                      : modulo === 'clientes'
+                                        ? 'people'
+                                        : modulo === 'marcas'
+                                          ? 'branding_watermark'
+                                          : modulo === 'categorias'
+                                            ? 'category'
+                                            : modulo === 'ofertas'
+                                              ? 'local_offer'
+                                              : modulo === 'proveedores'
+                                                ? 'local_shipping'
+                                                : modulo === 'envios'
+                                                  ? 'local_shipping'
+                                                  : modulo === 'imagenes'
+                                                    ? 'image'
+                                                    : modulo === 'comentarios'
+                                                      ? 'comment'
+                                                      : modulo === 'roles'
+                                                        ? 'security'
+                                                        : 'folder'}
                       </span>
                     </span>
                     <h4 className={styles.moduloTitle}>{modulo.charAt(0).toUpperCase() + modulo.slice(1)}</h4>
-                    <span className={styles.moduloCount}>{perms.filter(p => p.asignado).length}/{perms.length}</span>
+                    <span className={styles.moduloCount}>
+                      {perms.filter((p) => p.asignado).length}/{perms.length}
+                    </span>
                   </div>
                   <div className={styles.permisosList}>
-                    {perms.map(perm => (
+                    {perms.map((perm) => (
                       <label key={perm.id_permiso} className={styles.permisoItem}>
                         <input
                           type="checkbox"
@@ -300,7 +303,9 @@ const GestionPermisos = () => {
                           <span className="material-icons">{ACCION_ICONS[perm.accion] || 'check'}</span>
                           {perm.accion}
                         </span>
-                        <span className={styles.permisoNombre}>{perm.descripcion || perm.nombre.replace(`${perm.accion}_`, '')}</span>
+                        <span className={styles.permisoNombre}>
+                          {perm.descripcion || perm.nombre.replace(`${perm.accion}_`, '')}
+                        </span>
                       </label>
                     ))}
                   </div>

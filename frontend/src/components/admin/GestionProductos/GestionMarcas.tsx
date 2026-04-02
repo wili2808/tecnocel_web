@@ -64,7 +64,7 @@ const GestionMarcas: React.FC = memo(() => {
   const handleLogoFileChange = (
     file: File | null,
     setFile: (f: File | null) => void,
-    setPreview: (p: string | null) => void
+    setPreview: (p: string | null) => void,
   ) => {
     setFile(file);
     if (file) {
@@ -116,7 +116,7 @@ const GestionMarcas: React.FC = memo(() => {
     } catch (err: any) {
       showNotification(
         err.response?.data?.error || err.response?.data?.message || err.message || 'Error al actualizar la marca',
-        'error'
+        'error',
       );
     } finally {
       setSaving(false);
@@ -142,7 +142,7 @@ const GestionMarcas: React.FC = memo(() => {
     } catch (err: any) {
       showNotification(
         err.response?.data?.error || err.response?.data?.message || err.message || 'Error al eliminar la marca',
-        'error'
+        'error',
       );
     } finally {
       setSaving(false);
@@ -187,7 +187,7 @@ const GestionMarcas: React.FC = memo(() => {
     } catch (err: any) {
       showNotification(
         err.response?.data?.error || err.response?.data?.message || err.message || 'Error al crear la marca',
-        'error'
+        'error',
       );
     } finally {
       setSaving(false);
@@ -199,7 +199,7 @@ const GestionMarcas: React.FC = memo(() => {
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir('asc');
@@ -243,7 +243,9 @@ const GestionMarcas: React.FC = memo(() => {
     return (
       <div className={styles.container}>
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
+          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
+            lock
+          </span>
           <p style={{ marginTop: 16 }}>No tienes permisos para ver marcas</p>
         </div>
       </div>
@@ -253,22 +255,15 @@ const GestionMarcas: React.FC = memo(() => {
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
-        <div>
-          <h3 className={styles.panelTitle}>
-            <span className="material-icons">branding_watermark</span>
-            Marcas
-          </h3>
-          <p className={styles.panelSubtitle}>Administra las marcas del catálogo</p>
-        </div>
-          <button 
-            className={styles.addButton} 
-            onClick={iniciarCreacion} 
-            disabled={!puedeCrear || creando}
-            title={!puedeCrear ? 'Sin permisos para crear marcas' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Nueva Marca
-          </button>
+        <button
+          className={styles.addButton}
+          onClick={iniciarCreacion}
+          disabled={!puedeCrear || creando}
+          title={!puedeCrear ? 'Sin permisos para crear marcas' : undefined}
+        >
+          <span className="material-icons">add</span>
+          Nueva Marca
+        </button>
       </div>
 
       {loading ? (
@@ -282,20 +277,32 @@ const GestionMarcas: React.FC = memo(() => {
                 <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
                   <span className={styles.sortableHeaderContent}>
                     Nombre
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('nombre')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.th}>Descripción</th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
                   <span className={styles.sortableHeaderContent}>
                     Estado
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}>{getSortIcon('estado')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('estado')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
                   <span className={styles.sortableHeaderContent}>
                     Creación
-                    <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha')}</span>
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('fecha')}
+                    </span>
                   </span>
                 </th>
                 <th className={styles.th}>Acciones</th>
@@ -306,18 +313,14 @@ const GestionMarcas: React.FC = memo(() => {
                 <tr className={styles.newRow}>
                   <td className={styles.td}>
                     <div className={styles.logoCell}>
-                      {nuevoLogoPreview && (
-                        <img src={nuevoLogoPreview} alt="Preview" className={styles.logoPreview} />
-                      )}
+                      {nuevoLogoPreview && <img src={nuevoLogoPreview} alt="Preview" className={styles.logoPreview} />}
                       <input
                         type="file"
                         accept="image/png,image/jpeg,image/webp"
                         className={styles.logoFileInput}
-                        onChange={e => handleLogoFileChange(
-                          e.target.files?.[0] ?? null,
-                          setNuevoLogoFile,
-                          setNuevoLogoPreview
-                        )}
+                        onChange={(e) =>
+                          handleLogoFileChange(e.target.files?.[0] ?? null, setNuevoLogoFile, setNuevoLogoPreview)
+                        }
                       />
                     </div>
                   </td>
@@ -325,7 +328,7 @@ const GestionMarcas: React.FC = memo(() => {
                     <input
                       className={styles.editInput}
                       value={nuevoForm.nombre_marca}
-                      onChange={e => setNuevoForm(f => ({ ...f, nombre_marca: e.target.value }))}
+                      onChange={(e) => setNuevoForm((f) => ({ ...f, nombre_marca: e.target.value }))}
                       placeholder="Nombre de la marca"
                       autoFocus
                     />
@@ -334,7 +337,7 @@ const GestionMarcas: React.FC = memo(() => {
                     <input
                       className={styles.editInput}
                       value={nuevoForm.descripcion_marca}
-                      onChange={e => setNuevoForm(f => ({ ...f, descripcion_marca: e.target.value }))}
+                      onChange={(e) => setNuevoForm((f) => ({ ...f, descripcion_marca: e.target.value }))}
                       placeholder="Descripción (opcional)"
                     />
                   </td>
@@ -365,10 +368,12 @@ const GestionMarcas: React.FC = memo(() => {
 
               {sortedMarcas.length === 0 && !creando ? (
                 <tr>
-                  <td colSpan={6} className={styles.emptyMessage}>No hay marcas registradas</td>
+                  <td colSpan={6} className={styles.emptyMessage}>
+                    No hay marcas registradas
+                  </td>
                 </tr>
               ) : (
-                sortedMarcas.map(marca => {
+                sortedMarcas.map((marca) => {
                   if (eliminandoId === marca.id_marca) {
                     return (
                       <tr key={marca.id_marca} className={styles.confirmRow}>
@@ -417,11 +422,9 @@ const GestionMarcas: React.FC = memo(() => {
                               type="file"
                               accept="image/png,image/jpeg,image/webp"
                               className={styles.logoFileInput}
-                              onChange={e => handleLogoFileChange(
-                                e.target.files?.[0] ?? null,
-                                setEditLogoFile,
-                                setEditLogoPreview
-                              )}
+                              onChange={(e) =>
+                                handleLogoFileChange(e.target.files?.[0] ?? null, setEditLogoFile, setEditLogoPreview)
+                              }
                             />
                           </div>
                         </td>
@@ -429,7 +432,7 @@ const GestionMarcas: React.FC = memo(() => {
                           <input
                             className={styles.editInput}
                             value={editForm.nombre_marca}
-                            onChange={e => setEditForm(f => ({ ...f, nombre_marca: e.target.value }))}
+                            onChange={(e) => setEditForm((f) => ({ ...f, nombre_marca: e.target.value }))}
                             autoFocus
                           />
                         </td>
@@ -437,7 +440,7 @@ const GestionMarcas: React.FC = memo(() => {
                           <input
                             className={styles.editInput}
                             value={editForm.descripcion_marca}
-                            onChange={e => setEditForm(f => ({ ...f, descripcion_marca: e.target.value }))}
+                            onChange={(e) => setEditForm((f) => ({ ...f, descripcion_marca: e.target.value }))}
                             placeholder="Descripción (opcional)"
                           />
                         </td>
@@ -481,7 +484,9 @@ const GestionMarcas: React.FC = memo(() => {
                         )}
                       </td>
                       <td className={styles.td}>{marca.nombre_marca}</td>
-                      <td className={styles.td}>{marca.descripcion_marca || <span className={styles.emptyValue}>—</span>}</td>
+                      <td className={styles.td}>
+                        {marca.descripcion_marca || <span className={styles.emptyValue}>—</span>}
+                      </td>
                       <td className={styles.td}>
                         <span className={marca.activo ? styles.badgeActivo : styles.badgeInactivo}>
                           {marca.activo ? 'Activa' : 'Inactiva'}
@@ -498,14 +503,14 @@ const GestionMarcas: React.FC = memo(() => {
                           >
                             <span className="material-icons">edit</span>
                           </button>
-                            <button
-                              className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                              onClick={() => iniciarEliminacion(marca.id_marca)}
-                              disabled={!puedeEliminar}
-                              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
-                            >
-                              <span className="material-icons">delete</span>
-                            </button>
+                          <button
+                            className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                            onClick={() => iniciarEliminacion(marca.id_marca)}
+                            disabled={!puedeEliminar}
+                            title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
+                          >
+                            <span className="material-icons">delete</span>
+                          </button>
                         </div>
                       </td>
                     </tr>

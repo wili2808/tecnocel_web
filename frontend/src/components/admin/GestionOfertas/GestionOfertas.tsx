@@ -8,6 +8,11 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import OfertaForm from './OfertaForm';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
+import {
+  AdminEmptyState,
+  AdminSectionActions,
+  AdminSurface,
+} from '../common';
 import styles from './GestionOfertas.module.css';
 
 type SortKey = 'nombre_oferta' | 'tipo_descuento' | 'valor_descuento' | 'fecha_inicio' | 'fecha_fin' | 'activo';
@@ -229,33 +234,21 @@ const GestionOfertas = () => {
   if (!puedeVer) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            <span className="material-icons">local_offer</span>
-            Gestión de Ofertas
-          </h1>
-        </div>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>lock</span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver ofertas</p>
-        </div>
+        <AdminEmptyState
+          icon="lock"
+          title="Sin acceso a ofertas"
+          message="No tienes permisos para administrar promociones, vigencias ni descuentos."
+          tone="warning"
+        />
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <div>
-            <h2 className={styles.title}>
-              <span className="material-icons">local_offer</span>
-              Gestión de Ofertas
-            </h2>
-            <p className={styles.subtitle}>
-              Administra las ofertas y descuentos de la tienda
-            </p>
-          </div>
+      <AdminSectionActions
+        lead={null}
+        actions={(
           <button
             className={styles.crearButton}
             onClick={() => {
@@ -269,58 +262,65 @@ const GestionOfertas = () => {
             <span className="material-icons">add_box</span>
             <span>Nueva Oferta</span>
           </button>
-        </div>
-      </div>
+        )}
+      />
 
       {/* Barra de búsqueda y filtro */}
-      <div className={styles.filterRow}>
-        <div className={styles.searchInputWrapper}>
-          <span className="material-icons">search</span>
-          <input
-            type="text"
-            placeholder="Buscar por nombre de oferta..."
-            value={searchInput}
-            onChange={(e) => { setSearchInput(e.target.value); setPage(1); }}
-            className={styles.searchInput}
-          />
-          {searchInput && (
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              className={styles.clearButton}
-            >
-              <span className="material-icons">close</span>
-            </button>
-          )}
+      <AdminSurface className={styles.filterShell} tone="muted">
+        <div className={styles.filterRow}>
+          <div className={styles.searchInputWrapper}>
+            <span className="material-icons">search</span>
+            <input
+              type="text"
+              placeholder="Buscar por nombre de oferta..."
+              value={searchInput}
+              onChange={(e) => { setSearchInput(e.target.value); setPage(1); }}
+              className={styles.searchInput}
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className={styles.clearButton}
+              >
+                <span className="material-icons">close</span>
+              </button>
+            )}
+          </div>
+          <select
+            value={filtroEstado}
+            onChange={(e) => { setFiltroEstado(e.target.value as FiltroEstado); setPage(1); }}
+            className={styles.filterSelect}
+          >
+            <option value="todas">Todas</option>
+            <option value="activas">Activas</option>
+            <option value="inactivas">Inactivas</option>
+            <option value="expiradas">Expiradas</option>
+          </select>
         </div>
-        <select
-          value={filtroEstado}
-          onChange={(e) => { setFiltroEstado(e.target.value as FiltroEstado); setPage(1); }}
-          className={styles.filterSelect}
-        >
-          <option value="todas">Todas</option>
-          <option value="activas">Activas</option>
-          <option value="inactivas">Inactivas</option>
-          <option value="expiradas">Expiradas</option>
-        </select>
-      </div>
+      </AdminSurface>
 
       {/* Estado de carga */}
       {loading && (
-        <div className={styles.loading}>
-          <p>Cargando ofertas...</p>
-        </div>
+        <AdminEmptyState
+          icon="hourglass_empty"
+          title="Cargando ofertas"
+          message="Estamos recuperando las campañas y descuentos disponibles."
+          className={styles.stateBlock}
+        />
       )}
 
       {/* Error */}
       {error && !loading && (
-        <div className={styles.error}>
-          <span className="material-icons">error_outline</span>
-          <p>{error}</p>
-          <button onClick={cargarOfertas} className={styles.retryButton}>
-            Reintentar
-          </button>
-        </div>
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar las ofertas"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={cargarOfertas}
+          tone="danger"
+          className={styles.stateBlock}
+        />
       )}
 
       {/* Tabla de ofertas */}

@@ -24,12 +24,12 @@ import { MENU_PERMISOS, type MenuPermisoOption } from '../../constants/menuPermi
 
 const SECTION_DESCRIPTIONS: Record<string, string> = {
   dashboard: 'Resumen operativo del negocio, prioridades activas y alcance del rol actual.',
-  productos: 'Catálogo, stock, marcas, categorías y estructura técnica de producto.',
   usuarios: 'Usuarios internos, acceso al panel y administración de roles operativos.',
   clientes: 'Base de clientes registrados, seguimiento y edición administrativa.',
+  productos: 'Catálogo, stock, marcas, categorías y estructura técnica de producto.',
+  ventas: 'Ventas web y manuales, logística, retiros y configuración comercial.',
   ofertas: 'Promociones vigentes, programación comercial y control de campañas.',
   compras: 'Abastecimiento, proveedores y trazabilidad de compras activas.',
-  ventas: 'Ventas web y manuales, logística, retiros y configuración comercial.',
   reportes: 'Lectura analítica del rendimiento comercial y exportación de información.',
   permisos: 'Gobernanza de permisos y seguridad del sistema administrativo.',
 };
@@ -140,7 +140,7 @@ const AdminPanel = () => {
       if (option.id === 'dashboard') return true;
       if (option.permisosRequeridos.length === 0) return true;
 
-      return option.permisosRequeridos.every(permiso => tienePermiso(permiso));
+      return option.permisosRequeridos.every((permiso) => tienePermiso(permiso));
     });
   }, [tienePermiso]);
 
@@ -191,10 +191,22 @@ const AdminPanel = () => {
   // Obtener nombre y rol del usuario dinámicamente desde el backend
   const userName = adminUser.nombres;
   const userRole = adminUser.rolNombre || 'Usuario';
+  const userInitials = userName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((chunk) => chunk[0]?.toUpperCase() ?? '')
+    .join('');
   const activeMenuOption = filteredMenuOptions.find((option) => option.id === activeSection);
   const activeSectionLabel = activeMenuOption?.label || 'Panel de Administración';
   const activeSectionDescription =
     SECTION_DESCRIPTIONS[activeSection] || 'Módulo administrativo disponible según los permisos actuales.';
+  const accessScopeLabel =
+    filteredMenuOptions.length >= 8
+      ? 'Acceso total'
+      : filteredMenuOptions.length >= 5
+        ? 'Cobertura amplia'
+        : 'Cobertura operativa';
 
   // ============================================================================
   // RENDERIZADO PRINCIPAL DEL PANEL
@@ -223,12 +235,16 @@ const AdminPanel = () => {
 
           {/* Información del usuario autenticado */}
           <div className={adminPanelStyles.userInfo}>
-            <div className={adminPanelStyles.userAvatar}>
-              <span className="material-icons">admin_panel_settings</span>
-            </div>
-            <div className={adminPanelStyles.userDetails}>
-              <h3 className={adminPanelStyles.userName}>{userName}</h3>
-              <span className={adminPanelStyles.userRole}>{userRole}</span>
+            <div className={adminPanelStyles.userInfoHeader}>
+              <div className={adminPanelStyles.userAvatar}>
+                <span>{userInitials || 'TC'}</span>
+              </div>
+              <div className={adminPanelStyles.userIdentity}>
+                <div className={adminPanelStyles.userDetails}>
+                  <h3 className={adminPanelStyles.userName}>{userName}</h3>
+                  <span className={adminPanelStyles.userRole}>{userRole}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -278,17 +294,6 @@ const AdminPanel = () => {
               <span className={adminPanelStyles.mainEyebrow}>Panel administrativo</span>
               <h1 className={adminPanelStyles.mainTitle}>{activeSectionLabel}</h1>
               <p className={adminPanelStyles.mainDescription}>{activeSectionDescription}</p>
-            </div>
-
-            <div className={adminPanelStyles.mainHeaderMeta}>
-              <div className={adminPanelStyles.mainBadge}>
-                <span className="material-icons">verified_user</span>
-                <span>{userRole}</span>
-              </div>
-              <div className={adminPanelStyles.mainBadge}>
-                <span className="material-icons">view_sidebar</span>
-                <span>{filteredMenuOptions.length} módulos</span>
-              </div>
             </div>
           </div>
 

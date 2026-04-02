@@ -171,22 +171,19 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
                   <td>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button
-                        className={styles.btnSecundario}
+                        className={retiro.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
                         onClick={() => setRetiroSeleccionado(retiro)}
-                        title="Ver detalle del retiro"
+                        disabled={retiro.estado_envio !== 'entregado' && !puedeGestionar}
+                        title={
+                          retiro.estado_envio !== 'entregado'
+                            ? !puedeGestionar
+                              ? 'Sin permisos para gestionar retiros'
+                              : 'Gestionar estado'
+                            : 'Ver detalle del retiro'
+                        }
                       >
-                        Ver detalle
+                        {retiro.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
                       </button>
-                      {retiro.estado_envio !== 'entregado' && (
-                        <button
-                          className={styles.btnPrimario}
-                          onClick={() => puedeGestionar && setRetiroSeleccionado(retiro)}
-                          disabled={!puedeGestionar}
-                          title={!puedeGestionar ? 'Sin permisos para gestionar retiros' : 'Gestionar estado'}
-                        >
-                          Gestionar
-                        </button>
-                      )}
                     </div>
                   </td>
                 </tr>

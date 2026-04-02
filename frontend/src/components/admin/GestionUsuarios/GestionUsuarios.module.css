@@ -3,9 +3,8 @@
    ============================================================================ */
 
 .container {
-  padding: 20px 24px;
+  padding: var(--spacing-md);
   min-height: 100%;
-  background: var(--background-primary);
 }
 
 .header {
@@ -19,28 +18,6 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-lg);
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: -0.3px;
-}
-
-.title .material-icons {
-  color: var(--color-primary);
-  font-size: 20px;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 .crearButton {
@@ -263,6 +240,10 @@
 
 .retryButton:hover {
   background: var(--color-primary-dark);
+}
+
+.stateBlock {
+  margin-bottom: 14px;
 }
 
 .tableWrapper {

@@ -2,6 +2,7 @@ import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSurface } from '../common';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -116,8 +117,9 @@ const getDefaultDates = () => {
 
 const Reportes: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
+  const puedeVer = tienePermiso('ver_reportes');
   const puedeExportar = tienePermiso('exportar_reportes');
-  
+
   const [activeTab, setActiveTab] = useState<ReporteTab>('ventas');
   const [filtros, setFiltros] = useState<FiltrosReporte>({
     ...getDefaultDates(),
@@ -133,8 +135,6 @@ const Reportes: React.FC = memo(() => {
   const [clientesData, setClientesData] = useState<ReporteClientesResponse | null>(null);
   const [cancelacionesData, setCancelacionesData] = useState<ReporteCancelacionesResponse | null>(null);
   const [vendedoresData, setVendedoresData] = useState<ReporteVendedoresResponse | null>(null);
-
-
 
   // Cargar datos según pestaña activa
   const cargarDatos = useCallback(async () => {
@@ -206,29 +206,215 @@ const Reportes: React.FC = memo(() => {
     }
   }, [activeTab, filtros]);
 
+  const activeKpiStrip = useMemo(() => {
+    switch (activeTab) {
+      case 'ventas':
+        if (!ventasData) return null;
+        return (
+          <div className={styles.kpiGrid}>
+            <AdminStatCard
+              icon="receipt_long"
+              label="Total ventas"
+              value={formatNumber(ventasData.resumen.total_ventas)}
+              detail={`ARS: ${ventasData.resumen.ventas_ars} | USD: ${ventasData.resumen.ventas_usd}`}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="payments"
+              label="Ingresos ARS"
+              value={formatCurrency(ventasData.resumen.ingresos_ars)}
+              detail={formatUSD(ventasData.resumen.ingresos_usd)}
+              tone="success"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="confirmation_number"
+              label="Ticket promedio"
+              value={formatCurrency(ventasData.resumen.ticket_promedio)}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="credit_card"
+              label="Metodo mas usado"
+              value={ventasData.resumen.metodo_mas_usado}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+          </div>
+        );
+      case 'vendedores':
+        if (!vendedoresData) return null;
+        return (
+          <div className={styles.kpiGrid}>
+            <AdminStatCard
+              icon="group"
+              label="Vendedores activos"
+              value={formatNumber(vendedoresData.resumen.total_vendedores_activos)}
+              detail="en el periodo"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="point_of_sale"
+              label="Total ventas"
+              value={formatNumber(vendedoresData.resumen.total_ventas_periodo)}
+              detail="ventas en el periodo"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="trending_up"
+              label="Top ingresos"
+              value={vendedoresData.resumen.vendedor_top_ingresos}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="leaderboard"
+              label="Top volumen"
+              value={vendedoresData.resumen.vendedor_top_ventas}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+          </div>
+        );
+      case 'productos':
+        if (!productosData) return null;
+        return (
+          <div className={styles.kpiGrid}>
+            <AdminStatCard
+              icon="category"
+              label="Productos vendidos"
+              value={formatNumber(productosData.resumen.productos_distintos_vendidos)}
+              detail="productos distintos"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="inventory"
+              label="Unidades totales"
+              value={formatNumber(productosData.resumen.unidades_totales)}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="attach_money"
+              label="Ingreso total"
+              value={formatCurrency(productosData.resumen.ingreso_total_productos)}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="warning"
+              label="Stock bajo"
+              value={formatNumber(productosData.stock_bajo.length)}
+              detail="productos con alerta"
+              tone="warning"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+          </div>
+        );
+      case 'clientes':
+        if (!clientesData) return null;
+        return (
+          <div className={styles.kpiGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <AdminStatCard
+              icon="person_add"
+              label="Clientes nuevos"
+              value={formatNumber(clientesData.resumen.clientes_nuevos_periodo)}
+              detail="en el periodo"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="shopping_bag"
+              label="Con compras"
+              value={formatNumber(clientesData.resumen.clientes_con_compras)}
+              detail="clientes activos"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="groups"
+              label="Total registrados"
+              value={formatNumber(clientesData.resumen.clientes_totales)}
+              variant="flush"
+              className={styles.kpiCard}
+            />
+          </div>
+        );
+      case 'cancelaciones':
+        if (!cancelacionesData) return null;
+        return (
+          <div className={styles.kpiGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <AdminStatCard
+              icon="cancel"
+              label="Total cancelaciones"
+              value={formatNumber(cancelacionesData.resumen.total_cancelaciones)}
+              tone="danger"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="money_off"
+              label="Monto cancelado"
+              value={formatCurrency(cancelacionesData.resumen.monto_ars)}
+              detail={formatUSD(cancelacionesData.resumen.monto_usd)}
+              tone="danger"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+            <AdminStatCard
+              icon="percent"
+              label="Tasa de cancelacion"
+              value={`${cancelacionesData.resumen.tasa_cancelacion}%`}
+              detail="del total de ventas"
+              tone="warning"
+              variant="flush"
+              className={styles.kpiCard}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  }, [activeTab, ventasData, vendedoresData, productosData, clientesData, cancelacionesData]);
+
+  if (!puedeVer) {
+    return (
+      <div className={styles.container}>
+        <AdminEmptyState
+          icon="lock"
+          title="Sin acceso a reportes"
+          message="Tu rol actual no tiene permisos para consultar reportes analíticos ni exportaciones."
+          tone="warning"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <div>
-            <h1 className={styles.title}>
-              <span className="material-icons">assessment</span>
-              Reportes
-            </h1>
-            <p className={styles.subtitle}>Analiza el rendimiento del negocio con reportes detallados</p>
-          </div>
-          <button 
-            className={styles.exportButton} 
-            onClick={handleExportar} 
+      <AdminSectionActions
+        lead={null}
+        actions={
+          <button
+            className={styles.exportButton}
+            onClick={handleExportar}
             disabled={exporting || loading || !puedeExportar}
             title={!puedeExportar ? 'Sin permisos para exportar reportes' : undefined}
           >
             <span className="material-icons">download</span>
             {exporting ? 'Exportando...' : 'Exportar CSV'}
           </button>
-        </div>
-      </div>
+        }
+      />
+
+      {activeKpiStrip}
 
       {/* Tabs */}
       <div className={styles.tabBar}>
@@ -245,27 +431,27 @@ const Reportes: React.FC = memo(() => {
       </div>
 
       {/* Filtros */}
-      <div className={styles.filterBar}>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Fecha inicio</label>
-          <input
-            type="date"
-            className={styles.filterInput}
-            value={filtros.fecha_inicio || ''}
-            onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
-          />
-        </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Fecha fin</label>
-          <input
-            type="date"
-            className={styles.filterInput}
-            value={filtros.fecha_fin || ''}
-            onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
-          />
-        </div>
-        {activeTab === 'ventas' && (
-          <>
+      <AdminSurface className={styles.filterShell} tone="muted">
+        <div className={styles.filterBar}>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Fecha inicio</label>
+            <input
+              type="date"
+              className={styles.filterInput}
+              value={filtros.fecha_inicio || ''}
+              onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
+            />
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Fecha fin</label>
+            <input
+              type="date"
+              className={styles.filterInput}
+              value={filtros.fecha_fin || ''}
+              onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
+            />
+          </div>
+          {activeTab === 'ventas' && (
             <div className={styles.filterGroup}>
               <label className={styles.filterLabel}>Agrupacion</label>
               <select
@@ -278,36 +464,40 @@ const Reportes: React.FC = memo(() => {
                 <option value="mes">Por mes</option>
               </select>
             </div>
-          </>
-        )}
-        <div className={styles.filterActions}>
-          <button className={styles.filterButton} onClick={cargarDatos}>
-            <span className="material-icons">search</span>
-            Filtrar
-          </button>
-          <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
-            <span className="material-icons">clear</span>
-            Limpiar
-          </button>
+          )}
+          <div className={styles.filterActions}>
+            <button className={styles.filterButton} onClick={cargarDatos}>
+              <span className="material-icons">search</span>
+              Filtrar
+            </button>
+            <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
+              <span className="material-icons">clear</span>
+              Limpiar
+            </button>
+          </div>
         </div>
-      </div>
+      </AdminSurface>
 
       {/* Estado de carga/error */}
       {loading && (
-        <div className={styles.loading}>
-          <span className="material-icons">hourglass_empty</span>
-          Cargando reporte...
-        </div>
+        <AdminEmptyState
+          icon="hourglass_empty"
+          title="Cargando reporte"
+          message="Estamos preparando la vista analítica del periodo seleccionado."
+          className={styles.stateBlock}
+        />
       )}
 
       {error && !loading && (
-        <div className={styles.error}>
-          <span className="material-icons">error_outline</span>
-          <p>{error}</p>
-          <button className={styles.retryButton} onClick={cargarDatos}>
-            Reintentar
-          </button>
-        </div>
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar el reporte"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={cargarDatos}
+          tone="danger"
+          className={styles.stateBlock}
+        />
       )}
 
       {/* Contenido del reporte */}
@@ -329,7 +519,7 @@ const Reportes: React.FC = memo(() => {
 // ============================================================================
 
 const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data }) => {
-  const { resumen, datos } = data;
+  const { datos } = data;
   const [sortKey, setSortKey] = useState<VentasSortKey>('periodo');
   const [sortDir, setSortDir] = useState<SortDirReporte>('asc');
 
@@ -381,43 +571,6 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
 
   return (
     <>
-      <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">receipt_long</span>
-            Total ventas
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.total_ventas)}</span>
-          <span className={styles.kpiSub}>
-            ARS: {resumen.ventas_ars} | USD: {resumen.ventas_usd}
-          </span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">payments</span>
-            Ingresos ARS
-          </span>
-          <span className={styles.kpiValue}>{formatCurrency(resumen.ingresos_ars)}</span>
-          <span className={styles.kpiSub}>{formatUSD(resumen.ingresos_usd)}</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">confirmation_number</span>
-            Ticket promedio
-          </span>
-          <span className={styles.kpiValue}>{formatCurrency(resumen.ticket_promedio)}</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">credit_card</span>
-            Metodo mas usado
-          </span>
-          <span className={styles.kpiValue} style={{ fontSize: 'var(--font-size-lg)' }}>
-            {resumen.metodo_mas_usado}
-          </span>
-        </div>
-      </div>
-
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -504,7 +657,7 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
 // ============================================================================
 
 const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo(({ data }) => {
-  const { resumen, datos } = data;
+  const { datos } = data;
   const [sortKey, setSortKey] = useState<VendedoresSortKey>('ventas');
   const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
 
@@ -560,43 +713,6 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
 
   return (
     <>
-      <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">group</span>
-            Vendedores activos
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.total_vendedores_activos)}</span>
-          <span className={styles.kpiSub}>en el periodo</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">point_of_sale</span>
-            Total ventas
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.total_ventas_periodo)}</span>
-          <span className={styles.kpiSub}>ventas en el periodo</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">trending_up</span>
-            Top ingresos
-          </span>
-          <span className={styles.kpiValue} style={{ fontSize: 'var(--font-size-xl)' }}>
-            {resumen.vendedor_top_ingresos}
-          </span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">leaderboard</span>
-            Top volumen
-          </span>
-          <span className={styles.kpiValue} style={{ fontSize: 'var(--font-size-xl)' }}>
-            {resumen.vendedor_top_ventas}
-          </span>
-        </div>
-      </div>
-
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -611,10 +727,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
                   </span>
                 </span>
               </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSort('ventas')}
-              >
+              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('ventas')}>
                 <span className={styles.sortableHeaderContent}>
                   Ventas
                   <span
@@ -624,10 +737,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
                   </span>
                 </span>
               </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSort('ingresos_ars')}
-              >
+              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('ingresos_ars')}>
                 <span className={styles.sortableHeaderContent}>
                   Ingresos ARS
                   <span
@@ -651,10 +761,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
                   </span>
                 </span>
               </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSort('porcentaje')}
-              >
+              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('porcentaje')}>
                 <span className={styles.sortableHeaderContent}>
                   % del Total
                   <span
@@ -713,7 +820,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
 // ============================================================================
 
 const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo(({ data }) => {
-  const { resumen, mas_vendidos, stock_bajo } = data;
+  const { mas_vendidos, stock_bajo } = data;
   const [sortKeyVendidos, setSortKeyVendidos] = useState<ProductosSortKey>('unidades');
   const [sortDirVendidos, setSortDirVendidos] = useState<SortDirReporte>('desc');
   const [sortKeyStock, setSortKeyStock] = useState<ProductosStockSortKey>('stock_actual');
@@ -821,39 +928,6 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
 
   return (
     <>
-      <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">category</span>
-            Productos vendidos
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.productos_distintos_vendidos)}</span>
-          <span className={styles.kpiSub}>productos distintos</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">inventory</span>
-            Unidades totales
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.unidades_totales)}</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">attach_money</span>
-            Ingreso total
-          </span>
-          <span className={styles.kpiValue}>{formatCurrency(resumen.ingreso_total_productos)}</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">warning</span>
-            Stock bajo
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(stock_bajo.length)}</span>
-          <span className={styles.kpiSub}>productos con alerta</span>
-        </div>
-      </div>
-
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -1050,7 +1124,7 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
 // ============================================================================
 
 const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ data }) => {
-  const { resumen, top_clientes } = data;
+  const { top_clientes } = data;
   const [sortKey, setSortKey] = useState<ClientesSortKey>('monto');
   const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
 
@@ -1106,32 +1180,6 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
 
   return (
     <>
-      <div className={styles.kpiGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">person_add</span>
-            Clientes nuevos
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.clientes_nuevos_periodo)}</span>
-          <span className={styles.kpiSub}>en el periodo</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">shopping_bag</span>
-            Con compras
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.clientes_con_compras)}</span>
-          <span className={styles.kpiSub}>clientes activos</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">groups</span>
-            Total registrados
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.clientes_totales)}</span>
-        </div>
-      </div>
-
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -1224,7 +1272,7 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
 // ============================================================================
 
 const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> = memo(({ data }) => {
-  const { resumen, datos } = data;
+  const { datos } = data;
   const [sortKey, setSortKey] = useState<CancelacionesSortKey>('fecha');
   const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
 
@@ -1280,32 +1328,6 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> 
 
   return (
     <>
-      <div className={styles.kpiGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">cancel</span>
-            Total cancelaciones
-          </span>
-          <span className={styles.kpiValue}>{formatNumber(resumen.total_cancelaciones)}</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">money_off</span>
-            Monto cancelado
-          </span>
-          <span className={styles.kpiValue}>{formatCurrency(resumen.monto_ars)}</span>
-          <span className={styles.kpiSub}>{formatUSD(resumen.monto_usd)}</span>
-        </div>
-        <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>
-            <span className="material-icons">percent</span>
-            Tasa de cancelacion
-          </span>
-          <span className={styles.kpiValue}>{resumen.tasa_cancelacion}%</span>
-          <span className={styles.kpiSub}>del total de ventas</span>
-        </div>
-      </div>
-
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -1396,4 +1418,3 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> 
 });
 
 export default Reportes;
-
