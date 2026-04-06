@@ -15,6 +15,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import { formatARS } from '../../../utils/formatPrecio';
+import Button from '../../common/Button';
 
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types';
@@ -70,7 +71,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
         : 0,
     };
   }, [precio_venta, precio_original, precio_oferta]);
-
 
   /**
    * Click en la tarjeta del producto
@@ -170,7 +170,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
    */
   const cannotAddMore = !canAddMoreOfProduct(id_producto, stock);
 
-
   // ============================================================================
   // FUNCIONES ESPECÍFICAS DE PRODUCTCARD
   // ============================================================================
@@ -228,7 +227,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             variant="minimal"
             className={styles.favoriteButton}
           />
-
         </div>
 
         {/* Información del producto — Jerarquía: Precio > Nombre > Descripción > CTA */}
@@ -260,54 +258,41 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Botón CTA — Agregar al carrito limpio y prominente */}
           {isOutOfStock ? (
-            <button
-              className={`${styles.ctaButton} ${styles.ctaButtonDisabled}`}
-              disabled
-              aria-label="Producto agotado"
-            >
-              <span className={`material-icons ${styles.ctaButtonIcon}`}>block</span>
-              <span className={styles.ctaButtonText}>Agotado</span>
-            </button>
+            <Button ariaLabel="Producto agotado" disabled variant="outline" size="xs">
+              Agotado
+            </Button>
           ) : showSuccess ? (
-            <button
-              className={`${styles.ctaButton} ${styles.ctaButtonSuccess}`}
-              disabled
-              aria-label="Producto agregado"
-            >
-              <span className={`material-icons ${styles.ctaButtonIcon}`}>check_circle</span>
-              <span className={styles.ctaButtonText}>¡Agregado!</span>
-            </button>
+            <Button ariaLabel="Producto agregado" disabled variant="success" size="xs" icon="check_circle">
+              ¡Agregado!
+            </Button>
           ) : cannotAddMore ? (
-            <button
-              className={styles.ctaButton}
+            <Button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 navigate('/carrito');
               }}
-              aria-label="Ir al carrito"
+              ariaLabel="Ir al carrito"
+              size="xs"
+              icon="shopping_cart"
             >
-              <span className={`material-icons ${styles.ctaButtonIcon}`}>shopping_cart</span>
-              <span className={styles.ctaButtonText}>Ver carrito</span>
-            </button>
+              Ver carrito
+            </Button>
           ) : (
-            <button
-              className={`${styles.ctaButton} ${isAddingToCart ? styles.ctaButtonLoading : ''}`}
+            <Button
+              className={styles.addButton}
+              ariaLabel={`Agregar ${nombre} al carrito`}
+              size="xs"
+              disabled={isAddingToCart || carritoLoading}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 handleAddToCart();
               }}
-              disabled={isAddingToCart || carritoLoading}
-              aria-label={`Agregar ${nombre} al carrito`}
+              icon={isAddingToCart ? 'hourglass_empty' : 'add_shopping_cart'}
             >
-              <span className={`material-icons ${styles.ctaButtonIcon}`}>
-                {isAddingToCart ? 'hourglass_empty' : 'add_shopping_cart'}
-              </span>
-              <span className={styles.ctaButtonText}>
-                {isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}
-              </span>
-            </button>
+              {isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}
+            </Button>
           )}
         </div>
       </article>

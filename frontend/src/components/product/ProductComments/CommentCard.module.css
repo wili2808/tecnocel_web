@@ -9,7 +9,7 @@
   border-bottom: 1px solid var(--border-color);
   position: relative;
   animation: fadeIn 0.25s ease-out;
-  background-color: rgba(var(--color-primary-rgb) , 0.04);
+  background-color: rgba(var(--color-primary-rgb) , 0.08);
 }
 
 .commentCard:last-child {

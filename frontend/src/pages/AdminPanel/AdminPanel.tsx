@@ -201,12 +201,6 @@ const AdminPanel = () => {
   const activeSectionLabel = activeMenuOption?.label || 'Panel de Administración';
   const activeSectionDescription =
     SECTION_DESCRIPTIONS[activeSection] || 'Módulo administrativo disponible según los permisos actuales.';
-  const accessScopeLabel =
-    filteredMenuOptions.length >= 8
-      ? 'Acceso total'
-      : filteredMenuOptions.length >= 5
-        ? 'Cobertura amplia'
-        : 'Cobertura operativa';
 
   // ============================================================================
   // RENDERIZADO PRINCIPAL DEL PANEL

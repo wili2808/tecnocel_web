@@ -129,8 +129,6 @@ const ProductActions: React.FC<ProductActionsProps> = ({ productId, productName,
   // RENDERIZADO
   // ============================================================================
 
-  const hasItemsInCart = estado.items.length > 0;
-
   return (
     <div className={styles.productActions}>
       {/* Botones de acción principales */}
@@ -224,7 +222,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({ productId, productName,
           {/* Información del stock disponible */}
           <span className={styles.availableStock}>
             {currentQuantityInCart > 0 && (
-              <span className={styles.cartQuantity}>{currentQuantityInCart} en tu Carrito.</span>
+              <span className={styles.cartQuantity}>Tienes {currentQuantityInCart} en tu Carrito.</span>
             )}
           </span>
         </div>

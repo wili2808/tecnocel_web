@@ -1,26 +1,19 @@
 /* === FORMULARIO PRINCIPAL === */
 .commentForm {
-    background: var(--background-secondary);
+    background-color: rgba(var(--color-primary-rgb) , 0.08);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
 }
 
-.formHeader {
-    margin-bottom: var(--spacing-lg);
-}
-
-.formHeader h4 {
-    margin: 0;
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-}
-
 /* === SECCIÓN DE CALIFICACIÓN === */
 .ratingSection {
-    margin-bottom: var(--spacing-lg);
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-lg);
+    align-items: center;
+    margin-bottom: var(--spacing-md);
 }
 
 .label {
@@ -28,7 +21,6 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
 }
 
 .starRating {
@@ -39,10 +31,12 @@
 }
 
 .star {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     cursor: pointer;
-    padding: var(--spacing-xs);
     border-radius: var(--border-radius-sm);
     transition: var(--theme-transition);
     color: var(--text-secondary);
@@ -60,7 +54,7 @@
 }
 
 .star .material-icons {
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .ratingText {
@@ -71,7 +65,7 @@
 
 /* === SECCIÓN DE COMENTARIO === */
 .commentSection {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
 }
 
 .textarea {
@@ -235,52 +229,9 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
+    margin-top: var(--spacing-md);
     border-top: 1px solid var(--border-color);
     padding-top: var(--spacing-lg);
-}
-
-.cancelButton {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    transition: var(--theme-transition);
-}
-
-.cancelButton:hover:not(:disabled) {
-    background: var(--background-neutral);
-    color: var(--text-primary);
-}
-
-.submitButton {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-lg);
-    background: var(--color-primary);
-    color: var(--text-inverse);
-    border: none;
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    transition: var(--theme-transition);
-}
-
-.submitButton:hover:not(:disabled) {
-    background: var(--color-primary-dark);
-    transform: translateY(-1px);
-}
-
-.submitButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
 }
 
 .spinner {

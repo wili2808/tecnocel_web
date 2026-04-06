@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
   flex-wrap: wrap;
   gap: var(--spacing-md);
 }
@@ -44,8 +44,7 @@
 
 /* === BOTONES === */
 .btnPrimary,
-.btnSecondary,
-.btnDanger {
+.btnSecondary {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -85,21 +84,8 @@
   cursor: not-allowed;
 }
 
-.btnDanger {
-  background-color: transparent;
-  color: var(--color-error);
-  border: 1px solid var(--color-error);
-}
-
-.btnDanger:hover {
-  background-color: var(--color-error);
-  color: var(--color-white);
-  transform: translateY(-1px);
-}
-
 .btnPrimary .material-icons,
-.btnSecondary .material-icons,
-.btnDanger .material-icons {
+.btnSecondary .material-icons {
   font-size: var(--font-size-md);
 }
 
@@ -180,14 +166,8 @@
   }
 
   .header {
-    flex-direction: column;
-    align-items: flex-start;
     gap: var(--spacing-sm);
-  }
-
-  .btnDanger {
-    width: 100%;
-    justify-content: center;
+    margin-bottom: var(--spacing-md);
   }
 
   .title {
@@ -202,7 +182,6 @@
 
 @media (max-width: 480px) {
   .headerTitle {
-    flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-xs);
   }
@@ -221,8 +200,7 @@
   }
 
   .btnPrimary,
-  .btnSecondary,
-  .btnDanger {
+  .btnSecondary{
     font-size: var(--font-size-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
   }
@@ -230,5 +208,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .container { animation: none; }
-  .favoriteItem, .btnPrimary, .btnSecondary, .btnDanger { transition: none; }
+  .favoriteItem, .btnPrimary, .btnSecondary { transition: none; }
 }

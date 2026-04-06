@@ -262,6 +262,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   flex: 1;
+  text-align: left;
 }
 
 .mobileAuthButtons {
@@ -365,8 +366,6 @@
 
 .mobileDropdownLink {
   display: flex;
-  align-items: center;
-  justify-content: center;
   padding: var(--spacing-sm) var(--spacing-md);
   color: var(--text-secondary);
   text-decoration: none;

@@ -221,7 +221,7 @@ const GestionPermisos = () => {
               </select>
             </div>
             <div className={styles.searchGroup}>
-              <span className="material-icons searchIcon">search</span>
+              <span className={`material-icons ${styles.searchIcon}`}>search</span>
               <input
                 type="text"
                 className={styles.searchInput}

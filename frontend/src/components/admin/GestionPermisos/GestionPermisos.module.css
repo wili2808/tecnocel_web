@@ -182,6 +182,8 @@
 }
 
 .searchGroup {
+  display: flex;
+  align-items: center;
   flex: 1;
   position: relative;
 }
@@ -403,7 +405,6 @@
   }
 
   .filterGroup {
-    flex: 1;
     min-width: 140px;
   }
 

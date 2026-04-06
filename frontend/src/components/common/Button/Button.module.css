@@ -29,7 +29,6 @@
   outline: none;
   
   /* Touch-friendly por defecto */
-  min-height: 44px;
   touch-action: manipulation;
 }
 
@@ -289,12 +288,10 @@
 /* === MOBILE (< 640px) === */
 @media (max-width: 639px) {
   .button {
-    min-height: 44px;
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: auto;
   }
   
-  .xs { min-height: 36px; }
+  .xs { max-height: 30px; }
   .sm { min-height: 40px; }
   .md { min-height: 44px; }
   .lg { min-height: 48px; }

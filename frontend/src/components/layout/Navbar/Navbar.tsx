@@ -19,6 +19,7 @@ import ProductSearch from '../../product/ProductSearch';
 import IconButton from '../../common/IconButton';
 import NotificationBell from '../../notifications/NotificationBell';
 import navbarStyle from './Navbar.module.css';
+import Button from '../../common/Button';
 
 // ============================================================================
 // CONFIGURACIÓN
@@ -59,7 +60,7 @@ const Navbar: React.FC = () => {
 
   const cartItemCount = useMemo(
     () => estado?.items?.reduce((total, item) => total + item.cantidad, 0) || 0,
-    [estado?.items]
+    [estado?.items],
   );
 
   // ============================================================================
@@ -138,7 +139,10 @@ const Navbar: React.FC = () => {
           } else if (isAuthenticated) {
             showNotification('Inicia sesión como cliente para acceder al carrito', 'info', 4000, {
               label: 'Ir a login',
-              onClick: () => { navigate('/login'); handleLinkClick(); },
+              onClick: () => {
+                navigate('/login');
+                handleLinkClick();
+              },
             });
           } else {
             navigate('/login');
@@ -151,7 +155,7 @@ const Navbar: React.FC = () => {
         size="sm"
         className={`${navbarStyle.cartButton} ${!isCliente ? navbarStyle.cartButtonDisabled : ''}`}
       >
-        <span className={navbarStyle.cartBadge}>{cartItemCount}</span>
+        {cartItemCount > 0 && <span className={navbarStyle.cartBadge}>{cartItemCount}</span>}
       </IconButton>
     );
   }
@@ -162,7 +166,10 @@ const Navbar: React.FC = () => {
       <div className={navbarStyle.controlsGroup}>
         <IconButton
           icon={theme === 'light' ? 'dark_mode' : 'light_mode'}
-          onClick={() => { toggleTheme(); handleLinkClick(); }}
+          onClick={() => {
+            toggleTheme();
+            handleLinkClick();
+          }}
           ariaLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
           variant="ghost"
           size="sm"
@@ -268,10 +275,7 @@ const Navbar: React.FC = () => {
    */
   function MobileMenu({ menuRef: ref }: { menuRef: React.RefObject<HTMLDivElement> }) {
     return (
-      <div
-        ref={ref}
-        className={`${navbarStyle.mobileDropdown} ${isMenuOpen ? navbarStyle.active : ''}`}
-      >
+      <div ref={ref} className={`${navbarStyle.mobileDropdown} ${isMenuOpen ? navbarStyle.active : ''}`}>
         <div className={navbarStyle.mobileDropdownContent}>
           {AuthSection({ mobile: true })}
           <div className={navbarStyle.mobileSeparator} />
@@ -281,16 +285,19 @@ const Navbar: React.FC = () => {
             <>
               <div className={navbarStyle.mobileSeparator} />
               <div className={navbarStyle.mobileLogoutSection}>
-                <IconButton
+                <Button
                   icon="logout"
-                  onClick={() => { logout(); handleLinkClick(); }}
+                  onClick={() => {
+                    logout();
+                    handleLinkClick();
+                  }}
                   ariaLabel="Cerrar sesión"
-                  variant="ghost"
-                  size="md"
-                  className={navbarStyle.mobileLogoutButton}
+                  variant="danger"
+                  size="sm"
+                  fullWidth
                 >
-                  <span className={navbarStyle.mobileLogoutText}>Cerrar Sesión</span>
-                </IconButton>
+                  Cerrar sesión
+                </Button>
               </div>
             </>
           )}
@@ -298,15 +305,14 @@ const Navbar: React.FC = () => {
           <div className={navbarStyle.mobileSeparator} />
           <button
             className={navbarStyle.mobileThemeToggle}
-            onClick={() => { toggleTheme(); handleLinkClick(); }}
+            onClick={() => {
+              toggleTheme();
+              handleLinkClick();
+            }}
             aria-label={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
           >
-            <span className="material-icons">
-              {theme === 'light' ? 'dark_mode' : 'light_mode'}
-            </span>
-            <span className={navbarStyle.mobileThemeText}>
-              Modo {theme === 'light' ? 'oscuro' : 'claro'}
-            </span>
+            <span className="material-icons">{theme === 'light' ? 'dark_mode' : 'light_mode'}</span>
+            <span className={navbarStyle.mobileThemeText}>Modo {theme === 'light' ? 'oscuro' : 'claro'}</span>
           </button>
         </div>
       </div>
@@ -362,9 +368,7 @@ const Navbar: React.FC = () => {
                   <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
                 </Link>
               </div>
-              <div className={navbarStyle.leftNavigation}>
-                {SecondaryNavLinks({})}
-              </div>
+              <div className={navbarStyle.leftNavigation}>{SecondaryNavLinks({})}</div>
             </div>
 
             <div className={navbarStyle.searchSection}>

@@ -135,6 +135,7 @@
   --line-height-relaxed: 1.7;
 
   /* === ESPACIADO === */
+  --spacing-xxs: 0.3125rem; /* 4px */
   --spacing-xs: 0.5rem;    /* 8px */
   --spacing-sm: 0.75rem;   /* 12px */
   --spacing-md: 1rem;      /* 16px */

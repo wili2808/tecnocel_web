@@ -90,7 +90,7 @@
   .productsGrid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--spacing-xs); padding: var(--spacing-xs); }
 }
 @media (max-width: 480px) {
-  .productsGrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); padding: var(--spacing-xs); }
+  .productsGrid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); padding: var(--spacing-xs); }
 }
 
 @keyframes fadeInUp {
