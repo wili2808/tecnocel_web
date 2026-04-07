@@ -67,7 +67,7 @@ database/backups/*.sql
 # CLAUDE.md
 
 # Uploads (imágenes)
-uploads
+backend/uploads
 
 # Skills y plugins
 docs/superpowers
