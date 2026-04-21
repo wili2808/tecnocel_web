@@ -37,17 +37,21 @@
   white-space: nowrap;
 }
 
-.crearButton:hover {
+.crearButton:hover:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
-.crearButton:active {
+.crearButton:active:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
-/* ============================================================================
-   TABS DE NAVEGACIÓN
-   ============================================================================ */
+.crearButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-primary);
+}
+
+/* --- TABS DE NAVEGACIÓN --- */
 
 .tabsBar {
   display: flex;
@@ -92,9 +96,7 @@
   font-weight: 600;
 }
 
-/* ============================================================================
-   BÚSQUEDA
-   ============================================================================ */
+/* --- BÚSQUEDA --- */
 
 .searchForm {
   display: flex;
@@ -222,9 +224,7 @@
   border: 1px solid red;
 }
 
-/* ============================================================================
-   ESTADOS
-   ============================================================================ */
+/* --- ESTADOS --- */
 
 .loading,
 .error {
@@ -274,9 +274,7 @@
   margin-bottom: 8px;
 }
 
-/* ============================================================================
-   TABLA DE PRODUCTOS
-   ============================================================================ */
+/* --- TABLA DE PRODUCTOS --- */
 
 .tableWrapper {
   overflow-x: auto;
@@ -366,7 +364,7 @@
   font-size: 13px;
 }
 
-/* === THUMBNAILS === */
+/* --- THUMBNAILS --- */
 
 .thumbnailWrapper {
   width: 40px;
@@ -494,9 +492,7 @@
   font-size: 16px;
 }
 
-/* ============================================================================
-   PAGINACIÓN
-   ============================================================================ */
+/* --- PAGINACIÓN --- */
 
 .pagination {
   display: flex;
@@ -542,9 +538,7 @@
   text-align: right;
 }
 
-/* ============================================================================
-   RESPONSIVE
-   ============================================================================ */
+/* --- RESPONSIVE --- */
 
 @media (max-width: 480px) {
   .material-icons {

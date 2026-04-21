@@ -546,7 +546,8 @@ class AlmacenController {
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { imagenes, caracteristicas, ...productoData } = req.body as UpdateProductoBody;
+      // Extraemos stock y fecha_ingreso para ignorarlos en la actualización.
+      const { imagenes, caracteristicas, stock, ...productoData } = req.body as UpdateProductoBody;
 
       const [updated] = await Almacen.update({
         ...productoData,

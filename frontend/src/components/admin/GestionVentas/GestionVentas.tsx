@@ -47,6 +47,8 @@ const GestionVentas: React.FC = () => {
   const puedeVer = tienePermiso('ver_ventas');
   const puedeVerEnvios = tienePermiso('ver_envios');
   const puedeGestionarEnvios = tienePermiso('gestionar_envios');
+  const puedeVerRetiros = tienePermiso('ver_retiros');
+  const puedeGestionarRetiros = tienePermiso('gestionar_retiros');
   const puedeCrear = tienePermiso('crear_venta');
   const puedeVerConfiguracion = tienePermiso('ver_configuracion');
   const puedeEditarConfiguracion = tienePermiso('editar_configuracion');
@@ -195,16 +197,19 @@ const GestionVentas: React.FC = () => {
     cargarTipoCambio();
     cargarVendedores();
     if (puedeVerEnvios) {
-      cargarRetirosPendientes();
       cargarEnviosPendientes();
+    }
+    if (puedeVerRetiros) {
+      cargarRetirosPendientes();
     }
   }, [
     cargarStats,
     cargarTipoCambio,
+    cargarVendedores,
     cargarRetirosPendientes,
     cargarEnviosPendientes,
-    cargarVendedores,
     puedeVerEnvios,
+    puedeVerRetiros,
   ]);
 
   useEffect(() => {
@@ -405,21 +410,21 @@ const GestionVentas: React.FC = () => {
         <button
           className={`${styles.tab} ${activeTab === 'retiros' ? styles.tabActivo : ''}`}
           onClick={() => setActiveTab('retiros')}
-          disabled={!puedeVerEnvios}
-          title={!puedeVerEnvios ? 'Sin permisos para ver retiros' : undefined}
+          disabled={!puedeVerRetiros}
+          title={!puedeVerRetiros ? 'Sin permisos para ver retiros' : undefined}
         >
           <span className="material-icons">store</span>
           Retiro en tienda
-          {puedeVerEnvios && retirosPendientes > 0 && <span className={styles.tabBadge}>{retirosPendientes}</span>}
+          {puedeVerRetiros && retirosPendientes > 0 && <span className={styles.tabBadge}>{retirosPendientes}</span>}
         </button>
       </div>
 
-      {activeTab === 'envios' && (
+      {activeTab === 'envios' && puedeVerEnvios && (
         <GestionEnvios onPendientesChange={setEnviosPendientes} puedeGestionar={puedeGestionarEnvios} />
       )}
 
-      {activeTab === 'retiros' && (
-        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarEnvios} />
+      {activeTab === 'retiros' && puedeVerRetiros && (
+        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarRetiros} />
       )}
 
       {activeTab === 'ventas' && (

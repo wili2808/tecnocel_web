@@ -611,7 +611,13 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                 className={styles.input}
                 min="0"
                 required
+                disabled={modo === 'editar'}
               />
+              {modo === 'editar' && (
+                <p className={styles.helpText}>
+                  El stock se actualiza automáticamente mediante el módulo de Compras.
+                </p>
+              )}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="stock_minimo" className={styles.label}>
@@ -657,6 +663,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                 onChange={handleChange}
                 className={styles.input}
                 required
+                disabled={modo === 'editar'}
               />
             </div>
           </div>

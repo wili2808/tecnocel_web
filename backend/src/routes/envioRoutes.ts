@@ -5,9 +5,8 @@ import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.j
 const router = Router();
 
 router.use(verificarToken);
-router.use(verificarPermiso('ver_envios'));
 
-// Rutas de solo lectura - requieren solo ver_envios
+// Rutas - requieren ver_envios o ver_retiros dinámicamente según el tipo_entrega
 /**
  * @swagger
  * /envios/admin:
@@ -107,6 +106,6 @@ router.get('/admin/:id_envio', EnvioController.obtenerDetalle.bind(EnvioControll
  *       500:
  *         description: Error interno del servidor
  */
-router.patch('/admin/:id_envio/estado', verificarPermiso('gestionar_envios'), EnvioController.actualizarEstado.bind(EnvioController));
+router.patch('/admin/:id_envio/estado', EnvioController.actualizarEstado.bind(EnvioController));
 
 export default router;

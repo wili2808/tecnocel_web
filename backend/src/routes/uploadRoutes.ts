@@ -1,8 +1,8 @@
-import express from 'express';
+import { Router } from 'express';
 import UploadController from '../controllers/UploadController.js';
 import { verificarTokenCliente, verificarToken } from '../middleware/authMiddleware.js';
 
-const router = express.Router();
+const router = Router();
 
 // Configurar multer para múltiples archivos
 const upload = UploadController.getMulterConfig();
