@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { CarritoService } from '../services/carritoService';
+import carritoService from '../services/carritoService';
 import type { DatosCompra, VentaConfirmada } from '../types/carrito';
 import { useCarrito } from './useCarrito';
 
@@ -33,7 +33,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const response = await CarritoService.obtenerCarrito();
+      const response = await carritoService.obtenerCarrito();
       return response.carrito;
     } catch (error: any) {
       const mensajeError = handleCarritoError(error);
@@ -63,7 +63,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const response = await CarritoService.agregarItem(id_producto, cantidad);
+      const response = await carritoService.agregarItem(id_producto, cantidad);
       
       return {
         item: response.item,
@@ -97,7 +97,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const response = await CarritoService.actualizarCantidad(id_item, cantidad);
+      const response = await carritoService.actualizarCantidad(id_item, cantidad);
       return {
         item: response.item,
         total_carrito: response.total_carrito
@@ -118,7 +118,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const response = await CarritoService.eliminarItem(id_item);
+      const response = await carritoService.eliminarItem(id_item);
       return {
         mensaje: response.mensaje,
         total_carrito: response.total_carrito
@@ -139,7 +139,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const response = await CarritoService.vaciarCarrito();
+      const response = await carritoService.vaciarCarrito();
       return response.mensaje;
     } catch (error: any) {
       const mensajeError = handleCarritoError(error);
@@ -157,7 +157,7 @@ export const useCarritoOperations = () => {
     }
 
     const compraData = prepareCompraData(datosCompra);
-    const response = await CarritoService.confirmarCompra(compraData);
+    const response = await carritoService.confirmarCompra(compraData);
     return response.venta;
   }, [validateCarritoOperation, prepareCompraData]);
 
@@ -171,7 +171,7 @@ export const useCarritoOperations = () => {
     }
 
     try {
-      const response = await CarritoService.obtenerCarrito();
+      const response = await carritoService.obtenerCarrito();
       return response.carrito;
     } catch (error: any) {
       const mensajeError = handleCarritoError(error);

@@ -245,14 +245,14 @@ Proyecto de e-commerce en estado avanzado con funcionalidades core completas y f
 | carritoService | CRUD carrito, confirmar compra |
 | ofertaService | Ofertas activas, estadísticas |
 | adminOfertaService | CRUD ofertas desde admin |
-| ventaAdminService | Gestión de ventas desde admin |
+| adminVentaService | Gestión de ventas desde admin |
 | reporteService | Reportes de ventas, productos, clientes, cancelaciones |
 | favoritoService | CRUD favoritos |
 | direccionService | CRUD direcciones |
 | marcaService | Marcas |
 | commentService | CRUD comentarios |
 | uploadService | Subida de imágenes |
-| compraAdminService | CRUD compras, búsqueda, estadísticas |
+| adminCompraService | CRUD compras, búsqueda, estadísticas |
 | proveedorAdminService | CRUD proveedores, búsqueda inteligente |
 
 ---

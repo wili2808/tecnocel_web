@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styles from './GestionClientes.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { usuarioService } from '../../../services/usuarioService';
+import usuarioService from '../../../services/usuarioService';
+import styles from './GestionClientes.module.css';
 
 interface Props {
   onClose: () => void;
@@ -23,7 +23,7 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h3 className={styles.modalTitle}>
             <span className="material-icons">person_add</span>
@@ -68,93 +68,95 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
         </div>
 
         <form onSubmit={handleSubmit}>
-            <div className={styles.modalBody}>
-              <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    Nombre <span style={{ color: 'var(--color-error)' }}>*</span>
-                  </label>
-                  <input
-                    className={styles.formInput}
-                    name="nombre_cliente"
-                    value={form.nombre_cliente}
-                    onChange={handleChange}
-                    placeholder="Juan"
-                    disabled={guardando}
-                    required
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    Apellido <span style={{ color: 'var(--color-error)' }}>*</span>
-                  </label>
-                  <input
-                    className={styles.formInput}
-                    name="apellido_cliente"
-                    value={form.apellido_cliente}
-                    onChange={handleChange}
-                    placeholder="Pérez"
-                    disabled={guardando}
-                    required
-                  />
-                </div>
-              </div>
-              <div className={styles.formGroup} style={{ marginBottom: 14 }}>
+          <div className={styles.modalBody}>
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
                 <label className={styles.formLabel}>
-                  Email <span style={{ color: 'var(--color-error)' }}>*</span>
+                  Nombre <span style={{ color: 'var(--color-error)' }}>*</span>
                 </label>
                 <input
                   className={styles.formInput}
-                  type="email"
-                  name="email_cliente"
-                  value={form.email_cliente}
+                  name="nombre_cliente"
+                  value={form.nombre_cliente}
                   onChange={handleChange}
-                  placeholder="juan@ejemplo.com"
+                  placeholder="Juan"
                   disabled={guardando}
                   required
                 />
               </div>
-              <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Celular</label>
-                  <input
-                    className={styles.formInput}
-                    name="celular_cliente"
-                    value={form.celular_cliente}
-                    onChange={handleChange}
-                    placeholder="Ej: 3512345678"
-                    disabled={guardando}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>DNI / CUIT</label>
-                  <input
-                    className={styles.formInput}
-                    name="nit_ci_cliente"
-                    value={form.nit_ci_cliente}
-                    onChange={handleChange}
-                    placeholder="Ej: 12345678"
-                    disabled={guardando}
-                  />
-                </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  Apellido <span style={{ color: 'var(--color-error)' }}>*</span>
+                </label>
+                <input
+                  className={styles.formInput}
+                  name="apellido_cliente"
+                  value={form.apellido_cliente}
+                  onChange={handleChange}
+                  placeholder="Pérez"
+                  disabled={guardando}
+                  required
+                />
               </div>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '12px 0 0', lineHeight: 1.5 }}>
-                <span className="material-icons" style={{ fontSize: 14, verticalAlign: 'text-bottom', marginRight: 4 }}>info</span>
-                El cliente recibirá un email para activar su cuenta y establecer su propia contraseña.
-              </p>
             </div>
-            <div className={styles.modalFooter}>
-              <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
-                Cancelar
-              </button>
-              <button type="submit" className={styles.saveButton} disabled={guardando}>
-                <span className="material-icons" style={{ fontSize: 16 }}>
-                  {guardando ? 'hourglass_empty' : 'person_add'}
-                </span>
-                {guardando ? 'Creando...' : 'Crear y enviar email'}
-              </button>
+            <div className={styles.formGroup} style={{ marginBottom: 14 }}>
+              <label className={styles.formLabel}>
+                Email <span style={{ color: 'var(--color-error)' }}>*</span>
+              </label>
+              <input
+                className={styles.formInput}
+                type="email"
+                name="email_cliente"
+                value={form.email_cliente}
+                onChange={handleChange}
+                placeholder="juan@ejemplo.com"
+                disabled={guardando}
+                required
+              />
             </div>
-          </form>
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Celular</label>
+                <input
+                  className={styles.formInput}
+                  name="celular_cliente"
+                  value={form.celular_cliente}
+                  onChange={handleChange}
+                  placeholder="Ej: 3512345678"
+                  disabled={guardando}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>DNI / CUIT</label>
+                <input
+                  className={styles.formInput}
+                  name="nit_ci_cliente"
+                  value={form.nit_ci_cliente}
+                  onChange={handleChange}
+                  placeholder="Ej: 12345678"
+                  disabled={guardando}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '12px 0 0', lineHeight: 1.5 }}>
+              <span className="material-icons" style={{ fontSize: 14, verticalAlign: 'text-bottom', marginRight: 4 }}>
+                info
+              </span>
+              El cliente recibirá un email para activar su cuenta y establecer su propia contraseña.
+            </p>
+          </div>
+          <div className={styles.modalFooter}>
+            <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
+              Cancelar
+            </button>
+            <button type="submit" className={styles.saveButton} disabled={guardando}>
+              <span className="material-icons" style={{ fontSize: 16 }}>
+                {guardando ? 'hourglass_empty' : 'person_add'}
+              </span>
+              {guardando ? 'Creando...' : 'Crear y enviar email'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

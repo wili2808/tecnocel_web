@@ -4,7 +4,7 @@ import type { NotificacionesResponse, NoLeidasResponse } from '../types/notifica
 /**
  * Servicio para manejar todas las operaciones relacionadas con notificaciones de clientes
  */
-export const notificacionService = {
+const notificacionService = {
   /**
    * Obtiene la lista paginada de notificaciones del cliente autenticado
    * @param pagina - Número de página (por defecto: 1)
@@ -57,3 +57,5 @@ export const notificacionService = {
     await axiosInstance.delete('/notificaciones/eliminar-todas');
   },
 };
+
+export default notificacionService;

@@ -7,8 +7,8 @@
  */
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import { clienteService } from '../services/clienteService';
-import { usuarioService } from '../services/usuarioService';
+import clienteService from '../services/clienteService';
+import usuarioService from '../services/usuarioService';
 import { ROLES } from '../constants/roles';
 
 import type { ReactNode } from 'react';
@@ -160,16 +160,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (storedAdminToken) {
       try {
         const userData = await usuarioService.verifyAdminToken();
-        
+
         const adminUser: AdminUser = {
           id: userData.id,
           nombres: userData.nombres,
           email: userData.email,
           idRol: userData.idRol,
           rolNombre: userData.rolNombre,
-          permisos: (userData as any).permisos || []
+          permisos: (userData as any).permisos || [],
         };
-        
+
         updateState({
           user: adminUser,
           userType: getSystemUserType(adminUser),
@@ -406,7 +406,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   /**
    * Limpiar error del contexto
-    */
+   */
   const clearError = useCallback(() => {
     updateState({ error: null });
   }, [updateState]);
@@ -414,14 +414,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Verifica si el usuario tiene un permiso específico
    */
-  const tienePermiso = useCallback((nombrePermiso: string): boolean => {
-    if (!state.user || !isAdminUser(state.user)) return false;
-    const userAny = state.user as any;
-    // Admin siempre tiene todos los permisos
-    if (userAny?.idRol === ROLES.ADMIN) return true;
-    // Verificar si el permiso está en la lista
-    return userAny?.permisos?.includes(nombrePermiso) ?? false;
-  }, [state.user]);
+  const tienePermiso = useCallback(
+    (nombrePermiso: string): boolean => {
+      if (!state.user || !isAdminUser(state.user)) return false;
+      const userAny = state.user as any;
+      // Admin siempre tiene todos los permisos
+      if (userAny?.idRol === ROLES.ADMIN) return true;
+      // Verificar si el permiso está en la lista
+      return userAny?.permisos?.includes(nombrePermiso) ?? false;
+    },
+    [state.user],
+  );
 
   // ============================================================================
   // VALOR DEL CONTEXTO

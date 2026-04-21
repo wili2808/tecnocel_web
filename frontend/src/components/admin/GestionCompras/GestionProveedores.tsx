@@ -1,11 +1,11 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
-import { proveedorAdminService } from '../../../services/proveedorAdminService';
-import type { ProveedorListItem } from '../../../types';
+import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import ProveedorModal from './ProveedorModal';
 import styles from './GestionCompras.module.css';
+import type { ProveedorListItem } from '../../../types';
 
 const GestionProveedores: React.FC = memo(() => {
   const { tienePermiso } = useAuth();

@@ -1,12 +1,14 @@
 import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
-import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
-import { compraAdminService } from '../../../services/compraAdminService';
-import { proveedorAdminService } from '../../../services/proveedorAdminService';
-import adminApi from '../../../api/axiosAdminConfig';
-import { useNotification } from '../../../contexts/NotificationContext';
+import adminCompraService from '../../../services/adminCompraService';
+import proveedorAdminService from '../../../services/proveedorAdminService';
+import adminProductService from '../../../services/adminProductService';
 import ProductoNuevoModalRapido from './ProductoNuevoModalRapido';
 import ProveedorModal from './ProveedorModal';
+import { useNotification } from '../../../contexts/NotificationContext';
 import styles from './GestionCompras.module.css';
+import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
+
+// ── Tipos locales ────────────────────────────────────────────────────────────
 
 interface RegistrarCompraModalProps {
   onClose: () => void;
@@ -35,6 +37,8 @@ interface ProductoParaBuscar {
   precio_compra: number;
   stock: number;
 }
+
+// ── Componente ───────────────────────────────────────────────────────────────
 
 const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClose, onRegistrada }) => {
   const { showNotification } = useNotification();
@@ -83,14 +87,12 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   const cargarCategoriasMarcas = async () => {
     try {
       // Cargar categorías
-      const resCat = await adminApi.get('/almacen/categorias');
-      const cats = Array.isArray(resCat.data) ? resCat.data : resCat.data?.categorias || [];
-      setCategorias(cats);
+      const resCat = await adminProductService.obtenerCategorias();
+      setCategorias(resCat);
 
       // Cargar marcas
-      const resMar = await adminApi.get('/marcas');
-      const mar = Array.isArray(resMar.data?.data) ? resMar.data.data : resMar.data?.data || [];
-      setMarcas(mar);
+      const resMar = await adminProductService.obtenerMarcas();
+      setMarcas(resMar);
     } catch (err) {
       console.error('Error cargando categorías/marcas:', err);
     }
@@ -106,10 +108,9 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     productoTimerRef.current = setTimeout(async () => {
       setBuscandoProducto(true);
       try {
-        const res = await adminApi.get('/almacen/productos/buscar', { params: { termino: q.trim() } });
-        const lista: any[] = Array.isArray(res.data) ? res.data : [];
+        const res = await adminProductService.listarProductos(q.trim());
         setProductosEncontrados(
-          lista.map((p: any) => {
+          res.map((p: any) => {
             const pv = parseFloat(p.precio_venta);
             const pc = parseFloat(p.precio_compra || 0);
             return {
@@ -118,9 +119,9 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               codigo: p.codigo || '',
               precio_venta: isNaN(pv) ? 0 : pv,
               precio_compra: isNaN(pc) ? 0 : pc,
-              stock: p.stock ?? 0
+              stock: p.stock ?? 0,
             };
-          })
+          }),
         );
       } catch {
         setProductosEncontrados([]);
@@ -138,19 +139,19 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   // Agregar producto existente
   const agregarProducto = (p: ProductoParaBuscar) => {
     // Evitar duplicados
-    if (items.some(i => i.id_producto === p.id_producto && !i.es_nuevo)) {
+    if (items.some((i) => i.id_producto === p.id_producto && !i.es_nuevo)) {
       showNotification('El producto ya fue agregado', 'warning');
       return;
     }
-    setItems(prev => [
+    setItems((prev) => [
       ...prev,
       {
         id_producto: p.id_producto,
         nombre_producto: p.nombre,
         cantidad: 1,
         precio_unitario: p.precio_compra || p.precio_venta,
-        precio_venta: p.precio_venta || 0
-      }
+        precio_venta: p.precio_venta || 0,
+      },
     ]);
     setBusqProducto('');
     setProductosEncontrados([]);
@@ -158,7 +159,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
   // Agregar producto nuevo (abre modal)
   const handleProductoNuevo = (productoData: any) => {
-    setItems(prev => [
+    setItems((prev) => [
       ...prev,
       {
         es_nuevo: true,
@@ -169,24 +170,20 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
         nuevo_id_marca: productoData.id_marca,
         cantidad: 1,
         precio_unitario: productoData.precio_compra || 0,
-        precio_venta: productoData.precio_venta || 0
-      }
+        precio_venta: productoData.precio_venta || 0,
+      },
     ]);
     setMostrarProductoNuevo(false);
   };
 
   // Actualizar item
   const actualizarItem = (index: number, field: string, value: any) => {
-    setItems(prev =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
-    );
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
   };
 
   // Eliminar item
   const eliminarItem = (index: number) => {
-    setItems(prev => prev.filter((_, i) => i !== index));
+    setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Registrar compra
@@ -229,7 +226,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
         fecha_compra: fechaCompra,
         comprobante: comprobante.trim(),
         observaciones: observaciones || undefined,
-        items: items.map(item => ({
+        items: items.map((item) => ({
           id_producto: item.id_producto,
           es_nuevo: item.es_nuevo,
           nuevo_codigo: item.nuevo_codigo,
@@ -238,11 +235,11 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
           nuevo_id_categoria: item.nuevo_id_categoria,
           nuevo_id_marca: item.nuevo_id_marca,
           cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario
-        }))
+          precio_unitario: item.precio_unitario,
+        })),
       };
 
-      await compraAdminService.registrarCompra(data);
+      await adminCompraService.registrarCompra(data);
       showNotification('Compra registrada exitosamente', 'success');
       onRegistrada();
       onClose();
@@ -254,9 +251,9 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   };
 
   // Cálculos
-  const totalCompra = items.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
+  const totalCompra = items.reduce((sum, item) => sum + item.cantidad * item.precio_unitario, 0);
 
-  const proveedorSeleccionado = proveedores.find(p => p.id_proveedor === idProveedor);
+  const proveedorSeleccionado = proveedores.find((p) => p.id_proveedor === idProveedor);
 
   return (
     <>
@@ -264,7 +261,17 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
         <div className={`${styles.modalContent} ${styles.registrarCompraModal}`} onClick={(e) => e.stopPropagation()}>
           {/* Encabezado */}
           <div className={styles.modalHeader}>
-            <h2 style={{ margin: 0, fontSize: 'clamp(14px, 5vw, 18px)', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 'clamp(14px, 5vw, 18px)',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               🛒 Nueva Compra a Proveedor
             </h2>
             <button
@@ -284,7 +291,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                 justifyContent: 'center',
                 borderRadius: '6px',
                 transition: 'background-color 0.2s',
-                flexShrink: 0
+                flexShrink: 0,
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
@@ -295,11 +302,12 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
           {/* Cuerpo - Dos columnas */}
           <div className={styles.registrarCompraGrid}>
-
             {/* Columna Izquierda - Formulario */}
             <div className={styles.registrarCompraLeft}>
               {/* Proveedor */}
-              <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
+              <div
+                style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}
+              >
                 <label className={styles.formLabel} style={{ marginBottom: '8px' }}>
                   Proveedor *
                 </label>
@@ -328,7 +336,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                       cursor: 'pointer',
                       fontSize: '13px',
                       fontWeight: 600,
-                      whiteSpace: 'nowrap'
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     + Nuevo
@@ -339,9 +347,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               {/* Datos de compra */}
               <div className={styles.formRow2Cols}>
                 <div className={styles.formGroupInput}>
-                  <label className={styles.formLabel}>
-                    Fecha *
-                  </label>
+                  <label className={styles.formLabel}>Fecha *</label>
                   <input
                     type="date"
                     value={fechaCompra}
@@ -350,9 +356,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                   />
                 </div>
                 <div className={styles.formGroupInput}>
-                  <label className={styles.formLabel}>
-                    Comprobante *
-                  </label>
+                  <label className={styles.formLabel}>Comprobante *</label>
                   <input
                     type="text"
                     value={comprobante}
@@ -364,9 +368,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               </div>
 
               <div className={styles.formGroupInput} style={{ marginBottom: '16px' }}>
-                <label className={styles.formLabel}>
-                  Observaciones (opcional)
-                </label>
+                <label className={styles.formLabel}>Observaciones (opcional)</label>
                 <textarea
                   value={observaciones}
                   onChange={(e) => setObservaciones(e.target.value)}
@@ -376,7 +378,9 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               </div>
 
               {/* Búsqueda de productos */}
-              <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
+              <div
+                style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}
+              >
                 <label className={styles.formLabel} style={{ marginBottom: '8px' }}>
                   Buscar Producto
                 </label>
@@ -398,7 +402,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                       transform: 'translateY(-50%)',
                       fontSize: 'clamp(16px, 4vw, 18px)',
                       color: 'var(--text-secondary)',
-                      pointerEvents: 'none'
+                      pointerEvents: 'none',
                     }}
                   >
                     search
@@ -407,18 +411,18 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
                 {/* Resultados de búsqueda */}
                 {buscandoProducto && (
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                    Buscando...
-                  </p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>Buscando...</p>
                 )}
                 {productosEncontrados.length > 0 && (
-                  <div style={{
-                    marginTop: '8px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    maxHeight: '200px',
-                    overflowY: 'auto'
-                  }}>
+                  <div
+                    style={{
+                      marginTop: '8px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                    }}
+                  >
                     {productosEncontrados.map((p) => (
                       <div
                         key={p.id_producto}
@@ -428,10 +432,10 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                           borderBottom: '1px solid var(--border-color)',
                           cursor: 'pointer',
                           fontSize: '13px',
-                          transition: 'background-color var(--transition-fast) var(--transition-curve)'
+                          transition: 'background-color var(--transition-fast) var(--transition-curve)',
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--background-secondary)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       >
                         <div style={{ fontWeight: 500 }}>{p.nombre}</div>
                         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
@@ -443,9 +447,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                 )}
                 {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
                   <div style={{ marginTop: '8px', padding: '10px', textAlign: 'center' }}>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                      No encontrado
-                    </p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>No encontrado</p>
                     <button
                       onClick={() => setMostrarProductoNuevo(true)}
                       style={{
@@ -457,7 +459,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                         borderRadius: '4px',
                         cursor: 'pointer',
                         fontSize: '12px',
-                        fontWeight: 600
+                        fontWeight: 600,
                       }}
                     >
                       ⊕ Crear producto
@@ -475,7 +477,12 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
                       <thead>
-                        <tr style={{ backgroundColor: 'var(--background-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+                        <tr
+                          style={{
+                            backgroundColor: 'var(--background-secondary)',
+                            borderBottom: '1px solid var(--border-color)',
+                          }}
+                        >
                           <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600 }}>Producto</th>
                           <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>Cantidad</th>
                           <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>P. Unit.</th>
@@ -490,19 +497,19 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                           // Usar precio_venta si es válido (> 0), sino usar precio_unitario
                           const pv = Number(item.precio_venta) || 0;
                           const pc = Number(item.precio_unitario) || 0;
-                          const precioVenta = (pv > 0) ? pv : pc;
+                          const precioVenta = pv > 0 ? pv : pc;
 
                           // Calcular margen: ((venta - compra) / compra) * 100
-                          const margen = (pc > 0)
-                            ? ((precioVenta - pc) / pc * 100)
-                            : 0;
+                          const margen = pc > 0 ? ((precioVenta - pc) / pc) * 100 : 0;
 
                           return (
                             <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
                               <td style={{ padding: '8px' }}>
                                 <div style={{ fontWeight: 500 }}>{item.nombre_producto || item.nuevo_nombre}</div>
                                 {item.es_nuevo && (
-                                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>nuevo: {item.nuevo_codigo}</div>
+                                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                    nuevo: {item.nuevo_codigo}
+                                  </div>
                                 )}
                               </td>
                               <td style={{ padding: '8px', textAlign: 'right' }}>
@@ -517,7 +524,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                                     border: '1px solid var(--border-color)',
                                     borderRadius: '4px',
                                     fontSize: '12px',
-                                    textAlign: 'right'
+                                    textAlign: 'right',
                                   }}
                                 />
                               </td>
@@ -526,27 +533,32 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                                   type="number"
                                   step="0.01"
                                   value={item.precio_unitario.toFixed(2)}
-                                  onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)
+                                  }
                                   style={{
                                     width: 'clamp(55px, 15vw, 80px)',
                                     padding: '4px 6px',
                                     border: '1px solid var(--border-color)',
                                     borderRadius: '4px',
                                     fontSize: '12px',
-                                    textAlign: 'right'
+                                    textAlign: 'right',
                                   }}
                                 />
                               </td>
                               <td style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>
                                 ${subtotal.toFixed(2)}
                               </td>
-                              <td style={{
-                                padding: '8px',
-                                textAlign: 'right',
-                                color: margen > 0 ? '#166534' : '#991b1b',
-                                fontWeight: 500
-                              }}>
-                                {margen > 0 ? '+' : ''}{margen.toFixed(1)}%
+                              <td
+                                style={{
+                                  padding: '8px',
+                                  textAlign: 'right',
+                                  color: margen > 0 ? '#166534' : '#991b1b',
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {margen > 0 ? '+' : ''}
+                                {margen.toFixed(1)}%
                               </td>
                               <td style={{ padding: '8px', textAlign: 'center' }}>
                                 <button
@@ -556,7 +568,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                                     border: 'none',
                                     color: 'var(--color-error)',
                                     cursor: 'pointer',
-                                    fontSize: '16px'
+                                    fontSize: '16px',
                                   }}
                                   title="Eliminar"
                                 >
@@ -573,7 +585,14 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               )}
 
               {items.length === 0 && (
-                <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                <div
+                  style={{
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                    color: 'var(--text-secondary)',
+                    fontSize: '13px',
+                  }}
+                >
                   <p>Busca y agrega productos para continuar</p>
                 </div>
               )}
@@ -582,7 +601,16 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             {/* Columna resumen (sticky) */}
             <div className={styles.registrarCompraRight}>
               <div>
-                <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <p
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: 'var(--text-secondary)',
+                    margin: '0 0 8px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}
+                >
                   RESUMEN LIVE
                 </p>
               </div>
@@ -609,13 +637,17 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               {/* Items y cantidades */}
               <div>
                 <div style={{ marginBottom: '12px' }}>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: 600 }}>Productos</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: 600 }}>
+                    Productos
+                  </p>
                   <p style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--color-primary)' }}>
                     {items.length}
                   </p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: 600 }}>Unidades</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: 600 }}>
+                    Unidades
+                  </p>
                   <p style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>
                     {items.reduce((sum, i) => sum + i.cantidad, 0)}
                   </p>
@@ -623,16 +655,35 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               </div>
 
               {/* Total - Destacado */}
-              <div style={{
-                padding: '14px',
-                background: 'var(--background-primary)',
-                borderRadius: '8px',
-                borderTop: '2px solid var(--color-primary)'
-              }}>
-                <p style={{ fontSize: '10px', color: 'var(--text-secondary)', margin: '0 0 6px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
+              <div
+                style={{
+                  padding: '14px',
+                  background: 'var(--background-primary)',
+                  borderRadius: '8px',
+                  borderTop: '2px solid var(--color-primary)',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: '10px',
+                    color: 'var(--text-secondary)',
+                    margin: '0 0 6px',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                  }}
+                >
                   Monto Total
                 </p>
-                <p style={{ fontSize: '22px', fontWeight: 700, margin: 0, color: 'var(--color-primary)', fontFamily: 'monospace' }}>
+                <p
+                  style={{
+                    fontSize: '22px',
+                    fontWeight: 700,
+                    margin: 0,
+                    color: 'var(--color-primary)',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   ${totalCompra.toFixed(2)}
                 </p>
               </div>
@@ -646,7 +697,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                     border: '1px solid #fecaca',
                     borderRadius: '6px',
                     color: '#991b1b',
-                    fontSize: '12px'
+                    fontSize: '12px',
                   }}
                 >
                   {error}
@@ -672,9 +723,11 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                 cursor: 'pointer',
                 fontFamily: 'var(--font-family-primary)',
                 transition: 'background-color 0.2s',
-                opacity: registrando ? 0.5 : 1
+                opacity: registrando ? 0.5 : 1,
               }}
-              onMouseEnter={(e) => !registrando && (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
+              onMouseEnter={(e) =>
+                !registrando && (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')
+              }
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-primary)')}
             >
               Cancelar
@@ -694,9 +747,14 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                 cursor: 'pointer',
                 fontFamily: 'var(--font-family-primary)',
                 transition: 'background-color 0.2s',
-                opacity: registrando || items.length === 0 || !idProveedor ? 0.5 : 1
+                opacity: registrando || items.length === 0 || !idProveedor ? 0.5 : 1,
               }}
-              onMouseEnter={(e) => !registrando && items.length > 0 && idProveedor && (e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)')}
+              onMouseEnter={(e) =>
+                !registrando &&
+                items.length > 0 &&
+                idProveedor &&
+                (e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)')
+              }
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {registrando ? 'Registrando...' : 'Registrar Compra'}

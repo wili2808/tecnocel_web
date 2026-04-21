@@ -3,7 +3,6 @@ import { useAuth } from '../../../contexts/AuthContext';
 import commentService from '../../../services/commentService';
 import adminCommentService from '../../../services/adminCommentService';
 import uploadService from '../../../services/uploadService';
-import type { Comentario, EstadisticasComentarios, Respuesta } from '../../../services/commentService';
 import CommentForm from './CommentForm';
 import CommentCard from './CommentCard';
 import CommentStats from './CommentStats';
@@ -11,6 +10,7 @@ import CommentFilters from './CommentFilters';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import Button from '../../common/Button';
 import styles from './ProductComments.module.css';
+import type { Comentario, EstadisticasComentarios, Respuesta } from '../../../types/comentario';
 
 import { AnimatePresence, motion } from 'framer-motion';
 

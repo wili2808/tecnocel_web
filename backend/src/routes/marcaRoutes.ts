@@ -10,33 +10,79 @@ import {
 
 const router = Router();
 
-// ============================================================================
-// RUTAS PÚBLICAS - No requieren autenticación
-// ============================================================================
+// --- RUTAS PÚBLICAS - No requieren autenticación ---
 
 /**
- * GET /marcas
- * Obtiene todas las marcas activas del sistema
- * Acceso: Público
+ * @swagger
+ * /marcas:
+ *   get:
+ *     summary: Obtener todas las marcas
+ *     description: Obtiene todas las marcas activas del sistema
+ *     tags: [Marcas]
+ *     responses:
+ *       200:
+ *         description: Lista de marcas
+ *       500:
+ *         description: Error interno del servidor
  */
 router.get('/', MarcaController.getAllMarcas);
 
 /**
- * GET /marcas/:id
- * Obtiene una marca específica por su ID
- * Acceso: Público
- * Validación: ID debe ser número entero positivo
+ * @swagger
+ * /marcas/{id}:
+ *   get:
+ *     summary: Obtener marca por ID
+ *     description: Obtiene una marca específica por su ID
+ *     tags: [Marcas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Marca obtenida
+ *       404:
+ *         description: Marca no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
 router.get('/:id', validateGetMarcaById, MarcaController.getMarcaById);
 
-// ============================================================================
-// RUTAS DE ADMINISTRACIÓN - Requieren permisos específicos
-// ============================================================================
+// --- RUTAS DE ADMINISTRACIÓN - Requieren permisos específicos ---
 
 /**
- * POST /marcas
- * Crea una nueva marca en el sistema
- * Acceso: Permiso crear_marca
+ * @swagger
+ * /marcas:
+ *   post:
+ *     summary: Crear marca
+ *     description: Crea una nueva marca en el sistema
+ *     tags: [Marcas]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre_marca
+ *             properties:
+ *               nombre_marca:
+ *                 type: string
+ *               descripcion:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Marca creada exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       403:
+ *         description: No tiene permisos
+ *       500:
+ *         description: Error interno del servidor
  */
 router.post(
   '/',
@@ -47,9 +93,42 @@ router.post(
 );
 
 /**
- * PUT /marcas/:id
- * Actualiza una marca existente
- * Acceso: Permiso editar_marca
+ * @swagger
+ * /marcas/{id}:
+ *   put:
+ *     summary: Actualizar marca
+ *     description: Actualiza una marca existente
+ *     tags: [Marcas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre_marca:
+ *                 type: string
+ *               descripcion:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Marca actualizada exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       403:
+ *         description: No tiene permisos
+ *       404:
+ *         description: Marca no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
 router.put(
   '/:id',
@@ -60,9 +139,29 @@ router.put(
 );
 
 /**
- * DELETE /marcas/:id
- * Elimina (soft delete) una marca del sistema
- * Acceso: Permiso eliminar_marca
+ * @swagger
+ * /marcas/{id}:
+ *   delete:
+ *     summary: Eliminar marca
+ *     description: Elimina (soft delete) una marca del sistema
+ *     tags: [Marcas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Marca eliminada exitosamente
+ *       403:
+ *         description: No tiene permisos
+ *       404:
+ *         description: Marca no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
 router.delete(
   '/:id',

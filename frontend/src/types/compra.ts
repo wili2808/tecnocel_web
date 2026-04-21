@@ -102,4 +102,4 @@ export interface CreateProveedorData {
   direccion: string;
 }
 
-export interface UpdateProveedorData extends Partial<CreateProveedorData> {}
+export type UpdateProveedorData = Partial<CreateProveedorData>;

@@ -1,27 +1,7 @@
-/**
- * @file Controlador de administración de ventas
- *
- * Proporciona endpoints de gestión de ventas para el panel de administración:
- * - Estadísticas de ventas (hoy, semana, mes, ingresos)
- * - Listar todas las ventas con filtros avanzados y paginación
- * - Obtener detalle completo de cualquier venta (sin restricción de cliente)
- * - Registrar ventas manuales (vendedor crea venta directamente)
- * - Cancelar ventas con restauración automática de stock
- *
- * Los items de venta se leen/crean en tb_venta_items (query único sin bifurcación
- * por tipo_venta, funciona igual para ventas web y manuales).
- *
- * Requiere autenticación de usuario del sistema (verificarToken) y autorización
- * por rol (verificarRol). Solo admin (rol 1) puede cancelar ventas.
- *
- * @module AdminVentaController
- */
-
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
-import type { RegistrarVentaManualBody, CancelarVentaBody, ActualizarTipoCambioBody } from '../types/venta.types.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Cancelacion from '../models/Cancelacion.js';
@@ -32,10 +12,11 @@ import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
+import notificationService from '../services/notificationService.js';
 import { sendCancellationEmail, sendOrderStatusEmail, sendComprobanteEmail } from '../services/emailService.js';
 import { generarComprobantePDF } from '../services/comprobanteService.js';
+import type { RegistrarVentaManualBody, CancelarVentaBody, ActualizarTipoCambioBody } from '../types/venta.types.js';
 import type { DetalleParaComprobante } from '../services/comprobanteService.js';
-import notificationService from '../services/notificationService.js';
 
 /** Type guard para verificar que el usuario es del sistema (tiene idRol) */
 function esUsuarioSistema(usuario: unknown): usuario is { id: number; idRol: number } {
@@ -47,7 +28,7 @@ function esUsuarioSistema(usuario: unknown): usuario is { id: number; idRol: num
   );
 }
 
-export default class AdminVentaController {
+class AdminVentaController {
 
   /**
    * Obtiene estadísticas rápidas de ventas para el dashboard
@@ -972,3 +953,4 @@ export default class AdminVentaController {
   }
 }
 
+export default AdminVentaController;

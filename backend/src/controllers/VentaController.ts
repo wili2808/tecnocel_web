@@ -25,7 +25,7 @@ import logger from '../services/loggerService.js';
  *
  * @class VentaController
  */
-export default class VentaController {
+class VentaController {
 
   /**
    * Obtiene el historial de ventas del cliente autenticado
@@ -316,3 +316,4 @@ export default class VentaController {
   }
 }
 
+export default VentaController;

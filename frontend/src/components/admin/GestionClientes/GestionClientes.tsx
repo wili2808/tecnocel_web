@@ -1,20 +1,13 @@
-/**
- * Componente GestionClientes - Lista y gestión de clientes de la tienda
- *
- * Ver detalle: disponible para todos los roles (admin, empleado, vendedor).
- * Editar: solo visible y funcional para administradores (rol 1).
- * El backend también rechaza el PUT para roles no autorizados (defensa en profundidad).
- */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { usuarioService } from '../../../services/usuarioService';
-import type { ClienteListItem } from '../../../types/usuario';
+import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
+import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
 import CrearClienteModal from './CrearClienteModal';
-import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
 import styles from './GestionClientes.module.css';
+import type { ClienteListItem } from '../../../types/usuario';
 
 type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha';
 type SortDir = 'asc' | 'desc';

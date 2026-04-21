@@ -7,8 +7,7 @@
  * @module ofertaService
  */
 
-import Oferta from '../models/Oferta.js';
-import ProductoOferta from '../models/ProductoOferta.js';
+import OfertaModel from '../models/Oferta.js';
 
 /**
  * Interfaz para datos de oferta necesarios para el cálculo
@@ -122,7 +121,7 @@ export function calcularPorcentajeDescuento(
  */
 export function prepararDatosProductoOferta(
   precioVentaProducto: number,
-  oferta: Oferta,
+  oferta: OfertaModel,
   precioOfertaInput?: number
 ): { precio_oferta: number | null; es_precio_personalizado: boolean } {
   // Si se proporciona un precio específico, es personalizado

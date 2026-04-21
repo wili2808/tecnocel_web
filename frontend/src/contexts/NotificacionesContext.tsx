@@ -4,7 +4,7 @@
  */
 import React, { createContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAuth } from './AuthContext';
-import { notificacionService } from '../services/notificacionService';
+import notificacionService from '../services/notificacionService';
 import type { Notificacion } from '../types/notificacion';
 
 const POLLING_INTERVAL = 45000;
@@ -93,19 +93,15 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
    * Marca una notificación como leída de forma optimista (sin re-fetch)
    */
   const marcarLeida = useCallback(async (id: number) => {
-    const notificacion = notificacionesRef.current.find(n => n.id_notificacion === id);
+    const notificacion = notificacionesRef.current.find((n) => n.id_notificacion === id);
     const eraNoLeida = notificacion ? !notificacion.leido : false;
 
     // Actualización optimista
-    setNotificaciones(prev =>
-      prev.map(n =>
-        n.id_notificacion === id
-          ? { ...n, leido: true, fyh_lectura: new Date().toISOString() }
-          : n
-      )
+    setNotificaciones((prev) =>
+      prev.map((n) => (n.id_notificacion === id ? { ...n, leido: true, fyh_lectura: new Date().toISOString() } : n)),
     );
     if (eraNoLeida) {
-      setNoLeidas(prev => Math.max(0, prev - 1));
+      setNoLeidas((prev) => Math.max(0, prev - 1));
     }
 
     try {
@@ -113,15 +109,15 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
     } catch (error) {
       console.error('Error al marcar notificación como leída:', error);
       // Revertir actualización optimista en caso de error
-      setNotificaciones(prev =>
-        prev.map(n =>
+      setNotificaciones((prev) =>
+        prev.map((n) =>
           n.id_notificacion === id
             ? { ...n, leido: notificacion?.leido ?? false, fyh_lectura: notificacion?.fyh_lectura ?? null }
-            : n
-        )
+            : n,
+        ),
       );
       if (eraNoLeida) {
-        setNoLeidas(prev => prev + 1);
+        setNoLeidas((prev) => prev + 1);
       }
     }
   }, []);
@@ -132,9 +128,7 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
   const marcarTodasLeidas = useCallback(async () => {
     // Actualización optimista
     const ahora = new Date().toISOString();
-    setNotificaciones(prev =>
-      prev.map(n => ({ ...n, leido: true, fyh_lectura: n.fyh_lectura ?? ahora }))
-    );
+    setNotificaciones((prev) => prev.map((n) => ({ ...n, leido: true, fyh_lectura: n.fyh_lectura ?? ahora })));
     setNoLeidas(0);
 
     try {
@@ -153,12 +147,12 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
    * Elimina una notificación y actualiza el estado localmente
    */
   const eliminarNotificacion = useCallback(async (id: number) => {
-    const notificacion = notificacionesRef.current.find(n => n.id_notificacion === id);
+    const notificacion = notificacionesRef.current.find((n) => n.id_notificacion === id);
 
     // Actualización optimista
-    setNotificaciones(prev => prev.filter(n => n.id_notificacion !== id));
+    setNotificaciones((prev) => prev.filter((n) => n.id_notificacion !== id));
     if (notificacion && !notificacion.leido) {
-      setNoLeidas(prev => Math.max(0, prev - 1));
+      setNoLeidas((prev) => Math.max(0, prev - 1));
     }
 
     try {
@@ -167,9 +161,9 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
       console.error('Error al eliminar notificación:', error);
       // Revertir en caso de error
       if (notificacion) {
-        setNotificaciones(prev => [...prev, notificacion]);
+        setNotificaciones((prev) => [...prev, notificacion]);
         if (!notificacion.leido) {
-          setNoLeidas(prev => prev + 1);
+          setNoLeidas((prev) => prev + 1);
         }
       }
     }
@@ -216,22 +210,32 @@ export const NotificacionesProvider: React.FC<NotificacionesProviderProps> = ({ 
     };
   }, [isCliente, fetchNoLeidas]);
 
-  const value = useMemo<NotificacionesContextType>(() => ({
-    noLeidas,
-    notificaciones,
-    cargando,
-    panelAbierto,
-    abrirPanel,
-    cerrarPanel,
-    marcarLeida,
-    marcarTodasLeidas,
-    eliminarNotificacion,
-    eliminarTodas,
-  }), [noLeidas, notificaciones, cargando, panelAbierto, abrirPanel, cerrarPanel, marcarLeida, marcarTodasLeidas, eliminarNotificacion, eliminarTodas]);
-
-  return (
-    <NotificacionesContext.Provider value={value}>
-      {children}
-    </NotificacionesContext.Provider>
+  const value = useMemo<NotificacionesContextType>(
+    () => ({
+      noLeidas,
+      notificaciones,
+      cargando,
+      panelAbierto,
+      abrirPanel,
+      cerrarPanel,
+      marcarLeida,
+      marcarTodasLeidas,
+      eliminarNotificacion,
+      eliminarTodas,
+    }),
+    [
+      noLeidas,
+      notificaciones,
+      cargando,
+      panelAbierto,
+      abrirPanel,
+      cerrarPanel,
+      marcarLeida,
+      marcarTodasLeidas,
+      eliminarNotificacion,
+      eliminarTodas,
+    ],
   );
+
+  return <NotificacionesContext.Provider value={value}>{children}</NotificacionesContext.Provider>;
 };

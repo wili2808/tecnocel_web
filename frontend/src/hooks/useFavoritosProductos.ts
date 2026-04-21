@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { favoritoService } from '../services/favoritoService';
-import type { FavoritoResponse } from '../services/favoritoService';
+import favoritoService from '../services/favoritoService';
 import { useAuth } from '../contexts/AuthContext';
 import { useFavoritosGlobal } from '../contexts/FavoritosGlobalContext';
+import type { FavoritoResponse } from '../services/favoritoService';
 
 // Tipo específico para productos de favoritos (estructura reducida)
 type FavoritoProduct = {

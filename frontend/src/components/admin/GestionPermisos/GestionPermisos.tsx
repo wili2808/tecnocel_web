@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { permisoService } from '../../../services/permisoService';
-import type { RolesConPermisos, PermisoItem } from '../../../types/permiso';
+import permisoService from '../../../services/permisoService';
 import styles from './GestionPermisos.module.css';
+import type { RolesConPermisos, PermisoItem } from '../../../types/permiso';
 
 interface PermisoCheck extends PermisoItem {
   asignado: boolean;

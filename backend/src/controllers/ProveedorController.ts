@@ -18,7 +18,7 @@ import type { CreateProveedorBody, UpdateProveedorBody } from '../types/proveedo
  *
  * @class ProveedorController
  */
-export class ProveedorController {
+class ProveedorController {
   /**
    * Obtiene listado de proveedores con búsqueda opcional
    * GET /api/proveedores
@@ -273,3 +273,5 @@ export class ProveedorController {
     }
   }
 }
+
+export default ProveedorController;

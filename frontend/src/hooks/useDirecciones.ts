@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { direccionService } from '../services/direccionService';
+import { useAuth } from '../contexts/AuthContext';
+import direccionService from '../services/direccionService';
 import type { CreateDireccionData } from '../services/direccionService';
 import type { Direccion } from '../types/cliente';
-import { useAuth } from '../contexts/AuthContext';
 
 interface UseDireccionesReturn {
   direcciones: Direccion[];

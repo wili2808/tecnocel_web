@@ -1,17 +1,5 @@
-/**
- * Servicio para gestión de ofertas desde el panel de administración
- * Usa axiosAdminConfig para inyectar token admin/empleado automáticamente
- */
 import adminApi from '../api/axiosAdminConfig';
-import type {
-  Oferta,
-  Product,
-  OfertaFormData,
-  ProductoOfertaAsignacion,
-  OfertaConProductos,
-  OfertaConConteo,
-  OfertaDeProducto,
-} from '../types';
+import type { Oferta, Product, OfertaFormData, ProductoOfertaAsignacion, OfertaConProductos, OfertaConConteo, OfertaDeProducto } from '../types';
 
 const adminOfertaService = {
   /**
@@ -83,10 +71,15 @@ const adminOfertaService = {
       const response = await adminApi.get('/almacen/productos/buscar', {
         params: { termino: search.trim() }
       });
-      return Array.isArray(response.data) ? response.data : [];
+      // searchProducts devuelve { success, data: [...] }
+      return response.data.data || response.data;
     }
-    const response = await adminApi.get('/almacen/productos');
-    return Array.isArray(response.data) ? response.data : [];
+    const response = await adminApi.get('/almacen/productos', {
+      params: { limit: 1000 }
+    });
+    // Con paginación: { success, data: { items, pagination } }
+    const data = response.data.data;
+    return Array.isArray(data) ? data : data.items || [];
   },
 };
 

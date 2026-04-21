@@ -1,10 +1,6 @@
 import adminApi from '../api/axiosAdminConfig';
-import type { Respuesta } from './commentService';
+import type { Respuesta } from '../types/comentario';
 
-/**
- * Servicio para operaciones de moderación y respuesta oficial de administradores
- * Usa adminApi (token de admin) para todas las operaciones
- */
 const adminCommentService = {
   /**
    * Crea una respuesta oficial del equipo a un comentario

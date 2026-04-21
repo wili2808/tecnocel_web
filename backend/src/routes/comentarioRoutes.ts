@@ -1,172 +1,47 @@
 import { Router } from 'express';
 import ComentarioController from '../controllers/ComentarioController.js';
 import { verificarTokenCliente, verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
-import { body, param, query } from 'express-validator';
-import { validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
+import {
+  validateCrearComentario,
+  validateActualizarComentario,
+  validateObtenerComentarios,
+  validateIdParam,
+  validateEliminarImagenComentario,
+  validateProductIdParam,
+  validateCrearRespuesta,
+  validateRespuestaIdParam,
+  validateModerarComentario,
+  validateModerarRespuesta
+} from '../middleware/validateComentario.js';
 
 const router = Router();
 const comentarioController = new ComentarioController();
 
-// Middleware para manejar errores de validación
-const handleValidationErrors = (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      mensaje: 'Errores de validación',
-      errores: errors.array()
-    });
-  }
-  next();
-};
-
-// Validaciones para crear comentario
-const validateCrearComentario = [
-  body('id_producto')
-    .isInt({ min: 1 })
-    .withMessage('El ID del producto debe ser un número entero positivo'),
-  body('id_cliente')
-    .isInt({ min: 1 })
-    .withMessage('El ID del cliente debe ser un número entero positivo'),
-  body('comentario')
-    .isLength({ min: 10, max: 2000 })
-    .withMessage('El comentario debe tener entre 10 y 2000 caracteres')
-    .trim(),
-  body('calificacion')
-    .optional()
-    .isInt({ min: 1, max: 5 })
-    .withMessage('La calificación debe ser un número entre 1 y 5'),
-  body('imagenes')
-    .optional()
-    .isArray({ max: 5 })
-    .withMessage('Máximo 5 imágenes por comentario'),
-  body('imagenes.*.nombre_archivo')
-    .optional()
-    .isLength({ min: 1, max: 255 })
-    .withMessage('El nombre del archivo debe tener entre 1 y 255 caracteres'),
-  body('imagenes.*.ruta_imagen')
-    .optional()
-    .isLength({ min: 1, max: 500 })
-    .withMessage('La ruta de la imagen debe tener entre 1 y 500 caracteres'),
-  body('imagenes.*.tipo_archivo')
-    .optional()
-    .isIn(['jpg', 'jpeg', 'png', 'webp', 'gif'])
-    .withMessage('Tipo de archivo no válido. Debe ser: jpg, jpeg, png, webp o gif'),
-  body('imagenes.*.orden')
-    .optional()
-    .isInt({ min: 1, max: 5 })
-    .withMessage('El orden debe ser un número entre 1 y 5'),
-  handleValidationErrors
-];
-
-// Validaciones para actualizar comentario
-const validateActualizarComentario = [
-  param('id_comentario')
-    .isInt({ min: 1 })
-    .withMessage('El ID del comentario debe ser un número entero positivo'),
-  body('comentario')
-    .optional()
-    .isLength({ min: 10, max: 2000 })
-    .withMessage('El comentario debe tener entre 10 y 2000 caracteres')
-    .trim(),
-  body('calificacion')
-    .optional()
-    .isInt({ min: 1, max: 5 })
-    .withMessage('La calificación debe ser un número entre 1 y 5'),
-  handleValidationErrors
-];
-
-// Validaciones para obtener comentarios
-const validateObtenerComentarios = [
-  param('id_producto')
-    .isInt({ min: 1 })
-    .withMessage('El ID del producto debe ser un número entero positivo'),
-  query('limite')
-    .optional()
-    .isInt({ min: 1, max: 50 })
-    .withMessage('El límite debe ser un número entre 1 y 50'),
-  query('offset')
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage('El offset debe ser un número mayor o igual a 0'),
-  query('orden')
-    .optional()
-    .isIn(['recientes', 'antiguos', 'mejor_calificacion', 'peor_calificacion'])
-    .withMessage('Orden no válido. Debe ser: recientes, antiguos, mejor_calificacion o peor_calificacion'),
-  query('incluir_ocultos')
-    .optional()
-    .isIn(['true', 'false', '1', '0'])
-    .withMessage('incluir_ocultos debe ser true o false'),
-  handleValidationErrors
-];
-
-// Validaciones para parámetros de ID
-const validateIdParam = [
-  param('id_comentario')
-    .isInt({ min: 1 })
-    .withMessage('El ID del comentario debe ser un número entero positivo'),
-  handleValidationErrors
-];
-
-// Validaciones para eliminar imagen de comentario
-const validateEliminarImagenComentario = [
-  param('id_comentario')
-    .isInt({ min: 1 })
-    .withMessage('El ID del comentario debe ser un número entero positivo'),
-  param('id_imagen')
-    .isInt({ min: 1 })
-    .withMessage('El ID de la imagen debe ser un número entero positivo'),
-  handleValidationErrors
-];
-
-const validateProductIdParam = [
-  param('id_producto')
-    .isInt({ min: 1 })
-    .withMessage('El ID del producto debe ser un número entero positivo'),
-  handleValidationErrors
-];
-
-const validateCrearRespuesta = [
-  param('id_comentario')
-    .isInt({ min: 1 })
-    .withMessage('ID de comentario inválido'),
-  body('contenido')
-    .isLength({ min: 1, max: 1000 })
-    .withMessage('El contenido debe tener entre 1 y 1000 caracteres')
-    .trim(),
-  handleValidationErrors
-];
-
-const validateRespuestaIdParam = [
-  param('id_respuesta')
-    .isInt({ min: 1 })
-    .withMessage('ID de respuesta inválido'),
-  handleValidationErrors
-];
-
-const validateModerarComentario = [
-  param('id_comentario')
-    .isInt({ min: 1 })
-    .withMessage('ID de comentario inválido'),
-  body('estado')
-    .isIn(['activo', 'oculto', 'eliminado'])
-    .withMessage('Estado inválido. Valores permitidos: activo, oculto, eliminado'),
-  handleValidationErrors
-];
-
-const validateModerarRespuesta = [
-  param('id_respuesta')
-    .isInt({ min: 1 })
-    .withMessage('ID de respuesta inválido'),
-  body('estado')
-    .isIn(['activo', 'oculto', 'eliminado'])
-    .withMessage('Estado inválido. Valores permitidos: activo, oculto, eliminado'),
-  handleValidationErrors
-];
-
-// RUTAS PÚBLICAS (sin autenticación)
+// --- RUTAS PÚBLICAS ---
 
 // Obtener comentarios de un producto
+/**
+ * @swagger
+ * /comentarios/producto/{id_producto}:
+ *   get:
+ *     summary: Obtener comentarios de un producto
+ *     description: Obtiene los comentarios de un producto con paginación y ordenamiento
+ *     tags: [Comentarios]
+ *     parameters:
+ *       - in: path
+ *         name: id_producto
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comentarios obtenidos exitosamente
+ *       400:
+ *         description: ID de producto inválido
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.get(
   '/producto/:id_producto',
   validateObtenerComentarios,
@@ -174,15 +49,78 @@ router.get(
 );
 
 // Obtener estadísticas de comentarios de un producto
+/**
+ * @swagger
+ * /comentarios/producto/{id_producto}/estadisticas:
+ *   get:
+ *     summary: Obtener estadísticas de comentarios
+ *     description: Obtiene las estadísticas de comentarios (promedio, distribución) de un producto
+ *     tags: [Comentarios]
+ *     parameters:
+ *       - in: path
+ *         name: id_producto
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Estadísticas obtenidas exitosamente
+ *       400:
+ *         description: ID de producto inválido
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.get(
   '/producto/:id_producto/estadisticas',
   validateProductIdParam,
   (req: Request, res: Response) => comentarioController.obtenerEstadisticasProducto(req, res)
 );
 
-// RUTAS PROTEGIDAS (requieren autenticación)
+// --- RUTAS PROTEGIDAS ---
 
 // Crear nuevo comentario
+/**
+ * @swagger
+ * /comentarios:
+ *   post:
+ *     summary: Crear nuevo comentario
+ *     description: Crea un comentario para un producto con calificación e imágenes opcionales
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_producto
+ *               - id_cliente
+ *               - comentario
+ *             properties:
+ *               id_producto:
+ *                 type: integer
+ *               id_cliente:
+ *                 type: integer
+ *               comentario:
+ *                 type: string
+ *               calificacion:
+ *                 type: integer
+ *               imagenes:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       201:
+ *         description: Comentario creado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Producto o cliente no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.post(
   '/',
   verificarTokenCliente,
@@ -191,6 +129,46 @@ router.post(
 );
 
 // Actualizar comentario
+/**
+ * @swagger
+ * /comentarios/{id_comentario}:
+ *   put:
+ *     summary: Actualizar comentario
+ *     description: Actualiza un comentario existente
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               comentario:
+ *                 type: string
+ *               calificacion:
+ *                 type: integer
+ *               imagenes_a_eliminar:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       200:
+ *         description: Comentario actualizado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.put(
   '/:id_comentario',
   verificarTokenCliente,
@@ -199,6 +177,29 @@ router.put(
 );
 
 // Eliminar comentario (soft delete) - clientes
+/**
+ * @swagger
+ * /comentarios/{id_comentario}:
+ *   delete:
+ *     summary: Eliminar comentario (cliente)
+ *     description: Elimina un comentario (soft delete) creado por el cliente
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comentario eliminado exitosamente
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/:id_comentario',
   verificarTokenCliente,
@@ -207,6 +208,31 @@ router.delete(
 );
 
 // Eliminar comentario propio - usuarios del sistema (sin permiso requerido)
+/**
+ * @swagger
+ * /comentarios/{id_comentario}/propio:
+ *   delete:
+ *     summary: Eliminar comentario propio (admin/empleado)
+ *     description: Permite a usuarios del sistema eliminar sus propios comentarios
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comentario eliminado exitosamente
+ *       403:
+ *         description: Acceso denegado
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/:id_comentario/propio',
   verificarToken,
@@ -215,6 +241,29 @@ router.delete(
 );
 
 // Admin elimina cualquier comentario
+/**
+ * @swagger
+ * /comentarios/{id_comentario}/admin:
+ *   delete:
+ *     summary: Eliminar cualquier comentario (admin)
+ *     description: Permite a un administrador eliminar cualquier comentario
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comentario eliminado exitosamente
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/:id_comentario/admin',
   verificarToken,
@@ -224,6 +273,34 @@ router.delete(
 );
 
 // Eliminar imagen de comentario
+/**
+ * @swagger
+ * /comentarios/{id_comentario}/imagenes/{id_imagen}:
+ *   delete:
+ *     summary: Eliminar imagen de comentario
+ *     description: Elimina una imagen específica de un comentario
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: id_imagen
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Imagen eliminada exitosamente
+ *       404:
+ *         description: Comentario o imagen no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/:id_comentario/imagenes/:id_imagen',
   verificarTokenCliente,
@@ -234,6 +311,42 @@ router.delete(
 // RESPUESTAS A COMENTARIOS
 
 // Cliente responde un comentario
+/**
+ * @swagger
+ * /comentarios/{id_comentario}/respuestas/cliente:
+ *   post:
+ *     summary: Cliente responde comentario
+ *     description: Permite a un cliente responder a un comentario
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - contenido
+ *             properties:
+ *               contenido:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Respuesta creada exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.post(
   '/:id_comentario/respuestas/cliente',
   verificarTokenCliente,
@@ -242,6 +355,42 @@ router.post(
 );
 
 // Admin/empleado responde con respuesta oficial
+/**
+ * @swagger
+ * /comentarios/{id_comentario}/respuestas/admin:
+ *   post:
+ *     summary: Admin responde comentario
+ *     description: Permite a un administrador o empleado responder a un comentario oficialmente
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - contenido
+ *             properties:
+ *               contenido:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Respuesta oficial creada exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.post(
   '/:id_comentario/respuestas/admin',
   verificarToken,
@@ -251,6 +400,29 @@ router.post(
 );
 
 // Eliminar propia respuesta (cliente)
+/**
+ * @swagger
+ * /comentarios/respuestas/{id_respuesta}:
+ *   delete:
+ *     summary: Eliminar respuesta de cliente
+ *     description: Permite a un cliente eliminar su propia respuesta
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     parameters:
+ *       - in: path
+ *         name: id_respuesta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Respuesta eliminada exitosamente
+ *       404:
+ *         description: Respuesta no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/respuestas/:id_respuesta',
   verificarTokenCliente,
@@ -259,6 +431,29 @@ router.delete(
 );
 
 // System user elimina su propia respuesta (sin permiso requerido si es owner)
+/**
+ * @swagger
+ * /comentarios/respuestas/{id_respuesta}/propia:
+ *   delete:
+ *     summary: Eliminar respuesta propia (admin/empleado)
+ *     description: Permite a un administrador o empleado eliminar su propia respuesta
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_respuesta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Respuesta eliminada exitosamente
+ *       404:
+ *         description: Respuesta no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/respuestas/:id_respuesta/propia',
   verificarToken,
@@ -269,6 +464,41 @@ router.delete(
 // MODERACIÓN (solo admins/empleados del sistema - requieren permiso)
 
 // Ocultar o restaurar un comentario
+/**
+ * @swagger
+ * /comentarios/{id_comentario}/moderar:
+ *   patch:
+ *     summary: Moderar comentario
+ *     description: Permite a un administrador ocultar o restaurar un comentario
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_comentario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estado
+ *             properties:
+ *               estado:
+ *                 type: string
+ *                 enum: [activo, oculto, eliminado]
+ *     responses:
+ *       200:
+ *         description: Comentario moderado exitosamente
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.patch(
   '/:id_comentario/moderar',
   verificarToken,
@@ -278,6 +508,41 @@ router.patch(
 );
 
 // Moderar una respuesta
+/**
+ * @swagger
+ * /comentarios/respuestas/{id_respuesta}/moderar:
+ *   patch:
+ *     summary: Moderar respuesta
+ *     description: Permite a un administrador ocultar o restaurar una respuesta
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_respuesta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estado
+ *             properties:
+ *               estado:
+ *                 type: string
+ *                 enum: [activo, oculto, eliminado]
+ *     responses:
+ *       200:
+ *         description: Respuesta moderada exitosamente
+ *       404:
+ *         description: Respuesta no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.patch(
   '/respuestas/:id_respuesta/moderar',
   verificarToken,
@@ -287,6 +552,29 @@ router.patch(
 );
 
 // Admin elimina cualquier respuesta
+/**
+ * @swagger
+ * /comentarios/respuestas/{id_respuesta}/admin:
+ *   delete:
+ *     summary: Eliminar respuesta (admin)
+ *     description: Permite a un administrador eliminar cualquier respuesta
+ *     tags: [Comentarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_respuesta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Respuesta eliminada exitosamente
+ *       404:
+ *         description: Respuesta no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete(
   '/respuestas/:id_respuesta/admin',
   verificarToken,

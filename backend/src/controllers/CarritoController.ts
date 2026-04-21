@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import type { AgregarItemBody, ActualizarItemBody, ConfirmarCompraBody } from '../types/carrito.types.js';
 import CarritoWeb from '../models/CarritoWeb.js';
 import CarritoWebItems from '../models/CarritoWebItems.js';
 import Almacen from '../models/Almacen.js';
@@ -19,6 +18,9 @@ import { calcularPrecioOferta, calcularPorcentajeDescuento } from '../services/o
 import { sendOrderConfirmationEmail } from '../services/emailService.js';
 import notificationService from '../services/notificationService.js';
 
+// Tipos
+import type { AgregarItemBody, ActualizarItemBody, ConfirmarCompraBody } from '../types/carrito.types.js';
+
 /**
  * Controlador para gestión del carrito de compras
  *
@@ -34,7 +36,7 @@ import notificationService from '../services/notificationService.js';
  *
  * @class CarritoController
  */
-export default class CarritoController {
+class CarritoController {
 
   /**
    * Retorna configuración de includes de Sequelize para carrito completo
@@ -1595,3 +1597,4 @@ export default class CarritoController {
   }
 } 
 
+export default CarritoController;

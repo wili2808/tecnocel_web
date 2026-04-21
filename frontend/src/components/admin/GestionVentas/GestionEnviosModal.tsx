@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import styles from './GestionVentas.module.css';
+import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { envioAdminService } from '../../../services/envioAdminService';
-import type { EnvioAdminListItem, EnvioAdminDetalle, EstadoEnvio } from '../../../types/envio';
 import { ESTADO_ENVIO_LABELS, SIGUIENTE_ESTADO } from '../../../types/envio';
+import styles from './GestionVentas.module.css';
+import type { EnvioAdminListItem, EnvioAdminDetalle, EstadoEnvio } from '../../../types/envio';
 
 const ESTADO_COLORS: Record<EstadoEnvio, string> = {
   pendiente: styles.estadoPendiente,
@@ -14,8 +14,11 @@ const ESTADO_COLORS: Record<EstadoEnvio, string> = {
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
 const formatMoneda = (n: number, moneda = 'ARS') =>
@@ -47,11 +50,20 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
   useEffect(() => {
     let cancelled = false;
     setCargando(true);
-    envioAdminService.obtenerDetalle(envio.id_envio)
-      .then(d => { if (!cancelled) setDetalle(d); })
-      .catch(() => { if (!cancelled) showNotification('Error al cargar detalle del envío', 'error'); })
-      .finally(() => { if (!cancelled) setCargando(false); });
-    return () => { cancelled = true; };
+    envioAdminService
+      .obtenerDetalle(envio.id_envio)
+      .then((d) => {
+        if (!cancelled) setDetalle(d);
+      })
+      .catch(() => {
+        if (!cancelled) showNotification('Error al cargar detalle del envío', 'error');
+      })
+      .finally(() => {
+        if (!cancelled) setCargando(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [envio.id_envio, showNotification]);
 
   const handleAvanzar = async () => {
@@ -78,7 +90,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
   const indiceActual = ESTADOS_ORDEN.indexOf(envio.estado_envio);
 
   return (
-    <div className={styles.modalOverlay} onClick={e => e.target === e.currentTarget && onClose()}>
+    <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`${styles.modal} ${styles.modalLarge}`}>
         {/* Header */}
         <div className={styles.modalHeader}>
@@ -90,7 +102,9 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
             </span>
           </h2>
           <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons" style={{ fontSize: 18 }}>close</span>
+            <span className="material-icons" style={{ fontSize: 18 }}>
+              close
+            </span>
           </button>
         </div>
 
@@ -103,16 +117,24 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
               const actual = idx === indiceActual;
               return (
                 <React.Fragment key={estado}>
-                  <div className={`${styles.stepperItem} ${actual ? styles.stepperActual : ''} ${completado ? styles.stepperCompletado : ''}`}>
+                  <div
+                    className={`${styles.stepperItem} ${actual ? styles.stepperActual : ''} ${completado ? styles.stepperCompletado : ''}`}
+                  >
                     <div className={styles.stepperCirculo}>
-                      {completado
-                        ? <span className="material-icons" style={{ fontSize: 14 }}>check</span>
-                        : idx + 1}
+                      {completado ? (
+                        <span className="material-icons" style={{ fontSize: 14 }}>
+                          check
+                        </span>
+                      ) : (
+                        idx + 1
+                      )}
                     </div>
                     <span className={styles.stepperLabel}>{ESTADO_ENVIO_LABELS[estado]}</span>
                   </div>
                   {idx < ESTADOS_ORDEN.length - 1 && (
-                    <div className={`${styles.stepperConector} ${completado ? styles.stepperConectorCompletado : ''}`} />
+                    <div
+                      className={`${styles.stepperConector} ${completado ? styles.stepperConectorCompletado : ''}`}
+                    />
                   )}
                 </React.Fragment>
               );
@@ -234,12 +256,18 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
                       <td>{item.nombre_producto}</td>
                       <td className={styles.textRight}>{item.cantidad}</td>
                       <td className={styles.textRight}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                      <td className={styles.textRight}>{formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}</td>
+                      <td className={styles.textRight}>
+                        {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
+                      </td>
                     </tr>
                   ))}
                   <tr className={styles.totalRow}>
-                    <td colSpan={3}><strong>Total</strong></td>
-                    <td className={styles.textRight}><strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong></td>
+                    <td colSpan={3}>
+                      <strong>Total</strong>
+                    </td>
+                    <td className={styles.textRight}>
+                      <strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -248,11 +276,10 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
               {!esEntregado && siguienteEstado && (
                 <div className={styles.envioAccionPanel}>
                   {!confirmando ? (
-                    <button
-                      className={styles.submitButton}
-                      onClick={() => setConfirmando(true)}
-                    >
-                      <span className="material-icons" style={{ fontSize: 16 }}>arrow_forward</span>
+                    <button className={styles.submitButton} onClick={() => setConfirmando(true)}>
+                      <span className="material-icons" style={{ fontSize: 16 }}>
+                        arrow_forward
+                      </span>
                       Avanzar a "{ESTADO_ENVIO_LABELS[siguienteEstado]}"
                     </button>
                   ) : (
@@ -272,7 +299,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
                             className={styles.input}
                             placeholder="Ej: AR123456789"
                             value={nroSeguimiento}
-                            onChange={e => setNroSeguimiento(e.target.value)}
+                            onChange={(e) => setNroSeguimiento(e.target.value)}
                             maxLength={100}
                           />
                         </div>
@@ -281,7 +308,9 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
                       {/* Aviso de email */}
                       {ESTADOS_CON_EMAIL.has(siguienteEstado) && detalle.email_cliente && (
                         <div className={styles.envioEmailAviso}>
-                          <span className="material-icons" style={{ fontSize: 16 }}>email</span>
+                          <span className="material-icons" style={{ fontSize: 16 }}>
+                            email
+                          </span>
                           Se enviará un email de notificación a <strong>{detalle.email_cliente}</strong>
                         </div>
                       )}
@@ -314,7 +343,9 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
         {/* Footer */}
         <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>Cerrar</button>
+          <button className={styles.cancelButton} onClick={onClose}>
+            Cerrar
+          </button>
         </div>
       </div>
     </div>

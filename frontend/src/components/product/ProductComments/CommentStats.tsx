@@ -1,6 +1,6 @@
 import React from 'react';
-import type { EstadisticasComentarios } from '../../../services/commentService';
 import styles from './CommentStats.module.css';
+import type { EstadisticasComentarios } from '../../../types/comentario';
 
 interface CommentStatsProps {
   estadisticas: EstadisticasComentarios;

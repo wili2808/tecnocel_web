@@ -26,7 +26,7 @@ import { enriquecerProductoConOferta, prepararDatosProductoOferta } from '../ser
  *
  * @class OfertaController
  */
-export class OfertaController {
+class OfertaController {
   /**
    * Obtiene todas las ofertas activas vigentes
    *
@@ -734,3 +734,5 @@ export class OfertaController {
     }
   }
 }
+
+export default OfertaController;

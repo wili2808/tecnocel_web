@@ -1,21 +1,12 @@
 import axiosInstance from '../api/axiosConfig';
-import type {
-  Oferta,
-  OfertaResponse,
-  ProductosOfertaResponse,
-  OfertaDetalleResponse,
-  OfertasEstadisticasResponse,
-} from '../types';
+import type { Oferta, OfertaResponse, ProductosOfertaResponse, OfertaDetalleResponse, OfertasEstadisticasResponse } from '../types';
 
-/**
- * Constantes de configuración para el servicio de ofertas
- */
+// --- CONSTANTES DE CONFIGURACIÓN ---
+
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 segundo
 
-/**
- * Utilidades para implementar lógica de reintentos con backoff exponencial
- */
+// --- UTILIDADES DE REINTENTOS Y BACKOFF ---
 
 /**
  * Función de utilidad para crear delays asíncronos
@@ -58,12 +49,11 @@ const retryWithBackoff = async <T>(
   throw lastError!;
 };
 
-
 /**
  * Servicio principal para manejar todas las operaciones relacionadas con ofertas
  * Incluye gestión de cache, reintentos automáticos y utilidades de cálculo
  */
-export const ofertaService = {
+const ofertaService = {
   /**
    * Obtiene ofertas activas
    * El caché es manejado a nivel de contexto (OfertasGlobalContext)
@@ -288,3 +278,5 @@ export const ofertaService = {
     }
   }
 };
+
+export default ofertaService;

@@ -9,6 +9,36 @@ const ADMIN_TOKEN_KEY = 'admin_token';
 const ADMIN_USER_KEY = 'admin_user';
 const ADMIN_TIMESTAMP_KEY = 'admin_timestamp';
 
+// ============================================================================
+// INSTANCIA PÚBLICA (sin token) - para logins
+// ============================================================================
+const publicApi: AxiosInstance = axios.create({
+  baseURL: API_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+axiosRetry(publicApi, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error: AxiosError) => {
+    const method = error.config?.method?.toUpperCase();
+    if (method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      return false;
+    }
+    if (axiosRetry.isNetworkError(error) || error.code === 'ECONNABORTED') {
+      return true;
+    }
+    if (error.response && error.response.status >= 500) {
+      return true;
+    }
+    return false;
+  }
+});
+
 // Instancia de axios configurada para peticiones de usuarios del sistema (admin/empleado)
 const adminApi: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -98,4 +128,5 @@ adminApi.interceptors.response.use(
   }
 );
 
+export { adminApi, publicApi };
 export default adminApi;

@@ -21,7 +21,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
  *
  * @class GoogleAuthController
  */
-export default class GoogleAuthController {
+class GoogleAuthController {
   /**
    * Mapea el modelo Cliente a la estructura de respuesta API
    *
@@ -187,4 +187,6 @@ export default class GoogleAuthController {
       });
     }
   }
-} 
+}
+
+export default GoogleAuthController;

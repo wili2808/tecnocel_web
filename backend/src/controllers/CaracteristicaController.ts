@@ -21,7 +21,7 @@ interface UpdateTipoBody extends Partial<CreateTipoBody> { activo?: boolean; }
  *
  * @class CaracteristicaController
  */
-export class CaracteristicaController {
+class CaracteristicaController {
   /**
    * Obtiene todos los tipos de características activos
    *
@@ -551,3 +551,5 @@ export class CaracteristicaController {
     }
   }
 }
+
+export default CaracteristicaController;

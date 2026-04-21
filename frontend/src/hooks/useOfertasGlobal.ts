@@ -1,7 +1,3 @@
-/**
- * Hook personalizado para usar el contexto global de ofertas
- * Proporciona acceso simplificado a todas las funcionalidades de ofertas
- */
 import { useOfertasGlobal as useOfertasContext } from '../contexts/OfertasGlobalContext';
 import type { Oferta } from '../types';
 

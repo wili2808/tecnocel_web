@@ -1,18 +1,7 @@
-/**
- * @file EditarClienteModal.tsx
- *
- * Modal de edición para clientes. Solo accesible desde la UI para administradores (rol 1).
- * Permite modificar datos personales (nombre, apellido, celular, NIT/CI) y
- * los flags de cuenta (is_web_enabled, email_verified).
- *
- * El email NO es editable: cambiar el email de un cliente requiere un flujo
- * de verificación separado para garantizar la identidad del titular.
- */
-
 import React, { useState, useEffect } from 'react';
-import styles from './GestionClientes.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { usuarioService } from '../../../services/usuarioService';
+import usuarioService from '../../../services/usuarioService';
+import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
 
 interface Props {
@@ -27,23 +16,24 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
   const [guardando, setGuardando] = useState(false);
 
   const [form, setForm] = useState({
-    nombre_cliente:   cliente.nombre_cliente,
+    nombre_cliente: cliente.nombre_cliente,
     apellido_cliente: cliente.apellido_cliente,
-    celular_cliente:  cliente.celular_cliente  || '',
-    nit_ci_cliente:   cliente.nit_ci_cliente   || '',
-    is_web_enabled:   cliente.is_web_enabled,
-    email_verified:   cliente.email_verified,
+    celular_cliente: cliente.celular_cliente || '',
+    nit_ci_cliente: cliente.nit_ci_cliente || '',
+    is_web_enabled: cliente.is_web_enabled,
+    email_verified: cliente.email_verified,
   });
 
   // Cerrar con Escape
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !guardando) onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !guardando) onClose();
+    };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose, guardando]);
 
-  const setField = (field: string, value: string | boolean) =>
-    setForm(prev => ({ ...prev, [field]: value }));
+  const setField = (field: string, value: string | boolean) => setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleGuardar = async () => {
     if (guardando) return;
@@ -54,12 +44,12 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
     setGuardando(true);
     try {
       await usuarioService.actualizarCliente(cliente.id_cliente, {
-        nombre_cliente:   form.nombre_cliente.trim(),
+        nombre_cliente: form.nombre_cliente.trim(),
         apellido_cliente: form.apellido_cliente.trim(),
-        celular_cliente:  form.celular_cliente.trim()  || undefined,
-        nit_ci_cliente:   form.nit_ci_cliente.trim()   || undefined,
-        is_web_enabled:   form.is_web_enabled,
-        email_verified:   form.email_verified,
+        celular_cliente: form.celular_cliente.trim() || undefined,
+        nit_ci_cliente: form.nit_ci_cliente.trim() || undefined,
+        is_web_enabled: form.is_web_enabled,
+        email_verified: form.email_verified,
       });
       showNotification('Cliente actualizado exitosamente', 'success');
       onGuardado();
@@ -74,29 +64,24 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
   return (
     <div
       className={styles.modalOverlay}
-      onClick={e => { if (e.target === e.currentTarget && !guardando) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !guardando) onClose();
+      }}
     >
       <div className={styles.modal}>
-
         {/* Encabezado */}
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>
             <span className="material-icons">edit</span>
             Editar cliente #{cliente.id_cliente}
           </h2>
-          <button
-            className={styles.closeButton}
-            onClick={onClose}
-            disabled={guardando}
-            title="Cerrar"
-          >
+          <button className={styles.closeButton} onClick={onClose} disabled={guardando} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {/* Cuerpo */}
         <div className={styles.modalBody}>
-
           {/* Datos personales */}
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
@@ -105,7 +90,7 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
                 className={styles.formInput}
                 type="text"
                 value={form.nombre_cliente}
-                onChange={e => setField('nombre_cliente', e.target.value)}
+                onChange={(e) => setField('nombre_cliente', e.target.value)}
                 disabled={guardando}
                 maxLength={100}
               />
@@ -116,30 +101,34 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
                 className={styles.formInput}
                 type="text"
                 value={form.apellido_cliente}
-                onChange={e => setField('apellido_cliente', e.target.value)}
+                onChange={(e) => setField('apellido_cliente', e.target.value)}
                 disabled={guardando}
                 maxLength={100}
               />
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Celular <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span></label>
+              <label className={styles.formLabel}>
+                Celular <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span>
+              </label>
               <input
                 className={styles.formInput}
                 type="text"
                 value={form.celular_cliente}
-                onChange={e => setField('celular_cliente', e.target.value)}
+                onChange={(e) => setField('celular_cliente', e.target.value)}
                 disabled={guardando}
                 maxLength={20}
                 placeholder="Ej: 11 1234-5678"
               />
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>NIT/CI <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span></label>
+              <label className={styles.formLabel}>
+                NIT/CI <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span>
+              </label>
               <input
                 className={styles.formInput}
                 type="text"
                 value={form.nit_ci_cliente}
-                onChange={e => setField('nit_ci_cliente', e.target.value)}
+                onChange={(e) => setField('nit_ci_cliente', e.target.value)}
                 disabled={guardando}
                 maxLength={50}
                 placeholder="Ej: 12345678"
@@ -188,28 +177,18 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
             <span className="material-icons">lock</span>
             El email no puede modificarse desde aquí: {cliente.email_cliente}
           </p>
-
         </div>
 
         {/* Pie */}
         <div className={styles.modalFooter}>
-          <button
-            className={styles.saveButton}
-            onClick={handleGuardar}
-            disabled={guardando}
-          >
+          <button className={styles.saveButton} onClick={handleGuardar} disabled={guardando}>
             <span className="material-icons">save</span>
             {guardando ? 'Guardando...' : 'Guardar cambios'}
           </button>
-          <button
-            className={styles.cancelButton}
-            onClick={onClose}
-            disabled={guardando}
-          >
+          <button className={styles.cancelButton} onClick={onClose} disabled={guardando}>
             Cancelar
           </button>
         </div>
-
       </div>
     </div>
   );

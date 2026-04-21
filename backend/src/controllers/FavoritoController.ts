@@ -22,7 +22,7 @@ import { getImageService } from '../services/imageService.js';
  *
  * @class FavoritoController
  */
-export class FavoritoController {
+class FavoritoController {
   /**
    * Obtiene la lista de productos favoritos de un cliente
    *
@@ -595,3 +595,5 @@ export class FavoritoController {
     }
   }
 }
+
+export default FavoritoController;

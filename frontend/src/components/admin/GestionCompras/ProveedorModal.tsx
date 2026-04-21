@@ -1,7 +1,8 @@
 import React, { memo, useState } from 'react';
+import proveedorAdminService from '../../../services/proveedorAdminService';
 import { createPortal } from 'react-dom';
-import type { CreateProveedorData, ProveedorListItem } from '../../../types';
 import styles from './GestionCompras.module.css';
+import type { CreateProveedorData, ProveedorListItem } from '../../../types';
 
 interface ProveedorModalProps {
   proveedor?: ProveedorListItem;
@@ -17,7 +18,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
     telefono: proveedor?.telefono || '',
     email: proveedor?.email || '',
     direccion: proveedor?.direccion || '',
-    id_proveedor: proveedor?.id_proveedor
+    id_proveedor: proveedor?.id_proveedor,
   });
 
   const [guardando, setGuardando] = useState(false);
@@ -51,8 +52,6 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
     setGuardando(true);
 
     try {
-      const { proveedorAdminService } = await import('../../../services/proveedorAdminService');
-
       let response;
       if (proveedor) {
         response = await proveedorAdminService.actualizarProveedor(proveedor.id_proveedor, formData);
@@ -95,7 +94,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: '6px',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
@@ -108,7 +107,17 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
         <div className={styles.modalBody}>
           {/* Empresa - Protagonista */}
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <label
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: 'var(--text-secondary)',
+                display: 'block',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
               Empresa *
             </label>
             <input
@@ -129,14 +138,22 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                 backgroundColor: 'var(--background-primary)',
                 color: 'var(--color-primary)',
                 boxSizing: 'border-box',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
               }}
             />
           </div>
 
           {/* Nombre Proveedor */}
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+            <label
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                display: 'block',
+                marginBottom: '6px',
+              }}
+            >
               Nombre del Proveedor *
             </label>
             <input
@@ -155,20 +172,39 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                 fontFamily: 'var(--font-family-primary)',
                 backgroundColor: 'var(--background-primary)',
                 color: 'var(--text-primary)',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
               }}
             />
           </div>
 
           {/* Canales de Contacto */}
           <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
-            <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <p
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: 'var(--text-secondary)',
+                margin: '0 0 12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
               Canales de Contacto
             </p>
 
             {/* Celular */}
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+              <label
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginBottom: '6px',
+                }}
+              >
                 <span style={{ fontSize: '16px' }}>📱</span>
                 Celular *
               </label>
@@ -188,14 +224,24 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                   fontFamily: 'var(--font-family-primary)',
                   backgroundColor: 'var(--background-primary)',
                   color: 'var(--text-primary)',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
 
             {/* Teléfono */}
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+              <label
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginBottom: '6px',
+                }}
+              >
                 <span style={{ fontSize: '16px' }}>☎️</span>
                 Teléfono (opcional)
               </label>
@@ -215,14 +261,24 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                   fontFamily: 'var(--font-family-primary)',
                   backgroundColor: 'var(--background-primary)',
                   color: 'var(--text-primary)',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
 
             {/* Email */}
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+              <label
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginBottom: '6px',
+                }}
+              >
                 <span style={{ fontSize: '16px' }}>✉️</span>
                 Email (opcional)
               </label>
@@ -242,7 +298,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                   fontFamily: 'var(--font-family-primary)',
                   backgroundColor: 'var(--background-primary)',
                   color: 'var(--text-primary)',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
@@ -250,7 +306,17 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
 
           {/* Dirección */}
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+            <label
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginBottom: '8px',
+              }}
+            >
               <span style={{ fontSize: '16px' }}>📍</span>
               Dirección *
             </label>
@@ -271,7 +337,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                 color: 'var(--text-primary)',
                 boxSizing: 'border-box',
                 resize: 'vertical',
-                minHeight: '90px'
+                minHeight: '90px',
               }}
             />
           </div>
@@ -286,7 +352,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                 borderRadius: '6px',
                 color: '#991b1b',
                 fontSize: '13px',
-                marginBottom: '16px'
+                marginBottom: '16px',
               }}
             >
               {error}
@@ -311,7 +377,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
               cursor: 'pointer',
               fontFamily: 'var(--font-family-primary)',
               transition: 'background-color 0.2s',
-              opacity: guardando ? 0.5 : 1
+              opacity: guardando ? 0.5 : 1,
             }}
             onMouseEnter={(e) => !guardando && (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-primary)')}
@@ -333,7 +399,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
               cursor: 'pointer',
               fontFamily: 'var(--font-family-primary)',
               transition: 'background-color 0.2s',
-              opacity: guardando ? 0.7 : 1
+              opacity: guardando ? 0.7 : 1,
             }}
             onMouseEnter={(e) => !guardando && (e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}

@@ -1,7 +1,3 @@
-/**
- * Componente AdminLogin - Página de inicio de sesión para administradores y empleados
- * Permite autenticación de usuarios del sistema (no clientes)
- */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';

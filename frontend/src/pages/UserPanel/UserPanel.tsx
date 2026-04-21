@@ -5,19 +5,19 @@
  * Utiliza múltiples hooks y contextos para funcionalidad completa
  */
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import PageMeta from '../../components/common/PageMeta/PageMeta';
-import { MobileMenuDropdown } from '../../components/common/MobileMenuDropdown';
-import type { Cliente } from '../../types/cliente';
 import { useNavigate, useLocation } from 'react-router-dom';
-import DatosCuenta from '../../components/user/DatosCuenta';
+import { useAuth } from '../../contexts/AuthContext';
+import { MobileMenuDropdown } from '../../components/common/MobileMenuDropdown';
 import InformacionPersonal from '../../components/user/InformacionPersonal';
+import DatosCuenta from '../../components/user/DatosCuenta';
 import Seguridad from '../../components/user/Seguridad';
 import MisCompras from '../../components/user/MisCompras';
+import Favoritos from '../../components/user/Favoritos';
 import Direcciones from '../../components/user/Direcciones';
 import Soporte from '../../components/user/Soporte';
-import Favoritos from '../../components/user/Favoritos';
+import PageMeta from '../../components/common/PageMeta/PageMeta';
 import userPanelStyles from './UserPanel.module.css';
+import type { Cliente } from '../../types/cliente';
 
 // ============================================================================
 // CONFIGURACIÓN Y CONSTANTES

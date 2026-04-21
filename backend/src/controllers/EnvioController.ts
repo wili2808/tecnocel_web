@@ -15,7 +15,7 @@ import type {
 } from '../types/envio.types.js';
 import { TRANSICIONES_ENVIO } from '../types/envio.types.js';
 
-export class EnvioController {
+class EnvioController {
 
   // GET /api/envios/admin
   static async listarEnvios(req: Request, res: Response) {
@@ -320,3 +320,5 @@ export class EnvioController {
     }
   }
 }
+
+export default EnvioController;

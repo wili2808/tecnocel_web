@@ -1,14 +1,3 @@
-/**
- * @file Controlador de administración de usuarios del sistema
- *
- * Proporciona funcionalidades CRUD completas para gestión de usuarios (administradores y empleados)
- * y visualización de información de clientes desde el panel de administración.
- *
- * Requiere autenticación y autorización por rol para todas las operaciones.
- *
- * @module UsuarioAdminController
- */
-
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';

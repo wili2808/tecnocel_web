@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import adminCompraService from '../../../services/adminCompraService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useDebounce } from '../../../hooks/useDebounce';
-import { compraAdminService } from '../../../services/compraAdminService';
 import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
-import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import DetalleCompraModal from './DetalleCompraModal';
 import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
+import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 
 // Componentes que requieren lazy loading (más adelante)
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
@@ -51,7 +51,7 @@ const GestionCompras: React.FC = memo(() => {
   // === Funciones ===
   const cargarStats = useCallback(async () => {
     try {
-      const response = await compraAdminService.obtenerEstadisticas();
+      const response = await adminCompraService.obtenerEstadisticas();
       setStats(response.data);
     } catch (err) {
       console.error('Error al cargar estadísticas:', err);
@@ -65,7 +65,7 @@ const GestionCompras: React.FC = memo(() => {
     try {
       setCargando(true);
       setError(null);
-      const response = await compraAdminService.listarCompras(filtros, LIMIT, offset);
+      const response = await adminCompraService.listarCompras(filtros, LIMIT, offset);
 
       setCompras(response.data);
       setTotal(response.total);
