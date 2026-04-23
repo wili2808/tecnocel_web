@@ -284,10 +284,6 @@ export const validateRegistrarVentaManual = [
   body('items.*.cantidad')
     .isInt({ min: 1, max: 50 })
     .withMessage('La cantidad debe estar entre 1 y 50'),
-  body('items.*.precio_unitario_manual')
-    .optional({ nullable: true })
-    .isFloat({ min: 0 })
-    .withMessage('precio_unitario_manual debe ser un número positivo'),
   body('metodo_pago')
     .isIn(['efectivo', 'tarjeta', 'transferencia', 'qr'])
     .withMessage('metodo_pago es requerido: efectivo, tarjeta, transferencia o qr'),

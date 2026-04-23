@@ -168,9 +168,8 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
         id_producto: p.id_producto,
         nombre: p.nombre,
         cantidad: 1,
+        stock: p.stock,
         precio_unitario: p.precio_venta,
-        precio_catalogo: p.precio_venta,
-        es_precio_manual: false,
         subtotal: p.precio_venta,
       },
     ]);
@@ -180,31 +179,16 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
 
   const quitarProducto = (id: number) => setItems((prev) => prev.filter((i) => i.id_producto !== id));
 
-  const cambiarCantidad = (id: number, delta: number, maxStock: number) => {
+  const cambiarCantidad = (id: number, delta: number) => {
     setItems((prev) =>
       prev.map((i) => {
         if (i.id_producto !== id) return i;
-        const nuevaCantidad = Math.max(1, Math.min(i.cantidad + delta, maxStock));
+        const nuevaCantidad = Math.max(1, Math.min(i.cantidad + delta, i.stock));
         return { ...i, cantidad: nuevaCantidad, subtotal: nuevaCantidad * i.precio_unitario };
       }),
     );
   };
 
-  const cambiarPrecio = (id: number, valor: string) => {
-    const precio = parseFloat(valor);
-    setItems((prev) =>
-      prev.map((i) => {
-        if (i.id_producto !== id) return i;
-        if (isNaN(precio) || precio < 0) return i;
-        return {
-          ...i,
-          precio_unitario: precio,
-          es_precio_manual: precio !== i.precio_catalogo,
-          subtotal: i.cantidad * precio,
-        };
-      }),
-    );
-  };
 
   // ── Totales y formato ─────────────────────────────────────────────────────
   const totalVenta = items.reduce((s, i) => s + i.subtotal, 0);
@@ -237,10 +221,6 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
         items: items.map((i) => ({
           id_producto: i.id_producto,
           cantidad: i.cantidad,
-          // ARS: todos los precios se convierten USD→ARS
-          // USD: solo se envía si el vendedor modificó el precio manualmente
-          precio_unitario_manual:
-            moneda === 'ARS' ? i.precio_unitario * tipoCambioUsd : i.es_precio_manual ? i.precio_unitario : null,
         })),
         metodo_pago: metodoPago,
         moneda,
@@ -468,8 +448,6 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                   </div>
 
                   {items.map((item) => {
-                    const productoEncontrado = productosEncontrados.find((p) => p.id_producto === item.id_producto);
-                    const maxStock = productoEncontrado?.stock ?? 50;
                     return (
                       <div key={item.id_producto} className={styles.itemRow}>
                         <span className={styles.itemNombre}>{item.nombre}</span>
@@ -478,7 +456,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                         <div className={styles.itemCantidadControls}>
                           <button
                             className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, -1, maxStock)}
+                            onClick={() => cambiarCantidad(item.id_producto, -1)}
                             disabled={item.cantidad <= 1}
                           >
                             −
@@ -486,23 +464,17 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                           <span className={styles.cantidadValue}>{item.cantidad}</span>
                           <button
                             className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, 1, maxStock)}
-                            disabled={item.cantidad >= maxStock}
+                            onClick={() => cambiarCantidad(item.id_producto, 1)}
+                            disabled={item.cantidad >= item.stock}
                           >
                             +
                           </button>
                         </div>
 
-                        {/* Precio editable */}
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          className={`${styles.precioInput} ${item.es_precio_manual ? styles.precioInputManual : ''}`}
-                          value={item.precio_unitario}
-                          onChange={(e) => cambiarPrecio(item.id_producto, e.target.value)}
-                          title={item.es_precio_manual ? 'Precio personalizado' : 'Precio catálogo'}
-                        />
+                        {/* Precio fijo (solo lectura) */}
+                        <span className={styles.precioReadonly} title="Precio de catálogo">
+                          {formatUSD(item.precio_unitario)}
+                        </span>
 
                         <span className={styles.itemSubtotal}>{formatUSD(item.subtotal)}</span>
 
