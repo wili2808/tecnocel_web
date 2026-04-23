@@ -43,6 +43,7 @@ const GestionPermisos = () => {
   const [roles, setRoles] = useState<RolesConPermisos[]>([]);
   const [permisos, setPermisos] = useState<PermisoItem[]>([]);
   const [permisosAsignados, setPermisosAsignados] = useState<number[]>([]);
+  const [originalPermisos, setOriginalPermisos] = useState<number[]>([]);
   const [rolSeleccionado, setRolSeleccionado] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -82,6 +83,7 @@ const GestionPermisos = () => {
       const data = await permisoService.getPermisosConEstado(rolSeleccionado);
       setPermisos(data.permisos);
       setPermisosAsignados(data.asignados);
+      setOriginalPermisos(data.asignados);
     } catch {
       showNotification('Error al cargar permisos del rol', 'error');
     }
@@ -110,6 +112,7 @@ const GestionPermisos = () => {
         permisos: permisosAsignados,
       });
       showNotification('Permisos guardados correctamente', 'success');
+      setOriginalPermisos(permisosAsignados);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
       showNotification(error.response?.data?.error || 'Error al guardar permisos', 'error');
@@ -117,6 +120,12 @@ const GestionPermisos = () => {
       setGuardando(false);
     }
   };
+
+  const hayCambios = useMemo(() => {
+    if (permisosAsignados.length !== originalPermisos.length) return true;
+    const setA = new Set(permisosAsignados);
+    return originalPermisos.some((id) => !setA.has(id));
+  }, [permisosAsignados, originalPermisos]);
 
   const permisosFiltrados = useMemo(() => {
     return permisos.filter((p) => {
@@ -163,21 +172,23 @@ const GestionPermisos = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerTop}>
-          {rolSeleccionado !== 1 && (
-            <button className={styles.guardarButton} onClick={handleGuardar} disabled={guardando}>
-              {guardando ? (
-                <>
-                  <span className="material-icons spin">sync</span>
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <span className="material-icons">save</span>
-                  Guardar Cambios
-                </>
-              )}
-            </button>
-          )}
+          <button
+            className={styles.guardarButton}
+            onClick={handleGuardar}
+            disabled={guardando || !hayCambios || rolSeleccionado === 1}
+          >
+            {guardando ? (
+              <>
+                <span className="material-icons spin">sync</span>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <span className="material-icons">save</span>
+                Guardar Cambios
+              </>
+            )}
+          </button>
         </div>
       </div>
 

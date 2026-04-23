@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CompraController } from '../controllers/CompraController.js';
+import CompraController from '../controllers/CompraController.js';
 import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();

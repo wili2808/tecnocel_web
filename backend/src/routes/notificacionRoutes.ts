@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { NotificacionController } from '../controllers/NotificacionController.js';
+import NotificacionController from '../controllers/NotificacionController.js';
 import { verificarTokenCliente } from '../middleware/authMiddleware.js';
 
 const router = Router();

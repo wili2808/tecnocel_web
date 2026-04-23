@@ -71,11 +71,6 @@
   border-right: none;
 }
 
-.statCard:hover {
-  background: var(--background-hover);
-  transform: none;
-}
-
 .statLabel {
   font-size: 11px;
   color: var(--text-secondary);

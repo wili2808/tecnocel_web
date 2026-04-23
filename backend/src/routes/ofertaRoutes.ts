@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { OfertaController } from '../controllers/OfertaController.js';
+import OfertaController from '../controllers/OfertaController.js';
 import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();

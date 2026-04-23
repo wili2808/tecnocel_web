@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ProveedorController } from '../controllers/ProveedorController.js';
+import ProveedorController from '../controllers/ProveedorController.js';
 import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();

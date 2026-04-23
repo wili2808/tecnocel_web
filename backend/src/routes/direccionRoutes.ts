@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { DireccionController } from '../controllers/DireccionController.js';
+import DireccionController from '../controllers/DireccionController.js';
 import { verificarTokenCliente } from '../middleware/authMiddleware.js';
 
 const router = Router();

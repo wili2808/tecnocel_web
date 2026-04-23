@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { MarcaController } from '../controllers/MarcaController.js';
+import MarcaController from '../controllers/MarcaController.js';
 import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 import {
   validateCreateMarca,

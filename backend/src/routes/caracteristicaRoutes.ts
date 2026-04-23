@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CaracteristicaController } from '../controllers/CaracteristicaController.js';
+import CaracteristicaController from '../controllers/CaracteristicaController.js';
 import { verificarToken, verificarRol } from '../middleware/authMiddleware.js';
 import { ROLES } from '../constants/roles.js';
 

@@ -80,30 +80,32 @@
 
 .tabBar {
   display: flex;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1px;
+  margin: var(--spacing-md) 0;
   gap: 0;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 2px;
-  margin-bottom: 20px;
-  overflow: auto;
+  overflow-x: auto;
 }
 
 .tab {
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: var(--font-family-primary);
   color: var(--text-secondary);
   cursor: pointer;
   transition: color var(--transition-fast) var(--transition-curve),
               border-color var(--transition-fast) var(--transition-curve);
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 7px;
+  position: relative;
 }
 
 .tab:hover {
@@ -117,7 +119,6 @@
 .tabActive {
   color: var(--color-primary);
   border-bottom-color: var(--color-primary);
-  font-weight: 600;
 }
 
 /* ============================================================================

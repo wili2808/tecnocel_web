@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { FavoritoController } from '../controllers/FavoritoController.js';
+import FavoritoController from '../controllers/FavoritoController.js';
 import { verificarTokenCliente } from '../middleware/authMiddleware.js';
 
 const router = Router();

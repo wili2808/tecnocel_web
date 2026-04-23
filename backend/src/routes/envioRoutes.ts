@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { EnvioController } from '../controllers/EnvioController.js';
+import EnvioController from '../controllers/EnvioController.js';
 import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();

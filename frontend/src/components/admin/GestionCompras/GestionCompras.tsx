@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
+import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -8,6 +9,7 @@ import DetalleCompraModal from './DetalleCompraModal';
 import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
+import type { ProductoStockBajo } from '../../../types/reporte';
 
 // Componentes que requieren lazy loading (más adelante)
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
@@ -15,7 +17,7 @@ const GestionProveedores = React.lazy(() => import('./GestionProveedores'));
 
 const LIMIT = 20;
 
-type TabType = 'compras' | 'proveedores';
+type TabType = 'compras' | 'proveedores' | 'stock';
 
 const GestionCompras: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
@@ -28,7 +30,9 @@ const GestionCompras: React.FC = memo(() => {
   const [activeTab, setActiveTab] = useState<TabType>('compras');
   const [compras, setCompras] = useState<CompraListItem[]>([]);
   const [stats, setStats] = useState<EstadisticasCompras | null>(null);
+  const [stockBajo, setStockBajo] = useState<ProductoStockBajo[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [cargandoStock, setCargandoStock] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // === Filtros y búsqueda ===
@@ -58,6 +62,18 @@ const GestionCompras: React.FC = memo(() => {
     }
   }, []);
 
+  const cargarStockBajo = useCallback(async () => {
+    try {
+      setCargandoStock(true);
+      const response = await reporteService.obtenerReporteProductos();
+      setStockBajo(response.stock_bajo);
+    } catch (err) {
+      console.error('Error al cargar stock bajo:', err);
+    } finally {
+      setCargandoStock(false);
+    }
+  }, []);
+
   const cargarCompras = useCallback(async () => {
     if (cargandoRef.current) return;
     cargandoRef.current = true;
@@ -80,10 +96,9 @@ const GestionCompras: React.FC = memo(() => {
 
   // === Efectos ===
   useEffect(() => {
-    if (activeTab === 'compras') {
-      cargarStats();
-    }
-  }, [activeTab, cargarStats]);
+    cargarStats();
+    cargarStockBajo();
+  }, [cargarStats, cargarStockBajo]);
 
   useEffect(() => {
     setFiltros((prev) => ({
@@ -138,7 +153,7 @@ const GestionCompras: React.FC = memo(() => {
       <AdminSectionActions
         lead={null}
         actions={
-          activeTab === 'compras' && puedeCrear ? (
+          puedeCrear ? (
             <button className={styles.crearButton} onClick={() => setMostrarRegistrar(true)} disabled={cargando}>
               <span className="material-icons">add</span>
               Nueva Compra
@@ -158,24 +173,25 @@ const GestionCompras: React.FC = memo(() => {
             className={styles.statCard}
           />
           <AdminStatCard
-            icon="date_range"
-            label="Últimos 7 días"
-            value={stats.compras_semana}
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="calendar_month"
-            label="Este mes"
-            value={stats.compras_mes}
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
             icon="attach_money"
             label="Gasto del mes"
             value={`$${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}`}
             tone="warning"
+            variant="flush"
+            className={styles.statCard}
+          />
+          <AdminStatCard
+            icon="warning"
+            label="Stock Bajo"
+            value={stockBajo.length}
+            tone={stockBajo.length > 0 ? 'danger' : 'success'}
+            variant="flush"
+            className={styles.statCard}
+          />
+          <AdminStatCard
+            icon="local_shipping"
+            label="Proveedores"
+            value="Activos"
             variant="flush"
             className={styles.statCard}
           />
@@ -202,6 +218,14 @@ const GestionCompras: React.FC = memo(() => {
         >
           <span className="material-icons">business</span>
           Proveedores
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'stock' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('stock')}
+        >
+          <span className="material-icons">warning</span>
+          Stock Bajo
+          {stockBajo.length > 0 && <span className={styles.tabBadge}>{stockBajo.length}</span>}
         </button>
       </div>
 
@@ -395,6 +419,53 @@ const GestionCompras: React.FC = memo(() => {
         <React.Suspense fallback={<div className={styles.loading}>Cargando...</div>}>
           <GestionProveedores />
         </React.Suspense>
+      )}
+
+      {/* Tab: Stock Bajo */}
+      {activeTab === 'stock' && (
+        <div className={styles.tabContent}>
+          {cargandoStock ? (
+            <AdminEmptyState
+              icon="hourglass_empty"
+              title="Cargando alertas de stock"
+              message="Analizando inventario para detectar productos por debajo del mínimo..."
+              className={styles.loadingState}
+            />
+          ) : stockBajo.length === 0 ? (
+            <AdminEmptyState
+              icon="check_circle"
+              title="Todo en orden"
+              message="No hay productos con stock bajo en este momento."
+              tone="neutral"
+              className={styles.loadingState}
+            />
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th style={{ textAlign: 'right' }}>Stock Actual</th>
+                    <th style={{ textAlign: 'right' }}>Stock Mínimo</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stockBajo.map((prod) => (
+                    <tr key={prod.id_producto}>
+                      <td style={{ fontWeight: 600 }}>{prod.nombre}</td>
+                      <td style={{ textAlign: 'right', fontWeight: 600 }}>{prod.stock}</td>
+                      <td style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>{prod.stock_minimo}</td>
+                      <td>
+                        <span className={styles.badgeAnulada}>Crítico</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Modales */}
