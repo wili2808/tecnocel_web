@@ -1,16 +1,8 @@
-/**
- * Contexto de Búsqueda Global - Gestión centralizada del estado de búsqueda
- * Proporciona funcionalidad de búsqueda con debounce, sincronización de URL y navegación
- * Incluye estado de búsqueda, query debounced y funciones de navegación optimizadas
- * Maneja la sincronización entre el estado local y los parámetros de URL
- */
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// ============================================================================
-// TIPOS E INTERFACES
-// ============================================================================
+// --- TIPOS E INTERFACES ---
 
 /**
  * Interfaz del contexto de búsqueda
@@ -39,9 +31,7 @@ interface SearchProviderProps {
     children: ReactNode;
 }
 
-// ============================================================================
-// CONTEXTO Y PROVEEDOR
-// ============================================================================
+// --- CONTEXTO Y PROVEEDOR ---
 
 /**
  * Contexto de React para el estado de búsqueda global
@@ -236,9 +226,7 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
     );
 };
 
-// ============================================================================
-// HOOK PERSONALIZADO
-// ============================================================================
+// --- HOOK PERSONALIZADO ---
 
 /**
  * Hook personalizado para usar el contexto de búsqueda

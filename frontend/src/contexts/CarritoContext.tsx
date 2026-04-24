@@ -1,14 +1,10 @@
-/**
- * Contexto del Carrito de Compras - Maneja el estado global del carrito
- * Proporciona funcionalidades para agregar, actualizar, eliminar y gestionar items del carrito
- * Incluye sincronización con backend, validaciones de stock y confirmación de compras
- * Utiliza useReducer para gestión eficiente del estado y useCarritoOperations para operaciones
- */
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { useNotification } from './NotificationContext';
 import { useCarritoOperations } from '../hooks/useCarritoOperations';
 import type { EstadoCarrito, DatosCompra, VentaConfirmada, AccionCarrito } from '../types/carrito';
+
+// --- ESTADO INICIAL ---
 
 /**
  * Estado inicial del carrito
@@ -24,11 +20,15 @@ const estadoInicial: EstadoCarrito = {
   error: null,
 };
 
+// --- CONSTANTES DE CACHE Y SINCRONIZACIÓN ---
+
 /**
  * Constantes de localStorage para sincronización multi-tab del carrito
  */
 const CARRITO_CACHE_KEY = 'carrito_cache';
 const CARRITO_TIMESTAMP_KEY = 'carrito_timestamp';
+
+// --- FUNCIONES AUXILIARES ---
 
 /**
  * Función auxiliar para calcular el total del carrito
@@ -77,9 +77,7 @@ function limpiarCacheCarrito(): void {
   }
 }
 
-// ============================================================================
-// REDUCER
-// ============================================================================
+// --- REDUCER ---
 
 /**
  * Reducer que maneja las acciones del carrito y actualiza el estado
@@ -164,9 +162,7 @@ function carritoReducer(estado: EstadoCarrito, accion: AccionCarrito): EstadoCar
   }
 }
 
-// ============================================================================
-// CONTEXTO
-// ============================================================================
+// --- CONTEXTO ---
 
 /**
  * Contexto del carrito que proporciona el estado y métodos para manipularlo
@@ -189,6 +185,8 @@ const CarritoContext = createContext<{
   sincronizarCarrito: () => Promise<void>;
 } | null>(null);
 
+// --- HOOK PERSONALIZADO ---
+
 /**
  * Hook personalizado para acceder al contexto del carrito
  * Proporciona acceso seguro al contexto con validación de uso
@@ -201,9 +199,7 @@ export const useCarrito = () => {
   return context;
 };
 
-// ============================================================================
-// PROVIDER
-// ============================================================================
+// --- PROVIDER PRINCIPAL ---
 
 /**
  * Proveedor del contexto del carrito que maneja el estado y las operaciones

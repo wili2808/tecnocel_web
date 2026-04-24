@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import axiosInstance from '../api/axiosConfig';
 
+// --- TIPOS ---
+
 export type TipoCambioOrigen = 'api' | 'cache' | 'fallback';
 
 interface TipoCambioContextType {
@@ -23,6 +25,8 @@ const readCachedTipoCambio = (): number | null => {
 
 const cachedAtBoot = readCachedTipoCambio();
 
+// --- CONTEXTO ---
+
 const TipoCambioContext = createContext<TipoCambioContextType>({
   tipoCambio: cachedAtBoot ?? TIPO_CAMBIO_DEFAULT,
   lastUpdated: null,
@@ -30,6 +34,8 @@ const TipoCambioContext = createContext<TipoCambioContextType>({
   origen: cachedAtBoot ? 'cache' : 'fallback',
   esConfiable: !!cachedAtBoot,
 });
+
+// --- PROVIDER PRINCIPAL ---
 
 export const TipoCambioProvider = ({ children }: { children: ReactNode }) => {
   const [tipoCambio, setTipoCambio] = useState<number>(cachedAtBoot ?? TIPO_CAMBIO_DEFAULT);

@@ -1,10 +1,3 @@
-/**
- * Contexto de Autenticación - Maneja el estado global de autenticación
- * Soporta dos flujos independientes:
- * - Clientes: login, registro, Google OAuth (via clienteService)
- * - Usuarios del sistema (admin/empleado): loginAdmin (via usuarioService)
- * Incluye persistencia de sesión, verificación de tokens y manejo de errores
- */
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import clienteService from '../services/clienteService';
@@ -16,9 +9,15 @@ import type { Cliente } from '../types/cliente';
 import type { AdminUser } from '../types/usuario';
 import type { RegisterData, UserType, RegisterResult, AuthState, AuthContextType } from '../types/auth';
 
-// Constantes de localStorage
+// --- CONSTANTES DE LOCALSTORAGE ---
+
+/**
+ * Constantes de localStorage para el token de autenticación
+ */
 const TOKEN_KEY = 'token';
 const ADMIN_TOKEN_KEY = 'admin_token';
+
+// --- FUNCIONES AUXILIARES ---
 
 /**
  * Deriva el UserType desde el AdminUser
@@ -35,7 +34,11 @@ const isAdminUser = (user: AdminUser | Cliente | null): user is AdminUser => {
   return !!user && 'idRol' in user;
 };
 
-// Estado inicial del contexto de autenticación
+// --- ESTADO INICIAL ---
+
+/**
+ * Estado inicial del contexto de autenticación
+ */
 const initialState: AuthState = {
   user: null,
   userType: null,
@@ -45,15 +48,30 @@ const initialState: AuthState = {
   error: null,
 };
 
-// PROPIEDADES DEL PROVIDER
+// --- PROPS DEL PROVIDER ---
+
+/**
+ * Props del proveedor de autenticación
+ */
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Instancia del contexto de autenticación
+// --- CONTEXTO ---
+
+/**
+ * Contexto de autenticación
+ * Proporciona estado de autenticación, métodos de registro/login/logout
+ * y sincronización de sesiones multi-tab
+ */
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hook personalizado para usar el contexto de autenticación
+// --- HOOK PERSONALIZADO ---
+
+/**
+ * Hook personalizado para usar el contexto de autenticación
+ * @throws Error si se usa fuera de un AuthProvider
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -62,7 +80,7 @@ export const useAuth = () => {
   return context;
 };
 
-// PROVIDER PRINCIPAL
+// --- PROVIDER PRINCIPAL ---
 
 /**
  * Proveedor del contexto de autenticación

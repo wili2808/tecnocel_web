@@ -1,8 +1,7 @@
-import path from 'path';
-import fs from 'fs';
 import logger from './loggerService.js';
+import fs from 'fs';
+import path from 'path';
 import ProductoImagen from '../models/ProductoImagen.js';
-import sequelize from '../config/database.js';
 import { buildCloudinaryPublicId } from './cloudinaryService.js';
 
 // Tipos de imagen soportados

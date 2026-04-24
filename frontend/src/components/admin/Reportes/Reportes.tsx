@@ -27,7 +27,6 @@ interface TabConfig {
 type SortDirReporte = 'asc' | 'desc';
 type VentasSortKey = 'periodo' | 'ventas' | 'ingresos_ars' | 'ticket_promedio';
 type ProductosSortKey = 'nombre' | 'categoria' | 'marca' | 'unidades' | 'ingreso' | 'precio' | 'stock';
-type ProductosStockSortKey = 'nombre' | 'stock_actual' | 'stock_minimo';
 type ClientesSortKey = 'nombre' | 'email' | 'compras' | 'monto' | 'ultima_compra';
 type CancelacionesSortKey = 'nro_venta' | 'fecha' | 'monto' | 'motivo' | 'cancelado_por';
 type VendedoresSortKey = 'nombre' | 'ventas' | 'ingresos_ars' | 'ticket_promedio' | 'porcentaje';

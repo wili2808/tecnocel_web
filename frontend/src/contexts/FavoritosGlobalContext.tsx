@@ -3,9 +3,15 @@ import { useAuth } from './AuthContext';
 import { useNotification } from './NotificationContext';
 import favoritoService from '../services/favoritoService';
 
-// Constantes
+// --- CONSTANTES ---
+
+/**
+ * Constantes de localStorage para el cache de favoritos
+ */
 const FAVORITOS_CACHE_KEY = import.meta.env.VITE_FAVORITOS_CACHE_KEY || 'favoritos_cache';
 const CACHE_DURATION = parseInt(import.meta.env.VITE_FAVORITOS_CACHE_DURATION || '300000'); // 5 minutos por defecto
+
+// --- TIPOS ---
 
 /**
  * Estructura de un favorito
@@ -63,8 +69,15 @@ interface FavoritosContextType extends FavoritosState {
   invalidateCache: () => void;
 }
 
-// Creación del contexto
+// --- CONTEXTO ---
+
+/**
+ * Contexto de favoritos global
+ * Proporciona acceso a los favoritos del usuario con sincronización multi-tab
+ */
 const FavoritosContext = createContext<FavoritosContextType | undefined>(undefined);
+
+// --- HOOK PERSONALIZADO ---
 
 /**
  * Hook personalizado para usar el contexto de favoritos
@@ -114,9 +127,16 @@ export const useFavoritoProducto = (productId: number) => {
   };
 };
 
+// --- PROPS DEL PROVIDER ---
+
+/**
+ * Props del proveedor de favoritos
+ */
 interface FavoritosGlobalProviderProps {
   children: React.ReactNode;
 }
+
+// --- PROVIDER ---
 
 /**
  * Proveedor del contexto global de favoritos

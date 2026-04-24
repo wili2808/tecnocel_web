@@ -1,12 +1,3 @@
-/**
- * Servicio de Ofertas
- *
- * Proporciona funciones utilitarias para el cálculo y gestión de precios de oferta.
- * Implementa la lógica híbrida que permite tanto cálculo dinámico como precios personalizados.
- *
- * @module ofertaService
- */
-
 import OfertaModel from '../models/Oferta.js';
 
 /**

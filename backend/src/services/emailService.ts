@@ -1,22 +1,20 @@
-import { Resend } from 'resend';
+import logger from './loggerService.js';
 import fs from 'fs';
 import path from 'path';
+import { Resend } from 'resend';
 import { fileURLToPath } from 'url';
-import logger from './loggerService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'email');
 
-// ──────────────────────────────────────────────
-// Cliente Resend (HTTP API — funciona en cualquier cloud)
-// ──────────────────────────────────────────────
+// --- Cliente Resend (HTTP API — funciona en cualquier cloud) ---
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_FROM = process.env.EMAIL_FROM ?? 'TecnoCel <onboarding@resend.dev>';
 
-// ──────────────────────────────────────────────
-// Caché de plantillas HTML (evita leer disco en cada envío)
-// ──────────────────────────────────────────────
+// --- Caché de plantillas HTML (evita leer disco en cada envío) ---
+
 const templateCache = new Map<string, string>();
 
 function getTemplate(name: string): string {
@@ -27,9 +25,8 @@ function getTemplate(name: string): string {
   return templateCache.get(name)!;
 }
 
-// ──────────────────────────────────────────────
-// Motor de plantillas
-// ──────────────────────────────────────────────
+// --- Motor de plantillas ---
+
 function renderTemplate(templateName: string, variables: Record<string, string>): string {
   const base = getTemplate('base');
   let content = getTemplate(templateName);
@@ -71,9 +68,8 @@ function buildItemsTable(items: ItemEmail[]): string {
     </table>`;
 }
 
-// ──────────────────────────────────────────────
-// Interfaces
-// ──────────────────────────────────────────────
+// --- Interfaces ---
+
 export interface ItemEmail {
   nombre_producto?: string;
   nombre?: string;
@@ -110,9 +106,8 @@ export interface CommentReplyEmailData {
   texto_respuesta: string;
 }
 
-// ──────────────────────────────────────────────
-// Helpers
-// ──────────────────────────────────────────────
+// --- Helpers ---
+
 const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173';
 
 const ESTADO_LABELS: Record<string, { label: string; descripcion: string }> = {
@@ -144,9 +139,7 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#x27;');
 }
 
-// ──────────────────────────────────────────────
-// Funciones exportadas
-// ──────────────────────────────────────────────
+// --- Funciones exportadas ---
 
 export async function sendVerificationEmail(email: string, nombre: string, token: string): Promise<void> {
   const verificationUrl = `${FRONTEND_URL}/verificar-email?token=${token}`;

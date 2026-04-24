@@ -1,15 +1,25 @@
-/**
- * Contexto Global de Ofertas - Maneja el estado global de ofertas del sistema
- * Optimización: Centraliza el manejo de ofertas para evitar consultas redundantes
- */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import ofertaService from '../services/ofertaService';
 import type { Oferta, Product, OfertaConInfo } from '../types';
 
-// Constantes
+// --- CONSTANTES ---
+
+/**
+ * Clave de localStorage para cache de ofertas
+ */
 const OFERTAS_CACHE_KEY = import.meta.env.VITE_OFERTAS_CACHE_KEY || 'ofertas_cache';
-const CACHE_DURATION = parseInt(import.meta.env.VITE_OFERTAS_CACHE_DURATION || '300000'); // 5 minutos por defecto
-const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_OFERTAS_REFRESH_INTERVAL || '60000'); // 1 minuto por defecto
+
+/**
+ * Duración del cache en milisegundos (5 minutos)
+ */
+const CACHE_DURATION = parseInt(import.meta.env.VITE_OFERTAS_CACHE_DURATION || '300000');
+
+/**
+ * Intervalo de refresh en milisegundos (1 minuto)
+ */
+const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_OFERTAS_REFRESH_INTERVAL || '60000');
+
+// --- ESTADO ---
 
 /**
  * Estado del contexto de ofertas
@@ -30,8 +40,11 @@ interface OfertasState {
   };
 }
 
+// --- INTERFAZ DEL CONTEXTO ---
+
 /**
- * Métodos del contexto de ofertas
+ * Interfaz del contexto de ofertas
+ * Define todas las propiedades y métodos disponibles para los consumidores
  */
 interface OfertasContextType extends OfertasState {
   // Métodos principales
@@ -76,8 +89,14 @@ interface OfertasContextType extends OfertasState {
   }>;
 }
 
-// Creación del contexto
+// --- CREACIÓN DEL CONTEXTO ---
+
+/**
+ * Contexto de ofertas
+ */
 const OfertasContext = createContext<OfertasContextType | undefined>(undefined);
+
+// --- HOOK PERSONALIZADO ---
 
 /**
  * Hook personalizado para usar el contexto de ofertas
@@ -90,6 +109,11 @@ export const useOfertasGlobal = () => {
   return context;
 };
 
+// --- PROPS DEL PROVIDER ---
+
+/**
+ * Props del proveedor de ofertas
+ */
 interface OfertasGlobalProviderProps {
   children: React.ReactNode;
 }

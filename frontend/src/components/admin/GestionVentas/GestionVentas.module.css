@@ -37,12 +37,18 @@
   white-space: nowrap;
 }
 
-.crearButton:hover {
+.crearButton:hover:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
-.crearButton:active {
+.crearButton:active:not(:disabled) {
   background: var(--color-primary-dark);
+}
+
+.crearButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-primary);
 }
 
 /* ============================================================================

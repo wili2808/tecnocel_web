@@ -1,18 +1,10 @@
-/**
- * Contexto de Productos - Gestión centralizada del estado de productos del sistema
- * Proporciona funcionalidades para cargar, filtrar, buscar y gestionar productos
- * Incluye sistema de caché inteligente, sincronización con ofertas y paginación
- * Utiliza useReducer para gestión eficiente del estado y optimizaciones de performance
- */
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { Product, Category, Marca, ProductFilters } from '../types';
 import productService from '../services/productService';
 import { useOfertasGlobal } from './OfertasGlobalContext';
 
-// ============================================================================
-// INTERFACES Y TIPOS
-// ============================================================================
+// --- INTERFACES Y TIPOS ---
 
 /**
  * Estructura de datos del caché de productos
@@ -27,9 +19,8 @@ interface CacheData {
   filters: ProductFilters;
   searchQuery: string;
 }
-// ============================================================================
-// ESTADO DEL CONTEXTO
-// ============================================================================
+
+// --- ESTADO DEL CONTEXTO ---
 
 /**
  * Estado del contexto de productos
@@ -159,9 +150,7 @@ interface ProductContextType {
   forceClearProductState: () => void;
 }
 
-// ============================================================================
-// ESTADO INICIAL
-// ============================================================================
+// --- ESTADO INICIAL ---
 
 /**
  * Estado inicial del contexto
@@ -205,9 +194,7 @@ const initialState: ProductContextState = {
   imageCache: new Map(),
 };
 
-// ============================================================================
-// REDUCER
-// ============================================================================
+// --- REDUCER ---
 
 /**
  * Reducer que maneja las acciones del contexto de productos
@@ -337,17 +324,15 @@ function productReducer(state: ProductContextState, action: ProductAction): Prod
   }
 }
 
-// ============================================================================
-// CONTEXTO
-// ============================================================================
+// --- CONTEXTO ---
 
-// Creación del contexto de productos
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-// ============================================================================
-// PROVIDER
-// ============================================================================
+// --- PROVIDER PRINCIPAL ---
 
+/**
+ * Props del proveedor de productos
+ */
 interface ProductProviderProps {
   children: ReactNode;
 }
@@ -1127,9 +1112,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   return <ProductContext.Provider value={contextValue}>{children}</ProductContext.Provider>;
 };
 
-// ============================================================================
-// HOOK PERSONALIZADO
-// ============================================================================
+// --- HOOK PERSONALIZADO ---
 
 /**
  * Hook personalizado para usar el contexto de productos
