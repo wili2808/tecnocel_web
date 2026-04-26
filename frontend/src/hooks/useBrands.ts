@@ -77,7 +77,7 @@ export const useBrands = (): UseBrandsReturn => {
       setProductsLoading(true);
 
       // Obtener todos los productos
-      const products = await productService.getProducts();
+      const { productos: products } = await productService.getProducts({ limit: 1000 });
 
       // Calcular contadores por marca
       const counts = new Map<number, number>();

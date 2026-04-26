@@ -9,11 +9,11 @@
  */
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import usuarioService from '../../../services/usuarioService';
+import adminVentaService from '../../../services/adminVentaService';
+import adminProductService from '../../../services/adminProductService';
 import styles from './GestionVentas.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { ventaAdminService } from '../../../services/ventaAdminService';
-import { usuarioService } from '../../../services/usuarioService';
-import adminApi from '../../../api/axiosAdminConfig';
 import type { ItemVentaManual, ProductoParaVenta } from '../../../types/venta';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
@@ -69,7 +69,9 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
 
   // ── Cierre con Escape ─────────────────────────────────────────────────────
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
@@ -77,7 +79,10 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   // ── Búsqueda de clientes (debounce 400ms) ─────────────────────────────────
   const buscarClientes = useCallback((q: string) => {
     if (clienteTimerRef.current) clearTimeout(clienteTimerRef.current);
-    if (!q.trim()) { setClientesEncontrados([]); return; }
+    if (!q.trim()) {
+      setClientesEncontrados([]);
+      return;
+    }
     clienteTimerRef.current = setTimeout(async () => {
       setBuscandoCliente(true);
       try {
@@ -104,7 +109,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   };
 
   const toggleMostrador = () => {
-    setEsMostrador(prev => {
+    setEsMostrador((prev) => {
       if (!prev) {
         setClienteSeleccionado(null);
         setBusqCliente('');
@@ -117,20 +122,23 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   // ── Búsqueda de productos (debounce 400ms) ────────────────────────────────
   const buscarProductos = useCallback((q: string) => {
     if (productoTimerRef.current) clearTimeout(productoTimerRef.current);
-    if (!q.trim()) { setProductosEncontrados([]); return; }
+    if (!q.trim()) {
+      setProductosEncontrados([]);
+      return;
+    }
     productoTimerRef.current = setTimeout(async () => {
       setBuscandoProducto(true);
       try {
-        const res = await adminApi.get('/almacen/productos/buscar', { params: { termino: q.trim() } });
-        // El endpoint devuelve un array directamente
-        const lista: any[] = Array.isArray(res.data) ? res.data : [];
-        setProductosEncontrados(lista.map((p: any) => ({
-          id_producto: p.id_producto,
-          nombre: p.nombre,
-          codigo: p.codigo || '',
-          precio_venta: parseFloat(p.precio_venta),
-          stock: p.stock ?? 0
-        })));
+        const res = await adminProductService.listarProductos(q.trim());
+        setProductosEncontrados(
+          res.map((p: any) => ({
+            id_producto: p.id_producto,
+            nombre: p.nombre,
+            codigo: p.codigo || '',
+            precio_venta: parseFloat(p.precio_venta),
+            stock: p.stock ?? 0,
+          })),
+        );
       } catch {
         setProductosEncontrados([]);
       } finally {
@@ -150,50 +158,37 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
       return;
     }
     // Evitar duplicados
-    if (items.some(i => i.id_producto === p.id_producto)) {
+    if (items.some((i) => i.id_producto === p.id_producto)) {
       showNotification('El producto ya fue agregado', 'warning');
       return;
     }
-    setItems(prev => [
+    setItems((prev) => [
       ...prev,
       {
-        id_producto:     p.id_producto,
-        nombre:          p.nombre,
-        cantidad:        1,
+        id_producto: p.id_producto,
+        nombre: p.nombre,
+        cantidad: 1,
+        stock: p.stock,
         precio_unitario: p.precio_venta,
-        precio_catalogo: p.precio_venta,
-        es_precio_manual: false,
-        subtotal:        p.precio_venta
-      }
+        subtotal: p.precio_venta,
+      },
     ]);
     setBusqProducto('');
     setProductosEncontrados([]);
   };
 
-  const quitarProducto = (id: number) =>
-    setItems(prev => prev.filter(i => i.id_producto !== id));
+  const quitarProducto = (id: number) => setItems((prev) => prev.filter((i) => i.id_producto !== id));
 
-  const cambiarCantidad = (id: number, delta: number, maxStock: number) => {
-    setItems(prev => prev.map(i => {
-      if (i.id_producto !== id) return i;
-      const nuevaCantidad = Math.max(1, Math.min(i.cantidad + delta, maxStock));
-      return { ...i, cantidad: nuevaCantidad, subtotal: nuevaCantidad * i.precio_unitario };
-    }));
+  const cambiarCantidad = (id: number, delta: number) => {
+    setItems((prev) =>
+      prev.map((i) => {
+        if (i.id_producto !== id) return i;
+        const nuevaCantidad = Math.max(1, Math.min(i.cantidad + delta, i.stock));
+        return { ...i, cantidad: nuevaCantidad, subtotal: nuevaCantidad * i.precio_unitario };
+      }),
+    );
   };
 
-  const cambiarPrecio = (id: number, valor: string) => {
-    const precio = parseFloat(valor);
-    setItems(prev => prev.map(i => {
-      if (i.id_producto !== id) return i;
-      if (isNaN(precio) || precio < 0) return i;
-      return {
-        ...i,
-        precio_unitario: precio,
-        es_precio_manual: precio !== i.precio_catalogo,
-        subtotal: i.cantidad * precio
-      };
-    }));
-  };
 
   // ── Totales y formato ─────────────────────────────────────────────────────
   const totalVenta = items.reduce((s, i) => s + i.subtotal, 0);
@@ -203,8 +198,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     `USD ${n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   /** Precio en ARS ya convertido (paso 3 resumen) */
-  const formatARSNum = (n: number) =>
-    `ARS ${Math.round(n).toLocaleString('es-AR')}`;
+  const formatARSNum = (n: number) => `ARS ${Math.round(n).toLocaleString('es-AR')}`;
 
   /** Total en la moneda de la venta */
   const totalDisplay = moneda === 'ARS' ? totalVenta * tipoCambioUsd : totalVenta;
@@ -222,21 +216,16 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     enviandoRef.current = true;
     setEnviando(true);
     try {
-      await ventaAdminService.registrarVentaManual({
+      await adminVentaService.registrarVentaManual({
         id_cliente: clienteSeleccionado?.id_cliente ?? null,
-        items: items.map(i => ({
+        items: items.map((i) => ({
           id_producto: i.id_producto,
-          cantidad:    i.cantidad,
-          // ARS: todos los precios se convierten USD→ARS
-          // USD: solo se envía si el vendedor modificó el precio manualmente
-          precio_unitario_manual: moneda === 'ARS'
-            ? i.precio_unitario * tipoCambioUsd
-            : (i.es_precio_manual ? i.precio_unitario : null)
+          cantidad: i.cantidad,
         })),
         metodo_pago: metodoPago,
         moneda,
         observaciones: observaciones.trim() || undefined,
-        valor_dolar: tipoCambioUsd
+        valor_dolar: tipoCambioUsd,
       });
       showNotification('Venta registrada exitosamente', 'success');
       onRegistrada?.();
@@ -255,15 +244,18 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     return '';
   };
 
-  const connectorClass = (idx: number) =>
-    idx < paso ? styles.stepConnectorCompleted : '';
+  const connectorClass = (idx: number) => (idx < paso ? styles.stepConnectorCompleted : '');
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className={styles.modalOverlay}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className={`${styles.modal} ${styles.modalLarge}`}>
-
         {/* Encabezado */}
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>
@@ -277,7 +269,6 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
 
         {/* Cuerpo */}
         <div className={styles.modalBody}>
-
           {/* Indicador de pasos */}
           <div className={styles.steps}>
             {PASOS.map((label, idx) => (
@@ -285,17 +276,18 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                 <div className={`${styles.stepItem}`}>
                   <div className={`${styles.step} ${stepClass(idx)}`}>
                     <div className={styles.stepNumber}>
-                      {idx < paso
-                        ? <span className="material-icons" style={{ fontSize: 16 }}>check</span>
-                        : idx + 1
-                      }
+                      {idx < paso ? (
+                        <span className="material-icons" style={{ fontSize: 16 }}>
+                          check
+                        </span>
+                      ) : (
+                        idx + 1
+                      )}
                     </div>
                     <span className={styles.stepLabel}>{label}</span>
                   </div>
                 </div>
-                {idx < PASOS.length - 1 && (
-                  <div className={`${styles.stepConnector} ${connectorClass(idx)}`} />
-                )}
+                {idx < PASOS.length - 1 && <div className={`${styles.stepConnector} ${connectorClass(idx)}`} />}
               </React.Fragment>
             ))}
           </div>
@@ -322,9 +314,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                         <span className={styles.clienteSeleccionadoNombre}>
                           {clienteSeleccionado.nombre_cliente} {clienteSeleccionado.apellido_cliente}
                         </span>
-                        <span className={styles.clienteSeleccionadoEmail}>
-                          {clienteSeleccionado.correo}
-                        </span>
+                        <span className={styles.clienteSeleccionadoEmail}>{clienteSeleccionado.correo}</span>
                       </div>
                       <button
                         className={styles.clienteRemoveButton}
@@ -344,20 +334,22 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                           className={styles.searchInput}
                           placeholder="Buscar cliente por nombre o correo..."
                           value={busqCliente}
-                          onChange={e => handleBusqClienteChange(e.target.value)}
+                          onChange={(e) => handleBusqClienteChange(e.target.value)}
                           autoFocus
                         />
                       </div>
 
                       {/* Resultados */}
                       {buscandoCliente && (
-                        <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', padding: '4px 0' }}>
+                        <p
+                          style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', padding: '4px 0' }}
+                        >
                           Buscando...
                         </p>
                       )}
                       {clientesEncontrados.length > 0 && (
                         <div className={styles.clienteResults}>
-                          {clientesEncontrados.map(c => (
+                          {clientesEncontrados.map((c) => (
                             <div
                               key={c.id_cliente}
                               className={styles.clienteResultItem}
@@ -372,7 +364,13 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                         </div>
                       )}
                       {busqCliente && !buscandoCliente && clientesEncontrados.length === 0 && (
-                        <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', fontStyle: 'italic' }}>
+                        <p
+                          style={{
+                            color: 'var(--text-secondary)',
+                            fontSize: 'var(--font-size-sm)',
+                            fontStyle: 'italic',
+                          }}
+                        >
                           Sin resultados para "{busqCliente}"
                         </p>
                       )}
@@ -394,7 +392,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                   className={styles.searchInput}
                   placeholder="Buscar producto por nombre o código..."
                   value={busqProducto}
-                  onChange={e => handleBusqProductoChange(e.target.value)}
+                  onChange={(e) => handleBusqProductoChange(e.target.value)}
                   autoFocus
                 />
               </div>
@@ -407,7 +405,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
 
               {productosEncontrados.length > 0 && (
                 <div className={styles.productosResults}>
-                  {productosEncontrados.map(p => (
+                  {productosEncontrados.map((p) => (
                     <div
                       key={p.id_producto}
                       className={`${styles.productoResultItem} ${p.stock <= 0 ? '' : ''}`}
@@ -418,19 +416,26 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                         <div className={styles.productoResultMeta}>
                           <span>Cód: {p.codigo || '—'}</span>
                           <span>Precio: {formatUSD(p.precio_venta)}</span>
-                          <span className={p.stock <= 0 ? styles.productoResultSinStock : ''}>
-                            Stock: {p.stock}
-                          </span>
+                          <span className={p.stock <= 0 ? styles.productoResultSinStock : ''}>Stock: {p.stock}</span>
                         </div>
                       </div>
-                      <span className="material-icons" style={{ color: 'var(--color-primary)' }}>add_circle</span>
+                      <span className="material-icons" style={{ color: 'var(--color-primary)' }}>
+                        add_circle
+                      </span>
                     </div>
                   ))}
                 </div>
               )}
 
               {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', fontStyle: 'italic', marginBottom: 'var(--spacing-sm)' }}>
+                <p
+                  style={{
+                    color: 'var(--text-secondary)',
+                    fontSize: 'var(--font-size-sm)',
+                    fontStyle: 'italic',
+                    marginBottom: 'var(--spacing-sm)',
+                  }}
+                >
                   Sin resultados para "{busqProducto}"
                 </p>
               )}
@@ -442,9 +447,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                     <span className={styles.itemsAgregadosTitle}>Productos ({items.length})</span>
                   </div>
 
-                  {items.map(item => {
-                    const productoEncontrado = productosEncontrados.find(p => p.id_producto === item.id_producto);
-                    const maxStock = productoEncontrado?.stock ?? 50;
+                  {items.map((item) => {
                     return (
                       <div key={item.id_producto} className={styles.itemRow}>
                         <span className={styles.itemNombre}>{item.nombre}</span>
@@ -453,27 +456,25 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                         <div className={styles.itemCantidadControls}>
                           <button
                             className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, -1, maxStock)}
+                            onClick={() => cambiarCantidad(item.id_producto, -1)}
                             disabled={item.cantidad <= 1}
-                          >−</button>
+                          >
+                            −
+                          </button>
                           <span className={styles.cantidadValue}>{item.cantidad}</span>
                           <button
                             className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, 1, maxStock)}
-                            disabled={item.cantidad >= maxStock}
-                          >+</button>
+                            onClick={() => cambiarCantidad(item.id_producto, 1)}
+                            disabled={item.cantidad >= item.stock}
+                          >
+                            +
+                          </button>
                         </div>
 
-                        {/* Precio editable */}
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          className={`${styles.precioInput} ${item.es_precio_manual ? styles.precioInputManual : ''}`}
-                          value={item.precio_unitario}
-                          onChange={e => cambiarPrecio(item.id_producto, e.target.value)}
-                          title={item.es_precio_manual ? 'Precio personalizado' : 'Precio catálogo'}
-                        />
+                        {/* Precio fijo (solo lectura) */}
+                        <span className={styles.precioReadonly} title="Precio de catálogo">
+                          {formatUSD(item.precio_unitario)}
+                        </span>
 
                         <span className={styles.itemSubtotal}>{formatUSD(item.subtotal)}</span>
 
@@ -497,7 +498,15 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
               )}
 
               {items.length === 0 && !busqProducto && (
-                <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', fontStyle: 'italic', padding: 'var(--spacing-xl) 0' }}>
+                <p
+                  style={{
+                    textAlign: 'center',
+                    color: 'var(--text-secondary)',
+                    fontSize: 'var(--font-size-sm)',
+                    fontStyle: 'italic',
+                    padding: 'var(--spacing-xl) 0',
+                  }}
+                >
                   Busca un producto para agregarlo a la venta
                 </p>
               )}
@@ -509,12 +518,14 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
             <div className={styles.pagoForm}>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="metodo-pago">Método de pago *</label>
+                  <label className={styles.label} htmlFor="metodo-pago">
+                    Método de pago *
+                  </label>
                   <select
                     id="metodo-pago"
                     className={styles.select}
                     value={metodoPago}
-                    onChange={e => setMetodoPago(e.target.value as typeof metodoPago)}
+                    onChange={(e) => setMetodoPago(e.target.value as typeof metodoPago)}
                   >
                     <option value="efectivo">Efectivo</option>
                     <option value="tarjeta">Tarjeta</option>
@@ -523,12 +534,14 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="moneda">Moneda</label>
+                  <label className={styles.label} htmlFor="moneda">
+                    Moneda
+                  </label>
                   <select
                     id="moneda"
                     className={styles.select}
                     value={moneda}
-                    onChange={e => setMoneda(e.target.value as 'ARS' | 'USD')}
+                    onChange={(e) => setMoneda(e.target.value as 'ARS' | 'USD')}
                   >
                     <option value="ARS">Pesos (ARS)</option>
                     <option value="USD">Dólares (USD)</option>
@@ -540,9 +553,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                 <div className={styles.cotizacionAviso}>
                   <span className="material-icons">info</span>
                   Precios del catálogo en USD — cotización aplicada:&nbsp;
-                  <strong>
-                    1 USD = {tipoCambioUsd.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
-                  </strong>
+                  <strong>1 USD = {tipoCambioUsd.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS</strong>
                   <span className={styles.cotizacionAvisoSub}>
                     Total en ARS: <strong>{formatARSNum(totalVenta * tipoCambioUsd)}</strong>
                   </span>
@@ -550,13 +561,15 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
               )}
 
               <div className={styles.formGroup}>
-                <label className={styles.label} htmlFor="observaciones">Observaciones</label>
+                <label className={styles.label} htmlFor="observaciones">
+                  Observaciones
+                </label>
                 <textarea
                   id="observaciones"
                   className={styles.textarea}
                   placeholder="Notas adicionales sobre la venta (opcional)..."
                   value={observaciones}
-                  onChange={e => setObservaciones(e.target.value)}
+                  onChange={(e) => setObservaciones(e.target.value)}
                   maxLength={500}
                 />
               </div>
@@ -570,8 +583,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                       ? 'Mostrador (sin cliente)'
                       : clienteSeleccionado
                         ? `${clienteSeleccionado.nombre_cliente} ${clienteSeleccionado.apellido_cliente}`
-                        : '—'
-                    }
+                        : '—'}
                   </span>
                 </div>
                 <div className={styles.resumenRow}>
@@ -580,9 +592,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                 </div>
                 <div className={styles.resumenRow}>
                   <span className={styles.resumenLabel}>Método de pago</span>
-                  <span className={styles.resumenValue}>
-                    {ventaAdminService.formatearMetodoPago(metodoPago)}
-                  </span>
+                  <span className={styles.resumenValue}>{adminVentaService.formatearMetodoPago(metodoPago)}</span>
                 </div>
                 <div className={styles.resumenRow}>
                   <span className={styles.resumenLabel}>Moneda</span>
@@ -597,14 +607,13 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
               </div>
             </div>
           )}
-
         </div>
 
         {/* Pie */}
         <div className={`${styles.modalFooter} ${styles.modalFooterLeft}`}>
           {/* Izquierda: botón atrás o cancelar */}
           {paso > 0 ? (
-            <button className={styles.backButton} onClick={() => setPaso(p => p - 1)} disabled={enviando}>
+            <button className={styles.backButton} onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
               <span className="material-icons">arrow_back</span>
               Atrás
             </button>
@@ -616,26 +625,17 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
 
           {/* Derecha: siguiente o confirmar */}
           {paso < PASOS.length - 1 ? (
-            <button
-              className={styles.nextButton}
-              onClick={() => setPaso(p => p + 1)}
-              disabled={!puedeAvanzar()}
-            >
+            <button className={styles.nextButton} onClick={() => setPaso((p) => p + 1)} disabled={!puedeAvanzar()}>
               Siguiente
               <span className="material-icons">arrow_forward</span>
             </button>
           ) : (
-            <button
-              className={styles.submitButton}
-              onClick={handleConfirmar}
-              disabled={enviando}
-            >
+            <button className={styles.submitButton} onClick={handleConfirmar} disabled={enviando}>
               <span className="material-icons">check_circle</span>
               {enviando ? 'Registrando...' : 'Confirmar Venta'}
             </button>
           )}
         </div>
-
       </div>
     </div>
   );

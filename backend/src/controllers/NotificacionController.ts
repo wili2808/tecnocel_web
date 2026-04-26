@@ -11,7 +11,7 @@ import logger from '../services/loggerService.js';
  *
  * @class NotificacionController
  */
-export class NotificacionController {
+class NotificacionController {
   /**
    * Devuelve la cantidad de notificaciones no leídas del cliente autenticado.
    *
@@ -164,3 +164,5 @@ export class NotificacionController {
     }
   }
 }
+
+export default NotificacionController;

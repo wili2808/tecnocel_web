@@ -26,6 +26,8 @@ import { config } from './config/config.js';
 import logger from './services/loggerService.js';
 import { initializeImageService } from './services/imageService.js';
 import StaticImageMiddleware from './middleware/staticImageMiddleware.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './swagger.json' with { type: 'json' };
 import './models/index.js';
 
 // Configurar variables de entorno
@@ -166,6 +168,9 @@ app.get('/api/images-status', (req: Request, res: Response) => {
     storage: useCloudinary ? 'cloudinary' : 'filesystem'
   });
 });
+
+// Documentación Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Rutas de almacén
 app.use('/api/almacen', almacenRoutes);

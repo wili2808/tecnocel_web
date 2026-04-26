@@ -27,7 +27,6 @@ interface TabConfig {
 type SortDirReporte = 'asc' | 'desc';
 type VentasSortKey = 'periodo' | 'ventas' | 'ingresos_ars' | 'ticket_promedio';
 type ProductosSortKey = 'nombre' | 'categoria' | 'marca' | 'unidades' | 'ingreso' | 'precio' | 'stock';
-type ProductosStockSortKey = 'nombre' | 'stock_actual' | 'stock_minimo';
 type ClientesSortKey = 'nombre' | 'email' | 'compras' | 'monto' | 'ultima_compra';
 type CancelacionesSortKey = 'nro_venta' | 'fecha' | 'monto' | 'motivo' | 'cancelado_por';
 type VendedoresSortKey = 'nombre' | 'ventas' | 'ingresos_ars' | 'ticket_promedio' | 'porcentaje';
@@ -304,15 +303,6 @@ const Reportes: React.FC = memo(() => {
               icon="attach_money"
               label="Ingreso total"
               value={formatCurrency(productosData.resumen.ingreso_total_productos)}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="warning"
-              label="Stock bajo"
-              value={formatNumber(productosData.stock_bajo.length)}
-              detail="productos con alerta"
-              tone="warning"
               variant="flush"
               className={styles.kpiCard}
             />
@@ -820,11 +810,9 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
 // ============================================================================
 
 const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo(({ data }) => {
-  const { mas_vendidos, stock_bajo } = data;
+  const { mas_vendidos } = data;
   const [sortKeyVendidos, setSortKeyVendidos] = useState<ProductosSortKey>('unidades');
   const [sortDirVendidos, setSortDirVendidos] = useState<SortDirReporte>('desc');
-  const [sortKeyStock, setSortKeyStock] = useState<ProductosStockSortKey>('stock_actual');
-  const [sortDirStock, setSortDirStock] = useState<SortDirReporte>('asc');
 
   const handleSortVendidos = (key: ProductosSortKey) => {
     if (sortKeyVendidos === key) {
@@ -840,19 +828,6 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
     return sortDirVendidos === 'asc' ? 'arrow_upward' : 'arrow_downward';
   };
 
-  const handleSortStock = (key: ProductosStockSortKey) => {
-    if (sortKeyStock === key) {
-      setSortDirStock((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKeyStock(key);
-      setSortDirStock('asc');
-    }
-  };
-
-  const getSortIconStock = (key: ProductosStockSortKey) => {
-    if (sortKeyStock !== key) return 'unfold_more';
-    return sortDirStock === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
 
   const sortedVendidos = useMemo(() => {
     const sorted = [...mas_vendidos];
@@ -898,33 +873,6 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
     return sorted;
   }, [mas_vendidos, sortKeyVendidos, sortDirVendidos]);
 
-  const sortedStockBajo = useMemo(() => {
-    const sorted = [...stock_bajo];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKeyStock) {
-        case 'nombre':
-          valA = a.nombre.toLowerCase();
-          valB = b.nombre.toLowerCase();
-          break;
-        case 'stock_actual':
-          valA = a.stock;
-          valB = b.stock;
-          break;
-        case 'stock_minimo':
-          valA = a.stock_minimo;
-          valB = b.stock_minimo;
-          break;
-      }
-
-      if (valA < valB) return sortDirStock === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDirStock === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [stock_bajo, sortKeyStock, sortDirStock]);
 
   return (
     <>
@@ -1046,75 +994,6 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
         </table>
       </div>
 
-      {stock_bajo.length > 0 && (
-        <div className={styles.stockAlert}>
-          <h3 className={styles.stockAlertTitle}>
-            <span className="material-icons">warning</span>
-            Productos con stock bajo
-          </h3>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th className={styles.sortableHeader} onClick={() => handleSortStock('nombre')}>
-                    <span className={styles.sortableHeaderContent}>
-                      Producto
-                      <span
-                        className={`material-icons ${styles.sortIcon} ${sortKeyStock === 'nombre' ? styles.sortIconActive : ''}`}
-                      >
-                        {getSortIconStock('nombre')}
-                      </span>
-                    </span>
-                  </th>
-                  <th
-                    className={`${styles.sortableHeader} ${styles.textRight}`}
-                    onClick={() => handleSortStock('stock_actual')}
-                  >
-                    <span className={styles.sortableHeaderContent}>
-                      Stock Actual
-                      <span
-                        className={`material-icons ${styles.sortIcon} ${sortKeyStock === 'stock_actual' ? styles.sortIconActive : ''}`}
-                      >
-                        {getSortIconStock('stock_actual')}
-                      </span>
-                    </span>
-                  </th>
-                  <th
-                    className={`${styles.sortableHeader} ${styles.textRight}`}
-                    onClick={() => handleSortStock('stock_minimo')}
-                  >
-                    <span className={styles.sortableHeaderContent}>
-                      Stock Minimo
-                      <span
-                        className={`material-icons ${styles.sortIcon} ${sortKeyStock === 'stock_minimo' ? styles.sortIconActive : ''}`}
-                      >
-                        {getSortIconStock('stock_minimo')}
-                      </span>
-                    </span>
-                  </th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedStockBajo.map((prod) => (
-                  <tr key={prod.id_producto}>
-                    <td style={{ fontWeight: 'var(--font-weight-semibold)' }}>{prod.nombre}</td>
-                    <td className={`${styles.textRight} ${styles.monoCell}`}>{prod.stock}</td>
-                    <td className={`${styles.textRight} ${styles.monoCell}`}>{prod.stock_minimo}</td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${prod.stock === 0 ? styles.badgeDanger : styles.badgeWarning}`}
-                      >
-                        {prod.stock === 0 ? 'Sin stock' : 'Bajo'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </>
   );
 });

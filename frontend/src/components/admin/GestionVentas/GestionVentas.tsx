@@ -1,31 +1,17 @@
-/**
- * @file GestionVentas.tsx
- *
- * Sección "Gestión de Ventas" del panel de administración.
- *
- * Funcionalidades:
- * - Stats bar: ventas hoy, esta semana, este mes, ingresos del mes
- * - Filtros por fecha, estado, tipo_venta, metodo_pago y búsqueda libre
- * - Tabla sortable con paginación
- * - Modal de detalle de venta
- * - Modal wizard para registrar venta manual
- * - Cancelación rápida de venta (solo admin rol 1)
- */
-
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import styles from './GestionVentas.module.css';
 import DetalleVentaModal from './DetalleVentaModal';
 import RegistrarVentaModal from './RegistrarVentaModal';
 import CancelacionModal from './CancelacionModal';
 import GestionEnvios from './GestionEnvios';
 import GestionRetiros from './GestionRetiros';
+import adminVentaService from '../../../services/adminVentaService';
+import envioAdminService from '../../../services/envioAdminService';
+import usuarioService from '../../../services/usuarioService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useDebounce } from '../../../hooks/useDebounce';
-import { ventaAdminService } from '../../../services/ventaAdminService';
-import { envioAdminService } from '../../../services/envioAdminService';
-import { usuarioService } from '../../../services/usuarioService';
 import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
+import styles from './GestionVentas.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
 // ── Tipos internos ───────────────────────────────────────────────────────────
@@ -61,6 +47,8 @@ const GestionVentas: React.FC = () => {
   const puedeVer = tienePermiso('ver_ventas');
   const puedeVerEnvios = tienePermiso('ver_envios');
   const puedeGestionarEnvios = tienePermiso('gestionar_envios');
+  const puedeVerRetiros = tienePermiso('ver_retiros');
+  const puedeGestionarRetiros = tienePermiso('gestionar_retiros');
   const puedeCrear = tienePermiso('crear_venta');
   const puedeVerConfiguracion = tienePermiso('ver_configuracion');
   const puedeEditarConfiguracion = tienePermiso('editar_configuracion');
@@ -109,7 +97,7 @@ const GestionVentas: React.FC = () => {
   // ── Cargar tipo de cambio ──────────────────────────────────────────────────
   const cargarTipoCambio = useCallback(async () => {
     try {
-      const data = await ventaAdminService.getTipoCambio();
+      const data = await adminVentaService.getTipoCambio();
       setTipoCambio(data.valor);
       setTipoCambioFecha(data.fyh_actualizacion);
     } catch {
@@ -146,7 +134,7 @@ const GestionVentas: React.FC = () => {
     }
     setGuardandoCambio(true);
     try {
-      await ventaAdminService.updateTipoCambio(valor);
+      await adminVentaService.updateTipoCambio(valor);
       setTipoCambio(valor);
       setTipoCambioFecha(new Date().toISOString());
       setEditandoCambio(false);
@@ -162,7 +150,7 @@ const GestionVentas: React.FC = () => {
   const cargarStats = useCallback(async () => {
     setCargandoStats(true);
     try {
-      const data = await ventaAdminService.obtenerEstadisticas();
+      const data = await adminVentaService.obtenerEstadisticas();
       setStats(data);
     } catch {
       // no es crítico, se puede omitir
@@ -179,7 +167,7 @@ const GestionVentas: React.FC = () => {
       setCargando(true);
       setError(null);
       try {
-        const res = await ventaAdminService.listarVentas(f, LIMIT, off);
+        const res = await adminVentaService.listarVentas(f, LIMIT, off);
         setVentas(res.ventas);
         setTotal(res.total);
       } catch (err: any) {
@@ -209,16 +197,19 @@ const GestionVentas: React.FC = () => {
     cargarTipoCambio();
     cargarVendedores();
     if (puedeVerEnvios) {
-      cargarRetirosPendientes();
       cargarEnviosPendientes();
+    }
+    if (puedeVerRetiros) {
+      cargarRetirosPendientes();
     }
   }, [
     cargarStats,
     cargarTipoCambio,
+    cargarVendedores,
     cargarRetirosPendientes,
     cargarEnviosPendientes,
-    cargarVendedores,
     puedeVerEnvios,
+    puedeVerRetiros,
   ]);
 
   useEffect(() => {
@@ -419,21 +410,21 @@ const GestionVentas: React.FC = () => {
         <button
           className={`${styles.tab} ${activeTab === 'retiros' ? styles.tabActivo : ''}`}
           onClick={() => setActiveTab('retiros')}
-          disabled={!puedeVerEnvios}
-          title={!puedeVerEnvios ? 'Sin permisos para ver retiros' : undefined}
+          disabled={!puedeVerRetiros}
+          title={!puedeVerRetiros ? 'Sin permisos para ver retiros' : undefined}
         >
           <span className="material-icons">store</span>
           Retiro en tienda
-          {puedeVerEnvios && retirosPendientes > 0 && <span className={styles.tabBadge}>{retirosPendientes}</span>}
+          {puedeVerRetiros && retirosPendientes > 0 && <span className={styles.tabBadge}>{retirosPendientes}</span>}
         </button>
       </div>
 
-      {activeTab === 'envios' && (
+      {activeTab === 'envios' && puedeVerEnvios && (
         <GestionEnvios onPendientesChange={setEnviosPendientes} puedeGestionar={puedeGestionarEnvios} />
       )}
 
-      {activeTab === 'retiros' && (
-        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarEnvios} />
+      {activeTab === 'retiros' && puedeVerRetiros && (
+        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarRetiros} />
       )}
 
       {activeTab === 'ventas' && (
@@ -708,15 +699,15 @@ const GestionVentas: React.FC = () => {
                               </span>
                             </span>
                           </td>
-                          <td>{ventaAdminService.formatearMetodoPago(venta.metodo_pago)}</td>
+                          <td>{adminVentaService.formatearMetodoPago(venta.metodo_pago)}</td>
                           <td>
                             <span className={badgeTipo(venta.tipo_venta)}>
-                              {ventaAdminService.formatearTipoVenta(venta.tipo_venta)}
+                              {adminVentaService.formatearTipoVenta(venta.tipo_venta)}
                             </span>
                           </td>
                           <td>
                             <span className={badgeEstado(venta.estado)}>
-                              {ventaAdminService.formatearEstado(venta.estado)}
+                              {adminVentaService.formatearEstado(venta.estado)}
                             </span>
                           </td>
                           <td>

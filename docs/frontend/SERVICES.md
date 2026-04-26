@@ -21,13 +21,13 @@
   - [adminProductService](#adminproductservice) ⭐
   - [adminCommentService](#admincommentservice) ⭐
   - [adminOfertaService](#adminofertaservice) ⭐
-  - [ventaAdminService](#ventaadminservice) ⭐
+  - [adminVentaService](#adminVentaService) ⭐
   - [envioAdminService](#envioadminservice) ⭐
   - [notificacionService](#notificacionservice) ⭐
   - [reporteService](#reporteservice) ⭐
   - [usuarioService](#usuarioservice) ⭐
   - [UsuarioAdminService](#usuarioadminservice) ⭐
-  - [compraAdminService](#compraadminservice) ⭐
+  - [adminCompraService](#adminCompraService) ⭐
   - [proveedorAdminService](#proveedoradminservice) ⭐
 - [Patrones Comunes](#patrones-comunes)
 - [Manejo de Errores](#manejo-de-errores)
@@ -553,9 +553,9 @@ const {
 } = adminOfertaService;
 ```
 
-#### ventaAdminService
+#### adminVentaService
 
-**Ubicación**: `frontend/src/services/ventaAdminService.ts`
+**Ubicación**: `frontend/src/services/adminVentaService.ts`
 
 **Descripción**: Gestión de ventas, estados y cancelaciones desde admin.
 
@@ -566,7 +566,7 @@ const {
   obtenerDetalleVenta: (id: number) => Promise<VentaAdminDetalle>,
   cancelarVenta: (id: number, motivo: string) => Promise<void>,
   registrarVentaManual: (data: RegistrarVentaManualBody) => Promise<Venta>,
-} = ventaAdminService;
+} = adminVentaService;
 ```
 
 #### envioAdminService ⭐
@@ -651,9 +651,9 @@ const {
 } = UsuarioAdminService;
 ```
 
-#### compraAdminService ⭐
+#### adminCompraService ⭐
 
-**Ubicación**: `frontend/src/services/compraAdminService.ts`
+**Ubicación**: `frontend/src/services/adminCompraService.ts`
 
 **Descripción**: CRUD de compras a proveedores, búsqueda inteligente, anulación con transacciones de stock y estadísticas.
 
@@ -665,7 +665,7 @@ const {
   registrarCompra: (data: RegistrarCompraData) => Promise<CompraListItem>,
   anularCompra: (id: number, motivo?: string) => Promise<void>,
   obtenerEstadisticas: () => Promise<EstadisticasCompras>,
-} = compraAdminService;
+} = adminCompraService;
 ```
 
 #### proveedorAdminService ⭐

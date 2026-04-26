@@ -25,7 +25,7 @@ import type { UsuarioSession } from '../types/express.js';
  *
  * @class CompraController
  */
-export class CompraController {
+class CompraController {
   /**
    * Obtiene estadísticas de compras (hoy, semana, mes, gasto total del mes)
    * GET /api/compras/admin/estadisticas
@@ -605,3 +605,5 @@ export class CompraController {
     }
   }
 }
+
+export default CompraController;

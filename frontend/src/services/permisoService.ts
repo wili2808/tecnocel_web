@@ -1,19 +1,7 @@
-/**
- * @file Servicio de gestión de PERMISOS
- *
- * Maneja la obtención y modificación de permisos por rol
- * Solo accesible para administradores
- */
-
-import type {
-  PermisosPorModulo,
-  PermisosPorRolResponse,
-  RolesConPermisos,
-  SyncPermisosRequest
-} from '../types/permiso';
 import adminApi from '../api/axiosAdminConfig';
+import type { PermisosPorModulo, PermisosPorRolResponse, RolesConPermisos, SyncPermisosRequest } from '../types/permiso';
 
-export const permisoService = {
+const permisoService = {
 
   async getAll(): Promise<PermisosPorModulo> {
     try {
@@ -64,3 +52,5 @@ export const permisoService = {
     }
   }
 };
+
+export default permisoService;

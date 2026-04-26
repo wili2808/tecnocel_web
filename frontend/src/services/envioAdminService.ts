@@ -1,12 +1,7 @@
 import adminApi from '../api/axiosAdminConfig';
-import type {
-  ListarEnviosResponse,
-  EnvioAdminDetalle,
-  FiltrosEnviosAdmin,
-  ActualizarEstadoEnvioBody,
-} from '../types/envio';
+import type { ListarEnviosResponse, EnvioAdminDetalle, FiltrosEnviosAdmin, ActualizarEstadoEnvioBody } from '../types/envio';
 
-export const envioAdminService = {
+const envioAdminService = {
   listarEnvios: async (filtros: FiltrosEnviosAdmin = {}): Promise<ListarEnviosResponse> => {
     const { data } = await adminApi.get('/envios/admin', { params: filtros });
     return data;
@@ -28,3 +23,5 @@ export const envioAdminService = {
     await adminApi.patch(`/envios/admin/${id}/estado`, body);
   },
 };
+
+export default envioAdminService;

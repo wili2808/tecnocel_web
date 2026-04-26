@@ -1,10 +1,10 @@
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Cliente from '../models/Cliente.js';
+import logger from '../services/loggerService.js';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
-import Cliente from '../models/Cliente.js';
-import { Request, Response } from 'express';
-import logger from '../services/loggerService.js';
 import { sendVerificationEmail, sendResetPasswordEmail, sendWelcomeEmail } from '../services/emailService.js';
 import {
   ClienteResponse,
@@ -53,8 +53,8 @@ const BCRYPT_SALT_ROUNDS = 12; // Estándar 2025/2026 para seguridad óptima
  *
  * @class ClienteController
  */
-export default class ClienteController {
-  
+class ClienteController {
+
   /**
    * Genera un token JWT para autenticación de cliente
    *
@@ -1004,3 +1004,5 @@ export default class ClienteController {
     }
   }
 }
+
+export default ClienteController;

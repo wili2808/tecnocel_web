@@ -41,7 +41,7 @@ export interface EstadisticasFavoritosResponse {
  * Servicio para manejar todas las operaciones relacionadas con favoritos
  * Incluye gestión de favoritos, verificación de estado y estadísticas
  */
-export const favoritoService = {
+const favoritoService = {
   /**
    * Obtiene la lista de productos favoritos de un cliente específico
    * @param idCliente - ID del cliente cuyos favoritos se quieren obtener
@@ -151,3 +151,5 @@ export const favoritoService = {
     }
   }
 };
+
+export default favoritoService;

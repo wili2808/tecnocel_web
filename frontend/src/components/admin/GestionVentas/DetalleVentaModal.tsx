@@ -13,7 +13,7 @@ import styles from './GestionVentas.module.css';
 import CancelacionModal from './CancelacionModal';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { ventaAdminService } from '../../../services/ventaAdminService';
+import adminVentaService from '../../../services/adminVentaService';
 import type { VentaDetalle } from '../../../types/venta';
 
 interface DetalleVentaModalProps {
@@ -44,7 +44,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
     const cargar = async () => {
       setCargando(true);
       try {
-        const data = await ventaAdminService.obtenerDetalle(idVenta);
+        const data = await adminVentaService.obtenerDetalle(idVenta);
         if (activo) setDetalle(data);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Error al cargar el detalle';
@@ -80,7 +80,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
     }
     setDescargando(true);
     try {
-      await ventaAdminService.descargarComprobante(detalle.id_venta, detalle.nro_venta);
+      await adminVentaService.descargarComprobante(detalle.id_venta, detalle.nro_venta);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al descargar el comprobante';
       showNotification(message, 'error');
@@ -97,7 +97,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
     }
     setEnviando(true);
     try {
-      const result = await ventaAdminService.enviarComprobante(detalle.id_venta);
+      const result = await adminVentaService.enviarComprobante(detalle.id_venta);
       showNotification(result.mensaje, 'success');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al enviar el comprobante';
@@ -154,10 +154,10 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
               {detalle && (
                 <span className={styles.modalHeaderBadges}>
                   <span className={`${styles.badge} ${getBadgeTipo(detalle.tipo_venta)}`}>
-                    {ventaAdminService.formatearTipoVenta(detalle.tipo_venta)}
+                    {adminVentaService.formatearTipoVenta(detalle.tipo_venta)}
                   </span>
                   <span className={`${styles.badge} ${getBadgeEstado(detalle.estado)}`}>
-                    {ventaAdminService.formatearEstado(detalle.estado)}
+                    {adminVentaService.formatearEstado(detalle.estado)}
                   </span>
                 </span>
               )}
@@ -219,7 +219,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                     <div className={styles.detalleRow}>
                       <span className={styles.detalleRowLabel}>Método pago</span>
                       <span className={styles.detalleRowValue}>
-                        {ventaAdminService.formatearMetodoPago(detalle.metodo_pago)}
+                        {adminVentaService.formatearMetodoPago(detalle.metodo_pago)}
                       </span>
                     </div>
                     <div className={styles.detalleRow}>
@@ -329,11 +329,17 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
           {/* Pie */}
           <div className={`${styles.modalFooter} ${puedeCancelar ? styles.modalFooterLeft : ''}`}>
-            <button 
-              className={styles.dangerButton} 
+            <button
+              className={styles.dangerButton}
               onClick={() => setMostrarCancelacionModal(true)}
               disabled={!puedeCancelar || detalle?.estado === 'cancelada'}
-              title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : detalle?.estado === 'cancelada' ? 'La venta ya está cancelada' : 'Cancelar venta'}
+              title={
+                !puedeCancelar
+                  ? 'Sin permisos para cancelar ventas'
+                  : detalle?.estado === 'cancelada'
+                    ? 'La venta ya está cancelada'
+                    : 'Cancelar venta'
+              }
             >
               <span className="material-icons">cancel</span>
               Cancelar Venta
@@ -345,11 +351,15 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                     className={styles.comprobanteButton}
                     onClick={handleDescargar}
                     disabled={descargando || detalle.estado === 'cancelada' || !puedeDescargarPdf}
-                    title={!puedeDescargarPdf ? 'Sin permisos para descargar PDF' : detalle.estado === 'cancelada' ? 'No se puede descargar PDF de una venta cancelada' : 'Descargar comprobante en PDF'}
+                    title={
+                      !puedeDescargarPdf
+                        ? 'Sin permisos para descargar PDF'
+                        : detalle.estado === 'cancelada'
+                          ? 'No se puede descargar PDF de una venta cancelada'
+                          : 'Descargar comprobante en PDF'
+                    }
                   >
-                    <span className="material-icons">
-                      {descargando ? 'hourglass_empty' : 'download'}
-                    </span>
+                    <span className="material-icons">{descargando ? 'hourglass_empty' : 'download'}</span>
                     {descargando ? 'Descargando...' : 'Descargar PDF'}
                   </button>
                   {detalle.cliente?.correo && (
@@ -357,11 +367,15 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                       className={styles.comprobanteButton}
                       onClick={handleEnviarEmail}
                       disabled={enviando || detalle.estado === 'cancelada' || !puedeEnviarEmail}
-                      title={!puedeEnviarEmail ? 'Sin permisos para enviar email' : detalle.estado === 'cancelada' ? 'No se puede enviar email de una venta cancelada' : `Enviar comprobante a ${detalle.cliente.correo}`}
+                      title={
+                        !puedeEnviarEmail
+                          ? 'Sin permisos para enviar email'
+                          : detalle.estado === 'cancelada'
+                            ? 'No se puede enviar email de una venta cancelada'
+                            : `Enviar comprobante a ${detalle.cliente.correo}`
+                      }
                     >
-                      <span className="material-icons">
-                        {enviando ? 'hourglass_empty' : 'email'}
-                      </span>
+                      <span className="material-icons">{enviando ? 'hourglass_empty' : 'email'}</span>
                       {enviando ? 'Enviando...' : 'Enviar email'}
                     </button>
                   )}

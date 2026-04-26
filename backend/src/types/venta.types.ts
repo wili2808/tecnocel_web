@@ -104,7 +104,6 @@ export interface VentaItemValidado {
 export interface RegistrarVentaItem {
   id_producto: number;
   cantidad: number;
-  precio_unitario_manual?: number | string;
 }
 
 export interface RegistrarVentaManualBody {

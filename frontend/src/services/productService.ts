@@ -3,6 +3,7 @@ import type { Product, ProductFilters, ProductoImagen } from '../types';
 
 /**
  * Opciones para obtener productos con paginación y filtros
+ * Si no se especifica page ni limit, se obtienen todos los productos sin paginar
  */
 interface GetProductsOptions {
   page?: number;
@@ -11,28 +12,59 @@ interface GetProductsOptions {
 }
 
 /**
+ * Respuesta del backend al obtener productos
+ * Puede ser paginada o completa según si se enviaron parámetros de paginación
+ */
+interface GetProductsResult {
+  productos: Product[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+/**
  * Servicio para manejar todas las operaciones relacionadas con productos
  * Incluye gestión de productos, categorías, marcas e imágenes
  */
 const productService = {
   /**
-   * Obtiene una lista paginada de productos con filtros opcionales
+   * Obtiene productos con filtros opcionales y paginación opcional
+   *
+   * - Con page/limit: devuelve productos paginados { items, pagination }
+   * - Sin page/limit: devuelve todos los productos (para filtrado del lado del cliente)
+   *
    * @param options - Opciones de paginación y filtros
-   * @param options.page - Número de página (por defecto: 1)
-   * @param options.limit - Límite de productos por página (por defecto: 12)
-   * @param options.filters - Filtros de búsqueda opcionales
-   * @returns Promise con array de productos
+   * @returns Promise con productos y paginación opcional
    */
-  getProducts: async ({ page = 1, limit = 12, filters }: GetProductsOptions = {}): Promise<Product[]> => {
+  getProducts: async (options: GetProductsOptions = {}): Promise<GetProductsResult> => {
     try {
-      const response = await axiosInstance.get('/almacen/productos', {
-        params: {
-          page,
-          limit,
-          ...filters
-        }
-      });
-      return response.data;
+      const { page, limit, filters } = options;
+      const hasPagination = page !== undefined || limit !== undefined;
+
+      const params: Record<string, any> = { ...filters };
+      if (page !== undefined) params.page = page;
+      if (limit !== undefined) params.limit = limit;
+
+      const response = await axiosInstance.get('/almacen/productos', { params });
+      const responseData = response.data;
+
+      // Sin paginación: backend devuelve { success, data: [...] }
+      // Con paginación: backend devuelve { success, data: { items, pagination } }
+      if (hasPagination && responseData.data?.items) {
+        return {
+          productos: responseData.data.items,
+          pagination: responseData.data.pagination
+        };
+      }
+
+      // Sin paginación: data es un array directo
+      return {
+        productos: Array.isArray(responseData.data) ? responseData.data : responseData.data?.items || [],
+        pagination: responseData.data?.pagination
+      };
     } catch (error) {
       console.error('Error fetching products:', error);
       throw error;
@@ -48,7 +80,8 @@ const productService = {
   getProductById: async (id: number, signal?: AbortSignal): Promise<Product> => {
     try {
       const response = await axiosInstance.get(`/almacen/productos/${id}`, { signal });
-      return response.data;
+      // getProductById devuelve { success, data: {...} }
+      return response.data.data || response.data;
     } catch (error) {
       // No loguear errores de cancelación (AbortError)
       if (error instanceof Error && error.name === 'AbortError') {
@@ -70,7 +103,8 @@ const productService = {
       const response = await axiosInstance.get('/almacen/productos/destacados', {
         params: { limit }
       });
-      return response.data;
+      // getFeaturedProducts devuelve { success, data: [...] }
+      return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching featured products:', error);
       throw error;
@@ -84,7 +118,8 @@ const productService = {
   getCategorias: async () => {
     try {
       const response = await axiosInstance.get('/almacen/categorias');
-      return response.data;
+      // getAllCategories devuelve { success, data: [...] }
+      return response.data.data || response.data;
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;

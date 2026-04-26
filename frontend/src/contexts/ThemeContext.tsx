@@ -1,14 +1,6 @@
-/**
- * Contexto de Tema - Maneja el estado global del tema de la aplicación
- * Proporciona funcionalidades para alternar entre tema claro y oscuro
- * Incluye persistencia en localStorage y sincronización con preferencias del sistema
- * Utiliza useEffect para sincronizar cambios de tema con el DOM y meta tags
- */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-// ============================================================================
-// TIPOS Y CONFIGURACIÓN
-// ============================================================================
+// --- TIPOS Y CONFIGURACIÓN ---
 
 /**
  * Tipos de temas disponibles en la aplicación
@@ -16,9 +8,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
  */
 export type Theme = 'light' | 'dark';
 
-// ============================================================================
-// INTERFACES
-// ============================================================================
+// --- INTERFACES ---
 
 /**
  * Métodos y propiedades del contexto de tema
@@ -40,12 +30,11 @@ interface ThemeProviderProps {
   defaultTheme?: Theme;
 }
 
-// ============================================================================
-// CREACIÓN DEL CONTEXTO
-// ============================================================================
+// --- CREACIÓN DEL CONTEXTO ---
 
-// Creación del contexto de tema
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+// --- HOOK PERSONALIZADO ---
 
 /**
  * Hook personalizado para acceder al contexto de tema
@@ -60,9 +49,7 @@ export const useTheme = () => {
   return context;
 };
 
-// ============================================================================
-// PROVIDER PRINCIPAL
-// ============================================================================
+// --- PROVIDER PRINCIPAL ---
 
 /**
  * Proveedor del contexto de tema que maneja el estado y las operaciones

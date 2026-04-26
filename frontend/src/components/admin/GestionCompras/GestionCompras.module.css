@@ -96,7 +96,16 @@
   color: white;
   border-radius: 10px;
   font-weight: 700;
-  margin-left: 4px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+}
+
+.tabContent {
+  animation: fadeIn var(--transition-normal) var(--transition-curve);
 }
 
 /* ============================================================================
@@ -125,11 +134,6 @@
 
 .statCard:last-child {
   border-right: none;
-}
-
-.statCard:hover {
-  background: var(--background-hover);
-  transform: none;
 }
 
 .statLabel {

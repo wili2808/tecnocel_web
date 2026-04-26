@@ -1,27 +1,7 @@
-/**
- * @file Controlador de administración de ventas
- *
- * Proporciona endpoints de gestión de ventas para el panel de administración:
- * - Estadísticas de ventas (hoy, semana, mes, ingresos)
- * - Listar todas las ventas con filtros avanzados y paginación
- * - Obtener detalle completo de cualquier venta (sin restricción de cliente)
- * - Registrar ventas manuales (vendedor crea venta directamente)
- * - Cancelar ventas con restauración automática de stock
- *
- * Los items de venta se leen/crean en tb_venta_items (query único sin bifurcación
- * por tipo_venta, funciona igual para ventas web y manuales).
- *
- * Requiere autenticación de usuario del sistema (verificarToken) y autorización
- * por rol (verificarRol). Solo admin (rol 1) puede cancelar ventas.
- *
- * @module AdminVentaController
- */
-
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
-import type { RegistrarVentaManualBody, CancelarVentaBody, ActualizarTipoCambioBody } from '../types/venta.types.js';
 import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Cancelacion from '../models/Cancelacion.js';
@@ -32,10 +12,11 @@ import Cliente from '../models/Cliente.js';
 import Usuario from '../models/Usuario.js';
 import Configuracion from '../models/Configuracion.js';
 import logger from '../services/loggerService.js';
+import notificationService from '../services/notificationService.js';
 import { sendCancellationEmail, sendOrderStatusEmail, sendComprobanteEmail } from '../services/emailService.js';
 import { generarComprobantePDF } from '../services/comprobanteService.js';
+import type { RegistrarVentaManualBody, CancelarVentaBody, ActualizarTipoCambioBody } from '../types/venta.types.js';
 import type { DetalleParaComprobante } from '../services/comprobanteService.js';
-import notificationService from '../services/notificationService.js';
 
 /** Type guard para verificar que el usuario es del sistema (tiene idRol) */
 function esUsuarioSistema(usuario: unknown): usuario is { id: number; idRol: number } {
@@ -47,7 +28,7 @@ function esUsuarioSistema(usuario: unknown): usuario is { id: number; idRol: num
   );
 }
 
-export default class AdminVentaController {
+class AdminVentaController {
 
   /**
    * Obtiene estadísticas rápidas de ventas para el dashboard
@@ -388,10 +369,8 @@ export default class AdminVentaController {
           });
         }
 
-        // Usar precio manual si lo proveyó el vendedor, sino precio del catálogo
-        const precio_unitario = (item.precio_unitario_manual != null)
-          ? parseFloat(String(item.precio_unitario_manual))
-          : parseFloat(producto.precio_venta);
+        // Usar siempre el precio del catálogo — el vendedor no puede modificarlo
+        const precio_unitario = parseFloat(producto.precio_venta);
 
         itemsValidados.push({
           id_producto:    item.id_producto,
@@ -419,6 +398,15 @@ export default class AdminVentaController {
             .then(c => c ? parseFloat(c.valor) : null);
 
       // 6. Crear Venta
+      // Los precios del catálogo están en USD. total_pagado debe almacenarse
+      // en la moneda de la venta:
+      //   - moneda = 'USD' → se guarda el total en USD directamente
+      //   - moneda = 'ARS' → se convierte a ARS multiplicando por valorDolarFinal
+      const totalEnMoneda =
+        moneda === 'ARS' && valorDolarFinal
+          ? Math.round(total * valorDolarFinal)
+          : Math.round(total);
+
       const venta = await Venta.create({
         nro_venta:        nroVenta,
         id_cliente:       id_cliente || null,
@@ -427,7 +415,7 @@ export default class AdminVentaController {
         estado:           'completada',
         metodo_pago,
         id_vendedor,
-        total_pagado:     Math.round(total), // INTEGER en BD
+        total_pagado:     totalEnMoneda,
         observaciones:    observaciones || null,
         moneda,
         valor_dolar:      valorDolarFinal,
@@ -465,7 +453,8 @@ export default class AdminVentaController {
         nro_venta:    nroVenta,
         id_vendedor,
         id_cliente:   id_cliente || null,
-        total,
+        total:        totalEnMoneda,
+        moneda,
         items_count:  itemsValidados.length
       });
 
@@ -474,7 +463,8 @@ export default class AdminVentaController {
         venta: {
           id_venta:     venta.id_venta,
           nro_venta:    `V-${nroVenta.toString().padStart(5, '0')}`,
-          total_pagado: total,
+          total_pagado: totalEnMoneda,
+          moneda,
           metodo_pago,
           tipo_venta:   'manual',
           estado:       'completada',
@@ -972,3 +962,4 @@ export default class AdminVentaController {
   }
 }
 
+export default AdminVentaController;

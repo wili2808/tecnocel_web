@@ -42,7 +42,7 @@ export interface CreateDireccionData {
  * Servicio para manejar todas las operaciones relacionadas con direcciones
  * Incluye CRUD de direcciones, gestión de direcciones predeterminadas y facturación
  */
-export const direccionService = {
+const direccionService = {
   /**
    * Obtiene todas las direcciones asociadas a un cliente específico
    * @param idCliente - ID del cliente cuyas direcciones se quieren obtener
@@ -161,3 +161,5 @@ export const direccionService = {
     }
   }
 };
+
+export default direccionService;

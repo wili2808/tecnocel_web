@@ -96,9 +96,8 @@ export interface ItemVentaManual {
   id_producto: number;
   nombre: string;
   cantidad: number;
-  precio_unitario: number;     // precio efectivo (manual o del catálogo)
-  precio_catalogo: number;     // precio original del catálogo
-  es_precio_manual: boolean;   // true si el vendedor modificó el precio
+  stock: number;           // stock disponible al momento de agregar (límite de cantidad)
+  precio_unitario: number; // precio del catálogo (readonly)
   subtotal: number;
 }
 
@@ -110,7 +109,6 @@ export interface RegistrarVentaManualData {
   items: {
     id_producto: number;
     cantidad: number;
-    precio_unitario_manual?: number | null;
   }[];
   metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr';
   observaciones?: string;

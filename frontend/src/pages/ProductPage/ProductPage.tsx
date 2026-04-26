@@ -60,7 +60,7 @@ const ProductPage: React.FC = () => {
 
     useEffect(() => {
         return () => {
-            if (process.env.NODE_ENV === 'development') {
+            if (import.meta.env.DEV) {
                 console.log('🧹 ProductPage desmontado');
             }
         };
@@ -69,7 +69,7 @@ const ProductPage: React.FC = () => {
     useEffect(() => {
         if (product) {
             setIsOutOfStock(product.stock === 0);
-            if (process.env.NODE_ENV === 'development') {
+            if (import.meta.env.DEV) {
                 console.log('🛍️ ProductPage - Producto:', {
                     nombre: product.nombre,
                     en_oferta: product.en_oferta,

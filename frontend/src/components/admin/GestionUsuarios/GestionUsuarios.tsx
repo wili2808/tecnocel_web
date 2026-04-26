@@ -1,19 +1,11 @@
-/**
- * Componente GestionUsuarios - Lista y gestión de usuarios del sistema
- * Permite ver, crear y eliminar usuarios (admin/empleado)
- * Incluye formulario integrado de creación de usuario
- */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { usuarioService } from '../../../services/usuarioService';
-import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
-import styles from './GestionUsuarios.module.css';
 import { ROLES } from '../../../constants/roles';
-import {
-  AdminEmptyState,
-  AdminSectionActions,
-} from '../common';
+import { AdminEmptyState, AdminSectionActions } from '../common';
+import usuarioService from '../../../services/usuarioService';
+import styles from './GestionUsuarios.module.css';
+import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
 
 type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha' | 'ultimo_login';
 type SortDir = 'asc' | 'desc';
@@ -347,424 +339,432 @@ const GestionUsuarios = () => {
 
   return (
     <>
-    <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={(
-          <button
-            className={styles.crearButton}
-            onClick={() => setShowCrearForm(true)}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
-          >
-            <span className="material-icons">person_add</span>
-            <span>Crear Usuario</span>
-          </button>
-        )}
-      />
+      <div className={styles.container}>
+        <AdminSectionActions
+          lead={null}
+          actions={
+            <button
+              className={styles.crearButton}
+              onClick={() => setShowCrearForm(true)}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
+            >
+              <span className="material-icons">person_add</span>
+              <span>Crear Usuario</span>
+            </button>
+          }
+        />
 
-
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSort('id_usuario')}>
-                <span className={styles.sortableHeaderContent}>
-                  ID
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'id_usuario' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('id_usuario')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('nombres')}>
-                <span className={styles.sortableHeaderContent}>
-                  Nombre
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'nombres' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('nombres')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
-                <span className={styles.sortableHeaderContent}>
-                  Email
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('email')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('rol')}>
-                <span className={styles.sortableHeaderContent}>
-                  Rol
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'rol' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('rol')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
-                <span className={styles.sortableHeaderContent}>
-                  Fecha de Creación
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('fecha')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('ultimo_login')}>
-                <span className={styles.sortableHeaderContent}>
-                  Último Login
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ultimo_login' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ultimo_login')}
-                  </span>
-                </span>
-              </th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedUsuarios.length === 0 ? (
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td colSpan={7} className={styles.emptyMessage}>
-                  No hay usuarios registrados
-                </td>
-              </tr>
-            ) : (
-              sortedUsuarios.map((usuario) => (
-                <tr key={usuario.id_usuario}>
-                  <td>{usuario.id_usuario}</td>
-                  <td>{usuario.nombres}</td>
-                  <td>{usuario.email}</td>
-                  <td>
+                <th className={styles.sortableHeader} onClick={() => handleSort('id_usuario')}>
+                  <span className={styles.sortableHeaderContent}>
+                    ID
                     <span
-                      className={`${styles.badge} ${
-                        usuario.id_rol === ROLES.ADMIN
-                          ? styles.badgeAdmin
-                          : usuario.id_rol === ROLES.VENDEDOR
-                            ? styles.badgeVendedor
-                            : styles.badgeGerente
-                      }`}
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'id_usuario' ? styles.sortIconActive : ''}`}
                     >
-                      {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
+                      {getSortIcon('id_usuario')}
                     </span>
-                  </td>
-                  <td>{usuario.fyh_creacion ? new Date(usuario.fyh_creacion).toLocaleDateString('es-AR') : '-'}</td>
-                  <td>
-                    {usuario.fyh_ultimo_login
-                      ? new Date(usuario.fyh_ultimo_login).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
-                      : <span style={{ color: 'var(--color-text-muted)' }}>Nunca</span>}
-                  </td>
-                  <td>
-                    <div className={styles.actions}>
-                      <button
-                        className={styles.actionButton}
-                        title={!puedeEditar ? 'Sin permisos para editar usuarios' : 'Editar usuario'}
-                        onClick={() => handleEditarClick(usuario)}
-                        disabled={!puedeEditar}
-                      >
-                        <span className="material-icons">edit</span>
-                      </button>
-                      <button
-                        className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                        title={!puedeEliminar ? 'Sin permisos para eliminar usuarios' : 'Eliminar'}
-                        onClick={() => handleEliminar(usuario.id_usuario)}
-                        disabled={!puedeEliminar}
-                      >
-                        <span className="material-icons">delete</span>
-                      </button>
-                    </div>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('nombres')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Nombre
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombres' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('nombres')}
+                    </span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Email
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('email')}
+                    </span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('rol')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Rol
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'rol' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('rol')}
+                    </span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Fecha de Creación
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('fecha')}
+                    </span>
+                  </span>
+                </th>
+                <th className={styles.sortableHeader} onClick={() => handleSort('ultimo_login')}>
+                  <span className={styles.sortableHeaderContent}>
+                    Último Login
+                    <span
+                      className={`material-icons ${styles.sortIcon} ${sortKey === 'ultimo_login' ? styles.sortIconActive : ''}`}
+                    >
+                      {getSortIcon('ultimo_login')}
+                    </span>
+                  </span>
+                </th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedUsuarios.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className={styles.emptyMessage}>
+                    No hay usuarios registrados
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    {showCrearForm && (
-      <div className={styles.modalOverlay} onClick={handleCancelarCrear}>
-        <div className={styles.modal} onClick={e => e.stopPropagation()}>
-          <div className={styles.modalHeader}>
-            <h3 className={styles.modalTitle}>
-              <span className="material-icons">person_add</span>
-              Crear Nuevo Usuario
-            </h3>
-            <button className={styles.closeButton} onClick={handleCancelarCrear} disabled={creando}>
-              <span className="material-icons">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleCrearUsuario}>
-            <div className={styles.modalBody}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="nombres" className={styles.label}>
-                    Nombre Completo *
-                  </label>
-                  <input
-                    type="text"
-                    id="nombres"
-                    name="nombres"
-                    value={formData.nombres}
-                    onChange={handleFormChange}
-                    className={styles.input}
-                    placeholder="Ej: Juan Pérez"
-                    disabled={creando}
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="email" className={styles.label}>
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleFormChange}
-                    className={styles.input}
-                    placeholder="Ej: juan@tecnocel.com"
-                    disabled={creando}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="id_rol" className={styles.label}>
-                    Rol *
-                  </label>
-                  <select
-                    id="id_rol"
-                    name="id_rol"
-                    value={formData.id_rol}
-                    onChange={handleFormChange}
-                    className={styles.select}
-                    disabled={creando}
-                    required
-                  >
-                    <option value={0} disabled>
-                      Seleccionar rol...
-                    </option>
-                    {roles.map((rol) => (
-                      <option key={rol.id_rol} value={rol.id_rol}>
-                        {rol.rol}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="password" className={styles.label}>
-                    Contraseña *
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleFormChange}
-                    className={styles.input}
-                    placeholder="Mínimo 6 caracteres"
-                    disabled={creando}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="confirmPassword" className={styles.label}>
-                  Confirmar Contraseña *
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleFormChange}
-                  className={styles.input}
-                  placeholder="Repite la contraseña"
-                  disabled={creando}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button type="button" onClick={handleCancelarCrear} className={styles.cancelButton} disabled={creando}>
-                Cancelar
-              </button>
-              <button type="submit" disabled={creando} className={styles.submitButton}>
-                {creando ? (
-                  <>
-                    <span className="material-icons">hourglass_empty</span>
-                    Creando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-icons">person_add</span>
-                    Crear Usuario
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    )}
-
-    {editandoUsuario && (
-      <div className={styles.modalOverlay} onClick={handleCancelarEditar}>
-        <div className={styles.modal} onClick={e => e.stopPropagation()}>
-          <div className={styles.modalHeader}>
-            <h3 className={styles.modalTitle}>
-              <span className="material-icons">edit</span>
-              Editar Usuario
-            </h3>
-            <button className={styles.closeButton} onClick={handleCancelarEditar} disabled={editando}>
-              <span className="material-icons">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleEditarUsuario}>
-            <div className={styles.modalBody}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="edit_nombres" className={styles.label}>
-                    Nombre Completo *
-                  </label>
-                  <input
-                    type="text"
-                    id="edit_nombres"
-                    name="nombres"
-                    value={editFormData.nombres}
-                    onChange={handleEditFormChange}
-                    className={styles.input}
-                    placeholder="Ej: Juan Pérez"
-                    disabled={editando}
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="edit_email" className={styles.label}>
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    id="edit_email"
-                    name="email"
-                    value={editFormData.email}
-                    onChange={handleEditFormChange}
-                    className={styles.input}
-                    placeholder="Ej: juan@tecnocel.com"
-                    disabled={editando}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="edit_id_rol" className={styles.label}>
-                    Rol *
-                  </label>
-                  <select
-                    id="edit_id_rol"
-                    name="id_rol"
-                    value={editFormData.id_rol}
-                    onChange={handleEditFormChange}
-                    className={styles.select}
-                    disabled={editando}
-                    required
-                  >
-                    <option value={0} disabled>
-                      Seleccionar rol...
-                    </option>
-                    {roles.map((rol) => (
-                      <option key={rol.id_rol} value={rol.id_rol}>
-                        {rol.rol}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="edit_password" className={styles.label}>
-                    Nueva Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="edit_password"
-                    name="password"
-                    value={editFormData.password}
-                    onChange={handleEditFormChange}
-                    className={styles.input}
-                    placeholder="Dejar vacío para no cambiar"
-                    disabled={editando}
-                    autoComplete="new-password"
-                  />
-                </div>
-              </div>
-
-              {editFormData.password && (
-                <div className={styles.formGroup}>
-                  <label htmlFor="edit_confirmPassword" className={styles.label}>
-                    Confirmar Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="edit_confirmPassword"
-                    name="confirmPassword"
-                    value={editFormData.confirmPassword}
-                    onChange={handleEditFormChange}
-                    className={styles.input}
-                    placeholder="Repite la nueva contraseña"
-                    disabled={editando}
-                    autoComplete="new-password"
-                  />
-                </div>
+              ) : (
+                sortedUsuarios.map((usuario) => (
+                  <tr key={usuario.id_usuario}>
+                    <td>{usuario.id_usuario}</td>
+                    <td>{usuario.nombres}</td>
+                    <td>{usuario.email}</td>
+                    <td>
+                      <span
+                        className={`${styles.badge} ${
+                          usuario.id_rol === ROLES.ADMIN
+                            ? styles.badgeAdmin
+                            : usuario.id_rol === ROLES.VENDEDOR
+                              ? styles.badgeVendedor
+                              : styles.badgeGerente
+                        }`}
+                      >
+                        {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
+                      </span>
+                    </td>
+                    <td>{usuario.fyh_creacion ? new Date(usuario.fyh_creacion).toLocaleDateString('es-AR') : '-'}</td>
+                    <td>
+                      {usuario.fyh_ultimo_login ? (
+                        new Date(usuario.fyh_ultimo_login).toLocaleString('es-AR', {
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })
+                      ) : (
+                        <span style={{ color: 'var(--color-text-muted)' }}>Nunca</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        <button
+                          className={styles.actionButton}
+                          title={!puedeEditar ? 'Sin permisos para editar usuarios' : 'Editar usuario'}
+                          onClick={() => handleEditarClick(usuario)}
+                          disabled={!puedeEditar}
+                        >
+                          <span className="material-icons">edit</span>
+                        </button>
+                        <button
+                          className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                          title={!puedeEliminar ? 'Sin permisos para eliminar usuarios' : 'Eliminar'}
+                          onClick={() => handleEliminar(usuario.id_usuario)}
+                          disabled={!puedeEliminar}
+                        >
+                          <span className="material-icons">delete</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button type="button" onClick={handleCancelarEditar} className={styles.cancelButton} disabled={editando}>
-                Cancelar
-              </button>
-              <button type="submit" disabled={editando} className={styles.submitButton}>
-                {editando ? (
-                  <>
-                    <span className="material-icons">hourglass_empty</span>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-icons">save</span>
-                    Guardar Cambios
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+            </tbody>
+          </table>
         </div>
       </div>
-    )}
+
+      {showCrearForm && (
+        <div className={styles.modalOverlay} onClick={handleCancelarCrear}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                <span className="material-icons">person_add</span>
+                Crear Nuevo Usuario
+              </h3>
+              <button className={styles.closeButton} onClick={handleCancelarCrear} disabled={creando}>
+                <span className="material-icons">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleCrearUsuario}>
+              <div className={styles.modalBody}>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="nombres" className={styles.label}>
+                      Nombre Completo *
+                    </label>
+                    <input
+                      type="text"
+                      id="nombres"
+                      name="nombres"
+                      value={formData.nombres}
+                      onChange={handleFormChange}
+                      className={styles.input}
+                      placeholder="Ej: Juan Pérez"
+                      disabled={creando}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="email" className={styles.label}>
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                      className={styles.input}
+                      placeholder="Ej: juan@tecnocel.com"
+                      disabled={creando}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="id_rol" className={styles.label}>
+                      Rol *
+                    </label>
+                    <select
+                      id="id_rol"
+                      name="id_rol"
+                      value={formData.id_rol}
+                      onChange={handleFormChange}
+                      className={styles.select}
+                      disabled={creando}
+                      required
+                    >
+                      <option value={0} disabled>
+                        Seleccionar rol...
+                      </option>
+                      {roles.map((rol) => (
+                        <option key={rol.id_rol} value={rol.id_rol}>
+                          {rol.rol}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="password" className={styles.label}>
+                      Contraseña *
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleFormChange}
+                      className={styles.input}
+                      placeholder="Mínimo 6 caracteres"
+                      disabled={creando}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="confirmPassword" className={styles.label}>
+                    Confirmar Contraseña *
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleFormChange}
+                    className={styles.input}
+                    placeholder="Repite la contraseña"
+                    disabled={creando}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button type="button" onClick={handleCancelarCrear} className={styles.cancelButton} disabled={creando}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={creando} className={styles.submitButton}>
+                  {creando ? (
+                    <>
+                      <span className="material-icons">hourglass_empty</span>
+                      Creando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons">person_add</span>
+                      Crear Usuario
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editandoUsuario && (
+        <div className={styles.modalOverlay} onClick={handleCancelarEditar}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                <span className="material-icons">edit</span>
+                Editar Usuario
+              </h3>
+              <button className={styles.closeButton} onClick={handleCancelarEditar} disabled={editando}>
+                <span className="material-icons">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditarUsuario}>
+              <div className={styles.modalBody}>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="edit_nombres" className={styles.label}>
+                      Nombre Completo *
+                    </label>
+                    <input
+                      type="text"
+                      id="edit_nombres"
+                      name="nombres"
+                      value={editFormData.nombres}
+                      onChange={handleEditFormChange}
+                      className={styles.input}
+                      placeholder="Ej: Juan Pérez"
+                      disabled={editando}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="edit_email" className={styles.label}>
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      id="edit_email"
+                      name="email"
+                      value={editFormData.email}
+                      onChange={handleEditFormChange}
+                      className={styles.input}
+                      placeholder="Ej: juan@tecnocel.com"
+                      disabled={editando}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="edit_id_rol" className={styles.label}>
+                      Rol *
+                    </label>
+                    <select
+                      id="edit_id_rol"
+                      name="id_rol"
+                      value={editFormData.id_rol}
+                      onChange={handleEditFormChange}
+                      className={styles.select}
+                      disabled={editando}
+                      required
+                    >
+                      <option value={0} disabled>
+                        Seleccionar rol...
+                      </option>
+                      {roles.map((rol) => (
+                        <option key={rol.id_rol} value={rol.id_rol}>
+                          {rol.rol}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="edit_password" className={styles.label}>
+                      Nueva Contraseña
+                    </label>
+                    <input
+                      type="password"
+                      id="edit_password"
+                      name="password"
+                      value={editFormData.password}
+                      onChange={handleEditFormChange}
+                      className={styles.input}
+                      placeholder="Dejar vacío para no cambiar"
+                      disabled={editando}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+
+                {editFormData.password && (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="edit_confirmPassword" className={styles.label}>
+                      Confirmar Contraseña
+                    </label>
+                    <input
+                      type="password"
+                      id="edit_confirmPassword"
+                      name="confirmPassword"
+                      value={editFormData.confirmPassword}
+                      onChange={handleEditFormChange}
+                      className={styles.input}
+                      placeholder="Repite la nueva contraseña"
+                      disabled={editando}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button
+                  type="button"
+                  onClick={handleCancelarEditar}
+                  className={styles.cancelButton}
+                  disabled={editando}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" disabled={editando} className={styles.submitButton}>
+                  {editando ? (
+                    <>
+                      <span className="material-icons">hourglass_empty</span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons">save</span>
+                      Guardar Cambios
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };
 
 export default GestionUsuarios;
-

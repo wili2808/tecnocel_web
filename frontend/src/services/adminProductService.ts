@@ -1,7 +1,3 @@
-/**
- * Servicio para gestión de productos desde el panel de administración
- * Usa axiosAdminConfig para inyectar token admin/empleado automáticamente
- */
 import adminApi from '../api/axiosAdminConfig';
 import type { Product, Category, Marca, ProductoFormData, TipoCaracteristica, ProductoCaracteristica } from '../types';
 
@@ -23,11 +19,16 @@ const adminProductService = {
       const response = await adminApi.get('/almacen/productos/buscar', {
         params: { termino: search.trim() }
       });
-      return Array.isArray(response.data) ? response.data : [];
+      // searchProducts devuelve { success, data: [...] }
+      return response.data.data || response.data;
     }
 
-    const response = await adminApi.get('/almacen/productos');
-    return Array.isArray(response.data) ? response.data : [];
+    const response = await adminApi.get('/almacen/productos', {
+      params: { limit: 1000 }
+    });
+    // Con paginación: { success, data: { items, pagination } }
+    const data = response.data.data;
+    return Array.isArray(data) ? data : data.items || [];
   },
 
   /**
@@ -35,7 +36,8 @@ const adminProductService = {
    */
   obtenerProducto: async (id: number): Promise<Product> => {
     const response = await adminApi.get(`/almacen/productos/${id}`);
-    return response.data;
+    // getProductById devuelve { success, data: {...} }
+    return response.data.data || response.data;
   },
 
   /**
@@ -94,7 +96,8 @@ const adminProductService = {
    */
   obtenerCategorias: async (): Promise<Category[]> => {
     const response = await adminApi.get('/almacen/categorias');
-    return response.data;
+    // getAllCategories devuelve { success, data: [...] }
+    return response.data.data || response.data;
   },
 
   /**
@@ -105,9 +108,7 @@ const adminProductService = {
     return response.data.data || response.data;
   },
 
-  // ============================================================================
-  // CARACTERÍSTICAS DE PRODUCTOS
-  // ============================================================================
+  // --- CARACTERÍSTICAS DE PRODUCTOS ---
 
   /**
    * Obtiene todos los tipos de características activos
@@ -155,9 +156,7 @@ const adminProductService = {
     return response.data.data;
   },
 
-  // ============================================================================
-  // CRUD COMPLETO — MARCAS
-  // ============================================================================
+  // --- CRUD COMPLETO — MARCAS ---
 
   actualizarMarca: async (id: number, data: { nombre_marca: string; descripcion_marca?: string }): Promise<Marca> => {
     const response = await adminApi.put(`/marcas/${id}`, data);
@@ -181,9 +180,7 @@ const adminProductService = {
     return data.data;
   },
 
-  // ============================================================================
-  // CRUD COMPLETO — CATEGORÍAS
-  // ============================================================================
+  // --- CRUD COMPLETO — CATEGORÍAS ---
 
   actualizarCategoria: async (id: number, data: { nombre_categoria: string }): Promise<Category> => {
     const response = await adminApi.put(`/almacen/categorias/${id}`, data);
@@ -194,9 +191,7 @@ const adminProductService = {
     await adminApi.delete(`/almacen/categorias/${id}`);
   },
 
-  // ============================================================================
-  // CRUD COMPLETO — TIPOS DE CARACTERÍSTICAS
-  // ============================================================================
+  // --- CRUD COMPLETO — TIPOS DE CARACTERÍSTICAS ---
 
   actualizarTipoCaracteristica: async (id: number, data: Partial<TipoCaracteristica>): Promise<TipoCaracteristica> => {
     const response = await adminApi.put(`/caracteristicas/tipos/${id}`, data);

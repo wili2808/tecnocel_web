@@ -1,27 +1,7 @@
-/**
- * @file Servicio de gestión de compras a proveedores — Panel Admin
- *
- * Maneja todas las operaciones del panel administrativo relacionadas con compras:
- * - Listar compras con filtros y paginación
- * - Ver detalle de compra
- * - Registrar compra (crear productos nuevos al vuelo)
- * - Anular compra (revertir stock)
- * - Estadísticas de compras
- *
- * Usa adminApi (axiosAdminConfig) que inyecta automáticamente el Bearer token
- * del usuario del sistema (admin/gerente/vendedor).
- */
-
 import adminApi from '../api/axiosAdminConfig';
-import type {
-  CompraListItem,
-  CompraDetalle,
-  EstadisticasCompras,
-  FiltrosComprasAdmin,
-  RegistrarCompraData
-} from '../types';
+import type {  CompraListItem,  CompraDetalle,  EstadisticasCompras,  FiltrosComprasAdmin,  RegistrarCompraData} from '../types';
 
-export const compraAdminService = {
+const adminCompraService = {
   /**
    * Obtiene estadísticas de compras (hoy, semana, mes, gasto total del mes)
    */
@@ -109,9 +89,7 @@ export const compraAdminService = {
     }
   },
 
-  // ============================================================================
-  // Helpers de formato
-  // ============================================================================
+  //--- Helpers de formato
 
   /**
    * Formatea el estado de la compra para mostrar
@@ -157,3 +135,5 @@ export const compraAdminService = {
     });
   }
 };
+
+export default adminCompraService;

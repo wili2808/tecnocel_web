@@ -14,7 +14,7 @@ const AUTH_USER_KEY = 'auth_user';
  * Servicio de autenticación y gestión de sesiones para CLIENTES de la tienda web
  * Incluye login, registro, Google OAuth, perfil y cambio de contraseña
  */
-export const clienteService = {
+const clienteService = {
   /**
    * Configura el token de autenticación en axios y localStorage
    * @param token - Token JWT de autenticación
@@ -458,3 +458,5 @@ export const clienteService = {
     }
   },
 };
+
+export default clienteService;

@@ -36,7 +36,7 @@ const SQL_USD = (alias = 'v') =>
         ELSE NULL
    END`;
 
-export default class ReporteController {
+class ReporteController {
 
   /**
    * Reporte de Ventas - Agrupado por período con totales duales ARS/USD
@@ -750,3 +750,5 @@ function buildWhere(opts: {
   }
   return w;
 }
+
+export default ReporteController;

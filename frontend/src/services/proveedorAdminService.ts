@@ -1,20 +1,7 @@
-/**
- * @file Servicio de gestión de proveedores — Panel Admin
- *
- * Maneja todas las operaciones del panel administrativo relacionadas con proveedores:
- * - Listar proveedores (con búsqueda)
- * - Obtener detalle de proveedor
- * - Crear proveedor
- * - Actualizar proveedor
- *
- * Usa adminApi (axiosAdminConfig) que inyecta automáticamente el Bearer token
- * del usuario del sistema (admin/gerente/vendedor).
- */
-
 import adminApi from '../api/axiosAdminConfig';
 import type { ProveedorListItem, CreateProveedorData, UpdateProveedorData } from '../types';
 
-export const proveedorAdminService = {
+const proveedorAdminService = {
   /**
    * Obtiene listado de proveedores con búsqueda opcional
    */
@@ -79,3 +66,5 @@ export const proveedorAdminService = {
     }
   }
 };
+
+export default proveedorAdminService;

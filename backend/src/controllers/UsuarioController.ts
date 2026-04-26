@@ -1,12 +1,3 @@
-/**
- * @file Controlador de gestión de usuarios del sistema
- *
- * Maneja las operaciones de autenticación y gestión de usuarios administradores
- * y empleados del sistema (no confundir con clientes de la tienda web).
- *
- * @module UsuarioController
- */
-
 import bcrypt from 'bcryptjs';
 import { ROLES } from '../constants/roles.js';
 import jwt from 'jsonwebtoken';
@@ -34,7 +25,7 @@ import { UsuarioSistemaResponse, AuthUsuarioResponse, UsuarioJWTPayload } from '
  *
  * @class UsuarioController
  */
-export default class UsuarioController {
+class UsuarioController {
 
   /**
    * Genera un token JWT para un usuario dado
@@ -264,3 +255,5 @@ export default class UsuarioController {
     }
   }
 }
+
+export default UsuarioController;

@@ -5,6 +5,9 @@ import Venta from '../models/Venta.js';
 import VentaItem from '../models/VentaItem.js';
 import Cliente from '../models/Cliente.js';
 import Almacen from '../models/Almacen.js';
+import Usuario from '../models/Usuario.js';
+import Rol from '../models/Rol.js';
+import Permiso from '../models/Permiso.js';
 import logger from '../services/loggerService.js';
 import { sendShippingInTransitEmail, sendShippingDeliveredEmail } from '../services/emailService.js';
 import type {
@@ -14,8 +17,29 @@ import type {
   FiltrosEnviosAdmin,
 } from '../types/envio.types.js';
 import { TRANSICIONES_ENVIO } from '../types/envio.types.js';
+import type { UsuarioSession } from '../types/express.js';
 
-export class EnvioController {
+class EnvioController {
+
+  private static async _tienePermiso(req: Request, nombrePermiso: string): Promise<boolean> {
+    const usuario = req.usuario as UsuarioSession | undefined;
+    if (!usuario) return false;
+    if (usuario.idRol === 1) return true; // ADMIN
+    const dbUsuario = await Usuario.findByPk(usuario.id, {
+      include: [{
+        model: Rol,
+        as: 'Rol',
+        include: [{
+          model: Permiso,
+          as: 'permisos',
+          where: { nombre: nombrePermiso },
+          required: false
+        }]
+      }]
+    });
+    const rol = (dbUsuario as any)?.Rol;
+    return !!(rol?.permisos && rol.permisos.length > 0);
+  }
 
   // GET /api/envios/admin
   static async listarEnvios(req: Request, res: Response) {
@@ -29,6 +53,12 @@ export class EnvioController {
         offset = 0,
         tipo_entrega = 'envio',
       } = req.query as unknown as FiltrosEnviosAdmin;
+
+      const permisoRequerido = tipo_entrega === 'retiro_en_tienda' ? 'ver_retiros' : 'ver_envios';
+      const tienePermiso = await EnvioController._tienePermiso(req, permisoRequerido);
+      if (!tienePermiso) {
+        return res.status(403).json({ error: `No tiene permisos para ver ${tipo_entrega === 'retiro_en_tienda' ? 'retiros' : 'envíos'}` });
+      }
 
       const limitNum = Math.min(Number(limit), 100);
       const offsetNum = Number(offset);
@@ -150,6 +180,14 @@ export class EnvioController {
       if (!envio) return res.status(404).json({ error: 'Envío no encontrado' });
 
       const e = envio.toJSON() as Record<string, unknown>;
+      const tipoEntrega = e['tipo_entrega'] as string;
+      
+      const permisoRequerido = tipoEntrega === 'retiro_en_tienda' ? 'ver_retiros' : 'ver_envios';
+      const tienePermiso = await EnvioController._tienePermiso(req, permisoRequerido);
+      if (!tienePermiso) {
+        return res.status(403).json({ error: 'No tiene permisos para ver este registro' });
+      }
+
       const venta = e['venta'] as Record<string, unknown>;
       const cliente = venta?.['Cliente'] as Record<string, unknown> | undefined;
       const ventaItems = (venta?.['items'] ?? []) as Array<Record<string, unknown>>;
@@ -231,6 +269,12 @@ export class EnvioController {
 
       const e = envio.toJSON() as Record<string, unknown>;
       const tipoEntrega = e['tipo_entrega'] as string;
+
+      const permisoRequerido = tipoEntrega === 'retiro_en_tienda' ? 'gestionar_retiros' : 'gestionar_envios';
+      const tienePermiso = await EnvioController._tienePermiso(req, permisoRequerido);
+      if (!tienePermiso) {
+        return res.status(403).json({ error: 'No tiene permisos para gestionar este registro' });
+      }
 
       // ── Retiro en tienda: flujo simplificado pendiente → entregado ──────────
       if (tipoEntrega === 'retiro_en_tienda') {
@@ -320,3 +364,5 @@ export class EnvioController {
     }
   }
 }
+
+export default EnvioController;

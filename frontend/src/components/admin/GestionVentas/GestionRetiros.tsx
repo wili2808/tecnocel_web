@@ -1,18 +1,21 @@
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import styles from './GestionVentas.module.css';
+import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { envioAdminService } from '../../../services/envioAdminService';
 import { useDebounce } from '../../../hooks/useDebounce';
-import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
 import GestionRetirosModal from './GestionRetirosModal';
+import styles from './GestionVentas.module.css';
+import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
 
 const LIMIT = 20;
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
 const ESTADO_COLORS: Partial<Record<string, string>> = {
@@ -50,31 +53,37 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
 
   const cargandoRef = useRef(false);
 
-  const cargarRetiros = useCallback(async (f: Omit<FiltrosEnviosAdmin, 'tipo_entrega'>, off: number) => {
-    if (cargandoRef.current) return;
-    cargandoRef.current = true;
-    setCargando(true);
-    setError(null);
-    try {
-      const result = await envioAdminService.listarRetiros({ ...f, limit: LIMIT, offset: off });
-      setRetiros(result.data);
-      setTotal(result.total);
+  const cargarRetiros = useCallback(
+    async (f: Omit<FiltrosEnviosAdmin, 'tipo_entrega'>, off: number) => {
+      if (cargandoRef.current) return;
+      cargandoRef.current = true;
+      setCargando(true);
+      setError(null);
+      try {
+        const result = await envioAdminService.listarRetiros({ ...f, limit: LIMIT, offset: off });
+        setRetiros(result.data);
+        setTotal(result.total);
 
-      if (f.estado_envio === 'pendiente') {
-        onPendientesChange?.(result.total);
-      } else {
-        envioAdminService.listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 })
-          .then(r => onPendientesChange?.(r.total))
-          .catch(() => {/* no crítico */});
+        if (f.estado_envio === 'pendiente') {
+          onPendientesChange?.(result.total);
+        } else {
+          envioAdminService
+            .listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 })
+            .then((r) => onPendientesChange?.(r.total))
+            .catch(() => {
+              /* no crítico */
+            });
+        }
+      } catch {
+        setError('Error al cargar los retiros');
+        showNotification('Error al cargar los retiros', 'error');
+      } finally {
+        setCargando(false);
+        cargandoRef.current = false;
       }
-    } catch {
-      setError('Error al cargar los retiros');
-      showNotification('Error al cargar los retiros', 'error');
-    } finally {
-      setCargando(false);
-      cargandoRef.current = false;
-    }
-  }, [onPendientesChange, showNotification]);
+    },
+    [onPendientesChange, showNotification],
+  );
 
   useEffect(() => {
     cargarRetiros(filtros, offset);
@@ -82,7 +91,7 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
 
   // ── Actualizar búsqueda con debounce ────────────────────────────────────
   useEffect(() => {
-    setFiltros(prev => ({ ...prev, search: debouncedSearch || undefined }));
+    setFiltros((prev) => ({ ...prev, search: debouncedSearch || undefined }));
     setOffset(0);
   }, [debouncedSearch]);
 
@@ -108,7 +117,9 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
       <div className={styles.filtrosBar}>
         <select
           value={filtros.estado_envio ?? ''}
-          onChange={e => setFiltros(prev => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))}
+          onChange={(e) =>
+            setFiltros((prev) => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))
+          }
           className={styles.filtroSelect}
         >
           <option value="">Todos los estados</option>
@@ -120,24 +131,26 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
           type="text"
           placeholder="Buscar por nro. venta o cliente..."
           value={searchInput}
-          onChange={e => setSearchInput(e.target.value)}
+          onChange={(e) => setSearchInput(e.target.value)}
           className={styles.filtroInput}
         />
 
         <input
           type="date"
           value={filtros.fecha_inicio ?? ''}
-          onChange={e => setFiltros(prev => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+          onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
           className={styles.filtroFecha}
         />
         <input
           type="date"
           value={filtros.fecha_fin ?? ''}
-          onChange={e => setFiltros(prev => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+          onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
           className={styles.filtroFecha}
         />
 
-        <button onClick={limpiarFiltros} className={styles.btnLimpiar}>Limpiar</button>
+        <button onClick={limpiarFiltros} className={styles.btnLimpiar}>
+          Limpiar
+        </button>
       </div>
 
       {/* Tabla */}
@@ -158,9 +171,11 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
               </tr>
             </thead>
             <tbody>
-              {retiros.map(retiro => (
+              {retiros.map((retiro) => (
                 <tr key={retiro.id_envio}>
-                  <td><strong>#{retiro.nro_venta}</strong></td>
+                  <td>
+                    <strong>#{retiro.nro_venta}</strong>
+                  </td>
                   <td>{retiro.nombre_cliente ?? <em className={styles.sinDatos}>Sin cliente</em>}</td>
                   <td>{formatFecha(retiro.fyh_creacion)}</td>
                   <td>
@@ -196,18 +211,24 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
       {/* Paginación */}
       {total > LIMIT && (
         <div className={styles.paginacion}>
-          <span>Página {currentPage} de {totalPages} ({total} retiros)</span>
+          <span>
+            Página {currentPage} de {totalPages} ({total} retiros)
+          </span>
           <div className={styles.paginacionBtns}>
             <button
               disabled={offset === 0}
               onClick={() => setOffset(Math.max(0, offset - LIMIT))}
               className={styles.btnPag}
-            >← Anterior</button>
+            >
+              ← Anterior
+            </button>
             <button
               disabled={offset + LIMIT >= total}
               onClick={() => setOffset(offset + LIMIT)}
               className={styles.btnPag}
-            >Siguiente →</button>
+            >
+              Siguiente →
+            </button>
           </div>
         </div>
       )}

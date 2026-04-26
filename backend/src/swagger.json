@@ -1,0 +1,4722 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TecnoCel Web API",
+    "description": "API REST para la tienda en línea de productos tecnológicos TecnoCel Web. Incluye gestión de productos, clientes, ventas, carrito de compras y más.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Soporte TecnoCel"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Servidor de desarrollo"
+    }
+  ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT token. Formato: \"Bearer {token}\""
+    },
+    "bearerAuthCliente": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT token para clientes. Formato: \"Bearer {token}\""
+    }
+  },
+  "paths": {
+    "/almacen/tipo-cambio": {
+      "get": {
+        "summary": "Obtener tipo de cambio ARS/USD",
+        "description": "Retorna el tipo de cambio actual configurado en el sistema",
+        "tags": [
+          "Almacen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Tipo de cambio actual",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "tipo_cambio": {
+                          "type": "number"
+                        },
+                        "fyh_actualizacion": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/diagnostico": {
+      "get": {
+        "summary": "Diagnóstico de productos",
+        "description": "Retorna estadísticas de productos para diagnóstico del sistema",
+        "tags": [
+          "Almacen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Diagnóstico exitoso"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/productos": {
+      "get": {
+        "summary": "Listar todos los productos",
+        "description": "Retorna el catálogo completo de productos activos con paginación, categorías, marcas, imágenes y ofertas activas vigentes",
+        "tags": [
+          "Almacen"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Número de página"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Items por página"
+          },
+          {
+            "in": "query",
+            "name": "categoria",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrar por ID de categoría"
+          },
+          {
+            "in": "query",
+            "name": "marca",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrar por ID de marca"
+          },
+          {
+            "in": "query",
+            "name": "precio_min",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Precio mínimo"
+          },
+          {
+            "in": "query",
+            "name": "precio_max",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Precio máximo"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "productos": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "page": {
+                              "type": "integer"
+                            },
+                            "limit": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            },
+                            "pages": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear producto",
+        "description": "Crea un nuevo producto en el catálogo",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nombre",
+                  "descripcion",
+                  "precio",
+                  "stock",
+                  "id_categoria"
+                ],
+                "properties": {
+                  "nombre": {
+                    "type": "string"
+                  },
+                  "descripcion": {
+                    "type": "string"
+                  },
+                  "precio": {
+                    "type": "number"
+                  },
+                  "stock": {
+                    "type": "integer"
+                  },
+                  "id_categoria": {
+                    "type": "integer"
+                  },
+                  "id_marca": {
+                    "type": "integer"
+                  },
+                  "es_destacado": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/productos/destacados": {
+      "get": {
+        "summary": "Listar productos destacados",
+        "description": "Retorna productos marcados como destacados para mostrar en homepage",
+        "tags": [
+          "Almacen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos destacados"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/productos/buscar": {
+      "get": {
+        "summary": "Buscar productos",
+        "description": "Búsqueda flexible con query params para filtrar productos",
+        "tags": [
+          "Almacen"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Término de búsqueda"
+          },
+          {
+            "in": "query",
+            "name": "categoria",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrar por categoría"
+          },
+          {
+            "in": "query",
+            "name": "marca",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrar por marca"
+          },
+          {
+            "in": "query",
+            "name": "precio_min",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Precio mínimo"
+          },
+          {
+            "in": "query",
+            "name": "precio_max",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Precio máximo"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Número de página"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Items por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultados de búsqueda paginados"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/productos/categoria/{categoriaId}": {
+      "get": {
+        "summary": "Productos por categoría",
+        "description": "Retorna todos los productos de una categoría específica",
+        "tags": [
+          "Almacen"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "categoriaId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la categoría"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos de la categoría"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/productos/{id}": {
+      "get": {
+        "summary": "Obtener producto por ID",
+        "description": "Retorna el detalle completo de un producto incluyendo imágenes, características y ofertas",
+        "tags": [
+          "Almacen"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del producto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del producto"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar producto",
+        "description": "Actualiza un producto existente del catálogo",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del producto"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string"
+                  },
+                  "descripcion": {
+                    "type": "string"
+                  },
+                  "precio": {
+                    "type": "number"
+                  },
+                  "stock": {
+                    "type": "integer"
+                  },
+                  "id_categoria": {
+                    "type": "integer"
+                  },
+                  "id_marca": {
+                    "type": "integer"
+                  },
+                  "es_destacado": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto actualizado"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar producto",
+        "description": "Elimina un producto del catálogo",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del producto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/categorias": {
+      "get": {
+        "summary": "Listar todas las categorías",
+        "description": "Retorna el árbol completo de categorías con subcategorías",
+        "tags": [
+          "Almacen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de categorías"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear categoría",
+        "description": "Crea una nueva categoría de productos",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nombre_categoria"
+                ],
+                "properties": {
+                  "nombre_categoria": {
+                    "type": "string"
+                  },
+                  "id_categoria_padre": {
+                    "type": "integer",
+                    "description": "ID de categoría padre (para subcategorías)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Categoría creada"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/categorias/{id}": {
+      "put": {
+        "summary": "Actualizar categoría",
+        "description": "Actualiza el nombre de una categoría existente",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la categoría"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre_categoria": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Categoría actualizada"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "404": {
+            "description": "Categoría no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar categoría",
+        "description": "Elimina una categoría (solo si no tiene productos asociados)",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la categoría"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoría eliminada"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "404": {
+            "description": "Categoría no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/almacen/productos/{id}/stock": {
+      "patch": {
+        "summary": "Actualizar stock de producto",
+        "description": "Actualiza únicamente el stock de un producto",
+        "tags": [
+          "Almacen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del producto"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "stock"
+                ],
+                "properties": {
+                  "stock": {
+                    "type": "integer",
+                    "description": "Nueva cantidad en stock"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stock actualizado"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "403": {
+            "description": "Sin permisos"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/caracteristicas/tipos": {
+      "get": {
+        "summary": "Obtener tipos de características",
+        "description": "Retorna la lista de tipos de características disponibles y activos",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de tipos de características"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear tipo de característica",
+        "description": "Crea un nuevo tipo de característica",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nombre_tipo"
+                ],
+                "properties": {
+                  "nombre_tipo": {
+                    "type": "string"
+                  },
+                  "descripcion": {
+                    "type": "string"
+                  },
+                  "tipo_dato": {
+                    "type": "string"
+                  },
+                  "unidad_medida": {
+                    "type": "string"
+                  },
+                  "opciones_seleccion": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tipo de característica creado"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/caracteristicas/producto/{id_producto}": {
+      "get": {
+        "summary": "Obtener características de un producto",
+        "description": "Retorna las características asociadas a un producto",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del producto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de características del producto"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Agregar característica a producto",
+        "description": "Asocia un tipo de característica con un valor específico a un producto",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_tipo",
+                  "valor"
+                ],
+                "properties": {
+                  "id_tipo": {
+                    "type": "integer"
+                  },
+                  "valor": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Característica agregada"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Producto o tipo no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/caracteristicas/tipos/todas": {
+      "get": {
+        "summary": "Obtener todos los tipos (activos e inactivos)",
+        "description": "Retorna todos los tipos de características (requiere autenticación)",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista completa de tipos de características"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/caracteristicas/tipos/{id_tipo}": {
+      "put": {
+        "summary": "Actualizar tipo de característica",
+        "description": "Modifica los datos de un tipo de característica existente",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_tipo",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre_tipo": {
+                    "type": "string"
+                  },
+                  "descripcion": {
+                    "type": "string"
+                  },
+                  "tipo_dato": {
+                    "type": "string"
+                  },
+                  "unidad_medida": {
+                    "type": "string"
+                  },
+                  "opciones_seleccion": {
+                    "type": "string"
+                  },
+                  "activo": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tipo actualizado"
+          },
+          "404": {
+            "description": "Tipo no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desactivar tipo de característica",
+        "description": "Cambia el estado del tipo a inactivo",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_tipo",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tipo desactivado"
+          },
+          "404": {
+            "description": "Tipo no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/caracteristicas/{id_caracteristica}": {
+      "put": {
+        "summary": "Actualizar característica de producto",
+        "description": "Modifica el valor de una característica existente en un producto",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_caracteristica",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "valor"
+                ],
+                "properties": {
+                  "valor": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Característica actualizada"
+          },
+          "400": {
+            "description": "Valor no proporcionado"
+          },
+          "404": {
+            "description": "Característica no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar característica de producto",
+        "description": "Elimina permanentemente la asociación de una característica con un producto",
+        "tags": [
+          "Caracteristicas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_caracteristica",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Característica eliminada"
+          },
+          "404": {
+            "description": "Característica no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/carrito": {
+      "get": {
+        "summary": "Obtener carrito",
+        "description": "Obtiene el carrito activo del cliente autenticado",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carrito obtenido exitosamente"
+          },
+          "401": {
+            "description": "Cliente no autenticado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Vaciar carrito completo",
+        "description": "Elimina todos los items del carrito activo",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carrito vaciado exitosamente"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/carrito/items": {
+      "post": {
+        "summary": "Agregar producto al carrito",
+        "description": "Agrega un producto al carrito activo o actualiza su cantidad si ya existe",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_producto",
+                  "cantidad"
+                ],
+                "properties": {
+                  "id_producto": {
+                    "type": "integer"
+                  },
+                  "cantidad": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto agregado al carrito"
+          },
+          "400": {
+            "description": "Datos inválidos o stock insuficiente"
+          },
+          "401": {
+            "description": "Cliente no autenticado"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/carrito/items/{id_item}": {
+      "put": {
+        "summary": "Actualizar cantidad de un item",
+        "description": "Actualiza la cantidad de un producto específico en el carrito",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_item",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "cantidad"
+                ],
+                "properties": {
+                  "cantidad": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cantidad actualizada exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos o stock insuficiente"
+          },
+          "404": {
+            "description": "Item no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un item del carrito",
+        "description": "Elimina un producto específico del carrito activo",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_item",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item eliminado exitosamente"
+          },
+          "404": {
+            "description": "Item no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/carrito/confirmar-compra": {
+      "post": {
+        "summary": "Confirmar compra",
+        "description": "Convierte el carrito activo en una nueva venta",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_direccion_envio",
+                  "tipo_envio",
+                  "metodo_pago"
+                ],
+                "properties": {
+                  "id_direccion_envio": {
+                    "type": "integer"
+                  },
+                  "tipo_envio": {
+                    "type": "string"
+                  },
+                  "metodo_pago": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Compra confirmada y venta creada"
+          },
+          "400": {
+            "description": "Carrito vacío, sin stock o datos inválidos"
+          },
+          "404": {
+            "description": "Carrito no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/carrito/historial": {
+      "get": {
+        "summary": "Obtener historial de carritos",
+        "description": "Obtiene el historial de carritos pasados del cliente",
+        "tags": [
+          "Carrito"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial de carritos obtenido"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/register": {
+      "post": {
+        "summary": "Registrar nuevo cliente",
+        "description": "Crea un nuevo cliente en la plataforma, con contraseña y verificación de email",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nombre_cliente",
+                  "apellido_cliente",
+                  "email_cliente",
+                  "contrasena"
+                ],
+                "properties": {
+                  "nombre_cliente": {
+                    "type": "string"
+                  },
+                  "apellido_cliente": {
+                    "type": "string"
+                  },
+                  "email_cliente": {
+                    "type": "string"
+                  },
+                  "contrasena": {
+                    "type": "string"
+                  },
+                  "celular_cliente": {
+                    "type": "string"
+                  },
+                  "nit_ci_cliente": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registro exitoso"
+          },
+          "400": {
+            "description": "Faltan campos obligatorios"
+          },
+          "403": {
+            "description": "Cliente existente sin acceso web"
+          },
+          "409": {
+            "description": "El email ya está registrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/login": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "description": "Autentica un cliente y genera un token JWT",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email_cliente",
+                  "contrasena"
+                ],
+                "properties": {
+                  "email_cliente": {
+                    "type": "string"
+                  },
+                  "contrasena": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso"
+          },
+          "400": {
+            "description": "Faltan email o contraseña"
+          },
+          "401": {
+            "description": "Contraseña incorrecta"
+          },
+          "403": {
+            "description": "Cuenta no habilitada o sin contraseña"
+          },
+          "404": {
+            "description": "Cliente no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/google-login": {
+      "post": {
+        "summary": "Iniciar sesión con Google",
+        "description": "Autentica un cliente usando Google OAuth",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "Token de Google OAuth"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login con Google exitoso"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/verify-email": {
+      "get": {
+        "summary": "Verificar email",
+        "description": "Verifica el email de un cliente mediante token de verificación",
+        "tags": [
+          "Clientes"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token de verificación"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cuenta verificada exitosamente"
+          },
+          "400": {
+            "description": "Token inválido o expirado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/verify-email/resend": {
+      "post": {
+        "summary": "Reenviar email de verificación",
+        "description": "Reenvía el email con el enlace de verificación",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email_cliente"
+                ],
+                "properties": {
+                  "email_cliente": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email reenviado exitosamente"
+          },
+          "400": {
+            "description": "Faltan campos obligatorios"
+          },
+          "429": {
+            "description": "Demasiados intentos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/forgot-password": {
+      "post": {
+        "summary": "Solicitar recuperación de contraseña",
+        "description": "Envía un email con instrucciones para restablecer la contraseña",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email_cliente"
+                ],
+                "properties": {
+                  "email_cliente": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitud procesada"
+          },
+          "400": {
+            "description": "Email es obligatorio"
+          },
+          "429": {
+            "description": "Demasiados intentos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/reset-password": {
+      "post": {
+        "summary": "Restablecer contraseña",
+        "description": "Completa el proceso de restablecimiento de contraseña",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token",
+                  "nueva_contrasena"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "nueva_contrasena": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña restablecida correctamente"
+          },
+          "400": {
+            "description": "Token inválido o expirado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/activar-cuenta": {
+      "post": {
+        "summary": "Activar cuenta",
+        "description": "Activa una cuenta creada por un administrador y establece la contraseña del cliente",
+        "tags": [
+          "Clientes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token",
+                  "nueva_contrasena"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "nueva_contrasena": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cuenta activada exitosamente"
+          },
+          "400": {
+            "description": "Enlace inválido, expirado o faltan campos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/verify-token": {
+      "get": {
+        "summary": "Verificar token",
+        "description": "Verifica validez del token JWT y retorna datos del cliente",
+        "tags": [
+          "Clientes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token válido, retorna datos del cliente"
+          },
+          "401": {
+            "description": "Sesión no válida o expirada"
+          },
+          "403": {
+            "description": "Cuenta inactiva o no autorizada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/perfil": {
+      "get": {
+        "summary": "Obtener perfil",
+        "description": "Obtiene el perfil completo del cliente autenticado",
+        "tags": [
+          "Clientes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil del cliente"
+          },
+          "401": {
+            "description": "Sesión no válida o expirada"
+          },
+          "404": {
+            "description": "Perfil no encontrado o cuenta inactiva"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar perfil",
+        "description": "Actualiza el perfil del cliente autenticado (nombre, apellido, celular, NIT/CI)",
+        "tags": [
+          "Clientes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre_cliente": {
+                    "type": "string"
+                  },
+                  "apellido_cliente": {
+                    "type": "string"
+                  },
+                  "celular_cliente": {
+                    "type": "string"
+                  },
+                  "nit_ci_cliente": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Perfil actualizado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "Sesión no válida"
+          },
+          "403": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Cliente no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/clientes/cambiar-contrasena": {
+      "put": {
+        "summary": "Cambiar contraseña",
+        "description": "Cambia la contraseña del cliente autenticado",
+        "tags": [
+          "Clientes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "contrasena_actual",
+                  "nueva_contrasena"
+                ],
+                "properties": {
+                  "contrasena_actual": {
+                    "type": "string"
+                  },
+                  "nueva_contrasena": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña cambiada exitosamente"
+          },
+          "400": {
+            "description": "Faltan campos o datos inválidos"
+          },
+          "401": {
+            "description": "Sesión no válida o contraseña actual incorrecta"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/producto/{id_producto}": {
+      "get": {
+        "summary": "Obtener comentarios de un producto",
+        "description": "Obtiene los comentarios de un producto con paginación y ordenamiento",
+        "tags": [
+          "Comentarios"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comentarios obtenidos exitosamente"
+          },
+          "400": {
+            "description": "ID de producto inválido"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/producto/{id_producto}/estadisticas": {
+      "get": {
+        "summary": "Obtener estadísticas de comentarios",
+        "description": "Obtiene las estadísticas de comentarios (promedio, distribución) de un producto",
+        "tags": [
+          "Comentarios"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estadísticas obtenidas exitosamente"
+          },
+          "400": {
+            "description": "ID de producto inválido"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios": {
+      "post": {
+        "summary": "Crear nuevo comentario",
+        "description": "Crea un comentario para un producto con calificación e imágenes opcionales",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_producto",
+                  "id_cliente",
+                  "comentario"
+                ],
+                "properties": {
+                  "id_producto": {
+                    "type": "integer"
+                  },
+                  "id_cliente": {
+                    "type": "integer"
+                  },
+                  "comentario": {
+                    "type": "string"
+                  },
+                  "calificacion": {
+                    "type": "integer"
+                  },
+                  "imagenes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comentario creado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Producto o cliente no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}": {
+      "put": {
+        "summary": "Actualizar comentario",
+        "description": "Actualiza un comentario existente",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comentario": {
+                    "type": "string"
+                  },
+                  "calificacion": {
+                    "type": "integer"
+                  },
+                  "imagenes_a_eliminar": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comentario actualizado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar comentario (cliente)",
+        "description": "Elimina un comentario (soft delete) creado por el cliente",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comentario eliminado exitosamente"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}/propio": {
+      "delete": {
+        "summary": "Eliminar comentario propio (admin/empleado)",
+        "description": "Permite a usuarios del sistema eliminar sus propios comentarios",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comentario eliminado exitosamente"
+          },
+          "403": {
+            "description": "Acceso denegado"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}/admin": {
+      "delete": {
+        "summary": "Eliminar cualquier comentario (admin)",
+        "description": "Permite a un administrador eliminar cualquier comentario",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comentario eliminado exitosamente"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}/imagenes/{id_imagen}": {
+      "delete": {
+        "summary": "Eliminar imagen de comentario",
+        "description": "Elimina una imagen específica de un comentario",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id_imagen",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imagen eliminada exitosamente"
+          },
+          "404": {
+            "description": "Comentario o imagen no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}/respuestas/cliente": {
+      "post": {
+        "summary": "Cliente responde comentario",
+        "description": "Permite a un cliente responder a un comentario",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "contenido"
+                ],
+                "properties": {
+                  "contenido": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Respuesta creada exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}/respuestas/admin": {
+      "post": {
+        "summary": "Admin responde comentario",
+        "description": "Permite a un administrador o empleado responder a un comentario oficialmente",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "contenido"
+                ],
+                "properties": {
+                  "contenido": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Respuesta oficial creada exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/respuestas/{id_respuesta}": {
+      "delete": {
+        "summary": "Eliminar respuesta de cliente",
+        "description": "Permite a un cliente eliminar su propia respuesta",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_respuesta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta eliminada exitosamente"
+          },
+          "404": {
+            "description": "Respuesta no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/respuestas/{id_respuesta}/propia": {
+      "delete": {
+        "summary": "Eliminar respuesta propia (admin/empleado)",
+        "description": "Permite a un administrador o empleado eliminar su propia respuesta",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_respuesta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta eliminada exitosamente"
+          },
+          "404": {
+            "description": "Respuesta no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/{id_comentario}/moderar": {
+      "patch": {
+        "summary": "Moderar comentario",
+        "description": "Permite a un administrador ocultar o restaurar un comentario",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_comentario",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "estado"
+                ],
+                "properties": {
+                  "estado": {
+                    "type": "string",
+                    "enum": [
+                      "activo",
+                      "oculto",
+                      "eliminado"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comentario moderado exitosamente"
+          },
+          "404": {
+            "description": "Comentario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/respuestas/{id_respuesta}/moderar": {
+      "patch": {
+        "summary": "Moderar respuesta",
+        "description": "Permite a un administrador ocultar o restaurar una respuesta",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_respuesta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "estado"
+                ],
+                "properties": {
+                  "estado": {
+                    "type": "string",
+                    "enum": [
+                      "activo",
+                      "oculto",
+                      "eliminado"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Respuesta moderada exitosamente"
+          },
+          "404": {
+            "description": "Respuesta no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/comentarios/respuestas/{id_respuesta}/admin": {
+      "delete": {
+        "summary": "Eliminar respuesta (admin)",
+        "description": "Permite a un administrador eliminar cualquier respuesta",
+        "tags": [
+          "Comentarios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_respuesta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta eliminada exitosamente"
+          },
+          "404": {
+            "description": "Respuesta no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/compras/admin/estadisticas": {
+      "get": {
+        "summary": "Obtener estadísticas de compras",
+        "description": "Obtiene estadísticas de compras (hoy, semana, mes, gasto total del mes)",
+        "tags": [
+          "Compras"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estadísticas obtenidas"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/compras/admin/listar": {
+      "get": {
+        "summary": "Listar compras",
+        "description": "Lista compras con paginación y filtros",
+        "tags": [
+          "Compras"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limite",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "busqueda",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de compras"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/compras/admin/registrar": {
+      "post": {
+        "summary": "Registrar compra",
+        "description": "Registra una nueva compra a un proveedor",
+        "tags": [
+          "Compras"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_proveedor",
+                  "items"
+                ],
+                "properties": {
+                  "id_proveedor": {
+                    "type": "integer"
+                  },
+                  "numero_factura": {
+                    "type": "string"
+                  },
+                  "observaciones": {
+                    "type": "string"
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id_producto",
+                        "cantidad",
+                        "costo_unitario"
+                      ],
+                      "properties": {
+                        "id_producto": {
+                          "type": "integer"
+                        },
+                        "cantidad": {
+                          "type": "integer"
+                        },
+                        "costo_unitario": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Compra registrada"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/compras/admin/{id}/anular": {
+      "patch": {
+        "summary": "Anular compra",
+        "description": "Anula una compra activa y revierte el stock",
+        "tags": [
+          "Compras"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compra anulada exitosamente"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "404": {
+            "description": "Compra no encontrada"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/compras/admin/{id}": {
+      "get": {
+        "summary": "Obtener detalle de compra",
+        "description": "Obtiene el detalle completo de una compra",
+        "tags": [
+          "Compras"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la compra"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "404": {
+            "description": "Compra no encontrada"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/direcciones/cliente/{id_cliente}": {
+      "get": {
+        "summary": "Obtener direcciones del cliente",
+        "description": "Obtiene todas las direcciones guardadas de un cliente",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Direcciones obtenidas"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear nueva dirección",
+        "description": "Crea una nueva dirección para el cliente",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "direccion",
+                  "ciudad",
+                  "departamento"
+                ],
+                "properties": {
+                  "direccion": {
+                    "type": "string"
+                  },
+                  "ciudad": {
+                    "type": "string"
+                  },
+                  "departamento": {
+                    "type": "string"
+                  },
+                  "codigo_postal": {
+                    "type": "string"
+                  },
+                  "referencia": {
+                    "type": "string"
+                  },
+                  "es_predeterminada": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Dirección creada"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/direcciones/cliente/{id_cliente}/predeterminada": {
+      "get": {
+        "summary": "Obtener dirección predeterminada",
+        "description": "Obtiene la dirección predeterminada de un cliente",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección obtenida"
+          },
+          "404": {
+            "description": "Dirección no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/direcciones/{id}": {
+      "get": {
+        "summary": "Obtener dirección por ID",
+        "description": "Obtiene una dirección específica por su ID",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección obtenida"
+          },
+          "404": {
+            "description": "Dirección no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar dirección",
+        "description": "Actualiza los datos de una dirección existente",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "direccion": {
+                    "type": "string"
+                  },
+                  "ciudad": {
+                    "type": "string"
+                  },
+                  "departamento": {
+                    "type": "string"
+                  },
+                  "codigo_postal": {
+                    "type": "string"
+                  },
+                  "referencia": {
+                    "type": "string"
+                  },
+                  "es_predeterminada": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dirección actualizada"
+          },
+          "404": {
+            "description": "Dirección no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar dirección",
+        "description": "Elimina (soft delete o permanente) una dirección",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección eliminada"
+          },
+          "404": {
+            "description": "Dirección no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/direcciones/{id}/predeterminada": {
+      "put": {
+        "summary": "Establecer como predeterminada",
+        "description": "Marca una dirección como la predeterminada del cliente",
+        "tags": [
+          "Direcciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dirección predeterminada actualizada"
+          },
+          "404": {
+            "description": "Dirección no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/envios/admin": {
+      "get": {
+        "summary": "Listar envíos",
+        "description": "Obtiene la lista de envíos con paginación",
+        "tags": [
+          "Envios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limite",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "estado",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de envíos obtenida"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/envios/admin/{id_envio}": {
+      "get": {
+        "summary": "Obtener detalle de envío",
+        "description": "Obtiene los detalles completos de un envío específico",
+        "tags": [
+          "Envios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_envio",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del envío obtenido"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "404": {
+            "description": "Envío no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/envios/admin/{id_envio}/estado": {
+      "patch": {
+        "summary": "Actualizar estado de envío",
+        "description": "Actualiza el estado de un envío",
+        "tags": [
+          "Envios"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_envio",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nuevoEstado"
+                ],
+                "properties": {
+                  "nuevoEstado": {
+                    "type": "string"
+                  },
+                  "notas": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado actualizado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "404": {
+            "description": "Envío no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/favoritos/cliente/{id_cliente}": {
+      "get": {
+        "summary": "Obtener favoritos del cliente",
+        "description": "Obtiene la lista de productos favoritos de un cliente",
+        "tags": [
+          "Favoritos"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de favoritos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Agregar a favoritos",
+        "description": "Agrega un producto a la lista de favoritos del cliente",
+        "tags": [
+          "Favoritos"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id_producto"
+                ],
+                "properties": {
+                  "id_producto": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto agregado a favoritos"
+          },
+          "400": {
+            "description": "Producto ya está en favoritos"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/favoritos/cliente/{id_cliente}/estadisticas": {
+      "get": {
+        "summary": "Obtener estadísticas de favoritos",
+        "description": "Obtiene estadísticas sobre los favoritos del cliente",
+        "tags": [
+          "Favoritos"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estadísticas de favoritos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/favoritos/cliente/{id_cliente}/producto/{id_producto}": {
+      "get": {
+        "summary": "Verificar favorito",
+        "description": "Verifica si un producto específico está en los favoritos del cliente",
+        "tags": [
+          "Favoritos"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado de favorito verificado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar de favoritos",
+        "description": "Elimina un producto de la lista de favoritos del cliente",
+        "tags": [
+          "Favoritos"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado de favoritos"
+          },
+          "404": {
+            "description": "Favorito no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/favoritos/cliente/{id_cliente}/producto/{id_producto}/toggle": {
+      "put": {
+        "summary": "Alternar favorito",
+        "description": "Agrega o elimina un producto de favoritos según su estado actual",
+        "tags": [
+          "Favoritos"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_cliente",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado de favorito alternado exitosamente"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/marcas": {
+      "get": {
+        "summary": "Obtener todas las marcas",
+        "description": "Obtiene todas las marcas activas del sistema",
+        "tags": [
+          "Marcas"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de marcas"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear marca",
+        "description": "Crea una nueva marca en el sistema",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nombre_marca"
+                ],
+                "properties": {
+                  "nombre_marca": {
+                    "type": "string"
+                  },
+                  "descripcion": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Marca creada exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/marcas/{id}": {
+      "get": {
+        "summary": "Obtener marca por ID",
+        "description": "Obtiene una marca específica por su ID",
+        "tags": [
+          "Marcas"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Marca obtenida"
+          },
+          "404": {
+            "description": "Marca no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar marca",
+        "description": "Actualiza una marca existente",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre_marca": {
+                    "type": "string"
+                  },
+                  "descripcion": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Marca actualizada exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "404": {
+            "description": "Marca no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar marca",
+        "description": "Elimina (soft delete) una marca del sistema",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Marca eliminada exitosamente"
+          },
+          "403": {
+            "description": "No tiene permisos"
+          },
+          "404": {
+            "description": "Marca no encontrada"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/notificaciones": {
+      "get": {
+        "summary": "Obtener notificaciones",
+        "tags": [
+          "Notificaciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de notificaciones"
+          }
+        }
+      }
+    },
+    "/notificaciones/no-leidas": {
+      "get": {
+        "summary": "Obtener notificaciones no leídas",
+        "tags": [
+          "Notificaciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de notificaciones no leídas"
+          }
+        }
+      }
+    },
+    "/notificaciones/leer-todas": {
+      "put": {
+        "summary": "Marcar todas como leídas",
+        "tags": [
+          "Notificaciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificaciones marcadas como leídas"
+          }
+        }
+      }
+    },
+    "/notificaciones/eliminar-todas": {
+      "delete": {
+        "summary": "Eliminar todas las notificaciones",
+        "tags": [
+          "Notificaciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificaciones eliminadas"
+          }
+        }
+      }
+    },
+    "/notificaciones/{id}/leer": {
+      "put": {
+        "summary": "Marcar notificación como leída",
+        "tags": [
+          "Notificaciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificación marcada como leída"
+          }
+        }
+      }
+    },
+    "/notificaciones/{id}": {
+      "delete": {
+        "summary": "Eliminar notificación",
+        "tags": [
+          "Notificaciones"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificación eliminada"
+          }
+        }
+      }
+    },
+    "/ofertas/activas": {
+      "get": {
+        "summary": "Obtener ofertas activas",
+        "tags": [
+          "Ofertas"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de ofertas activas"
+          }
+        }
+      }
+    },
+    "/ofertas/productos": {
+      "get": {
+        "summary": "Obtener productos en oferta",
+        "tags": [
+          "Ofertas"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos en oferta"
+          }
+        }
+      }
+    },
+    "/ofertas/todas": {
+      "get": {
+        "summary": "Obtener todas las ofertas (admin)",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de todas las ofertas"
+          }
+        }
+      }
+    },
+    "/ofertas/producto/{id_producto}": {
+      "get": {
+        "summary": "Obtener ofertas por producto (admin)",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de ofertas del producto"
+          }
+        }
+      }
+    },
+    "/ofertas/{id}": {
+      "get": {
+        "summary": "Obtener oferta por ID (admin)",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de oferta"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar oferta",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Oferta actualizada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar oferta",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Oferta eliminada"
+          }
+        }
+      }
+    },
+    "/ofertas": {
+      "post": {
+        "summary": "Crear oferta",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Oferta creada"
+          }
+        }
+      }
+    },
+    "/ofertas/{id_oferta}/productos": {
+      "post": {
+        "summary": "Asignar productos a oferta",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_oferta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Productos asignados"
+          }
+        }
+      }
+    },
+    "/ofertas/{id_oferta}/productos/{id_producto}": {
+      "delete": {
+        "summary": "Quitar producto de oferta",
+        "tags": [
+          "Ofertas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_oferta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id_producto",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto removido"
+          }
+        }
+      }
+    },
+    "/proveedores": {
+      "get": {
+        "summary": "Obtener proveedores",
+        "description": "Obtiene listado de proveedores con búsqueda opcional",
+        "tags": [
+          "Proveedores"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de proveedores"
+          },
+          "403": {
+            "description": "Sin permisos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear proveedor",
+        "description": "Crea un nuevo proveedor",
+        "tags": [
+          "Proveedores"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nombre"
+                ],
+                "properties": {
+                  "nombre": {
+                    "type": "string"
+                  },
+                  "contacto": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Proveedor creado"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          }
+        }
+      }
+    },
+    "/proveedores/{id}": {
+      "get": {
+        "summary": "Obtener detalle de proveedor",
+        "description": "Obtiene detalle de un proveedor específico",
+        "tags": [
+          "Proveedores"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del proveedor"
+          },
+          "404": {
+            "description": "Proveedor no encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar proveedor",
+        "description": "Actualiza información de un proveedor",
+        "tags": [
+          "Proveedores"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string"
+                  },
+                  "contacto": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Proveedor actualizado"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          }
+        }
+      }
+    },
+    "/reportes/ventas": {
+      "get": {
+        "summary": "Reporte de ventas",
+        "tags": [
+          "Reportes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del reporte"
+          }
+        }
+      }
+    },
+    "/reportes/vendedores": {
+      "get": {
+        "summary": "Reporte de vendedores",
+        "tags": [
+          "Reportes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del reporte"
+          }
+        }
+      }
+    },
+    "/reportes/productos": {
+      "get": {
+        "summary": "Reporte de productos",
+        "tags": [
+          "Reportes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del reporte"
+          }
+        }
+      }
+    },
+    "/reportes/clientes": {
+      "get": {
+        "summary": "Reporte de clientes",
+        "tags": [
+          "Reportes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del reporte"
+          }
+        }
+      }
+    },
+    "/reportes/cancelaciones": {
+      "get": {
+        "summary": "Reporte de cancelaciones",
+        "tags": [
+          "Reportes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del reporte"
+          }
+        }
+      }
+    },
+    "/reportes/exportar/{tipo}": {
+      "get": {
+        "summary": "Exportar reporte a CSV",
+        "tags": [
+          "Reportes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tipo",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archivo CSV"
+          }
+        }
+      }
+    },
+    "/uploads/comment-images": {
+      "post": {
+        "summary": "Subir imágenes para comentario",
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imágenes subidas"
+          }
+        }
+      }
+    },
+    "/uploads/product-images": {
+      "post": {
+        "summary": "Subir imágenes para producto",
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imágenes subidas"
+          }
+        }
+      }
+    },
+    "/uploads/directories-info": {
+      "get": {
+        "summary": "Obtener información de directorios",
+        "tags": [
+          "Uploads"
+        ],
+        "responses": {
+          "200": {
+            "description": "Información de directorios"
+          }
+        }
+      }
+    },
+    "/uploads/marca-logo/{id_marca}": {
+      "post": {
+        "summary": "Subir logo para marca",
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_marca",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logo subido"
+          }
+        }
+      }
+    },
+    "/ventas/admin/estadisticas": {
+      "get": {
+        "summary": "Obtener estadísticas de ventas",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estadísticas de ventas"
+          }
+        }
+      }
+    },
+    "/ventas/admin/listar": {
+      "get": {
+        "summary": "Listar ventas",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de ventas"
+          }
+        }
+      }
+    },
+    "/ventas/admin/registrar": {
+      "post": {
+        "summary": "Registrar venta manual",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cliente_id": {
+                    "type": "integer"
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Venta registrada"
+          }
+        }
+      }
+    },
+    "/ventas/admin/{id_venta}/cancelar": {
+      "patch": {
+        "summary": "Cancelar venta",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_venta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Venta cancelada"
+          }
+        }
+      }
+    },
+    "/ventas/admin/{id_venta}/estado": {
+      "patch": {
+        "summary": "Actualizar estado de venta",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_venta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado actualizado"
+          }
+        }
+      }
+    },
+    "/ventas/admin/tipo-cambio": {
+      "get": {
+        "summary": "Obtener tipo de cambio",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tipo de cambio"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar tipo de cambio",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cotizacion": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tipo de cambio actualizado"
+          }
+        }
+      }
+    },
+    "/ventas/admin/{id_venta}/comprobante": {
+      "get": {
+        "summary": "Descargar comprobante",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_venta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF del comprobante"
+          }
+        }
+      }
+    },
+    "/ventas/admin/{id_venta}/enviar-comprobante": {
+      "post": {
+        "summary": "Enviar comprobante por email",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_venta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email enviado"
+          }
+        }
+      }
+    },
+    "/ventas/admin/{id_venta}": {
+      "get": {
+        "summary": "Detalle de venta",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_venta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la venta"
+          }
+        }
+      }
+    },
+    "/ventas/historial": {
+      "get": {
+        "summary": "Historial de ventas del cliente",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial de ventas"
+          }
+        }
+      }
+    },
+    "/ventas/{id_venta}": {
+      "get": {
+        "summary": "Detalle de venta de cliente",
+        "tags": [
+          "Ventas"
+        ],
+        "security": [
+          {
+            "bearerAuthCliente": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_venta",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la venta"
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}

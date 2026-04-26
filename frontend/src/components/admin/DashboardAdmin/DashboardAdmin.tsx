@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import adminApi from '../../../api/axiosAdminConfig';
 import { MENU_PERMISOS } from '../../../constants/menuPermisos';
-import { compraAdminService } from '../../../services/compraAdminService';
-import { envioAdminService } from '../../../services/envioAdminService';
-import { reporteService } from '../../../services/reporteService';
-import { ventaAdminService } from '../../../services/ventaAdminService';
+import adminApi from '../../../api/axiosAdminConfig';
+import adminCompraService from '../../../services/adminCompraService';
+import envioAdminService from '../../../services/envioAdminService';
+import reporteService from '../../../services/reporteService';
+import adminVentaService from '../../../services/adminVentaService';
+import styles from './DashboardAdmin.module.css';
 import type {
   CompraListItem,
   EstadisticasCompras,
@@ -16,7 +17,6 @@ import type {
   ReporteVentasResumen,
   VentaListItem,
 } from '../../../types';
-import styles from './DashboardAdmin.module.css';
 
 interface DashboardAdminProps {
   onNavigate: (section: string) => void;
@@ -131,8 +131,7 @@ const toMonthDateRange = () => {
   };
 };
 
-const formatNumber = (value: number): string =>
-  new Intl.NumberFormat('es-AR').format(value);
+const formatNumber = (value: number): string => new Intl.NumberFormat('es-AR').format(value);
 
 const formatCurrency = (value: number): string =>
   new Intl.NumberFormat('es-AR', {
@@ -177,7 +176,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
 
   const userName = user && 'nombres' in user ? user.nombres : 'Equipo';
   const roleName = user && 'rolNombre' in user ? user.rolNombre : 'Sistema';
-  const permissionCount = user && 'permisos' in user ? user.permisos?.length ?? 0 : 0;
+  const permissionCount = user && 'permisos' in user ? (user.permisos?.length ?? 0) : 0;
 
   const canViewVentas = tienePermiso('ver_ventas');
   const canViewCompras = tienePermiso('ver_compras');
@@ -199,21 +198,19 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
       };
 
       const requests: Promise<unknown>[] = [
-        adminApi
-          .get<StatsGenerales>('/usuarios/admin/dashboard-stats')
-          .then((response) => {
-            nextData.general = response.data;
-          }),
+        adminApi.get<StatsGenerales>('/usuarios/admin/dashboard-stats').then((response) => {
+          nextData.general = response.data;
+        }),
       ];
 
       if (canViewVentas) {
         requests.push(
-          ventaAdminService.obtenerEstadisticas().then((data) => {
+          adminVentaService.obtenerEstadisticas().then((data) => {
             nextData.ventasStats = data;
           }),
         );
         requests.push(
-          ventaAdminService.listarVentas({}, 4, 0).then((response) => {
+          adminVentaService.listarVentas({}, 4, 0).then((response) => {
             nextData.recentVentas = response.ventas;
           }),
         );
@@ -221,12 +218,12 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
 
       if (canViewCompras) {
         requests.push(
-          compraAdminService.obtenerEstadisticas().then((response) => {
+          adminCompraService.obtenerEstadisticas().then((response) => {
             nextData.comprasStats = response.data;
           }),
         );
         requests.push(
-          compraAdminService.listarCompras({}, 4, 0).then((response) => {
+          adminCompraService.listarCompras({}, 4, 0).then((response) => {
             nextData.recentCompras = response.data;
           }),
         );
@@ -262,17 +259,15 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
           }),
         );
         requests.push(
-          envioAdminService
-            .listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 })
-            .then((response) => {
-              nextData.retirosPendientes = response.total;
-            }),
+          envioAdminService.listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 }).then((response) => {
+            nextData.retirosPendientes = response.total;
+          }),
         );
       }
 
       if (canViewConfig) {
         requests.push(
-          ventaAdminService.getTipoCambio().then((data) => {
+          adminVentaService.getTipoCambio().then((data) => {
             nextData.tipoCambio = data;
           }),
         );
@@ -369,7 +364,14 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
     }
 
     return metrics.slice(0, 4);
-  }, [balanceEstimado, dashboardData.comprasStats, dashboardData.general, dashboardData.ventasStats, gastoMes, stockBajoCount]);
+  }, [
+    balanceEstimado,
+    dashboardData.comprasStats,
+    dashboardData.general,
+    dashboardData.ventasStats,
+    gastoMes,
+    stockBajoCount,
+  ]);
 
   const priorityItems = useMemo<PriorityItem[]>(() => {
     const items: PriorityItem[] = [];
@@ -425,12 +427,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
     }
 
     return items.slice(0, 4);
-  }, [
-    dashboardData.enviosPendientes,
-    dashboardData.retirosPendientes,
-    dashboardData.ventasResumen,
-    stockBajoCount,
-  ]);
+  }, [dashboardData.enviosPendientes, dashboardData.retirosPendientes, dashboardData.ventasResumen, stockBajoCount]);
 
   const commercialInsights = useMemo<InsightItem[]>(() => {
     const insights: InsightItem[] = [];
@@ -531,9 +528,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
       tone: 'compra',
     }));
 
-    return [...ventas, ...compras]
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 6);
+    return [...ventas, ...compras].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6);
   }, [dashboardData.recentCompras, dashboardData.recentVentas]);
 
   const loadingMetrics = [0, 1, 2, 3];
@@ -545,8 +540,8 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
           <span className={styles.eyebrow}>Centro operativo</span>
           <h1 className={styles.title}>Dashboard administrativo</h1>
           <p className={styles.subtitle}>
-            {userName}, este tablero resume el estado comercial, operativo y de acceso de tu sesión actual
-            sin duplicar la navegación del sidebar.
+            {userName}, este tablero resume el estado comercial, operativo y de acceso de tu sesión actual sin duplicar
+            la navegación del sidebar.
           </p>
 
           <div className={styles.heroMeta}>
@@ -580,9 +575,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
           </div>
           <div className={styles.heroStat}>
             <span className={styles.heroStatLabel}>Foco inmediato</span>
-            <strong className={styles.heroStatValue}>
-              {priorityItems[0]?.title ?? 'Operación estable'}
-            </strong>
+            <strong className={styles.heroStatValue}>{priorityItems[0]?.title ?? 'Operación estable'}</strong>
           </div>
         </div>
       </header>

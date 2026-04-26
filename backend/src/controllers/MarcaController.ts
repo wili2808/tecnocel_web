@@ -35,7 +35,7 @@ function enriquecerLogoMarca(marca: any): any {
  *
  * @class MarcaController
  */
-export class MarcaController {
+class MarcaController {
   /**
    * Obtiene todas las marcas activas ordenadas alfabéticamente
    * @param req - Express Request
@@ -318,3 +318,5 @@ export class MarcaController {
     }
   }
 }
+
+export default MarcaController;

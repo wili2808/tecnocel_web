@@ -1,15 +1,8 @@
-/**
- * Componente AdminPanel - Panel de administración completo con navegación lateral
- * Proporciona acceso a funcionalidades de gestión para administradores y empleados
- * Incluye CRUD de usuarios, gestión de clientes, productos y configuración del sistema
- * Control de acceso basado en permisos granulares
- */
 import { useState, useMemo } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
 import { MobileMenuDropdown } from '../../components/common/MobileMenuDropdown';
-import type { AdminUser } from '../../types/usuario';
 import DashboardAdmin from '../../components/admin/DashboardAdmin/DashboardAdmin';
 import GestionUsuarios from '../../components/admin/GestionUsuarios/GestionUsuarios';
 import GestionClientes from '../../components/admin/GestionClientes/GestionClientes';
@@ -19,8 +12,9 @@ import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
 import GestionCompras from '../../components/admin/GestionCompras/GestionCompras';
 import Reportes from '../../components/admin/Reportes/Reportes';
 import GestionPermisos from '../../components/admin/GestionPermisos/GestionPermisos';
-import adminPanelStyles from './AdminPanel.module.css';
 import { MENU_PERMISOS, type MenuPermisoOption } from '../../constants/menuPermisos';
+import adminPanelStyles from './AdminPanel.module.css';
+import type { AdminUser } from '../../types/usuario';
 
 const SECTION_DESCRIPTIONS: Record<string, string> = {
   dashboard: 'Resumen operativo del negocio, prioridades activas y alcance del rol actual.',
@@ -34,9 +28,7 @@ const SECTION_DESCRIPTIONS: Record<string, string> = {
   permisos: 'Gobernanza de permisos y seguridad del sistema administrativo.',
 };
 
-// ============================================================================
-// COMPONENTES AUXILIARES
-// ============================================================================
+// --- COMPONENTES AUXILIARES ---
 
 /**
  * Componente de elemento del menú del panel
@@ -61,9 +53,7 @@ const MenuOptionItem = ({
   </button>
 );
 
-// ============================================================================
-// SECCIÓN DE CONTENIDO DINÁMICO
-// ============================================================================
+// --- SECCIÓN DE CONTENIDO DINÁMICO ---
 
 /**
  * Componente de contenido dinámico del panel
@@ -118,9 +108,7 @@ const ContentSection = ({
   return <div className={adminPanelStyles.contentArea}>{renderContent()}</div>;
 };
 
-// ============================================================================
-// COMPONENTE PRINCIPAL - ADMINPANEL
-// ============================================================================
+// --- COMPONENTE PRINCIPAL - ADMINPANEL ---
 
 /**
  * Componente principal del panel de administración

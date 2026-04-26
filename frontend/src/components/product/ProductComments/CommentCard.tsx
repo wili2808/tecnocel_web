@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import type { Comentario, Respuesta } from '../../../services/commentService';
+import { useAuth } from '../../../contexts/AuthContext';
 import commentService from '../../../services/commentService';
 import adminCommentService from '../../../services/adminCommentService';
 import uploadService from '../../../services/uploadService';
-import { useAuth } from '../../../contexts/AuthContext';
 import ReplyList from './ReplyList';
 import styles from './CommentCard.module.css';
+import type { Comentario, Respuesta } from '../../../types/comentario';
 
 interface CommentCardProps {
   comentario: Comentario;

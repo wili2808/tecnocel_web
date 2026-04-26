@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import styles from './GestionVentas.module.css';
+import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { envioAdminService } from '../../../services/envioAdminService';
-import type { EnvioAdminListItem, EnvioAdminDetalle } from '../../../types/envio';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
+import styles from './GestionVentas.module.css';
+import type { EnvioAdminListItem, EnvioAdminDetalle } from '../../../types/envio';
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
 const formatMoneda = (n: number, moneda = 'ARS') =>
@@ -33,11 +36,20 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   useEffect(() => {
     let cancelled = false;
     setCargando(true);
-    envioAdminService.obtenerDetalle(retiro.id_envio)
-      .then(d => { if (!cancelled) setDetalle(d); })
-      .catch(() => { if (!cancelled) showNotification('Error al cargar detalle del retiro', 'error'); })
-      .finally(() => { if (!cancelled) setCargando(false); });
-    return () => { cancelled = true; };
+    envioAdminService
+      .obtenerDetalle(retiro.id_envio)
+      .then((d) => {
+        if (!cancelled) setDetalle(d);
+      })
+      .catch(() => {
+        if (!cancelled) showNotification('Error al cargar detalle del retiro', 'error');
+      })
+      .finally(() => {
+        if (!cancelled) setCargando(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [retiro.id_envio, showNotification]);
 
   const handleMarcarEntregado = async () => {
@@ -54,19 +66,25 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={e => e.target === e.currentTarget && onClose()}>
+    <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`${styles.modal} ${styles.modalLarge}`}>
         {/* Header */}
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>
             <span className="material-icons">store</span>
             Retiro en tienda #{retiro.nro_venta}
-            <span className={`${styles.estadoBadge} ${retiro.estado_envio === 'entregado' ? styles.estadoEntregado : styles.estadoPendiente}`}>
-              {(retiro.estado_envio as string) === 'no_aplica' ? ESTADO_ENVIO_LABELS.pendiente : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
+            <span
+              className={`${styles.estadoBadge} ${retiro.estado_envio === 'entregado' ? styles.estadoEntregado : styles.estadoPendiente}`}
+            >
+              {(retiro.estado_envio as string) === 'no_aplica'
+                ? ESTADO_ENVIO_LABELS.pendiente
+                : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
             </span>
           </h2>
           <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons" style={{ fontSize: 18 }}>close</span>
+            <span className="material-icons" style={{ fontSize: 18 }}>
+              close
+            </span>
           </button>
         </div>
 
@@ -130,12 +148,18 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                       <td>{item.nombre_producto}</td>
                       <td className={styles.textRight}>{item.cantidad}</td>
                       <td className={styles.textRight}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                      <td className={styles.textRight}>{formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}</td>
+                      <td className={styles.textRight}>
+                        {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
+                      </td>
                     </tr>
                   ))}
                   <tr className={styles.totalRow}>
-                    <td colSpan={3}><strong>Total</strong></td>
-                    <td className={styles.textRight}><strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong></td>
+                    <td colSpan={3}>
+                      <strong>Total</strong>
+                    </td>
+                    <td className={styles.textRight}>
+                      <strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -144,11 +168,10 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
               {!esEntregado && (
                 <div className={styles.envioAccionPanel}>
                   {!confirmando ? (
-                    <button
-                      className={styles.submitButton}
-                      onClick={() => setConfirmando(true)}
-                    >
-                      <span className="material-icons" style={{ fontSize: 16 }}>check_circle</span>
+                    <button className={styles.submitButton} onClick={() => setConfirmando(true)}>
+                      <span className="material-icons" style={{ fontSize: 16 }}>
+                        check_circle
+                      </span>
                       Marcar como Entregado
                     </button>
                   ) : (
@@ -164,11 +187,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                         >
                           Cancelar
                         </button>
-                        <button
-                          className={styles.submitButton}
-                          onClick={handleMarcarEntregado}
-                          disabled={guardando}
-                        >
+                        <button className={styles.submitButton} onClick={handleMarcarEntregado} disabled={guardando}>
                           {guardando ? 'Guardando...' : 'Confirmar entrega'}
                         </button>
                       </div>
@@ -184,7 +203,9 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
 
         {/* Footer */}
         <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>Cerrar</button>
+          <button className={styles.cancelButton} onClick={onClose}>
+            Cerrar
+          </button>
         </div>
       </div>
     </div>

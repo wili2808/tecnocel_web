@@ -1,27 +1,7 @@
-/**
- * @file Servicio de gestión de ventas — Panel Admin
- *
- * Maneja todas las operaciones del panel administrativo relacionadas con ventas:
- * - Listar ventas con filtros y paginación
- * - Ver detalle de cualquier venta
- * - Registrar ventas manuales
- * - Cancelar ventas (solo admin)
- * - Estadísticas de ventas
- *
- * Usa adminApi (axiosAdminConfig) que inyecta automáticamente el Bearer token
- * del usuario del sistema (admin/empleado/vendedor).
- */
-
 import adminApi from '../api/axiosAdminConfig';
-import type {
-  ListarVentasAdminResponse,
-  VentaDetalle,
-  RegistrarVentaManualData,
-  EstadisticasVentas,
-  FiltrosVentasAdmin
-} from '../types/venta';
+import type { ListarVentasAdminResponse, VentaDetalle, RegistrarVentaManualData, EstadisticasVentas, FiltrosVentasAdmin } from '../types/venta';
 
-export const ventaAdminService = {
+const adminVentaService = {
 
   /**
    * Lista ventas con filtros opcionales y paginación
@@ -154,7 +134,7 @@ export const ventaAdminService = {
     }
   },
 
-  // ── Helpers de formato ────────────────────────────────────────────────────
+  // --- HELPERS DE FORMATO ---
 
   formatearMetodoPago(metodo: string | null): string {
     const labels: Record<string, string> = {
@@ -184,4 +164,4 @@ export const ventaAdminService = {
   }
 };
 
-export default ventaAdminService;
+export default adminVentaService;

@@ -1,35 +1,15 @@
-/**
- * @file Servicio de gestión de USUARIOS DEL SISTEMA (admin/empleado)
- *
- * Maneja autenticación, autorización y CRUD de usuarios del sistema
- * Incluye gestión administrativa de clientes desde el panel de administración
- * NO maneja autenticación de clientes (ver clienteService.ts)
- */
-
-import axios from 'axios';
-import adminApi from '../api/axiosAdminConfig';
+import { adminApi, publicApi } from '../api/axiosAdminConfig';
 import { ROLES } from '../constants/roles';
-import type {
-  AdminUser,
-  RolItem,
-  CrearUsuarioData,
-  ActualizarUsuarioData,
-  ActualizarClienteAdmin,
-  CrearClienteAdminData
-} from '../types/usuario';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import type { AdminUser, RolItem, CrearUsuarioData, ActualizarUsuarioData, ActualizarClienteAdmin, CrearClienteAdminData } from '../types/usuario';
 
 // Constantes para almacenamiento local
 const ADMIN_TOKEN_KEY = 'admin_token';
 const ADMIN_USER_KEY = 'admin_user';
 const ADMIN_TIMESTAMP_KEY = 'admin_timestamp';
 
-export const usuarioService = {
+const usuarioService = {
 
-  // ==========================================================================
-  // AUTENTICACIÓN
-  // ==========================================================================
+  // --- AUTENTICACIÓN DE USUARIOS DEL SISTEMA (ADMIN/EMPLEADOS) ---
 
   /**
    * Login de usuario administrador o empleado
@@ -44,7 +24,7 @@ export const usuarioService = {
    */
   async loginAdmin(email: string, password: string): Promise<{ token: string; usuario: AdminUser }> {
     try {
-      const response = await axios.post(`${API_URL}/usuarios/login`, {
+      const response = await publicApi.post('/usuarios/login', {
         email,
         contrasena: password
       });
@@ -153,9 +133,7 @@ export const usuarioService = {
     }
   },
 
-  // ==========================================================================
-  // GESTIÓN DE ROLES
-  // ==========================================================================
+  // --- GESTIÓN DE ROLES ---
 
   /**
    * Listar todos los roles disponibles en el sistema
@@ -171,9 +149,7 @@ export const usuarioService = {
     }
   },
 
-  // ==========================================================================
-  // GESTIÓN DE USUARIOS DEL SISTEMA
-  // ==========================================================================
+  // --- GESTIÓN DE USUARIOS DEL SISTEMA ---
 
   /**
    * Listar usuarios del sistema con paginación
@@ -254,9 +230,7 @@ export const usuarioService = {
     }
   },
 
-  // ==========================================================================
-  // GESTIÓN DE CLIENTES (VISTA ADMINISTRATIVA)
-  // ==========================================================================
+  // --- GESTIÓN DE CLIENTES (VISTA ADMINISTRATIVA) ---
 
   /**
    * Listar clientes de la tienda web
@@ -317,9 +291,7 @@ export const usuarioService = {
     }
   },
 
-  // ==========================================================================
-  // UTILIDADES
-  // ==========================================================================
+  // --- UTILIDADES ---
 
   /**
    * Verificar si el usuario es administrador
@@ -355,4 +327,3 @@ export const usuarioService = {
 };
 
 export default usuarioService;
-

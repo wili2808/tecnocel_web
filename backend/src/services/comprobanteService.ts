@@ -1,15 +1,5 @@
-/**
- * @file comprobanteService.ts
- *
- * Genera comprobantes de venta en formato PDF.
- * Retorna un Buffer listo para enviarse como respuesta HTTP o adjuntarse en email.
- *
- * Nota: pdfkit trabaja con streams Node.js. El Buffer se construye
- * colectando eventos 'data' y resolviendo la Promise en 'end'.
- */
-
-import PDFDocument from 'pdfkit';
 import logger from './loggerService.js';
+import PDFDocument from 'pdfkit';
 
 // ── Datos de la empresa (placeholders hasta que se definan los reales) ──────
 const EMPRESA = {

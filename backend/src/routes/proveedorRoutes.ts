@@ -1,17 +1,25 @@
 import { Router } from 'express';
-import { ProveedorController } from '../controllers/ProveedorController.js';
+import ProveedorController from '../controllers/ProveedorController.js';
 import { verificarToken, verificarPermiso } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-// ============================================================================
-// RUTAS PROTEGIDAS - Requieren permisos específicos
-// ============================================================================
+// --- RUTAS PROTEGIDAS ---
 
 /**
- * GET /proveedores
- * Obtiene listado de proveedores con búsqueda opcional
- * Permiso: ver_proveedores
+ * @swagger
+ * /proveedores:
+ *   get:
+ *     summary: Obtener proveedores
+ *     description: Obtiene listado de proveedores con búsqueda opcional
+ *     tags: [Proveedores]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de proveedores
+ *       403:
+ *         description: Sin permisos
  */
 router.get(
   '/',
@@ -21,9 +29,25 @@ router.get(
 );
 
 /**
- * GET /proveedores/:id
- * Obtiene detalle de un proveedor específico
- * Permiso: ver_proveedores
+ * @swagger
+ * /proveedores/{id}:
+ *   get:
+ *     summary: Obtener detalle de proveedor
+ *     description: Obtiene detalle de un proveedor específico
+ *     tags: [Proveedores]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Detalle del proveedor
+ *       404:
+ *         description: Proveedor no encontrado
  */
 router.get(
   '/:id',
@@ -33,9 +57,32 @@ router.get(
 );
 
 /**
- * POST /proveedores
- * Crea un nuevo proveedor
- * Permiso: crear_proveedor
+ * @swagger
+ * /proveedores:
+ *   post:
+ *     summary: Crear proveedor
+ *     description: Crea un nuevo proveedor
+ *     tags: [Proveedores]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               contacto:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Proveedor creado
+ *       400:
+ *         description: Datos inválidos
  */
 router.post(
   '/',
@@ -45,9 +92,36 @@ router.post(
 );
 
 /**
- * PUT /proveedores/:id
- * Actualiza información de un proveedor
- * Permiso: editar_proveedor
+ * @swagger
+ * /proveedores/{id}:
+ *   put:
+ *     summary: Actualizar proveedor
+ *     description: Actualiza información de un proveedor
+ *     tags: [Proveedores]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               contacto:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Proveedor actualizado
+ *       400:
+ *         description: Datos inválidos
  */
 router.put(
   '/:id',

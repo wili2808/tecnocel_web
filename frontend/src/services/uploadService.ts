@@ -29,8 +29,9 @@ export interface UploadError {
 /**
  * Servicio para manejar la subida de imágenes de comentarios
  * Incluye validación, procesamiento y gestión de archivos
+ * Implementado como objeto literal (singleton) siguiendo el patrón del proyecto
  */
-class UploadService {
+const uploadService = {
   /**
    * Sube múltiples imágenes de comentario al servidor
    * Realiza validaciones del lado cliente antes de la subida
@@ -76,7 +77,7 @@ class UploadService {
         throw new Error('Error desconocido al subir las imágenes');
       }
     }
-  }
+  },
 
   /**
    * Valida archivos antes de subir al servidor
@@ -84,7 +85,7 @@ class UploadService {
    * @param files - Array de archivos a validar
    * @throws Error si la validación falla
    */
-  private validateFiles(files: File[]): void {
+  validateFiles(files: File[]): void {
     if (!files || files.length === 0) {
       throw new Error('No se han seleccionado archivos');
     }
@@ -112,7 +113,7 @@ class UploadService {
         throw new Error(`La imagen ${index + 1} está vacía`);
       }
     });
-  }
+  },
 
   /**
    * Genera una vista previa de imagen para mostrar antes de subir
@@ -138,7 +139,7 @@ class UploadService {
       
       reader.readAsDataURL(file);
     });
-  }
+  },
 
   /**
    * Formatea el tamaño de archivo en bytes a una representación legible
@@ -154,7 +155,7 @@ class UploadService {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
+  },
 
   /**
    * Valida si un tipo de archivo MIME es una imagen válida
@@ -165,7 +166,7 @@ class UploadService {
   isValidImageType(fileType: string): boolean {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     return allowedTypes.includes(fileType);
-  }
+  },
 
   /**
    * Obtiene la extensión de archivo recomendada basada en el tipo MIME
@@ -174,7 +175,7 @@ class UploadService {
    * @returns Extensión recomendada para el archivo
    */
   getRecommendedExtension(fileType: string): string {
-    const typeMap: { [key: string]: string } = {
+    const typeMap: Record<string, string> = {
       'image/jpeg': 'jpg',
       'image/jpg': 'jpg',
       'image/png': 'png',
@@ -184,6 +185,6 @@ class UploadService {
 
     return typeMap[fileType] || 'jpg';
   }
-}
+};
 
-export default new UploadService();
+export default uploadService;

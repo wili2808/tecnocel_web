@@ -1,10 +1,6 @@
-/**
- * Hook especializado para paginación de ofertas
- * Utiliza el contexto global de ofertas y agrega funcionalidad de paginación
- */
 import { useState, useCallback, useMemo } from 'react';
 import { useOfertasGlobal } from './useOfertasGlobal';
-import { ofertaService } from '../services/ofertaService';
+import ofertaService from '../services/ofertaService';
 
 interface UseOfertasPaginationOptions {
     itemsPerPage?: number;

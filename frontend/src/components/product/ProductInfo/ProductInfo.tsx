@@ -56,7 +56,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
   // ============================================================================
 
   // Log de desarrollo para verificar datos de ofertas
-  if (process.env.NODE_ENV === 'development' && en_oferta) {
+  if (import.meta.env.DEV && en_oferta) {
     console.log('🛍️ ProductInfo - Producto en oferta:', {
       nombre,
       precio_original: priceInfo.original,

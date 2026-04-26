@@ -1,5 +1,5 @@
 import React, { useState, memo } from 'react';
-import type { Respuesta } from '../../../services/commentService';
+import type { Respuesta } from '../../../types/comentario';
 import commentService from '../../../services/commentService';
 import { useAuth } from '../../../contexts/AuthContext';
 import styles from './ReplyCard.module.css';

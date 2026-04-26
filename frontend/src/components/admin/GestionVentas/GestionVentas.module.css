@@ -37,12 +37,18 @@
   white-space: nowrap;
 }
 
-.crearButton:hover {
+.crearButton:hover:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
-.crearButton:active {
+.crearButton:active:not(:disabled) {
   background: var(--color-primary-dark);
+}
+
+.crearButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-primary);
 }
 
 /* ============================================================================
@@ -69,11 +75,6 @@
 
 .statCard:last-child {
   border-right: none;
-}
-
-.statCard:hover {
-  background: var(--background-hover);
-  transform: none;
 }
 
 .statLabel {
@@ -1139,26 +1140,18 @@
   text-align: center;
 }
 
-.precioInput {
-  width: 85px;
+.precioReadonly {
+  min-width: 85px;
   padding: 4px 8px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
   font-size: 13px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
+  font-weight: 600;
   color: var(--text-primary);
   text-align: right;
-}
-
-.precioInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.precioInputManual {
-  border-color: var(--color-warning, #d97706);
-  background: var(--color-warning-100, #fef3c7);
+  font-variant-numeric: tabular-nums;
+  background: var(--background-neutral);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  user-select: none;
 }
 
 .itemSubtotal {

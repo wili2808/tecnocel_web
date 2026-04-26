@@ -18,7 +18,7 @@ import type { UpdateDireccionBody } from '../types/carrito.types.js';
  *
  * @class DireccionController
  */
-export class DireccionController {
+class DireccionController {
   /**
    * Obtiene todas las direcciones de un cliente
    *
@@ -508,3 +508,5 @@ export class DireccionController {
     }
   }
 }
+
+export default DireccionController;

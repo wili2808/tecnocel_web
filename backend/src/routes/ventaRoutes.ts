@@ -1,24 +1,3 @@
-/**
- * @file Rutas para operaciones de ventas
- *
- * Define los endpoints REST para ventas.
- *
- * RUTAS ADMIN (requieren verificarToken + verificarPermiso):
- * - GET  /api/ventas/admin/estadisticas           - Stats rápidas (hoy, semana, mes, ingresos)
- * - GET  /api/ventas/admin/listar                 - Listado con filtros y paginación
- * - POST /api/ventas/admin/registrar              - Registrar venta manual
- * - PATCH /api/ventas/admin/:id/cancelar          - Cancelar venta
- * - GET  /api/ventas/admin/:id_venta/comprobante  - Descargar PDF del comprobante
- * - POST /api/ventas/admin/:id_venta/enviar-comprobante - Enviar comprobante por email
- * - GET  /api/ventas/admin/:id_venta              - Detalle sin restricción de cliente
- *
- * RUTAS CLIENTE (requieren verificarTokenCliente):
- * - GET /api/ventas/historial            - Historial del cliente autenticado
- * - GET /api/ventas/:id_venta            - Detalle de venta propia
- *
- * @module ventaRoutes
- */
-
 import { Router } from 'express';
 import VentaController from '../controllers/VentaController.js';
 import AdminVentaController from '../controllers/AdminVentaController.js';
@@ -44,9 +23,16 @@ const router = Router();
 // ============================================================================
 
 /**
- * GET /api/ventas/admin/estadisticas
- * Estadísticas de ventas: hoy, semana, mes, ingresos del mes
- * Permiso: ver_ventas
+ * @swagger
+ * /ventas/admin/estadisticas:
+ *   get:
+ *     summary: Obtener estadísticas de ventas
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas de ventas
  */
 router.get('/admin/estadisticas',
   verificarToken,
@@ -55,9 +41,16 @@ router.get('/admin/estadisticas',
 );
 
 /**
- * GET /api/ventas/admin/listar
- * Listado de ventas con filtros opcionales: fecha, estado, tipo_venta, metodo_pago, search
- * Permiso: ver_ventas
+ * @swagger
+ * /ventas/admin/listar:
+ *   get:
+ *     summary: Listar ventas
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de ventas
  */
 router.get('/admin/listar',
   verificarToken,
@@ -67,9 +60,29 @@ router.get('/admin/listar',
 );
 
 /**
- * POST /api/ventas/admin/registrar
- * Registrar una venta manual (sin flujo de carrito web)
- * Permiso: crear_venta
+ * @swagger
+ * /ventas/admin/registrar:
+ *   post:
+ *     summary: Registrar venta manual
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cliente_id:
+ *                 type: integer
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       201:
+ *         description: Venta registrada
  */
 router.post('/admin/registrar',
   verificarToken,
@@ -79,9 +92,22 @@ router.post('/admin/registrar',
 );
 
 /**
- * PATCH /api/ventas/admin/:id_venta/cancelar
- * Cancelar una venta y restaurar stock
- * Permiso: cancelar_venta
+ * @swagger
+ * /ventas/admin/{id_venta}/cancelar:
+ *   patch:
+ *     summary: Cancelar venta
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_venta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Venta cancelada
  */
 router.patch('/admin/:id_venta/cancelar',
   verificarToken,
@@ -91,9 +117,31 @@ router.patch('/admin/:id_venta/cancelar',
 );
 
 /**
- * PATCH /api/ventas/admin/:id_venta/estado
- * Actualiza el estado de una venta (en_preparacion, enviado, entregado)
- * Permiso: editar_venta
+ * @swagger
+ * /ventas/admin/{id_venta}/estado:
+ *   patch:
+ *     summary: Actualizar estado de venta
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_venta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               estado:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Estado actualizado
  */
 router.patch('/admin/:id_venta/estado',
   verificarToken,
@@ -102,9 +150,16 @@ router.patch('/admin/:id_venta/estado',
 );
 
 /**
- * GET /api/ventas/admin/tipo-cambio
- * Obtiene la cotización USD/ARS configurada
- * Permiso: ver_configuracion
+ * @swagger
+ * /ventas/admin/tipo-cambio:
+ *   get:
+ *     summary: Obtener tipo de cambio
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Tipo de cambio
  */
 router.get('/admin/tipo-cambio',
   verificarToken,
@@ -113,9 +168,25 @@ router.get('/admin/tipo-cambio',
 );
 
 /**
- * PUT /api/ventas/admin/tipo-cambio
- * Actualiza la cotización USD/ARS
- * Permiso: editar_configuracion
+ * @swagger
+ * /ventas/admin/tipo-cambio:
+ *   put:
+ *     summary: Actualizar tipo de cambio
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cotizacion:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Tipo de cambio actualizado
  */
 router.put('/admin/tipo-cambio',
   verificarToken,
@@ -125,9 +196,22 @@ router.put('/admin/tipo-cambio',
 );
 
 /**
- * GET /api/ventas/admin/:id_venta/comprobante
- * Genera y descarga el comprobante de una venta en PDF
- * Permiso: ver_ventas
+ * @swagger
+ * /ventas/admin/{id_venta}/comprobante:
+ *   get:
+ *     summary: Descargar comprobante
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_venta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: PDF del comprobante
  */
 router.get('/admin/:id_venta/comprobante',
   verificarToken,
@@ -136,9 +220,22 @@ router.get('/admin/:id_venta/comprobante',
 );
 
 /**
- * POST /api/ventas/admin/:id_venta/enviar-comprobante
- * Envía el comprobante por email al cliente registrado en la venta
- * Permiso: ver_ventas
+ * @swagger
+ * /ventas/admin/{id_venta}/enviar-comprobante:
+ *   post:
+ *     summary: Enviar comprobante por email
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_venta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Email enviado
  */
 router.post('/admin/:id_venta/enviar-comprobante',
   verificarToken,
@@ -147,9 +244,22 @@ router.post('/admin/:id_venta/enviar-comprobante',
 );
 
 /**
- * GET /api/ventas/admin/:id_venta
- * Detalle completo de una venta (sin restricción de propietario)
- * Permiso: ver_ventas
+ * @swagger
+ * /ventas/admin/{id_venta}:
+ *   get:
+ *     summary: Detalle de venta
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_venta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Detalle de la venta
  */
 router.get('/admin/:id_venta',
   verificarToken,
@@ -167,8 +277,16 @@ router.use(verificarTokenCliente);
 router.use(ventasRateLimit);
 
 /**
- * GET /api/ventas/historial
- * Historial de ventas del cliente autenticado
+ * @swagger
+ * /ventas/historial:
+ *   get:
+ *     summary: Historial de ventas del cliente
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     responses:
+ *       200:
+ *         description: Historial de ventas
  */
 router.get('/historial',
   logVentaOperation('obtener_historial'),
@@ -177,8 +295,22 @@ router.get('/historial',
 );
 
 /**
- * GET /api/ventas/:id_venta
- * Detalle de una venta específica (solo el cliente propietario)
+ * @swagger
+ * /ventas/{id_venta}:
+ *   get:
+ *     summary: Detalle de venta de cliente
+ *     tags: [Ventas]
+ *     security:
+ *       - bearerAuthCliente: []
+ *     parameters:
+ *       - in: path
+ *         name: id_venta
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Detalle de la venta
  */
 router.get('/:id_venta',
   logVentaOperation('obtener_detalle'),

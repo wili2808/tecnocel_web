@@ -3,9 +3,9 @@
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  padding: 16px 18px;
+  padding: 12px 14px;
   border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
   border-radius: var(--border-radius-lg);
   background: color-mix(in srgb, var(--background-primary) 94%, transparent);
@@ -14,21 +14,16 @@
               background-color var(--transition-fast) var(--transition-curve);
 }
 
-.card:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--color-primary) 24%, var(--border-color));
-}
-
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  align-items: center;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .header .material-icons {
@@ -46,8 +41,9 @@
 
 .detail {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
 .neutral .header .material-icons {
@@ -67,7 +63,7 @@
 }
 
 .flush {
-  padding: 16px 20px;
+  padding: 12px 16px;
   border: none;
   border-right: 1px solid var(--border-color);
   border-radius: 0;
@@ -76,11 +72,6 @@
 
 .flush:last-child {
   border-right: none;
-}
-
-.flush:hover {
-  transform: none;
-  background: var(--background-hover);
 }
 
 @media (max-width: 1024px) {

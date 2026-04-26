@@ -1,5 +1,5 @@
-import Notificacion, { TipoNotificacion } from '../models/Notificacion.js';
 import logger from './loggerService.js';
+import Notificacion, { TipoNotificacion } from '../models/Notificacion.js';
 
 /**
  * Servicio de notificaciones in-app para clientes.

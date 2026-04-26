@@ -17,6 +17,8 @@ import { getImageService } from '../services/imageService.js';
 import { enriquecerProductoConOferta } from '../services/ofertaService.js';
 import { deleteCloudinaryByPublicId, extractCloudinaryPublicId, buildCloudinaryPublicId, isCloudinaryConfigured } from '../services/cloudinaryService.js';
 import { config } from '../config/config.js';
+// Utils
+import { ok, okList, okPaginated, okMessage, errorResponse } from '../utils/apiResponse.js';
 
 /**
  * Controlador para gestión del catálogo de productos del almacén
@@ -105,6 +107,8 @@ class AlmacenController {
     }
   }
 
+  // --- Metodos de productos ---
+
   /**
    * Obtiene todos los productos del almacén con información relacionada
    *
@@ -116,33 +120,133 @@ class AlmacenController {
    * - Ofertas activas vigentes
    * - Imágenes del producto
    *
+   * Soporta paginación y filtros básicos via query params:
+   * - page: número de página (default 1)
+   * - limit: items por página (default 20)
+   * - categoria: filtrar por ID de categoría
+   * - marca: filtrar por ID de marca
+   * - precio_min: filtrar por precio mínimo
+   * - precio_max: filtrar por precio máximo
+   *
    * Las URLs de imágenes son transformadas a URLs completas mediante imageService.
    * Las ofertas son filtradas por fecha actual y estado activo.
    *
-   * @param req - Express Request object
+   * @param req - Express Request con query params de paginación y filtros
    * @param res - Express Response object
-   * @returns 200 con array de productos transformados
+   * @returns 200 con objeto conteniendo productos y metadata de paginación
    * @returns 500 si ocurre error en el servidor
    *
    * @example
-   * GET /api/almacen/productos
-   * Response: [{ id_producto: 1, nombre: "iPhone 13", imagen_url: "...", ofertas: [...] }]
+   * GET /api/almacen/productos?page=1&limit=12&categoria=2
+   * Response: { productos: [...], pagination: { page: 1, limit: 12, total: 50, pages: 5 } }
    */
   async getProducts(req: Request, res: Response) {
     try {
-      logger.debug('Obteniendo lista de productos del almacén');
+      // Detectar si se piden parámetros de paginación
+      const pageParam = req.query.page as string;
+      const limitParam = req.query.limit as string;
+      const hasPagination = pageParam !== undefined || limitParam !== undefined;
+
+      // Si no hay parámetros de paginación, devolver todos los productos sin paginar
+      if (!hasPagination) {
+        const now = new Date();
+
+        const productos = await Almacen.findAll({
+          include: [
+            {
+              model: Categoria,
+              as: 'Categoria',
+              attributes: ['nombre_categoria']
+            },
+            {
+              model: Usuario,
+              attributes: ['nombres']
+            },
+            {
+              model: Marca,
+              as: 'marca',
+              attributes: ['nombre_marca', 'logo_marca']
+            },
+            {
+              model: TipoCaracteristica,
+              as: 'caracteristicas',
+              through: {
+                attributes: ['valor']
+              },
+              attributes: ['nombre_tipo', 'tipo_dato', 'unidad_medida']
+            },
+            {
+              model: Oferta,
+              as: 'ofertas',
+              where: {
+                activo: true,
+                fecha_inicio: { [Op.lte]: now },
+                fecha_fin: { [Op.gte]: now }
+              },
+              required: false,
+              through: {
+                attributes: ['precio_oferta', 'es_precio_personalizado']
+              },
+              attributes: ['nombre_oferta', 'tipo_descuento', 'valor_descuento']
+            },
+            {
+              model: ProductoImagen,
+              as: 'imagenes',
+              attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
+            }
+          ],
+          order: [['fyh_creacion', 'DESC']]
+        });
+
+        const productosConImagenes = await this.transformProductsWithImages(productos);
+
+        res.locals.skipHttpLog = true;
+        logger.info('Productos obtenidos (sin paginación)', {
+          cantidad: productos.length
+        });
+
+        return res.json({
+          success: true,
+          data: productosConImagenes
+        });
+      }
+
+      // Con parámetros de paginación
+      const page = Math.max(1, parseInt(pageParam) || 1);
+      const limit = Math.min(1000, Math.max(1, parseInt(limitParam) || 20));
+      const offset = (page - 1) * limit;
+
+      // Parsear filtros
+      const { categoria, marca, precio_min, precio_max } = req.query;
+
+      // Construir condiciones where
+      const where: any = {};
+      if (categoria) where.id_categoria = parseInt(categoria as string);
+      if (marca) where.id_marca = parseInt(marca as string);
+      if (precio_min || precio_max) {
+        where.precio = {};
+        if (precio_min) where.precio[Op.gte] = parseFloat(precio_min as string);
+        if (precio_max) where.precio[Op.lte] = parseFloat(precio_max as string);
+      }
+
+      logger.debug('Obteniendo lista de productos del almacén con filtros', {
+        page, limit, offset, categoria, marca, precio_min, precio_max
+      });
+
       const now = new Date();
-      
-      const productos = await Almacen.findAll({
+
+      // Consulta con paginación
+      const { count, rows: productos } = await Almacen.findAndCountAll({
+        where,
         include: [
-          { 
+          {
             model: Categoria,
             as: 'Categoria',
             attributes: ['nombre_categoria']
           },
-          { 
-            model: Usuario, 
-            attributes: ['nombres'] 
+          {
+            model: Usuario,
+            attributes: ['nombres']
           },
           {
             model: Marca,
@@ -176,27 +280,40 @@ class AlmacenController {
             as: 'imagenes',
             attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
           }
-        ]
+        ],
+        limit,
+        offset,
+        order: [['fyh_creacion', 'DESC']]
       });
-      
+
       const productosConImagenes = await this.transformProductsWithImages(productos);
-      
+
+      const totalPages = Math.ceil(count / limit);
+
       res.locals.skipHttpLog = true;
-      
+
       logger.info('Productos obtenidos exitosamente', {
         operacion: 'obtener_productos',
-        cantidad: productos.length,
+        page,
+        limit,
+        total: count,
+        returned: productos.length,
         conImagenes: productosConImagenes.filter(p => p.imagen_disponible).length,
         success: true
       });
-      
-      res.json(productosConImagenes);
+
+      res.json(okPaginated(productosConImagenes, {
+        page,
+        limit,
+        total: count,
+        pages: totalPages
+      }));
     } catch (error) {
       logger.error('Error al obtener productos del almacén:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined
       });
-      res.status(500).json({ message: 'Error al obtener los productos del almacén' });
+      res.status(500).json(errorResponse('Error al obtener los productos del almacén'));
     }
   }
 
@@ -278,13 +395,13 @@ class AlmacenController {
 
       if (!producto) {
         logger.warn(`Producto no encontrado en almacén con ID: ${id}`);
-        return res.status(404).json({ message: 'Producto no encontrado' });
+        return res.status(404).json(errorResponse('Producto no encontrado'));
       }
 
       const productoConImagen = await this.transformProductWithImage(producto);
 
       res.locals.skipHttpLog = true;
-      
+
       logger.info('Producto obtenido exitosamente', {
         operacion: 'obtener_producto',
         producto_id: id,
@@ -292,14 +409,14 @@ class AlmacenController {
         categoria: (producto as any).Categoria?.nombre_categoria,
         success: true
       });
-      
-      res.json(productoConImagen);
+
+      return res.json(ok(productoConImagen));
     } catch (error) {
       logger.error('Error al obtener producto del almacén por ID:', {
         id: req.params.id,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al obtener el producto del almacén' });
+      res.status(500).json(errorResponse('Error al obtener el producto del almacén'));
     }
   }
 
@@ -398,7 +515,7 @@ class AlmacenController {
         data: req.body,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al crear el producto en almacén' });
+      res.status(500).json(errorResponse('Error al crear el producto en almacén'));
     }
   }
 
@@ -429,7 +546,8 @@ class AlmacenController {
   async updateProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { imagenes, caracteristicas, ...productoData } = req.body as UpdateProductoBody;
+      // Extraemos stock y fecha_ingreso para ignorarlos en la actualización.
+      const { imagenes, caracteristicas, stock, ...productoData } = req.body as UpdateProductoBody;
 
       const [updated] = await Almacen.update({
         ...productoData,
@@ -440,7 +558,7 @@ class AlmacenController {
 
       if (!updated) {
         logger.warn(`Intento de actualizar producto inexistente en almacén ID: ${id}`);
-        return res.status(404).json({ message: 'Producto no encontrado' });
+        return res.status(404).json(errorResponse('Producto no encontrado'));
       }
 
       // Actualizar imágenes si se proporcionaron
@@ -515,14 +633,14 @@ class AlmacenController {
         success: true
       });
       
-      res.json({ message: 'Producto actualizado correctamente' });
+      res.json(okMessage('Producto actualizado correctamente'));
     } catch (error) {
       logger.error('Error al actualizar producto en almacén:', {
         id: req.params.id,
         data: req.body,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al actualizar el producto en almacén' });
+      res.status(500).json(errorResponse('Error al actualizar el producto en almacén'));
     }
   }
 
@@ -578,24 +696,24 @@ class AlmacenController {
 
       if (!deleted) {
         logger.warn(`Intento de eliminar producto inexistente del almacén ID: ${id}`);
-        return res.status(404).json({ message: 'Producto no encontrado' });
+        return res.status(404).json(errorResponse('Producto no encontrado'));
       }
 
       res.locals.skipHttpLog = true;
-      
+
       logger.info('Producto eliminado exitosamente', {
         operacion: 'eliminar_producto',
         producto_id: id,
         success: true
       });
-      
-      res.json({ message: 'Producto eliminado correctamente' });
+
+      return res.json(okMessage('Producto eliminado correctamente'));
     } catch (error) {
       logger.error('Error al eliminar producto del almacén:', {
         id: req.params.id,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al eliminar el producto del almacén' });
+      res.status(500).json(errorResponse('Error al eliminar el producto del almacén'));
     }
   }
 
@@ -624,7 +742,7 @@ class AlmacenController {
 
       if (!termino) {
         logger.warn('Búsqueda de productos sin término especificado');
-        return res.status(400).json({ message: 'Término de búsqueda requerido' });
+        return res.status(400).json(errorResponse('Término de búsqueda requerido'));
       }
 
       const productos = await Almacen.findAll({
@@ -653,13 +771,13 @@ class AlmacenController {
       const productosConImagenes = await this.transformProductsWithImages(productos);
 
       logger.info(`Se encontraron ${productos.length} productos con el término: ${termino}`);
-      res.json(productosConImagenes);
+      return res.json(okList(productosConImagenes));
     } catch (error) {
       logger.error('Error al buscar productos en almacén:', {
         termino: req.query.termino,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al buscar productos en almacén' });
+      res.status(500).json(errorResponse('Error al buscar productos en almacén'));
     }
   }
 
@@ -704,13 +822,13 @@ class AlmacenController {
       const productosConImagenes = await this.transformProductsWithImages(productos);
 
       logger.info(`Se encontraron ${productos.length} productos para la categoría ID: ${categoriaId}`);
-      res.json(productosConImagenes);
+      return res.json(okList(productosConImagenes));
     } catch (error) {
       logger.error('Error al obtener productos por categoría:', {
         categoriaId: req.params.categoriaId,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al obtener productos por categoría' });
+      res.status(500).json(errorResponse('Error al obtener productos por categoría'));
     }
   }
 
@@ -747,26 +865,26 @@ class AlmacenController {
 
       if (!updated) {
         logger.warn(`Intento de actualizar stock de producto inexistente ID: ${id}`);
-        return res.status(404).json({ message: 'Producto no encontrado' });
+        return res.status(404).json(errorResponse('Producto no encontrado'));
       }
 
       res.locals.skipHttpLog = true;
-      
+
       logger.info('Stock actualizado exitosamente', {
         operacion: 'actualizar_stock',
         producto_id: id,
         nuevo_stock: stock,
         success: true
       });
-      
-      res.json({ message: 'Stock actualizado correctamente' });
+
+      return res.json(okMessage('Stock actualizado correctamente'));
     } catch (error) {
       logger.error('Error al actualizar stock:', {
         id: req.params.id,
         stock: req.body.stock,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json({ message: 'Error al actualizar el stock' });
+      res.status(500).json(errorResponse('Error al actualizar el stock'));
     }
   }
 
@@ -832,16 +950,18 @@ class AlmacenController {
         limit: limit,
         success: true
       });
-      
-      res.json(productosConImagenes);
+
+      return res.json(okList(productosConImagenes));
     } catch (error) {
       logger.error('Error al obtener productos destacados:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined
       });
-      res.status(500).json({ message: 'Error al obtener los productos destacados' });
+      res.status(500).json(errorResponse('Error al obtener los productos destacados'));
     }
   }
+
+  // --- Metodos de categorias ---
 
   /**
    * Obtiene todas las categorías disponibles
@@ -876,14 +996,14 @@ class AlmacenController {
         cantidad: categorias.length,
         success: true
       });
-      
-      res.json(categorias);
+
+      return res.json(okList(categorias));
     } catch (error) {
       logger.error('Error al obtener categorías:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined
       });
-      res.status(500).json({ message: 'Error al obtener las categorías' });
+      res.status(500).json(errorResponse('Error al obtener las categorías'));
     }
   }
 
@@ -901,12 +1021,12 @@ class AlmacenController {
       const nombre_categoria = (req.body.nombre_categoria || '').toString().trim();
 
       if (!nombre_categoria || nombre_categoria.length < 2 || nombre_categoria.length > 255) {
-        return res.status(400).json({ error: 'El nombre de la categoría debe tener entre 2 y 255 caracteres' });
+        return res.status(400).json(errorResponse('El nombre de la categoría debe tener entre 2 y 255 caracteres'));
       }
 
       const existente = await Categoria.findOne({ where: { nombre_categoria } });
       if (existente) {
-        return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
+        return res.status(400).json(errorResponse('Ya existe una categoría con ese nombre'));
       }
 
       const ahora = new Date();
@@ -924,17 +1044,13 @@ class AlmacenController {
         id_categoria: nuevaCategoria.id_categoria,
       });
 
-      return res.status(201).json({
-        success: true,
-        message: `Categoría "${nombre_categoria}" creada exitosamente`,
-        data: nuevaCategoria,
-      });
+      return res.status(201).json(okMessage(`Categoría "${nombre_categoria}" creada exitosamente`, nuevaCategoria));
     } catch (error) {
       logger.error('Error al crear categoría:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         stack: error instanceof Error ? error.stack : undefined,
       });
-      return res.status(500).json({ error: 'Error interno al crear la categoría' });
+      return res.status(500).json(errorResponse('Error interno al crear la categoría'));
     }
   }
 
@@ -954,19 +1070,19 @@ class AlmacenController {
       const nombre_categoria = (req.body.nombre_categoria || '').toString().trim();
 
       if (!nombre_categoria || nombre_categoria.length < 2 || nombre_categoria.length > 255) {
-        return res.status(400).json({ error: 'El nombre de la categoría debe tener entre 2 y 255 caracteres' });
+        return res.status(400).json(errorResponse('El nombre de la categoría debe tener entre 2 y 255 caracteres'));
       }
 
       const categoria = await Categoria.findByPk(id);
       if (!categoria) {
-        return res.status(404).json({ error: 'Categoría no encontrada' });
+        return res.status(404).json(errorResponse('Categoría no encontrada'));
       }
 
       const duplicado = await Categoria.findOne({
         where: { nombre_categoria, id_categoria: { [Op.ne]: id } }
       });
       if (duplicado) {
-        return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
+        return res.status(400).json(errorResponse('Ya existe una categoría con ese nombre'));
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -982,16 +1098,12 @@ class AlmacenController {
         nombre_categoria,
       });
 
-      return res.status(200).json({
-        success: true,
-        message: `Categoría actualizada a "${nombre_categoria}"`,
-        data: categoria,
-      });
+      return res.status(200).json(okMessage(`Categoría actualizada a "${nombre_categoria}"`, categoria));
     } catch (error) {
       logger.error('Error al actualizar categoría:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
       });
-      return res.status(500).json({ error: 'Error interno al actualizar la categoría' });
+      return res.status(500).json(errorResponse('Error interno al actualizar la categoría'));
     }
   }
 
@@ -1013,14 +1125,12 @@ class AlmacenController {
 
       const categoria = await Categoria.findByPk(id);
       if (!categoria) {
-        return res.status(404).json({ error: 'Categoría no encontrada' });
+        return res.status(404).json(errorResponse('Categoría no encontrada'));
       }
 
       const count = await Almacen.count({ where: { id_categoria: id } });
       if (count > 0) {
-        return res.status(400).json({
-          error: `Hay ${count} producto${count !== 1 ? 's' : ''} asignado${count !== 1 ? 's' : ''} a esta categoría. Reasígnalo${count !== 1 ? 's' : ''} antes de eliminarla.`
-        });
+        return res.status(400).json(errorResponse(`Hay ${count} producto${count !== 1 ? 's' : ''} asignado${count !== 1 ? 's' : ''} a esta categoría. Reasígnalo${count !== 1 ? 's' : ''} antes de eliminarla.`));
       }
 
       await categoria.destroy();
@@ -1032,17 +1142,16 @@ class AlmacenController {
         nombre_categoria: categoria.getDataValue('nombre_categoria'),
       });
 
-      return res.status(200).json({
-        success: true,
-        message: 'Categoría eliminada exitosamente',
-      });
+      return res.status(200).json(okMessage('Categoría eliminada exitosamente'));
     } catch (error) {
       logger.error('Error al eliminar categoría:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
       });
-      return res.status(500).json({ error: 'Error interno al eliminar la categoría' });
+      return res.status(500).json(errorResponse('Error interno al eliminar la categoría'));
     }
   }
+
+  // --- Diagnostico y tipo de cambio ---
 
   /**
    * Ejecuta diagnóstico completo del sistema de productos
@@ -1224,19 +1333,15 @@ class AlmacenController {
       }
 
       logger.info('🔍 Diagnóstico completo:', diagnostics);
-      res.json({
+      res.json(ok({
         success: diagnostics.errors.length === 0,
         message: diagnostics.errors.length === 0 ? 'Todos los pasos exitosos' : 'Se encontraron errores',
         diagnostics: diagnostics
-      });
+      }));
 
     } catch (error) {
       logger.error('Error general en diagnóstico:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Error general en diagnóstico',
-        error: error instanceof Error ? error.message : 'Error desconocido'
-      });
+      res.status(500).json(errorResponse('Error general en diagnóstico', error instanceof Error ? error.message : undefined));
     }
   }
 
@@ -1244,10 +1349,13 @@ class AlmacenController {
     try {
       const config = await Configuracion.findByPk('tipo_cambio_usd');
       const valor = config ? parseFloat(config.valor) : 1200.00;
-      res.json({ valor, fyh_actualizacion: config?.fyh_actualizacion || null });
+      return res.json(ok({
+        valor,
+        fyh_actualizacion: config?.fyh_actualizacion || null
+      }));
     } catch (error) {
       logger.error('Error al obtener tipo de cambio:', error);
-      res.status(500).json({ mensaje: 'Error al obtener tipo de cambio' });
+      return res.status(500).json(errorResponse('Error al obtener tipo de cambio'));
     }
   }
 }

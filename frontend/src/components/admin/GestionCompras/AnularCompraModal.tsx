@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react';
+import adminCompraService from '../../../services/adminCompraService';
 
 interface AnularCompraModalProps {
   idCompra: number;
@@ -20,8 +21,7 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
       onLoading?.(true);
 
       try {
-        const { compraAdminService } = await import('../../../services/compraAdminService');
-        await compraAdminService.anularCompra(idCompra, motivo);
+        await adminCompraService.anularCompra(idCompra, motivo);
         onAnulada();
         onClose();
       } catch (err) {
@@ -55,7 +55,7 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
                   border: '1px solid #fecaca',
                   borderRadius: '6px',
                   marginBottom: '16px',
-                  color: '#991b1b'
+                  color: '#991b1b',
                 }}
               >
                 <strong style={{ display: 'block', marginBottom: '6px' }}>⚠️ Advertencia</strong>
@@ -65,7 +65,15 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
               </div>
 
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    display: 'block',
+                    marginBottom: '6px',
+                  }}
+                >
                   Motivo (opcional)
                 </label>
                 <textarea
@@ -82,7 +90,7 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
                     backgroundColor: 'var(--background-primary)',
                     color: 'var(--text-primary)',
                     resize: 'vertical',
-                    minHeight: '80px'
+                    minHeight: '80px',
                   }}
                   disabled={anulando}
                 />
@@ -96,7 +104,7 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
                     border: '1px solid #fecaca',
                     borderRadius: '6px',
                     color: '#991b1b',
-                    fontSize: '13px'
+                    fontSize: '13px',
                   }}
                 >
                   {error}
@@ -106,25 +114,17 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
           </div>
 
           <div className="modal-footer">
-            <button
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={anulando}
-            >
+            <button className="btn btn-secondary" onClick={onClose} disabled={anulando}>
               Cancelar
             </button>
-            <button
-              className="btn btn-danger"
-              onClick={handleAnular}
-              disabled={anulando}
-            >
+            <button className="btn btn-danger" onClick={handleAnular} disabled={anulando}>
               {anulando ? 'Anulando...' : 'Anular Compra'}
             </button>
           </div>
         </div>
       </div>
     );
-  }
+  },
 );
 
 AnularCompraModal.displayName = 'AnularCompraModal';

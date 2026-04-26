@@ -1,5 +1,5 @@
-import { v2 as cloudinary } from 'cloudinary';
 import logger from './loggerService.js';
+import { v2 as cloudinary } from 'cloudinary';
 import { config } from '../config/config.js';
 
 let configured = false;
