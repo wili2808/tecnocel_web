@@ -251,47 +251,10 @@ const GestionPermisos = () => {
               </div>
             </div>
           ) : (
-            <div className={styles.permisosGrid}>
+            <div className={styles.permisosStack}>
               {Object.entries(permisosPorModulo).map(([modulo, perms]) => (
-                <div key={modulo} className={styles.moduloCard}>
+                <div key={modulo} className={styles.moduloRow}>
                   <div className={styles.moduloHeader}>
-                    <span className={styles.moduloIcon}>
-                      <span className="material-icons">
-                        {modulo === 'usuarios'
-                          ? 'group'
-                          : modulo === 'productos'
-                            ? 'inventory_2'
-                            : modulo === 'ventas'
-                              ? 'receipt'
-                              : modulo === 'compras'
-                                ? 'shopping_cart'
-                                : modulo === 'reportes'
-                                  ? 'assessment'
-                                  : modulo === 'configuracion'
-                                    ? 'settings'
-                                    : modulo === 'caracteristicas'
-                                      ? 'list_alt'
-                                      : modulo === 'clientes'
-                                        ? 'people'
-                                        : modulo === 'marcas'
-                                          ? 'branding_watermark'
-                                          : modulo === 'categorias'
-                                            ? 'category'
-                                            : modulo === 'ofertas'
-                                              ? 'local_offer'
-                                              : modulo === 'proveedores'
-                                                ? 'local_shipping'
-                                                : modulo === 'envios'
-                                                  ? 'local_shipping'
-                                                  : modulo === 'imagenes'
-                                                    ? 'image'
-                                                    : modulo === 'comentarios'
-                                                      ? 'comment'
-                                                      : modulo === 'roles'
-                                                        ? 'security'
-                                                        : 'folder'}
-                      </span>
-                    </span>
                     <h4 className={styles.moduloTitle}>{modulo.charAt(0).toUpperCase() + modulo.slice(1)}</h4>
                     <span className={styles.moduloCount}>
                       {perms.filter((p) => p.asignado).length}/{perms.length}
