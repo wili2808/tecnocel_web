@@ -7,12 +7,15 @@ import ProveedorModal from './ProveedorModal';
 import { useNotification } from '../../../contexts/NotificationContext';
 import styles from './GestionCompras.module.css';
 import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
+import type { ProductoStockBajo } from '../../../types/reporte';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
 interface RegistrarCompraModalProps {
   onClose: () => void;
   onRegistrada: () => void;
+  /** Productos con stock bajo pre-seleccionados para cargar como ítems iniciales */
+  productosIniciales?: ProductoStockBajo[];
 }
 
 interface ItemForm {
@@ -40,7 +43,7 @@ interface ProductoParaBuscar {
 
 // ── Componente ───────────────────────────────────────────────────────────────
 
-const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClose, onRegistrada }) => {
+const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClose, onRegistrada, productosIniciales }) => {
   const { showNotification } = useNotification();
 
   // Estado general
@@ -74,6 +77,23 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     cargarProveedores();
     cargarCategoriasMarcas();
   }, []);
+
+  // Pre-cargar ítems desde productos con stock bajo seleccionados
+  useEffect(() => {
+    if (!productosIniciales?.length) return;
+    const itemsIniciales: ItemForm[] = productosIniciales.map((p) => {
+      const pc = Number(p.precio_compra) || 0;
+      const pv = Number(p.precio_venta) || 0;
+      return {
+        id_producto: p.id_producto,
+        nombre_producto: `${p.nombre}${p.codigo ? ` (${p.codigo})` : ''}`,
+        cantidad: Math.max(1, p.stock_minimo - p.stock),
+        precio_unitario: pc > 0 ? pc : pv,
+        precio_venta: pv,
+      };
+    });
+    setItems(itemsIniciales);
+  }, [productosIniciales]);
 
   const cargarProveedores = async () => {
     try {

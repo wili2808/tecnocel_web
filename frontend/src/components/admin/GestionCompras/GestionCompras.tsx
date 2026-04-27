@@ -95,6 +95,10 @@ const GestionCompras: React.FC = memo(() => {
   const [cargandoStock, setCargandoStock] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // === Selección de stock bajo ===
+  const [seleccionados, setSeleccionados] = useState<Set<number>>(new Set());
+  const [stockParaCompra, setStockParaCompra] = useState<ProductoStockBajo[]>([]);
+
   // === Filtros y búsqueda ===
   const [filtros, setFiltros] = useState<FiltrosComprasAdmin>({});
 
@@ -117,7 +121,7 @@ const GestionCompras: React.FC = memo(() => {
   ]);
 
   const [stockColumnOrder, setStockColumnOrder] = useState<string[]>([
-    'producto', 'stock_actual', 'stock_minimo', 'estado_stock'
+    'sel', 'producto', 'stock_actual', 'stock_minimo', 'deficit', 'costo', 'estado_stock', 'accion'
   ]);
 
   // === Modales ===
@@ -185,6 +189,8 @@ const GestionCompras: React.FC = memo(() => {
 
   const handleRegistrada = () => {
     setMostrarRegistrar(false);
+    setSeleccionados(new Set());
+    setStockParaCompra([]);
     setOffset(0);
     cargarCompras();
     cargarStats();
@@ -309,39 +315,135 @@ const GestionCompras: React.FC = memo(() => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // === Helpers de selección de stock bajo ===
+  const toggleSeleccion = useCallback((p: ProductoStockBajo) => {
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      next.has(p.id_producto) ? next.delete(p.id_producto) : next.add(p.id_producto);
+      return next;
+    });
+  }, []);
+
+  const toggleTodos = useCallback(() => {
+    setSeleccionados((prev) =>
+      prev.size === stockBajo.length
+        ? new Set()
+        : new Set(stockBajo.map((p) => p.id_producto))
+    );
+  }, [stockBajo]);
+
+  const abrirCompraConSeleccion = useCallback((extras?: ProductoStockBajo[]) => {
+    const lista = extras ?? stockBajo.filter((p) => seleccionados.has(p.id_producto));
+    setStockParaCompra(lista);
+    setMostrarRegistrar(true);
+  }, [seleccionados, stockBajo]);
+
   // === Columnas TanStack para Stock ===
   const stockColumns = useMemo<ColumnDef<ProductoStockBajo>[]>(() => [
+    {
+      id: 'sel',
+      enableSorting: false,
+      header: () => (
+        <input
+          type="checkbox"
+          title="Seleccionar todos"
+          checked={seleccionados.size === stockBajo.length && stockBajo.length > 0}
+          onChange={toggleTodos}
+          style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+        />
+      ),
+      cell: (info) => (
+        <input
+          type="checkbox"
+          checked={seleccionados.has(info.row.original.id_producto)}
+          onChange={() => toggleSeleccion(info.row.original)}
+          onClick={(e) => e.stopPropagation()}
+          style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+        />
+      ),
+    },
     {
       accessorKey: 'nombre',
       id: 'producto',
       header: 'Producto',
-      cell: info => <span style={{ fontWeight: 600 }}>{info.getValue() as string}</span>,
+      cell: (info) => (
+        <div>
+          <span style={{ fontWeight: 600 }}>{info.getValue() as string}</span>
+          <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+            {info.row.original.codigo || '—'}
+          </div>
+        </div>
+      ),
     },
     {
       accessorKey: 'stock',
       id: 'stock_actual',
       header: () => <div style={{ textAlign: 'right', width: '100%' }}>Stock Actual</div>,
-      cell: info => <div style={{ textAlign: 'right', fontWeight: 600 }}>{info.getValue() as number}</div>,
+      cell: (info) => (
+        <div style={{ textAlign: 'right', fontWeight: 700, color: '#dc2626' }}>
+          {info.getValue() as number}
+        </div>
+      ),
     },
     {
       accessorKey: 'stock_minimo',
       id: 'stock_minimo',
-      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Stock Mínimo</div>,
-      cell: info => <div style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>{info.getValue() as number}</div>,
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Mínimo</div>,
+      cell: (info) => (
+        <div style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>
+          {info.getValue() as number}
+        </div>
+      ),
+    },
+    {
+      id: 'deficit',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Déficit</div>,
+      cell: (info) => {
+        const p = info.row.original;
+        const deficit = Math.max(0, p.stock_minimo - p.stock);
+        return (
+          <div style={{ textAlign: 'right', fontWeight: 700, color: '#d97706' }}>+{deficit}</div>
+        );
+      },
+    },
+    {
+      id: 'costo',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Costo Unit.</div>,
+      cell: (info) => {
+        const pc = Number(info.row.original.precio_compra) || 0;
+        return (
+          <div style={{ textAlign: 'right', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+            ${pc.toFixed(2)}
+          </div>
+        );
+      },
     },
     {
       id: 'estado_stock',
       header: 'Estado',
       cell: () => <span className={styles.badgeAnulada}>Crítico</span>,
-    }
-  ], []);
+    },
+    {
+      id: 'accion',
+      header: '',
+      enableSorting: false,
+      cell: (info) => (
+        <button
+          className={styles.actionBtn}
+          title="Ordenar compra de este producto"
+          onClick={(e) => { e.stopPropagation(); abrirCompraConSeleccion([info.row.original]); }}
+          disabled={!puedeCrear}
+        >
+          <span className="material-icons" style={{ fontSize: '16px' }}>shopping_cart</span>
+        </button>
+      ),
+    },
+  ], [seleccionados, stockBajo, puedeCrear, toggleSeleccion, toggleTodos, abrirCompraConSeleccion]);
 
   const stockTable = useReactTable({
     data: stockBajo,
     columns: stockColumns,
-    state: {
-      columnOrder: stockColumnOrder,
-    },
+    state: { columnOrder: stockColumnOrder },
     onColumnOrderChange: setStockColumnOrder,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -372,6 +474,7 @@ const GestionCompras: React.FC = memo(() => {
       });
     }
   };
+
 
   // === Render ===
   if (!puedeVer) {
@@ -647,28 +750,73 @@ const GestionCompras: React.FC = memo(() => {
               className={styles.loadingState}
             />
           ) : (
-            <div className={styles.tableWrapper}>
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStock}>
-                <table className={styles.table}>
-                  <thead>
-                    {stockTable.getHeaderGroups().map(headerGroup => (
-                      <tr key={headerGroup.id}>
-                        <SortableContext items={stockColumnOrder} strategy={horizontalListSortingStrategy}>
-                          {headerGroup.headers.map(header => (
-                            <DraggableTableHeader 
-                              key={header.id} 
-                              header={header} 
-                            />
-                          ))}
-                        </SortableContext>
-                      </tr>
-                    ))}
-                  </thead>
+            <>
+              {/* Barra flotante de compra rápida */}
+              {seleccionados.size > 0 && (
+                <div className={styles.floatingActionBar}>
+                  <span className={styles.floatingActionInfo}>
+                    <span className="material-icons" style={{ fontSize: '18px' }}>check_box</span>
+                    {seleccionados.size} producto{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
+                  </span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      className={styles.floatingActionClear}
+                      onClick={() => setSeleccionados(new Set())}
+                      title="Limpiar selección"
+                    >
+                      <span className="material-icons" style={{ fontSize: '16px' }}>close</span>
+                      Limpiar
+                    </button>
+                    <button
+                      className={styles.floatingActionComprar}
+                      onClick={() => abrirCompraConSeleccion()}
+                      disabled={!puedeCrear}
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>shopping_cart</span>
+                      Ordenar compra ({seleccionados.size})
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.tableWrapper}>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStock}>
+                  <table className={styles.table}>
+                    <thead>
+                      {stockTable.getHeaderGroups().map((headerGroup) => (
+                        <tr key={headerGroup.id}>
+                          <SortableContext items={stockColumnOrder} strategy={horizontalListSortingStrategy}>
+                            {headerGroup.headers.map((header) =>
+                              header.column.id === 'sel' ? (
+                                <th key={header.id} className={styles.sortableHeader} style={{ width: '40px' }}>
+                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                </th>
+                              ) : (
+                                <DraggableTableHeader key={header.id} header={header} />
+                              )
+                            )}
+                          </SortableContext>
+                        </tr>
+                      ))}
+                    </thead>
                   <tbody>
                     {stockTable.getRowModel().rows.map((row) => (
-                      <tr key={row.id}>
-                        {row.getVisibleCells().map(cell => (
-                          <td key={cell.id}>
+                      <tr
+                        key={row.id}
+                        style={{
+                          backgroundColor: seleccionados.has(row.original.id_producto)
+                            ? 'color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent)'
+                            : undefined,
+                          cursor: 'pointer',
+                          transition: 'background-color 0.15s',
+                        }}
+                        onClick={() => toggleSeleccion(row.original)}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td
+                            key={cell.id}
+                            onClick={cell.column.id === 'accion' ? (e) => e.stopPropagation() : undefined}
+                          >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </td>
                         ))}
@@ -676,8 +824,9 @@ const GestionCompras: React.FC = memo(() => {
                     ))}
                   </tbody>
                 </table>
-              </DndContext>
-            </div>
+                </DndContext>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -685,7 +834,14 @@ const GestionCompras: React.FC = memo(() => {
       {/* Modales */}
       {mostrarRegistrar && (
         <React.Suspense fallback={null}>
-          <RegistrarCompraModal onClose={() => setMostrarRegistrar(false)} onRegistrada={handleRegistrada} />
+          <RegistrarCompraModal
+            onClose={() => {
+              setMostrarRegistrar(false);
+              setStockParaCompra([]);
+            }}
+            onRegistrada={handleRegistrada}
+            productosIniciales={stockParaCompra.length > 0 ? stockParaCompra : undefined}
+          />
         </React.Suspense>
       )}
 
