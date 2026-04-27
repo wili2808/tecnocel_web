@@ -2,10 +2,11 @@
  * Componente OfertaProductos - Asignación y gestión de productos en una oferta
  * Muestra productos asignados y permite agregar/remover productos con precio personalizado
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import type { OfertaConProductos, ProductoEnOferta, Product } from '../../../types';
+import { AdminSearch } from '../common';
 import styles from './OfertaProductos.module.css';
 
 interface OfertaProductosProps {
@@ -28,13 +29,13 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
 
   // Modal buscador
   const [showBuscador, setShowBuscador] = useState(false);
-  const [busqueda, setBusqueda] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [productosDisponibles, setProductosDisponibles] = useState<Product[]>([]);
   const [loadingBusqueda, setLoadingBusqueda] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Map<number, ProductoSeleccionado>>(new Map());
   const [asignando, setAsignando] = useState(false);
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
 
   // Sincronizar productos cuando cambia la oferta
   useEffect(() => {
@@ -56,21 +57,8 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
 
   useEffect(() => {
     if (!showBuscador) return;
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
-      buscarProductos(busqueda);
-    }, 300);
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [busqueda, showBuscador, buscarProductos]);
+    buscarProductos(searchTerm);
+  }, [searchTerm, showBuscador, buscarProductos]);
 
   // Filtrar productos ya asignados del resultado de búsqueda
   const productosNoAsignados = productosDisponibles.filter(
@@ -116,7 +104,7 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
       );
       setSeleccionados(new Map());
       setShowBuscador(false);
-      setBusqueda('');
+      setSearchTerm('');
       onProductosChanged();
     } catch (err: any) {
       showNotification(err.message || 'Error al asignar productos', 'error');
@@ -140,14 +128,14 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
   const handleAbrirBuscador = () => {
     setShowBuscador(true);
     setSeleccionados(new Map());
-    setBusqueda('');
+    setSearchTerm('');
     setProductosDisponibles([]);
   };
 
   const handleCerrarBuscador = () => {
     setShowBuscador(false);
     setSeleccionados(new Map());
-    setBusqueda('');
+    setSearchTerm('');
   };
 
   /** Calcula el precio con descuento para mostrar en la tabla */
@@ -263,15 +251,13 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
               </button>
             </div>
 
-            <div className={styles.modalSearch}>
-              <span className="material-icons">search</span>
-              <input
-                type="text"
+            <div className={styles.modalSearch} style={{ display: 'block' }}>
+              <AdminSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
                 placeholder="Buscar producto por nombre o código..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
                 className={styles.modalSearchInput}
-                autoFocus
+                delay={300}
               />
             </div>
 
@@ -288,7 +274,7 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
                 </div>
               )}
 
-              {!loadingBusqueda && productosDisponibles.length === 0 && busqueda && (
+              {!loadingBusqueda && productosDisponibles.length === 0 && searchTerm && (
                 <div className={styles.emptySearch}>
                   <p>No se encontraron productos</p>
                 </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
@@ -338,12 +338,10 @@ const GestionClientes = () => {
 
         <AdminSurface className={styles.filterShell} tone="muted">
           <div className={styles.searchForm}>
-            <input
-              type="text"
-              placeholder="Buscar por nombre, email o celular..."
+            <AdminSearch
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
+              placeholder="Buscar por nombre, email o celular..."
+              onChange={setSearchTerm}
             />
           </div>
         </AdminSurface>

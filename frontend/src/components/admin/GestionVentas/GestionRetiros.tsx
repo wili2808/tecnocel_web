@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useDebounce } from '../../../hooks/useDebounce';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
+import { AdminSearch } from '../common';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
@@ -106,8 +106,6 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   const [offset, setOffset] = useState(0);
 
   const [filtros, setFiltros] = useState<Omit<FiltrosEnviosAdmin, 'tipo_entrega'>>({});
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 500);
 
   const [retiroSeleccionado, setRetiroSeleccionado] = useState<EnvioAdminListItem | null>(null);
 
@@ -163,14 +161,9 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
     cargarRetiros(filtros, offset);
   }, [filtros, offset, cargarRetiros]);
 
-  // ── Actualizar búsqueda con debounce ────────────────────────────────────
-  useEffect(() => {
-    setFiltros((prev) => ({ ...prev, search: debouncedSearch || undefined }));
-    setOffset(0);
-  }, [debouncedSearch]);
+
 
   const limpiarFiltros = () => {
-    setSearchInput('');
     setOffset(0);
     setFiltros({});
   };
@@ -288,12 +281,13 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
           <option value="entregado">{ESTADO_ENVIO_LABELS.entregado}</option>
         </select>
 
-        <input
-          type="text"
+        <AdminSearch
+          value={filtros.search || ''}
           placeholder="Buscar por nro. venta o cliente..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className={styles.filtroInput}
+          onChange={(val) => {
+            setFiltros((prev) => ({ ...prev, search: val || undefined }));
+            setOffset(0);
+          }}
         />
 
         <input

@@ -13,6 +13,7 @@ import {
   AdminEmptyState,
   AdminSectionActions,
   AdminSurface,
+  AdminSearch,
 } from '../common';
 import styles from './GestionOfertas.module.css';
 
@@ -135,7 +136,7 @@ const GestionOfertas = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Búsqueda, filtros y paginación
-  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>('todas');
 
   // Estados TanStack
@@ -150,8 +151,8 @@ const GestionOfertas = () => {
     let result = allOfertas;
 
     // Filtro por búsqueda (nombre)
-    if (searchInput.trim()) {
-      const term = searchInput.toLowerCase().trim();
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
       result = result.filter(o => o.nombre_oferta.toLowerCase().includes(term));
     }
 
@@ -169,7 +170,7 @@ const GestionOfertas = () => {
     }
 
     return result;
-  }, [allOfertas, searchInput, filtroEstado]);
+  }, [allOfertas, searchTerm, filtroEstado]);
 
   const cargarOfertas = useCallback(async () => {
     try {
@@ -189,10 +190,7 @@ const GestionOfertas = () => {
     cargarOfertas();
   }, [cargarOfertas]);
 
-  const handleClearSearch = () => {
-    setSearchInput('');
-    setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  };
+
 
   const handleEditar = useCallback(async (id: number) => {
     if (!puedeEditar) {
@@ -410,28 +408,15 @@ const GestionOfertas = () => {
       {/* Barra de búsqueda y filtro */}
       <AdminSurface className={styles.filterShell} tone="muted">
         <div className={styles.filterRow}>
-          <div className={styles.searchInputWrapper}>
-            <span className="material-icons">search</span>
-            <input
-              type="text"
+            <AdminSearch
+              value={searchTerm}
               placeholder="Buscar por nombre de oferta..."
-              value={searchInput}
-              onChange={(e) => { 
-                setSearchInput(e.target.value); 
+              onChange={(val) => { 
+                setSearchTerm(val); 
                 table.setPageIndex(0); 
               }}
-              className={styles.searchInput}
+              delay={0}
             />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className={styles.clearButton}
-              >
-                <span className="material-icons">close</span>
-              </button>
-            )}
-          </div>
           <select
             value={filtroEstado}
             onChange={(e) => { 
@@ -500,7 +485,7 @@ const GestionOfertas = () => {
                   {table.getRowModel().rows.length === 0 ? (
                     <tr>
                       <td colSpan={columns.length} className={styles.emptyMessage}>
-                        {searchInput || filtroEstado !== 'todas'
+                        {searchTerm || filtroEstado !== 'todas'
                           ? 'No se encontraron ofertas con los filtros aplicados'
                           : 'No hay ofertas registradas'}
                       </td>

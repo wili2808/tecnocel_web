@@ -6,13 +6,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useDebounce } from '../../../hooks/useDebounce';
 import adminProductService from '../../../services/adminProductService';
 import ProductoForm from './ProductoForm';
 import GestionMarcas from './GestionMarcas';
 import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
-import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
@@ -127,8 +126,6 @@ const GestionProductos = () => {
 
   // Búsqueda
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 500);
 
   // Filtro de destacados
   const [soloDestacados, setSoloDestacados] = useState(false);
@@ -159,18 +156,6 @@ const GestionProductos = () => {
       cargarProductos();
     }
   }, [cargarProductos, vista]);
-
-  // Actualizar búsqueda con debounce
-  useEffect(() => {
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-    setSearchTerm(debouncedSearch);
-  }, [debouncedSearch]);
-
-  const handleClearSearch = () => {
-    setSearchInput('');
-    setSearchTerm('');
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-  };
 
   const handleToggleDestacados = () => {
     setSoloDestacados((prev) => !prev);
@@ -463,21 +448,14 @@ const GestionProductos = () => {
           {/* Barra de búsqueda */}
           <AdminSurface className={styles.filterShell} tone="muted">
             <div className={styles.searchForm}>
-              <div className={styles.searchInputWrapper}>
-                <span className="material-icons">search</span>
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre o código..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className={styles.searchInput}
-                />
-                {searchInput && (
-                  <button type="button" onClick={handleClearSearch} className={styles.clearButton}>
-                    <span className="material-icons">close</span>
-                  </button>
-                )}
-              </div>
+              <AdminSearch
+                value={searchTerm}
+                placeholder="Buscar por nombre o código..."
+                onChange={(val) => {
+                  setSearchTerm(val);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
+              />
               <button
                 type="button"
                 className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}

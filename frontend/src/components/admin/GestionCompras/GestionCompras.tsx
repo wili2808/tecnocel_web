@@ -3,8 +3,7 @@ import adminCompraService from '../../../services/adminCompraService';
 import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useDebounce } from '../../../hooks/useDebounce';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
@@ -98,8 +97,6 @@ const GestionCompras: React.FC = memo(() => {
 
   // === Filtros y búsqueda ===
   const [filtros, setFiltros] = useState<FiltrosComprasAdmin>({});
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 500);
 
   // === Paginación y TanStack (Compras) ===
   const [offset, setOffset] = useState(0);
@@ -179,12 +176,6 @@ const GestionCompras: React.FC = memo(() => {
     cargarStockBajo();
   }, [cargarStats, cargarStockBajo]);
 
-  useEffect(() => {
-    setFiltros((prev) => ({
-      ...prev,
-      search: debouncedSearch || undefined,
-    }));
-  }, [debouncedSearch]);
 
   useEffect(() => {
     if (activeTab === 'compras') {
@@ -209,7 +200,6 @@ const GestionCompras: React.FC = memo(() => {
 
   const handleLimpiarFiltros = () => {
     setFiltros({});
-    setSearchInput('');
     setOffset(0);
   };
 
@@ -528,13 +518,11 @@ const GestionCompras: React.FC = memo(() => {
               </div>
               <div className={styles.filterGroupWide}>
                 <label className={styles.filterLabel}>Buscar (Nro. Compra)</label>
-                <input
-                  type="text"
-                  className={styles.filterInput}
+                <AdminSearch
+                  value={filtros.search || ''}
                   placeholder="Ej: C-00001 o nombre proveedor"
-                  value={searchInput}
-                  onChange={(e) => {
-                    setSearchInput(e.target.value);
+                  onChange={(val) => {
+                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
                     setOffset(0);
                   }}
                 />

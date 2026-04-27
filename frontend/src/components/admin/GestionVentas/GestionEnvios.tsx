@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import envioAdminService from '../../../services/envioAdminService';
-import { useDebounce } from '../../../hooks/useDebounce';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
+import { AdminSearch } from '../common';
 import GestionEnviosModal from './GestionEnviosModal';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
@@ -100,8 +100,6 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
   const [offset, setOffset] = useState(0);
 
   const [filtros, setFiltros] = useState<FiltrosEnviosAdmin>({});
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 500);
 
   const [envioSeleccionado, setEnvioSeleccionado] = useState<EnvioAdminListItem | null>(null);
 
@@ -157,14 +155,9 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
     cargarEnvios(filtros, offset);
   }, [filtros, offset, cargarEnvios]);
 
-  // ── Actualizar búsqueda con debounce ────────────────────────────────────
-  useEffect(() => {
-    setFiltros((prev) => ({ ...prev, search: debouncedSearch || undefined }));
-    setOffset(0);
-  }, [debouncedSearch]);
+
 
   const limpiarFiltros = () => {
-    setSearchInput('');
     setOffset(0);
     setFiltros({});
   };
@@ -309,12 +302,13 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
           ))}
         </select>
 
-        <input
-          type="text"
+        <AdminSearch
+          value={filtros.search || ''}
           placeholder="Buscar por nro. venta o cliente..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className={styles.filtroInput}
+          onChange={(val) => {
+            setFiltros((prev) => ({ ...prev, search: val || undefined }));
+            setOffset(0);
+          }}
         />
 
         <input

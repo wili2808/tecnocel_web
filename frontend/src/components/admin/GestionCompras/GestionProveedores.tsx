@@ -1,9 +1,9 @@
-import React, { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useDebounce } from '../../../hooks/useDebounce';
 import ProveedorModal from './ProveedorModal';
+import { AdminSearch } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
@@ -73,14 +73,12 @@ const GestionProveedores: React.FC = memo(() => {
   const puedeCrear = tienePermiso('crear_proveedor');
   const puedeEditar = tienePermiso('editar_proveedor');
   const { showNotification } = useNotification();
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [modalProveedor, setModalProveedor] = useState<ProveedorListItem | null | 'new'>(null);
-  const debouncedSearch = useDebounce(searchInput, 500);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nombre', 'empresa', 'celular', 'email', 'direccion', 'acciones'
@@ -90,7 +88,7 @@ const GestionProveedores: React.FC = memo(() => {
     try {
       setCargando(true);
       setError(null);
-      const response = await proveedorAdminService.listarProveedores(debouncedSearch || undefined);
+      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined);
       setProveedores(response.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar proveedores');
@@ -98,19 +96,13 @@ const GestionProveedores: React.FC = memo(() => {
     } finally {
       setCargando(false);
     }
-  }, [debouncedSearch]);
+  }, [searchTerm]);
 
   // Ejecutar búsqueda cuando cambia debouncedSearch (500ms después de dejar de escribir)
+  // Ejecutar búsqueda cuando cambia searchTerm (ya viene debounced de AdminSearch)
   useEffect(() => {
     cargarProveedores();
   }, [cargarProveedores]);
-
-  // Mantener el foco en el input mientras se busca
-  useEffect(() => {
-    if (searchInput && inputRef.current && document.activeElement !== inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [searchInput, cargando]);
 
   const handleGuardado = () => {
     cargarProveedores();
@@ -252,13 +244,10 @@ const GestionProveedores: React.FC = memo(() => {
         <div className={styles.filterRow}>
           <div className={styles.filterGroupWide}>
             <label className={styles.filterLabel}>Buscar Proveedor</label>
-            <input
-              ref={inputRef}
-              type="text"
-              className={styles.filterInput}
+            <AdminSearch
+              value={searchTerm}
               placeholder="Nombre, empresa, celular..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={setSearchTerm}
             />
           </div>
           <button

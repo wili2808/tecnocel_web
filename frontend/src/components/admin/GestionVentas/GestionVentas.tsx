@@ -9,8 +9,7 @@ import envioAdminService from '../../../services/envioAdminService';
 import usuarioService from '../../../services/usuarioService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useDebounce } from '../../../hooks/useDebounce';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
 import styles from './GestionVentas.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
@@ -149,13 +148,11 @@ const GestionVentas: React.FC = () => {
 
   // ── Estado de filtros ──────────────────────────────────────────────────────
   const [filtros, setFiltros] = useState<FiltrosVentasAdmin>({});
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 500);
   const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
 
   // ── Paginación y ordenación TanStack ───────────────────────────────────────
   const [offset, setOffset] = useState(0);
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'fyh_creacion', desc: true }]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha', desc: true }]);
   
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado', 'acciones'
@@ -313,15 +310,8 @@ const GestionVentas: React.FC = () => {
     cargarVentas(filtros, offset);
   }, [cargarVentas, filtros, offset]);
 
-  // ── Actualizar búsqueda con debounce ────────────────────────────────────
-  useEffect(() => {
-    setFiltros((prev) => ({ ...prev, search: debouncedSearch || undefined }));
-    setOffset(0);
-  }, [debouncedSearch]);
-
   // ── Limpiar filtros ────────────────────────────────────────────────────────
   const limpiarFiltros = () => {
-    setSearchInput('');
     setFiltros({});
     setOffset(0);
   };
@@ -780,12 +770,13 @@ const GestionVentas: React.FC = () => {
             <div className={styles.filterRow}>
               <div className={`${styles.filterGroup} ${styles.filterGroupWide}`}>
                 <label className={styles.filterLabel}>Búsqueda</label>
-                <input
-                  type="text"
-                  className={styles.filterInput}
+                <AdminSearch
+                  value={filtros.search || ''}
                   placeholder="N° venta, cliente..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  onChange={(val) => {
+                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                    setOffset(0);
+                  }}
                 />
               </div>
               <div className={styles.filterActions}>
