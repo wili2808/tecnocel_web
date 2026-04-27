@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -6,6 +6,30 @@ import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
+
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, PaginationState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const LIMIT = 20;
 
@@ -31,6 +55,42 @@ const getEstadoLabel = (estado: string): string => {
   return ESTADO_ENVIO_LABELS[estado as EstadoEnvio] ?? estado;
 };
 
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {flexRender(header.column.columnDef.header, header.getContext())}
+        </div>
+      </div>
+    </th>
+  );
+};
+
 interface GestionRetirosProps {
   onPendientesChange?: (count: number) => void;
   puedeGestionar?: boolean;
@@ -50,6 +110,20 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   const debouncedSearch = useDebounce(searchInput, 500);
 
   const [retiroSeleccionado, setRetiroSeleccionado] = useState<EnvioAdminListItem | null>(null);
+
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'nro_venta', 'cliente', 'fecha', 'estado', 'acciones'
+  ]);
+
+  const pagination = useMemo<PaginationState>(() => ({
+    pageIndex: Math.floor(offset / LIMIT),
+    pageSize: LIMIT,
+  }), [offset]);
+
+  const setPagination = useCallback((updater: any) => {
+    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
+    setOffset(nextPagination.pageIndex * LIMIT);
+  }, [pagination]);
 
   const cargandoRef = useRef(false);
 
@@ -106,8 +180,95 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
     cargarRetiros(filtros, offset);
   };
 
-  const totalPages = Math.ceil(total / LIMIT);
-  const currentPage = Math.floor(offset / LIMIT) + 1;
+  // === Columnas TanStack ===
+  const columns = useMemo<ColumnDef<EnvioAdminListItem>[]>(() => [
+    {
+      accessorKey: 'nro_venta',
+      id: 'nro_venta',
+      header: 'Nro. Venta',
+      cell: info => <strong>#{info.getValue() as string}</strong>,
+    },
+    {
+      accessorKey: 'nombre_cliente',
+      id: 'cliente',
+      header: 'Cliente',
+      cell: info => info.getValue() ? (info.getValue() as string) : <em className={styles.sinDatos}>Sin cliente</em>,
+    },
+    {
+      accessorKey: 'fyh_creacion',
+      id: 'fecha',
+      header: 'Fecha venta',
+      cell: info => formatFecha(info.getValue() as string),
+    },
+    {
+      accessorKey: 'estado_envio',
+      id: 'estado',
+      header: 'Estado retiro',
+      cell: info => {
+        const estado = info.getValue() as string;
+        return (
+          <span className={`${styles.estadoBadge} ${ESTADO_COLORS[estado] ?? ''}`}>
+            {getEstadoLabel(estado)}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      cell: info => {
+        const retiro = info.row.original;
+        return (
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button
+              className={retiro.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
+              onClick={() => setRetiroSeleccionado(retiro)}
+              disabled={retiro.estado_envio !== 'entregado' && !puedeGestionar}
+              title={
+                retiro.estado_envio !== 'entregado'
+                  ? !puedeGestionar
+                    ? 'Sin permisos para gestionar retiros'
+                    : 'Gestionar estado'
+                  : 'Ver detalle del retiro'
+              }
+            >
+              {retiro.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
+            </button>
+          </div>
+        );
+      },
+    }
+  ], [puedeGestionar]);
+
+  const table = useReactTable({
+    data: retiros,
+    columns,
+    pageCount: Math.ceil(total / LIMIT),
+    state: {
+      pagination,
+      columnOrder,
+    },
+    onPaginationChange: setPagination,
+    onColumnOrderChange: setColumnOrder,
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
+  };
 
   if (error) return <div className={styles.errorMsg}>{error}</div>;
 
@@ -160,51 +321,35 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
         <div className={styles.emptyMsg}>No se encontraron pedidos de retiro en tienda.</div>
       ) : (
         <div className={styles.tableWrapper}>
-          <table className={styles.tabla}>
-            <thead>
-              <tr>
-                <th>Nro. Venta</th>
-                <th>Cliente</th>
-                <th>Fecha venta</th>
-                <th>Estado retiro</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {retiros.map((retiro) => (
-                <tr key={retiro.id_envio}>
-                  <td>
-                    <strong>#{retiro.nro_venta}</strong>
-                  </td>
-                  <td>{retiro.nombre_cliente ?? <em className={styles.sinDatos}>Sin cliente</em>}</td>
-                  <td>{formatFecha(retiro.fyh_creacion)}</td>
-                  <td>
-                    <span className={`${styles.estadoBadge} ${ESTADO_COLORS[retiro.estado_envio] ?? ''}`}>
-                      {getEstadoLabel(retiro.estado_envio)}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button
-                        className={retiro.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
-                        onClick={() => setRetiroSeleccionado(retiro)}
-                        disabled={retiro.estado_envio !== 'entregado' && !puedeGestionar}
-                        title={
-                          retiro.estado_envio !== 'entregado'
-                            ? !puedeGestionar
-                              ? 'Sin permisos para gestionar retiros'
-                              : 'Gestionar estado'
-                            : 'Ver detalle del retiro'
-                        }
-                      >
-                        {retiro.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className={styles.tabla}>
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                      {headerGroup.headers.map(header => (
+                        <DraggableTableHeader 
+                          key={header.id} 
+                          header={header} 
+                        />
+                      ))}
+                    </SortableContext>
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </DndContext>
         </div>
       )}
 
@@ -212,19 +357,19 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
       {total > LIMIT && (
         <div className={styles.paginacion}>
           <span>
-            Página {currentPage} de {totalPages} ({total} retiros)
+            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()} ({total} retiros)
           </span>
           <div className={styles.paginacionBtns}>
             <button
-              disabled={offset === 0}
-              onClick={() => setOffset(Math.max(0, offset - LIMIT))}
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
               className={styles.btnPag}
             >
               ← Anterior
             </button>
             <button
-              disabled={offset + LIMIT >= total}
-              onClick={() => setOffset(offset + LIMIT)}
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
               className={styles.btnPag}
             >
               Siguiente →

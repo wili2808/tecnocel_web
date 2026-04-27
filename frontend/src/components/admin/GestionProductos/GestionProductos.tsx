@@ -1,6 +1,7 @@
 /**
  * Componente GestionProductos - CRUD completo de productos desde el admin
  * Lista, busca, crea, edita y elimina productos del catálogo
+ * Implementación limpia con TanStack Table v8 y Dnd-kit para drag & drop de columnas.
  */
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -15,12 +16,95 @@ import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
+// --- TanStack Table & Dnd-kit Imports ---
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  SortingState,
+} from '@tanstack/react-table';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// --- Tipos ---
 type Vista = 'lista' | 'crear' | 'editar';
 type TabProductos = 'productos' | 'marcas' | 'categorias' | 'caracteristicas';
-type SortKey = 'codigo' | 'nombre' | 'categoria' | 'marca' | 'precio_venta' | 'stock';
-type SortDir = 'asc' | 'desc';
 
-const ITEMS_PER_PAGE = 20;
+// --- Componente DraggableTableHeader ---
+// Este componente abstrae la cabecera de la tabla para que pueda ser reordenada
+const DraggableTableHeader = ({ header }: { header: any }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Agarradera para drag & drop */}
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        
+        {/* Contenido clickeable para ordenar */}
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          
+          {/* Icono de ordenamiento de TanStack Table */}
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
+        </div>
+      </div>
+    </th>
+  );
+};
 
 const GestionProductos = () => {
   const { tienePermiso } = useAuth();
@@ -36,95 +120,25 @@ const GestionProductos = () => {
   const [activeTab, setActiveTab] = useState<TabProductos>('productos');
   const [productoSeleccionado, setProductoSeleccionado] = useState<Product | null>(null);
 
-  // Estado de la lista (todos los productos cargados)
+  // Estado de la lista
   const [allProductos, setAllProductos] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Búsqueda y paginación
+  // Búsqueda
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebounce(searchInput, 500);
-  const [page, setPage] = useState(1);
-
-  // Ordenamiento
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   // Filtro de destacados
   const [soloDestacados, setSoloDestacados] = useState(false);
 
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
-    }
-    setPage(1);
-  };
-
-  const getSortIcon = (key: SortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  // 1. Filtrar por destacados si el switch está activo
-  const filteredProductos = useMemo(() => {
-    if (!soloDestacados) return allProductos;
-    return allProductos.filter((p) => p.es_destacado);
-  }, [allProductos, soloDestacados]);
-
-  // 2. Ordenar los productos filtrados
-  const sortedProductos = useMemo(() => {
-    if (!sortKey) return filteredProductos;
-
-    return [...filteredProductos].sort((a, b) => {
-      let valA: string | number;
-      let valB: string | number;
-
-      switch (sortKey) {
-        case 'codigo':
-          valA = (a.codigo || '').toLowerCase();
-          valB = (b.codigo || '').toLowerCase();
-          break;
-        case 'nombre':
-          valA = (a.nombre || '').toLowerCase();
-          valB = (b.nombre || '').toLowerCase();
-          break;
-        case 'categoria':
-          valA = (a.Categoria?.nombre_categoria || '').toLowerCase();
-          valB = (b.Categoria?.nombre_categoria || '').toLowerCase();
-          break;
-        case 'marca':
-          valA = (a.marca?.nombre_marca || '').toLowerCase();
-          valB = (b.marca?.nombre_marca || '').toLowerCase();
-          break;
-        case 'precio_venta':
-          valA = parseFloat(a.precio_venta) || 0;
-          valB = parseFloat(b.precio_venta) || 0;
-          break;
-        case 'stock':
-          valA = a.stock;
-          valB = b.stock;
-          break;
-        default:
-          return 0;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredProductos, sortKey, sortDir]);
-
-  // 3. Paginar los productos ya ordenados
-  const total = sortedProductos.length;
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
-  const paginatedProductos = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return sortedProductos.slice(start, start + ITEMS_PER_PAGE);
-  }, [sortedProductos, page]);
+  // --- Estados de TanStack Table ---
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock', 'acciones'
+  ]);
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
 
   const cargarProductos = useCallback(async () => {
     try {
@@ -146,24 +160,24 @@ const GestionProductos = () => {
     }
   }, [cargarProductos, vista]);
 
-  // ── Actualizar búsqueda con debounce ────────────────────────────────────
+  // Actualizar búsqueda con debounce
   useEffect(() => {
-    setPage(1);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     setSearchTerm(debouncedSearch);
   }, [debouncedSearch]);
 
   const handleClearSearch = () => {
     setSearchInput('');
     setSearchTerm('');
-    setPage(1);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
   const handleToggleDestacados = () => {
     setSoloDestacados((prev) => !prev);
-    setPage(1);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
-  const handleEditar = async (id: number) => {
+  const handleEditar = useCallback(async (id: number) => {
     try {
       const producto = await adminProductService.obtenerProducto(id);
       setProductoSeleccionado(producto);
@@ -171,18 +185,16 @@ const GestionProductos = () => {
     } catch {
       showNotification('Error al cargar producto para editar', 'error');
     }
-  };
+  }, [showNotification]);
 
-  const handleEliminar = async (id: number, nombre: string) => {
+  const handleEliminar = useCallback(async (id: number, nombre: string) => {
     if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar productos', 'error');
       return;
     }
-
     if (!confirm(`¿Estás seguro de eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
       return;
     }
-
     try {
       await adminProductService.eliminarProducto(id);
       showNotification('Producto eliminado exitosamente', 'success');
@@ -190,7 +202,7 @@ const GestionProductos = () => {
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar producto', 'error');
     }
-  };
+  }, [puedeEliminar, showNotification, cargarProductos]);
 
   const handleGuardado = () => {
     setVista('lista');
@@ -201,6 +213,183 @@ const GestionProductos = () => {
   const handleCancelar = () => {
     setVista('lista');
     setProductoSeleccionado(null);
+  };
+
+  // 1. Filtrar por destacados
+  const filteredProductos = useMemo(() => {
+    if (!soloDestacados) return allProductos;
+    return allProductos.filter((p) => p.es_destacado);
+  }, [allProductos, soloDestacados]);
+
+  // --- Definición de columnas para TanStack Table ---
+  const columns = useMemo<ColumnDef<Product>[]>(() => [
+    {
+      id: 'imagen',
+      accessorFn: (row) => row.imagen_url || (row.imagenes?.length ? row.imagenes[0].url : null),
+      header: 'Imagen',
+      enableSorting: false,
+      cell: (info) => {
+        const url = info.getValue() as string | null;
+        return (
+          <div className={styles.thumbnailWrapper}>
+            {url ? (
+              <img src={url} alt="Producto" className={styles.thumbnail} />
+            ) : (
+              <div className={styles.thumbnailPlaceholder}>
+                <span className="material-icons">image</span>
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'codigo',
+      id: 'codigo',
+      header: 'Código',
+      cell: (info) => <span className={styles.codigoCell}>{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'nombre',
+      id: 'nombre',
+      header: 'Nombre',
+      cell: (info) => {
+        const p = info.row.original;
+        return (
+          <div className={styles.nombreCell}>
+            <span>{p.nombre}</span>
+            {p.es_destacado && (
+              <span className={styles.badgeDestacado} title="Producto destacado">
+                <span className="material-icons">star</span>
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'categoria',
+      accessorFn: (row) => row.Categoria?.nombre_categoria || '-',
+      header: 'Categoría',
+    },
+    {
+      id: 'marca',
+      accessorFn: (row) => row.marca?.nombre_marca || '-',
+      header: 'Marca',
+    },
+    {
+      accessorKey: 'precio_venta',
+      id: 'precio_venta',
+      header: 'Precio Venta',
+      cell: (info) => {
+        const val = parseFloat(info.getValue() as string) || 0;
+        return (
+          <div className={`${styles.precioCell} ${styles.textRight}`}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>$ {val.toFixed(2)}</span>
+              <span
+                style={{
+                  marginLeft: '0px',
+                  fontSize: '0.75rem',
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  backgroundColor: '#dbeafe',
+                  color: '#1e40af',
+                  fontWeight: '500',
+                  flexShrink: 0,
+                }}
+              >
+                USD
+              </span>
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'stock',
+      id: 'stock',
+      header: 'Stock',
+      cell: (info) => {
+        const p = info.row.original;
+        const stockBajo = p.stock_minimo != null && p.stock <= p.stock_minimo;
+        return (
+          <span
+            className={`${styles.stockBadge} ${
+              p.stock === 0
+                ? styles.stockAgotado
+                : stockBajo
+                  ? styles.stockBajoStyle
+                  : styles.stockNormal
+            }`}
+          >
+            {p.stock}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      enableSorting: false,
+      cell: (info) => {
+        const p = info.row.original;
+        return (
+          <div className={styles.actions}>
+            <button
+              className={styles.actionButton}
+              title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
+              onClick={() => handleEditar(p.id_producto)}
+              disabled={isReadOnly}
+            >
+              <span className="material-icons">edit</span>
+            </button>
+            <button
+              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
+              onClick={() => handleEliminar(p.id_producto, p.nombre)}
+              disabled={!puedeEliminar}
+            >
+              <span className="material-icons">delete</span>
+            </button>
+          </div>
+        );
+      },
+    },
+  ], [isReadOnly, puedeEliminar, handleEditar, handleEliminar]);
+
+  // --- Instancia de TanStack Table ---
+  const table = useReactTable({
+    data: filteredProductos,
+    columns,
+    state: {
+      sorting,
+      columnOrder,
+      pagination,
+    },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  // --- Sensores y Manejador para Dnd-kit (Reordenamiento de columnas) ---
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
   };
 
   if (!puedeVer) {
@@ -265,7 +454,6 @@ const GestionProductos = () => {
         ))}
       </div>
 
-      {/* Pestañas secundarias */}
       {activeTab === 'marcas' && <GestionMarcas />}
       {activeTab === 'categorias' && <GestionCategorias />}
       {activeTab === 'caracteristicas' && <GestionCaracteristicas />}
@@ -325,206 +513,85 @@ const GestionProductos = () => {
             />
           )}
 
-          {/* Tabla de productos */}
+          {/* Tabla de productos (TanStack Table) */}
           {!loading && !error && (
             <>
               <div className={styles.tableInfo}>
                 <span>
-                  {total} producto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
+                  {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''} encontrado{filteredProductos.length !== 1 ? 's' : ''}
                   {soloDestacados && <span className={styles.filterBadge}>Solo destacados</span>}
                 </span>
               </div>
 
               <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Imagen</th>
-                      <th className={styles.sortableHeader} onClick={() => handleSort('codigo')}>
-                        <span className={styles.sortableHeaderContent}>
-                          <span>Código</span>
-                          <span
-                            className={`material-icons ${styles.sortIcon} ${sortKey === 'codigo' ? styles.sortIconActive : ''}`}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <table className={styles.table}>
+                    <thead>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <tr key={headerGroup.id}>
+                          <SortableContext
+                            items={columnOrder}
+                            strategy={horizontalListSortingStrategy}
                           >
-                            {getSortIcon('codigo')}
-                          </span>
-                        </span>
-                      </th>
-                      <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                        <span className={styles.sortableHeaderContent}>
-                          <span>Nombre</span>
-                          <span
-                            className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
-                          >
-                            {getSortIcon('nombre')}
-                          </span>
-                        </span>
-                      </th>
-                      <th className={styles.sortableHeader} onClick={() => handleSort('categoria')}>
-                        <span className={styles.sortableHeaderContent}>
-                          <span>Categoría</span>
-                          <span
-                            className={`material-icons ${styles.sortIcon} ${sortKey === 'categoria' ? styles.sortIconActive : ''}`}
-                          >
-                            {getSortIcon('categoria')}
-                          </span>
-                        </span>
-                      </th>
-                      <th className={styles.sortableHeader} onClick={() => handleSort('marca')}>
-                        <span className={styles.sortableHeaderContent}>
-                          <span>Marca</span>
-                          <span
-                            className={`material-icons ${styles.sortIcon} ${sortKey === 'marca' ? styles.sortIconActive : ''}`}
-                          >
-                            {getSortIcon('marca')}
-                          </span>
-                        </span>
-                      </th>
-                      <th className={styles.sortableHeader} onClick={() => handleSort('precio_venta')}>
-                        <span className={styles.sortableHeaderContent}>
-                          <span>Precio Venta</span>
-                          <span
-                            className={`material-icons ${styles.sortIcon} ${sortKey === 'precio_venta' ? styles.sortIconActive : ''}`}
-                          >
-                            {getSortIcon('precio_venta')}
-                          </span>
-                        </span>
-                      </th>
-                      <th className={styles.sortableHeader} onClick={() => handleSort('stock')}>
-                        <span className={styles.sortableHeaderContent}>
-                          <span>Stock</span>
-                          <span
-                            className={`material-icons ${styles.sortIcon} ${sortKey === 'stock' ? styles.sortIconActive : ''}`}
-                          >
-                            {getSortIcon('stock')}
-                          </span>
-                        </span>
-                      </th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedProductos.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className={styles.emptyMessage}>
-                          {searchTerm && soloDestacados
-                            ? `No se encontraron productos destacados para "${searchTerm}"`
-                            : searchTerm
-                              ? `No se encontraron productos para "${searchTerm}"`
-                              : soloDestacados
-                                ? 'No hay productos destacados'
-                                : 'No hay productos registrados'}
-                        </td>
-                      </tr>
-                    ) : (
-                      paginatedProductos.map((producto) => {
-                        const imagenUrl =
-                          producto.imagen_url ||
-                          (producto.imagenes && producto.imagenes.length > 0 ? producto.imagenes[0].url : null);
-                        const stockBajo = producto.stock_minimo != null && producto.stock <= producto.stock_minimo;
-
-                        return (
-                          <tr key={producto.id_producto}>
-                            <td>
-                              <div className={styles.thumbnailWrapper}>
-                                {imagenUrl ? (
-                                  <img src={imagenUrl} alt={producto.nombre} className={styles.thumbnail} />
-                                ) : (
-                                  <div className={styles.thumbnailPlaceholder}>
-                                    <span className="material-icons">image</span>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className={styles.codigoCell}>{producto.codigo}</td>
-                            <td>
-                              <div className={styles.nombreCell}>
-                                <span>{producto.nombre}</span>
-                                {producto.es_destacado && (
-                                  <span className={styles.badgeDestacado} title="Producto destacado">
-                                    <span className="material-icons">star</span>
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td>{producto.Categoria?.nombre_categoria || '-'}</td>
-                            <td>{producto.marca?.nombre_marca || '-'}</td>
-                            <td className={`${styles.precioCell} ${styles.textRight}`}>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                                <span>$ {parseFloat(producto.precio_venta).toFixed(2)}</span>
-                                <span
-                                  style={{
-                                    marginLeft: '0px',
-                                    fontSize: '0.75rem',
-                                    padding: '2px 6px',
-                                    borderRadius: '3px',
-                                    backgroundColor: '#dbeafe',
-                                    color: '#1e40af',
-                                    fontWeight: '500',
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  USD
-                                </span>
-                              </span>
-                            </td>
-                            <td>
-                              <span
-                                className={`${styles.stockBadge} ${
-                                  producto.stock === 0
-                                    ? styles.stockAgotado
-                                    : stockBajo
-                                      ? styles.stockBajoStyle
-                                      : styles.stockNormal
-                                }`}
-                              >
-                                {producto.stock}
-                              </span>
-                            </td>
-                            <td>
-                              <div className={styles.actions}>
-                                <button
-                                  className={styles.actionButton}
-                                  title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
-                                  onClick={() => handleEditar(producto.id_producto)}
-                                  disabled={isReadOnly}
-                                >
-                                  <span className="material-icons">edit</span>
-                                </button>
-                                <button
-                                  className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                                  title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
-                                  onClick={() => handleEliminar(producto.id_producto, producto.nombre)}
-                                  disabled={!puedeEliminar}
-                                >
-                                  <span className="material-icons">delete</span>
-                                </button>
-                              </div>
-                            </td>
+                            {headerGroup.headers.map((header) => (
+                              <DraggableTableHeader
+                                key={header.id}
+                                header={header}
+                              />
+                            ))}
+                          </SortableContext>
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody>
+                      {table.getRowModel().rows.length === 0 ? (
+                        <tr>
+                          <td colSpan={columns.length} className={styles.emptyMessage}>
+                            {searchTerm && soloDestacados
+                              ? `No se encontraron productos destacados para "${searchTerm}"`
+                              : searchTerm
+                                ? `No se encontraron productos para "${searchTerm}"`
+                                : soloDestacados
+                                  ? 'No hay productos destacados'
+                                  : 'No hay productos registrados'}
+                          </td>
+                        </tr>
+                      ) : (
+                        table.getRowModel().rows.map((row) => (
+                          <tr key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <td key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            ))}
                           </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </DndContext>
               </div>
 
               {/* Paginación */}
-              {totalPages > 1 && (
+              {table.getPageCount() > 1 && (
                 <div className={styles.pagination}>
                   <button
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
                     className={styles.pageButton}
                   >
                     <span className="material-icons">chevron_left</span>
                   </button>
                   <span className={styles.pageInfo}>
-                    Página {page} de {totalPages}
+                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
                   </span>
                   <button
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
                     className={styles.pageButton}
                   >
                     <span className="material-icons">chevron_right</span>

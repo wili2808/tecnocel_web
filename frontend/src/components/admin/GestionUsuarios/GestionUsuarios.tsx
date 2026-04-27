@@ -7,8 +7,30 @@ import usuarioService from '../../../services/usuarioService';
 import styles from './GestionUsuarios.module.css';
 import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
 
-type SortKey = 'id_usuario' | 'nombres' | 'email' | 'rol' | 'fecha' | 'ultimo_login';
-type SortDir = 'asc' | 'desc';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface CrearUsuarioFormData {
   nombres: string;
@@ -42,6 +64,56 @@ const INITIAL_EDIT_FORM: EditarUsuarioFormData = {
   confirmPassword: '',
 };
 
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
+        </div>
+      </div>
+    </th>
+  );
+};
+
 const GestionUsuarios = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_usuarios');
@@ -54,8 +126,7 @@ const GestionUsuarios = () => {
   const [roles, setRoles] = useState<RolItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortKey, setSortKey] = useState<SortKey>('id_usuario');
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
+
   const [showCrearForm, setShowCrearForm] = useState(false);
   const [creando, setCreando] = useState(false);
   const creandoRef = useRef(false);
@@ -64,6 +135,12 @@ const GestionUsuarios = () => {
   const [editando, setEditando] = useState(false);
   const editandoRef = useRef(false);
   const [editFormData, setEditFormData] = useState<EditarUsuarioFormData>(INITIAL_EDIT_FORM);
+
+  // Estados TanStack
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'id_usuario', desc: false }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'id_usuario', 'nombres', 'email', 'rol', 'fecha', 'ultimo_login', 'acciones'
+  ]);
 
   const cargarUsuarios = useCallback(async () => {
     try {
@@ -93,7 +170,7 @@ const GestionUsuarios = () => {
     cargarRoles();
   }, [cargarRoles, cargarUsuarios]);
 
-  const handleEliminar = async (id: number) => {
+  const handleEliminar = useCallback(async (id: number) => {
     if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar usuarios', 'error');
       return;
@@ -110,7 +187,7 @@ const GestionUsuarios = () => {
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar usuario', 'error');
     }
-  };
+  }, [puedeEliminar, showNotification, cargarUsuarios]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -123,7 +200,6 @@ const GestionUsuarios = () => {
   const handleCrearUsuario = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Guardia sincrónica contra doble envío
     if (creandoRef.current) return;
 
     if (!formData.nombres || !formData.email || !formData.password || !formData.id_rol) {
@@ -168,7 +244,7 @@ const GestionUsuarios = () => {
     setShowCrearForm(false);
   };
 
-  const handleEditarClick = (usuario: UsuarioListItem) => {
+  const handleEditarClick = useCallback((usuario: UsuarioListItem) => {
     setEditandoUsuario(usuario);
     setEditFormData({
       nombres: usuario.nombres,
@@ -177,7 +253,7 @@ const GestionUsuarios = () => {
       password: '',
       confirmPassword: '',
     });
-  };
+  }, []);
 
   const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -241,59 +317,131 @@ const GestionUsuarios = () => {
     setEditFormData(INITIAL_EDIT_FORM);
   };
 
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
+  // --- Columnas ---
+  const columns = useMemo<ColumnDef<UsuarioListItem>[]>(() => [
+    {
+      accessorKey: 'id_usuario',
+      id: 'id_usuario',
+      header: 'ID',
+      cell: info => info.getValue(),
+    },
+    {
+      accessorKey: 'nombres',
+      id: 'nombres',
+      header: 'Nombre',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorKey: 'email',
+      id: 'email',
+      header: 'Email',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorFn: row => row.id_rol,
+      id: 'rol',
+      header: 'Rol',
+      cell: info => {
+        const usuario = info.row.original;
+        const rolName = usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles);
+        return (
+          <span
+            className={`${styles.badge} ${
+              usuario.id_rol === ROLES.ADMIN
+                ? styles.badgeAdmin
+                : usuario.id_rol === ROLES.VENDEDOR
+                  ? styles.badgeVendedor
+                  : styles.badgeGerente
+            }`}
+          >
+            {rolName}
+          </span>
+        );
+      }
+    },
+    {
+      accessorFn: row => row.fyh_creacion ? new Date(row.fyh_creacion).getTime() : 0,
+      id: 'fecha',
+      header: 'Fecha de Creación',
+      cell: info => {
+        const fyh_creacion = info.row.original.fyh_creacion;
+        return fyh_creacion ? new Date(fyh_creacion).toLocaleDateString('es-AR') : '-';
+      }
+    },
+    {
+      accessorFn: row => row.fyh_ultimo_login ? new Date(row.fyh_ultimo_login).getTime() : 0,
+      id: 'ultimo_login',
+      header: 'Último Login',
+      cell: info => {
+        const fyh_ultimo_login = info.row.original.fyh_ultimo_login;
+        return fyh_ultimo_login ? (
+          new Date(fyh_ultimo_login).toLocaleString('es-AR', {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          })
+        ) : (
+          <span style={{ color: 'var(--color-text-muted)' }}>Nunca</span>
+        );
+      }
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      enableSorting: false,
+      cell: (info) => {
+        const usuario = info.row.original;
+        return (
+          <div className={styles.actions}>
+            <button
+              className={styles.actionButton}
+              title={!puedeEditar ? 'Sin permisos para editar usuarios' : 'Editar usuario'}
+              onClick={() => handleEditarClick(usuario)}
+              disabled={!puedeEditar}
+            >
+              <span className="material-icons">edit</span>
+            </button>
+            <button
+              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+              title={!puedeEliminar ? 'Sin permisos para eliminar usuarios' : 'Eliminar'}
+              onClick={() => handleEliminar(usuario.id_usuario)}
+              disabled={!puedeEliminar}
+            >
+              <span className="material-icons">delete</span>
+            </button>
+          </div>
+        );
+      }
+    }
+  ], [roles, puedeEditar, puedeEliminar, handleEditarClick, handleEliminar]);
+
+  const table = useReactTable({
+    data: usuarios,
+    columns,
+    state: {
+      sorting,
+      columnOrder,
+    },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
     }
   };
-
-  const getSortIcon = (key: SortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  const sortedUsuarios = useMemo(() => {
-    const sorted = [...usuarios];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'id_usuario':
-          valA = a.id_usuario;
-          valB = b.id_usuario;
-          break;
-        case 'nombres':
-          valA = a.nombres.toLowerCase();
-          valB = b.nombres.toLowerCase();
-          break;
-        case 'email':
-          valA = a.email.toLowerCase();
-          valB = b.email.toLowerCase();
-          break;
-        case 'rol':
-          valA = a.id_rol;
-          valB = b.id_rol;
-          break;
-        case 'fecha':
-          valA = a.fyh_creacion ? new Date(a.fyh_creacion).getTime() : 0;
-          valB = b.fyh_creacion ? new Date(b.fyh_creacion).getTime() : 0;
-          break;
-        case 'ultimo_login':
-          valA = a.fyh_ultimo_login ? new Date(a.fyh_ultimo_login).getTime() : 0;
-          valB = b.fyh_ultimo_login ? new Date(b.fyh_ultimo_login).getTime() : 0;
-          break;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [usuarios, sortKey, sortDir]);
 
   if (!puedeVer) {
     return (
@@ -356,134 +504,44 @@ const GestionUsuarios = () => {
         />
 
         <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.sortableHeader} onClick={() => handleSort('id_usuario')}>
-                  <span className={styles.sortableHeaderContent}>
-                    ID
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'id_usuario' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('id_usuario')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('nombres')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Nombre
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombres' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('nombres')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Email
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('email')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('rol')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Rol
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'rol' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('rol')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Fecha de Creación
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('fecha')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('ultimo_login')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Último Login
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'ultimo_login' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('ultimo_login')}
-                    </span>
-                  </span>
-                </th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedUsuarios.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className={styles.emptyMessage}>
-                    No hay usuarios registrados
-                  </td>
-                </tr>
-              ) : (
-                sortedUsuarios.map((usuario) => (
-                  <tr key={usuario.id_usuario}>
-                    <td>{usuario.id_usuario}</td>
-                    <td>{usuario.nombres}</td>
-                    <td>{usuario.email}</td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${
-                          usuario.id_rol === ROLES.ADMIN
-                            ? styles.badgeAdmin
-                            : usuario.id_rol === ROLES.VENDEDOR
-                              ? styles.badgeVendedor
-                              : styles.badgeGerente
-                        }`}
-                      >
-                        {usuario.Rol?.rol || usuarioService.getRolName(usuario.id_rol, roles)}
-                      </span>
-                    </td>
-                    <td>{usuario.fyh_creacion ? new Date(usuario.fyh_creacion).toLocaleDateString('es-AR') : '-'}</td>
-                    <td>
-                      {usuario.fyh_ultimo_login ? (
-                        new Date(usuario.fyh_ultimo_login).toLocaleString('es-AR', {
-                          dateStyle: 'short',
-                          timeStyle: 'short',
-                        })
-                      ) : (
-                        <span style={{ color: 'var(--color-text-muted)' }}>Nunca</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button
-                          className={styles.actionButton}
-                          title={!puedeEditar ? 'Sin permisos para editar usuarios' : 'Editar usuario'}
-                          onClick={() => handleEditarClick(usuario)}
-                          disabled={!puedeEditar}
-                        >
-                          <span className="material-icons">edit</span>
-                        </button>
-                        <button
-                          className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                          title={!puedeEliminar ? 'Sin permisos para eliminar usuarios' : 'Eliminar'}
-                          onClick={() => handleEliminar(usuario.id_usuario)}
-                          disabled={!puedeEliminar}
-                        >
-                          <span className="material-icons">delete</span>
-                        </button>
-                      </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className={styles.table}>
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                      {headerGroup.headers.map(header => (
+                        <DraggableTableHeader 
+                          key={header.id} 
+                          header={header} 
+                          className={header.column.getCanSort() ? styles.sortableHeader : undefined}
+                        />
+                      ))}
+                    </SortableContext>
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length} className={styles.emptyMessage}>
+                      No hay usuarios registrados
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map(cell => (
+                        <td key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </DndContext>
         </div>
       </div>
 

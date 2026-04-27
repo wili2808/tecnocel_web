@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import envioAdminService from '../../../services/envioAdminService';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -6,6 +6,30 @@ import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
 import GestionEnviosModal from './GestionEnviosModal';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
+
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, PaginationState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const LIMIT = 20;
 
@@ -23,6 +47,42 @@ const ESTADO_COLORS: Record<EstadoEnvio, string> = {
   en_preparacion: styles.estadoEnPreparacion,
   en_camino: styles.estadoEnCamino,
   entregado: styles.estadoEntregado,
+};
+
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {flexRender(header.column.columnDef.header, header.getContext())}
+        </div>
+      </div>
+    </th>
+  );
 };
 
 interface GestionEnviosProps {
@@ -44,6 +104,20 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
   const debouncedSearch = useDebounce(searchInput, 500);
 
   const [envioSeleccionado, setEnvioSeleccionado] = useState<EnvioAdminListItem | null>(null);
+
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'nro_venta', 'cliente', 'direccion', 'fecha', 'estado', 'seguimiento', 'acciones'
+  ]);
+
+  const pagination = useMemo<PaginationState>(() => ({
+    pageIndex: Math.floor(offset / LIMIT),
+    pageSize: LIMIT,
+  }), [offset]);
+
+  const setPagination = useCallback((updater: any) => {
+    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
+    setOffset(nextPagination.pageIndex * LIMIT);
+  }, [pagination]);
 
   const cargandoRef = useRef(false);
 
@@ -100,8 +174,119 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
     cargarEnvios(filtros, offset);
   };
 
-  const totalPages = Math.ceil(total / LIMIT);
-  const currentPage = Math.floor(offset / LIMIT) + 1;
+  // === Columnas TanStack ===
+  const columns = useMemo<ColumnDef<EnvioAdminListItem>[]>(() => [
+    {
+      accessorKey: 'nro_venta',
+      id: 'nro_venta',
+      header: 'Nro. Venta',
+      cell: info => <strong>#{info.getValue() as string}</strong>,
+    },
+    {
+      accessorKey: 'nombre_cliente',
+      id: 'cliente',
+      header: 'Cliente',
+      cell: info => info.getValue() ? (info.getValue() as string) : <em className={styles.sinDatos}>Sin cliente</em>,
+    },
+    {
+      id: 'direccion',
+      header: 'Dirección destino',
+      cell: info => {
+        const e = info.row.original;
+        return (
+          <span className={styles.direccion}>
+            {[e.envio_calle, e.envio_numero, e.envio_ciudad, e.envio_provincia]
+              .filter(Boolean)
+              .join(', ') || '—'}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'fyh_creacion',
+      id: 'fecha',
+      header: 'Fecha venta',
+      cell: info => formatFecha(info.getValue() as string),
+    },
+    {
+      accessorKey: 'estado_envio',
+      id: 'estado',
+      header: 'Estado envío',
+      cell: info => {
+        const estado = info.getValue() as EstadoEnvio;
+        return (
+          <span className={`${styles.estadoBadge} ${ESTADO_COLORS[estado]}`}>
+            {ESTADO_ENVIO_LABELS[estado]}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'nro_seguimiento',
+      id: 'seguimiento',
+      header: 'Nro. seguimiento',
+      cell: info => (
+        <span className={styles.nroSeguimiento}>
+          {info.getValue() ? (info.getValue() as string) : <em className={styles.sinDatos}>—</em>}
+        </span>
+      ),
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      cell: info => {
+        const envio = info.row.original;
+        return (
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button
+              className={envio.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
+              onClick={() => setEnvioSeleccionado(envio)}
+              disabled={envio.estado_envio !== 'entregado' && !puedeGestionar}
+              title={
+                envio.estado_envio !== 'entregado'
+                  ? !puedeGestionar
+                    ? 'Sin permisos para gestionar envíos'
+                    : 'Gestionar estado'
+                  : 'Ver detalle del envío'
+              }
+            >
+              {envio.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
+            </button>
+          </div>
+        );
+      },
+    }
+  ], [puedeGestionar]);
+
+  const table = useReactTable({
+    data: envios,
+    columns,
+    pageCount: Math.ceil(total / LIMIT),
+    state: {
+      pagination,
+      columnOrder,
+    },
+    onPaginationChange: setPagination,
+    onColumnOrderChange: setColumnOrder,
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
+  };
 
   if (error) return <div className={styles.errorMsg}>{error}</div>;
 
@@ -157,61 +342,35 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
         <div className={styles.emptyMsg}>No se encontraron envíos a domicilio.</div>
       ) : (
         <div className={styles.tableWrapper}>
-          <table className={styles.tabla}>
-            <thead>
-              <tr>
-                <th>Nro. Venta</th>
-                <th>Cliente</th>
-                <th>Dirección destino</th>
-                <th>Fecha venta</th>
-                <th>Estado envío</th>
-                <th>Nro. seguimiento</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {envios.map((envio) => (
-                <tr key={envio.id_envio}>
-                  <td>
-                    <strong>#{envio.nro_venta}</strong>
-                  </td>
-                  <td>{envio.nombre_cliente ?? <em className={styles.sinDatos}>Sin cliente</em>}</td>
-                  <td className={styles.direccion}>
-                    {[envio.envio_calle, envio.envio_numero, envio.envio_ciudad, envio.envio_provincia]
-                      .filter(Boolean)
-                      .join(', ') || '—'}
-                  </td>
-                  <td>{formatFecha(envio.fyh_creacion)}</td>
-                  <td>
-                    <span className={`${styles.estadoBadge} ${ESTADO_COLORS[envio.estado_envio]}`}>
-                      {ESTADO_ENVIO_LABELS[envio.estado_envio]}
-                    </span>
-                  </td>
-                  <td className={styles.nroSeguimiento}>
-                    {envio.nro_seguimiento ?? <em className={styles.sinDatos}>—</em>}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button
-                        className={envio.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
-                        onClick={() => setEnvioSeleccionado(envio)}
-                        disabled={envio.estado_envio !== 'entregado' && !puedeGestionar}
-                        title={
-                          envio.estado_envio !== 'entregado'
-                            ? !puedeGestionar
-                              ? 'Sin permisos para gestionar envíos'
-                              : 'Gestionar estado'
-                            : 'Ver detalle del envío'
-                        }
-                      >
-                        {envio.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className={styles.tabla}>
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                      {headerGroup.headers.map(header => (
+                        <DraggableTableHeader 
+                          key={header.id} 
+                          header={header} 
+                        />
+                      ))}
+                    </SortableContext>
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </DndContext>
         </div>
       )}
 
@@ -219,19 +378,19 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange, 
       {total > LIMIT && (
         <div className={styles.paginacion}>
           <span>
-            Página {currentPage} de {totalPages} ({total} envíos)
+            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()} ({total} envíos)
           </span>
           <div className={styles.paginacionBtns}>
             <button
-              disabled={offset === 0}
-              onClick={() => setOffset(Math.max(0, offset - LIMIT))}
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
               className={styles.btnPag}
             >
               ← Anterior
             </button>
             <button
-              disabled={offset + LIMIT >= total}
-              onClick={() => setOffset(offset + LIMIT)}
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
               className={styles.btnPag}
             >
               Siguiente →

@@ -1,6 +1,7 @@
 /**
  * GestionMarcas — CRUD completo de marcas desde el panel admin
  * Tabla con edición inline, creación inline y confirmación de eliminación inline.
+ * Refactorizado con TanStack Table v8 y dnd-kit.
  */
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -9,8 +10,30 @@ import adminProductService from '../../../services/adminProductService';
 import type { Marca } from '../../../types/product';
 import styles from './GestionMarcas.module.css';
 
-type SortKey = 'nombre' | 'estado' | 'fecha';
-type SortDir = 'asc' | 'desc';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface EditMarcaForm {
   nombre_marca: string;
@@ -21,6 +44,56 @@ interface NuevaMarcaForm {
   nombre_marca: string;
   descripcion_marca: string;
 }
+
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
+        </div>
+      </div>
+    </th>
+  );
+};
 
 const GestionMarcas: React.FC = memo(() => {
   const { showNotification } = useNotification();
@@ -42,8 +115,10 @@ const GestionMarcas: React.FC = memo(() => {
   const [nuevoLogoFile, setNuevoLogoFile] = useState<File | null>(null);
   const [nuevoLogoPreview, setNuevoLogoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>('nombre');
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  // Estados TanStack
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['logo', 'nombre', 'descripcion', 'estado', 'fecha', 'acciones']);
 
   const cargarMarcas = useCallback(async () => {
     try {
@@ -197,47 +272,111 @@ const GestionMarcas: React.FC = memo(() => {
   const formatearFecha = (fecha: string) =>
     new Date(fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
+  // --- Columnas ---
+  const columns = useMemo<ColumnDef<Marca>[]>(() => [
+    {
+      id: 'logo',
+      header: 'Logo',
+      enableSorting: false,
+      cell: (info) => {
+        const marca = info.row.original;
+        return marca.logo_marca ? (
+          <img src={marca.logo_marca} alt={marca.nombre_marca} className={styles.logoThumb} />
+        ) : (
+          <span className={`material-icons ${styles.logoPlaceholder}`}>image_not_supported</span>
+        );
+      }
+    },
+    {
+      accessorKey: 'nombre_marca',
+      id: 'nombre',
+      header: 'Nombre',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorKey: 'descripcion_marca',
+      id: 'descripcion',
+      header: 'Descripción',
+      enableSorting: false,
+      cell: info => info.getValue() ? (info.getValue() as string) : <span className={styles.emptyValue}>—</span>,
+    },
+    {
+      accessorFn: row => row.activo ? 1 : 0,
+      id: 'estado',
+      header: 'Estado',
+      cell: info => {
+        const activo = info.row.original.activo;
+        return (
+          <span className={activo ? styles.badgeActivo : styles.badgeInactivo}>
+            {activo ? 'Activa' : 'Inactiva'}
+          </span>
+        );
+      }
+    },
+    {
+      accessorFn: row => new Date(row.fyh_creacion).getTime(),
+      id: 'fecha',
+      header: 'Creación',
+      cell: info => formatearFecha(info.row.original.fyh_creacion),
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      enableSorting: false,
+      cell: (info) => {
+        const marca = info.row.original;
+        return (
+          <div className={styles.rowActions}>
+            <button
+              className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+              onClick={() => iniciarEdicion(marca)}
+              title={puedeEditar ? 'Editar' : 'Sin permisos'}
+              disabled={!puedeEditar}
+            >
+              <span className="material-icons">edit</span>
+            </button>
+            <button
+              className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+              onClick={() => iniciarEliminacion(marca.id_marca)}
+              disabled={!puedeEliminar}
+              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
+            >
+              <span className="material-icons">delete</span>
+            </button>
+          </div>
+        );
+      }
+    }
+  ], [iniciarEdicion, iniciarEliminacion, puedeEditar, puedeEliminar]);
+
+  const table = useReactTable({
+    data: marcas,
+    columns,
+    state: {
+      sorting,
+      columnOrder,
+    },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
     }
   };
-
-  const getSortIcon = (key: SortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  const sortedMarcas = useMemo(() => {
-    const sorted = [...marcas];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'nombre':
-          valA = a.nombre_marca.toLowerCase();
-          valB = b.nombre_marca.toLowerCase();
-          break;
-        case 'estado':
-          valA = a.activo ? 1 : 0;
-          valB = b.activo ? 1 : 0;
-          break;
-        case 'fecha':
-          valA = new Date(a.fyh_creacion).getTime();
-          valB = new Date(b.fyh_creacion).getTime();
-          break;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [marcas, sortKey, sortDir]);
 
   if (!puedeVer) {
     return (
@@ -270,255 +409,205 @@ const GestionMarcas: React.FC = memo(() => {
         <div className={styles.loadingState}>Cargando marcas...</div>
       ) : (
         <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.th}>Logo</th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Nombre
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('nombre')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.th}>Descripción</th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Estado
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('estado')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Creación
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('fecha')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.th}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {creando && (
-                <tr className={styles.newRow}>
-                  <td className={styles.td}>
-                    <div className={styles.logoCell}>
-                      {nuevoLogoPreview && <img src={nuevoLogoPreview} alt="Preview" className={styles.logoPreview} />}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className={styles.table}>
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                      {headerGroup.headers.map(header => (
+                        <DraggableTableHeader 
+                          key={header.id} 
+                          header={header} 
+                          className={header.column.getCanSort() ? styles.sortableHeader : styles.th}
+                        />
+                      ))}
+                    </SortableContext>
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {creando && (
+                  <tr className={styles.newRow}>
+                    <td className={styles.td}>
+                      <div className={styles.logoCell}>
+                        {nuevoLogoPreview && <img src={nuevoLogoPreview} alt="Preview" className={styles.logoPreview} />}
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          className={styles.logoFileInput}
+                          onChange={(e) =>
+                            handleLogoFileChange(e.target.files?.[0] ?? null, setNuevoLogoFile, setNuevoLogoPreview)
+                          }
+                        />
+                      </div>
+                    </td>
+                    <td className={styles.td}>
                       <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        className={styles.logoFileInput}
-                        onChange={(e) =>
-                          handleLogoFileChange(e.target.files?.[0] ?? null, setNuevoLogoFile, setNuevoLogoPreview)
-                        }
+                        className={styles.editInput}
+                        value={nuevoForm.nombre_marca}
+                        onChange={(e) => setNuevoForm((f) => ({ ...f, nombre_marca: e.target.value }))}
+                        placeholder="Nombre de la marca"
+                        autoFocus
                       />
-                    </div>
-                  </td>
-                  <td className={styles.td}>
-                    <input
-                      className={styles.editInput}
-                      value={nuevoForm.nombre_marca}
-                      onChange={(e) => setNuevoForm((f) => ({ ...f, nombre_marca: e.target.value }))}
-                      placeholder="Nombre de la marca"
-                      autoFocus
-                    />
-                  </td>
-                  <td className={styles.td}>
-                    <input
-                      className={styles.editInput}
-                      value={nuevoForm.descripcion_marca}
-                      onChange={(e) => setNuevoForm((f) => ({ ...f, descripcion_marca: e.target.value }))}
-                      placeholder="Descripción (opcional)"
-                    />
-                  </td>
-                  <td className={styles.td}>—</td>
-                  <td className={styles.td}>—</td>
-                  <td className={styles.td}>
-                    <div className={styles.rowActions}>
-                      <button
-                        className={`${styles.actionBtn} ${styles.actionBtnSuccess}`}
-                        onClick={guardarNueva}
-                        disabled={saving}
-                        title="Guardar"
-                      >
-                        <span className="material-icons">check</span>
-                      </button>
-                      <button
-                        className={`${styles.actionBtn} ${styles.actionBtnNeutral}`}
-                        onClick={cancelarCreacion}
-                        disabled={saving}
-                        title="Cancelar"
-                      >
-                        <span className="material-icons">close</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
+                    </td>
+                    <td className={styles.td}>
+                      <input
+                        className={styles.editInput}
+                        value={nuevoForm.descripcion_marca}
+                        onChange={(e) => setNuevoForm((f) => ({ ...f, descripcion_marca: e.target.value }))}
+                        placeholder="Descripción (opcional)"
+                      />
+                    </td>
+                    <td className={styles.td}>—</td>
+                    <td className={styles.td}>—</td>
+                    <td className={styles.td}>
+                      <div className={styles.rowActions}>
+                        <button
+                          className={`${styles.actionBtn} ${styles.actionBtnSuccess}`}
+                          onClick={guardarNueva}
+                          disabled={saving}
+                          title="Guardar"
+                        >
+                          <span className="material-icons">check</span>
+                        </button>
+                        <button
+                          className={`${styles.actionBtn} ${styles.actionBtnNeutral}`}
+                          onClick={cancelarCreacion}
+                          disabled={saving}
+                          title="Cancelar"
+                        >
+                          <span className="material-icons">close</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
 
-              {sortedMarcas.length === 0 && !creando ? (
-                <tr>
-                  <td colSpan={6} className={styles.emptyMessage}>
-                    No hay marcas registradas
-                  </td>
-                </tr>
-              ) : (
-                sortedMarcas.map((marca) => {
-                  if (eliminandoId === marca.id_marca) {
-                    return (
-                      <tr key={marca.id_marca} className={styles.confirmRow}>
-                        <td colSpan={5} className={styles.td}>
-                          <span className={styles.confirmText}>
-                            ¿Eliminar <strong>«{marca.nombre_marca}»</strong>? Esta acción no se puede deshacer.
-                          </span>
-                        </td>
-                        <td className={styles.td}>
-                          <div className={styles.rowActions}>
-                            <button
-                              className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                              onClick={() => confirmarEliminacion(marca.id_marca)}
-                              disabled={saving}
-                              title="Confirmar eliminación"
-                            >
-                              <span className="material-icons">delete</span>
-                            </button>
-                            <button
-                              className={`${styles.actionBtn} ${styles.actionBtnNeutral}`}
-                              onClick={cancelarEliminacion}
-                              disabled={saving}
-                              title="Cancelar"
-                            >
-                              <span className="material-icons">close</span>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  }
+                {table.getRowModel().rows.length === 0 && !creando ? (
+                  <tr>
+                    <td colSpan={columns.length} className={styles.emptyMessage}>
+                      No hay marcas registradas
+                    </td>
+                  </tr>
+                ) : (
+                  table.getRowModel().rows.map((row) => {
+                    const marca = row.original;
+                    
+                    if (eliminandoId === marca.id_marca) {
+                      return (
+                        <tr key={row.id} className={styles.confirmRow}>
+                          <td colSpan={5} className={styles.td}>
+                            <span className={styles.confirmText}>
+                              ¿Eliminar <strong>«{marca.nombre_marca}»</strong>? Esta acción no se puede deshacer.
+                            </span>
+                          </td>
+                          <td className={styles.td}>
+                            <div className={styles.rowActions}>
+                              <button
+                                className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                                onClick={() => confirmarEliminacion(marca.id_marca)}
+                                disabled={saving}
+                                title="Confirmar eliminación"
+                              >
+                                <span className="material-icons">delete</span>
+                              </button>
+                              <button
+                                className={`${styles.actionBtn} ${styles.actionBtnNeutral}`}
+                                onClick={cancelarEliminacion}
+                                disabled={saving}
+                                title="Cancelar"
+                              >
+                                <span className="material-icons">close</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    }
 
-                  if (editandoId === marca.id_marca) {
-                    return (
-                      <tr key={marca.id_marca} className={styles.editRow}>
-                        <td className={styles.td}>
-                          <div className={styles.logoCell}>
-                            {(editLogoPreview || marca.logo_marca) && (
-                              <img
-                                src={editLogoPreview || marca.logo_marca!}
-                                alt={marca.nombre_marca}
-                                className={styles.logoPreview}
+                    if (editandoId === marca.id_marca) {
+                      return (
+                        <tr key={row.id} className={styles.editRow}>
+                          <td className={styles.td}>
+                            <div className={styles.logoCell}>
+                              {(editLogoPreview || marca.logo_marca) && (
+                                <img
+                                  src={editLogoPreview || marca.logo_marca!}
+                                  alt={marca.nombre_marca}
+                                  className={styles.logoPreview}
+                                />
+                              )}
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                className={styles.logoFileInput}
+                                onChange={(e) =>
+                                  handleLogoFileChange(e.target.files?.[0] ?? null, setEditLogoFile, setEditLogoPreview)
+                                }
                               />
-                            )}
+                            </div>
+                          </td>
+                          <td className={styles.td}>
                             <input
-                              type="file"
-                              accept="image/png,image/jpeg,image/webp"
-                              className={styles.logoFileInput}
-                              onChange={(e) =>
-                                handleLogoFileChange(e.target.files?.[0] ?? null, setEditLogoFile, setEditLogoPreview)
-                              }
+                              className={styles.editInput}
+                              value={editForm.nombre_marca}
+                              onChange={(e) => setEditForm((f) => ({ ...f, nombre_marca: e.target.value }))}
+                              autoFocus
                             />
-                          </div>
-                        </td>
-                        <td className={styles.td}>
-                          <input
-                            className={styles.editInput}
-                            value={editForm.nombre_marca}
-                            onChange={(e) => setEditForm((f) => ({ ...f, nombre_marca: e.target.value }))}
-                            autoFocus
-                          />
-                        </td>
-                        <td className={styles.td}>
-                          <input
-                            className={styles.editInput}
-                            value={editForm.descripcion_marca}
-                            onChange={(e) => setEditForm((f) => ({ ...f, descripcion_marca: e.target.value }))}
-                            placeholder="Descripción (opcional)"
-                          />
-                        </td>
-                        <td className={styles.td}>
-                          <span className={marca.activo ? styles.badgeActivo : styles.badgeInactivo}>
-                            {marca.activo ? 'Activa' : 'Inactiva'}
-                          </span>
-                        </td>
-                        <td className={styles.td}>{formatearFecha(marca.fyh_creacion)}</td>
-                        <td className={styles.td}>
-                          <div className={styles.rowActions}>
-                            <button
-                              className={`${styles.actionBtn} ${styles.actionBtnSuccess}`}
-                              onClick={() => guardarEdicion(marca.id_marca)}
-                              disabled={saving}
-                              title="Guardar"
-                            >
-                              <span className="material-icons">check</span>
-                            </button>
-                            <button
-                              className={`${styles.actionBtn} ${styles.actionBtnNeutral}`}
-                              onClick={cancelarEdicion}
-                              disabled={saving}
-                              title="Cancelar"
-                            >
-                              <span className="material-icons">close</span>
-                            </button>
-                          </div>
-                        </td>
+                          </td>
+                          <td className={styles.td}>
+                            <input
+                              className={styles.editInput}
+                              value={editForm.descripcion_marca}
+                              onChange={(e) => setEditForm((f) => ({ ...f, descripcion_marca: e.target.value }))}
+                              placeholder="Descripción (opcional)"
+                            />
+                          </td>
+                          <td className={styles.td}>
+                            <span className={marca.activo ? styles.badgeActivo : styles.badgeInactivo}>
+                              {marca.activo ? 'Activa' : 'Inactiva'}
+                            </span>
+                          </td>
+                          <td className={styles.td}>{formatearFecha(marca.fyh_creacion)}</td>
+                          <td className={styles.td}>
+                            <div className={styles.rowActions}>
+                              <button
+                                className={`${styles.actionBtn} ${styles.actionBtnSuccess}`}
+                                onClick={() => guardarEdicion(marca.id_marca)}
+                                disabled={saving}
+                                title="Guardar"
+                              >
+                                <span className="material-icons">check</span>
+                              </button>
+                              <button
+                                className={`${styles.actionBtn} ${styles.actionBtnNeutral}`}
+                                onClick={cancelarEdicion}
+                                disabled={saving}
+                                title="Cancelar"
+                              >
+                                <span className="material-icons">close</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return (
+                      <tr key={row.id}>
+                        {row.getVisibleCells().map(cell => (
+                          <td key={cell.id} className={styles.td}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
                       </tr>
                     );
-                  }
-
-                  return (
-                    <tr key={marca.id_marca}>
-                      <td className={styles.td}>
-                        {marca.logo_marca ? (
-                          <img src={marca.logo_marca} alt={marca.nombre_marca} className={styles.logoThumb} />
-                        ) : (
-                          <span className={`material-icons ${styles.logoPlaceholder}`}>image_not_supported</span>
-                        )}
-                      </td>
-                      <td className={styles.td}>{marca.nombre_marca}</td>
-                      <td className={styles.td}>
-                        {marca.descripcion_marca || <span className={styles.emptyValue}>—</span>}
-                      </td>
-                      <td className={styles.td}>
-                        <span className={marca.activo ? styles.badgeActivo : styles.badgeInactivo}>
-                          {marca.activo ? 'Activa' : 'Inactiva'}
-                        </span>
-                      </td>
-                      <td className={styles.td}>{formatearFecha(marca.fyh_creacion)}</td>
-                      <td className={styles.td}>
-                        <div className={styles.rowActions}>
-                          <button
-                            className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
-                            onClick={() => iniciarEdicion(marca)}
-                            title={puedeEditar ? 'Editar' : 'Sin permisos'}
-                            disabled={!puedeEditar}
-                          >
-                            <span className="material-icons">edit</span>
-                          </button>
-                          <button
-                            className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                            onClick={() => iniciarEliminacion(marca.id_marca)}
-                            disabled={!puedeEliminar}
-                            title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
-                          >
-                            <span className="material-icons">delete</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                  })
+                )}
+              </tbody>
+            </table>
+          </DndContext>
         </div>
       )}
     </div>

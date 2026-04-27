@@ -14,10 +14,32 @@ import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
 import styles from './GestionVentas.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
-// ── Tipos internos ───────────────────────────────────────────────────────────
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
-type SortKey = 'nro_venta' | 'fyh_creacion' | 'nombre_cliente' | 'total_pagado' | 'estado';
-type SortDir = 'asc' | 'desc';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// ── Tipos internos ───────────────────────────────────────────────────────────
 
 const LIMIT = 20;
 
@@ -38,6 +60,68 @@ const formatIngreso = (n: number) => {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
   return `$${formatMonto(n)}`;
+};
+
+const badgeEstado = (estado: string) => {
+  const map: Record<string, string> = {
+    completada: styles.badgeCompletada,
+    cancelada: styles.badgeCancelada,
+    pendiente: styles.badgePendiente,
+  };
+  return `${styles.badge} ${map[estado] || ''}`;
+};
+
+const badgeTipo = (tipo: string) =>
+  `${styles.badge} ${tipo === 'web' ? styles.badgeWeb : styles.badgeManual}`;
+
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  const isSorted = header.column.getIsSorted();
+  const sortIcon = isSorted ? (isSorted === 'desc' ? 'arrow_downward' : 'arrow_upward') : 'unfold_more';
+  const canSort = header.column.getCanSort();
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div 
+          style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px', cursor: canSort ? 'pointer' : 'default' }}
+          onClick={header.column.getToggleSortingHandler()}
+        >
+          <span className={styles.sortableHeaderContent}>
+            {flexRender(header.column.columnDef.header, header.getContext())}
+            {canSort && (
+              <span className={`material-icons ${styles.sortIcon} ${isSorted ? styles.sortIconActive : ''}`}>
+                {sortIcon}
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    </th>
+  );
 };
 
 // ── Componente ────────────────────────────────────────────────────────────────
@@ -69,10 +153,23 @@ const GestionVentas: React.FC = () => {
   const debouncedSearch = useDebounce(searchInput, 500);
   const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
 
-  // ── Paginación y ordenación ────────────────────────────────────────────────
+  // ── Paginación y ordenación TanStack ───────────────────────────────────────
   const [offset, setOffset] = useState(0);
-  const [sortKey, setSortKey] = useState<SortKey>('fyh_creacion');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'fyh_creacion', desc: true }]);
+  
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado', 'acciones'
+  ]);
+
+  const pagination = useMemo<PaginationState>(() => ({
+    pageIndex: Math.floor(offset / LIMIT),
+    pageSize: LIMIT,
+  }), [offset]);
+
+  const setPagination = useCallback((updater: any) => {
+    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
+    setOffset(nextPagination.pageIndex * LIMIT);
+  }, [pagination]);
 
   // ── Cotización USD ─────────────────────────────────────────────────────────
   const [tipoCambio, setTipoCambio] = useState<number>(1200);
@@ -229,88 +326,182 @@ const GestionVentas: React.FC = () => {
     setOffset(0);
   };
 
-  // ── Ordenación local (sobre la página actual) ──────────────────────────────
-  const ventasOrdenadas = useMemo(() => {
-    const copia = [...ventas];
-    copia.sort((a, b) => {
-      let va: string | number;
-      let vb: string | number;
-      switch (sortKey) {
-        case 'nro_venta':
-          va = a.nro_venta;
-          vb = b.nro_venta;
-          break;
-        case 'fyh_creacion':
-          va = a.fyh_creacion;
-          vb = b.fyh_creacion;
-          break;
-        case 'nombre_cliente':
-          va = a.nombre_cliente || '';
-          vb = b.nombre_cliente || '';
-          break;
-        case 'total_pagado':
-          va = a.total_pagado;
-          vb = b.total_pagado;
-          break;
-        case 'estado':
-          va = a.estado;
-          vb = b.estado;
-          break;
-        default:
-          return 0;
-      }
-      if (va < vb) return sortDir === 'asc' ? -1 : 1;
-      if (va > vb) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return copia;
-  }, [ventas, sortKey, sortDir]);
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    else {
-      setSortKey(key);
-      setSortDir('desc');
-    }
-  };
-
-  const sortIcon = (key: SortKey) => (
-    <span className={`material-icons ${styles.sortIcon} ${sortKey === key ? styles.sortIconActive : ''}`}>
-      {sortKey === key ? (sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-    </span>
-  );
-
-  // ── Paginación ─────────────────────────────────────────────────────────────
-  const totalPaginas = Math.max(1, Math.ceil(total / LIMIT));
-  const paginaActual = Math.floor(offset / LIMIT) + 1;
-
-  const irPagina = (nueva: number) => {
-    const nuevoOffset = (nueva - 1) * LIMIT;
-    setOffset(nuevoOffset);
-  };
-
   // ── Cancelar venta rápido (desde fila de tabla) ────────────────────────────
   const cancelarVentaFila = (id: number, nro: string) => {
     setCancelacionModal({ id, nro });
   };
 
-  // ── Badges ─────────────────────────────────────────────────────────────────
-  const badgeEstado = (estado: VentaListItem['estado']) => {
-    const map: Record<string, string> = {
-      completada: styles.badgeCompletada,
-      cancelada: styles.badgeCancelada,
-      pendiente: styles.badgePendiente,
-    };
-    return `${styles.badge} ${map[estado] || ''}`;
-  };
-
-  const badgeTipo = (tipo: VentaListItem['tipo_venta']) =>
-    `${styles.badge} ${tipo === 'web' ? styles.badgeWeb : styles.badgeManual}`;
-
   // ── Refresh tras acciones ──────────────────────────────────────────────────
   const refreshTodo = () => {
     cargarVentas(filtros, offset);
     cargarStats();
+  };
+
+  // === Columnas TanStack ===
+  const columns = useMemo<ColumnDef<VentaListItem>[]>(() => [
+    {
+      accessorKey: 'nro_venta',
+      id: 'nro_venta',
+      header: 'N° Venta',
+      enableSorting: true,
+      cell: info => <span className={styles.nroVenta}>{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'fyh_creacion',
+      id: 'fecha',
+      header: 'Fecha',
+      enableSorting: true,
+      cell: info => formatFecha(info.getValue() as string),
+    },
+    {
+      accessorKey: 'nombre_vendedor',
+      id: 'vendedor',
+      header: 'Vendedor',
+      enableSorting: false,
+      cell: info => info.getValue() ? (
+        <span className={styles.vendedorNombre}>{info.getValue() as string}</span>
+      ) : (
+        <span className={styles.sinVendedor}>—</span>
+      ),
+    },
+    {
+      accessorKey: 'nombre_cliente',
+      id: 'cliente',
+      header: 'Cliente',
+      enableSorting: true,
+      cell: info => info.getValue() ? (
+        <span className={styles.clienteNombre}>{info.getValue() as string}</span>
+      ) : (
+        <span className={styles.sinCliente}>Mostrador</span>
+      ),
+    },
+    {
+      accessorKey: 'cantidad_items',
+      id: 'items',
+      header: 'Items',
+      enableSorting: false,
+      cell: info => info.getValue() as number,
+    },
+    {
+      accessorKey: 'total_pagado',
+      id: 'total_pagado',
+      header: 'Total',
+      enableSorting: true,
+      cell: info => {
+        const venta = info.row.original;
+        return (
+          <div className={styles.textRight}>
+            <span className={styles.totalCell}>
+              ${formatMonto(venta.total_pagado)}
+              <span
+                style={{
+                  marginLeft: '6px',
+                  fontSize: '0.75rem',
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  backgroundColor: venta.moneda === 'USD' ? '#dbeafe' : '#cffafe',
+                  color: venta.moneda === 'USD' ? '#1e40af' : '#0369a1',
+                  fontWeight: '500',
+                }}
+              >
+                {venta.moneda === 'USD' ? 'USD' : 'ARS'}
+              </span>
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'metodo_pago',
+      id: 'metodo',
+      header: 'Método',
+      enableSorting: false,
+      cell: info => adminVentaService.formatearMetodoPago(info.getValue() as string),
+    },
+    {
+      accessorKey: 'tipo_venta',
+      id: 'tipo',
+      header: 'Tipo',
+      enableSorting: false,
+      cell: info => (
+        <span className={badgeTipo(info.getValue() as string)}>
+          {adminVentaService.formatearTipoVenta(info.getValue() as string)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'estado',
+      id: 'estado',
+      header: 'Estado',
+      enableSorting: true,
+      cell: info => (
+        <span className={badgeEstado(info.getValue() as string)}>
+          {adminVentaService.formatearEstado(info.getValue() as string)}
+        </span>
+      ),
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      enableSorting: false,
+      cell: info => {
+        const venta = info.row.original;
+        return (
+          <div className={styles.actions}>
+            <button
+              className={styles.actionButton}
+              onClick={() => setIdDetalleAbierto(venta.id_venta)}
+              title="Ver detalle"
+            >
+              <span className="material-icons">visibility</span>
+            </button>
+            {venta.estado === 'completada' && (
+              <button
+                className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
+                title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
+                disabled={!puedeCancelar}
+              >
+                <span className="material-icons">cancel</span>
+              </button>
+            )}
+          </div>
+        );
+      },
+    }
+  ], [puedeCancelar]);
+
+  const table = useReactTable({
+    data: ventas,
+    columns,
+    pageCount: Math.ceil(total / LIMIT),
+    state: {
+      pagination,
+      sorting,
+      columnOrder,
+    },
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -627,115 +818,43 @@ const GestionVentas: React.FC = () => {
           ) : (
             <>
               <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th className={`${styles.sortableHeader}`} onClick={() => toggleSort('nro_venta')}>
-                        <span className={styles.sortableHeaderContent}>N° Venta {sortIcon('nro_venta')}</span>
-                      </th>
-                      <th className={styles.sortableHeader} onClick={() => toggleSort('fyh_creacion')}>
-                        <span className={styles.sortableHeaderContent}>Fecha {sortIcon('fyh_creacion')}</span>
-                      </th>
-                      <th>Vendedor</th>
-                      <th className={styles.sortableHeader} onClick={() => toggleSort('nombre_cliente')}>
-                        <span className={styles.sortableHeaderContent}>Cliente {sortIcon('nombre_cliente')}</span>
-                      </th>
-                      <th>Items</th>
-                      <th className={styles.sortableHeader} onClick={() => toggleSort('total_pagado')}>
-                        <span className={styles.sortableHeaderContent}>Total {sortIcon('total_pagado')}</span>
-                      </th>
-                      <th>Método</th>
-                      <th>Tipo</th>
-                      <th className={styles.sortableHeader} onClick={() => toggleSort('estado')}>
-                        <span className={styles.sortableHeaderContent}>Estado {sortIcon('estado')}</span>
-                      </th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ventasOrdenadas.length === 0 ? (
-                      <tr>
-                        <td colSpan={10} className={styles.emptyMessage}>
-                          No hay ventas que coincidan con los filtros aplicados
-                        </td>
-                      </tr>
-                    ) : (
-                      ventasOrdenadas.map((venta) => (
-                        <tr key={venta.id_venta}>
-                          <td>
-                            <span className={styles.nroVenta}>{venta.nro_venta}</span>
-                          </td>
-                          <td>{formatFecha(venta.fyh_creacion)}</td>
-                          <td>
-                            {venta.nombre_vendedor ? (
-                              <span className={styles.vendedorNombre}>{venta.nombre_vendedor}</span>
-                            ) : (
-                              <span className={styles.sinVendedor}>—</span>
-                            )}
-                          </td>
-                          <td>
-                            {venta.nombre_cliente ? (
-                              <span className={styles.clienteNombre}>{venta.nombre_cliente}</span>
-                            ) : (
-                              <span className={styles.sinCliente}>Mostrador</span>
-                            )}
-                          </td>
-                          <td>{venta.cantidad_items}</td>
-                          <td className={styles.textRight}>
-                            <span className={styles.totalCell}>
-                              ${formatMonto(venta.total_pagado)}
-                              <span
-                                style={{
-                                  marginLeft: '6px',
-                                  fontSize: '0.75rem',
-                                  padding: '2px 6px',
-                                  borderRadius: '3px',
-                                  backgroundColor: venta.moneda === 'USD' ? '#dbeafe' : '#cffafe',
-                                  color: venta.moneda === 'USD' ? '#1e40af' : '#0369a1',
-                                  fontWeight: '500',
-                                }}
-                              >
-                                {venta.moneda === 'USD' ? 'USD' : 'ARS'}
-                              </span>
-                            </span>
-                          </td>
-                          <td>{adminVentaService.formatearMetodoPago(venta.metodo_pago)}</td>
-                          <td>
-                            <span className={badgeTipo(venta.tipo_venta)}>
-                              {adminVentaService.formatearTipoVenta(venta.tipo_venta)}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={badgeEstado(venta.estado)}>
-                              {adminVentaService.formatearEstado(venta.estado)}
-                            </span>
-                          </td>
-                          <td>
-                            <div className={styles.actions}>
-                              <button
-                                className={styles.actionButton}
-                                onClick={() => setIdDetalleAbierto(venta.id_venta)}
-                                title="Ver detalle"
-                              >
-                                <span className="material-icons">visibility</span>
-                              </button>
-                              {venta.estado === 'completada' && (
-                                <button
-                                  className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                                  onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
-                                  title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
-                                  disabled={!puedeCancelar}
-                                >
-                                  <span className="material-icons">cancel</span>
-                                </button>
-                              )}
-                            </div>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <table className={styles.table}>
+                    <thead>
+                      {table.getHeaderGroups().map(headerGroup => (
+                        <tr key={headerGroup.id}>
+                          <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                            {headerGroup.headers.map(header => (
+                              <DraggableTableHeader 
+                                key={header.id} 
+                                header={header} 
+                              />
+                            ))}
+                          </SortableContext>
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody>
+                      {table.getRowModel().rows.length === 0 ? (
+                        <tr>
+                          <td colSpan={10} className={styles.emptyMessage}>
+                            No hay ventas que coincidan con los filtros aplicados
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        table.getRowModel().rows.map((row) => (
+                          <tr key={row.id}>
+                            {row.getVisibleCells().map(cell => (
+                              <td key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </DndContext>
               </div>
 
               {/* Paginación */}
@@ -747,19 +866,19 @@ const GestionVentas: React.FC = () => {
                   <div className={styles.paginationControls}>
                     <button
                       className={styles.paginationButton}
-                      onClick={() => irPagina(paginaActual - 1)}
-                      disabled={paginaActual <= 1}
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
                     >
                       <span className="material-icons">chevron_left</span>
                       Anterior
                     </button>
                     <span className={styles.paginationPage}>
-                      {paginaActual} / {totalPaginas}
+                      {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
                     </span>
                     <button
                       className={styles.paginationButton}
-                      onClick={() => irPagina(paginaActual + 1)}
-                      disabled={paginaActual >= totalPaginas}
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
                     >
                       Siguiente
                       <span className="material-icons">chevron_right</span>

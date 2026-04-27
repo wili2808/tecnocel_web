@@ -1,6 +1,7 @@
 /**
  * Componente GestionOfertas - CRUD completo de ofertas desde el admin
  * Lista, busca, crea, edita y elimina ofertas del sistema
+ * Refactorizado con TanStack Table v8 y dnd-kit.
  */
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -15,8 +16,32 @@ import {
 } from '../common';
 import styles from './GestionOfertas.module.css';
 
-type SortKey = 'nombre_oferta' | 'tipo_descuento' | 'valor_descuento' | 'fecha_inicio' | 'fecha_fin' | 'activo';
-type SortDir = 'asc' | 'desc';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 type FiltroEstado = 'todas' | 'activas' | 'inactivas' | 'expiradas';
 
 const ITEMS_PER_PAGE = 20;
@@ -41,6 +66,56 @@ const formatFecha = (fecha: string) => {
   });
 };
 
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
+        </div>
+      </div>
+    </th>
+  );
+};
+
 const GestionOfertas = () => {
   const { tienePermiso } = useAuth();
   const { showNotification } = useNotification();
@@ -62,26 +137,13 @@ const GestionOfertas = () => {
   // Búsqueda, filtros y paginación
   const [searchInput, setSearchInput] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>('todas');
-  const [page, setPage] = useState(1);
 
-  // Ordenamiento
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
-
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
-    }
-    setPage(1);
-  };
-
-  const getSortIcon = (key: SortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
+  // Estados TanStack
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre_oferta', desc: false }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: ITEMS_PER_PAGE });
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'nombre_oferta', 'tipo_descuento', 'valor_descuento', 'fecha_inicio', 'fecha_fin', 'productos', 'activo', 'acciones'
+  ]);
 
   // 1. Filtrar por búsqueda y estado
   const filteredOfertas = useMemo(() => {
@@ -109,57 +171,6 @@ const GestionOfertas = () => {
     return result;
   }, [allOfertas, searchInput, filtroEstado]);
 
-  // 2. Ordenar
-  const sortedOfertas = useMemo(() => {
-    if (!sortKey) return filteredOfertas;
-
-    return [...filteredOfertas].sort((a, b) => {
-      let valA: string | number;
-      let valB: string | number;
-
-      switch (sortKey) {
-        case 'nombre_oferta':
-          valA = a.nombre_oferta.toLowerCase();
-          valB = b.nombre_oferta.toLowerCase();
-          break;
-        case 'tipo_descuento':
-          valA = a.tipo_descuento;
-          valB = b.tipo_descuento;
-          break;
-        case 'valor_descuento':
-          valA = a.valor_descuento;
-          valB = b.valor_descuento;
-          break;
-        case 'fecha_inicio':
-          valA = new Date(a.fecha_inicio).getTime();
-          valB = new Date(b.fecha_inicio).getTime();
-          break;
-        case 'fecha_fin':
-          valA = new Date(a.fecha_fin).getTime();
-          valB = new Date(b.fecha_fin).getTime();
-          break;
-        case 'activo':
-          valA = a.activo ? 1 : 0;
-          valB = b.activo ? 1 : 0;
-          break;
-        default:
-          return 0;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredOfertas, sortKey, sortDir]);
-
-  // 3. Paginar
-  const total = sortedOfertas.length;
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
-  const paginatedOfertas = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return sortedOfertas.slice(start, start + ITEMS_PER_PAGE);
-  }, [sortedOfertas, page]);
-
   const cargarOfertas = useCallback(async () => {
     try {
       setLoading(true);
@@ -180,10 +191,10 @@ const GestionOfertas = () => {
 
   const handleClearSearch = () => {
     setSearchInput('');
-    setPage(1);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
-  const handleEditar = async (id: number) => {
+  const handleEditar = useCallback(async (id: number) => {
     if (!puedeEditar) {
       showNotification('No tienes permisos para editar ofertas', 'error');
       return;
@@ -196,9 +207,9 @@ const GestionOfertas = () => {
     } catch {
       showNotification('Error al cargar oferta para editar', 'error');
     }
-  };
+  }, [puedeEditar, showNotification]);
 
-  const handleEliminar = async (id: number, nombre: string) => {
+  const handleEliminar = useCallback(async (id: number, nombre: string) => {
     if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar ofertas', 'error');
       return;
@@ -215,7 +226,7 @@ const GestionOfertas = () => {
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar oferta', 'error');
     }
-  };
+  }, [puedeEliminar, showNotification, cargarOfertas]);
 
   const handleGuardado = () => {
     setShowCrearForm(false);
@@ -228,6 +239,137 @@ const GestionOfertas = () => {
     setShowCrearForm(false);
     setEditandoOferta(null);
     setModoModal('crear');
+  };
+
+  // --- Columnas ---
+  const columns = useMemo<ColumnDef<OfertaConConteo>[]>(() => [
+    {
+      accessorKey: 'nombre_oferta',
+      id: 'nombre_oferta',
+      header: 'Nombre',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorKey: 'tipo_descuento',
+      id: 'tipo_descuento',
+      header: 'Tipo',
+      cell: info => (
+        <span className={styles.tipoBadge}>
+          {info.getValue() === 'porcentaje' ? 'Porcentaje' : 'Monto Fijo'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'valor_descuento',
+      id: 'valor_descuento',
+      header: 'Valor',
+      cell: info => {
+        const oferta = info.row.original;
+        return (
+          <span className={styles.valorCell}>
+            {oferta.tipo_descuento === 'porcentaje'
+              ? `${oferta.valor_descuento}%`
+              : `$ ${oferta.valor_descuento}`
+            }
+          </span>
+        );
+      },
+    },
+    {
+      accessorFn: row => new Date(row.fecha_inicio).getTime(),
+      id: 'fecha_inicio',
+      header: 'Inicio',
+      cell: info => formatFecha(info.row.original.fecha_inicio),
+    },
+    {
+      accessorFn: row => new Date(row.fecha_fin).getTime(),
+      id: 'fecha_fin',
+      header: 'Fin',
+      cell: info => formatFecha(info.row.original.fecha_fin),
+    },
+    {
+      id: 'productos',
+      header: 'Productos',
+      enableSorting: false,
+      cell: info => (
+        <span className={styles.productosCount}>
+          {info.row.original.productos_count ?? '-'}
+        </span>
+      )
+    },
+    {
+      accessorFn: row => row.activo ? 1 : 0,
+      id: 'activo',
+      header: 'Estado',
+      cell: info => {
+        const estado = getEstadoOferta(info.row.original);
+        return (
+          <span className={`${styles.estadoBadge} ${estado.className}`}>
+            {estado.label}
+          </span>
+        );
+      }
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      enableSorting: false,
+      cell: (info) => {
+        const oferta = info.row.original;
+        return (
+          <div className={styles.actions}>
+            <button
+              className={styles.actionButton}
+              title={!puedeEditar ? 'Sin permisos para editar ofertas' : 'Editar'}
+              onClick={() => handleEditar(oferta.id_oferta)}
+              disabled={!puedeEditar}
+            >
+              <span className="material-icons">edit</span>
+            </button>
+            <button
+              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+              title={!puedeEliminar ? 'Sin permisos para eliminar ofertas' : 'Desactivar'}
+              onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
+              disabled={!puedeEliminar}
+            >
+              <span className="material-icons">delete</span>
+            </button>
+          </div>
+        );
+      }
+    }
+  ], [handleEditar, handleEliminar, puedeEditar, puedeEliminar]);
+
+  const table = useReactTable({
+    data: filteredOfertas,
+    columns,
+    state: {
+      sorting,
+      pagination,
+      columnOrder,
+    },
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
   };
 
   // Vista de lista
@@ -274,7 +416,10 @@ const GestionOfertas = () => {
               type="text"
               placeholder="Buscar por nombre de oferta..."
               value={searchInput}
-              onChange={(e) => { setSearchInput(e.target.value); setPage(1); }}
+              onChange={(e) => { 
+                setSearchInput(e.target.value); 
+                table.setPageIndex(0); 
+              }}
               className={styles.searchInput}
             />
             {searchInput && (
@@ -289,7 +434,10 @@ const GestionOfertas = () => {
           </div>
           <select
             value={filtroEstado}
-            onChange={(e) => { setFiltroEstado(e.target.value as FiltroEstado); setPage(1); }}
+            onChange={(e) => { 
+              setFiltroEstado(e.target.value as FiltroEstado); 
+              table.setPageIndex(0); 
+            }}
             className={styles.filterSelect}
           >
             <option value="todas">Todas</option>
@@ -327,136 +475,68 @@ const GestionOfertas = () => {
       {!loading && !error && (
         <>
           <div className={styles.tableInfo}>
-            <span>{total} oferta{total !== 1 ? 's' : ''} encontrada{total !== 1 ? 's' : ''}</span>
+            <span>{filteredOfertas.length} oferta{filteredOfertas.length !== 1 ? 's' : ''} encontrada{filteredOfertas.length !== 1 ? 's' : ''}</span>
           </div>
 
           <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('nombre_oferta')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Nombre</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre_oferta' ? styles.sortIconActive : ''}`}>{getSortIcon('nombre_oferta')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('tipo_descuento')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Tipo</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'tipo_descuento' ? styles.sortIconActive : ''}`}>{getSortIcon('tipo_descuento')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('valor_descuento')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Valor</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'valor_descuento' ? styles.sortIconActive : ''}`}>{getSortIcon('valor_descuento')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('fecha_inicio')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Inicio</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha_inicio' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha_inicio')}</span>
-                    </span>
-                  </th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('fecha_fin')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Fin</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha_fin' ? styles.sortIconActive : ''}`}>{getSortIcon('fecha_fin')}</span>
-                    </span>
-                  </th>
-                  <th>Productos</th>
-                  <th className={styles.sortableHeader} onClick={() => handleSort('activo')}>
-                    <span className={styles.sortableHeaderContent}>
-                      <span>Estado</span>
-                      <span className={`material-icons ${styles.sortIcon} ${sortKey === 'activo' ? styles.sortIconActive : ''}`}>{getSortIcon('activo')}</span>
-                    </span>
-                  </th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedOfertas.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className={styles.emptyMessage}>
-                      {searchInput || filtroEstado !== 'todas'
-                        ? 'No se encontraron ofertas con los filtros aplicados'
-                        : 'No hay ofertas registradas'}
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedOfertas.map((oferta) => {
-                    const estado = getEstadoOferta(oferta);
-
-                    return (
-                      <tr key={oferta.id_oferta}>
-                        <td>{oferta.nombre_oferta}</td>
-                        <td>
-                          <span className={styles.tipoBadge}>
-                            {oferta.tipo_descuento === 'porcentaje' ? 'Porcentaje' : 'Monto Fijo'}
-                          </span>
-                        </td>
-                        <td className={styles.valorCell}>
-                          {oferta.tipo_descuento === 'porcentaje'
-                            ? `${oferta.valor_descuento}%`
-                            : `$ ${oferta.valor_descuento}`
-                          }
-                        </td>
-                        <td>{formatFecha(oferta.fecha_inicio)}</td>
-                        <td>{formatFecha(oferta.fecha_fin)}</td>
-                        <td>
-                          <span className={styles.productosCount}>
-                            {oferta.productos_count ?? '-'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`${styles.estadoBadge} ${estado.className}`}>
-                            {estado.label}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <button
-                              className={styles.actionButton}
-                              title={!puedeEditar ? 'Sin permisos para editar ofertas' : 'Editar'}
-                              onClick={() => handleEditar(oferta.id_oferta)}
-                              disabled={!puedeEditar}
-                            >
-                              <span className="material-icons">edit</span>
-                            </button>
-                            <button
-                              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                              title={!puedeEliminar ? 'Sin permisos para eliminar ofertas' : 'Desactivar'}
-                              onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
-                              disabled={!puedeEliminar}
-                            >
-                              <span className="material-icons">delete</span>
-                            </button>
-                          </div>
-                        </td>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <table className={styles.table}>
+                <thead>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                        {headerGroup.headers.map(header => (
+                          <DraggableTableHeader 
+                            key={header.id} 
+                            header={header} 
+                            className={header.column.getCanSort() ? styles.sortableHeader : undefined}
+                          />
+                        ))}
+                      </SortableContext>
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length} className={styles.emptyMessage}>
+                        {searchInput || filtroEstado !== 'todas'
+                          ? 'No se encontraron ofertas con los filtros aplicados'
+                          : 'No hay ofertas registradas'}
+                      </td>
+                    </tr>
+                  ) : (
+                    table.getRowModel().rows.map((row) => (
+                      <tr key={row.id}>
+                        {row.getVisibleCells().map(cell => (
+                          <td key={cell.id} className={cell.column.id === 'valor_descuento' ? styles.valorCell : undefined}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
                       </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </DndContext>
           </div>
 
           {/* Paginación */}
-          {totalPages > 1 && (
+          {table.getPageCount() > 1 && (
             <div className={styles.pagination}>
               <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
                 className={styles.pageButton}
               >
                 <span className="material-icons">chevron_left</span>
               </button>
               <span className={styles.pageInfo}>
-                Página {page} de {totalPages}
+                Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
               </span>
               <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
                 className={styles.pageButton}
               >
                 <span className="material-icons">chevron_right</span>
@@ -501,5 +581,3 @@ const GestionOfertas = () => {
 };
 
 export default GestionOfertas;
-
-
