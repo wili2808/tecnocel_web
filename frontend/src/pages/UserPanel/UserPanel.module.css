@@ -249,6 +249,7 @@
 .contentArea {
   height: 100%;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .sectionTitle {

@@ -40,8 +40,11 @@ export interface ReporteProductoVendido {
 export interface ReporteStockBajo {
   id_producto: number;
   nombre: string;
+  codigo: string;
   stock: number;
   stock_minimo: number;
+  precio_compra: number;
+  precio_venta: number;
 }
 
 export interface ReporteCountResult {

@@ -250,11 +250,18 @@ class ReporteController {
       );
 
       const stockBajo = await sequelize.query<ReporteStockBajo>(
-        `SELECT id_producto, nombre, stock, stock_minimo
+        `SELECT
+           id_producto,
+           nombre,
+           codigo,
+           stock,
+           stock_minimo,
+           COALESCE(precio_compra, 0) AS precio_compra,
+           COALESCE(precio_venta,  0) AS precio_venta
          FROM tb_almacen
          WHERE stock_minimo IS NOT NULL AND stock <= stock_minimo
          ORDER BY (stock_minimo - stock) DESC
-         LIMIT 20`,
+         LIMIT 50`,
         { type: QueryTypes.SELECT }
       );
 

@@ -188,7 +188,7 @@ app.use('/api/carrito', carritoRoutes);
 app.use('/api/comentarios', comentarioRoutes);
 
 // Rutas de uploads
-app.use('/api/upload', uploadRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // Nuevas rutas
 app.use('/api/marcas', marcaRoutes);

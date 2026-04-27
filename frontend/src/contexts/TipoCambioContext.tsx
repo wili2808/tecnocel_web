@@ -46,8 +46,9 @@ export const TipoCambioProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchTipoCambio = async () => {
       try {
-        const { data } = await axiosInstance.get('/almacen/tipo-cambio');
-        const valor = typeof data?.valor === 'number' ? data.valor : parseFloat(String(data?.valor));
+        const { data: responseData } = await axiosInstance.get('/almacen/tipo-cambio');
+        const payload = responseData?.data || responseData;
+        const valor = typeof payload?.valor === 'number' ? payload.valor : parseFloat(String(payload?.valor));
 
         if (!Number.isFinite(valor) || valor <= 0) {
           throw new Error('Tipo de cambio inválido en respuesta');
@@ -56,7 +57,7 @@ export const TipoCambioProvider = ({ children }: { children: ReactNode }) => {
         setTipoCambio(valor);
         setOrigen('api');
         localStorage.setItem(TIPO_CAMBIO_CACHE_KEY, String(valor));
-        setLastUpdated(data.fyh_actualizacion ? new Date(data.fyh_actualizacion) : null);
+        setLastUpdated(payload?.fyh_actualizacion ? new Date(payload.fyh_actualizacion) : null);
       } catch (error) {
         const cached = readCachedTipoCambio();
 

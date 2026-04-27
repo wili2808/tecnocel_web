@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pdf } from '@react-pdf/renderer';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { FacturaPDF } from './FacturaPDF';
 import carritoService from '../../../services/carritoService';
@@ -27,7 +29,7 @@ interface DireccionEnvio {
 interface EnvioInfo {
   tipo_entrega: 'envio' | 'retiro_en_tienda';
   estado_envio: string;
-  fyh_despacho: string | null;
+  fecha_despacho: string | null;
   direccion_envio: DireccionEnvio | null;
 }
 
@@ -71,6 +73,68 @@ function getBadgeEstado(estado: Venta['estado']): { clase: string; label: string
       return { clase: styles.estadoPendiente, label: estado };
   }
 }
+
+const obtenerTextoEstadoEnvio = (tipoEntrega: 'envio' | 'retiro_en_tienda', estado: string) => {
+  if (tipoEntrega === 'retiro_en_tienda') {
+    switch (estado) {
+      case 'pendiente': return 'Pendiente';
+      case 'en_preparacion': return 'En preparación';
+      case 'en_camino': return 'Listo para retirar';
+      case 'entregado': return 'Entregado';
+      default: return estado;
+    }
+  } else {
+    switch (estado) {
+      case 'pendiente': return 'Pendiente';
+      case 'en_preparacion': return 'En preparación';
+      case 'en_camino': return 'En camino';
+      case 'entregado': return 'Entregado';
+      default: return estado;
+    }
+  }
+};
+
+const obtenerIconoEstadoEnvio = (tipoEntrega: 'envio' | 'retiro_en_tienda', estado: string) => {
+  if (tipoEntrega === 'retiro_en_tienda') {
+    switch (estado) {
+      case 'entregado': return 'check_circle';
+      case 'en_camino': return 'storefront';
+      case 'en_preparacion': return 'inventory_2';
+      default: return 'hourglass_empty';
+    }
+  } else {
+    switch (estado) {
+      case 'entregado': return 'check_circle';
+      case 'en_camino': return 'local_shipping';
+      case 'en_preparacion': return 'inventory_2';
+      default: return 'hourglass_empty';
+    }
+  }
+};
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.98 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24
+    }
+  }
+};
+
 
 const MisCompras = () => {
   const navigate = useNavigate();
@@ -179,11 +243,21 @@ const MisCompras = () => {
       </div>
 
       {/* Lista de ventas */}
-      <div className={styles.ventasList}>
+      <motion.div 
+        className={styles.ventasList}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {ventas.map((venta) => {
           const badge = getBadgeEstado(venta.estado);
           return (
-            <div key={venta.id_venta} className={styles.ventaCard}>
+            <motion.div 
+              key={venta.id_venta} 
+              className={styles.ventaCard}
+              variants={cardVariants}
+              layout
+            >
               <div className={styles.ventaHeader} onClick={() => toggleExpand(venta.id_venta)}>
                 <div className={styles.ventaInfo}>
                   <div className={styles.ventaNumeroRow}>
@@ -216,18 +290,28 @@ const MisCompras = () => {
                       {descargandoPDF === venta.id_venta ? 'hourglass_empty' : 'picture_as_pdf'}
                     </span>
                   </button>
-                  <button className={styles.expandBtn}>
-                    <span className="material-icons">
-                      {expandedVenta === venta.id_venta ? 'expand_less' : 'expand_more'}
-                    </span>
-                  </button>
+                  <motion.button 
+                    className={styles.expandBtn}
+                    animate={{ rotate: expandedVenta === venta.id_venta ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <span className="material-icons">expand_more</span>
+                  </motion.button>
                 </div>
               </div>
 
-              {expandedVenta === venta.id_venta && (
-                <div className={styles.ventaDetails}>
-                  {/* Productos */}
-                  <h4>Productos:</h4>
+              <AnimatePresence>
+                {expandedVenta === venta.id_venta && (
+                  <motion.div 
+                    className={styles.ventaDetails}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    {/* Productos */}
+                    <h4>Productos:</h4>
                   <div className={styles.itemsList}>
                     {venta.items.map((item, idx) => (
                       <div key={idx} className={styles.item}>
@@ -255,6 +339,18 @@ const MisCompras = () => {
                     </div>
                   )}
 
+                  {/* Estado del envío/retiro */}
+                  {venta.envio && venta.envio.estado_envio && (
+                    <div className={styles.despachoRow}>
+                      <span className="material-icons">
+                        {obtenerIconoEstadoEnvio(venta.envio.tipo_entrega, venta.envio.estado_envio)}
+                      </span>
+                      <span>
+                        Estado: {obtenerTextoEstadoEnvio(venta.envio.tipo_entrega, venta.envio.estado_envio)}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Dirección de envío */}
                   {venta.envio?.tipo_entrega === 'envio' &&
                     venta.envio.direccion_envio &&
@@ -269,10 +365,10 @@ const MisCompras = () => {
                     })()}
 
                   {/* Fecha de despacho */}
-                  {venta.envio?.fyh_despacho && (
+                  {venta.envio?.fecha_despacho && (
                     <div className={styles.despachoRow}>
                       <span className="material-icons">local_shipping</span>
-                      <span>Despachado el: {formatearFecha(venta.envio.fyh_despacho)}</span>
+                      <span>Despachado el: {formatearFecha(venta.envio.fecha_despacho)}</span>
                     </div>
                   )}
 
@@ -299,12 +395,13 @@ const MisCompras = () => {
                       )}
                     </div>
                   )}
-                </div>
-              )}
-            </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 };

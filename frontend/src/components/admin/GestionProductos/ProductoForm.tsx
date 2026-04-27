@@ -211,7 +211,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
       showNotification('Selecciona una categoría', 'error');
       return;
     }
-    if (!formData.precio_compra || parseFloat(formData.precio_compra) <= 0) {
+    if (modo === 'crear' && (!formData.precio_compra || parseFloat(formData.precio_compra) <= 0)) {
       showNotification('El precio de compra debe ser mayor a 0', 'error');
       return;
     }
@@ -340,7 +340,13 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                 className={styles.input}
                 placeholder="Ej: PROD-001"
                 required
+                disabled={modo === 'editar'}
               />
+              {modo === 'editar' && (
+                <p className={styles.helpText}>
+                  El código es un identificador único y no puede modificarse.
+                </p>
+              )}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="nombre" className={styles.label}>
@@ -545,7 +551,7 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="precio_compra" className={styles.label}>
-                Precio de Compra ($) *
+                Precio de Compra ($)
               </label>
               <input
                 type="number"
@@ -557,8 +563,14 @@ const ProductoForm = ({ modo, producto, onGuardado, onCancelar }: ProductoFormPr
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                required
+                required={modo === 'crear'}
+                disabled={modo === 'editar'}
               />
+              {modo === 'editar' && (
+                <p className={styles.helpText}>
+                  El precio de compra se actualiza automáticamente desde el módulo de Compras.
+                </p>
+              )}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="precio_venta" className={styles.label}>

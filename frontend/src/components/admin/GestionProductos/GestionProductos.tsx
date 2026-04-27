@@ -463,7 +463,7 @@ const GestionProductos = () => {
                 title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
               >
                 <span className="material-icons">star</span>
-                <span>Solo destacados</span>
+                <span>Destacados</span>
               </button>
             </div>
           </AdminSurface>

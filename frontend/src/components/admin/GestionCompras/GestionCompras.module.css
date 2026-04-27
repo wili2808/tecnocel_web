@@ -986,3 +986,113 @@
     transition: none !important;
   }
 }
+
+/* ============================================================================
+   BARRA FLOTANTE - COMPRA RÁPIDA DESDE STOCK BAJO
+   ============================================================================ */
+
+.floatingActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: var(--background-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent);
+  animation: slideUpFadeIn 0.2s ease-out;
+  flex-wrap: wrap;
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floatingActionInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.floatingActionClear {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.floatingActionClear:hover {
+  background: var(--background-hover);
+  border-color: var(--text-secondary);
+}
+
+.floatingActionComprar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              transform var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+.floatingActionComprar:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.floatingActionComprar:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.floatingActionComprar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .floatingActionBar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .floatingActionInfo {
+    font-size: 12px;
+  }
+
+  .floatingActionComprar {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
