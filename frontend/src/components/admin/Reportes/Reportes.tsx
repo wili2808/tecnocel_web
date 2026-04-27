@@ -14,22 +14,36 @@ import type {
   ReporteVendedoresResponse,
 } from '../../../types/reporte';
 
-// ============================================================================
-// TIPOS INTERNOS
-// ============================================================================
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TabConfig {
   id: ReporteTab;
   label: string;
   icon: string;
 }
-
-type SortDirReporte = 'asc' | 'desc';
-type VentasSortKey = 'periodo' | 'ventas' | 'ingresos_ars' | 'ticket_promedio';
-type ProductosSortKey = 'nombre' | 'categoria' | 'marca' | 'unidades' | 'ingreso' | 'precio' | 'stock';
-type ClientesSortKey = 'nombre' | 'email' | 'compras' | 'monto' | 'ultima_compra';
-type CancelacionesSortKey = 'nro_venta' | 'fecha' | 'monto' | 'motivo' | 'cancelado_por';
-type VendedoresSortKey = 'nombre' | 'ventas' | 'ingresos_ars' | 'ticket_promedio' | 'porcentaje';
 
 const TABS: TabConfig[] = [
   { id: 'ventas', label: 'Ventas', icon: 'point_of_sale' },
@@ -39,9 +53,7 @@ const TABS: TabConfig[] = [
   { id: 'cancelaciones', label: 'Cancelaciones', icon: 'cancel' },
 ];
 
-// ============================================================================
 // HELPERS
-// ============================================================================
 
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('es-AR', {
@@ -110,9 +122,58 @@ const getDefaultDates = () => {
   };
 };
 
-// ============================================================================
+// Componente Drag & Drop para las cabeceras de todas las tablas
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  const isSorted = header.column.getIsSorted();
+  const sortIcon = isSorted ? (isSorted === 'desc' ? 'arrow_downward' : 'arrow_upward') : 'unfold_more';
+  const canSort = header.column.getCanSort();
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div 
+          style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px', cursor: canSort ? 'pointer' : 'default' }}
+          onClick={header.column.getToggleSortingHandler()}
+        >
+          <span className={styles.sortableHeaderContent}>
+            {flexRender(header.column.columnDef.header, header.getContext())}
+            {canSort && (
+              <span className={`material-icons ${styles.sortIcon} ${isSorted ? styles.sortIconActive : ''}`}>
+                {sortIcon}
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    </th>
+  );
+};
+
 // COMPONENTE PRINCIPAL
-// ============================================================================
 
 const Reportes: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
@@ -504,795 +565,464 @@ const Reportes: React.FC = memo(() => {
   );
 });
 
-// ============================================================================
 // SUB-COMPONENTE: REPORTE DE VENTAS
-// ============================================================================
 
 const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data }) => {
   const { datos } = data;
-  const [sortKey, setSortKey] = useState<VentasSortKey>('periodo');
-  const [sortDir, setSortDir] = useState<SortDirReporte>('asc');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'periodo', desc: false }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['periodo', 'ventas', 'ingresos_ars', 'ingresos_usd', 'ticket_promedio']);
 
-  const handleSort = (key: VentasSortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
+  const columns = useMemo<ColumnDef<any>[]>(() => [
+    { accessorKey: 'periodo', id: 'periodo', header: 'Periodo' },
+    {
+      accessorKey: 'ventas',
+      id: 'ventas',
+      header: () => <div className={styles.textRight}>Ventas</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(info.getValue() as number)}</div>
+    },
+    {
+      accessorKey: 'ingresos_ars',
+      id: 'ingresos_ars',
+      header: () => <div className={styles.textRight}>Ingresos ARS</div>,
+      cell: info => (
+        <div className={`${styles.textRight} ${styles.monoCell}`}>
+          <MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" />
+        </div>
+      )
+    },
+    {
+      accessorKey: 'ingresos_usd',
+      id: 'ingresos_usd',
+      header: () => <div className={styles.textRight}>Equiv. USD</div>,
+      enableSorting: false,
+      cell: info => (
+        <div className={`${styles.textRight} ${styles.monoCell}`}>
+          <MontoConBadge valor={formatUSD(info.getValue() as number)} moneda="USD" />
+        </div>
+      )
+    },
+    {
+      accessorKey: 'ticket_promedio',
+      id: 'ticket_promedio',
+      header: () => <div className={styles.textRight}>Ticket Promedio</div>,
+      cell: info => (
+        <div className={`${styles.textRight} ${styles.monoCell}`}>
+          <MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" />
+        </div>
+      )
+    }
+  ], []);
+
+  const table = useReactTable({
+    data: datos,
+    columns,
+    state: { sorting, columnOrder },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
     }
   };
 
-  const getSortIcon = (key: VentasSortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  const sortedDatos = useMemo(() => {
-    const sorted = [...datos];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'periodo':
-          valA = a.periodo.toLowerCase();
-          valB = b.periodo.toLowerCase();
-          break;
-        case 'ventas':
-          valA = a.ventas;
-          valB = b.ventas;
-          break;
-        case 'ingresos_ars':
-          valA = a.ingresos_ars;
-          valB = b.ingresos_ars;
-          break;
-        case 'ticket_promedio':
-          valA = a.ticket_promedio;
-          valB = b.ticket_promedio;
-          break;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [datos, sortKey, sortDir]);
-
   return (
-    <>
-      <div className={styles.tableWrapper}>
+    <div className={styles.tableWrapper}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <table className={styles.table}>
           <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSort('periodo')}>
-                <span className={styles.sortableHeaderContent}>
-                  Periodo
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'periodo' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('periodo')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('ventas')}>
-                <span className={styles.sortableHeaderContent}>
-                  Ventas
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ventas' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ventas')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('ingresos_ars')}>
-                <span className={styles.sortableHeaderContent}>
-                  Ingresos ARS
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ingresos_ars' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ingresos_ars')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.textRight}>Equiv. USD</th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSort('ticket_promedio')}
-              >
-                <span className={styles.sortableHeaderContent}>
-                  Ticket Promedio
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ticket_promedio' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ticket_promedio')}
-                  </span>
-                </span>
-              </th>
-            </tr>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                  {headerGroup.headers.map(header => (
+                    <DraggableTableHeader key={header.id} header={header} />
+                  ))}
+                </SortableContext>
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {sortedDatos.length === 0 ? (
-              <tr>
-                <td colSpan={5} className={styles.emptyMessage}>
-                  No hay datos para el periodo seleccionado
-                </td>
-              </tr>
+            {table.getRowModel().rows.length === 0 ? (
+              <tr><td colSpan={5} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
             ) : (
-              sortedDatos.map((row, i) => (
-                <tr key={i}>
-                  <td>{row.periodo}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(row.ventas)}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(row.ingresos_ars)} moneda="ARS" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatUSD(row.ingresos_usd)} moneda="USD" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(row.ticket_promedio)} moneda="ARS" />
-                  </td>
+              table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
                 </tr>
               ))
             )}
           </tbody>
         </table>
-      </div>
-    </>
+      </DndContext>
+    </div>
   );
 });
 
-// ============================================================================
 // SUB-COMPONENTE: REPORTE DE VENDEDORES
-// ============================================================================
 
 const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo(({ data }) => {
   const { datos } = data;
-  const [sortKey, setSortKey] = useState<VendedoresSortKey>('ventas');
-  const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'ventas', desc: true }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'ventas', 'ingresos_ars', 'ingresos_usd', 'ticket_promedio', 'porcentaje_ventas']);
 
-  const handleSort = (key: VendedoresSortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('desc');
+  const columns = useMemo<ColumnDef<any>[]>(() => [
+    { accessorKey: 'nombre', id: 'nombre', header: 'Vendedor', cell: info => <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>{info.getValue() as string}</span> },
+    {
+      accessorKey: 'ventas',
+      id: 'ventas',
+      header: () => <div className={styles.textRight}>Ventas</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(info.getValue() as number)}</div>
+    },
+    {
+      accessorKey: 'ingresos_ars',
+      id: 'ingresos_ars',
+      header: () => <div className={styles.textRight}>Ingresos ARS</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" /></div>
+    },
+    {
+      accessorKey: 'ingresos_usd',
+      id: 'ingresos_usd',
+      header: () => <div className={styles.textRight}>Equiv. USD</div>,
+      enableSorting: false,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatUSD(info.getValue() as number)} moneda="USD" /></div>
+    },
+    {
+      accessorKey: 'ticket_promedio',
+      id: 'ticket_promedio',
+      header: () => <div className={styles.textRight}>Ticket Promedio</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" /></div>
+    },
+    {
+      accessorKey: 'porcentaje_ventas',
+      id: 'porcentaje_ventas',
+      header: () => <div className={styles.textRight}>% del Total</div>,
+      cell: info => {
+        const val = info.getValue() as number;
+        return (
+          <div className={`${styles.textRight} ${styles.monoCell}`}>
+            <span style={{ fontFamily: 'var(--font-family-mono)', fontWeight: 600, color: val > 50 ? 'var(--color-primary)' : 'var(--text-primary)' }}>
+              {val}%
+            </span>
+          </div>
+        );
+      }
+    }
+  ], []);
+
+  const table = useReactTable({
+    data: datos,
+    columns,
+    state: { sorting, columnOrder },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
     }
   };
 
-  const getSortIcon = (key: VendedoresSortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  const sortedDatos = useMemo(() => {
-    const sorted = [...datos];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'nombre':
-          valA = a.nombre.toLowerCase();
-          valB = b.nombre.toLowerCase();
-          break;
-        case 'ventas':
-          valA = a.ventas;
-          valB = b.ventas;
-          break;
-        case 'ingresos_ars':
-          valA = a.ingresos_ars;
-          valB = b.ingresos_ars;
-          break;
-        case 'ticket_promedio':
-          valA = a.ticket_promedio;
-          valB = b.ticket_promedio;
-          break;
-        case 'porcentaje':
-          valA = a.porcentaje_ventas;
-          valB = b.porcentaje_ventas;
-          break;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [datos, sortKey, sortDir]);
-
   return (
-    <>
-      <div className={styles.tableWrapper}>
+    <div className={styles.tableWrapper}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <table className={styles.table}>
           <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                <span className={styles.sortableHeaderContent}>
-                  Vendedor
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('nombre')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('ventas')}>
-                <span className={styles.sortableHeaderContent}>
-                  Ventas
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ventas' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ventas')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('ingresos_ars')}>
-                <span className={styles.sortableHeaderContent}>
-                  Ingresos ARS
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ingresos_ars' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ingresos_ars')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.textRight}>Equiv. USD</th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSort('ticket_promedio')}
-              >
-                <span className={styles.sortableHeaderContent}>
-                  Ticket Promedio
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ticket_promedio' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ticket_promedio')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('porcentaje')}>
-                <span className={styles.sortableHeaderContent}>
-                  % del Total
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'porcentaje' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('porcentaje')}
-                  </span>
-                </span>
-              </th>
-            </tr>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                  {headerGroup.headers.map(header => (
+                    <DraggableTableHeader key={header.id} header={header} />
+                  ))}
+                </SortableContext>
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {sortedDatos.length === 0 ? (
-              <tr>
-                <td colSpan={6} className={styles.emptyMessage}>
-                  No hay datos para el periodo seleccionado
-                </td>
-              </tr>
+            {table.getRowModel().rows.length === 0 ? (
+              <tr><td colSpan={6} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
             ) : (
-              sortedDatos.map((row) => (
-                <tr key={row.id_vendedor}>
-                  <td style={{ fontWeight: 'var(--font-weight-semibold)' }}>{row.nombre}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(row.ventas)}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(row.ingresos_ars)} moneda="ARS" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatUSD(row.ingresos_usd)} moneda="USD" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(row.ticket_promedio)} moneda="ARS" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-family-mono)',
-                        fontWeight: 600,
-                        color: row.porcentaje_ventas > 50 ? 'var(--color-primary)' : 'var(--text-primary)',
-                      }}
-                    >
-                      {row.porcentaje_ventas}%
-                    </span>
-                  </td>
+              table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
                 </tr>
               ))
             )}
           </tbody>
         </table>
-      </div>
-    </>
+      </DndContext>
+    </div>
   );
 });
 
-// ============================================================================
 // SUB-COMPONENTE: REPORTE DE PRODUCTOS
-// ============================================================================
 
 const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo(({ data }) => {
   const { mas_vendidos } = data;
-  const [sortKeyVendidos, setSortKeyVendidos] = useState<ProductosSortKey>('unidades');
-  const [sortDirVendidos, setSortDirVendidos] = useState<SortDirReporte>('desc');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'unidades_vendidas', desc: true }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'codigo', 'categoria', 'marca', 'unidades_vendidas', 'ingreso_total', 'precio_venta_actual', 'stock_actual']);
 
-  const handleSortVendidos = (key: ProductosSortKey) => {
-    if (sortKeyVendidos === key) {
-      setSortDirVendidos((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKeyVendidos(key);
-      setSortDirVendidos('desc');
+  const columns = useMemo<ColumnDef<any>[]>(() => [
+    { accessorKey: 'nombre', id: 'nombre', header: 'Producto', cell: info => <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>{info.getValue() as string}</span> },
+    { accessorKey: 'codigo', id: 'codigo', header: 'Codigo', enableSorting: false, cell: info => <span className={styles.monoCell}>{info.getValue() as string}</span> },
+    { accessorKey: 'categoria', id: 'categoria', header: 'Categoria' },
+    { accessorKey: 'marca', id: 'marca', header: 'Marca' },
+    {
+      accessorKey: 'unidades_vendidas',
+      id: 'unidades_vendidas',
+      header: () => <div className={styles.textRight}>Uds. Vendidas</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(info.getValue() as number)}</div>
+    },
+    {
+      accessorKey: 'ingreso_total',
+      id: 'ingreso_total',
+      header: () => <div className={styles.textRight}>Ingreso</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" /></div>
+    },
+    {
+      accessorKey: 'precio_venta_actual',
+      id: 'precio_venta_actual',
+      header: () => <div className={styles.textRight}>Precio Actual</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="USD" /></div>
+    },
+    {
+      accessorKey: 'stock_actual',
+      id: 'stock_actual',
+      header: () => <div className={styles.textRight}>Stock</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}>{info.getValue() as number}</div>
+    }
+  ], []);
+
+  const table = useReactTable({
+    data: mas_vendidos,
+    columns,
+    state: { sorting, columnOrder },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
     }
   };
 
-  const getSortIconVendidos = (key: ProductosSortKey) => {
-    if (sortKeyVendidos !== key) return 'unfold_more';
-    return sortDirVendidos === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-
-  const sortedVendidos = useMemo(() => {
-    const sorted = [...mas_vendidos];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKeyVendidos) {
-        case 'nombre':
-          valA = a.nombre.toLowerCase();
-          valB = b.nombre.toLowerCase();
-          break;
-        case 'categoria':
-          valA = a.categoria.toLowerCase();
-          valB = b.categoria.toLowerCase();
-          break;
-        case 'marca':
-          valA = a.marca.toLowerCase();
-          valB = b.marca.toLowerCase();
-          break;
-        case 'unidades':
-          valA = a.unidades_vendidas;
-          valB = b.unidades_vendidas;
-          break;
-        case 'ingreso':
-          valA = a.ingreso_total;
-          valB = b.ingreso_total;
-          break;
-        case 'precio':
-          valA = a.precio_venta_actual;
-          valB = b.precio_venta_actual;
-          break;
-        case 'stock':
-          valA = a.stock_actual;
-          valB = b.stock_actual;
-          break;
-      }
-
-      if (valA < valB) return sortDirVendidos === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDirVendidos === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [mas_vendidos, sortKeyVendidos, sortDirVendidos]);
-
-
   return (
-    <>
-      <div className={styles.tableWrapper}>
+    <div className={styles.tableWrapper}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <table className={styles.table}>
           <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSortVendidos('nombre')}>
-                <span className={styles.sortableHeaderContent}>
-                  Producto
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'nombre' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('nombre')}
-                  </span>
-                </span>
-              </th>
-              <th>Codigo</th>
-              <th className={styles.sortableHeader} onClick={() => handleSortVendidos('categoria')}>
-                <span className={styles.sortableHeaderContent}>
-                  Categoria
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'categoria' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('categoria')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSortVendidos('marca')}>
-                <span className={styles.sortableHeaderContent}>
-                  Marca
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'marca' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('marca')}
-                  </span>
-                </span>
-              </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSortVendidos('unidades')}
-              >
-                <span className={styles.sortableHeaderContent}>
-                  Uds. Vendidas
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'unidades' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('unidades')}
-                  </span>
-                </span>
-              </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSortVendidos('ingreso')}
-              >
-                <span className={styles.sortableHeaderContent}>
-                  Ingreso
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'ingreso' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('ingreso')}
-                  </span>
-                </span>
-              </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSortVendidos('precio')}
-              >
-                <span className={styles.sortableHeaderContent}>
-                  Precio Actual
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'precio' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('precio')}
-                  </span>
-                </span>
-              </th>
-              <th
-                className={`${styles.sortableHeader} ${styles.textRight}`}
-                onClick={() => handleSortVendidos('stock')}
-              >
-                <span className={styles.sortableHeaderContent}>
-                  Stock
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKeyVendidos === 'stock' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIconVendidos('stock')}
-                  </span>
-                </span>
-              </th>
-            </tr>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                  {headerGroup.headers.map(header => (
+                    <DraggableTableHeader key={header.id} header={header} />
+                  ))}
+                </SortableContext>
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {sortedVendidos.length === 0 ? (
-              <tr>
-                <td colSpan={8} className={styles.emptyMessage}>
-                  No hay datos para el periodo seleccionado
-                </td>
-              </tr>
+            {table.getRowModel().rows.length === 0 ? (
+              <tr><td colSpan={8} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
             ) : (
-              sortedVendidos.map((prod) => (
-                <tr key={prod.id_producto}>
-                  <td style={{ fontWeight: 'var(--font-weight-semibold)' }}>{prod.nombre}</td>
-                  <td className={styles.monoCell}>{prod.codigo}</td>
-                  <td>{prod.categoria}</td>
-                  <td>{prod.marca}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(prod.unidades_vendidas)}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(prod.ingreso_total)} moneda="ARS" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(prod.precio_venta_actual)} moneda="USD" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>{prod.stock_actual}</td>
+              table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
                 </tr>
               ))
             )}
           </tbody>
         </table>
-      </div>
-
-    </>
+      </DndContext>
+    </div>
   );
 });
 
-// ============================================================================
 // SUB-COMPONENTE: REPORTE DE CLIENTES
-// ============================================================================
 
 const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ data }) => {
   const { top_clientes } = data;
-  const [sortKey, setSortKey] = useState<ClientesSortKey>('monto');
-  const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'monto_ars', desc: true }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'email', 'total_compras', 'monto_ars', 'monto_usd', 'ultima_compra']);
 
-  const handleSort = (key: ClientesSortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('desc');
+  const columns = useMemo<ColumnDef<any>[]>(() => [
+    { accessorKey: 'nombre', id: 'nombre', header: 'Cliente', cell: info => <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>{info.getValue() as string}</span> },
+    { accessorKey: 'email', id: 'email', header: 'Email' },
+    {
+      accessorKey: 'total_compras',
+      id: 'total_compras',
+      header: () => <div className={styles.textRight}>Compras</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(info.getValue() as number)}</div>
+    },
+    {
+      accessorKey: 'monto_ars',
+      id: 'monto_ars',
+      header: () => <div className={styles.textRight}>Monto ARS</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" /></div>
+    },
+    {
+      accessorKey: 'monto_usd',
+      id: 'monto_usd',
+      header: () => <div className={styles.textRight}>Equiv. USD</div>,
+      enableSorting: false,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatUSD(info.getValue() as number)} moneda="USD" /></div>
+    },
+    {
+      accessorKey: 'ultima_compra',
+      id: 'ultima_compra',
+      header: 'Ultima Compra',
+      cell: info => formatDate(info.getValue() as string)
+    }
+  ], []);
+
+  const table = useReactTable({
+    data: top_clientes,
+    columns,
+    state: { sorting, columnOrder },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
     }
   };
 
-  const getSortIcon = (key: ClientesSortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  const sortedClientes = useMemo(() => {
-    const sorted = [...top_clientes];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'nombre':
-          valA = a.nombre.toLowerCase();
-          valB = b.nombre.toLowerCase();
-          break;
-        case 'email':
-          valA = a.email.toLowerCase();
-          valB = b.email.toLowerCase();
-          break;
-        case 'compras':
-          valA = a.total_compras;
-          valB = b.total_compras;
-          break;
-        case 'monto':
-          valA = a.monto_ars;
-          valB = b.monto_ars;
-          break;
-        case 'ultima_compra':
-          valA = a.ultima_compra ? new Date(a.ultima_compra).getTime() : 0;
-          valB = b.ultima_compra ? new Date(b.ultima_compra).getTime() : 0;
-          break;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [top_clientes, sortKey, sortDir]);
-
   return (
-    <>
-      <div className={styles.tableWrapper}>
+    <div className={styles.tableWrapper}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <table className={styles.table}>
           <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                <span className={styles.sortableHeaderContent}>
-                  Cliente
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('nombre')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
-                <span className={styles.sortableHeaderContent}>
-                  Email
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('email')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('compras')}>
-                <span className={styles.sortableHeaderContent}>
-                  Compras
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'compras' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('compras')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('monto')}>
-                <span className={styles.sortableHeaderContent}>
-                  Monto ARS
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'monto' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('monto')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.textRight}>Equiv. USD</th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('ultima_compra')}>
-                <span className={styles.sortableHeaderContent}>
-                  Ultima Compra
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'ultima_compra' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('ultima_compra')}
-                  </span>
-                </span>
-              </th>
-            </tr>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                  {headerGroup.headers.map(header => (
+                    <DraggableTableHeader key={header.id} header={header} />
+                  ))}
+                </SortableContext>
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {sortedClientes.length === 0 ? (
-              <tr>
-                <td colSpan={6} className={styles.emptyMessage}>
-                  No hay datos para el periodo seleccionado
-                </td>
-              </tr>
+            {table.getRowModel().rows.length === 0 ? (
+              <tr><td colSpan={6} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
             ) : (
-              sortedClientes.map((cliente) => (
-                <tr key={cliente.id_cliente}>
-                  <td style={{ fontWeight: 'var(--font-weight-semibold)' }}>{cliente.nombre}</td>
-                  <td>{cliente.email}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>{formatNumber(cliente.total_compras)}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(cliente.monto_ars)} moneda="ARS" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatUSD(cliente.monto_usd)} moneda="USD" />
-                  </td>
-                  <td>{formatDate(cliente.ultima_compra)}</td>
+              table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
                 </tr>
               ))
             )}
           </tbody>
         </table>
-      </div>
-    </>
+      </DndContext>
+    </div>
   );
 });
 
-// ============================================================================
 // SUB-COMPONENTE: REPORTE DE CANCELACIONES
-// ============================================================================
 
 const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> = memo(({ data }) => {
   const { datos } = data;
-  const [sortKey, setSortKey] = useState<CancelacionesSortKey>('fecha');
-  const [sortDir, setSortDir] = useState<SortDirReporte>('desc');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha_cancelacion', desc: true }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nro_venta', 'fecha_cancelacion', 'monto_ars', 'monto_usd', 'motivo', 'cancelado_por']);
 
-  const handleSort = (key: CancelacionesSortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('desc');
+  const columns = useMemo<ColumnDef<any>[]>(() => [
+    { accessorKey: 'nro_venta', id: 'nro_venta', header: 'Nro Venta', cell: info => <span className={styles.monoCell} style={{ color: 'var(--color-primary)' }}>{info.getValue() as string}</span> },
+    { accessorKey: 'fecha_cancelacion', id: 'fecha_cancelacion', header: 'Fecha', cell: info => formatDate(info.getValue() as string) },
+    {
+      accessorKey: 'monto_ars',
+      id: 'monto_ars',
+      header: () => <div className={styles.textRight}>Monto ARS</div>,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatCurrency(info.getValue() as number)} moneda="ARS" /></div>
+    },
+    {
+      accessorKey: 'monto_usd',
+      id: 'monto_usd',
+      header: () => <div className={styles.textRight}>Equiv. USD</div>,
+      enableSorting: false,
+      cell: info => <div className={`${styles.textRight} ${styles.monoCell}`}><MontoConBadge valor={formatUSD(info.getValue() as number)} moneda="USD" /></div>
+    },
+    { accessorKey: 'motivo', id: 'motivo', header: 'Motivo' },
+    { accessorKey: 'cancelado_por', id: 'cancelado_por', header: 'Cancelado por' }
+  ], []);
+
+  const table = useReactTable({
+    data: datos,
+    columns,
+    state: { sorting, columnOrder },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
     }
   };
 
-  const getSortIcon = (key: CancelacionesSortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
-  const sortedDatos = useMemo(() => {
-    const sorted = [...datos];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'nro_venta':
-          valA = a.nro_venta;
-          valB = b.nro_venta;
-          break;
-        case 'fecha':
-          valA = new Date(a.fecha_cancelacion).getTime();
-          valB = new Date(b.fecha_cancelacion).getTime();
-          break;
-        case 'monto':
-          valA = a.monto_ars;
-          valB = b.monto_ars;
-          break;
-        case 'motivo':
-          valA = a.motivo.toLowerCase();
-          valB = b.motivo.toLowerCase();
-          break;
-        case 'cancelado_por':
-          valA = a.cancelado_por.toLowerCase();
-          valB = b.cancelado_por.toLowerCase();
-          break;
-      }
-
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [datos, sortKey, sortDir]);
-
   return (
-    <>
-      <div className={styles.tableWrapper}>
+    <div className={styles.tableWrapper}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <table className={styles.table}>
           <thead>
-            <tr>
-              <th className={styles.sortableHeader} onClick={() => handleSort('nro_venta')}>
-                <span className={styles.sortableHeaderContent}>
-                  Nro Venta
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'nro_venta' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('nro_venta')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
-                <span className={styles.sortableHeaderContent}>
-                  Fecha
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('fecha')}
-                  </span>
-                </span>
-              </th>
-              <th className={`${styles.sortableHeader} ${styles.textRight}`} onClick={() => handleSort('monto')}>
-                <span className={styles.sortableHeaderContent}>
-                  Monto ARS
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'monto' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('monto')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.textRight}>Equiv. USD</th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('motivo')}>
-                <span className={styles.sortableHeaderContent}>
-                  Motivo
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'motivo' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('motivo')}
-                  </span>
-                </span>
-              </th>
-              <th className={styles.sortableHeader} onClick={() => handleSort('cancelado_por')}>
-                <span className={styles.sortableHeaderContent}>
-                  Cancelado por
-                  <span
-                    className={`material-icons ${styles.sortIcon} ${sortKey === 'cancelado_por' ? styles.sortIconActive : ''}`}
-                  >
-                    {getSortIcon('cancelado_por')}
-                  </span>
-                </span>
-              </th>
-            </tr>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                  {headerGroup.headers.map(header => (
+                    <DraggableTableHeader key={header.id} header={header} />
+                  ))}
+                </SortableContext>
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {sortedDatos.length === 0 ? (
-              <tr>
-                <td colSpan={6} className={styles.emptyMessage}>
-                  No hay cancelaciones en el periodo seleccionado
-                </td>
-              </tr>
+            {table.getRowModel().rows.length === 0 ? (
+              <tr><td colSpan={6} className={styles.emptyMessage}>No hay cancelaciones en el periodo seleccionado</td></tr>
             ) : (
-              sortedDatos.map((item, i) => (
-                <tr key={i}>
-                  <td className={styles.monoCell} style={{ color: 'var(--color-primary)' }}>
-                    {item.nro_venta}
-                  </td>
-                  <td>{formatDate(item.fecha_cancelacion)}</td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatCurrency(item.monto_ars)} moneda="ARS" />
-                  </td>
-                  <td className={`${styles.textRight} ${styles.monoCell}`}>
-                    <MontoConBadge valor={formatUSD(item.monto_usd)} moneda="USD" />
-                  </td>
-                  <td>{item.motivo}</td>
-                  <td>{item.cancelado_por}</td>
+              table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
                 </tr>
               ))
             )}
           </tbody>
         </table>
-      </div>
-    </>
+      </DndContext>
+    </div>
   );
 });
 

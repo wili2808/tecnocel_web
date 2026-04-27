@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import permisoService from '../../../services/permisoService';
 import styles from './GestionPermisos.module.css';
+import { AdminSearch } from '../common';
 import type { RolesConPermisos, PermisoItem } from '../../../types/permiso';
 
 interface PermisoCheck extends PermisoItem {
@@ -232,13 +233,11 @@ const GestionPermisos = () => {
               </select>
             </div>
             <div className={styles.searchGroup}>
-              <span className={`material-icons ${styles.searchIcon}`}>search</span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Buscar permiso..."
+              <AdminSearch
                 value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
+                onChange={setBusqueda}
+                placeholder="Buscar permiso..."
+                delay={0}
               />
             </div>
           </div>

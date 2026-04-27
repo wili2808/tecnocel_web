@@ -15,6 +15,7 @@ import adminProductService from '../../../services/adminProductService';
 import styles from './GestionVentas.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
 import type { ItemVentaManual, ProductoParaVenta } from '../../../types/venta';
+import { AdminSearch } from '../common';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -53,14 +54,10 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   const [buscandoCliente, setBuscandoCliente] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<ClienteOption | null>(null);
   const [esMostrador, setEsMostrador] = useState(false);
-  const clienteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ── Paso 2: Productos ────────────────────────────────────────────────────
   const [busqProducto, setBusqProducto] = useState('');
   const [productosEncontrados, setProductosEncontrados] = useState<ProductoParaVenta[]>([]);
   const [buscandoProducto, setBuscandoProducto] = useState(false);
   const [items, setItems] = useState<ItemVentaManual[]>([]);
-  const productoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Paso 3: Pago ─────────────────────────────────────────────────────────
   const [metodoPago, setMetodoPago] = useState<'efectivo' | 'tarjeta' | 'transferencia' | 'qr'>('efectivo');
@@ -76,24 +73,21 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  // ── Búsqueda de clientes (debounce 400ms) ─────────────────────────────────
-  const buscarClientes = useCallback((q: string) => {
-    if (clienteTimerRef.current) clearTimeout(clienteTimerRef.current);
+  // ── Búsqueda de clientes ─────────────────────────────────
+  const buscarClientes = useCallback(async (q: string) => {
     if (!q.trim()) {
       setClientesEncontrados([]);
       return;
     }
-    clienteTimerRef.current = setTimeout(async () => {
-      setBuscandoCliente(true);
-      try {
-        const res = await usuarioService.listarClientes(10, 0, q.trim());
-        setClientesEncontrados(res.clientes || []);
-      } catch {
-        setClientesEncontrados([]);
-      } finally {
-        setBuscandoCliente(false);
-      }
-    }, 400);
+    setBuscandoCliente(true);
+    try {
+      const res = await usuarioService.listarClientes(10, 0, q.trim());
+      setClientesEncontrados(res.clientes || []);
+    } catch {
+      setClientesEncontrados([]);
+    } finally {
+      setBuscandoCliente(false);
+    }
   }, []);
 
   const handleBusqClienteChange = (v: string) => {
@@ -119,32 +113,29 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     });
   };
 
-  // ── Búsqueda de productos (debounce 400ms) ────────────────────────────────
-  const buscarProductos = useCallback((q: string) => {
-    if (productoTimerRef.current) clearTimeout(productoTimerRef.current);
+  // ── Búsqueda de productos ────────────────────────────────
+  const buscarProductos = useCallback(async (q: string) => {
     if (!q.trim()) {
       setProductosEncontrados([]);
       return;
     }
-    productoTimerRef.current = setTimeout(async () => {
-      setBuscandoProducto(true);
-      try {
-        const res = await adminProductService.listarProductos(q.trim());
-        setProductosEncontrados(
-          res.map((p: any) => ({
-            id_producto: p.id_producto,
-            nombre: p.nombre,
-            codigo: p.codigo || '',
-            precio_venta: parseFloat(p.precio_venta),
-            stock: p.stock ?? 0,
-          })),
-        );
-      } catch {
-        setProductosEncontrados([]);
-      } finally {
-        setBuscandoProducto(false);
-      }
-    }, 400);
+    setBuscandoProducto(true);
+    try {
+      const res = await adminProductService.listarProductos(q.trim());
+      setProductosEncontrados(
+        res.map((p: any) => ({
+          id_producto: p.id_producto,
+          nombre: p.nombre,
+          codigo: p.codigo || '',
+          precio_venta: parseFloat(p.precio_venta),
+          stock: p.stock ?? 0,
+        })),
+      );
+    } catch {
+      setProductosEncontrados([]);
+    } finally {
+      setBuscandoProducto(false);
+    }
   }, []);
 
   const handleBusqProductoChange = (v: string) => {
@@ -328,14 +319,11 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                     <>
                       {/* Buscador de clientes */}
                       <div className={styles.searchWrapper}>
-                        <span className={`material-icons ${styles.searchIcon}`}>search</span>
-                        <input
-                          type="text"
-                          className={styles.searchInput}
-                          placeholder="Buscar cliente por nombre o correo..."
+                        <AdminSearch
                           value={busqCliente}
-                          onChange={(e) => handleBusqClienteChange(e.target.value)}
-                          autoFocus
+                          onChange={handleBusqClienteChange}
+                          placeholder="Buscar cliente por nombre o correo..."
+                          delay={400}
                         />
                       </div>
 
@@ -386,14 +374,11 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
             <div>
               {/* Buscador de productos */}
               <div className={styles.searchWrapper} style={{ marginBottom: 'var(--spacing-sm)' }}>
-                <span className={`material-icons ${styles.searchIcon}`}>search</span>
-                <input
-                  type="text"
-                  className={styles.searchInput}
-                  placeholder="Buscar producto por nombre o código..."
+                <AdminSearch
                   value={busqProducto}
-                  onChange={(e) => handleBusqProductoChange(e.target.value)}
-                  autoFocus
+                  onChange={handleBusqProductoChange}
+                  placeholder="Buscar producto por nombre o código..."
+                  delay={400}
                 />
               </div>
 

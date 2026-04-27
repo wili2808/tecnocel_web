@@ -1,15 +1,38 @@
-import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { useDebounce } from '../../../hooks/useDebounce';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
+
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, PaginationState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // Componentes que requieren lazy loading (más adelante)
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
@@ -18,6 +41,43 @@ const GestionProveedores = React.lazy(() => import('./GestionProveedores'));
 const LIMIT = 20;
 
 type TabType = 'compras' | 'proveedores' | 'stock';
+
+// Componente para cabeceras arrastrables (sin sorting, dado que la paginación es del lado del servidor y no hay sorting implementado backend)
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {flexRender(header.column.columnDef.header, header.getContext())}
+        </div>
+      </div>
+    </th>
+  );
+};
 
 const GestionCompras: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
@@ -37,12 +97,28 @@ const GestionCompras: React.FC = memo(() => {
 
   // === Filtros y búsqueda ===
   const [filtros, setFiltros] = useState<FiltrosComprasAdmin>({});
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 500);
 
-  // === Paginación ===
+  // === Paginación y TanStack (Compras) ===
   const [offset, setOffset] = useState(0);
   const [total, setTotal] = useState(0);
+  
+  const pagination = useMemo<PaginationState>(() => ({
+    pageIndex: Math.floor(offset / LIMIT),
+    pageSize: LIMIT,
+  }), [offset]);
+
+  const setPagination = useCallback((updater: any) => {
+    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
+    setOffset(nextPagination.pageIndex * LIMIT);
+  }, [pagination]);
+
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado', 'acciones'
+  ]);
+
+  const [stockColumnOrder, setStockColumnOrder] = useState<string[]>([
+    'producto', 'stock_actual', 'stock_minimo', 'estado_stock'
+  ]);
 
   // === Modales ===
   const [idDetalleAbierto, setIdDetalleAbierto] = useState<number | null>(null);
@@ -100,12 +176,6 @@ const GestionCompras: React.FC = memo(() => {
     cargarStockBajo();
   }, [cargarStats, cargarStockBajo]);
 
-  useEffect(() => {
-    setFiltros((prev) => ({
-      ...prev,
-      search: debouncedSearch || undefined,
-    }));
-  }, [debouncedSearch]);
 
   useEffect(() => {
     if (activeTab === 'compras') {
@@ -130,8 +200,177 @@ const GestionCompras: React.FC = memo(() => {
 
   const handleLimpiarFiltros = () => {
     setFiltros({});
-    setSearchInput('');
     setOffset(0);
+  };
+
+  // === Columnas TanStack para Compras ===
+  const comprasColumns = useMemo<ColumnDef<CompraListItem>[]>(() => [
+    {
+      accessorKey: 'nro_compra',
+      id: 'nro_compra',
+      header: 'Nro. Compra',
+      cell: info => <span style={{ fontWeight: 600 }}>{info.getValue() as string}</span>,
+    },
+    {
+      accessorFn: row => new Date(row.fecha_compra).getTime(),
+      id: 'fecha',
+      header: 'Fecha',
+      cell: info => new Date(info.row.original.fecha_compra).toLocaleDateString('es-AR', {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit',
+      }),
+    },
+    {
+      accessorKey: 'nombre_proveedor',
+      id: 'proveedor',
+      header: 'Proveedor',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorKey: 'comprobante',
+      id: 'comprobante',
+      header: 'Comprobante',
+      cell: info => <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{info.getValue() as string}</span>,
+    },
+    {
+      accessorFn: row => parseFloat(row.precio_total),
+      id: 'monto',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Monto</div>,
+      cell: info => (
+        <div style={{ textAlign: 'right', fontWeight: 600 }}>
+          ${(info.getValue() as number).toLocaleString('es-AR')}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'cantidad_items',
+      id: 'items',
+      header: () => <div style={{ textAlign: 'center', width: '100%' }}>Items</div>,
+      cell: info => (
+        <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          {info.getValue() as number}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'estado',
+      id: 'estado',
+      header: 'Estado',
+      cell: info => {
+        const estado = info.getValue() as string;
+        return (
+          <span className={estado === 'activa' ? styles.badgeActiva : styles.badgeAnulada}>
+            {estado === 'activa' ? 'Activa' : 'Anulada'}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'acciones',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Acciones</div>,
+      cell: info => {
+        const compra = info.row.original;
+        return (
+          <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
+            <button
+              className={styles.actionBtn}
+              title="Ver detalle"
+              onClick={() => setIdDetalleAbierto(compra.id_compra)}
+            >
+              <span className="material-icons">visibility</span>
+            </button>
+            {compra.estado === 'activa' && puedeEditar && (
+              <button
+                className={styles.actionBtn}
+                title="Anular"
+                onClick={() => setAnularModal({ id: compra.id_compra, nro: compra.nro_compra })}
+              >
+                <span className="material-icons">delete</span>
+              </button>
+            )}
+          </div>
+        );
+      },
+    }
+  ], [puedeEditar]);
+
+  const comprasTable = useReactTable({
+    data: compras,
+    columns: comprasColumns,
+    pageCount: Math.ceil(total / LIMIT),
+    state: {
+      pagination,
+      columnOrder,
+    },
+    onPaginationChange: setPagination,
+    onColumnOrderChange: setColumnOrder,
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  // === Columnas TanStack para Stock ===
+  const stockColumns = useMemo<ColumnDef<ProductoStockBajo>[]>(() => [
+    {
+      accessorKey: 'nombre',
+      id: 'producto',
+      header: 'Producto',
+      cell: info => <span style={{ fontWeight: 600 }}>{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'stock',
+      id: 'stock_actual',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Stock Actual</div>,
+      cell: info => <div style={{ textAlign: 'right', fontWeight: 600 }}>{info.getValue() as number}</div>,
+    },
+    {
+      accessorKey: 'stock_minimo',
+      id: 'stock_minimo',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Stock Mínimo</div>,
+      cell: info => <div style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>{info.getValue() as number}</div>,
+    },
+    {
+      id: 'estado_stock',
+      header: 'Estado',
+      cell: () => <span className={styles.badgeAnulada}>Crítico</span>,
+    }
+  ], []);
+
+  const stockTable = useReactTable({
+    data: stockBajo,
+    columns: stockColumns,
+    state: {
+      columnOrder: stockColumnOrder,
+    },
+    onColumnOrderChange: setStockColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEndCompras = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleDragEndStock = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setStockColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
   };
 
   // === Render ===
@@ -279,13 +518,11 @@ const GestionCompras: React.FC = memo(() => {
               </div>
               <div className={styles.filterGroupWide}>
                 <label className={styles.filterLabel}>Buscar (Nro. Compra)</label>
-                <input
-                  type="text"
-                  className={styles.filterInput}
+                <AdminSearch
+                  value={filtros.search || ''}
                   placeholder="Ej: C-00001 o nombre proveedor"
-                  value={searchInput}
-                  onChange={(e) => {
-                    setSearchInput(e.target.value);
+                  onChange={(val) => {
+                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
                     setOffset(0);
                   }}
                 />
@@ -325,85 +562,55 @@ const GestionCompras: React.FC = memo(() => {
           ) : (
             <>
               <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Nro. Compra</th>
-                      <th>Fecha</th>
-                      <th>Proveedor</th>
-                      <th>Comprobante</th>
-                      <th style={{ textAlign: 'right' }}>Monto</th>
-                      <th style={{ textAlign: 'center' }}>Items</th>
-                      <th>Estado</th>
-                      <th style={{ textAlign: 'right' }}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {compras.map((compra) => (
-                      <tr key={compra.id_compra}>
-                        <td style={{ fontWeight: 600 }}>{compra.nro_compra}</td>
-                        <td>
-                          {new Date(compra.fecha_compra).toLocaleDateString('es-AR', {
-                            year: '2-digit',
-                            month: '2-digit',
-                            day: '2-digit',
-                          })}
-                        </td>
-                        <td>{compra.nombre_proveedor}</td>
-                        <td style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{compra.comprobante}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 600 }}>
-                          ${parseFloat(compra.precio_total).toLocaleString('es-AR')}
-                        </td>
-                        <td style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{compra.cantidad_items}</td>
-                        <td>
-                          <span className={compra.estado === 'activa' ? styles.badgeActiva : styles.badgeAnulada}>
-                            {compra.estado === 'activa' ? 'Activa' : 'Anulada'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <button
-                              className={styles.actionBtn}
-                              title="Ver detalle"
-                              onClick={() => setIdDetalleAbierto(compra.id_compra)}
-                            >
-                              <span className="material-icons">visibility</span>
-                            </button>
-                            {compra.estado === 'activa' && puedeEditar && (
-                              <button
-                                className={styles.actionBtn}
-                                title="Anular"
-                                onClick={() => setAnularModal({ id: compra.id_compra, nro: compra.nro_compra })}
-                              >
-                                <span className="material-icons">delete</span>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCompras}>
+                  <table className={styles.table}>
+                    <thead>
+                      {comprasTable.getHeaderGroups().map(headerGroup => (
+                        <tr key={headerGroup.id}>
+                          <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                            {headerGroup.headers.map(header => (
+                              <DraggableTableHeader 
+                                key={header.id} 
+                                header={header} 
+                              />
+                            ))}
+                          </SortableContext>
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody>
+                      {comprasTable.getRowModel().rows.map((row) => (
+                        <tr key={row.id}>
+                          {row.getVisibleCells().map(cell => (
+                            <td key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </DndContext>
               </div>
 
-              {/* Paginación */}
+              {/* Paginación (Servidor) */}
               <div className={styles.pagination}>
                 <span>
-                  Mostrando {Math.min(compras.length, LIMIT)} de {total} compras
+                  Mostrando {comprasTable.getRowModel().rows.length} de {total} compras
                 </span>
                 <div className={styles.paginationControls}>
                   <button
                     className={styles.paginationBtn}
-                    onClick={() => setOffset(Math.max(0, offset - LIMIT))}
-                    disabled={offset === 0}
+                    onClick={() => comprasTable.previousPage()}
+                    disabled={!comprasTable.getCanPreviousPage()}
                   >
                     ← Anterior
                   </button>
-                  <span>Página {Math.floor(offset / LIMIT) + 1}</span>
+                  <span>Página {comprasTable.getState().pagination.pageIndex + 1} de {comprasTable.getPageCount()}</span>
                   <button
                     className={styles.paginationBtn}
-                    onClick={() => setOffset(offset + LIMIT)}
-                    disabled={offset + LIMIT >= total}
+                    onClick={() => comprasTable.nextPage()}
+                    disabled={!comprasTable.getCanNextPage()}
                   >
                     Siguiente →
                   </button>
@@ -441,28 +648,35 @@ const GestionCompras: React.FC = memo(() => {
             />
           ) : (
             <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th style={{ textAlign: 'right' }}>Stock Actual</th>
-                    <th style={{ textAlign: 'right' }}>Stock Mínimo</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stockBajo.map((prod) => (
-                    <tr key={prod.id_producto}>
-                      <td style={{ fontWeight: 600 }}>{prod.nombre}</td>
-                      <td style={{ textAlign: 'right', fontWeight: 600 }}>{prod.stock}</td>
-                      <td style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>{prod.stock_minimo}</td>
-                      <td>
-                        <span className={styles.badgeAnulada}>Crítico</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStock}>
+                <table className={styles.table}>
+                  <thead>
+                    {stockTable.getHeaderGroups().map(headerGroup => (
+                      <tr key={headerGroup.id}>
+                        <SortableContext items={stockColumnOrder} strategy={horizontalListSortingStrategy}>
+                          {headerGroup.headers.map(header => (
+                            <DraggableTableHeader 
+                              key={header.id} 
+                              header={header} 
+                            />
+                          ))}
+                        </SortableContext>
+                      </tr>
+                    ))}
+                  </thead>
+                  <tbody>
+                    {stockTable.getRowModel().rows.map((row) => (
+                      <tr key={row.id}>
+                        {row.getVisibleCells().map(cell => (
+                          <td key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DndContext>
             </div>
           )}
         </div>

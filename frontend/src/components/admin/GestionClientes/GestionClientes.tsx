@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminSurface } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
@@ -9,8 +9,80 @@ import CrearClienteModal from './CrearClienteModal';
 import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
 
-type SortKey = 'id_cliente' | 'nombre' | 'email' | 'celular' | 'estado' | 'fecha';
-type SortDir = 'asc' | 'desc';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: header.column.id,
+  });
+
+  const style: React.CSSProperties = {
+    opacity: isDragging ? 0.8 : 1,
+    position: 'relative',
+    transform: CSS.Translate.toString(transform),
+    transition: 'width transform 0.2s ease-in-out',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    zIndex: isDragging ? 1 : 0,
+    cursor: 'default',
+  };
+
+  return (
+    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span 
+          {...attributes} 
+          {...listeners} 
+          className="material-icons" 
+          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
+          title="Arrastrar para mover columna"
+        >
+          drag_indicator
+        </span>
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
+        </div>
+      </div>
+    </th>
+  );
+};
 
 const GestionClientes = () => {
   const { tienePermiso } = useAuth();
@@ -23,8 +95,12 @@ const GestionClientes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('id_cliente');
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  // Estados TanStack
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'id_cliente', desc: false }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'id_cliente', 'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha', 'acciones'
+  ]);
 
   // Modal state
   const [clienteSeleccionado, setClienteSeleccionado] = useState<ClienteListItem | null>(null);
@@ -61,78 +137,142 @@ const GestionClientes = () => {
     );
   }, [clientes, searchTerm]);
 
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
-    }
-  };
-
-  const getSortIcon = (key: SortKey) => {
-    if (sortKey !== key) return 'unfold_more';
-    return sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  };
-
   // ── Handlers de modal ──────────────────────────────────────────────────────
-
-  const handleVerDetalle = (cliente: ClienteListItem) => {
+  const handleVerDetalle = useCallback((cliente: ClienteListItem) => {
     setClienteSeleccionado(cliente);
     setTipoModal('detalle');
-  };
+  }, []);
 
-  const handleEditar = (cliente: ClienteListItem) => {
+  const handleEditar = useCallback((cliente: ClienteListItem) => {
     setClienteSeleccionado(cliente);
     setTipoModal('editar');
-  };
+  }, []);
 
   const handleCerrarModal = () => {
     setClienteSeleccionado(null);
     setTipoModal(null);
   };
 
-  // ── Sorting ────────────────────────────────────────────────────────────────
-
-  const sortedClientes = useMemo(() => {
-    const sorted = [...filteredClientes];
-    sorted.sort((a, b) => {
-      let valA: string | number = '';
-      let valB: string | number = '';
-
-      switch (sortKey) {
-        case 'id_cliente':
-          valA = a.id_cliente;
-          valB = b.id_cliente;
-          break;
-        case 'nombre':
-          valA = `${a.nombre_cliente} ${a.apellido_cliente}`.toLowerCase();
-          valB = `${b.nombre_cliente} ${b.apellido_cliente}`.toLowerCase();
-          break;
-        case 'email':
-          valA = a.email_cliente.toLowerCase();
-          valB = b.email_cliente.toLowerCase();
-          break;
-        case 'celular':
-          valA = (a.celular_cliente || '').toLowerCase();
-          valB = (b.celular_cliente || '').toLowerCase();
-          break;
-        case 'estado':
-          valA = a.email_verified && a.is_web_enabled ? 1 : 0;
-          valB = b.email_verified && b.is_web_enabled ? 1 : 0;
-          break;
-        case 'fecha':
-          valA = a.fyh_creacion ? new Date(a.fyh_creacion).getTime() : 0;
-          valB = b.fyh_creacion ? new Date(b.fyh_creacion).getTime() : 0;
-          break;
+  // ── Columnas ───────────────────────────────────────────────────────────────
+  const columns = useMemo<ColumnDef<ClienteListItem>[]>(() => [
+    {
+      accessorKey: 'id_cliente',
+      id: 'id_cliente',
+      header: 'ID',
+      cell: info => info.getValue(),
+    },
+    {
+      accessorFn: row => `${row.nombre_cliente} ${row.apellido_cliente}`,
+      id: 'nombre',
+      header: 'Nombre Completo',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorKey: 'email_cliente',
+      id: 'email',
+      header: 'Email',
+      cell: info => info.getValue() as string,
+    },
+    {
+      accessorKey: 'celular_cliente',
+      id: 'celular',
+      header: 'Celular',
+      cell: info => info.getValue() ? (info.getValue() as string) : '-',
+    },
+    {
+      accessorKey: 'nit_ci_cliente',
+      id: 'nit_ci',
+      header: 'NIT/CI',
+      enableSorting: false,
+      cell: info => info.getValue() ? (info.getValue() as string) : '-',
+    },
+    {
+      accessorFn: row => row.email_verified && row.is_web_enabled ? 1 : 0,
+      id: 'estado',
+      header: 'Estado',
+      cell: info => {
+        const cliente = info.row.original;
+        const isActive = cliente.email_verified && cliente.is_web_enabled;
+        return (
+          <span
+            className={`${styles.badge} ${
+              isActive ? styles.badgeActive : styles.badgeInactive
+            }`}
+          >
+            {isActive ? 'Activo' : 'Inactivo'}
+          </span>
+        );
       }
+    },
+    {
+      accessorFn: row => row.fyh_creacion ? new Date(row.fyh_creacion).getTime() : 0,
+      id: 'fecha',
+      header: 'Fecha de Registro',
+      cell: info => {
+        const fyh_creacion = info.row.original.fyh_creacion;
+        return fyh_creacion ? new Date(fyh_creacion).toLocaleDateString('es-AR') : '-';
+      }
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      enableSorting: false,
+      cell: (info) => {
+        const cliente = info.row.original;
+        return (
+          <div className={styles.actions}>
+            {/* Ver detalle: disponible para todos los roles */}
+            <button
+              className={styles.actionButton}
+              title="Ver detalles"
+              onClick={() => handleVerDetalle(cliente)}
+            >
+              <span className="material-icons">visibility</span>
+            </button>
 
-      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [filteredClientes, sortKey, sortDir]);
+            {/* Editar: solo para usuarios con permiso */}
+            <button
+              className={styles.actionButton}
+              title={!puedeEditar ? 'Sin permisos para editar clientes' : 'Editar cliente'}
+              onClick={() => handleEditar(cliente)}
+              disabled={!puedeEditar}
+            >
+              <span className="material-icons">edit</span>
+            </button>
+          </div>
+        );
+      }
+    }
+  ], [handleEditar, handleVerDetalle, puedeEditar]);
+
+  const table = useReactTable({
+    data: filteredClientes,
+    columns,
+    state: {
+      sorting,
+      columnOrder,
+    },
+    onSortingChange: setSorting,
+    onColumnOrderChange: setColumnOrder,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
+  };
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -198,143 +338,60 @@ const GestionClientes = () => {
 
         <AdminSurface className={styles.filterShell} tone="muted">
           <div className={styles.searchForm}>
-            <input
-              type="text"
-              placeholder="Buscar por nombre, email o celular..."
+            <AdminSearch
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
+              placeholder="Buscar por nombre, email o celular..."
+              onChange={setSearchTerm}
             />
           </div>
         </AdminSurface>
 
         <div className={styles.tableInfo}>
           <span>
-            {sortedClientes.length} cliente{sortedClientes.length !== 1 ? 's' : ''}
+            {table.getRowModel().rows.length} cliente{table.getRowModel().rows.length !== 1 ? 's' : ''}
             {searchTerm ? ' visibles con el filtro actual' : ' registrados'}
           </span>
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.sortableHeader} onClick={() => handleSort('id_cliente')}>
-                  <span className={styles.sortableHeaderContent}>
-                    ID
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'id_cliente' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('id_cliente')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('nombre')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Nombre Completo
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'nombre' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('nombre')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('email')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Email
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'email' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('email')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('celular')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Celular
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'celular' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('celular')}
-                    </span>
-                  </span>
-                </th>
-                <th>NIT/CI</th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('estado')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Estado
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'estado' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('estado')}
-                    </span>
-                  </span>
-                </th>
-                <th className={styles.sortableHeader} onClick={() => handleSort('fecha')}>
-                  <span className={styles.sortableHeaderContent}>
-                    Fecha de Registro
-                    <span
-                      className={`material-icons ${styles.sortIcon} ${sortKey === 'fecha' ? styles.sortIconActive : ''}`}
-                    >
-                      {getSortIcon('fecha')}
-                    </span>
-                  </span>
-                </th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedClientes.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className={styles.emptyMessage}>
-                    No se encontraron clientes
-                  </td>
-                </tr>
-              ) : (
-                sortedClientes.map((cliente) => (
-                  <tr key={cliente.id_cliente}>
-                    <td>{cliente.id_cliente}</td>
-                    <td>{`${cliente.nombre_cliente} ${cliente.apellido_cliente}`}</td>
-                    <td>{cliente.email_cliente}</td>
-                    <td>{cliente.celular_cliente || '-'}</td>
-                    <td>{cliente.nit_ci_cliente || '-'}</td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${
-                          cliente.email_verified && cliente.is_web_enabled ? styles.badgeActive : styles.badgeInactive
-                        }`}
-                      >
-                        {cliente.email_verified && cliente.is_web_enabled ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td>{cliente.fyh_creacion ? new Date(cliente.fyh_creacion).toLocaleDateString('es-AR') : '-'}</td>
-                    <td>
-                      <div className={styles.actions}>
-                        {/* Ver detalle: disponible para todos los roles */}
-                        <button
-                          className={styles.actionButton}
-                          title="Ver detalles"
-                          onClick={() => handleVerDetalle(cliente)}
-                        >
-                          <span className="material-icons">visibility</span>
-                        </button>
-
-                        {/* Editar: solo para usuarios con permiso */}
-                        <button
-                          className={styles.actionButton}
-                          title={!puedeEditar ? 'Sin permisos para editar clientes' : 'Editar cliente'}
-                          onClick={() => handleEditar(cliente)}
-                          disabled={!puedeEditar}
-                        >
-                          <span className="material-icons">edit</span>
-                        </button>
-                      </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className={styles.table}>
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                      {headerGroup.headers.map(header => (
+                        <DraggableTableHeader 
+                          key={header.id} 
+                          header={header} 
+                          className={header.column.getCanSort() ? styles.sortableHeader : undefined}
+                        />
+                      ))}
+                    </SortableContext>
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length} className={styles.emptyMessage}>
+                      No se encontraron clientes
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map(cell => (
+                        <td key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </DndContext>
         </div>
       </div>
 
