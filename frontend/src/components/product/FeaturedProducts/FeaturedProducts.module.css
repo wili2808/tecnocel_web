@@ -51,11 +51,20 @@
   line-height: 1.1;
 }
 
-/* Grid */
+/* Grid (referencia legacy — mantenido por compatibilidad) */
 .productsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--spacing-md);
+  opacity: 0;
+  animation: fadeInUp 0.55s ease-out 0.15s forwards;
+}
+
+/* Lista vertical de cards horizontales premium */
+.featuredList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
   opacity: 0;
   animation: fadeInUp 0.55s ease-out 0.15s forwards;
 }
@@ -71,7 +80,14 @@
   font-size: var(--font-size-sm);
 }
 
-/* Skeleton pulse */
+/* Skeleton pulse — lista horizontal */
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Skeleton legacy grid (compatibilidad) */
 .skeletonGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -79,14 +95,16 @@
 }
 
 .skeletonCard {
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-xl);
   overflow: hidden;
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color-light);
+  background: var(--background-elevated);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  min-height: 240px;
 }
 
 .skeletonImage {
-  aspect-ratio: 1 / 1;
   background: linear-gradient(
     90deg,
     var(--background-neutral) 25%,
@@ -98,15 +116,17 @@
 }
 
 .skeletonInfo {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  justify-content: center;
+  gap: var(--spacing-md);
 }
 
 .skeletonLine {
-  height: 12px;
+  height: 14px;
   border-radius: var(--border-radius-xs);
+  width: 70%;
   background: linear-gradient(
     90deg,
     var(--background-neutral) 25%,
@@ -117,7 +137,17 @@
   animation: shimmer 1.4s infinite;
 }
 
-.skeletonLine:last-child { width: 50%; }
+/* Línea grande para el precio */
+.skeletonLineLg {
+  height: 36px;
+  width: 55%;
+}
+
+/* Línea pequeña para features */
+.skeletonLineSm {
+  height: 10px;
+  width: 40%;
+}
 
 /* Animaciones */
 @keyframes fadeInUp {
@@ -146,6 +176,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .productsGrid { animation: none; opacity: 1; }
+  .productsGrid,
+  .featuredList { animation: none; opacity: 1; }
   .skeletonImage, .skeletonLine { animation: none; }
 }

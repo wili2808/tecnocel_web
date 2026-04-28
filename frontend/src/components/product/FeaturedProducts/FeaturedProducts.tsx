@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import ProductCard from '../ProductCard';
+import FeaturedProductCard from '../FeaturedProductCard';
 import styles from './FeaturedProducts.module.css';
 import type { Product } from '../../../types';
 
@@ -11,15 +11,16 @@ interface FeaturedProductsProps {
   error?: string | null;
 }
 
-// Skeleton de carga para el grid de productos
-const SkeletonGrid = () => (
-  <div className={styles.skeletonGrid}>
-    {Array.from({ length: 8 }).map((_, i) => (
+// Skeleton horizontal para las featured cards
+const SkeletonList = () => (
+  <div className={styles.skeletonList}>
+    {Array.from({ length: 3 }).map((_, i) => (
       <div key={i} className={styles.skeletonCard}>
         <div className={styles.skeletonImage} />
         <div className={styles.skeletonInfo}>
+          <div className={`${styles.skeletonLine} ${styles.skeletonLineLg}`} />
           <div className={styles.skeletonLine} />
-          <div className={styles.skeletonLine} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonLineSm}`} />
         </div>
       </div>
     ))}
@@ -39,12 +40,13 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = memo(
           </div>
 
           {loading ? (
-            <SkeletonGrid />
+            <SkeletonList />
           ) : products?.length > 0 ? (
-            <div className={styles.productsGrid}>
-              {products.map((product) => (
-                <ProductCard
+            <div className={styles.featuredList}>
+              {products.map((product, i) => (
+                <FeaturedProductCard
                   key={product.id_producto}
+                  index={i}
                   id_producto={product.id_producto}
                   nombre={product.nombre}
                   descripcion={product.descripcion}
