@@ -1,0 +1,483 @@
+/* ============================================================================
+   FEATURED PRODUCT CARD — Banda horizontal premium con imagen alternada
+   Conversion-oriented: precio dominante, CTA prominente, micro-animaciones
+   Sistema de tokens: 100% variables CSS del proyecto (sky/cyan palette)
+   ============================================================================ */
+
+/* ── ENLACE RAÍZ ─────────────────────────────────────────────────────────── */
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--border-radius-xl);
+  transition: transform var(--transition-fast) var(--transition-curve);
+  outline-offset: 4px;
+}
+
+.cardLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  border-radius: var(--border-radius-xl);
+}
+
+.cardLink:hover { transform: translateY(-3px); }
+
+/* ── CARD — superficie horizontal de ancho completo ──────────────────────── */
+.card {
+  display: grid;
+  /* imagen 40% | contenido 60% */
+  grid-template-columns: 40% 1fr;
+  min-height: 280px;
+  background: var(--background-secondary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.08);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  transition:
+    border-color var(--transition-fast) var(--transition-curve),
+    box-shadow  var(--transition-fast) var(--transition-curve);
+}
+
+.cardLink:hover .card {
+  border-color: rgba(var(--color-primary-rgb), 0.28);
+  box-shadow: 0 8px 32px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Imagen derecha — invierte columnas */
+.imageRight {
+  grid-template-columns: 1fr 40%;
+}
+
+/* Agotado — sutil, no punitivo */
+.outOfStock .card {
+  opacity: 0.72;
+  filter: grayscale(30%);
+}
+
+/* ── PANEL DE IMAGEN ─────────────────────────────────────────────────────── */
+.imagePanel {
+  position: relative;
+  overflow: hidden;
+  background: var(--background-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* En imageRight: el panel de imagen ocupa la segunda columna del grid */
+.imageRight .imagePanel {
+  order: 2;
+}
+.imageRight .contentPanel {
+  order: 1;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal) var(--transition-curve);
+}
+
+.cardLink:hover .productImage {
+  transform: scale(1.06);
+}
+
+/* Favorito — superior derecha del panel de imagen */
+.favoriteButton {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+[data-theme="dark"] .favoriteButton {
+  background: rgba(24, 24, 27, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.favoriteButton:hover {
+  transform: scale(1.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* ── BADGE "OFERTA LIMITADA" — pulso animado ─────────────────────────────── */
+.offerBadge {
+  position: absolute;
+  bottom: var(--spacing-sm);
+  left: var(--spacing-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px var(--spacing-sm);
+  background: var(--color-warning);
+  color: #fff;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xxs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--border-radius-full);
+  z-index: 3;
+  animation: pulseBadge 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+}
+
+@keyframes pulseBadge {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    opacity: 0.9;
+  }
+}
+
+/* ── PANEL DE CONTENIDO ──────────────────────────────────────────────────── */
+.contentPanel {
+  padding: var(--spacing-xl) var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+/* ── BLOQUE DE PRECIO — foco visual dominante ────────────────────────────── */
+.priceBlock {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* Precio principal — el elemento más grande y prominente */
+.priceMain {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color var(--transition-fast) var(--transition-curve);
+}
+
+.cardLink:hover .priceMain {
+  color: var(--color-primary-dark);
+}
+
+/* Precio tachado */
+.priceOriginal {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* Chip de descuento */
+.discountChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--spacing-xs);
+  background: rgba(var(--color-success-rgb), 0.12);
+  color: var(--color-success);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--border-radius-sm);
+  letter-spacing: 0.02em;
+}
+
+/* ── NOMBRE DEL PRODUCTO ─────────────────────────────────────────────────── */
+.productName {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── DESCRIPCIÓN ─────────────────────────────────────────────────────────── */
+.productDescription {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── CARACTERÍSTICAS RÁPIDAS ─────────────────────────────────────────────── */
+.featuresList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs) var(--spacing-md);
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.featureIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* ── FILA DE CTA ─────────────────────────────────────────────────────────── */
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-xs);
+}
+
+/* Botón base */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition:
+    transform    var(--transition-fast) var(--transition-curve),
+    box-shadow   var(--transition-fast) var(--transition-curve),
+    opacity      var(--transition-fast) var(--transition-curve);
+  white-space: nowrap;
+}
+
+/* CTA primario — gradiente sky→cyan, la acción más importante */
+.ctaPrimary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary)   0%,
+    var(--color-secondary) 100%
+  );
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(var(--color-primary-rgb), 0.35);
+}
+
+.ctaPrimary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(var(--color-primary-rgb), 0.45);
+}
+
+.ctaPrimary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.ctaPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* CTA secundario — outilne suave */
+.ctaSecondary {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid rgba(var(--color-primary-rgb), 0.35);
+}
+
+.ctaSecondary:hover {
+  background: rgba(var(--color-primary-rgb), 0.06);
+  border-color: rgba(var(--color-primary-rgb), 0.6);
+  transform: translateY(-1px);
+}
+
+/* CTA éxito */
+.ctaSuccess {
+  background: var(--color-success);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(var(--color-success-rgb), 0.3);
+  cursor: default;
+}
+
+/* CTA deshabilitado */
+.ctaDisabled {
+  background: var(--background-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+/* Enlace a detalle — discreto, secundario */
+.detailLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color var(--transition-fast) var(--transition-curve);
+}
+
+.detailLink:hover {
+  color: var(--color-primary);
+}
+
+/* ── SPINNER ─────────────────────────────────────────────────────────────── */
+.spinnerIcon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+
+/* Tablet — achicamos la imagen, reducimos tipografía */
+@media (max-width: 900px) {
+  .card,
+  .imageRight {
+    grid-template-columns: 38% 1fr;
+  }
+
+  .contentPanel {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-sm);
+  }
+
+  .priceMain {
+    font-size: var(--font-size-3xl);
+  }
+
+  .productName {
+    font-size: var(--font-size-lg);
+  }
+
+  .featuresList {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Mobile — layout vertical, imagen arriba */
+@media (max-width: 600px) {
+  .card,
+  .imageRight {
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px auto;
+    min-height: unset;
+  }
+
+  /* En mobile, imagen siempre arriba (orden natural) */
+  .imageRight .imagePanel {
+    order: 0;
+  }
+  .imageRight .contentPanel {
+    order: 1;
+  }
+
+  .imagePanel {
+    height: 220px;
+    width: 100%;
+  }
+
+  .contentPanel {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .priceMain {
+    font-size: var(--font-size-2xl);
+  }
+
+  .productName {
+    font-size: var(--font-size-md);
+  }
+
+  .productDescription {
+    display: none;
+  }
+
+  /* Características en fila única */
+  .featuresList {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .featureItem {
+    font-size: var(--font-size-xxs);
+  }
+
+  .ctaButton {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .cardLink:hover { transform: none; }
+}
+
+@media (max-width: 380px) {
+  .featuresList {
+    grid-template-columns: 1fr;
+  }
+  .priceMain { font-size: var(--font-size-xl); }
+}
+
+/* ── ACCESIBILIDAD ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cardLink:hover,
+  .ctaPrimary:hover,
+  .ctaSecondary:hover  { transform: none; }
+  .productImage        { transition: none; }
+  .spinnerIcon         { animation: none; }
+  .offerBadge          { animation: none; }
+  .card                { transition: none; }
+}
+
+/* ── DARK MODE AJUSTES FINOS ─────────────────────────────────────────────── */
+[data-theme="dark"] .card {
+  border-color: rgba(var(--color-primary-rgb), 0.12);
+}
+
+[data-theme="dark"] .cardLink:hover .card {
+  border-color: rgba(var(--color-primary-rgb), 0.32);
+  box-shadow: 0 8px 32px rgba(var(--color-primary-rgb), 0.14);
+}
+
+[data-theme="dark"] .discountChip {
+  background: rgba(var(--color-success-rgb), 0.18);
+}

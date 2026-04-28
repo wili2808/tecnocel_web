@@ -1,4 +1,5 @@
 import React, { useState, memo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Respuesta } from '../../../types/comentario';
 import commentService from '../../../services/commentService';
 import adminCommentService from '../../../services/adminCommentService';
@@ -116,23 +117,33 @@ const ReplyList: React.FC<ReplyListProps> = memo(
       <div className={styles.replyList}>
         {activeReplies.length > 0 && (
           <div className={styles.replies}>
-            {visibleReplies.map((respuesta) => {
-              const isOwner =
-                respuesta.tipo_autor === 'cliente'
-                  ? respuesta.id_cliente === currentUserId
-                  : respuesta.tipo_autor === 'admin' && respuesta.id_usuario === currentSystemUserId;
-              return (
-                <ReplyCard
-                  key={respuesta.id_respuesta}
-                  respuesta={respuesta}
-                  currentUserId={currentUserId}
-                  currentSystemUserId={currentSystemUserId}
-                  isSystemUser={isSystemUser}
-                  onDelete={(id) => handleDeleteReply(id, isOwner)}
-                  onModerate={isSystemUser && puedeModerar ? handleModerateReply : undefined}
-                />
-              );
-            })}
+            <AnimatePresence initial={false}>
+              {visibleReplies.map((respuesta) => {
+                const isOwner =
+                  respuesta.tipo_autor === 'cliente'
+                    ? respuesta.id_cliente === currentUserId
+                    : respuesta.tipo_autor === 'admin' && respuesta.id_usuario === currentSystemUserId;
+                return (
+                  <motion.div
+                    key={respuesta.id_respuesta}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <ReplyCard
+                      respuesta={respuesta}
+                      currentUserId={currentUserId}
+                      currentSystemUserId={currentSystemUserId}
+                      isSystemUser={isSystemUser}
+                      onDelete={(id) => handleDeleteReply(id, isOwner)}
+                      onModerate={isSystemUser && puedeModerar ? handleModerateReply : undefined}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
 
             {hiddenCount > 0 && !showAll && (
               <button className={styles.toggleBtn} onClick={() => setShowAll(true)}>
@@ -160,9 +171,19 @@ const ReplyList: React.FC<ReplyListProps> = memo(
           </button>
         )}
 
-        {showForm && (
-          <ReplyForm onSubmit={handleCreateReply} onCancel={() => setShowForm(false)} isAdmin={isSystemUser} />
-        )}
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              style={{ overflow: 'hidden' }}
+            >
+              <ReplyForm onSubmit={handleCreateReply} onCancel={() => setShowForm(false)} isAdmin={isSystemUser} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   },
