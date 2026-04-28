@@ -247,87 +247,84 @@
   color: var(--text-secondary);
 }
 
-.permisosGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+.permisosStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.moduloCard {
+.moduloRow {
   background: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .moduloHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--background-primary);
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: transparent;
   border-bottom: 1px solid var(--border-color);
 }
 
-.moduloIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: rgba(var(--color-primary-rgb), 0.1);
-  border-radius: var(--border-radius-sm);
-}
-
-.moduloIcon .material-icons {
-  font-size: 16px;
-  color: var(--color-primary);
-}
-
 .moduloTitle {
-  flex: 1;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
   text-transform: capitalize;
+  letter-spacing: 0.3px;
 }
 
 .moduloCount {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
-  padding: 2px 6px;
-  background: var(--background-secondary);
-  border-radius: 3px;
+  background: var(--background-primary);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
 }
 
 .permisosList {
-  padding: 8px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--background-primary);
 }
 
 .permisoItem {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
-  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--background-secondary);
   cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
+  transition: all var(--transition-fast) var(--transition-curve);
+  min-width: 160px;
 }
 
 .permisoItem:hover {
+  border-color: var(--color-primary);
   background: var(--background-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .permisoCheckbox {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   accent-color: var(--color-primary);
   cursor: pointer;
+  margin: 0;
 }
 
 .accionBadge {
@@ -425,7 +422,7 @@
     justify-content: center;
   }
 
-  .permisosGrid {
-    grid-template-columns: 1fr;
+  .permisosStack {
+    gap: 12px;
   }
 }

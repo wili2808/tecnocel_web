@@ -1,49 +1,26 @@
-**[Inicio](../README.md)**
-
----
-
 # TecnoCel Web - Frontend
 
-> Aplicación web de e-commerce desarrollada con React 18, TypeScript y Vite.
+Aplicación cliente de la plataforma TecnoCel Web. Se trata de una Single Page Application (SPA) construida con React 18 y TypeScript, empaquetada mediante Vite. Su enfoque principal es proveer una experiencia de usuario fluida, modular y escalable.
 
 ---
 
 ## Tabla de Contenidos
 
-- [Descripción](#descripción)
-- [Stack Principal](#stack-principal)
+- [Tecnologías Utilizadas](#tecnologías-utilizadas)
 - [Inicio Rápido](#inicio-rápido)
-- [Scripts Disponibles](#scripts-disponibles)
 - [Estructura del Proyecto](#estructura-del-proyecto)
-- [Sistema de Diseño](#sistema-de-diseño)
-- [Arquitectura Frontend](#arquitectura-frontend)
-- [Configuración](#configuración)
-- [Componentes Principales](#componentes-principales)
-- [Responsive Design](#responsive-design)
-- [Performance](#performance)
-- [Desarrollo](#desarrollo)
-- [Documentación](#documentación)
-- [Deployment](#deployment)
+- [Arquitectura y Estado](#arquitectura-y-estado)
+- [Desarrollo y Scripts](#desarrollo-y-scripts)
 
 ---
 
-## Descripción
+## Tecnologías Utilizadas
 
-Frontend de TecnoCel Web, una plataforma SPA (Single Page Application) moderna con diseño **mobile-first**, gestión de estado con Context API, y sistema de diseño centralizado con variables CSS.
-
-## Stack Principal
-
-| Tecnología       | Versión | Uso                     |
-| ---------------- | ------- | ----------------------- |
-| **React**        | 18.2.0  | UI Library              |
-| **TypeScript**   | 5.3.3   | Lenguaje                |
-| **Vite**         | 5.0.12  | Build tool + Dev server |
-| **React Router** | 6.21.3  | Navegación SPA          |
-| **Axios**        | 1.9.0   | HTTP Client             |
-| **CSS Modules**  | -       | Estilos scoped          |
-| **React Icons**  | 5.5.0   | Iconografía             |
-
-Ver stack completo → [docs/project/TECNOLOGIAS.md](../docs/project/TECNOLOGIAS.md)
+- **Core:** React 18.2.0, TypeScript 5.3.3
+- **Build & Server:** Vite 5.0.12
+- **Navegación:** React Router 6.21.3
+- **Comunicaciones HTTP:** Axios 1.9.0
+- **Estilos:** CSS Modules y variables CSS personalizadas
 
 ---
 
@@ -53,246 +30,64 @@ Ver stack completo → [docs/project/TECNOLOGIAS.md](../docs/project/TECNOLOGIAS
 # Instalar dependencias
 npm install
 
-# Configurar variables de entorno
+# Configurar variables de entorno (definir VITE_API_URL y VITE_GOOGLE_CLIENT_ID)
 cp .env.example .env
-# Editar .env con la URL del backend
 
-# Iniciar servidor de desarrollo
+# Iniciar el entorno de desarrollo
 npm run dev
 ```
 
-**URL:** http://localhost:5173
-
----
-
-## Scripts Disponibles
-
-```bash
-npm run dev       # Servidor de desarrollo (HMR)
-npm run build     # Build optimizado para producción
-npm run preview   # Preview del build de producción
-npm run lint      # Linting con ESLint
-```
+El servidor estará disponible en: `http://localhost:5173`
 
 ---
 
 ## Estructura del Proyecto
 
-```
-frontend/src/
-├── components/          # Componentes organizados por dominio
-│   ├── cart/           # Carrito de compras
-│   ├── common/         # Componentes reutilizables
-│   ├── layout/         # Layout y navegación
-│   ├── product/        # Productos, filtros, ofertas
-│   └── user/           # Autenticación y perfil
-├── contexts/           # Contextos de estado global
-├── hooks/              # Custom hooks
-├── pages/              # Páginas/Rutas principales
-├── services/           # Servicios de API
-├── styles/             # Sistema de diseño CSS
-├── types/              # Tipos TypeScript
-└── utils/              # Utilidades
-```
+El código fuente se organiza bajo `src/` agrupado por dominio y responsabilidad:
 
-Ver estructura completa → [docs/frontend/ESTRUCTURA.md](../docs/frontend/ESTRUCTURA.md)
+- `components/`: Componentes modulares, separados por funcionalidad (cart, product, user, layout).
+- `contexts/`: Estados globales utilizando Context API.
+- `hooks/`: Lógica reutilizable encapsulada en custom hooks.
+- `pages/`: Vistas principales gestionadas por el router.
+- `services/`: Funciones de comunicación con la API.
+- `styles/`: Sistema centralizado de estilos (temas, variables globales).
+- `types/`: Definiciones estrictas de interfaces de TypeScript.
 
 ---
 
-## Sistema de Diseño
+## Arquitectura y Estado
 
-### Variables CSS Centralizadas
+El proyecto no depende de gestores de estado externos complejos (como Redux), optando por **Context API** combinado con custom hooks para mantener la ligereza y el rendimiento:
+- `AuthContext`: Gestión de sesión y autenticación.
+- `CarritoContext`: Estado del carrito de compras.
+- `ThemeContext`: Manejo del esquema de colores (claro/oscuro).
 
-```css
-/* Colores, tipografía, espaciado en: */
-src/styles/variables.css  # Variables base
-src/styles/themes.css     # Temas claro/oscuro
-src/styles/global.css     # Estilos globales
-```
-
-### Características
-
-- **Colores**: Sistema semántico con soporte para tema claro/oscuro
-- **Tipografía**: Poppins como fuente principal
-- **Espaciado**: Sistema base de 8px
-- **Responsive**: Breakpoints mobile-first (480px, 768px, 1024px, 1440px)
-
-Ver guía de diseño → [docs/frontend/THEMING.md](../docs/frontend/THEMING.md)
+El consumo de datos externos se realiza a través de **servicios encapsulados** (ej. `productService`, `authService`) e interceptores de Axios para manejar tokens JWT y errores globales de red de forma centralizada.
 
 ---
 
-## Arquitectura Frontend
+## Desarrollo y Scripts
 
-### Gestión de Estado
+Se proveen los siguientes comandos npm para el flujo de trabajo de desarrollo y despliegue:
 
-- **Context API**: Estado global compartido
-  - `AuthContext` - Autenticación y sesión
-  - `CarritoContext` - Carrito de compras
-  - `FavoritosGlobalContext` - Favoritos
-  - `ThemeContext` - Tema claro/oscuro
-  - `SearchContext` - Búsqueda
-
-Ver guía de contextos → [docs/frontend/CONTEXTS.md](../docs/frontend/CONTEXTS.md)
-
-### Custom Hooks
-
-```typescript
-useCart()          # Gestión del carrito
-useFavorites()     # Gestión de favoritos
-useProducts()      # Productos y filtros
-useOffers()        # Ofertas activas
-useAuth()          # Autenticación
-```
-
-Ver guía de hooks → [docs/frontend/HOOKS.md](../docs/frontend/HOOKS.md)
-
-### Servicios de API
-
-```typescript
-productService     # CRUD de productos
-cartService        # Operaciones del carrito
-authService        # Login, registro, OAuth
-commentService     # Comentarios y reseñas
-offerService       # Ofertas y descuentos
-```
-
-Ver guía de servicios → [docs/frontend/SERVICES.md](../docs/frontend/SERVICES.md)
+- `npm run dev`: Inicia el servidor Vite con Hot Module Replacement (HMR).
+- `npm run build`: Genera los archivos estáticos de producción.
+- `npm run preview`: Sirve localmente la carpeta `dist/` para probar el build de producción.
+- `npm run lint`: Ejecuta ESLint para mantener la calidad y convenciones del código.
 
 ---
 
-## Configuración
+## Documentación de Referencia
 
-### Variables de Entorno
+Para consultar detalles específicos sobre la arquitectura y directrices del frontend, revisa los siguientes documentos:
 
-```env
-VITE_API_URL=http://localhost:3000/api
-VITE_GOOGLE_CLIENT_ID=tu-google-client-id
-```
-
-Ver todas las variables → [docs/deployment/ENVIRONMENT.md](../docs/deployment/ENVIRONMENT.md)
-
-### Axios Config
-
-Configuración centralizada en `src/api/axiosConfig.ts`:
-
-- Interceptores para JWT automático
-- Manejo global de errores
-- Transformación de respuestas
+- **Componentes:** [Catálogo de componentes](../docs/frontend/COMPONENTS.md)
+- **Estado Global:** [Contextos](../docs/frontend/CONTEXTS.md) y [Hooks personalizados](../docs/frontend/HOOKS.md)
+- **Servicios:** [Integración con API](../docs/frontend/SERVICES.md)
+- **Sistema de Diseño:** [Estilos (CSS Modules)](../docs/frontend/STYLING.md) y [Theming](../docs/frontend/THEMING.md)
+- **Rutas:** [Navegación (React Router)](../docs/frontend/ROUTING.md)
+- **Guías de Desarrollo:** [Convenciones de Código](../docs/guides/CODING_STANDARDS.md) y [Guía General](../docs/guides/DEVELOPMENT.md)
 
 ---
 
-## Componentes Principales
-
-### Productos
-
-- `ProductCard` - Tarjeta de producto
-- `ProductGrid` - Grid responsive
-- `ProductFilters` - Filtros avanzados
-- `FeaturedProducts` - Productos destacados
-
-### Carrito
-
-- `CartItem` - Item individual
-- `CartSummary` - Resumen y checkout
-- `CartIndicator` - Indicador en navbar
-
-### Ofertas
-
-- `OfferCard` - Tarjeta de oferta
-- `OffersGrid` - Grid de ofertas
-- `OfferIndicator` - Badge de descuento
-
-Ver catálogo completo → [docs/frontend/COMPONENTS.md](../docs/frontend/COMPONENTS.md)
-
----
-
-## Responsive Design
-
-### Breakpoints
-
-```css
---breakpoint-mobile: 480px
---breakpoint-tablet: 768px
---breakpoint-desktop: 1024px
---breakpoint-large: 1440px
-```
-
-### Estrategia
-
-- **Mobile-first**: Diseño base para móviles
-- **Progressive enhancement**: Mejoras para pantallas grandes
-- **Touch-friendly**: Tamaños mínimos de 44px para interacciones
-
----
-
-## Performance
-
-### Optimizaciones Implementadas
-
-- ✅ **Code splitting** - División automática del bundle
-- ✅ **Lazy loading** - Carga diferida de componentes
-- ✅ **Image lazy load** - Imágenes cargadas bajo demanda
-- ✅ **React.memo** - Optimización de re-renders
-- ✅ **CSS Modules** - Estilos scoped sin colisiones
-
-Ver guía de optimización → [docs/frontend/OPTIMIZATION.md](../docs/frontend/OPTIMIZATION.md)
-
----
-
-## Desarrollo
-
-### Convenciones
-
-- **Nomenclatura**: PascalCase para componentes, camelCase para funciones
-- **Estructura de archivos**: Un componente por archivo
-- **Imports**: Orden: React → Third-party → Local
-- **Estilos**: CSS Modules obligatorio
-
-Ver guía de desarrollo → [docs/guides/DEVELOPMENT.md](../docs/guides/DEVELOPMENT.md)
-
----
-
-## Documentación
-
-### Frontend - Arquitectura
-
-- [Componentes](../docs/frontend/COMPONENTS.md) - Catálogo completo de componentes
-- [Contextos](../docs/frontend/CONTEXTS.md) - Contextos de estado global
-- [Hooks](../docs/frontend/HOOKS.md) - Hooks personalizados
-- [Servicios](../docs/frontend/SERVICES.md) - Servicios de API
-
-### Frontend - Sistema de Diseño
-
-- [Routing](../docs/frontend/ROUTING.md) - React Router v6, navegación y rutas
-- [Styling](../docs/frontend/STYLING.md) - CSS Modules, variables y convenciones
-- [Theming](../docs/frontend/THEMING.md) - Sistema de temas claro/oscuro
-- [State Management](../docs/frontend/STATE_MANAGEMENT.md) - Gestión de estado
-
-### Desarrollo
-
-- [Guía de desarrollo](../docs/guides/DEVELOPMENT.md)
-- [Configuración de entorno](../docs/deployment/ENVIRONMENT.md)
-- [Convenciones de código](../docs/guides/CODING_STANDARDS.md)
-
----
-
-## Deployment
-
-```bash
-# Build para producción
-npm run build
-
-# Preview del build
-npm run preview
-```
-
-Ver guía de deployment → [docs/deployment/HOSTING.md](../docs/deployment/HOSTING.md)
-
-**Última actualización**: 8 de Octubre, 2025
-**Versión**: 1.1.0
-**Puerto**: 5173
-**Stack**: React 18 + TypeScript + Vite
-
----
-
-**[Volver arriba](#tabla-de-contenidos)** | **[Inicio](../README.md)**
+[Volver al Inicio](../README.md)
