@@ -206,8 +206,8 @@ export interface ProductoFormData {
   codigo: string;
   nombre: string;
   descripcion?: string;
-  id_categoria: number;
-  id_marca?: number;
+  id_categoria: number | null;
+  id_marca?: number | null;
   modelo?: string;
   precio_compra: string;
   precio_venta: string;

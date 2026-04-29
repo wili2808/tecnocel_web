@@ -369,7 +369,7 @@ class AlmacenController {
                 attributes: ['nombre_tipo', 'tipo_dato', 'unidad_medida', 'descripcion', 'opciones_seleccion']
               }
             ],
-            attributes: ['id_caracteristica', 'valor']
+            attributes: ['id_caracteristica', 'id_tipo', 'valor']
           },
           {
             model: Oferta,

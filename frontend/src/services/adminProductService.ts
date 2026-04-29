@@ -80,7 +80,7 @@ const adminProductService = {
     });
 
     const response = await adminApi.post<UploadImagenResponse>(
-      '/upload/product-images',
+      '/uploads/product-images',
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -174,7 +174,7 @@ const adminProductService = {
   uploadMarcaLogo: async (id_marca: number, file: File): Promise<{ filename: string; url: string }> => {
     const formData = new FormData();
     formData.append('logo', file);
-    const { data } = await adminApi.post(`/upload/marca-logo/${id_marca}`, formData, {
+    const { data } = await adminApi.post(`/uploads/marca-logo/${id_marca}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return data.data;

@@ -298,15 +298,12 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
               </button>
             )}
 
-            <Link
-              to={`/productos/${id_producto}`}
+            <div
               className={styles.detailLink}
-              tabIndex={-1}
-              onClick={(e) => e.stopPropagation()}
               aria-label={`Ver detalles de ${nombre}`}
             >
               Ver detalles
-            </Link>
+            </div>
           </div>
         </div>
       </article>

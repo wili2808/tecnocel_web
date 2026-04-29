@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminProductService from '../../../services/adminProductService';
-import ProductoForm from './ProductoForm';
+import ProductoModal from './ProductoModal';
 import GestionMarcas from './GestionMarcas';
 import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
@@ -45,7 +45,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 // --- Tipos ---
-type Vista = 'lista' | 'crear' | 'editar';
 type TabProductos = 'productos' | 'marcas' | 'categorias' | 'caracteristicas';
 
 // --- Componente DraggableTableHeader ---
@@ -110,14 +109,14 @@ const GestionProductos = () => {
   const puedeVer = tienePermiso('ver_productos');
   const puedeCrear = tienePermiso('crear_producto');
   const puedeEditar = tienePermiso('editar_producto');
-  const puedeEliminar = tienePermiso('eliminar_producto');
+
   const isReadOnly = !puedeEditar;
   const { showNotification } = useNotification();
 
   // Estado de la vista
-  const [vista, setVista] = useState<Vista>('lista');
   const [activeTab, setActiveTab] = useState<TabProductos>('productos');
   const [productoSeleccionado, setProductoSeleccionado] = useState<Product | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Estado de la lista
   const [allProductos, setAllProductos] = useState<Product[]>([]);
@@ -133,7 +132,7 @@ const GestionProductos = () => {
   // --- Estados de TanStack Table ---
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock', 'acciones'
+    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock'
   ]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
 
@@ -152,10 +151,8 @@ const GestionProductos = () => {
   }, [searchTerm, showNotification]);
 
   useEffect(() => {
-    if (vista === 'lista') {
-      cargarProductos();
-    }
-  }, [cargarProductos, vista]);
+    cargarProductos();
+  }, [cargarProductos]);
 
   const handleToggleDestacados = () => {
     setSoloDestacados((prev) => !prev);
@@ -166,37 +163,27 @@ const GestionProductos = () => {
     try {
       const producto = await adminProductService.obtenerProducto(id);
       setProductoSeleccionado(producto);
-      setVista('editar');
+      setModalOpen(true);
     } catch {
       showNotification('Error al cargar producto para editar', 'error');
     }
   }, [showNotification]);
 
-  const handleEliminar = useCallback(async (id: number, nombre: string) => {
-    if (!puedeEliminar) {
-      showNotification('No tienes permisos para eliminar productos', 'error');
-      return;
-    }
-    if (!confirm(`¿Estás seguro de eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
-    try {
-      await adminProductService.eliminarProducto(id);
-      showNotification('Producto eliminado exitosamente', 'success');
-      cargarProductos();
-    } catch (err: any) {
-      showNotification(err.message || 'Error al eliminar producto', 'error');
-    }
-  }, [puedeEliminar, showNotification, cargarProductos]);
+  const handleCrear = useCallback(() => {
+    setProductoSeleccionado(null);
+    setModalOpen(true);
+  }, []);
+
+
 
   const handleGuardado = () => {
-    setVista('lista');
+    setModalOpen(false);
     setProductoSeleccionado(null);
     cargarProductos();
   };
 
   const handleCancelar = () => {
-    setVista('lista');
+    setModalOpen(false);
     setProductoSeleccionado(null);
   };
 
@@ -312,36 +299,8 @@ const GestionProductos = () => {
           </span>
         );
       },
-    },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: (info) => {
-        const p = info.row.original;
-        return (
-          <div className={styles.actions}>
-            <button
-              className={styles.actionButton}
-              title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
-              onClick={() => handleEditar(p.id_producto)}
-              disabled={isReadOnly}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-            <button
-              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
-              onClick={() => handleEliminar(p.id_producto, p.nombre)}
-              disabled={!puedeEliminar}
-            >
-              <span className="material-icons">delete</span>
-            </button>
-          </div>
-        );
-      },
-    },
-  ], [isReadOnly, puedeEliminar, handleEditar, handleEliminar]);
+    }
+  ], []);
 
   // --- Instancia de TanStack Table ---
   const table = useReactTable({
@@ -390,19 +349,7 @@ const GestionProductos = () => {
     );
   }
 
-  // Renderizar formulario si estamos en crear/editar
-  if (vista === 'crear' || vista === 'editar') {
-    return (
-      <ProductoForm
-        modo={vista}
-        producto={productoSeleccionado}
-        onGuardado={handleGuardado}
-        onCancelar={handleCancelar}
-      />
-    );
-  }
-
-  // Vista de lista
+  // Renderizado principal
   return (
     <div className={styles.container}>
       <AdminSectionActions
@@ -410,7 +357,7 @@ const GestionProductos = () => {
         actions={
           <button
             className={styles.crearButton}
-            onClick={() => setVista('crear')}
+            onClick={handleCrear}
             disabled={!puedeCrear}
             title={!puedeCrear ? 'Sin permisos para crear productos' : undefined}
           >
@@ -540,7 +487,12 @@ const GestionProductos = () => {
                         </tr>
                       ) : (
                         table.getRowModel().rows.map((row) => (
-                          <tr key={row.id}>
+                          <tr 
+                            key={row.id}
+                            onClick={() => !isReadOnly && handleEditar(row.original.id_producto)}
+                            style={{ cursor: isReadOnly ? 'default' : 'pointer' }}
+                            className={!isReadOnly ? styles.clickableRow : ''}
+                          >
                             {row.getVisibleCells().map((cell) => (
                               <td key={cell.id}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -580,6 +532,14 @@ const GestionProductos = () => {
           )}
         </>
       )}
+
+      {/* Modal de Producto */}
+      <ProductoModal
+        isOpen={modalOpen}
+        producto={productoSeleccionado}
+        onClose={handleCancelar}
+        onGuardado={handleGuardado}
+      />
     </div>
   );
 };

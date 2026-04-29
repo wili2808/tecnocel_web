@@ -80,7 +80,7 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
 };
 
 const GestionCompras: React.FC = memo(() => {
-  const { tienePermiso } = useAuth();
+  const { tienePermiso, userType } = useAuth();
   const puedeVer = tienePermiso('ver_compras');
   const puedeCrear = tienePermiso('crear_compra');
   const puedeEditar = tienePermiso('editar_compra');
@@ -117,7 +117,7 @@ const GestionCompras: React.FC = memo(() => {
   }, [pagination]);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado', 'acciones'
+    'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado'
   ]);
 
   const [stockColumnOrder, setStockColumnOrder] = useState<string[]>([
@@ -271,35 +271,8 @@ const GestionCompras: React.FC = memo(() => {
           </span>
         );
       },
-    },
-    {
-      id: 'acciones',
-      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Acciones</div>,
-      cell: info => {
-        const compra = info.row.original;
-        return (
-          <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
-            <button
-              className={styles.actionBtn}
-              title="Ver detalle"
-              onClick={() => setIdDetalleAbierto(compra.id_compra)}
-            >
-              <span className="material-icons">visibility</span>
-            </button>
-            {compra.estado === 'activa' && puedeEditar && (
-              <button
-                className={styles.actionBtn}
-                title="Anular"
-                onClick={() => setAnularModal({ id: compra.id_compra, nro: compra.nro_compra })}
-              >
-                <span className="material-icons">delete</span>
-              </button>
-            )}
-          </div>
-        );
-      },
     }
-  ], [puedeEditar]);
+  ], []);
 
   const comprasTable = useReactTable({
     data: compras,
@@ -543,32 +516,58 @@ const GestionCompras: React.FC = memo(() => {
       )}
 
       {/* Tabs */}
-      <div className={styles.tabsBar}>
-        <button
-          className={`${styles.tab} ${activeTab === 'compras' ? styles.tabActive : ''}`}
-          onClick={() => {
-            setActiveTab('compras');
-            setOffset(0);
-          }}
-        >
-          <span className="material-icons">receipt_long</span>
-          Compras
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'proveedores' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('proveedores')}
-        >
-          <span className="material-icons">business</span>
-          Proveedores
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'stock' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('stock')}
-        >
-          <span className="material-icons">warning</span>
-          Stock Bajo
-          {stockBajo.length > 0 && <span className={styles.tabBadge}>{stockBajo.length}</span>}
-        </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid var(--border-color)', borderTop: '1px solid var(--border-color)', margin: 'var(--spacing-md) 0' }}>
+        <div className={styles.tabsBar} style={{ border: 'none', margin: 0, marginBottom: '-1px', flex: 1, paddingBottom: '1px', overflowX: 'auto', overflowY: 'hidden' }}>
+          <button
+            className={`${styles.tab} ${activeTab === 'compras' ? styles.tabActive : ''}`}
+            onClick={() => {
+              setActiveTab('compras');
+              setOffset(0);
+            }}
+          >
+            <span className="material-icons">receipt_long</span>
+            Compras
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'proveedores' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('proveedores')}
+          >
+            <span className="material-icons">business</span>
+            Proveedores
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'stock' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('stock')}
+          >
+            <span className="material-icons">warning</span>
+            Stock Bajo
+            {stockBajo.length > 0 && <span className={styles.tabBadge}>{stockBajo.length}</span>}
+          </button>
+        </div>
+
+        {activeTab === 'stock' && seleccionados.size > 0 && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingBottom: '4px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginRight: '8px' }}>
+              {seleccionados.size} seleccionado{seleccionados.size !== 1 ? 's' : ''}
+            </span>
+            <button
+              onClick={() => setSeleccionados(new Set())}
+              title="Limpiar selección"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: 'transparent', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)', cursor: 'pointer' }}
+            >
+              <span className="material-icons" style={{ fontSize: '14px' }}>close</span>
+              Limpiar
+            </button>
+            <button
+              onClick={() => abrirCompraConSeleccion()}
+              disabled={!puedeCrear}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: 'var(--color-primary)', border: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 600, color: 'white', cursor: !puedeCrear ? 'not-allowed' : 'pointer', opacity: !puedeCrear ? 0.6 : 1 }}
+            >
+              <span className="material-icons" style={{ fontSize: '14px' }}>shopping_cart</span>
+              Ordenar compra
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tab: Compras */}
@@ -683,7 +682,12 @@ const GestionCompras: React.FC = memo(() => {
                     </thead>
                     <tbody>
                       {comprasTable.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
+                        <tr 
+                          key={row.id}
+                          onClick={() => setIdDetalleAbierto(row.original.id_compra)}
+                          style={{ cursor: 'pointer' }}
+                          className={styles.clickableRow}
+                        >
                           {row.getVisibleCells().map(cell => (
                             <td key={cell.id}>
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -751,33 +755,7 @@ const GestionCompras: React.FC = memo(() => {
             />
           ) : (
             <>
-              {/* Barra flotante de compra rápida */}
-              {seleccionados.size > 0 && (
-                <div className={styles.floatingActionBar}>
-                  <span className={styles.floatingActionInfo}>
-                    <span className="material-icons" style={{ fontSize: '18px' }}>check_box</span>
-                    {seleccionados.size} producto{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
-                  </span>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button
-                      className={styles.floatingActionClear}
-                      onClick={() => setSeleccionados(new Set())}
-                      title="Limpiar selección"
-                    >
-                      <span className="material-icons" style={{ fontSize: '16px' }}>close</span>
-                      Limpiar
-                    </button>
-                    <button
-                      className={styles.floatingActionComprar}
-                      onClick={() => abrirCompraConSeleccion()}
-                      disabled={!puedeCrear}
-                    >
-                      <span className="material-icons" style={{ fontSize: '18px' }}>shopping_cart</span>
-                      Ordenar compra ({seleccionados.size})
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Barra flotante de compra rápida eliminada */}
 
               <div className={styles.tableWrapper}>
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStock}>
@@ -849,10 +827,11 @@ const GestionCompras: React.FC = memo(() => {
         <DetalleCompraModal
           idCompra={idDetalleAbierto}
           onClose={() => setIdDetalleAbierto(null)}
-          onAnularClick={(id, nro) => {
+          onAnularClick={puedeEditar ? (id, nro) => {
             setIdDetalleAbierto(null);
             setAnularModal({ id, nro });
-          }}
+          } : undefined}
+          userRole={userType as 'admin' | 'gerente' | 'vendedor'}
         />
       )}
 
