@@ -403,6 +403,7 @@ const GestionProductos = () => {
                   setPagination((prev) => ({ ...prev, pageIndex: 0 }));
                 }}
               />
+              {/* Boton para mostrar solo productos destacados */}
               <button
                 type="button"
                 className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}

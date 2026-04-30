@@ -264,6 +264,15 @@
   border-bottom: none;
 }
 
+.clickableRow {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.clickableRow:hover {
+  background-color: var(--color-primary-25) !important;
+}
+
 .emptyMessage {
   text-align: center;
   color: var(--text-secondary);

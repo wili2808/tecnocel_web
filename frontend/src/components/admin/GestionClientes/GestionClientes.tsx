@@ -88,7 +88,6 @@ const GestionClientes = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_clientes');
   const puedeCrear = tienePermiso('crear_cliente');
-  const puedeEditar = tienePermiso('editar_cliente');
   const { showNotification } = useNotification();
 
   const [clientes, setClientes] = useState<ClienteListItem[]>([]);
@@ -99,7 +98,7 @@ const GestionClientes = () => {
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_cliente', desc: false }]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'id_cliente', 'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha', 'acciones'
+    'id_cliente', 'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha'
   ]);
 
   // Modal state
@@ -213,37 +212,7 @@ const GestionClientes = () => {
         return fyh_creacion ? new Date(fyh_creacion).toLocaleDateString('es-AR') : '-';
       }
     },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: (info) => {
-        const cliente = info.row.original;
-        return (
-          <div className={styles.actions}>
-            {/* Ver detalle: disponible para todos los roles */}
-            <button
-              className={styles.actionButton}
-              title="Ver detalles"
-              onClick={() => handleVerDetalle(cliente)}
-            >
-              <span className="material-icons">visibility</span>
-            </button>
-
-            {/* Editar: solo para usuarios con permiso */}
-            <button
-              className={styles.actionButton}
-              title={!puedeEditar ? 'Sin permisos para editar clientes' : 'Editar cliente'}
-              onClick={() => handleEditar(cliente)}
-              disabled={!puedeEditar}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-          </div>
-        );
-      }
-    }
-  ], [handleEditar, handleVerDetalle, puedeEditar]);
+  ], [handleEditar, handleVerDetalle]);
 
   const table = useReactTable({
     data: filteredClientes,
@@ -380,7 +349,11 @@ const GestionClientes = () => {
                   </tr>
                 ) : (
                   table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
+                    <tr 
+                      key={row.id}
+                      onClick={() => handleVerDetalle(row.original)}
+                      className={styles.clickableRow}
+                    >
                       {row.getVisibleCells().map(cell => (
                         <td key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -397,7 +370,11 @@ const GestionClientes = () => {
 
       {/* Modal de detalle (solo lectura) */}
       {tipoModal === 'detalle' && clienteSeleccionado && (
-        <DetalleClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} />
+        <DetalleClienteModal 
+          cliente={clienteSeleccionado} 
+          onClose={handleCerrarModal} 
+          onEdit={() => handleEditar(clienteSeleccionado)}
+        />
       )}
 
       {/* Modal de edición (solo admin) */}

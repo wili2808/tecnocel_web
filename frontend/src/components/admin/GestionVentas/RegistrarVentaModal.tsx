@@ -228,139 +228,145 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     }
   };
 
-  // ── Clases de paso ────────────────────────────────────────────────────────
-  const stepClass = (idx: number) => {
-    if (idx < paso) return styles.stepCompleted;
-    if (idx === paso) return styles.stepActive;
-    return '';
-  };
-
-  const connectorClass = (idx: number) => (idx < paso ? styles.stepConnectorCompleted : '');
-
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div
-      className={styles.modalOverlay}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className={`${styles.modal} ${styles.modalLarge}`}>
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
+    <div className={styles.modalOverlay} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className={styles.modalPremium}>
+        
+        {/* Header Premium */}
+        <div className={styles.modalHeaderPremium}>
+          <h2 className={styles.modalTitlePremium}>
             <span className="material-icons">add_shopping_cart</span>
             Registrar Venta Manual
           </h2>
-          <button className={styles.closeButton} onClick={onClose} title="Cerrar">
+          <button className={styles.closeButtonPremium} onClick={onClose} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          {/* Indicador de pasos */}
-          <div className={styles.steps}>
+        {/* Body Premium */}
+        <div className={styles.modalBodyPremium}>
+          
+          {/* Stepper Premium */}
+          <div className={styles.stepperPremium}>
             {PASOS.map((label, idx) => (
               <React.Fragment key={idx}>
-                <div className={`${styles.stepItem}`}>
-                  <div className={`${styles.step} ${stepClass(idx)}`}>
-                    <div className={styles.stepNumber}>
-                      {idx < paso ? (
-                        <span className="material-icons" style={{ fontSize: 16 }}>
-                          check
-                        </span>
-                      ) : (
-                        idx + 1
-                      )}
-                    </div>
-                    <span className={styles.stepLabel}>{label}</span>
+                <div className={`${styles.stepItemPremium} ${paso === idx ? styles.stepActivePremium : ''} ${paso > idx ? styles.stepCompletedPremium : ''}`}>
+                  <div className={styles.stepCirclePremium}>
+                    {paso > idx ? <span className="material-icons" style={{ fontSize: '18px' }}>check</span> : idx + 1}
                   </div>
+                  <span className={styles.stepLabelPremium}>{label}</span>
                 </div>
-                {idx < PASOS.length - 1 && <div className={`${styles.stepConnector} ${connectorClass(idx)}`} />}
+                {idx < PASOS.length - 1 && (
+                  <div className={`${styles.stepLinePremium} ${paso > idx ? styles.stepLineActivePremium : ''}`} />
+                )}
               </React.Fragment>
             ))}
           </div>
 
           {/* ─── PASO 1: CLIENTE ───────────────────────────────────────── */}
           {paso === 0 && (
-            <div>
-              {/* Toggle mostrador */}
-              <button
+            <div style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div 
                 className={`${styles.toggleMostrador} ${esMostrador ? styles.toggleMostradorActive : ''}`}
                 onClick={toggleMostrador}
-                type="button"
+                style={{ 
+                  padding: '24px', 
+                  borderRadius: '16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '16px',
+                  cursor: 'pointer',
+                  border: '2px solid transparent',
+                  background: 'var(--background-secondary)',
+                  transition: 'all 0.3s ease',
+                  marginBottom: '24px'
+                }}
               >
-                <span className="material-icons">{esMostrador ? 'check_circle' : 'storefront'}</span>
-                Venta de mostrador (sin cliente registrado)
-              </button>
+                <div style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: esMostrador ? 'var(--color-primary)' : 'var(--border-color)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  color: esMostrador ? 'white' : 'var(--text-secondary)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <span className="material-icons" style={{ fontSize: '28px' }}>{esMostrador ? 'check_circle' : 'storefront'}</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '15px', color: esMostrador ? 'var(--color-primary)' : 'var(--text-primary)' }}>Venta de mostrador</p>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>Transacción rápida sin registro de cliente en base de datos</p>
+                </div>
+                <div style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  borderRadius: '50%', 
+                  border: '2px solid var(--border-color)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: esMostrador ? 'var(--color-primary)' : 'transparent',
+                  borderColor: esMostrador ? 'var(--color-primary)' : 'var(--border-color)'
+                }}>
+                  {esMostrador && <span className="material-icons" style={{ color: 'white', fontSize: '16px' }}>check</span>}
+                </div>
+              </div>
 
               {!esMostrador && (
-                <div style={{ marginTop: 'var(--spacing-md)' }}>
-                  {/* Cliente ya seleccionado */}
+                <div style={{ animation: 'slideDown 0.3s ease' }}>
+                  <span className={styles.sectionTitlePremium} style={{ marginBottom: '12px' }}>Identificar Cliente</span>
                   {clienteSeleccionado ? (
-                    <div className={styles.clienteSeleccionado}>
-                      <div className={styles.clienteSeleccionadoInfo}>
-                        <span className={styles.clienteSeleccionadoNombre}>
-                          {clienteSeleccionado.nombre_cliente} {clienteSeleccionado.apellido_cliente}
-                        </span>
-                        <span className={styles.clienteSeleccionadoEmail}>{clienteSeleccionado.correo}</span>
+                    <div style={{ padding: '20px', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-200)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                        <span className="material-icons">person</span>
                       </div>
-                      <button
-                        className={styles.clienteRemoveButton}
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: 0, fontWeight: 700, color: 'var(--color-primary)' }}>{clienteSeleccionado.nombre_cliente} {clienteSeleccionado.apellido_cliente}</p>
+                        <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>{clienteSeleccionado.correo}</p>
+                      </div>
+                      <button 
+                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
                         onClick={() => setClienteSeleccionado(null)}
-                        title="Quitar cliente"
                       >
                         <span className="material-icons">close</span>
                       </button>
                     </div>
                   ) : (
                     <>
-                      {/* Buscador de clientes */}
-                      <div className={styles.searchWrapper}>
+                      <div className={styles.searchWrapper} style={{ position: 'relative' }}>
                         <AdminSearch
                           value={busqCliente}
                           onChange={handleBusqClienteChange}
                           placeholder="Buscar cliente por nombre o correo..."
                           delay={400}
                         />
+                        {buscandoCliente && (
+                          <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+                            <span className="material-icons" style={{ animation: 'spin 1s linear infinite', fontSize: '20px', color: 'var(--color-primary)' }}>autorenew</span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Resultados */}
-                      {buscandoCliente && (
-                        <p
-                          style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', padding: '4px 0' }}
-                        >
-                          Buscando...
-                        </p>
-                      )}
                       {clientesEncontrados.length > 0 && (
-                        <div className={styles.clienteResults}>
+                        <div style={{ marginTop: '12px', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden', background: 'var(--background-secondary)' }}>
                           {clientesEncontrados.map((c) => (
                             <div
                               key={c.id_cliente}
-                              className={styles.clienteResultItem}
                               onClick={() => seleccionarCliente(c)}
+                              className={styles.clienteResultItem}
                             >
-                              <span className={styles.clienteResultNombre}>
-                                {c.nombre_cliente} {c.apellido_cliente}
-                              </span>
-                              <span className={styles.clienteResultEmail}>{c.correo}</span>
+                              <div style={{ textAlign: 'left' }}>
+                                <p style={{ margin: 0, fontWeight: 600, fontSize: '13px' }}>{c.nombre_cliente} {c.apellido_cliente}</p>
+                                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-muted)' }}>{c.correo}</p>
+                              </div>
+                              <span className="material-icons" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>arrow_forward</span>
                             </div>
                           ))}
                         </div>
-                      )}
-                      {busqCliente && !buscandoCliente && clientesEncontrados.length === 0 && (
-                        <p
-                          style={{
-                            color: 'var(--text-secondary)',
-                            fontSize: 'var(--font-size-sm)',
-                            fontStyle: 'italic',
-                          }}
-                        >
-                          Sin resultados para "{busqCliente}"
-                        </p>
                       )}
                     </>
                   )}
@@ -371,253 +377,219 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
 
           {/* ─── PASO 2: PRODUCTOS ────────────────────────────────────── */}
           {paso === 1 && (
-            <div>
-              {/* Buscador de productos */}
-              <div className={styles.searchWrapper} style={{ marginBottom: 'var(--spacing-sm)' }}>
-                <AdminSearch
-                  value={busqProducto}
-                  onChange={handleBusqProductoChange}
-                  placeholder="Buscar producto por nombre o código..."
-                  delay={400}
-                />
-              </div>
-
-              {buscandoProducto && (
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', padding: '4px 0' }}>
-                  Buscando...
-                </p>
-              )}
-
-              {productosEncontrados.length > 0 && (
-                <div className={styles.productosResults}>
-                  {productosEncontrados.map((p) => (
-                    <div
-                      key={p.id_producto}
-                      className={`${styles.productoResultItem} ${p.stock <= 0 ? '' : ''}`}
-                      onClick={() => agregarProducto(p)}
-                    >
-                      <div>
-                        <div className={styles.productoResultNombre}>{p.nombre}</div>
-                        <div className={styles.productoResultMeta}>
-                          <span>Cód: {p.codigo || '—'}</span>
-                          <span>Precio: {formatUSD(p.precio_venta)}</span>
-                          <span className={p.stock <= 0 ? styles.productoResultSinStock : ''}>Stock: {p.stock}</span>
-                        </div>
+            <div style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+                
+                {/* Columna Búsqueda */}
+                <div>
+                  <span className={styles.sectionTitlePremium} style={{ marginBottom: '12px' }}>Agregar Productos</span>
+                  <div className={styles.searchWrapper} style={{ position: 'relative', marginBottom: '16px' }}>
+                    <AdminSearch
+                      value={busqProducto}
+                      onChange={handleBusqProductoChange}
+                      placeholder="Nombre o código del producto..."
+                      delay={400}
+                    />
+                    {buscandoProducto && (
+                      <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+                        <span className="material-icons" style={{ animation: 'spin 1s linear infinite', fontSize: '20px', color: 'var(--color-primary)' }}>autorenew</span>
                       </div>
-                      <span className="material-icons" style={{ color: 'var(--color-primary)' }}>
-                        add_circle
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
-                <p
-                  style={{
-                    color: 'var(--text-secondary)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontStyle: 'italic',
-                    marginBottom: 'var(--spacing-sm)',
-                  }}
-                >
-                  Sin resultados para "{busqProducto}"
-                </p>
-              )}
-
-              {/* Lista de items agregados */}
-              {items.length > 0 && (
-                <div className={styles.itemsAgregados}>
-                  <div className={styles.itemsAgregadosHeader}>
-                    <span className={styles.itemsAgregadosTitle}>Productos ({items.length})</span>
+                    )}
                   </div>
 
-                  {items.map((item) => {
-                    return (
-                      <div key={item.id_producto} className={styles.itemRow}>
-                        <span className={styles.itemNombre}>{item.nombre}</span>
-
-                        {/* Controles de cantidad */}
-                        <div className={styles.itemCantidadControls}>
-                          <button
-                            className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, -1)}
-                            disabled={item.cantidad <= 1}
-                          >
-                            −
-                          </button>
-                          <span className={styles.cantidadValue}>{item.cantidad}</span>
-                          <button
-                            className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, 1)}
-                            disabled={item.cantidad >= item.stock}
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        {/* Precio fijo (solo lectura) */}
-                        <span className={styles.precioReadonly} title="Precio de catálogo">
-                          {formatUSD(item.precio_unitario)}
-                        </span>
-
-                        <span className={styles.itemSubtotal}>{formatUSD(item.subtotal)}</span>
-
-                        <button
-                          className={styles.itemRemoveButton}
-                          onClick={() => quitarProducto(item.id_producto)}
-                          title="Quitar producto"
+                  {productosEncontrados.length > 0 && (
+                    <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', overflowY: 'auto', maxHeight: '400px', background: 'var(--background-secondary)' }}>
+                      {productosEncontrados.map((p) => (
+                        <div
+                          key={p.id_producto}
+                          style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: p.stock > 0 ? 'pointer' : 'default', opacity: p.stock <= 0 ? 0.6 : 1 }}
+                          onClick={() => p.stock > 0 && agregarProducto(p)}
                         >
-                          <span className="material-icons">delete_outline</span>
-                        </button>
-                      </div>
-                    );
-                  })}
+                          <div style={{ flex: 1 }}>
+                            <p style={{ margin: 0, fontWeight: 600, fontSize: '13.5px' }}>{p.nombre}</p>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '2px' }}>
+                              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Cód: {p.codigo || '—'}</span>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-primary)' }}>{formatUSD(p.precio_venta)}</span>
+                              <span style={{ fontSize: '11px', color: p.stock <= 0 ? 'var(--color-error)' : 'var(--text-secondary)' }}>Stock: {p.stock}</span>
+                            </div>
+                          </div>
+                          {p.stock > 0 ? (
+                            <span className="material-icons" style={{ color: 'var(--color-primary)', fontSize: '24px' }}>add_circle</span>
+                          ) : (
+                            <span style={{ fontSize: '10px', color: 'var(--color-error)', fontWeight: 700, textTransform: 'uppercase' }}>Sin Stock</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-                  {/* Total */}
-                  <div className={styles.totalBar}>
-                    <span className={styles.totalLabel}>Total:</span>
-                    <span className={styles.totalValue}>{formatUSD(totalVenta)}</span>
+                {/* Columna Items Agregados */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '16px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
+                  <span className={styles.sectionTitlePremium} style={{ marginBottom: '16px' }}>Carrito de Venta ({items.length})</span>
+                  
+                  <div style={{ flex: 1, overflowY: 'auto', maxHeight: '350px', marginBottom: '20px' }}>
+                    {items.length === 0 ? (
+                      <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <span className="material-icons" style={{ fontSize: '40px', marginBottom: '12px', opacity: 0.3 }}>shopping_basket</span>
+                        <p style={{ margin: 0, fontSize: '13px' }}>Selecciona productos para iniciar la venta</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {items.map((item) => (
+                          <div key={item.id_producto} style={{ padding: '12px', background: 'var(--background-primary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                              <span style={{ fontWeight: 600, fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>{item.nombre}</span>
+                              <button style={{ background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer', padding: '0' }} onClick={() => quitarProducto(item.id_producto)}>
+                                <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
+                              </button>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--background-secondary)', borderRadius: '8px', padding: '2px' }}>
+                                <button style={{ width: '24px', height: '24px', border: 'none', background: 'var(--background-elevated)', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }} onClick={() => cambiarCantidad(item.id_producto, -1)} disabled={item.cantidad <= 1}>−</button>
+                                <span style={{ fontWeight: 700, fontSize: '13px', minWidth: '20px', textAlign: 'center' }}>{item.cantidad}</span>
+                                <button style={{ width: '24px', height: '24px', border: 'none', background: 'var(--background-elevated)', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }} onClick={() => cambiarCantidad(item.id_producto, 1)} disabled={item.cantidad >= item.stock}>+</button>
+                              </div>
+                              <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '14px' }}>{formatUSD(item.subtotal)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ paddingTop: '16px', borderTop: '2px dashed var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Subtotal USD</span>
+                      <span style={{ fontSize: '20px', fontWeight: 900 }}>{formatUSD(totalVenta)}</span>
+                    </div>
                   </div>
                 </div>
-              )}
-
-              {items.length === 0 && !busqProducto && (
-                <p
-                  style={{
-                    textAlign: 'center',
-                    color: 'var(--text-secondary)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontStyle: 'italic',
-                    padding: 'var(--spacing-xl) 0',
-                  }}
-                >
-                  Busca un producto para agregarlo a la venta
-                </p>
-              )}
+              </div>
             </div>
           )}
 
           {/* ─── PASO 3: PAGO ─────────────────────────────────────────── */}
           {paso === 2 && (
-            <div className={styles.pagoForm}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="metodo-pago">
-                    Método de pago *
-                  </label>
-                  <select
-                    id="metodo-pago"
-                    className={styles.select}
-                    value={metodoPago}
-                    onChange={(e) => setMetodoPago(e.target.value as typeof metodoPago)}
-                  >
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="qr">QR</option>
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="moneda">
-                    Moneda
-                  </label>
-                  <select
-                    id="moneda"
-                    className={styles.select}
-                    value={moneda}
-                    onChange={(e) => setMoneda(e.target.value as 'ARS' | 'USD')}
-                  >
-                    <option value="ARS">Pesos (ARS)</option>
-                    <option value="USD">Dólares (USD)</option>
-                  </select>
-                </div>
-              </div>
+            <div style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                
+                {/* Formulario de Pago */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <span className={styles.sectionTitlePremium}>Configuración del Pago</span>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div className={styles.formGroupPremium}>
+                      <label className={styles.formLabelPremium}>Método de Pago</label>
+                      <select 
+                        className={styles.formSelectPremium} 
+                        value={metodoPago} 
+                        onChange={(e) => setMetodoPago(e.target.value as any)}
+                      >
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="qr">QR</option>
+                      </select>
+                    </div>
+                    <div className={styles.formGroupPremium}>
+                      <label className={styles.formLabelPremium}>Moneda</label>
+                      <select 
+                        className={styles.formSelectPremium} 
+                        value={moneda} 
+                        onChange={(e) => setMoneda(e.target.value as any)}
+                      >
+                        <option value="ARS">Pesos (ARS)</option>
+                        <option value="USD">Dólares (USD)</option>
+                      </select>
+                    </div>
+                  </div>
 
-              {moneda === 'ARS' && (
-                <div className={styles.cotizacionAviso}>
-                  <span className="material-icons">info</span>
-                  Precios del catálogo en USD — cotización aplicada:&nbsp;
-                  <strong>1 USD = {tipoCambioUsd.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS</strong>
-                  <span className={styles.cotizacionAvisoSub}>
-                    Total en ARS: <strong>{formatARSNum(totalVenta * tipoCambioUsd)}</strong>
-                  </span>
-                </div>
-              )}
+                  {moneda === 'ARS' && (
+                    <div style={{ padding: '16px', background: 'var(--color-info-100)', borderRadius: '12px', border: '1px solid var(--color-info-200)', display: 'flex', gap: '12px' }}>
+                      <span className="material-icons" style={{ color: 'var(--color-info)', fontSize: '20px' }}>info</span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.4 }}>
+                          Conversión aplicada: <strong>1 USD = {tipoCambioUsd.toLocaleString('es-AR')} ARS</strong>
+                        </p>
+                        <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>Calculado según el tipo de cambio del sistema vigente hoy.</p>
+                      </div>
+                    </div>
+                  )}
 
-              <div className={styles.formGroup}>
-                <label className={styles.label} htmlFor="observaciones">
-                  Observaciones
-                </label>
-                <textarea
-                  id="observaciones"
-                  className={styles.textarea}
-                  placeholder="Notas adicionales sobre la venta (opcional)..."
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
-                  maxLength={500}
-                />
-              </div>
+                  <div className={styles.formGroupPremium}>
+                    <label className={styles.formLabelPremium}>Notas Internas</label>
+                    <textarea
+                      style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--background-primary)', minHeight: '100px', fontSize: '13.5px', color: 'var(--text-primary)', transition: 'border-color 0.2s', width: '100%' }}
+                      placeholder="Observaciones adicionales sobre la venta..."
+                      value={observaciones}
+                      onChange={(e) => setObservaciones(e.target.value)}
+                    />
+                  </div>
+                </div>
 
-              {/* Resumen */}
-              <div className={styles.resumenCard}>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Cliente</span>
-                  <span className={styles.resumenValue}>
-                    {esMostrador
-                      ? 'Mostrador (sin cliente)'
-                      : clienteSeleccionado
-                        ? `${clienteSeleccionado.nombre_cliente} ${clienteSeleccionado.apellido_cliente}`
-                        : '—'}
-                  </span>
-                </div>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Productos</span>
-                  <span className={styles.resumenValue}>{items.length} ítem(s)</span>
-                </div>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Método de pago</span>
-                  <span className={styles.resumenValue}>{adminVentaService.formatearMetodoPago(metodoPago)}</span>
-                </div>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Moneda</span>
-                  <span className={styles.resumenValue}>{moneda}</span>
-                </div>
-                <div className={`${styles.resumenRow} ${styles.resumenTotal}`}>
-                  <span className={styles.resumenLabel}>Total</span>
-                  <span className={styles.resumenValue}>
-                    {moneda === 'ARS' ? formatARSNum(totalDisplay) : formatUSD(totalDisplay)}
-                  </span>
+                {/* Resumen Final */}
+                <div style={{ padding: '24px', background: 'var(--background-secondary)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium} style={{ marginBottom: '20px' }}>Resumen de Confirmación</span>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Cliente</span>
+                      <span className={styles.detalleValuePremium}>{esMostrador ? 'Mostrador (Final)' : `${clienteSeleccionado?.nombre_cliente} ${clienteSeleccionado?.apellido_cliente}`}</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Productos</span>
+                      <span className={styles.detalleValuePremium}>{items.length} ítem(s) agregados</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Forma de Pago</span>
+                      <span className={styles.detalleValuePremium} style={{ textTransform: 'capitalize' }}>{metodoPago}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '24px', background: 'var(--background-primary)', borderRadius: '12px', border: '2px solid var(--color-primary-100)', textAlign: 'center' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>Total a Cobrar</span>
+                    <span style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-primary)' }}>
+                      {moneda === 'ARS' ? formatARSNum(totalDisplay) : formatUSD(totalDisplay)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Pie */}
-        <div className={`${styles.modalFooter} ${styles.modalFooterLeft}`}>
-          {/* Izquierda: botón atrás o cancelar */}
+        {/* Footer Premium */}
+        <div className={styles.modalFooterPremium}>
           {paso > 0 ? (
-            <button className={styles.backButton} onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
+            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
               <span className="material-icons">arrow_back</span>
               Atrás
             </button>
           ) : (
-            <button className={styles.cancelButton} onClick={onClose}>
+            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={enviando}>
               Cancelar
             </button>
           )}
 
-          {/* Derecha: siguiente o confirmar */}
           {paso < PASOS.length - 1 ? (
-            <button className={styles.nextButton} onClick={() => setPaso((p) => p + 1)} disabled={!puedeAvanzar()}>
-              Siguiente
+            <button 
+              className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} 
+              onClick={() => setPaso((p) => p + 1)} 
+              disabled={!puedeAvanzar()}
+            >
+              Siguiente Paso
               <span className="material-icons">arrow_forward</span>
             </button>
           ) : (
-            <button className={styles.submitButton} onClick={handleConfirmar} disabled={enviando}>
-              <span className="material-icons">check_circle</span>
-              {enviando ? 'Registrando...' : 'Confirmar Venta'}
+            <button 
+              className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} 
+              onClick={handleConfirmar} 
+              disabled={enviando}
+              style={{ paddingLeft: '32px', paddingRight: '32px' }}
+            >
+              <span className="material-icons">{enviando ? 'hourglass_empty' : 'check_circle'}</span>
+              {enviando ? 'Registrando...' : 'Finalizar Venta'}
             </button>
           )}
         </div>

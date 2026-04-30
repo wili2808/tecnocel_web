@@ -58,60 +58,70 @@ const CancelacionModal: React.FC<CancelacionModalProps> = ({ idVenta, nroVenta, 
         if (e.target === e.currentTarget && !procesando) onClose();
       }}
     >
-      <div className={styles.modal}>
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">cancel</span>
-            Cancelar Venta {nroVenta}
+      <div className={styles.modalPremium} style={{ maxWidth: '450px' }}>
+        
+        {/* Header Premium */}
+        <div className={styles.modalHeaderPremium}>
+          <h2 className={styles.modalTitlePremium} style={{ color: 'var(--color-error)' }}>
+            <span className="material-icons">warning_amber</span>
+            Confirmar Anulación
           </h2>
-          <button className={styles.closeButton} onClick={onClose} disabled={procesando} title="Cerrar">
+          <button className={styles.closeButtonPremium} onClick={onClose} disabled={procesando} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          <p
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--color-warning, #f59e0b)',
-              marginBottom: '16px',
-            }}
-          >
-            <span className="material-icons">warning</span>
-            Esta acción cancelará la venta y restaurará el stock de los productos. No se puede deshacer.
-          </p>
+        {/* Body Premium */}
+        <div className={styles.modalBodyPremium}>
+          <div style={{ marginBottom: '20px', padding: '16px', background: 'var(--color-error-100)', borderRadius: '12px', border: '1px solid var(--color-error-200)', display: 'flex', gap: '12px' }}>
+            <span className="material-icons" style={{ color: 'var(--color-error)', fontSize: '24px' }}>report_problem</span>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+              Estás por anular la venta <strong>{nroVenta}</strong>. Esta acción restaurará el stock de los productos automáticamente y **no se puede deshacer**.
+            </p>
+          </div>
 
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-            Motivo de cancelación <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(opcional)</span>
-          </label>
-          <textarea
-            className={styles.textarea}
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-            placeholder="Ej: Error en el pedido, devolución solicitada por el cliente..."
-            maxLength={300}
-            rows={3}
-            disabled={procesando}
-          />
-          <p style={{ textAlign: 'right', fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-            {motivo.length}/300
-          </p>
+          <div className={styles.formGroupPremium}>
+            <label className={styles.formLabelPremium}>Motivo de la Anulación <span style={{ fontWeight: 400 }}>(opcional)</span></label>
+            <textarea
+              style={{ 
+                padding: '12px', 
+                borderRadius: '12px', 
+                border: '1.5px solid var(--border-color)', 
+                background: 'var(--background-primary)', 
+                minHeight: '100px', 
+                fontSize: '13.5px', 
+                color: 'var(--text-primary)', 
+                transition: 'border-color 0.2s', 
+                width: '100%',
+                resize: 'none'
+              }}
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              placeholder="Ej: Error en el pedido, duplicado, etc..."
+              maxLength={300}
+              disabled={procesando}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{motivo.length}/300 caracteres</span>
+            </div>
+          </div>
         </div>
 
-        {/* Pie */}
-        <div className={`${styles.modalFooter} ${styles.modalFooterLeft}`}>
-          <button className={styles.dangerButton} onClick={handleConfirmar} disabled={procesando}>
-            <span className="material-icons">cancel</span>
-            {procesando ? 'Cancelando...' : 'Cancelar Venta'}
-          </button>
-          <button className={styles.cancelButton} onClick={onClose} disabled={procesando}>
+        {/* Footer Premium */}
+        <div className={styles.modalFooterPremium}>
+          <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={procesando}>
             Volver
           </button>
+          <button 
+            className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+            onClick={handleConfirmar} 
+            disabled={procesando}
+          >
+            <span className="material-icons">{procesando ? 'hourglass_empty' : 'delete_forever'}</span>
+            {procesando ? 'Procesando...' : 'Confirmar Anulación'}
+          </button>
         </div>
+
       </div>
     </div>
   );

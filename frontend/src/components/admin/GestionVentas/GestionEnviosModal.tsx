@@ -90,26 +90,24 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
   const indiceActual = ESTADOS_ORDEN.indexOf(envio.estado_envio);
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`${styles.modal} ${styles.modalLarge}`}>
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
+    <div className={styles.modalOverlayPremium} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.modalPremium} style={{ maxWidth: '850px' }}>
+        {/* Header Premium */}
+        <div className={styles.modalHeaderPremium}>
+          <h2 className={styles.modalTitlePremium}>
             <span className="material-icons">local_shipping</span>
             Envío #{envio.nro_venta}
             <span className={`${styles.estadoBadge} ${ESTADO_COLORS[envio.estado_envio]}`}>
               {ESTADO_ENVIO_LABELS[envio.estado_envio]}
             </span>
           </h2>
-          <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons" style={{ fontSize: 18 }}>
-              close
-            </span>
+          <button className={styles.closeButtonPremium} onClick={onClose} aria-label="Cerrar">
+            <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Body */}
-        <div className={styles.modalBody}>
+        {/* Body Premium */}
+        <div className={styles.modalBodyPremium}>
           {/* Stepper */}
           <div className={styles.envioStepper}>
             {ESTADOS_ORDEN.map((estado, idx) => {
@@ -144,103 +142,103 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
           {cargando ? (
             <div className={styles.loadingMsg}>Cargando detalle...</div>
           ) : detalle ? (
-            <>
-              {/* Info del envío */}
-              <div className={styles.detalleGrid}>
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Cliente</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Nombre</span>
-                    <span className={styles.detalleRowValue}>{detalle.nombre_cliente ?? '—'}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Email</span>
-                    <span className={styles.detalleRowValue}>{detalle.email_cliente ?? '—'}</span>
-                  </div>
-                  {detalle.envio_telefono_contacto && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Teléfono</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_telefono_contacto}</span>
+              <>
+              {/* Detalle Premium Organizado */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                
+                {/* Card Cliente */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium}>Información del Cliente</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Nombre</span>
+                      <span className={styles.detalleValuePremium}>{detalle.nombre_cliente ?? '—'}</span>
                     </div>
-                  )}
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Email</span>
+                      <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)' }}>{detalle.email_cliente ?? '—'}</span>
+                    </div>
+                    {detalle.envio_telefono_contacto && (
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Teléfono</span>
+                        <span className={styles.detalleValuePremium}>{detalle.envio_telefono_contacto}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Dirección de entrega</h3>
-                  {detalle.envio_nombre_direccion && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Alias</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_nombre_direccion}</span>
+                {/* Card Entrega */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium}>Dirección de Entrega</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Ubicación</span>
+                      <span className={styles.detalleValuePremium}>
+                        {[detalle.envio_calle, detalle.envio_numero].filter(Boolean).join(' ') || '—'}
+                        {detalle.envio_piso && `, Piso ${detalle.envio_piso}`}
+                        {detalle.envio_departamento && ` Dto. ${detalle.envio_departamento}`}
+                      </span>
                     </div>
-                  )}
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Dirección</span>
-                    <span className={styles.detalleRowValue}>
-                      {[detalle.envio_calle, detalle.envio_numero].filter(Boolean).join(' ') || '—'}
-                      {detalle.envio_piso && `, Piso ${detalle.envio_piso}`}
-                      {detalle.envio_departamento && ` Dto. ${detalle.envio_departamento}`}
-                    </span>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Ciudad/Prov.</span>
+                      <span className={styles.detalleValuePremium}>
+                        {[detalle.envio_ciudad, detalle.envio_provincia].filter(Boolean).join(', ') || '—'}
+                      </span>
+                    </div>
+                    {detalle.envio_referencia && (
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Referencia</span>
+                        <span className={styles.detalleValuePremium} style={{ fontSize: '12px', fontStyle: 'italic' }}>"{detalle.envio_referencia}"</span>
+                      </div>
+                    )}
                   </div>
-                  {detalle.envio_barrio && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Barrio</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_barrio}</span>
-                    </div>
-                  )}
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Ciudad</span>
-                    <span className={styles.detalleRowValue}>
-                      {[detalle.envio_ciudad, detalle.envio_provincia].filter(Boolean).join(', ') || '—'}
-                      {detalle.envio_codigo_postal && ` (CP ${detalle.envio_codigo_postal})`}
-                    </span>
-                  </div>
-                  {detalle.envio_referencia && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Referencia</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_referencia}</span>
-                    </div>
-                  )}
                 </div>
 
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Datos de la venta</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Fecha</span>
-                    <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_venta)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Total</span>
-                    <span className={styles.detalleRowValue}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Pago</span>
-                    <span className={styles.detalleRowValue}>{detalle.metodo_pago}</span>
-                  </div>
-                  {detalle.fyh_despacho && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Despachado</span>
-                      <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_despacho)}</span>
+                {/* Card Operación */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium}>Datos de la Operación</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Fecha Venta</span>
+                      <span className={styles.detalleValuePremium}>{formatFecha(detalle.fyh_venta)}</span>
                     </div>
-                  )}
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Total Pagado</span>
+                      <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)', fontWeight: 800 }}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Método Pago</span>
+                      <span className={styles.detalleValuePremium}>{detalle.metodo_pago}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Seguimiento</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Estado</span>
-                    <span className={styles.detalleRowValue}>{ESTADO_ENVIO_LABELS[detalle.estado_envio]}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Nro. seguimiento</span>
-                    <span className={styles.detalleRowValue}>
-                      {detalle.nro_seguimiento ?? <em className={styles.sinDatos}>Sin asignar</em>}
-                    </span>
+                {/* Card Seguimiento */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium}>Estado y Seguimiento</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Estado Envío</span>
+                      <span className={styles.detalleValuePremium}>{ESTADO_ENVIO_LABELS[detalle.estado_envio]}</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Nro. Seguimiento</span>
+                      <span className={styles.detalleValuePremium}>
+                        {detalle.nro_seguimiento ?? <em style={{ opacity: 0.5, fontWeight: 400 }}>Sin asignar</em>}
+                      </span>
+                    </div>
+                    {detalle.fyh_despacho && (
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Fecha Despacho</span>
+                        <span className={styles.detalleValuePremium}>{formatFecha(detalle.fyh_despacho)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Productos */}
-              <h4 className={styles.itemsTitle}>Productos del pedido</h4>
+              <h4 className={styles.sectionTitlePremium} style={{ marginTop: '24px' }}>Productos del pedido</h4>
               <table className={styles.itemsTable}>
                 <thead>
                   <tr>
@@ -276,8 +274,8 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
               {!esEntregado && siguienteEstado && (
                 <div className={styles.envioAccionPanel}>
                   {!confirmando ? (
-                    <button className={styles.submitButton} onClick={() => setConfirmando(true)}>
-                      <span className="material-icons" style={{ fontSize: 16 }}>
+                    <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={() => setConfirmando(true)}>
+                      <span className="material-icons" style={{ fontSize: 18 }}>
                         arrow_forward
                       </span>
                       Avanzar a "{ESTADO_ENVIO_LABELS[siguienteEstado]}"
@@ -317,14 +315,14 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
                       <div className={styles.envioConfirmarBtns}>
                         <button
-                          className={styles.cancelButton}
+                          className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
                           onClick={() => setConfirmando(false)}
                           disabled={guardando}
                         >
                           Cancelar
                         </button>
                         <button
-                          className={styles.submitButton}
+                          className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`}
                           onClick={handleAvanzar}
                           disabled={guardando || (siguienteEstado === 'en_camino' && !nroSeguimiento.trim())}
                         >
@@ -341,9 +339,9 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
           )}
         </div>
 
-        {/* Footer */}
-        <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
+        {/* Footer Premium */}
+        <div className={styles.modalFooterPremium}>
+          <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose}>
             Cerrar
           </button>
         </div>

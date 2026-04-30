@@ -720,12 +720,12 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
           </div>
         </div>
 
-        <div className={styles.modalFooter}>
+        <div className={styles.modalFooterPremium}>
           {modoEdicion && puedeEliminar && (
             <button 
               type="button" 
-              className={styles.cancelButton} 
-              style={{ marginRight: 'auto', color: 'var(--color-error)', borderColor: 'var(--color-error)' }}
+              className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+              style={{ marginRight: 'auto' }}
               onClick={() => setShowConfirmDelete(true)}
               disabled={guardando}
             >
@@ -733,12 +733,12 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
               Eliminar Producto
             </button>
           )}
-          <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
+          <button type="button" className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
             Cancelar
           </button>
           {!readonly && (
-            <button type="submit" form="product-form" className={styles.saveButton} disabled={guardando}>
-              <span className="material-icons">{guardando ? 'sync' : 'save'}</span>
+            <button type="submit" form="product-form" className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} disabled={guardando}>
+              <span className="material-icons" style={{ fontSize: 18 }}>{guardando ? 'sync' : 'save'}</span>
               {guardando ? 'Procesando...' : 'Guardar Cambios'}
             </button>
           )}
@@ -752,11 +752,10 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                   <h4 style={{ margin: '0 0 10px' }}>¿Confirmar eliminación?</h4>
                   <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Esta acción borrará permanentemente el producto del catálogo.</p>
                 </div>
-                <div className={styles.modalFooter}>
-                  <button className={styles.cancelButton} onClick={() => setShowConfirmDelete(false)}>Cancelar</button>
+                <div className={styles.modalFooterPremium}>
+                  <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={() => setShowConfirmDelete(false)}>Cancelar</button>
                   <button 
-                    className={styles.saveButton} 
-                    style={{ background: 'var(--color-error)' }}
+                    className={`${styles.btnPremium} ${styles.btnDangerSolidPremium}`} 
                     onClick={handleEliminar}
                     disabled={eliminando}
                   >

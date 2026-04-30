@@ -143,7 +143,7 @@ const GestionOfertas = () => {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre_oferta', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: ITEMS_PER_PAGE });
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nombre_oferta', 'tipo_descuento', 'valor_descuento', 'fecha_inicio', 'fecha_fin', 'productos', 'activo', 'acciones'
+    'nombre_oferta', 'tipo_descuento', 'valor_descuento', 'fecha_inicio', 'fecha_fin', 'productos', 'activo'
   ]);
 
   // 1. Filtrar por búsqueda y estado
@@ -190,16 +190,14 @@ const GestionOfertas = () => {
     cargarOfertas();
   }, [cargarOfertas]);
 
-
-
-  const handleEditar = useCallback(async (id: number) => {
+  const handleEditarOferta = useCallback(async (oferta: OfertaConConteo) => {
     if (!puedeEditar) {
       showNotification('No tienes permisos para editar ofertas', 'error');
       return;
     }
     try {
-      const oferta = await adminOfertaService.obtenerOferta(id);
-      setEditandoOferta(oferta);
+      const data = await adminOfertaService.obtenerOferta(oferta.id_oferta);
+      setEditandoOferta(data);
       setModoModal('editar');
       setShowCrearForm(true);
     } catch {
@@ -207,7 +205,7 @@ const GestionOfertas = () => {
     }
   }, [puedeEditar, showNotification]);
 
-  const handleEliminar = useCallback(async (id: number, nombre: string) => {
+  const handleEliminarOferta = useCallback(async (id: number, nombre: string) => {
     if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar ofertas', 'error');
       return;
@@ -220,6 +218,8 @@ const GestionOfertas = () => {
     try {
       await adminOfertaService.eliminarOferta(id);
       showNotification('Oferta desactivada exitosamente', 'success');
+      setShowCrearForm(false);
+      setEditandoOferta(null);
       cargarOfertas();
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar oferta', 'error');
@@ -307,36 +307,8 @@ const GestionOfertas = () => {
           </span>
         );
       }
-    },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: (info) => {
-        const oferta = info.row.original;
-        return (
-          <div className={styles.actions}>
-            <button
-              className={styles.actionButton}
-              title={!puedeEditar ? 'Sin permisos para editar ofertas' : 'Editar'}
-              onClick={() => handleEditar(oferta.id_oferta)}
-              disabled={!puedeEditar}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-            <button
-              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-              title={!puedeEliminar ? 'Sin permisos para eliminar ofertas' : 'Desactivar'}
-              onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
-              disabled={!puedeEliminar}
-            >
-              <span className="material-icons">delete</span>
-            </button>
-          </div>
-        );
-      }
     }
-  ], [handleEditar, handleEliminar, puedeEditar, puedeEliminar]);
+  ], []);
 
   const table = useReactTable({
     data: filteredOfertas,
@@ -492,7 +464,11 @@ const GestionOfertas = () => {
                     </tr>
                   ) : (
                     table.getRowModel().rows.map((row) => (
-                      <tr key={row.id}>
+                      <tr 
+                        key={row.id}
+                        onClick={() => handleEditarOferta(row.original)}
+                        className={styles.clickableRow}
+                      >
                         {row.getVisibleCells().map(cell => (
                           <td key={cell.id} className={cell.column.id === 'valor_descuento' ? styles.valorCell : undefined}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -533,33 +509,14 @@ const GestionOfertas = () => {
 
       {/* Modal para crear/editar oferta */}
       {showCrearForm && (
-        <div className={styles.modalOverlay} onClick={handleCancelar}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                <span className="material-icons">
-                  {modoModal === 'crear' ? 'add_box' : 'edit'}
-                </span>
-                {modoModal === 'crear' ? 'Nueva Oferta' : 'Editar Oferta'}
-              </h3>
-              <button className={styles.closeButton} onClick={handleCancelar}>
-                <span className="material-icons">close</span>
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <OfertaForm
-                modo={modoModal}
-                oferta={editandoOferta}
-                onGuardado={handleGuardado}
-                onCancelar={handleCancelar}
-                isModal={true}
-              />
-            </div>
-
-            <div className={styles.modalFooter}></div>
-          </div>
-        </div>
+        <OfertaForm
+          oferta={editandoOferta}
+          onCancelar={handleCancelar}
+          onGuardado={handleGuardado}
+          onEliminar={editandoOferta ? () => handleEliminarOferta(editandoOferta.id_oferta, editandoOferta.nombre_oferta) : undefined}
+          modo={modoModal}
+          isModal={true}
+        />
       )}
     </div>
   );

@@ -139,249 +139,194 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
   return (
     <>
-      <div
-        className={styles.modalOverlay}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
-        <div className={styles.modal}>
-          {/* Encabezado */}
-          <div className={styles.modalHeader}>
-            <h2 className={styles.modalTitle}>
-              <span className="material-icons">receipt_long</span>
-              {detalle ? detalle.nro_venta : `Venta #${idVenta}`}
-              {detalle && (
-                <span className={styles.modalHeaderBadges}>
-                  <span className={`${styles.badge} ${getBadgeTipo(detalle.tipo_venta)}`}>
-                    {adminVentaService.formatearTipoVenta(detalle.tipo_venta)}
-                  </span>
-                  <span className={`${styles.badge} ${getBadgeEstado(detalle.estado)}`}>
-                    {adminVentaService.formatearEstado(detalle.estado)}
-                  </span>
-                </span>
-              )}
-            </h2>
-            <button className={styles.closeButton} onClick={onClose} title="Cerrar">
+      <div className={styles.modalOverlay} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className={styles.modalPremium}>
+          
+          {/* Header Premium */}
+          <div className={styles.modalHeaderPremium}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>Documento de Venta</span>
+              <h2 className={styles.modalTitlePremium} style={{ fontSize: '24px', color: 'var(--color-primary)' }}>
+                {detalle ? detalle.nro_venta : `Venta #${idVenta}`}
+                {detalle && (
+                  <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
+                    <span className={`${styles.badge} ${getBadgeTipo(detalle.tipo_venta)}`} style={{ margin: 0 }}>
+                      {adminVentaService.formatearTipoVenta(detalle.tipo_venta)}
+                    </span>
+                    <span className={`${styles.badge} ${getBadgeEstado(detalle.estado)}`} style={{ margin: 0 }}>
+                      {adminVentaService.formatearEstado(detalle.estado)}
+                    </span>
+                  </div>
+                )}
+              </h2>
+            </div>
+            <button className={styles.closeButtonPremium} onClick={onClose} title="Cerrar">
               <span className="material-icons">close</span>
             </button>
           </div>
 
-          {/* Cuerpo */}
-          <div className={styles.modalBody}>
+          {/* Body Premium */}
+          <div className={styles.modalBodyPremium}>
             {cargando ? (
-              <div className={styles.loading}>
-                <span className="material-icons">hourglass_empty</span>
-                Cargando detalle...
+              <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <span className="material-icons" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>hourglass_empty</span>
+                <p>Cargando información detallada de la venta...</p>
               </div>
             ) : !detalle ? (
-              <div className={styles.error}>
-                <span className="material-icons">error_outline</span>
-                No se pudo cargar el detalle de la venta.
+              <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-error)' }}>
+                <span className="material-icons" style={{ fontSize: '48px', marginBottom: '16px' }}>error_outline</span>
+                <p>No se pudo recuperar el detalle de la venta.</p>
               </div>
             ) : (
               <>
-                {/* Grilla info */}
-                <div className={styles.detalleGrid}>
-                  {/* Columna izq: cliente */}
-                  <div className={styles.detalleSection}>
-                    <p className={styles.detalleSectionTitle}>Cliente</p>
+                {/* Contexto de la Transacción */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                  
+                  {/* Bloque Cliente */}
+                  <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <span className={styles.sectionTitlePremium} style={{ marginBottom: '12px' }}>Información del Cliente</span>
                     {detalle.cliente ? (
-                      <>
-                        <div className={styles.detalleRow}>
-                          <span className={styles.detalleRowLabel}>Nombre</span>
-                          <span className={styles.detalleRowValue}>
-                            {detalle.cliente.nombre_cliente} {detalle.cliente.apellido_cliente}
-                          </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div className={styles.detalleRowPremium}>
+                          <span className={styles.detalleLabelPremium}>Nombre</span>
+                          <span className={styles.detalleValuePremium}>{detalle.cliente.nombre_cliente} {detalle.cliente.apellido_cliente}</span>
                         </div>
-                        <div className={styles.detalleRow}>
-                          <span className={styles.detalleRowLabel}>Correo</span>
-                          <span className={styles.detalleRowValue}>{detalle.cliente.correo}</span>
+                        <div className={styles.detalleRowPremium}>
+                          <span className={styles.detalleLabelPremium}>Correo</span>
+                          <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)' }}>{detalle.cliente.correo}</span>
                         </div>
-                      </>
+                      </div>
                     ) : (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>—</span>
-                        <span className={`${styles.detalleRowValue} ${styles.sinCliente}`}>
-                          Venta de mostrador (sin cliente registrado)
-                        </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', padding: '8px 0' }}>
+                        <span className="material-icons" style={{ fontSize: '20px' }}>storefront</span>
+                        <span style={{ fontSize: '13px', fontWeight: 600 }}>Venta de mostrador (Sin registro)</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Columna der: metadatos */}
-                  <div className={styles.detalleSection}>
-                    <p className={styles.detalleSectionTitle}>Datos de la venta</p>
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Fecha</span>
-                      <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_creacion)}</span>
+                  {/* Bloque Metadatos */}
+                  <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <span className={styles.sectionTitlePremium} style={{ marginBottom: '12px' }}>Datos de la Operación</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Fecha / Hora</span>
+                        <span className={styles.detalleValuePremium}>{formatFecha(detalle.fyh_creacion)}</span>
+                      </div>
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Método de Pago</span>
+                        <span className={styles.detalleValuePremium}>{detalle.metodo_pago}</span>
+                      </div>
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Moneda</span>
+                        <span className={styles.detalleValuePremium}>ARS ($)</span>
+                      </div>
+                      <div className={styles.detalleRowPremium} style={{ gap: '16px' }}>
+                        <span className={styles.detalleLabelPremium}>Tipo de Entrega</span>
+                        <span className={styles.detalleValuePremium} style={{ textAlign: 'right' }}>{detalle.envio?.tipo_entrega || '—'}</span>
+                      </div>
                     </div>
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Método pago</span>
-                      <span className={styles.detalleRowValue}>
-                        {adminVentaService.formatearMetodoPago(detalle.metodo_pago)}
-                      </span>
-                    </div>
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Moneda</span>
-                      <span className={styles.detalleRowValue}>{detalle.moneda || 'ARS'}</span>
-                    </div>
-                    {detalle.envio?.fyh_despacho && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Despachado</span>
-                        <span className={styles.detalleRowValue}>{formatFecha(detalle.envio.fyh_despacho)}</span>
-                      </div>
-                    )}
-                    {detalle.envio && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Entrega</span>
-                        <span className={styles.detalleRowValue}>
-                          {detalle.envio.tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda'}
-                        </span>
-                      </div>
-                    )}
-                    {detalle.estado_reembolso && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Reembolso</span>
-                        <span className={styles.detalleRowValue} style={{ textTransform: 'capitalize' }}>
-                          {detalle.estado_reembolso.replace('_', ' ')}
-                        </span>
-                      </div>
-                    )}
-                    {detalle.vendedor && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Vendedor</span>
-                        <span className={styles.detalleRowValue}>{detalle.vendedor.nombres}</span>
-                      </div>
-                    )}
-                    {detalle.observaciones && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Observaciones</span>
-                        <span className={`${styles.detalleRowValue} ${styles.detalleObservaciones}`}>
-                          {detalle.observaciones}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Sección de cancelación (solo si fue cancelada) */}
+                {/* Info de Cancelación si aplica */}
                 {detalle.estado === 'cancelada' && detalle.cancelacion && (
-                  <div className={styles.contenedorDetalleCancelacion}>
-                    <p className={styles.tituloCancelacion}>
-                      <span className="material-icons" style={{ fontSize: '18px' }}>
-                        cancel
-                      </span>
-                      Cancelación
-                    </p>
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Cancelado el</span>
-                      <span className={styles.detalleRowValue}>{formatFecha(detalle.cancelacion.fyh_cancelacion)}</span>
+                  <div style={{ marginBottom: '32px', padding: '20px', background: 'var(--color-error-100)', borderRadius: '12px', border: '1px solid var(--color-error-200)' }}>
+                    <span className={styles.sectionTitlePremium} style={{ color: 'var(--color-error)', marginBottom: '12px' }}>Registro de Cancelación</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', opacity: 0.8 }}>RESPONSABLE</p>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>{detalle.cancelacion.cancelado_por || 'Sistema'}</p>
+                        <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>{formatFecha(detalle.cancelacion.fyh_cancelacion)}</p>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', opacity: 0.8 }}>MOTIVO</p>
+                        <p style={{ margin: 0, fontSize: '13.5px', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
+                          "{detalle.cancelacion.motivo || 'No especificado'}"
+                        </p>
+                      </div>
                     </div>
-                    {detalle.cancelacion.cancelado_por && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Por</span>
-                        <span className={styles.detalleRowValue}>{detalle.cancelacion.cancelado_por}</span>
-                      </div>
-                    )}
-                    {detalle.cancelacion.motivo && (
-                      <div className={styles.detalleRow}>
-                        <span className={styles.detalleRowLabel}>Motivo</span>
-                        <span className={`${styles.detalleRowValue} ${styles.detalleObservaciones}`}>
-                          {detalle.cancelacion.motivo}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 )}
 
-                {/* Tabla de items */}
-                <p className={styles.itemsTitle}>Productos ({detalle.items.length})</p>
-                <table className={styles.itemsTable}>
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Código</th>
-                      <th className={styles.textRight}>Cant.</th>
-                      <th className={styles.textRight}>Precio unit.</th>
-                      <th className={styles.textRight}>Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detalle.items.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.nombre_producto}</td>
-                        <td>{item.codigo || '—'}</td>
-                        <td className={styles.textRight}>{item.cantidad}</td>
-                        <td className={styles.textRight}>{formatMonto(item.precio_unitario)}</td>
-                        <td className={styles.textRight}>{formatMonto(item.subtotal)}</td>
-                      </tr>
-                    ))}
-                    <tr className={styles.totalRow}>
-                      <td colSpan={4}>Total</td>
-                      <td className={styles.textRight}>{formatMonto(total)}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                {/* Tabla de Productos */}
+                <div style={{ marginBottom: '24px' }}>
+                  <span className={styles.sectionTitlePremium} style={{ marginBottom: '16px' }}>Detalle de Productos ({detalle.items.length})</span>
+                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
+                    <table className={styles.table} style={{ margin: 0 }}>
+                      <thead>
+                        <tr>
+                          <th>Producto</th>
+                          <th>Código</th>
+                          <th style={{ textAlign: 'right' }}>Cant.</th>
+                          <th style={{ textAlign: 'right' }}>P. Unit.</th>
+                          <th style={{ textAlign: 'right' }}>Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detalle.items.map((item, idx) => (
+                          <tr key={idx}>
+                            <td style={{ fontWeight: 600 }}>{item.nombre_producto}</td>
+                            <td style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{item.codigo || '—'}</td>
+                            <td style={{ textAlign: 'right' }}>{item.cantidad}</td>
+                            <td style={{ textAlign: 'right' }}>{formatMonto(item.precio_unitario)}</td>
+                            <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--color-primary)' }}>{formatMonto(item.subtotal)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Resumen Total */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ padding: '16px 24px', background: 'var(--background-secondary)', borderRadius: '16px', border: '1px solid var(--border-color)', display: 'inline-block' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total de la Venta</span>
+                      <span style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-1px' }}>{formatMonto(total)}</span>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>
 
-          {/* Pie */}
-          <div className={`${styles.modalFooter} ${puedeCancelar ? styles.modalFooterLeft : ''}`}>
-            <button
-              className={styles.dangerButton}
-              onClick={() => setMostrarCancelacionModal(true)}
-              disabled={!puedeCancelar || detalle?.estado === 'cancelada'}
-              title={
-                !puedeCancelar
-                  ? 'Sin permisos para cancelar ventas'
-                  : detalle?.estado === 'cancelada'
-                    ? 'La venta ya está cancelada'
-                    : 'Cancelar venta'
-              }
-            >
-              <span className="material-icons">cancel</span>
-              Cancelar Venta
-            </button>
-            <div className={styles.modalFooterActions}>
-              {detalle && !cargando && (
-                <>
-                  <button
-                    className={styles.comprobanteButton}
-                    onClick={handleDescargar}
-                    disabled={descargando || detalle.estado === 'cancelada' || !puedeDescargarPdf}
-                    title={
-                      !puedeDescargarPdf
-                        ? 'Sin permisos para descargar PDF'
-                        : detalle.estado === 'cancelada'
-                          ? 'No se puede descargar PDF de una venta cancelada'
-                          : 'Descargar comprobante en PDF'
-                    }
-                  >
-                    <span className="material-icons">{descargando ? 'hourglass_empty' : 'download'}</span>
-                    {descargando ? 'Descargando...' : 'Descargar PDF'}
-                  </button>
-                  {detalle.cliente?.correo && (
-                    <button
-                      className={styles.comprobanteButton}
-                      onClick={handleEnviarEmail}
-                      disabled={enviando || detalle.estado === 'cancelada' || !puedeEnviarEmail}
-                      title={
-                        !puedeEnviarEmail
-                          ? 'Sin permisos para enviar email'
-                          : detalle.estado === 'cancelada'
-                            ? 'No se puede enviar email de una venta cancelada'
-                            : `Enviar comprobante a ${detalle.cliente.correo}`
-                      }
-                    >
-                      <span className="material-icons">{enviando ? 'hourglass_empty' : 'email'}</span>
-                      {enviando ? 'Enviando...' : 'Enviar email'}
-                    </button>
-                  )}
-                </>
+          {/* Footer Premium Organizado */}
+          <div className={styles.modalFooterPremium}>
+            {puedeCancelar && (
+              <button 
+                className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+                onClick={() => setMostrarCancelacionModal(true)}
+                style={{ marginRight: 'auto' }}
+              >
+                <span className="material-icons">cancel</span>
+                Anular Venta
+              </button>
+            )}
+
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              {puedeDescargarPdf && (
+                <button 
+                  className={`${styles.btnPremium} ${styles.btnOutlinePremium}`} 
+                  onClick={handleDescargar}
+                  disabled={descargando}
+                >
+                  <span className="material-icons">{descargando ? 'hourglass_empty' : 'file_download'}</span>
+                  Comprobante PDF
+                </button>
               )}
-              <button className={styles.cancelButton} onClick={onClose}>
+
+              {puedeEnviarEmail && (
+                <button 
+                  className={`${styles.btnPremium} ${styles.btnOutlinePremium}`} 
+                  onClick={handleEnviarEmail}
+                  disabled={enviando}
+                >
+                  <span className="material-icons">{enviando ? 'hourglass_empty' : 'email'}</span>
+                  Enviar al Cliente
+                </button>
+              )}
+
+              <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} style={{ minWidth: '100px' }}>
                 Cerrar
               </button>
             </div>
@@ -389,7 +334,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
         </div>
       </div>
 
-      {/* Modal de cancelación con motivo */}
+      {/* Modal de Cancelación */}
       {mostrarCancelacionModal && detalle && (
         <CancelacionModal
           idVenta={detalle.id_venta}
@@ -397,8 +342,8 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
           onClose={() => setMostrarCancelacionModal(false)}
           onCancelada={() => {
             setMostrarCancelacionModal(false);
-            onCancelada?.();
-            onClose();
+            if (onCancelada) onCancelada();
+            onClose(); // Cerrar también el detalle
           }}
         />
       )}

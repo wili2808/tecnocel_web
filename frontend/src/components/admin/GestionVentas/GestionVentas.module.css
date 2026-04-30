@@ -347,6 +347,15 @@
   border-bottom: none;
 }
 
+.clickableRow {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.clickableRow:hover {
+  background-color: var(--color-primary-25) !important;
+}
+
 .emptyMessage {
   text-align: center;
   color: var(--text-secondary);
@@ -897,13 +906,14 @@
 }
 
 .clienteResultItem {
-  padding: 8px 12px;
+  padding: 12px 16px;
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
-  transition: background-color var(--transition-fast) var(--transition-curve);
+  transition: all var(--transition-fast) var(--transition-curve);
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .clienteResultItem:last-child {
@@ -2308,4 +2318,387 @@
 
 .requerido {
   color: var(--color-error);
+}
+
+/* ============================================================================
+   PREMIUM MODAL SYSTEM - Estilos Unificados
+   ============================================================================ */
+
+.modalOverlayPremium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modalPremium {
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 850px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modalHeaderPremium {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--background-secondary);
+  flex-shrink: 0;
+}
+
+.modalTitlePremium {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modalTitlePremium .material-icons {
+  color: var(--color-primary);
+  font-size: 24px;
+}
+
+.closeButtonPremium {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.closeButtonPremium:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}
+
+.modalBodyPremium {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  background: var(--background-primary);
+}
+
+.modalFooterPremium {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  background: var(--background-secondary);
+}
+
+/* --- STEPPER PREMIUM --- */
+.stepperPremium {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  margin-bottom: 30px;
+}
+
+.stepItemPremium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.stepCirclePremium {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--background-secondary);
+  border: 2.5px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.stepLabelPremium {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.stepActivePremium .stepCirclePremium {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 0 0 4px var(--color-primary-100);
+}
+
+.stepActivePremium .stepLabelPremium {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.stepCompletedPremium .stepCirclePremium {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+
+.stepCompletedPremium .stepLabelPremium {
+  color: var(--color-success);
+}
+
+.stepLinePremium {
+  flex: 1;
+  height: 3px;
+  background: var(--border-color);
+  margin: 0 -10px 24px;
+  border-radius: 2px;
+}
+
+.stepLineActivePremium {
+  background: var(--color-success);
+}
+
+/* --- DETALLE ROW --- */
+.detalleRowPremium {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detalleRowPremium:last-child {
+  border-bottom: none;
+}
+
+.detalleLabelPremium {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.detalleValuePremium {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ============================================================================
+   PREMIUM MODAL SYSTEM - Estilos Unificados
+   ============================================================================ */
+
+.modalPremium {
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 95%;
+  max-width: 850px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modalHeaderPremium {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--background-secondary);
+  flex-shrink: 0;
+}
+
+.modalTitlePremium {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modalTitlePremium .material-icons {
+  color: var(--color-primary);
+  font-size: 24px;
+}
+
+.closeButtonPremium {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.closeButtonPremium:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}
+
+.modalBodyPremium {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  background: var(--background-primary);
+}
+
+.modalFooterPremium {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  background: var(--background-secondary);
+  min-height: 85px;
+}
+
+.sectionTitlePremium {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.formGridPremium {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.formGroupPremium {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formLabelPremium {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.formInputPremium {
+  padding: 10px 14px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--background-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+}
+
+.formInputPremium:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+  outline: none;
+}
+
+/* --- BOTONES PREMIUM --- */
+.btnPremium {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btnPrimaryPremium {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btnPrimaryPremium:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.btnSecondaryPremium {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btnSecondaryPremium:hover:not(:disabled) {
+  background: var(--background-hover);
+}
+
+.btnDangerPremium {
+  background: none;
+  color: var(--color-error);
+  border: 1.5px solid var(--color-error);
+}
+
+.btnDangerPremium:hover:not(:disabled) {
+  background: var(--color-error);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btnOutlinePremium {
+  background: none;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btnOutlinePremium:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
 }

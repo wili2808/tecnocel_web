@@ -8,6 +8,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import styles from './GestionCompras.module.css';
 import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
+import { AdminSearch, AdminEmptyState } from '../common';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -106,11 +107,8 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
   const cargarCategoriasMarcas = async () => {
     try {
-      // Cargar categorías
       const resCat = await adminProductService.obtenerCategorias();
       setCategorias(resCat);
-
-      // Cargar marcas
       const resMar = await adminProductService.obtenerMarcas();
       setMarcas(resMar);
     } catch (err) {
@@ -118,7 +116,6 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     }
   };
 
-  // Búsqueda de productos (debounce 400ms)
   const buscarProductos = useCallback((q: string) => {
     if (productoTimerRef.current) clearTimeout(productoTimerRef.current);
     if (!q.trim()) {
@@ -156,9 +153,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     buscarProductos(v);
   };
 
-  // Agregar producto existente
   const agregarProducto = (p: ProductoParaBuscar) => {
-    // Evitar duplicados
     if (items.some((i) => i.id_producto === p.id_producto && !i.es_nuevo)) {
       showNotification('El producto ya fue agregado', 'warning');
       return;
@@ -177,7 +172,6 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     setProductosEncontrados([]);
   };
 
-  // Agregar producto nuevo (abre modal)
   const handleProductoNuevo = (productoData: any) => {
     setItems((prev) => [
       ...prev,
@@ -196,17 +190,14 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     setMostrarProductoNuevo(false);
   };
 
-  // Actualizar item
   const actualizarItem = (index: number, field: string, value: any) => {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
   };
 
-  // Eliminar item
   const eliminarItem = (index: number) => {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Registrar compra
   const registrarCompra = async () => {
     if (!idProveedor) {
       setError('Seleccione un proveedor');
@@ -221,7 +212,6 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
       return;
     }
 
-    // Validar items
     for (const item of items) {
       if (!item.cantidad || item.cantidad < 1) {
         setError(`${item.nombre_producto || 'Producto'} requiere cantidad >= 1`);
@@ -270,535 +260,311 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     }
   };
 
-  // Cálculos
   const totalCompra = items.reduce((sum, item) => sum + item.cantidad * item.precio_unitario, 0);
-
   const proveedorSeleccionado = proveedores.find((p) => p.id_proveedor === idProveedor);
 
   return (
     <>
       <div className={styles.modalOverlay} onClick={onClose}>
-        <div className={`${styles.modalContent} ${styles.registrarCompraModal}`} onClick={(e) => e.stopPropagation()}>
-          {/* Encabezado */}
-          <div className={styles.modalHeader}>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 'clamp(14px, 5vw, 18px)',
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              🛒 Nueva Compra a Proveedor
+        <div className={styles.modalPremium} style={{ maxWidth: '1000px' }} onClick={(e) => e.stopPropagation()}>
+          
+          {/* Header Premium */}
+          <div className={styles.modalHeaderPremium}>
+            <h2 className={styles.modalTitlePremium}>
+              <span className="material-icons">shopping_cart_checkout</span>
+              Registrar Compra a Proveedor
             </h2>
-            <button
-              onClick={onClose}
-              disabled={registrando}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: 'clamp(20px, 6vw, 24px)',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                padding: '0',
-                width: 'clamp(28px, 8vw, 32px)',
-                height: 'clamp(28px, 8vw, 32px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px',
-                transition: 'background-color 0.2s',
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              ✕
+            <button className={styles.closeButtonPremium} onClick={onClose} disabled={registrando}>
+              <span className="material-icons">close</span>
             </button>
           </div>
 
-          {/* Cuerpo - Dos columnas */}
+          {/* Cuerpo - Dos columnas optimizadas */}
           <div className={styles.registrarCompraGrid}>
-            {/* Columna Izquierda - Formulario */}
-            <div className={styles.registrarCompraLeft}>
-              {/* Proveedor */}
-              <div
-                style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}
-              >
-                <label className={styles.formLabel} style={{ marginBottom: '8px' }}>
-                  Proveedor *
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <select
-                    value={idProveedor}
-                    onChange={(e) => setIdProveedor(Number(e.target.value) || '')}
-                    className={styles.formSelect}
-                    style={{ flex: 1 }}
-                  >
-                    <option value="">-- Seleccionar --</option>
-                    {proveedores.map((p) => (
-                      <option key={p.id_proveedor} value={p.id_proveedor}>
-                        {p.nombre_proveedor} ({p.empresa})
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => setMostrarCrearProveedor(true)}
-                    style={{
-                      padding: '8px 14px',
-                      background: 'var(--color-primary)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    + Nuevo
-                  </button>
+            
+            {/* Columna Izquierda - Formulario y Items */}
+            <div className={styles.registrarCompraLeft} style={{ padding: '24px' }}>
+              
+              <div className={styles.formGrid} style={{ marginBottom: '24px' }}>
+                <div className={styles.formGroupPremium} style={{ gridColumn: '1 / span 2' }}>
+                  <label className={styles.formLabelPremium}>Proveedor *</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <select
+                      value={idProveedor}
+                      onChange={(e) => setIdProveedor(Number(e.target.value) || '')}
+                      className={styles.formInputPremium}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="">-- Seleccionar Proveedor --</option>
+                      {proveedores.map((p) => (
+                        <option key={p.id_proveedor} value={p.id_proveedor}>
+                          {p.nombre_proveedor} ({p.empresa})
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => setMostrarCrearProveedor(true)}
+                      className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
+                      style={{ padding: '8px 14px', whiteSpace: 'nowrap' }}
+                      title="Agregar nuevo proveedor"
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>person_add</span>
+                      Nuevo
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Datos de compra */}
-              <div className={styles.formRow2Cols}>
-                <div className={styles.formGroupInput}>
-                  <label className={styles.formLabel}>Fecha *</label>
+                <div className={styles.formGroupPremium}>
+                  <label className={styles.formLabelPremium}>Fecha de Compra *</label>
                   <input
                     type="date"
                     value={fechaCompra}
                     onChange={(e) => setFechaCompra(e.target.value)}
-                    className={styles.formInput}
+                    className={styles.formInputPremium}
                   />
                 </div>
-                <div className={styles.formGroupInput}>
-                  <label className={styles.formLabel}>Comprobante *</label>
+                
+                <div className={styles.formGroupPremium}>
+                  <label className={styles.formLabelPremium}>Comprobante / Nro. Factura *</label>
                   <input
                     type="text"
                     value={comprobante}
                     onChange={(e) => setComprobante(e.target.value)}
-                    placeholder="FAC-001234"
-                    className={styles.formInput}
+                    placeholder="Ej: FAC-001-1234"
+                    className={styles.formInputPremium}
+                  />
+                </div>
+
+                <div className={styles.formGroupFullPremium}>
+                  <label className={styles.formLabelPremium}>Observaciones</label>
+                  <textarea
+                    value={observaciones}
+                    onChange={(e) => setObservaciones(e.target.value)}
+                    placeholder="Notas adicionales sobre esta compra..."
+                    className={styles.formTextareaPremium}
+                    rows={1}
                   />
                 </div>
               </div>
 
-              <div className={styles.formGroupInput} style={{ marginBottom: '16px' }}>
-                <label className={styles.formLabel}>Observaciones (opcional)</label>
-                <textarea
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
-                  placeholder="Notas sobre esta compra..."
-                  className={styles.formTextarea}
-                />
-              </div>
+              <div className={styles.formDivider} style={{ margin: '20px 0' }} />
 
               {/* Búsqueda de productos */}
-              <div
-                style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}
-              >
-                <label className={styles.formLabel} style={{ marginBottom: '8px' }}>
-                  Buscar Producto
-                </label>
+              <div style={{ marginBottom: '24px' }}>
+                <span className={styles.sectionTitlePremium}>Agregar Productos</span>
                 <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
+                  <AdminSearch
                     value={busqProducto}
-                    onChange={(e) => handleBusqProductoChange(e.target.value)}
-                    placeholder="Código o nombre..."
-                    className={styles.formInput}
-                    style={{ paddingLeft: 'clamp(24px, 8vw, 32px)' }}
+                    onChange={handleBusqProductoChange}
+                    placeholder="Escriba código o nombre para buscar..."
+                    delay={400}
                   />
-                  <span
-                    className="material-icons"
-                    style={{
-                      position: 'absolute',
-                      left: '8px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      fontSize: 'clamp(16px, 4vw, 18px)',
-                      color: 'var(--text-secondary)',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    search
-                  </span>
+                  {buscandoProducto && (
+                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+                      <span className="material-icons" style={{ animation: 'spin 1s linear infinite', fontSize: '20px', color: 'var(--color-primary)' }}>autorenew</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Resultados de búsqueda */}
-                {buscandoProducto && (
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>Buscando...</p>
-                )}
+                {/* Dropdown de Resultados */}
+                {buscandoProducto && <p style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '10px' }}>Buscando...</p>}
                 {productosEncontrados.length > 0 && (
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      maxHeight: '200px',
-                      overflowY: 'auto',
-                    }}
-                  >
+                  <div style={{ 
+                    position: 'absolute', 
+                    zIndex: 100, 
+                    width: '100%', 
+                    maxWidth: '500px',
+                    background: 'var(--background-elevated)', 
+                    border: '1px solid var(--border-color)', 
+                    borderRadius: '8px', 
+                    boxShadow: 'var(--shadow-lg)',
+                    marginTop: '4px',
+                    maxHeight: '250px',
+                    overflowY: 'auto'
+                  }}>
                     {productosEncontrados.map((p) => (
                       <div
                         key={p.id_producto}
                         onClick={() => agregarProducto(p)}
-                        style={{
-                          padding: '10px 12px',
-                          borderBottom: '1px solid var(--border-color)',
-                          cursor: 'pointer',
-                          fontSize: '13px',
-                          transition: 'background-color var(--transition-fast) var(--transition-curve)',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                        style={{ padding: '12px', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--background-hover)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       >
-                        <div style={{ fontWeight: 500 }}>{p.nombre}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                          {p.codigo} • Stock: {p.stock} • Costo: ${p.precio_compra.toFixed(2)}
+                        <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.nombre}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          SKU: {p.codigo} • Stock: {p.stock} • Últ. Costo: ${p.precio_compra.toFixed(2)}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
                 {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
-                  <div style={{ marginTop: '8px', padding: '10px', textAlign: 'center' }}>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>No encontrado</p>
-                    <button
-                      onClick={() => setMostrarProductoNuevo(true)}
-                      style={{
-                        marginTop: '8px',
-                        padding: '6px 12px',
-                        background: 'none',
-                        border: '1px solid var(--color-primary)',
-                        color: 'var(--color-primary)',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                      }}
-                    >
-                      ⊕ Crear producto
+                  <div style={{ padding: '16px', textAlign: 'center', background: 'var(--background-neutral)', borderRadius: '8px', marginTop: '8px' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>No se encontró el producto</p>
+                    <button onClick={() => setMostrarProductoNuevo(true)} className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} style={{ margin: '0 auto', fontSize: '12px' }}>
+                      <span className="material-icons" style={{ fontSize: '16px' }}>add</span>
+                      Crear como Producto Nuevo
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Items agregados */}
-              {items.length > 0 && (
-                <div>
-                  <h4 style={{ fontSize: '13px', fontWeight: 600, marginBottom: '12px', color: 'var(--text-primary)' }}>
-                    Productos agregados ({items.length})
-                  </h4>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
-                      <thead>
-                        <tr
-                          style={{
-                            backgroundColor: 'var(--background-secondary)',
-                            borderBottom: '1px solid var(--border-color)',
-                          }}
-                        >
-                          <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600 }}>Producto</th>
-                          <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>Cantidad</th>
-                          <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>P. Unit.</th>
-                          <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>Subtotal</th>
-                          <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>Margen</th>
-                          <th style={{ padding: '8px', textAlign: 'center', fontWeight: 600 }}>⊗</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map((item, idx) => {
-                          const subtotal = item.cantidad * item.precio_unitario;
-                          // Usar precio_venta si es válido (> 0), sino usar precio_unitario
-                          const pv = Number(item.precio_venta) || 0;
-                          const pc = Number(item.precio_unitario) || 0;
-                          const precioVenta = pv > 0 ? pv : pc;
+              {/* Lista de Items Agregados */}
+              {items.length > 0 ? (
+                <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', background: 'var(--background-primary)', boxShadow: 'var(--shadow-sm)' }}>
+                  <table className={styles.table} style={{ margin: 0, fontSize: '13px' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ paddingLeft: '16px' }}>Producto</th>
+                        <th className={styles.textRight} style={{ width: '80px' }}>Cant.</th>
+                        <th className={styles.textRight} style={{ width: '100px' }}>P. Costo</th>
+                        <th className={styles.textRight} style={{ width: '100px' }}>Subtotal</th>
+                        <th className={styles.textRight} style={{ width: '80px' }}>Margen</th>
+                        <th style={{ width: '40px', paddingRight: '16px' }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item, idx) => {
+                        const pc = Number(item.precio_unitario) || 0;
+                        const pv = Number(item.precio_venta) || 0;
+                        const margen = pc > 0 ? ((pv - pc) / pc) * 100 : 0;
 
-                          // Calcular margen: ((venta - compra) / compra) * 100
-                          const margen = pc > 0 ? ((precioVenta - pc) / pc) * 100 : 0;
-
-                          return (
-                            <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                              <td style={{ padding: '8px' }}>
-                                <div style={{ fontWeight: 500 }}>{item.nombre_producto || item.nuevo_nombre}</div>
-                                {item.es_nuevo && (
-                                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                                    nuevo: {item.nuevo_codigo}
-                                  </div>
-                                )}
-                              </td>
-                              <td style={{ padding: '8px', textAlign: 'right' }}>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={item.cantidad}
-                                  onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
-                                  style={{
-                                    width: 'clamp(45px, 12vw, 60px)',
-                                    padding: '4px 6px',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '4px',
-                                    fontSize: '12px',
-                                    textAlign: 'right',
-                                  }}
-                                />
-                              </td>
-                              <td style={{ padding: '8px', textAlign: 'right' }}>
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  value={item.precio_unitario.toFixed(2)}
-                                  onChange={(e) =>
-                                    actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)
-                                  }
-                                  style={{
-                                    width: 'clamp(55px, 15vw, 80px)',
-                                    padding: '4px 6px',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '4px',
-                                    fontSize: '12px',
-                                    textAlign: 'right',
-                                  }}
-                                />
-                              </td>
-                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>
-                                ${subtotal.toFixed(2)}
-                              </td>
-                              <td
-                                style={{
-                                  padding: '8px',
-                                  textAlign: 'right',
-                                  color: margen > 0 ? '#166534' : '#991b1b',
-                                  fontWeight: 500,
-                                }}
+                        return (
+                          <tr key={idx}>
+                            <td style={{ paddingLeft: '16px' }}>
+                              <div style={{ fontWeight: 600 }}>{item.nombre_producto || item.nuevo_nombre}</div>
+                              {item.es_nuevo && <span style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 700, textTransform: 'uppercase' }}>NUEVO</span>}
+                            </td>
+                            <td className={styles.textRight}>
+                              <input
+                                type="number"
+                                value={item.cantidad}
+                                onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
+                                className={styles.formInputPremium}
+                                style={{ padding: '6px 8px', textAlign: 'right', minHeight: '32px' }}
+                              />
+                            </td>
+                            <td className={styles.textRight}>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={item.precio_unitario}
+                                onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
+                                className={styles.formInputPremium}
+                                style={{ padding: '6px 8px', textAlign: 'right', minHeight: '32px' }}
+                              />
+                            </td>
+                            <td className={styles.textRight} style={{ fontWeight: 700 }}>
+                              ${(item.cantidad * item.precio_unitario).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className={styles.textRight} style={{ color: margen > 0 ? 'var(--color-success)' : 'var(--color-error)', fontWeight: 600 }}>
+                              {margen.toFixed(1)}%
+                            </td>
+                            <td style={{ paddingRight: '16px' }}>
+                              <button 
+                                onClick={() => eliminarItem(idx)} 
+                                style={{ color: 'var(--color-error)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-error-100)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                                title="Quitar producto"
                               >
-                                {margen > 0 ? '+' : ''}
-                                {margen.toFixed(1)}%
-                              </td>
-                              <td style={{ padding: '8px', textAlign: 'center' }}>
-                                <button
-                                  onClick={() => eliminarItem(idx)}
-                                  style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--color-error)',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                  }}
-                                  title="Eliminar"
-                                >
-                                  ✕
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                                <span className="material-icons" style={{ fontSize: '18px' }}>delete_outline</span>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-              )}
-
-              {items.length === 0 && (
-                <div
-                  style={{
-                    padding: '40px 20px',
-                    textAlign: 'center',
-                    color: 'var(--text-secondary)',
-                    fontSize: '13px',
-                  }}
-                >
-                  <p>Busca y agrega productos para continuar</p>
-                </div>
+              ) : (
+                <AdminEmptyState
+                  icon="inventory"
+                  title="Sin productos"
+                  message="Busca y agrega productos para iniciar el registro de la compra."
+                />
               )}
             </div>
 
-            {/* Columna resumen (sticky) */}
-            <div className={styles.registrarCompraRight}>
-              <div>
-                <p
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: 'var(--text-secondary)',
-                    margin: '0 0 8px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  RESUMEN LIVE
-                </p>
+            {/* Columna Derecha - Resumen Dinámico */}
+            <div className={styles.registrarCompraRight} style={{ padding: '24px' }}>
+              <span className={styles.sectionTitlePremium}>Resumen de la Operación</span>
+              
+              <div className={styles.resumenBodyPremium}>
+                <div className={styles.infoCardPremium}>
+                  <div className={styles.detalleRowPremium}>
+                    <span className={styles.detalleLabelPremium}>Proveedor</span>
+                    <span className={styles.detalleValuePremium} style={{ color: proveedorSeleccionado ? 'var(--color-primary)' : 'var(--color-error)' }}>
+                      {proveedorSeleccionado ? proveedorSeleccionado.nombre_proveedor : 'No seleccionado'}
+                    </span>
+                  </div>
+                  
+                  <div className={styles.resumenSplitMobile}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Productos</span>
+                      <span className={styles.detalleValuePremium}>{items.length} tipo(s)</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Total Unidades</span>
+                      <span className={styles.detalleValuePremium}>{items.reduce((sum, i) => sum + i.cantidad, 0)}</span>
+                    </div>
+                  </div>
+
+                  {proveedorSeleccionado && (
+                    <div className={styles.detalleRowPremium} style={{ borderTop: '1px dashed var(--border-color)', borderBottom: 'none', marginTop: '4px', paddingTop: '8px' }}>
+                      <span className={styles.detalleLabelPremium}>Empresa</span>
+                      <span className={styles.detalleValuePremium} style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{proveedorSeleccionado.empresa}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.totalBoxPremium}>
+                  <span className={styles.totalLabelPremium}>Total a Pagar</span>
+                  <span className={styles.totalValuePremium}>
+                    ${totalCompra.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+
+                {error && (
+                  <div style={{ padding: '12px 16px', background: 'var(--color-error-100)', border: '1px solid var(--color-error)', borderRadius: '12px', color: 'var(--color-error)', fontSize: '13px', fontWeight: 600, animation: 'fadeIn 0.3s ease' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span className="material-icons" style={{ fontSize: '20px' }}>error_outline</span>
+                      {error}
+                    </div>
+                  </div>
+                )}
               </div>
-
-              {/* Proveedor */}
-              {idProveedor && proveedorSeleccionado ? (
-                <div style={{ paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px' }}>Proveedor</p>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-primary)', margin: 0 }}>
-                    {proveedorSeleccionado.nombre_proveedor}
-                  </p>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
-                    {proveedorSeleccionado.empresa}
-                  </p>
-                </div>
-              ) : (
-                <div style={{ paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0', fontStyle: 'italic' }}>
-                    Selecciona un proveedor
-                  </p>
-                </div>
-              )}
-
-              {/* Items y cantidades */}
-              <div>
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: 600 }}>
-                    Productos
-                  </p>
-                  <p style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--color-primary)' }}>
-                    {items.length}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 4px', fontWeight: 600 }}>
-                    Unidades
-                  </p>
-                  <p style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>
-                    {items.reduce((sum, i) => sum + i.cantidad, 0)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Total - Destacado */}
-              <div
-                style={{
-                  padding: '14px',
-                  background: 'var(--background-primary)',
-                  borderRadius: '8px',
-                  borderTop: '2px solid var(--color-primary)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: '10px',
-                    color: 'var(--text-secondary)',
-                    margin: '0 0 6px',
-                    textTransform: 'uppercase',
-                    fontWeight: 700,
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  Monto Total
-                </p>
-                <p
-                  style={{
-                    fontSize: '22px',
-                    fontWeight: 700,
-                    margin: 0,
-                    color: 'var(--color-primary)',
-                    fontFamily: 'monospace',
-                  }}
-                >
-                  ${totalCompra.toFixed(2)}
-                </p>
-              </div>
-
-              {/* Error si existe */}
-              {error && (
-                <div
-                  style={{
-                    padding: '12px',
-                    background: '#fee2e2',
-                    border: '1px solid #fecaca',
-                    borderRadius: '6px',
-                    color: '#991b1b',
-                    fontSize: '12px',
-                  }}
-                >
-                  {error}
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Footer */}
-          <div className={styles.modalFooter}>
-            <button
-              onClick={onClose}
-              disabled={registrando}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'var(--background-primary)',
-                color: 'var(--text-primary)',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-family-primary)',
-                transition: 'background-color 0.2s',
-                opacity: registrando ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) =>
-                !registrando && (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-primary)')}
-            >
+          {/* Footer Premium */}
+          <div className={styles.modalFooterPremium}>
+            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={registrando}>
               Cancelar
             </button>
-            <button
+            <button 
+              className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} 
               onClick={registrarCompra}
               disabled={registrando || items.length === 0 || !idProveedor}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                background: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-family-primary)',
-                transition: 'background-color 0.2s',
-                opacity: registrando || items.length === 0 || !idProveedor ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) =>
-                !registrando &&
-                items.length > 0 &&
-                idProveedor &&
-                (e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)')
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
+              style={{ minWidth: '180px' }}
             >
-              {registrando ? 'Registrando...' : 'Registrar Compra'}
+              <span className="material-icons">{registrando ? 'hourglass_empty' : 'check_circle'}</span>
+              {registrando ? 'Procesando...' : 'Confirmar Registro'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Modal de nuevo proveedor */}
+      {/* Modales Secundarios */}
       {mostrarCrearProveedor && (
         <ProveedorModal
           onClose={() => setMostrarCrearProveedor(false)}
-          onGuardado={(proveedor) => {
-            setIdProveedor(proveedor.id_proveedor);
-            setMostrarCrearProveedor(false);
-            cargarProveedores();
-          }}
+          onGuardado={(p) => { setIdProveedor(p.id_proveedor); cargarProveedores(); }}
         />
       )}
 
-      {/* Modal de nuevo producto */}
       {mostrarProductoNuevo && (
         <ProductoNuevoModalRapido
-          precioCompraBase={0}
           categorias={categorias}
           marcas={marcas}
           onClose={() => setMostrarProductoNuevo(false)}

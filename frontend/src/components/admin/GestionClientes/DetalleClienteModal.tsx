@@ -13,9 +13,10 @@ import type { ClienteListItem } from '../../../types/usuario';
 interface Props {
   cliente: ClienteListItem;
   onClose: () => void;
+  onEdit?: () => void;
 }
 
-const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose }) => {
+const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose, onEdit }) => {
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -40,96 +41,90 @@ const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose }) => {
   );
 
   return (
-    <div
-      className={styles.modalOverlay}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className={styles.modal}>
+    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className={styles.modalPremium}>
 
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">person</span>
+        {/* Header Premium */}
+        <div className={styles.modalHeaderPremium}>
+          <h2 className={styles.modalTitlePremium}>
+            <span className="material-icons">account_circle</span>
             {cliente.nombre_cliente} {cliente.apellido_cliente}
           </h2>
-          <button className={styles.closeButton} onClick={onClose} title="Cerrar">
+          <button className={styles.closeButtonPremium} onClick={onClose} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          <div className={styles.detalleGrid}>
+        {/* Body Premium */}
+        <div className={styles.modalBodyPremium}>
+          <div className={styles.formGridPremium}>
 
-            {/* Columna izq: información personal */}
-            <div className={styles.detalleSection}>
-              <p className={styles.detalleSectionTitle}>Información Personal</p>
-
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>ID</span>
-                <span className={styles.detalleValue}>#{cliente.id_cliente}</span>
+            {/* Sección: Información Personal */}
+            <div className={styles.formGroupFullPremium}>
+              <span className={styles.sectionTitlePremium}>Información Personal</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>ID del Cliente</span>
+                <span className={styles.detalleValuePremium}>#{cliente.id_cliente}</span>
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Nombre</span>
-                <span className={styles.detalleValue}>{cliente.nombre_cliente}</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Nombre Completo</span>
+                <span className={styles.detalleValuePremium}>{cliente.nombre_cliente} {cliente.apellido_cliente}</span>
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Apellido</span>
-                <span className={styles.detalleValue}>{cliente.apellido_cliente}</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Correo Electrónico</span>
+                <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)' }}>{cliente.email_cliente}</span>
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Email</span>
-                <span className={styles.detalleValue}>{cliente.email_cliente}</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Celular / WhatsApp</span>
+                <span className={styles.detalleValuePremium}>{cliente.celular_cliente || '—'}</span>
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Celular</span>
-                <span className={styles.detalleValue}>{cliente.celular_cliente || '—'}</span>
-              </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>NIT/CI</span>
-                <span className={styles.detalleValue}>{cliente.nit_ci_cliente || '—'}</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>NIT / CI</span>
+                <span className={styles.detalleValuePremium}>{cliente.nit_ci_cliente || '—'}</span>
               </div>
             </div>
 
-            {/* Columna der: estado de cuenta */}
-            <div className={styles.detalleSection}>
-              <p className={styles.detalleSectionTitle}>Estado de la Cuenta</p>
-
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Estado</span>
-                <span className={styles.detalleValue}>
-                  <span className={`${styles.badge} ${activo ? styles.badgeActive : styles.badgeInactive}`}>
-                    {activo ? 'Activo' : 'Inactivo'}
-                  </span>
+            {/* Sección: Estado de Cuenta */}
+            <div className={styles.formGroupFullPremium} style={{ marginTop: '12px' }}>
+              <span className={styles.sectionTitlePremium}>Estado de la Cuenta</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Estado Global</span>
+                <span className={`${styles.badge} ${activo ? styles.badgeActive : styles.badgeInactive}`} style={{ margin: 0 }}>
+                  {activo ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Email verificado</span>
-                <span className={styles.detalleValue}>
-                  <BadgeSiNo valor={cliente.email_verified} />
-                </span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Verificación de Email</span>
+                <BadgeSiNo valor={cliente.email_verified} />
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Web habilitado</span>
-                <span className={styles.detalleValue}>
-                  <BadgeSiNo valor={cliente.is_web_enabled} />
-                </span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Acceso Web Habilitado</span>
+                <BadgeSiNo valor={cliente.is_web_enabled} />
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Registrado</span>
-                <span className={styles.detalleValue}>{formatFecha(cliente.fyh_creacion)}</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Fecha de Registro</span>
+                <span className={styles.detalleValuePremium}>{formatFecha(cliente.fyh_creacion)}</span>
               </div>
-              <div className={styles.detalleRow}>
-                <span className={styles.detalleLabel}>Último login</span>
-                <span className={styles.detalleValue}>{formatFecha(cliente.last_login)}</span>
+              <div className={styles.detalleRowPremium}>
+                <span className={styles.detalleLabelPremium}>Última Actividad</span>
+                <span className={styles.detalleValuePremium}>{formatFecha(cliente.last_login)}</span>
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* Pie */}
-        <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>Cerrar</button>
+        {/* Footer Premium */}
+        <div className={styles.modalFooterPremium}>
+          {onEdit && (
+            <button className={styles.editButtonPremium} onClick={onEdit}>
+              <span className="material-icons">edit</span>
+              Editar Cliente
+            </button>
+          )}
+          <button className={styles.cancelButtonPremium} onClick={onClose}>
+            Cerrar
+          </button>
         </div>
 
       </div>

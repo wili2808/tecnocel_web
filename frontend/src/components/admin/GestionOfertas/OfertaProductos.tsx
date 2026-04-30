@@ -251,12 +251,11 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
               </button>
             </div>
 
-            <div className={styles.modalSearch} style={{ display: 'block' }}>
+            <div className={styles.modalSearchBlock}>
               <AdminSearch
                 value={searchTerm}
                 onChange={setSearchTerm}
-                placeholder="Buscar producto por nombre o código..."
-                className={styles.modalSearchInput}
+                placeholder="Buscar por nombre, marca o modelo..."
                 delay={300}
               />
             </div>
@@ -276,44 +275,65 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
 
               {!loadingBusqueda && productosDisponibles.length === 0 && searchTerm && (
                 <div className={styles.emptySearch}>
-                  <p>No se encontraron productos</p>
+                  <span className="material-icons">search_off</span>
+                  <p>No se encontraron productos para "{searchTerm}"</p>
                 </div>
               )}
 
               {!loadingBusqueda && productosNoAsignados.map((producto) => {
                 const isSelected = seleccionados.has(producto.id_producto);
                 const selItem = seleccionados.get(producto.id_producto);
+                const precioCalculado = calcularPrecioDescuento(producto.precio_venta);
 
                 return (
                   <div
                     key={producto.id_producto}
                     className={`${styles.productoItem} ${isSelected ? styles.productoItemSelected : ''}`}
+                    onClick={() => handleToggleSeleccion(producto)}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleToggleSeleccion(producto)}
-                      className={styles.productoCheckbox}
-                    />
-                    <div className={styles.productoInfo}>
-                      <div className={styles.productoNombre}>{producto.nombre}</div>
-                      <div className={styles.productoCodigo}>{producto.codigo}</div>
-                    </div>
-                    <div className={styles.productoPrecio}>
-                      {parseFloat(producto.precio_venta).toFixed(2)} ARS
-                    </div>
-                    {isSelected && (
+                    <div className={styles.productoItemLeft}>
                       <input
-                        type="number"
-                        placeholder="Precio (opc.)"
-                        value={selItem?.precio_oferta ?? ''}
-                        onChange={(e) => handlePrecioOfertaChange(producto.id_producto, e.target.value)}
-                        className={styles.precioOfertaInput}
-                        step="0.01"
-                        min="0"
-                        onClick={(e) => e.stopPropagation()}
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {}} // Se maneja con el onClick del div
+                        className={styles.productoCheckbox}
                       />
-                    )}
+                      <div className={styles.productoInfo}>
+                        <div className={styles.productoNombre}>{producto.nombre}</div>
+                        <div className={styles.productoCodigo}>{producto.codigo}</div>
+                      </div>
+                    </div>
+
+                    <div className={styles.productoItemRight}>
+                      <div className={styles.productoPrecios}>
+                        <div className={styles.precioOriginal}>
+                          <span>Original:</span>
+                          <strong>{parseFloat(producto.precio_venta).toFixed(2)} ARS</strong>
+                        </div>
+                        <div className={styles.precioCalculado}>
+                          <span>Oferta:</span>
+                          <strong>{precioCalculado} ARS</strong>
+                        </div>
+                      </div>
+                      
+                      {isSelected && (
+                        <div className={styles.personalizadoWrapper} onClick={e => e.stopPropagation()}>
+                          <div className={styles.personalizadoLabel}>Precio manual:</div>
+                          <div className={styles.inputWithIcon}>
+                            <span className="material-icons">edit</span>
+                            <input
+                              type="number"
+                              placeholder="Ej: 500.00"
+                              value={selItem?.precio_oferta ?? ''}
+                              onChange={(e) => handlePrecioOfertaChange(producto.id_producto, e.target.value)}
+                              className={styles.precioOfertaInput}
+                              step="0.01"
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}

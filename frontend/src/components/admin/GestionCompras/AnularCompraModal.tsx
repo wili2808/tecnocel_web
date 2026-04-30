@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
+import styles from './GestionCompras.module.css';
 
 interface AnularCompraModalProps {
   idCompra: number;
@@ -33,92 +34,72 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
     };
 
     return (
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h2 className="modal-title">Anular Compra</h2>
-            <button className="modal-close" onClick={onClose} disabled={anulando}>
-              ✕
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.modal} style={{ maxWidth: '450px' }} onClick={(e) => e.stopPropagation()}>
+          
+          {/* Header Premium */}
+          <div className={styles.modalHeaderPremium}>
+            <h2 className={styles.modalTitlePremium} style={{ color: 'var(--color-error)' }}>
+              <span className="material-icons">warning_amber</span>
+              Anular Compra
+            </h2>
+            <button className={styles.closeButtonPremium} onClick={onClose} disabled={anulando}>
+              <span className="material-icons">close</span>
             </button>
           </div>
 
-          <div className="modal-body">
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>
-                <strong>Compra:</strong> {nroCompra}
+          {/* Body Premium */}
+          <div className={styles.modalBodyPremium}>
+            <div style={{ marginBottom: '20px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+                ¿Está seguro que desea anular la compra <strong style={{ color: 'var(--text-primary)' }}>{nroCompra}</strong>?
               </p>
 
-              <div
-                style={{
-                  padding: '12px',
-                  background: '#fee2e2',
-                  border: '1px solid #fecaca',
-                  borderRadius: '6px',
-                  marginBottom: '16px',
-                  color: '#991b1b',
-                }}
-              >
-                <strong style={{ display: 'block', marginBottom: '6px' }}>⚠️ Advertencia</strong>
-                <p style={{ margin: 0, fontSize: '13px' }}>
-                  Al anular esta compra, se revertirá el stock de los productos. Esta acción no se puede deshacer.
+              <div style={{ 
+                padding: '12px 16px', 
+                background: 'var(--color-error-100)', 
+                borderLeft: '4px solid var(--color-error)', 
+                borderRadius: '8px', 
+                marginBottom: '20px' 
+              }}>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-error)', fontWeight: 600 }}>
+                  Esta acción revertirá el stock de los productos ingresados y es irreversible.
                 </p>
               </div>
 
-              <div style={{ marginBottom: '12px' }}>
-                <label
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: 'var(--text-secondary)',
-                    display: 'block',
-                    marginBottom: '6px',
-                  }}
-                >
-                  Motivo (opcional)
-                </label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabelPremium}>Motivo de la Anulación (Opcional)</label>
                 <textarea
                   value={motivo}
                   onChange={(e) => setMotivo(e.target.value)}
-                  placeholder="Ej: Error en cantidad, producto defectuoso, etc."
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    resize: 'vertical',
-                    minHeight: '80px',
-                  }}
+                  placeholder="Ej: Error en carga de datos, devolución al proveedor..."
+                  className={styles.formTextareaPremium}
+                  rows={3}
                   disabled={anulando}
                 />
               </div>
 
               {error && (
-                <div
-                  style={{
-                    padding: '10px',
-                    background: '#fee2e2',
-                    border: '1px solid #fecaca',
-                    borderRadius: '6px',
-                    color: '#991b1b',
-                    fontSize: '13px',
-                  }}
-                >
+                <div style={{ marginTop: '16px', padding: '10px', background: 'var(--color-error-100)', borderRadius: '6px', color: 'var(--color-error)', fontSize: '12px', fontWeight: 600 }}>
                   {error}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onClose} disabled={anulando}>
+          {/* Footer Premium */}
+          <div className={styles.modalFooterPremium}>
+            <button className={styles.cancelButtonPremium} onClick={onClose} disabled={anulando}>
               Cancelar
             </button>
-            <button className="btn btn-danger" onClick={handleAnular} disabled={anulando}>
-              {anulando ? 'Anulando...' : 'Anular Compra'}
+            <button 
+              className={styles.saveButton} 
+              style={{ background: 'var(--color-error)' }}
+              onClick={handleAnular} 
+              disabled={anulando}
+            >
+              <span className="material-icons">{anulando ? 'hourglass_empty' : 'block'}</span>
+              {anulando ? 'Anulando...' : 'Confirmar Anulación'}
             </button>
           </div>
         </div>

@@ -14,8 +14,11 @@ interface OfertaFormProps {
   oferta?: OfertaConProductos | null;
   onGuardado: () => void;
   onCancelar: () => void;
+  onEliminar?: () => void;
   isModal?: boolean;
 }
+
+type TabType = 'general' | 'productos';
 
 interface OfertaFormState {
   nombre_oferta: string;
@@ -43,11 +46,12 @@ const INITIAL_FORM: OfertaFormState = {
   activo: true,
 };
 
-const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, isModal = false }: OfertaFormProps) => {
+const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal = false }: OfertaFormProps) => {
   const { showNotification } = useNotification();
   const [formData, setFormData] = useState<OfertaFormState>(INITIAL_FORM);
   const [ofertaActual, setOfertaActual] = useState<OfertaConProductos | null>(oferta || null);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('general');
 
   // Cargar datos de la oferta en modo edición
   useEffect(() => {
@@ -156,234 +160,244 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, isModal = false }: O
     }
   };
 
-  // Cuando está en modo modal, renderizar solo el formulario sin header
+  // Renderizado optimizado para Modal (Estilo ProductoModal)
   if (isModal) {
     return (
-      <>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {/* Sección: Información Básica */}
-          <fieldset className={styles.section}>
-            <legend className={styles.sectionTitle}>
-              <span className="material-icons">local_offer</span>
-              Información Básica
-            </legend>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="nombre_oferta" className={styles.label}>Nombre de la Oferta *</label>
-                <input
-                  type="text"
-                  id="nombre_oferta"
-                  name="nombre_oferta"
-                  value={formData.nombre_oferta}
-                  onChange={handleChange}
-                  className={styles.input}
-                  placeholder="Ej: Black Friday 2026"
-                  required
-                />
-              </div>
-            </div>
-            <div className={styles.formRow}>
-              <div className={styles.formGroupFull}>
-                <label htmlFor="descripcion" className={styles.label}>Descripción</label>
-                <textarea
-                  id="descripcion"
-                  name="descripcion"
-                  value={formData.descripcion}
-                  onChange={handleChange}
-                  className={styles.textarea}
-                  placeholder="Descripción de la oferta (opcional)..."
-                  rows={3}
-                />
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Sección: Descuento */}
-          <fieldset className={styles.section}>
-            <legend className={styles.sectionTitle}>
-              <span className="material-icons">percent</span>
-              Descuento
-            </legend>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="tipo_descuento" className={styles.label}>Tipo de Descuento *</label>
-                <select
-                  id="tipo_descuento"
-                  name="tipo_descuento"
-                  value={formData.tipo_descuento}
-                  onChange={handleChange}
-                  className={styles.select}
-                >
-                  <option value="porcentaje">Porcentaje (%)</option>
-                  <option value="monto_fijo">Monto Fijo ($)</option>
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="valor_descuento" className={styles.label}>
-                  Valor del Descuento *
-                </label>
-                <input
-                  type="number"
-                  id="valor_descuento"
-                  name="valor_descuento"
-                  value={formData.valor_descuento}
-                  onChange={handleChange}
-                  className={styles.input}
-                  placeholder="0"
-                  step="0.01"
-                  min="0"
-                  max={formData.tipo_descuento === 'porcentaje' ? '100' : undefined}
-                  required
-                />
-                <p className={styles.helpText}>
-                  {formData.tipo_descuento === 'porcentaje'
-                    ? 'Ej: 20 = 20% de descuento sobre el precio de venta'
-                    : 'Ej: 150 = Se restan $ 150 del precio de venta'}
-                </p>
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Sección: Vigencia */}
-          <fieldset className={styles.section}>
-            <legend className={styles.sectionTitle}>
-              <span className="material-icons">date_range</span>
-              Vigencia
-            </legend>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="fecha_inicio" className={styles.label}>Fecha de Inicio *</label>
-                <input
-                  type="date"
-                  id="fecha_inicio"
-                  name="fecha_inicio"
-                  value={formData.fecha_inicio}
-                  onChange={handleChange}
-                  className={styles.input}
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="fecha_fin" className={styles.label}>Fecha de Fin *</label>
-                <input
-                  type="date"
-                  id="fecha_fin"
-                  name="fecha_fin"
-                  value={formData.fecha_fin}
-                  onChange={handleChange}
-                  className={styles.input}
-                  min={formData.fecha_inicio}
-                  required
-                />
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Sección: Restricciones */}
-          <fieldset className={styles.section}>
-            <legend className={styles.sectionTitle}>
-              <span className="material-icons">tune</span>
-              Restricciones (Opcional)
-            </legend>
-            <div className={styles.formRow3}>
-              <div className={styles.formGroup}>
-                <label htmlFor="precio_minimo" className={styles.label}>Precio Mínimo ($)</label>
-                <input
-                  type="number"
-                  id="precio_minimo"
-                  name="precio_minimo"
-                  value={formData.precio_minimo}
-                  onChange={handleChange}
-                  className={styles.input}
-                  placeholder="Sin mínimo"
-                  step="0.01"
-                  min="0"
-                />
-                <p className={styles.helpText}>Solo aplicar a productos con precio mayor a este valor</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="precio_maximo" className={styles.label}>Precio Máximo ($)</label>
-                <input
-                  type="number"
-                  id="precio_maximo"
-                  name="precio_maximo"
-                  value={formData.precio_maximo}
-                  onChange={handleChange}
-                  className={styles.input}
-                  placeholder="Sin máximo"
-                  step="0.01"
-                  min="0"
-                />
-                <p className={styles.helpText}>Solo aplicar a productos con precio menor a este valor</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="limite_uso" className={styles.label}>Límite de Uso</label>
-                <input
-                  type="number"
-                  id="limite_uso"
-                  name="limite_uso"
-                  value={formData.limite_uso}
-                  onChange={handleChange}
-                  className={styles.input}
-                  placeholder="Sin límite"
-                  min="0"
-                />
-                <p className={styles.helpText}>Cantidad máxima de veces que se puede usar</p>
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Sección: Estado (solo en edición) */}
-          {modo === 'editar' && (
-            <fieldset className={styles.section}>
-              <legend className={styles.sectionTitle}>
-                <span className="material-icons">toggle_on</span>
-                Estado
-              </legend>
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    name="activo"
-                    checked={formData.activo}
-                    onChange={handleChange}
-                    className={styles.checkbox}
-                  />
-                  <span>Oferta activa</span>
-                </label>
-              </div>
-              <p className={styles.helpText}>
-                Desactivar la oferta la ocultará de la tienda sin eliminarla
-              </p>
-            </fieldset>
-          )}
-
-          {/* Acciones del formulario */}
-          <div className={styles.formFooter}>
-            <button type="submit" disabled={loading} className={styles.submitButton}>
-              {loading ? (
-                <>
-                  <span className="material-icons">hourglass_empty</span>
-                  {modo === 'crear' ? 'Creando...' : 'Guardando...'}
-                </>
-              ) : (
-                <>
-                  <span className="material-icons">{modo === 'crear' ? 'add_box' : 'save'}</span>
-                  {modo === 'crear' ? 'Crear Oferta' : 'Guardar Cambios'}
-                </>
-              )}
+      <div className={styles.modalOverlay} onClick={(e) => { if (e.target === e.currentTarget) onCancelar(); }}>
+        <div className={styles.modal}>
+          
+          {/* Header del Modal */}
+          <div className={styles.modalHeader}>
+            <h2 className={styles.modalTitle}>
+              <span className="material-icons">
+                {modo === 'crear' ? 'add_circle' : 'local_offer'}
+              </span>
+              {modo === 'crear' ? 'Nueva Oferta' : `Editar Oferta: ${formData.nombre_oferta}`}
+            </h2>
+            <button className={styles.closeButton} onClick={onCancelar} title="Cerrar">
+              <span className="material-icons">close</span>
             </button>
           </div>
-        </form>
 
-        {/* Sección de productos (solo en edición modal) */}
-        {modo === 'editar' && ofertaActual && (
-          <OfertaProductos
-            oferta={ofertaActual}
-            onProductosChanged={handleProductosChanged}
-          />
-        )}
-      </>
+          {/* Navegación por Tabs (Solo en edición) */}
+          {modo === 'editar' && (
+            <div className={styles.tabs}>
+              <button 
+                className={`${styles.tab} ${activeTab === 'general' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('general')}
+              >
+                <span className="material-icons">settings</span>
+                Configuración General
+              </button>
+              <button 
+                className={`${styles.tab} ${activeTab === 'productos' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('productos')}
+              >
+                <span className="material-icons">inventory_2</span>
+                Productos Asignados ({ofertaActual?.productos?.length || 0})
+              </button>
+            </div>
+          )}
+
+          {/* Cuerpo del Modal */}
+          <div className={styles.modalBody}>
+            {activeTab === 'general' ? (
+              <form id="oferta-form" onSubmit={handleSubmit} className={styles.form}>
+                
+                {/* Sección: Información Básica */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.sectionTitle}>Información de la Oferta</h3>
+                  <div className={styles.formGrid}>
+                    <div className={styles.formGroupFull}>
+                      <label className={styles.formLabel}>Nombre de la Oferta *</label>
+                      <input
+                        type="text"
+                        name="nombre_oferta"
+                        value={formData.nombre_oferta}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                        placeholder="Ej: Ofertas de Verano"
+                        required
+                      />
+                    </div>
+                    <div className={styles.formGroupFull}>
+                      <label className={styles.formLabel}>Descripción Corta</label>
+                      <textarea
+                        name="descripcion"
+                        value={formData.descripcion}
+                        onChange={handleChange}
+                        className={styles.formTextarea}
+                        placeholder="Breve descripción para control interno..."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.formDivider} />
+
+                {/* Sección: Descuento y Vigencia */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.sectionTitle}>Configuración y Vigencia</h3>
+                  <div className={styles.formGrid}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Tipo de Descuento</label>
+                      <select
+                        name="tipo_descuento"
+                        value={formData.tipo_descuento}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                      >
+                        <option value="porcentaje">Porcentaje (%)</option>
+                        <option value="monto_fijo">Monto Fijo ($)</option>
+                      </select>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Valor del Descuento *</label>
+                      <div className={styles.inputWrapper}>
+                        <input
+                          type="number"
+                          name="valor_descuento"
+                          value={formData.valor_descuento}
+                          onChange={handleChange}
+                          className={styles.formInput}
+                          placeholder="0.00"
+                          step="0.01"
+                          required
+                        />
+                        <span className={styles.inputBadge}>
+                          {formData.tipo_descuento === 'porcentaje' ? '%' : 'ARS'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Inicia el...</label>
+                      <input
+                        type="date"
+                        name="fecha_inicio"
+                        value={formData.fecha_inicio}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                        required
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Termina el...</label>
+                      <input
+                        type="date"
+                        name="fecha_fin"
+                        value={formData.fecha_fin}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                        required
+                        min={formData.fecha_inicio}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.formDivider} />
+
+                {/* Sección: Restricciones */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.sectionTitle}>Restricciones y Límites</h3>
+                  <div className={styles.formGrid}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Precio Mínimo ($)</label>
+                      <input
+                        type="number"
+                        name="precio_minimo"
+                        value={formData.precio_minimo}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                        placeholder="Sin mínimo"
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Precio Máximo ($)</label>
+                      <input
+                        type="number"
+                        name="precio_maximo"
+                        value={formData.precio_maximo}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                        placeholder="Sin máximo"
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Límite de Uso</label>
+                      <input
+                        type="number"
+                        name="limite_uso"
+                        value={formData.limite_uso}
+                        onChange={handleChange}
+                        className={styles.formInput}
+                        placeholder="Ilimitado"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {modo === 'editar' && (
+                  <>
+                    <div className={styles.formDivider} />
+                    <div className={styles.toggleRow}>
+                      <div className={styles.toggleInfo}>
+                        <p className={styles.toggleLabel}>Oferta Activa</p>
+                        <p className={styles.toggleDesc}>Define si el descuento es aplicable en el sitio</p>
+                      </div>
+                      <button
+                        type="button"
+                        className={`${styles.toggle} ${formData.activo ? styles.toggleOn : styles.toggleOff}`}
+                        onClick={() => setFormData(p => ({ ...p, activo: !p.activo }))}
+                      >
+                        <div className={styles.toggleKnob} />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </form>
+            ) : (
+              <div className={styles.productosContainer}>
+                {ofertaActual && (
+                  <OfertaProductos
+                    oferta={ofertaActual}
+                    onProductosChanged={handleProductosChanged}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Footer del Modal */}
+          <div className={styles.modalFooter}>
+            {modo === 'editar' && onEliminar && (
+              <button 
+                className={styles.deleteButton} 
+                onClick={onEliminar}
+                title="Eliminar esta oferta permanentemente"
+              >
+                <span className="material-icons">delete</span>
+                Eliminar
+              </button>
+            )}
+            <button className={styles.cancelButton} onClick={onCancelar}>
+              Cancelar
+            </button>
+            {activeTab === 'general' && (
+              <button 
+                type="submit" 
+                form="oferta-form" 
+                disabled={loading} 
+                className={styles.saveButton}
+              >
+                <span className="material-icons">{loading ? 'hourglass_empty' : 'save'}</span>
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     );
   }
 

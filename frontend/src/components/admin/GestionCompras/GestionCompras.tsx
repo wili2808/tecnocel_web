@@ -80,7 +80,7 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
 };
 
 const GestionCompras: React.FC = memo(() => {
-  const { tienePermiso, userType } = useAuth();
+  const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_compras');
   const puedeCrear = tienePermiso('crear_compra');
   const puedeEditar = tienePermiso('editar_compra');
@@ -831,7 +831,6 @@ const GestionCompras: React.FC = memo(() => {
             setIdDetalleAbierto(null);
             setAnularModal({ id, nro });
           } : undefined}
-          userRole={userType as 'admin' | 'gerente' | 'vendedor'}
         />
       )}
 

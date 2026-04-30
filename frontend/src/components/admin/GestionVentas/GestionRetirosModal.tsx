@@ -66,11 +66,11 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`${styles.modal} ${styles.modalLarge}`}>
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
+    <div className={styles.modalOverlayPremium} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.modalPremium} style={{ maxWidth: '850px' }}>
+        {/* Header Premium */}
+        <div className={styles.modalHeaderPremium}>
+          <h2 className={styles.modalTitlePremium}>
             <span className="material-icons">store</span>
             Retiro en tienda #{retiro.nro_venta}
             <span
@@ -81,58 +81,63 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                 : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
             </span>
           </h2>
-          <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons" style={{ fontSize: 18 }}>
-              close
-            </span>
+          <button className={styles.closeButtonPremium} onClick={onClose} aria-label="Cerrar">
+            <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Body */}
-        <div className={styles.modalBody}>
+        {/* Body Premium */}
+        <div className={styles.modalBodyPremium}>
           {cargando ? (
             <div className={styles.loadingMsg}>Cargando detalle...</div>
           ) : detalle ? (
             <>
-              {/* Info del cliente y venta */}
-              <div className={styles.detalleGrid}>
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Cliente</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Nombre</span>
-                    <span className={styles.detalleRowValue}>{detalle.nombre_cliente ?? '—'}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Email</span>
-                    <span className={styles.detalleRowValue}>{detalle.email_cliente ?? '—'}</span>
-                  </div>
-                  {detalle.envio_telefono_contacto && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Teléfono</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_telefono_contacto}</span>
+              {/* Detalle Premium Organizado */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                
+                {/* Card Cliente */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium}>Información del Cliente</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Nombre</span>
+                      <span className={styles.detalleValuePremium}>{detalle.nombre_cliente ?? '—'}</span>
                     </div>
-                  )}
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Email</span>
+                      <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)' }}>{detalle.email_cliente ?? '—'}</span>
+                    </div>
+                    {detalle.envio_telefono_contacto && (
+                      <div className={styles.detalleRowPremium}>
+                        <span className={styles.detalleLabelPremium}>Teléfono</span>
+                        <span className={styles.detalleValuePremium}>{detalle.envio_telefono_contacto}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Datos de la venta</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Fecha</span>
-                    <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_venta)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Total</span>
-                    <span className={styles.detalleRowValue}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Pago</span>
-                    <span className={styles.detalleRowValue}>{detalle.metodo_pago}</span>
+                {/* Card Operación */}
+                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <span className={styles.sectionTitlePremium}>Datos de la Operación</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Fecha Venta</span>
+                      <span className={styles.detalleValuePremium}>{formatFecha(detalle.fyh_venta)}</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Total Pagado</span>
+                      <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)', fontWeight: 800 }}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                    </div>
+                    <div className={styles.detalleRowPremium}>
+                      <span className={styles.detalleLabelPremium}>Método Pago</span>
+                      <span className={styles.detalleValuePremium}>{detalle.metodo_pago}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Productos */}
-              <h4 className={styles.itemsTitle}>Productos del pedido</h4>
+              <h4 className={styles.sectionTitlePremium} style={{ marginTop: '24px' }}>Productos del pedido</h4>
               <table className={styles.itemsTable}>
                 <thead>
                   <tr>
@@ -168,8 +173,8 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
               {!esEntregado && (
                 <div className={styles.envioAccionPanel}>
                   {!confirmando ? (
-                    <button className={styles.submitButton} onClick={() => setConfirmando(true)}>
-                      <span className="material-icons" style={{ fontSize: 16 }}>
+                    <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={() => setConfirmando(true)}>
+                      <span className="material-icons" style={{ fontSize: 18 }}>
                         check_circle
                       </span>
                       Marcar como Entregado
@@ -181,13 +186,13 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                       </p>
                       <div className={styles.envioConfirmarBtns}>
                         <button
-                          className={styles.cancelButton}
+                          className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
                           onClick={() => setConfirmando(false)}
                           disabled={guardando}
                         >
                           Cancelar
                         </button>
-                        <button className={styles.submitButton} onClick={handleMarcarEntregado} disabled={guardando}>
+                        <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={handleMarcarEntregado} disabled={guardando}>
                           {guardando ? 'Guardando...' : 'Confirmar entrega'}
                         </button>
                       </div>
@@ -201,9 +206,9 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
           )}
         </div>
 
-        {/* Footer */}
-        <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
+        {/* Footer Premium */}
+        <div className={styles.modalFooterPremium}>
+          <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose}>
             Cerrar
           </button>
         </div>

@@ -35,7 +35,8 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
 
   const setField = (field: string, value: string | boolean) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleGuardar = async () => {
+  const handleGuardar = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (guardando) return;
     if (!form.nombre_cliente.trim() || !form.apellido_cliente.trim()) {
       showNotification('El nombre y apellido son obligatorios', 'error');
@@ -68,125 +69,144 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
         if (e.target === e.currentTarget && !guardando) onClose();
       }}
     >
-      <div className={styles.modal}>
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">edit</span>
-            Editar cliente #{cliente.id_cliente}
+      <div className={styles.modalPremium}>
+        
+        {/* Header Premium */}
+        <div className={styles.modalHeaderPremium}>
+          <h2 className={styles.modalTitlePremium}>
+            <span className="material-icons">manage_accounts</span>
+            Editar Perfil de Cliente
           </h2>
-          <button className={styles.closeButton} onClick={onClose} disabled={guardando} title="Cerrar">
+          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          {/* Datos personales */}
-          <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Nombre</label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.nombre_cliente}
-                onChange={(e) => setField('nombre_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={100}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Apellido</label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.apellido_cliente}
-                onChange={(e) => setField('apellido_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={100}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                Celular <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span>
-              </label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.celular_cliente}
-                onChange={(e) => setField('celular_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={20}
-                placeholder="Ej: 11 1234-5678"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                NIT/CI <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span>
-              </label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.nit_ci_cliente}
-                onChange={(e) => setField('nit_ci_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={50}
-                placeholder="Ej: 12345678"
-              />
-            </div>
-          </div>
-
-          <div className={styles.formDivider} />
-
-          {/* Toggles de estado */}
-          <div className={styles.toggleGroup}>
-            <div className={styles.toggleRow}>
-              <div>
-                <p className={styles.toggleLabel}>Cuenta habilitada</p>
-                <p className={styles.toggleDesc}>Permite al cliente iniciar sesión en la plataforma web</p>
+        {/* Body Premium */}
+        <div className={styles.modalBodyPremium}>
+          <form id="edit-cliente-form" onSubmit={handleGuardar}>
+            
+            <span className={styles.sectionTitlePremium}>Datos Identificativos</span>
+            
+            <div className={styles.formGridPremium}>
+              <div className={styles.formGroupPremium}>
+                <label className={styles.formLabelPremium}>Nombre *</label>
+                <input
+                  className={styles.formInputPremium}
+                  type="text"
+                  value={form.nombre_cliente}
+                  onChange={(e) => setField('nombre_cliente', e.target.value)}
+                  disabled={guardando}
+                  maxLength={100}
+                  required
+                />
               </div>
-              <button
-                type="button"
-                className={`${styles.toggle} ${form.is_web_enabled ? styles.toggleOn : styles.toggleOff}`}
-                onClick={() => setField('is_web_enabled', !form.is_web_enabled)}
-                disabled={guardando}
-                aria-label="Alternar cuenta habilitada"
-              >
-                <span className={styles.toggleKnob} />
-              </button>
-            </div>
-            <div className={styles.toggleRow}>
-              <div>
-                <p className={styles.toggleLabel}>Email verificado</p>
-                <p className={styles.toggleDesc}>Marca el email como verificado de forma manual</p>
+              <div className={styles.formGroupPremium}>
+                <label className={styles.formLabelPremium}>Apellido *</label>
+                <input
+                  className={styles.formInputPremium}
+                  type="text"
+                  value={form.apellido_cliente}
+                  onChange={(e) => setField('apellido_cliente', e.target.value)}
+                  disabled={guardando}
+                  maxLength={100}
+                  required
+                />
               </div>
-              <button
-                type="button"
-                className={`${styles.toggle} ${form.email_verified ? styles.toggleOn : styles.toggleOff}`}
-                onClick={() => setField('email_verified', !form.email_verified)}
-                disabled={guardando}
-                aria-label="Alternar email verificado"
-              >
-                <span className={styles.toggleKnob} />
-              </button>
-            </div>
-          </div>
 
-          {/* Info: email no editable */}
-          <p className={styles.emailReadonly}>
-            <span className="material-icons">lock</span>
-            El email no puede modificarse desde aquí: {cliente.email_cliente}
-          </p>
+              <div className={styles.formGroupPremium}>
+                <label className={styles.formLabelPremium}>Celular / WhatsApp</label>
+                <input
+                  className={styles.formInputPremium}
+                  type="text"
+                  value={form.celular_cliente}
+                  onChange={(e) => setField('celular_cliente', e.target.value)}
+                  disabled={guardando}
+                  maxLength={20}
+                  placeholder="Ej: 11 1234-5678"
+                />
+              </div>
+              <div className={styles.formGroupPremium}>
+                <label className={styles.formLabelPremium}>NIT / CI</label>
+                <input
+                  className={styles.formInputPremium}
+                  type="text"
+                  value={form.nit_ci_cliente}
+                  onChange={(e) => setField('nit_ci_cliente', e.target.value)}
+                  disabled={guardando}
+                  maxLength={50}
+                  placeholder="Ej: 12345678"
+                />
+              </div>
+            </div>
+
+            <div className={styles.formDivider} style={{ margin: '24px 0' }} />
+
+            <span className={styles.sectionTitlePremium}>Configuración de Cuenta</span>
+
+            <div className={styles.toggleGroup}>
+              <div className={styles.toggleRow} style={{ padding: '8px 0' }}>
+                <div style={{ flex: 1 }}>
+                  <p className={styles.toggleLabel} style={{ fontSize: '13.5px', fontWeight: 600, margin: 0 }}>Acceso Web Habilitado</p>
+                  <p className={styles.toggleDesc} style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Permitir inicio de sesión en la tienda</p>
+                </div>
+                <button
+                  type="button"
+                  className={`${styles.toggle} ${form.is_web_enabled ? styles.toggleOn : styles.toggleOff}`}
+                  onClick={() => setField('is_web_enabled', !form.is_web_enabled)}
+                  disabled={guardando}
+                >
+                  <span className={styles.toggleKnob} />
+                </button>
+              </div>
+
+              <div className={styles.toggleRow} style={{ padding: '8px 0' }}>
+                <div style={{ flex: 1 }}>
+                  <p className={styles.toggleLabel} style={{ fontSize: '13.5px', fontWeight: 600, margin: 0 }}>Correo Verificado</p>
+                  <p className={styles.toggleDesc} style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Validación manual de identidad por email</p>
+                </div>
+                <button
+                  type="button"
+                  className={`${styles.toggle} ${form.email_verified ? styles.toggleOn : styles.toggleOff}`}
+                  onClick={() => setField('email_verified', !form.email_verified)}
+                  disabled={guardando}
+                >
+                  <span className={styles.toggleKnob} />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ 
+              marginTop: '20px', 
+              padding: '12px', 
+              background: 'var(--background-secondary)', 
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              border: '1px solid var(--border-color)'
+            }}>
+              <span className="material-icons" style={{ color: 'var(--text-muted)', fontSize: '18px' }}>lock</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Identificador de acceso: <strong>{cliente.email_cliente}</strong>
+              </span>
+            </div>
+          </form>
         </div>
 
-        {/* Pie */}
-        <div className={styles.modalFooter}>
-          <button className={styles.saveButton} onClick={handleGuardar} disabled={guardando}>
-            <span className="material-icons">save</span>
-            {guardando ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-          <button className={styles.cancelButton} onClick={onClose} disabled={guardando}>
+        {/* Footer Premium */}
+        <div className={styles.modalFooterPremium}>
+          <button className={styles.cancelButtonPremium} onClick={onClose} disabled={guardando}>
             Cancelar
+          </button>
+          <button 
+            type="submit" 
+            form="edit-cliente-form"
+            className={styles.saveButtonPremium} 
+            disabled={guardando}
+          >
+            <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
+            {guardando ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </div>
       </div>

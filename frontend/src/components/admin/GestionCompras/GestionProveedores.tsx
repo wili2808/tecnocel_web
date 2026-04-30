@@ -81,7 +81,7 @@ const GestionProveedores: React.FC = memo(() => {
   const [modalProveedor, setModalProveedor] = useState<ProveedorListItem | null | 'new'>(null);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nombre', 'empresa', 'celular', 'email', 'direccion', 'acciones'
+    'nombre', 'empresa', 'celular', 'email', 'direccion'
   ]);
 
   const cargarProveedores = useCallback(async () => {
@@ -150,26 +150,7 @@ const GestionProveedores: React.FC = memo(() => {
         </span>
       ),
     },
-    {
-      id: 'acciones',
-      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Acciones</div>,
-      cell: info => {
-        const proveedor = info.row.original;
-        return (
-          <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
-            <button
-              className={styles.actionBtn}
-              title={!puedeEditar ? 'Sin permisos para editar' : 'Editar'}
-              onClick={() => setModalProveedor(proveedor)}
-              disabled={!puedeEditar}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-          </div>
-        );
-      },
-    }
-  ], [puedeEditar]);
+  ], []);
 
   const table = useReactTable({
     data: proveedores,
@@ -289,7 +270,17 @@ const GestionProveedores: React.FC = memo(() => {
               </thead>
               <tbody>
                 {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
+                  <tr 
+                    key={row.id}
+                    onClick={() => {
+                      if (puedeEditar) {
+                        setModalProveedor(row.original);
+                      } else {
+                        showNotification('No tienes permisos para editar proveedores', 'info');
+                      }
+                    }}
+                    className={styles.clickableRow}
+                  >
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -135,7 +135,6 @@ const GestionVentas: React.FC = () => {
   const puedeCrear = tienePermiso('crear_venta');
   const puedeVerConfiguracion = tienePermiso('ver_configuracion');
   const puedeEditarConfiguracion = tienePermiso('editar_configuracion');
-  const puedeCancelar = tienePermiso('cancelar_venta');
   const { showNotification } = useNotification();
 
   // ── Estado de datos ────────────────────────────────────────────────────────
@@ -155,7 +154,7 @@ const GestionVentas: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha', desc: true }]);
   
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado', 'acciones'
+    'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado'
   ]);
 
   const pagination = useMemo<PaginationState>(() => ({
@@ -316,11 +315,6 @@ const GestionVentas: React.FC = () => {
     setOffset(0);
   };
 
-  // ── Cancelar venta rápido (desde fila de tabla) ────────────────────────────
-  const cancelarVentaFila = (id: number, nro: string) => {
-    setCancelacionModal({ id, nro });
-  };
-
   // ── Refresh tras acciones ──────────────────────────────────────────────────
   const refreshTodo = () => {
     cargarVentas(filtros, offset);
@@ -430,36 +424,7 @@ const GestionVentas: React.FC = () => {
         </span>
       ),
     },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: info => {
-        const venta = info.row.original;
-        return (
-          <div className={styles.actions}>
-            <button
-              className={styles.actionButton}
-              onClick={() => setIdDetalleAbierto(venta.id_venta)}
-              title="Ver detalle"
-            >
-              <span className="material-icons">visibility</span>
-            </button>
-            {venta.estado === 'completada' && (
-              <button
-                className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
-                title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
-                disabled={!puedeCancelar}
-              >
-                <span className="material-icons">cancel</span>
-              </button>
-            )}
-          </div>
-        );
-      },
-    }
-  ], [puedeCancelar]);
+  ], []);
 
   const table = useReactTable({
     data: ventas,
@@ -834,7 +799,11 @@ const GestionVentas: React.FC = () => {
                         </tr>
                       ) : (
                         table.getRowModel().rows.map((row) => (
-                          <tr key={row.id}>
+                          <tr 
+                            key={row.id}
+                            onClick={() => setIdDetalleAbierto(row.original.id_venta)}
+                            className={styles.clickableRow}
+                          >
                             {row.getVisibleCells().map(cell => (
                               <td key={cell.id}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
