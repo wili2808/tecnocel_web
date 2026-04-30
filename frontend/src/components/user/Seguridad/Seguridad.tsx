@@ -8,14 +8,13 @@ import clienteService from '../../../services/clienteService';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './Seguridad.module.css';
 
+import Input from '../../common/Input/Input';
+
 const Seguridad = () => {
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [isGoogleAccount, setIsGoogleAccount] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     contrasenaActual: '',
@@ -171,85 +170,49 @@ const Seguridad = () => {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         {/* Contraseña actual */}
-        <div className={styles.formGroup}>
-          <label htmlFor="contrasenaActual" className={styles.label}>
-            <span className="material-icons">lock</span>
-            Contraseña Actual *
-          </label>
-          <div className={styles.passwordInput}>
-            <input
-              type={showCurrentPassword ? 'text' : 'password'}
-              id="contrasenaActual"
-              name="contrasenaActual"
-              value={formData.contrasenaActual}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.contrasenaActual ? styles.inputError : ''}`}
-              placeholder="Ingresa tu contraseña actual"
-            />
-            <button
-              type="button"
-              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-              className={styles.togglePassword}
-            >
-              <span className="material-icons">{showCurrentPassword ? 'visibility_off' : 'visibility'}</span>
-            </button>
-          </div>
-          {errors.contrasenaActual && <span className={styles.error}>{errors.contrasenaActual}</span>}
-        </div>
+        <Input
+          id="contrasenaActual"
+          name="contrasenaActual"
+          type="password"
+          label="Contraseña Actual"
+          icon="lock"
+          value={formData.contrasenaActual}
+          onChange={handleChange}
+          error={errors.contrasenaActual}
+          required
+          disabled={loading}
+          placeholder="Ingresa tu contraseña actual"
+        />
 
         {/* Nueva contraseña */}
-        <div className={styles.formGroup}>
-          <label htmlFor="contrasenaNueva" className={styles.label}>
-            <span className="material-icons">lock_open</span>
-            Nueva Contraseña *
-          </label>
-          <div className={styles.passwordInput}>
-            <input
-              type={showNewPassword ? 'text' : 'password'}
-              id="contrasenaNueva"
-              name="contrasenaNueva"
-              value={formData.contrasenaNueva}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.contrasenaNueva ? styles.inputError : ''}`}
-              placeholder="Ingresa tu nueva contraseña"
-            />
-            <button
-              type="button"
-              onClick={() => setShowNewPassword(!showNewPassword)}
-              className={styles.togglePassword}
-            >
-              <span className="material-icons">{showNewPassword ? 'visibility_off' : 'visibility'}</span>
-            </button>
-          </div>
-          {errors.contrasenaNueva && <span className={styles.error}>{errors.contrasenaNueva}</span>}
-        </div>
+        <Input
+          id="contrasenaNueva"
+          name="contrasenaNueva"
+          type="password"
+          label="Nueva Contraseña"
+          icon="lock_open"
+          value={formData.contrasenaNueva}
+          onChange={handleChange}
+          error={errors.contrasenaNueva}
+          required
+          disabled={loading}
+          placeholder="Ingresa tu nueva contraseña"
+        />
 
         {/* Confirmar contraseña */}
-        <div className={styles.formGroup}>
-          <label htmlFor="contrasenaConfirm" className={styles.label}>
-            <span className="material-icons">lock_outline</span>
-            Confirmar Nueva Contraseña *
-          </label>
-          <div className={styles.passwordInput}>
-            <input
-              type={showConfirmPassword ? 'text' : 'password'}
-              id="contrasenaConfirm"
-              name="contrasenaConfirm"
-              value={formData.contrasenaConfirm}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.contrasenaConfirm ? styles.inputError : ''}`}
-              placeholder="Confirma tu nueva contraseña"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className={styles.togglePassword}
-            >
-              <span className="material-icons">{showConfirmPassword ? 'visibility_off' : 'visibility'}</span>
-            </button>
-          </div>
-          {errors.contrasenaConfirm && <span className={styles.error}>{errors.contrasenaConfirm}</span>}
-        </div>
+        <Input
+          id="contrasenaConfirm"
+          name="contrasenaConfirm"
+          type="password"
+          label="Confirmar Nueva Contraseña"
+          icon="lock_outline"
+          value={formData.contrasenaConfirm}
+          onChange={handleChange}
+          error={errors.contrasenaConfirm}
+          required
+          disabled={loading}
+          placeholder="Confirma tu nueva contraseña"
+        />
 
         <div className={styles.actions}>
           <button type="submit" className={styles.btnPrimary} disabled={loading}>
@@ -267,6 +230,7 @@ const Seguridad = () => {
           </button>
         </div>
       </form>
+
 
       {/* Recomendaciones de seguridad */}
       <div className={styles.securityTips}>

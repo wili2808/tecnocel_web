@@ -66,11 +66,11 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   };
 
   return (
-    <div className={styles.modalOverlayPremium} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={styles.modalPremium} style={{ maxWidth: '850px' }}>
+    <div className="modalOverlayPremium" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modalPremium" style={{ maxWidth: '850px' }}>
         {/* Header Premium */}
-        <div className={styles.modalHeaderPremium}>
-          <h2 className={styles.modalTitlePremium}>
+        <div className="modalHeaderPremium">
+          <h2 className="modalTitlePremium">
             <span className="material-icons">store</span>
             Retiro en tienda #{retiro.nro_venta}
             <span
@@ -81,13 +81,13 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                 : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
             </span>
           </h2>
-          <button className={styles.closeButtonPremium} onClick={onClose} aria-label="Cerrar">
+          <button className="closeButtonPremium" onClick={onClose} aria-label="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {/* Body Premium */}
-        <div className={styles.modalBodyPremium}>
+        <div className="modalBodyPremium">
           {cargando ? (
             <div className={styles.loadingMsg}>Cargando detalle...</div>
           ) : detalle ? (
@@ -173,7 +173,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
               {!esEntregado && (
                 <div className={styles.envioAccionPanel}>
                   {!confirmando ? (
-                    <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={() => setConfirmando(true)}>
+                    <button className="btnPremium btnPrimaryPremium" onClick={() => setConfirmando(true)}>
                       <span className="material-icons" style={{ fontSize: 18 }}>
                         check_circle
                       </span>
@@ -186,13 +186,13 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                       </p>
                       <div className={styles.envioConfirmarBtns}>
                         <button
-                          className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
+                          className="btnPremium btnSecondaryPremium"
                           onClick={() => setConfirmando(false)}
                           disabled={guardando}
                         >
                           Cancelar
                         </button>
-                        <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={handleMarcarEntregado} disabled={guardando}>
+                        <button className="btnPremium btnPrimaryPremium" onClick={handleMarcarEntregado} disabled={guardando}>
                           {guardando ? 'Guardando...' : 'Confirmar entrega'}
                         </button>
                       </div>
@@ -207,8 +207,8 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
         </div>
 
         {/* Footer Premium */}
-        <div className={styles.modalFooterPremium}>
-          <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose}>
+        <div className="modalFooterPremium">
+          <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
             Cerrar
           </button>
         </div>

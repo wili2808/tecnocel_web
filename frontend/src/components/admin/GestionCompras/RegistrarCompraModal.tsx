@@ -9,6 +9,9 @@ import styles from './GestionCompras.module.css';
 import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
 import { AdminSearch, AdminEmptyState } from '../common';
+import Input from '../../common/Input/Input';
+import Select from '../../common/Select/Select';
+import TextArea from '../../common/TextArea/TextArea';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -287,25 +290,27 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               
               <div className={styles.formGrid} style={{ marginBottom: '24px' }}>
                 <div className={styles.formGroupPremium} style={{ gridColumn: '1 / span 2' }}>
-                  <label className={styles.formLabelPremium}>Proveedor *</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <select
-                      value={idProveedor}
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <Select
+                      id="idProveedor"
+                      name="idProveedor"
+                      label="Proveedor"
+                      value={String(idProveedor)}
                       onChange={(e) => setIdProveedor(Number(e.target.value) || '')}
-                      className={styles.formInputPremium}
+                      required
+                      options={[
+                        { value: '', label: '-- Seleccionar Proveedor --', disabled: true },
+                        ...proveedores.map((p) => ({
+                          value: String(p.id_proveedor),
+                          label: `${p.nombre_proveedor} (${p.empresa})`
+                        }))
+                      ]}
                       style={{ flex: 1 }}
-                    >
-                      <option value="">-- Seleccionar Proveedor --</option>
-                      {proveedores.map((p) => (
-                        <option key={p.id_proveedor} value={p.id_proveedor}>
-                          {p.nombre_proveedor} ({p.empresa})
-                        </option>
-                      ))}
-                    </select>
+                    />
                     <button
                       onClick={() => setMostrarCrearProveedor(true)}
                       className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
-                      style={{ padding: '8px 14px', whiteSpace: 'nowrap' }}
+                      style={{ padding: '8px 14px', whiteSpace: 'nowrap', marginBottom: '8px' }}
                       title="Agregar nuevo proveedor"
                     >
                       <span className="material-icons" style={{ fontSize: '18px' }}>person_add</span>
@@ -314,34 +319,34 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                   </div>
                 </div>
 
-                <div className={styles.formGroupPremium}>
-                  <label className={styles.formLabelPremium}>Fecha de Compra *</label>
-                  <input
-                    type="date"
-                    value={fechaCompra}
-                    onChange={(e) => setFechaCompra(e.target.value)}
-                    className={styles.formInputPremium}
-                  />
-                </div>
+                <Input
+                  id="fechaCompra"
+                  name="fechaCompra"
+                  type="date"
+                  label="Fecha de Compra"
+                  value={fechaCompra}
+                  onChange={(e) => setFechaCompra(e.target.value)}
+                  required
+                />
                 
-                <div className={styles.formGroupPremium}>
-                  <label className={styles.formLabelPremium}>Comprobante / Nro. Factura *</label>
-                  <input
-                    type="text"
-                    value={comprobante}
-                    onChange={(e) => setComprobante(e.target.value)}
-                    placeholder="Ej: FAC-001-1234"
-                    className={styles.formInputPremium}
-                  />
-                </div>
+                <Input
+                  id="comprobante"
+                  name="comprobante"
+                  label="Comprobante / Nro. Factura"
+                  value={comprobante}
+                  onChange={(e) => setComprobante(e.target.value)}
+                  placeholder="Ej: FAC-001-1234"
+                  required
+                />
 
                 <div className={styles.formGroupFullPremium}>
-                  <label className={styles.formLabelPremium}>Observaciones</label>
-                  <textarea
+                  <TextArea
+                    id="observaciones"
+                    name="observaciones"
+                    label="Observaciones"
                     value={observaciones}
                     onChange={(e) => setObservaciones(e.target.value)}
                     placeholder="Notas adicionales sobre esta compra..."
-                    className={styles.formTextareaPremium}
                     rows={1}
                   />
                 </div>

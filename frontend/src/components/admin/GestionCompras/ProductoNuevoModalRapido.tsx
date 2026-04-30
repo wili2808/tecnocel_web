@@ -1,6 +1,9 @@
 import React, { memo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Category, Marca } from '../../../types';
+import Input from '../../common/Input/Input';
+import Select from '../../common/Select/Select';
+import styles from './GestionCompras.module.css';
 
 interface ProductoNuevoModalRapidoProps {
   precioCompraBase?: number;
@@ -65,313 +68,114 @@ const ProductoNuevoModalRapido: React.FC<ProductoNuevoModalRapidoProps> = memo(
     };
 
     const modalContent = (
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10051,
-          backdropFilter: 'blur(2px)',
-          padding: '8px'
-        }}
-        onClick={onClose}
-      >
-        <div
-          style={{
-            backgroundColor: 'var(--background-primary)',
-            borderRadius: '12px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-            width: '100%',
-            maxWidth: 'clamp(280px, 95vw, 480px)',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'slideUp 0.3s ease-out'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: 'clamp(14px, 4vw, 20px) clamp(16px, 5vw, 24px)',
-              borderBottom: '1px solid var(--border-color)',
-              gap: '8px'
-            }}
-          >
-            <h2 style={{ margin: 0, fontSize: 'clamp(14px, 5vw, 16px)', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              ⊕ Crear Producto Rápido
+      <div className={styles.modalOverlayPremium} onClick={onClose}>
+        <div className={styles.modalPremium} style={{ maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeaderPremium}>
+            <h2 className={styles.modalTitlePremium}>
+              <span className="material-icons">add_box</span>
+              Crear Producto Rápido
             </h2>
-            <button
-              onClick={onClose}
-              disabled={guardando}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: 'clamp(20px, 6vw, 24px)',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                padding: '0',
-                width: 'clamp(28px, 8vw, 32px)',
-                height: 'clamp(28px, 8vw, 32px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px',
-                transition: 'background-color 0.2s',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--background-secondary)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              ✕
+            <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando}>
+              <span className="material-icons">close</span>
             </button>
           </div>
 
-          {/* Body */}
-          <div
-            style={{
-              padding: 'clamp(14px, 4vw, 24px)',
-              overflowY: 'auto',
-              flex: 1
-            }}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(8px, 2vw, 12px)', marginBottom: 'clamp(10px, 2vw, 12px)' }}>
-              <div>
-                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Código *
-                </label>
-                <input
-                  type="text"
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value)}
-                  placeholder="SKU-001"
-                  disabled={guardando}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: 'clamp(12px, 3vw, 13px)',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Nombre *
-                </label>
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Ej: iPhone 15 Pro"
-                  disabled={guardando}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: 'clamp(12px, 3vw, 13px)',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(8px, 2vw, 12px)', marginBottom: 'clamp(10px, 2vw, 12px)' }}>
-              <div>
-                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Precio Compra *
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={precioCompra}
-                  onChange={(e) => setPrecioCompra(e.target.value)}
-                  placeholder="0.00"
-                  disabled={guardando}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: 'clamp(12px, 3vw, 13px)',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Precio Venta *
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={precioVenta}
-                  onChange={(e) => setPrecioVenta(e.target.value)}
-                  placeholder="0.00"
-                  disabled={guardando}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: 'clamp(12px, 3vw, 13px)',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'clamp(8px, 2vw, 12px)', marginBottom: 'clamp(10px, 2vw, 12px)' }}>
-              <div>
-                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Categoría *
-                </label>
-                <select
-                  value={idCategoria}
-                  onChange={(e) => setIdCategoria(e.target.value ? Number(e.target.value) : '')}
-                  disabled={guardando}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: 'clamp(12px, 3vw, 13px)',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="">-- Seleccionar --</option>
-                  {categorias.map((cat) => (
-                    <option key={cat.id_categoria} value={cat.id_categoria}>
-                      {cat.nombre_categoria}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Marca (opcional)
-                </label>
-                <select
-                  value={idMarca}
-                  onChange={(e) => setIdMarca(e.target.value ? Number(e.target.value) : '')}
-                  disabled={guardando}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(6px, 2vw, 8px) clamp(10px, 3vw, 12px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: 'clamp(12px, 3vw, 13px)',
-                    fontFamily: 'var(--font-family-primary)',
-                    backgroundColor: 'var(--background-primary)',
-                    color: 'var(--text-primary)',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="">-- Ninguna --</option>
-                  {marcas.map((marca) => (
-                    <option key={marca.id_marca} value={marca.id_marca}>
-                      {marca.nombre_marca}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
+          <div className={styles.modalBodyPremium}>
             {error && (
-              <div
-                style={{
-                  padding: 'clamp(8px, 2vw, 10px)',
-                  background: '#fee2e2',
-                  border: '1px solid #fecaca',
-                  borderRadius: '6px',
-                  color: '#991b1b',
-                  fontSize: 'clamp(11px, 3vw, 13px)',
-                  marginBottom: 'clamp(10px, 2vw, 12px)'
-                }}
-              >
+              <div style={{ color: 'var(--color-error)', background: 'rgba(var(--color-error-rgb), 0.1)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', fontWeight: 500, border: '1px solid rgba(var(--color-error-rgb), 0.2)' }}>
+                <span className="material-icons" style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: '8px' }}>error</span>
                 {error}
               </div>
             )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <Input
+                id="codigo"
+                name="codigo"
+                label="Código"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                placeholder="SKU-001"
+                required
+                disabled={guardando}
+              />
+              <Input
+                id="nombre"
+                name="nombre"
+                label="Nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ej: iPhone 15 Pro"
+                required
+                disabled={guardando}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <Input
+                id="precioCompra"
+                name="precioCompra"
+                type="number"
+                label="Precio Compra"
+                value={precioCompra}
+                onChange={(e) => setPrecioCompra(e.target.value)}
+                placeholder="0.00"
+                required
+                disabled={guardando}
+              />
+              <Input
+                id="precioVenta"
+                name="precioVenta"
+                type="number"
+                label="Precio Venta"
+                value={precioVenta}
+                onChange={(e) => setPrecioVenta(e.target.value)}
+                placeholder="0.00"
+                required
+                disabled={guardando}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <Select
+                id="idCategoria"
+                name="idCategoria"
+                label="Categoría"
+                value={String(idCategoria)}
+                onChange={(e) => setIdCategoria(e.target.value ? Number(e.target.value) : '')}
+                required
+                disabled={guardando}
+                options={[
+                  { value: '', label: '-- Seleccionar --', disabled: true },
+                  ...categorias.map((cat) => ({
+                    value: String(cat.id_categoria),
+                    label: cat.nombre_categoria
+                  }))
+                ]}
+              />
+              <Select
+                id="idMarca"
+                name="idMarca"
+                label="Marca (opcional)"
+                value={String(idMarca)}
+                onChange={(e) => setIdMarca(e.target.value ? Number(e.target.value) : '')}
+                disabled={guardando}
+                options={[
+                  { value: '', label: '-- Ninguna --' },
+                  ...marcas.map((marca) => ({
+                    value: String(marca.id_marca),
+                    label: marca.nombre_marca
+                  }))
+                ]}
+              />
+            </div>
           </div>
 
-          {/* Footer */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 'clamp(8px, 2vw, 12px)',
-              padding: 'clamp(12px, 3vw, 16px) clamp(16px, 5vw, 24px)',
-              borderTop: '1px solid var(--border-color)',
-              backgroundColor: 'var(--background-secondary)'
-            }}
-          >
-            <button
-              onClick={onClose}
-              disabled={guardando}
-              style={{
-                flex: 1,
-                padding: 'clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'var(--background-primary)',
-                color: 'var(--text-primary)',
-                borderRadius: '6px',
-                fontSize: 'clamp(12px, 3vw, 13px)',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-family-primary)',
-                transition: 'background-color 0.2s',
-                opacity: guardando ? 0.5 : 1
-              }}
-              onMouseEnter={(e) => !guardando && (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-primary)')}
-            >
+          <div className={styles.modalFooterPremium}>
+            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
               Cancelar
             </button>
-            <button
-              onClick={handleGuardar}
-              disabled={guardando}
-              style={{
-                flex: 1,
-                padding: 'clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)',
-                background: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: 'clamp(12px, 3vw, 13px)',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-family-primary)',
-                transition: 'background-color 0.2s',
-                opacity: guardando ? 0.7 : 1
-              }}
-              onMouseEnter={(e) => !guardando && (e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
-            >
+            <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={handleGuardar} disabled={guardando}>
               {guardando ? 'Guardando...' : 'Crear Producto'}
             </button>
           </div>

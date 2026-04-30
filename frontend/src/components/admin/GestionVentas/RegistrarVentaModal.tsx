@@ -16,6 +16,8 @@ import styles from './GestionVentas.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
 import type { ItemVentaManual, ProductoParaVenta } from '../../../types/venta';
 import { AdminSearch } from '../common';
+import Select from '../../common/Select/Select';
+import TextArea from '../../common/TextArea/TextArea';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -231,22 +233,22 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.modalPremium}>
+    <div className="modalOverlayPremium" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modalPremium">
         
         {/* Header Premium */}
-        <div className={styles.modalHeaderPremium}>
-          <h2 className={styles.modalTitlePremium}>
+        <div className="modalHeaderPremium">
+          <h2 className="modalTitlePremium">
             <span className="material-icons">add_shopping_cart</span>
             Registrar Venta Manual
           </h2>
-          <button className={styles.closeButtonPremium} onClick={onClose} title="Cerrar">
+          <button className="closeButtonPremium" onClick={onClose} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {/* Body Premium */}
-        <div className={styles.modalBodyPremium}>
+        <div className="modalBodyPremium">
           
           {/* Stepper Premium */}
           <div className={styles.stepperPremium}>
@@ -479,30 +481,30 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                   <span className={styles.sectionTitlePremium}>Configuración del Pago</span>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div className={styles.formGroupPremium}>
-                      <label className={styles.formLabelPremium}>Método de Pago</label>
-                      <select 
-                        className={styles.formSelectPremium} 
-                        value={metodoPago} 
-                        onChange={(e) => setMetodoPago(e.target.value as any)}
-                      >
-                        <option value="efectivo">Efectivo</option>
-                        <option value="tarjeta">Tarjeta</option>
-                        <option value="transferencia">Transferencia</option>
-                        <option value="qr">QR</option>
-                      </select>
-                    </div>
-                    <div className={styles.formGroupPremium}>
-                      <label className={styles.formLabelPremium}>Moneda</label>
-                      <select 
-                        className={styles.formSelectPremium} 
-                        value={moneda} 
-                        onChange={(e) => setMoneda(e.target.value as any)}
-                      >
-                        <option value="ARS">Pesos (ARS)</option>
-                        <option value="USD">Dólares (USD)</option>
-                      </select>
-                    </div>
+                    <Select
+                      id="metodoPago"
+                      name="metodoPago"
+                      label="Método de Pago"
+                      value={metodoPago}
+                      onChange={(e) => setMetodoPago(e.target.value as any)}
+                      options={[
+                        { value: 'efectivo', label: 'Efectivo' },
+                        { value: 'tarjeta', label: 'Tarjeta' },
+                        { value: 'transferencia', label: 'Transferencia' },
+                        { value: 'qr', label: 'QR' }
+                      ]}
+                    />
+                    <Select
+                      id="moneda"
+                      name="moneda"
+                      label="Moneda"
+                      value={moneda}
+                      onChange={(e) => setMoneda(e.target.value as any)}
+                      options={[
+                        { value: 'ARS', label: 'Pesos (ARS)' },
+                        { value: 'USD', label: 'Dólares (USD)' }
+                      ]}
+                    />
                   </div>
 
                   {moneda === 'ARS' && (
@@ -517,15 +519,15 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                     </div>
                   )}
 
-                  <div className={styles.formGroupPremium}>
-                    <label className={styles.formLabelPremium}>Notas Internas</label>
-                    <textarea
-                      style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--background-primary)', minHeight: '100px', fontSize: '13.5px', color: 'var(--text-primary)', transition: 'border-color 0.2s', width: '100%' }}
-                      placeholder="Observaciones adicionales sobre la venta..."
-                      value={observaciones}
-                      onChange={(e) => setObservaciones(e.target.value)}
-                    />
-                  </div>
+                  <TextArea
+                    id="observaciones"
+                    name="observaciones"
+                    label="Notas Internas"
+                    placeholder="Observaciones adicionales sobre la venta..."
+                    value={observaciones}
+                    onChange={(e) => setObservaciones(e.target.value)}
+                    rows={4}
+                  />
                 </div>
 
                 {/* Resumen Final */}
@@ -560,21 +562,21 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
         </div>
 
         {/* Footer Premium */}
-        <div className={styles.modalFooterPremium}>
+        <div className="modalFooterPremium">
           {paso > 0 ? (
-            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
+            <button className="btnPremium btnSecondaryPremium" onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
               <span className="material-icons">arrow_back</span>
               Atrás
             </button>
           ) : (
-            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={enviando}>
+            <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={enviando}>
               Cancelar
             </button>
           )}
 
           {paso < PASOS.length - 1 ? (
             <button 
-              className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} 
+              className="btnPremium btnPrimaryPremium" 
               onClick={() => setPaso((p) => p + 1)} 
               disabled={!puedeAvanzar()}
             >
@@ -583,7 +585,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
             </button>
           ) : (
             <button 
-              className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} 
+              className="btnPremium btnPrimaryPremium" 
               onClick={handleConfirmar} 
               disabled={enviando}
               style={{ paddingLeft: '32px', paddingRight: '32px' }}

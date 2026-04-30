@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import styles from './GestionCompras.module.css';
+import TextArea from '../../common/TextArea/TextArea';
 
 interface AnularCompraModalProps {
   idCompra: number;
@@ -34,10 +35,9 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
     };
 
     return (
-      <div className={styles.modalOverlay} onClick={onClose}>
-        <div className={styles.modal} style={{ maxWidth: '450px' }} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modalOverlayPremium} onClick={onClose}>
+        <div className={styles.modalPremium} style={{ maxWidth: '450px' }} onClick={(e) => e.stopPropagation()}>
           
-          {/* Header Premium */}
           <div className={styles.modalHeaderPremium}>
             <h2 className={styles.modalTitlePremium} style={{ color: 'var(--color-error)' }}>
               <span className="material-icons">warning_amber</span>
@@ -48,7 +48,6 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
             </button>
           </div>
 
-          {/* Body Premium */}
           <div className={styles.modalBodyPremium}>
             <div style={{ marginBottom: '20px' }}>
               <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
@@ -57,7 +56,7 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
 
               <div style={{ 
                 padding: '12px 16px', 
-                background: 'var(--color-error-100)', 
+                background: 'rgba(var(--color-error-rgb), 0.1)', 
                 borderLeft: '4px solid var(--color-error)', 
                 borderRadius: '8px', 
                 marginBottom: '20px' 
@@ -67,33 +66,31 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
                 </p>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabelPremium}>Motivo de la Anulación (Opcional)</label>
-                <textarea
-                  value={motivo}
-                  onChange={(e) => setMotivo(e.target.value)}
-                  placeholder="Ej: Error en carga de datos, devolución al proveedor..."
-                  className={styles.formTextareaPremium}
-                  rows={3}
-                  disabled={anulando}
-                />
-              </div>
+              <TextArea
+                id="motivo"
+                name="motivo"
+                label="Motivo de la Anulación (Opcional)"
+                value={motivo}
+                onChange={(e) => setMotivo(e.target.value)}
+                placeholder="Ej: Error en carga de datos, devolución al proveedor..."
+                rows={3}
+                disabled={anulando}
+              />
 
               {error && (
-                <div style={{ marginTop: '16px', padding: '10px', background: 'var(--color-error-100)', borderRadius: '6px', color: 'var(--color-error)', fontSize: '12px', fontWeight: 600 }}>
+                <div style={{ marginTop: '16px', padding: '10px', background: 'rgba(var(--color-error-rgb), 0.1)', borderRadius: '6px', color: 'var(--color-error)', fontSize: '12px', fontWeight: 600 }}>
                   {error}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Footer Premium */}
           <div className={styles.modalFooterPremium}>
             <button className={styles.cancelButtonPremium} onClick={onClose} disabled={anulando}>
               Cancelar
             </button>
             <button 
-              className={styles.saveButton} 
+              className={styles.saveButtonPremium} 
               style={{ background: 'var(--color-error)' }}
               onClick={handleAnular} 
               disabled={anulando}

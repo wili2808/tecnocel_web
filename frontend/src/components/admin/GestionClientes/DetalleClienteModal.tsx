@@ -41,22 +41,22 @@ const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose, onEdit }) => {
   );
 
   return (
-    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.modalPremium}>
+    <div className="modalOverlayPremium" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modalPremium">
 
         {/* Header Premium */}
-        <div className={styles.modalHeaderPremium}>
-          <h2 className={styles.modalTitlePremium}>
+        <div className="modalHeaderPremium">
+          <h2 className="modalTitlePremium">
             <span className="material-icons">account_circle</span>
             {cliente.nombre_cliente} {cliente.apellido_cliente}
           </h2>
-          <button className={styles.closeButtonPremium} onClick={onClose} title="Cerrar">
+          <button className="closeButtonPremium" onClick={onClose} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {/* Body Premium */}
-        <div className={styles.modalBodyPremium}>
+        <div className="modalBodyPremium">
           <div className={styles.formGridPremium}>
 
             {/* Sección: Información Personal */}
@@ -115,14 +115,14 @@ const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose, onEdit }) => {
         </div>
 
         {/* Footer Premium */}
-        <div className={styles.modalFooterPremium}>
+        <div className="modalFooterPremium">
           {onEdit && (
-            <button className={styles.editButtonPremium} onClick={onEdit}>
+            <button className="btnPremium btnPrimaryPremium" onClick={onEdit}>
               <span className="material-icons">edit</span>
               Editar Cliente
             </button>
           )}
-          <button className={styles.cancelButtonPremium} onClick={onClose}>
+          <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
             Cerrar
           </button>
         </div>

@@ -3,6 +3,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
+import Input from '../../common/Input/Input';
 
 interface Props {
   cliente: ClienteListItem;
@@ -35,6 +36,11 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
 
   const setField = (field: string, value: string | boolean) => setForm((prev) => ({ ...prev, [field]: value }));
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setField(name, value);
+  };
+
   const handleGuardar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (guardando) return;
@@ -64,80 +70,72 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
 
   return (
     <div
-      className={styles.modalOverlay}
+      className="modalOverlayPremium"
       onClick={(e) => {
         if (e.target === e.currentTarget && !guardando) onClose();
       }}
     >
-      <div className={styles.modalPremium}>
+      <div className="modalPremium">
         
         {/* Header Premium */}
-        <div className={styles.modalHeaderPremium}>
-          <h2 className={styles.modalTitlePremium}>
+        <div className="modalHeaderPremium">
+          <h2 className="modalTitlePremium">
             <span className="material-icons">manage_accounts</span>
             Editar Perfil de Cliente
           </h2>
-          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando} title="Cerrar">
+          <button className="closeButtonPremium" onClick={onClose} disabled={guardando} title="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {/* Body Premium */}
-        <div className={styles.modalBodyPremium}>
+        <div className="modalBodyPremium">
           <form id="edit-cliente-form" onSubmit={handleGuardar}>
             
             <span className={styles.sectionTitlePremium}>Datos Identificativos</span>
             
             <div className={styles.formGridPremium}>
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>Nombre *</label>
-                <input
-                  className={styles.formInputPremium}
-                  type="text"
-                  value={form.nombre_cliente}
-                  onChange={(e) => setField('nombre_cliente', e.target.value)}
-                  disabled={guardando}
-                  maxLength={100}
-                  required
-                />
-              </div>
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>Apellido *</label>
-                <input
-                  className={styles.formInputPremium}
-                  type="text"
-                  value={form.apellido_cliente}
-                  onChange={(e) => setField('apellido_cliente', e.target.value)}
-                  disabled={guardando}
-                  maxLength={100}
-                  required
-                />
-              </div>
+              <Input
+                id="nombre_cliente"
+                name="nombre_cliente"
+                label="Nombre"
+                value={form.nombre_cliente}
+                onChange={handleInputChange}
+                disabled={guardando}
+                maxLength={100}
+                required
+              />
+              <Input
+                id="apellido_cliente"
+                name="apellido_cliente"
+                label="Apellido"
+                value={form.apellido_cliente}
+                onChange={handleInputChange}
+                disabled={guardando}
+                maxLength={100}
+                required
+              />
 
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>Celular / WhatsApp</label>
-                <input
-                  className={styles.formInputPremium}
-                  type="text"
-                  value={form.celular_cliente}
-                  onChange={(e) => setField('celular_cliente', e.target.value)}
-                  disabled={guardando}
-                  maxLength={20}
-                  placeholder="Ej: 11 1234-5678"
-                />
-              </div>
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>NIT / CI</label>
-                <input
-                  className={styles.formInputPremium}
-                  type="text"
-                  value={form.nit_ci_cliente}
-                  onChange={(e) => setField('nit_ci_cliente', e.target.value)}
-                  disabled={guardando}
-                  maxLength={50}
-                  placeholder="Ej: 12345678"
-                />
-              </div>
+              <Input
+                id="celular_cliente"
+                name="celular_cliente"
+                label="Celular / WhatsApp"
+                value={form.celular_cliente}
+                onChange={handleInputChange}
+                disabled={guardando}
+                maxLength={20}
+                placeholder="Ej: 11 1234-5678"
+              />
+              <Input
+                id="nit_ci_cliente"
+                name="nit_ci_cliente"
+                label="DNI / CUIT"
+                value={form.nit_ci_cliente}
+                onChange={handleInputChange}
+                disabled={guardando}
+                maxLength={50}
+                placeholder="Ej: 12345678"
+              />
             </div>
 
             <div className={styles.formDivider} style={{ margin: '24px 0' }} />
@@ -195,14 +193,14 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
         </div>
 
         {/* Footer Premium */}
-        <div className={styles.modalFooterPremium}>
-          <button className={styles.cancelButtonPremium} onClick={onClose} disabled={guardando}>
+        <div className="modalFooterPremium">
+          <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
             Cancelar
           </button>
           <button 
             type="submit" 
             form="edit-cliente-form"
-            className={styles.saveButtonPremium} 
+            className="btnPremium btnPrimaryPremium" 
             disabled={guardando}
           >
             <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>

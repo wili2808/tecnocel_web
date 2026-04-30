@@ -4,6 +4,8 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Marca } from '../../../types/product';
 import styles from './GestionProductos.module.css';
+import Input from '../../common/Input/Input';
+import TextArea from '../../common/TextArea/TextArea';
 
 interface MarcaModalProps {
   marca?: Marca | null;
@@ -52,6 +54,11 @@ const MarcaModal: React.FC<MarcaModalProps> = ({ marca, isOpen, onClose, onGuard
   }, [isOpen, marca]);
 
   if (!isOpen) return null;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -128,20 +135,20 @@ const MarcaModal: React.FC<MarcaModalProps> = ({ marca, isOpen, onClose, onGuard
   const readonly = modoEdicion ? !puedeEditar : !puedeCrear;
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>
+    <div className={styles.modalOverlayPremium} onClick={onClose}>
+      <div className={styles.modalPremium} style={{ maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeaderPremium}>
+          <h3 className={styles.modalTitlePremium}>
             <span className="material-icons">{modoEdicion ? 'edit' : 'add_circle'}</span>
             {modoEdicion ? 'Editar Marca' : 'Nueva Marca'}
           </h3>
-          <button className={styles.closeButton} onClick={onClose} disabled={guardando || eliminando}>
+          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando || eliminando}>
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {showConfirmDelete ? (
-          <div className={styles.modalBody}>
+          <div className={styles.modalBodyPremium}>
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <span className="material-icons" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 16 }}>
                 warning
@@ -151,17 +158,18 @@ const MarcaModal: React.FC<MarcaModalProps> = ({ marca, isOpen, onClose, onGuard
                 Estás a punto de eliminar <strong>{marca?.nombre_marca}</strong>. Esta acción no se puede deshacer.
               </p>
             </div>
-            <div className={styles.modalFooter}>
+            <div className={styles.modalFooterPremium}>
               <button 
-                className={styles.cancelButton} 
+                type="button"
+                className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} 
                 onClick={() => setShowConfirmDelete(false)} 
                 disabled={eliminando}
               >
                 Cancelar
               </button>
               <button 
-                className={styles.saveButton} 
-                style={{ backgroundColor: 'var(--color-error)' }} 
+                type="button"
+                className={`${styles.btnPremium} ${styles.btnDangerSolidPremium}`} 
                 onClick={handleEliminar} 
                 disabled={eliminando}
               >
@@ -171,8 +179,8 @@ const MarcaModal: React.FC<MarcaModalProps> = ({ marca, isOpen, onClose, onGuard
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className={styles.modalBody}>
-              <div className={styles.logoUploadContainer}>
+            <div className={styles.modalBodyPremium}>
+              <div className={styles.logoUploadContainer} style={{ marginBottom: '24px' }}>
                 <div className={styles.logoPreviewWrapper}>
                   {logoPreview ? (
                     <img 
@@ -201,61 +209,54 @@ const MarcaModal: React.FC<MarcaModalProps> = ({ marca, isOpen, onClose, onGuard
                 </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  Nombre <span style={{ color: 'var(--color-error)' }}>*</span>
-                </label>
-                <input
-                  className={styles.formInput}
-                  value={form.nombre_marca}
-                  onChange={(e) => setForm({ ...form, nombre_marca: e.target.value })}
-                  placeholder="Ej: Samsung, Apple, Xiaomi"
-                  disabled={guardando || readonly}
-                  required
-                />
-              </div>
+              <Input
+                id="nombre_marca"
+                name="nombre_marca"
+                label="Nombre de la Marca"
+                value={form.nombre_marca}
+                onChange={handleInputChange}
+                placeholder="Ej: Samsung, Apple, Xiaomi"
+                disabled={guardando || readonly}
+                required
+              />
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Descripción</label>
-                <textarea
-                  className={styles.formInput}
-                  value={form.descripcion_marca}
-                  onChange={(e) => setForm({ ...form, descripcion_marca: e.target.value })}
-                  placeholder="Descripción opcional de la marca..."
-                  disabled={guardando || readonly}
-                  rows={3}
-                  style={{ resize: 'vertical' }}
-                />
-              </div>
+              <TextArea
+                id="descripcion_marca"
+                name="descripcion_marca"
+                label="Descripción"
+                value={form.descripcion_marca}
+                onChange={handleInputChange}
+                placeholder="Descripción opcional de la marca..."
+                disabled={guardando || readonly}
+                rows={3}
+              />
             </div>
 
-            <div className={styles.modalFooter} style={{ display: 'flex', justifyContent: modoEdicion && puedeEliminar ? 'space-between' : 'flex-end' }}>
+            <div className={styles.modalFooterPremium}>
               {modoEdicion && puedeEliminar && (
                 <button 
                   type="button" 
-                  className={styles.cancelButton} 
-                  style={{ color: 'var(--color-error)', border: '1px solid var(--color-error)', backgroundColor: 'transparent' }} 
+                  className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+                  style={{ marginRight: 'auto' }}
                   onClick={() => setShowConfirmDelete(true)} 
                   disabled={guardando}
                 >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4, verticalAlign: 'text-bottom' }}>delete</span>
+                  <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
                   Eliminar
                 </button>
               )}
               
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
-                  Cancelar
+              <button type="button" className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
+                Cancelar
+              </button>
+              {!readonly && (
+                <button type="submit" className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} disabled={guardando}>
+                  <span className="material-icons" style={{ fontSize: 18 }}>
+                    {guardando ? 'hourglass_empty' : 'save'}
+                  </span>
+                  {guardando ? 'Guardando...' : 'Guardar'}
                 </button>
-                {!readonly && (
-                  <button type="submit" className={styles.saveButton} disabled={guardando}>
-                    <span className="material-icons" style={{ fontSize: 18, marginRight: 6, verticalAlign: 'text-bottom' }}>
-                      {guardando ? 'hourglass_empty' : 'save'}
-                    </span>
-                    {guardando ? 'Guardando...' : 'Guardar'}
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </form>
         )}

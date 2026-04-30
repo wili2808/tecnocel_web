@@ -5,24 +5,21 @@
  */
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import logo from "../../../assets/tecnocel.svg";
+import Button from "../../common/Button";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useNotification } from "../../../contexts/NotificationContext";
-import Button from "../../common/Button";
-import logo from "../../../assets/tecnocel.svg";
+import Input from "../../common/Input/Input";
 import styles from "./RegisterForm.module.css";
 import type { RegisterData } from "../../../types/auth";
 
 const RegisterForm = () => {
-  // ============================================================================
-  // HOOKS Y CONTEXTOS
-  // ============================================================================
-  const { register, googleLogin, error: authError } = useAuth();
+  // -----> HOOKS Y CONTEXTOS ---------------------------------------------------
   const navigate = useNavigate();
   const { showNotification } = useNotification();
+  const { register, googleLogin, error: authError } = useAuth();
 
-  // ============================================================================
-  // ESTADOS DEL FORMULARIO
-  // ============================================================================
+  // -----> ESTADOS DEL FORMULARIO ----------------------------------------------
   const [formData, setFormData] = useState<RegisterData>({
     nombre: "",
     apellido: "",
@@ -34,9 +31,6 @@ const RegisterForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   // Resetea el spinner si Google OAuth falla o el usuario cierra el popup
   useEffect(() => {
@@ -45,17 +39,14 @@ const RegisterForm = () => {
     }
   }, [authError]);
 
-  // ============================================================================
-  // MANEJADORES DE EVENTOS
-  // ============================================================================
-
+  // -----> MANEJADORES DE EVENTOS --------------------------------------------
   /**
    * Maneja los cambios en los campos del formulario
    * Actualiza el estado local y limpia errores automáticamente
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: RegisterData) => ({ ...prev, [name]: value }));
 
     // ✅ LIMPIAR ERROR del campo cuando el usuario empiece a escribir
     if (formErrors[name as keyof typeof formErrors]) {
@@ -63,42 +54,7 @@ const RegisterForm = () => {
     }
   };
 
-  /**
-   * Maneja el focus de los inputs para efectos visuales
-   * Activa el estado de campo enfocado para estilos CSS
-   */
-  const handleFocus = (fieldName: string) => {
-    setFocusedField(fieldName);
-  };
-
-  /**
-   * Maneja el blur de los inputs para efectos visuales
-   * Desactiva el estado de campo enfocado
-   */
-  const handleBlur = () => {
-    setFocusedField(null);
-  };
-
-  /**
-   * Toggle de visibilidad de contraseña principal
-   * Permite al usuario ver/ocultar el texto de la contraseña
-   */
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  /**
-   * Toggle de visibilidad de confirmación de contraseña
-   * Permite al usuario ver/ocultar el texto de confirmación
-   */
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  // ============================================================================
-  // VALIDACIÓN Y MANEJO DE FORMULARIO
-  // ============================================================================
-
+  // -----> VALIDACIÓN Y MANEJO DE FORMULARIO ---------------------------------------
   /**
    * Valida todos los campos del formulario de registro
    * Retorna true si el formulario es válido, false si hay errores
@@ -199,98 +155,7 @@ const RegisterForm = () => {
     googleLogin();
   };
 
-  // ============================================================================
-  // RENDERIZADO DE CAMPOS
-  // ============================================================================
-
-  /**
-   * Renderiza un campo de input personalizado con validación
-   * Incluye iconos, estados de error y toggle de contraseña
-   */
-  const renderInput = (
-    id: string,
-    name: string,
-    type: string,
-    label: string,
-    value: string,
-    icon: string,
-    autoComplete?: string,
-    error?: string,
-    isPassword?: boolean
-  ) => {
-    const isPasswordField = type === "password";
-    const showPasswordValue = isPassword
-      ? name === "password"
-        ? showPassword
-        : showConfirmPassword
-      : false;
-    const inputType = isPasswordField
-      ? showPasswordValue
-        ? "text"
-        : "password"
-      : type;
-
-    return (
-      <div className={styles.formGroup}>
-        <label htmlFor={id} className={styles.label}>
-          {label}
-          <span className={styles.required}>*</span>
-        </label>
-        <div
-          className={`${styles.inputContainer} ${
-            focusedField === id ? styles.focused : ""
-          } ${error ? styles.error : ""}`}
-        >
-          <span className={styles.iconLeft}>
-            <span className="material-icons">{icon}</span>
-          </span>
-          <input
-            id={id}
-            name={name}
-            type={inputType}
-            value={value}
-            onChange={handleInputChange}
-            onFocus={() => handleFocus(id)}
-            onBlur={handleBlur}
-            required
-            disabled={isLoading}
-            className={styles.input}
-            autoComplete={autoComplete}
-          />
-          {isPasswordField && (
-            <button
-              type="button"
-              className={styles.passwordToggle}
-              onClick={
-                name === "password"
-                  ? togglePasswordVisibility
-                  : toggleConfirmPasswordVisibility
-              }
-              disabled={isLoading}
-              aria-label={
-                showPasswordValue ? "Ocultar contraseña" : "Mostrar contraseña"
-              }
-            >
-              <span className="material-icons">
-                {showPasswordValue ? "visibility_off" : "visibility"}
-              </span>
-            </button>
-          )}
-        </div>
-        {error && (
-          <div className={styles.errorMessage}>
-            <span className="material-icons">error</span>
-            <span>{error}</span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // ============================================================================
-  // RENDERIZADO PRINCIPAL
-  // ============================================================================
-
+  // -----> RENDERIZADO PRINCIPAL ------------------------------------------------
   return (
     <div className={styles.registerCard}>
       {/* Encabezado integrado con logo y descripción */}
@@ -311,91 +176,106 @@ const RegisterForm = () => {
       <form onSubmit={handleSubmit} className={styles.registerForm}>
         {/* Fila 1: Nombre y Apellidos en layout horizontal */}
         <div className={styles.formRow}>
-          {renderInput(
-            "nombre",
-            "nombre",
-            "text",
-            "Nombre",
-            formData.nombre,
-            "person",
-            "given-name",
-            formErrors.nombre
-          )}
+          <Input
+            id="nombre"
+            name="nombre"
+            label="Nombre"
+            icon="person"
+            value={formData.nombre}
+            onChange={handleInputChange}
+            error={formErrors.nombre}
+            required
+            disabled={isLoading}
+            autoComplete="given-name"
+          />
 
-          {renderInput(
-            "apellido",
-            "apellido",
-            "text",
-            "Apellidos",
-            formData.apellido,
-            "person",
-            "family-name",
-            formErrors.apellido
-          )}
+          <Input
+            id="apellido"
+            name="apellido"
+            label="Apellidos"
+            icon="person"
+            value={formData.apellido}
+            onChange={handleInputChange}
+            error={formErrors.apellido}
+            required
+            disabled={isLoading}
+            autoComplete="family-name"
+          />
         </div>
 
         {/* Fila 2: Email en ancho completo */}
-        {renderInput(
-          "email",
-          "email",
-          "email",
-          "Correo Electrónico",
-          formData.email,
-          "email",
-          "email",
-          formErrors.email
-        )}
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          label="Correo Electrónico"
+          icon="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          error={formErrors.email}
+          required
+          disabled={isLoading}
+          autoComplete="email"
+        />
 
         {/* Fila 3: Contraseñas en layout horizontal */}
         <div className={styles.formRow}>
-          {renderInput(
-            "password",
-            "password",
-            "password",
-            "Contraseña",
-            formData.password,
-            "lock",
-            "new-password",
-            formErrors.password,
-            true
-          )}
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            label="Contraseña"
+            icon="lock"
+            value={formData.password}
+            onChange={handleInputChange}
+            error={formErrors.password}
+            required
+            disabled={isLoading}
+            autoComplete="new-password"
+          />
 
-          {renderInput(
-            "confirmPassword",
-            "confirmPassword",
-            "password",
-            "Confirmar Contraseña",
-            formData.confirmPassword,
-            "lock",
-            "new-password",
-            formErrors.confirmPassword,
-            true
-          )}
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            label="Confirmar Contraseña"
+            icon="lock"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            error={formErrors.confirmPassword}
+            required
+            disabled={isLoading}
+            autoComplete="new-password"
+          />
         </div>
 
         {/* Fila 4: Celular y NIT/CI en layout horizontal */}
         <div className={styles.formRow}>
-          {renderInput(
-            "celular",
-            "celular",
-            "tel",
-            "Celular",
-            formData.celular ?? '',
-            "phone",
-            "tel",
-            formErrors.celular
-          )}
+          <Input
+            id="celular"
+            name="celular"
+            type="tel"
+            label="Celular"
+            icon="phone"
+            value={formData.celular ?? ''}
+            onChange={handleInputChange}
+            error={formErrors.celular}
+            required
+            disabled={isLoading}
+            autoComplete="tel"
+          />
 
-          {renderInput(
-            "nitCi",
-            "nitCi",
-            "text",
-            "NIT/CI",
-            formData.nitCi ?? '',
-            "badge",
-            undefined,
-            formErrors.nitCi
-          )}
+          <Input
+            id="nitCi"
+            name="nitCi"
+            label="NIT/CI"
+            icon="badge"
+            value={formData.nitCi ?? ''}
+            onChange={handleInputChange}
+            error={formErrors.nitCi}
+            required
+            disabled={isLoading}
+          />
         </div>
 
         {/* Botón de envío principal usando componente Button personalizado */}

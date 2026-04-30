@@ -139,14 +139,14 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
   return (
     <>
-      <div className={styles.modalOverlay} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-        <div className={styles.modalPremium}>
+      <div className="modalOverlayPremium" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className="modalPremium">
           
           {/* Header Premium */}
-          <div className={styles.modalHeaderPremium}>
+          <div className="modalHeaderPremium">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>Documento de Venta</span>
-              <h2 className={styles.modalTitlePremium} style={{ fontSize: '24px', color: 'var(--color-primary)' }}>
+              <h2 className="modalTitlePremium" style={{ fontSize: '24px', color: 'var(--color-primary)' }}>
                 {detalle ? detalle.nro_venta : `Venta #${idVenta}`}
                 {detalle && (
                   <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
@@ -160,13 +160,13 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                 )}
               </h2>
             </div>
-            <button className={styles.closeButtonPremium} onClick={onClose} title="Cerrar">
+            <button className="closeButtonPremium" onClick={onClose} title="Cerrar">
               <span className="material-icons">close</span>
             </button>
           </div>
 
           {/* Body Premium */}
-          <div className={styles.modalBodyPremium}>
+          <div className="modalBodyPremium">
             {cargando ? (
               <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                 <span className="material-icons" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>hourglass_empty</span>
@@ -291,10 +291,10 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
           </div>
 
           {/* Footer Premium Organizado */}
-          <div className={styles.modalFooterPremium}>
+          <div className="modalFooterPremium">
             {puedeCancelar && (
               <button 
-                className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+                className="btnPremium btnDangerPremium" 
                 onClick={() => setMostrarCancelacionModal(true)}
                 style={{ marginRight: 'auto' }}
               >
@@ -306,7 +306,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               {puedeDescargarPdf && (
                 <button 
-                  className={`${styles.btnPremium} ${styles.btnOutlinePremium}`} 
+                  className="btnPremium btnOutlinePremium" 
                   onClick={handleDescargar}
                   disabled={descargando}
                 >
@@ -317,7 +317,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
 
               {puedeEnviarEmail && (
                 <button 
-                  className={`${styles.btnPremium} ${styles.btnOutlinePremium}`} 
+                  className="btnPremium btnOutlinePremium" 
                   onClick={handleEnviarEmail}
                   disabled={enviando}
                 >
@@ -326,7 +326,7 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
                 </button>
               )}
 
-              <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} style={{ minWidth: '100px' }}>
+              <button className="btnPremium btnSecondaryPremium" onClick={onClose} style={{ minWidth: '100px' }}>
                 Cerrar
               </button>
             </div>

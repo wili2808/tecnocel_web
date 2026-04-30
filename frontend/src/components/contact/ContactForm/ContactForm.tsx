@@ -31,6 +31,10 @@ interface ContactFormProps {
  * />
  * ```
  */
+import Input from '../../common/Input/Input';
+import TextArea from '../../common/TextArea/TextArea';
+import Select from '../../common/Select/Select';
+
 export const ContactForm: React.FC<ContactFormProps> = ({
     onSubmitSuccess,
     className = ''
@@ -154,141 +158,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     };
 
     // ============================================================================
-    // RENDERIZADO DE CAMPOS
-    // ============================================================================
-
-    /**
-     * Renderiza un campo de input personalizado con validación
-     * Incluye iconos en el label, estados de error y feedback visual
-     */
-    const renderInput = (
-        id: string,
-        name: string,
-        type: string,
-        label: string,
-        value: string,
-        icon: string,
-        autoComplete?: string,
-        error?: string,
-        placeholder?: string,
-        required?: boolean
-    ) => {
-        return (
-            <div className={styles.formGroup}>
-                <label htmlFor={id} className={styles.label}>
-                    <span className="material-icons">{icon}</span>
-                    {label} {required && '*'}
-                </label>
-                <input
-                    id={id}
-                    name={name}
-                    type={type}
-                    value={value}
-                    onChange={handleInputChange}
-                    required={required}
-                    disabled={isSubmitting}
-                    className={`${styles.input} ${error ? styles.inputError : ''}`}
-                    autoComplete={autoComplete}
-                    placeholder={placeholder}
-                />
-                {error && (
-                    <span className={styles.error}>
-                        <span className="material-icons">error</span>
-                        {error}
-                    </span>
-                )}
-            </div>
-        );
-    };
-
-    /**
-     * Renderiza un campo de select personalizado con validación
-     * Incluye iconos en el label, estados de error y feedback visual
-     */
-    const renderSelect = (
-        id: string,
-        name: string,
-        label: string,
-        value: string,
-        icon: string,
-        options: { value: string; label: string }[],
-        error?: string,
-        required?: boolean
-    ) => {
-        return (
-            <div className={styles.formGroup}>
-                <label htmlFor={id} className={styles.label}>
-                    <span className="material-icons">{icon}</span>
-                    {label} {required && '*'}
-                </label>
-                <select
-                    id={id}
-                    name={name}
-                    value={value}
-                    onChange={handleInputChange}
-                    required={required}
-                    disabled={isSubmitting}
-                    className={`${styles.input} ${error ? styles.inputError : ''}`}
-                >
-                    {options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
-                {error && (
-                    <span className={styles.error}>
-                        <span className="material-icons">error</span>
-                        {error}
-                    </span>
-                )}
-            </div>
-        );
-    };
-
-    /**
-     * Renderiza un campo de textarea personalizado con validación
-     * Incluye iconos en el label, estados de error y feedback visual
-     */
-    const renderTextarea = (
-        id: string,
-        name: string,
-        label: string,
-        value: string,
-        icon: string,
-        error?: string,
-        placeholder?: string,
-        required?: boolean,
-        rows?: number
-    ) => {
-        return (
-            <div className={styles.formGroup}>
-                <label htmlFor={id} className={styles.label}>
-                    <span className="material-icons">{icon}</span>
-                    {label} {required && '*'}
-                </label>
-                <textarea
-                    id={id}
-                    name={name}
-                    value={value}
-                    onChange={handleInputChange}
-                    required={required}
-                    disabled={isSubmitting}
-                    className={`${styles.textarea} ${error ? styles.inputError : ''}`}
-                    placeholder={placeholder}
-                    rows={rows || 6}
-                />
-                {error && (
-                    <span className={styles.error}>
-                        <span className="material-icons">error</span>
-                        {error}
-                    </span>
-                )}
-            </div>
-        );
-    };
-
-    // ============================================================================
     // RENDERIZADO PRINCIPAL
     // ============================================================================
 
@@ -306,55 +175,63 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             <form onSubmit={handleSubmit} className={styles.contactForm}>
                 {/* Fila 1: Nombre y Email en layout horizontal */}
                 <div className={styles.formRow}>
-                    {renderInput(
-                        'nombre',
-                        'nombre',
-                        'text',
-                        'Nombre completo',
-                        formData.nombre,
-                        'person',
-                        'name',
-                        errors.nombre,
-                        'Juan Pérez',
-                        true
-                    )}
+                    <Input
+                        id="nombre"
+                        name="nombre"
+                        label="Nombre completo"
+                        icon="person"
+                        value={formData.nombre}
+                        onChange={handleInputChange}
+                        error={errors.nombre}
+                        required
+                        disabled={isSubmitting}
+                        autoComplete="name"
+                        placeholder="Juan Pérez"
+                    />
 
-                    {renderInput(
-                        'email',
-                        'email',
-                        'email',
-                        'Correo Electrónico',
-                        formData.email,
-                        'email',
-                        'email',
-                        errors.email,
-                        'juan@ejemplo.com',
-                        true
-                    )}
+                    <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        label="Correo Electrónico"
+                        icon="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        error={errors.email}
+                        required
+                        disabled={isSubmitting}
+                        autoComplete="email"
+                        placeholder="juan@ejemplo.com"
+                    />
                 </div>
 
                 {/* Fila 2: Teléfono y Asunto en layout horizontal */}
                 <div className={styles.formRow}>
-                    {renderInput(
-                        'telefono',
-                        'telefono',
-                        'tel',
-                        'Teléfono',
-                        formData.telefono,
-                        'phone',
-                        'tel',
-                        errors.telefono,
-                        '+591 XXX-XXXX',
-                        false
-                    )}
+                    <Input
+                        id="telefono"
+                        name="telefono"
+                        type="tel"
+                        label="Teléfono"
+                        icon="phone"
+                        value={formData.telefono}
+                        onChange={handleInputChange}
+                        error={errors.telefono}
+                        disabled={isSubmitting}
+                        autoComplete="tel"
+                        placeholder="+591 XXX-XXXX"
+                    />
 
-                    {renderSelect(
-                        'asunto',
-                        'asunto',
-                        'Asunto',
-                        formData.asunto,
-                        'subject',
-                        [
+                    <Select
+                        id="asunto"
+                        name="asunto"
+                        label="Asunto"
+                        icon="subject"
+                        value={formData.asunto}
+                        onChange={handleInputChange}
+                        error={errors.asunto}
+                        required
+                        disabled={isSubmitting}
+                        options={[
                             { value: '', label: 'Selecciona un asunto' },
                             { value: 'consulta', label: 'Consulta general' },
                             { value: 'cotizacion', label: 'Solicitar cotización' },
@@ -362,24 +239,24 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                             { value: 'garantia', label: 'Garantía' },
                             { value: 'reclamo', label: 'Reclamo' },
                             { value: 'otro', label: 'Otro' }
-                        ],
-                        errors.asunto,
-                        true
-                    )}
+                        ]}
+                    />
                 </div>
 
                 {/* Fila 3: Mensaje en ancho completo */}
-                {renderTextarea(
-                    'mensaje',
-                    'mensaje',
-                    'Mensaje',
-                    formData.mensaje,
-                    'message',
-                    errors.mensaje,
-                    'Escribe tu mensaje aquí...',
-                    true,
-                    6
-                )}
+                <TextArea
+                    id="mensaje"
+                    name="mensaje"
+                    label="Mensaje"
+                    icon="message"
+                    value={formData.mensaje}
+                    onChange={handleInputChange}
+                    error={errors.mensaje}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Escribe tu mensaje aquí..."
+                    rows={6}
+                />
 
                 {/* Botón de envío principal usando componente Button personalizado */}
                 <Button
@@ -402,6 +279,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         </div>
     );
 };
+
 
 export default ContactForm;
 

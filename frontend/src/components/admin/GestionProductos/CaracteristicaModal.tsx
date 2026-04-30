@@ -4,6 +4,8 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { TipoCaracteristica } from '../../../types/product';
 import styles from './GestionProductos.module.css';
+import Input from '../../common/Input/Input';
+import Select from '../../common/Select/Select';
 
 interface CaracteristicaModalProps {
   tipo?: TipoCaracteristica | null;
@@ -76,6 +78,21 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
   }, [isOpen, tipo]);
 
   if (!isOpen) return null;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    if (name === 'tipo_dato') {
+      setForm((f) => ({
+        ...f,
+        tipo_dato: value as TipoCaracteristica['tipo_dato'],
+        opciones_seleccion: [],
+        unidad_medida: '',
+      }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
 
   const agregarOpcion = () => {
     const opcion = nuevaOpcion.trim();
@@ -161,20 +178,20 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
   const readonly = modoEdicion ? !puedeEditar : !puedeCrear;
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>
+    <div className={styles.modalOverlayPremium} onClick={onClose}>
+      <div className={styles.modalPremium} style={{ maxWidth: '550px' }} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeaderPremium}>
+          <h3 className={styles.modalTitlePremium}>
             <span className="material-icons">{modoEdicion ? 'edit' : 'add_circle'}</span>
             {modoEdicion ? 'Editar Tipo de Característica' : 'Nuevo Tipo'}
           </h3>
-          <button className={styles.closeButton} onClick={onClose} disabled={guardando || eliminando}>
+          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando || eliminando}>
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {showConfirmDelete ? (
-          <div className={styles.modalBody}>
+          <div className={styles.modalBodyPremium}>
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <span className="material-icons" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 16 }}>
                 warning
@@ -184,17 +201,18 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
                 Estás a punto de desactivar <strong>{tipo?.nombre_tipo}</strong>. 
               </p>
             </div>
-            <div className={styles.modalFooter}>
+            <div className={styles.modalFooterPremium}>
               <button 
-                className={styles.cancelButton} 
+                type="button"
+                className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} 
                 onClick={() => setShowConfirmDelete(false)} 
                 disabled={eliminando}
               >
                 Cancelar
               </button>
               <button 
-                className={styles.saveButton} 
-                style={{ backgroundColor: 'var(--color-error)' }} 
+                type="button"
+                className={`${styles.btnPremium} ${styles.btnDangerSolidPremium}`} 
                 onClick={handleEliminar} 
                 disabled={eliminando}
               >
@@ -204,83 +222,66 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className={styles.modalBody}>
+            <div className={styles.modalBodyPremium}>
               <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    Nombre <span style={{ color: 'var(--color-error)' }}>*</span>
-                  </label>
-                  <input
-                    className={styles.formInput}
-                    value={form.nombre_tipo}
-                    onChange={(e) => setForm({ ...form, nombre_tipo: e.target.value })}
-                    placeholder="Ej: RAM, Procesador, Color..."
-                    disabled={guardando || readonly}
-                    required
-                    autoFocus
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    Tipo de dato <span style={{ color: 'var(--color-error)' }}>*</span>
-                  </label>
-                  <select
-                    className={styles.formInput}
-                    value={form.tipo_dato}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        tipo_dato: e.target.value as TipoCaracteristica['tipo_dato'],
-                        opciones_seleccion: [],
-                        unidad_medida: '',
-                      }))
-                    }
-                    disabled={guardando || readonly}
-                  >
-                    {(Object.entries(TIPO_DATO_LABELS) as [TipoCaracteristica['tipo_dato'], string][]).map(
-                      ([val, label]) => (
-                        <option key={val} value={val}>
-                          {label}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.formGroup} style={{ marginTop: 16 }}>
-                <label className={styles.formLabel}>Descripción</label>
-                <input
-                  className={styles.formInput}
-                  value={form.descripcion}
-                  onChange={(e) => setForm((f) => ({ ...f, descripcion: e.target.value }))}
-                  placeholder="Descripción opcional"
+                <Input
+                  id="nombre_tipo"
+                  name="nombre_tipo"
+                  label="Nombre"
+                  value={form.nombre_tipo}
+                  onChange={handleInputChange}
+                  placeholder="Ej: RAM, Procesador..."
                   disabled={guardando || readonly}
+                  required
+                  autoFocus
+                />
+
+                <Select
+                  id="tipo_dato"
+                  name="tipo_dato"
+                  label="Tipo de dato"
+                  value={form.tipo_dato}
+                  onChange={handleInputChange}
+                  disabled={guardando || readonly}
+                  required
+                  options={(Object.entries(TIPO_DATO_LABELS) as [TipoCaracteristica['tipo_dato'], string][]).map(
+                    ([val, label]) => ({ value: val, label: label })
+                  )}
                 />
               </div>
 
+              <Input
+                id="descripcion"
+                name="descripcion"
+                label="Descripción"
+                value={form.descripcion}
+                onChange={handleInputChange}
+                placeholder="Descripción opcional"
+                disabled={guardando || readonly}
+                style={{ marginTop: 16 }}
+              />
+
               {form.tipo_dato === 'numero' && (
-                <div className={styles.formGroup} style={{ marginTop: 16 }}>
-                  <label className={styles.formLabel}>Unidad de medida</label>
-                  <input
-                    className={styles.formInput}
-                    value={form.unidad_medida}
-                    onChange={(e) => setForm((f) => ({ ...f, unidad_medida: e.target.value }))}
-                    placeholder="Ej: GB, GHz, pulgadas..."
-                    disabled={guardando || readonly}
-                  />
-                </div>
+                <Input
+                  id="unidad_medida"
+                  name="unidad_medida"
+                  label="Unidad de medida"
+                  value={form.unidad_medida}
+                  onChange={handleInputChange}
+                  placeholder="Ej: GB, GHz, pulgadas..."
+                  disabled={guardando || readonly}
+                  style={{ marginTop: 16 }}
+                />
               )}
 
               {form.tipo_dato === 'seleccion' && (
-                <div className={styles.formGroup} style={{ marginTop: 16 }}>
-                  <label className={styles.formLabel}>
+                <div className={styles.formGroupPremium} style={{ marginTop: 16 }}>
+                  <label className={styles.formLabelPremium}>
                     Opciones de selección <span style={{ color: 'var(--color-error)' }}>*</span>
                   </label>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                     <input
-                      className={styles.formInput}
+                      className={styles.formInputPremium}
                       value={nuevaOpcion}
                       onChange={(e) => setNuevaOpcion(e.target.value)}
                       placeholder="Agregar opción..."
@@ -334,33 +335,31 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
               )}
             </div>
 
-            <div className={styles.modalFooter} style={{ display: 'flex', justifyContent: modoEdicion && puedeEliminar && tipo?.activo ? 'space-between' : 'flex-end' }}>
+            <div className={styles.modalFooterPremium}>
               {modoEdicion && puedeEliminar && tipo?.activo && (
                 <button 
                   type="button" 
-                  className={styles.cancelButton} 
-                  style={{ color: 'var(--color-error)', border: '1px solid var(--color-error)', backgroundColor: 'transparent' }} 
+                  className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+                  style={{ marginRight: 'auto' }}
                   onClick={() => setShowConfirmDelete(true)} 
                   disabled={guardando}
                 >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4, verticalAlign: 'text-bottom' }}>delete</span>
+                  <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
                   Desactivar
                 </button>
               )}
               
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
-                  Cancelar
+              <button type="button" className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
+                Cancelar
+              </button>
+              {!readonly && (
+                <button type="submit" className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} disabled={guardando}>
+                  <span className="material-icons" style={{ fontSize: 18 }}>
+                    {guardando ? 'hourglass_empty' : 'save'}
+                  </span>
+                  {guardando ? 'Guardando...' : 'Guardar'}
                 </button>
-                {!readonly && (
-                  <button type="submit" className={styles.saveButton} disabled={guardando}>
-                    <span className="material-icons" style={{ fontSize: 18, marginRight: 6, verticalAlign: 'text-bottom' }}>
-                      {guardando ? 'hourglass_empty' : 'save'}
-                    </span>
-                    {guardando ? 'Guardando...' : 'Guardar'}
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </form>
         )}

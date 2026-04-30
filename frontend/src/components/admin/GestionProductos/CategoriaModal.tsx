@@ -4,6 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Category } from '../../../types/product';
 import styles from './GestionProductos.module.css';
+import Input from '../../common/Input/Input';
 
 interface CategoriaModalProps {
   categoria?: Category | null;
@@ -100,20 +101,20 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ categoria, isOpen, onCl
   const readonly = modoEdicion ? !puedeEditar : !puedeCrear;
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>
+    <div className={styles.modalOverlayPremium} onClick={onClose}>
+      <div className={styles.modalPremium} style={{ maxWidth: '450px' }} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeaderPremium}>
+          <h3 className={styles.modalTitlePremium}>
             <span className="material-icons">{modoEdicion ? 'edit' : 'add_circle'}</span>
             {modoEdicion ? 'Editar Categoría' : 'Nueva Categoría'}
           </h3>
-          <button className={styles.closeButton} onClick={onClose} disabled={guardando || eliminando}>
+          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando || eliminando}>
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {showConfirmDelete ? (
-          <div className={styles.modalBody}>
+          <div className={styles.modalBodyPremium}>
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <span className="material-icons" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 16 }}>
                 warning
@@ -123,17 +124,18 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ categoria, isOpen, onCl
                 Estás a punto de eliminar la categoría <strong>{categoria?.nombre_categoria}</strong>. Esta acción no se puede deshacer.
               </p>
             </div>
-            <div className={styles.modalFooter}>
+            <div className={styles.modalFooterPremium}>
               <button 
-                className={styles.cancelButton} 
+                type="button"
+                className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} 
                 onClick={() => setShowConfirmDelete(false)} 
                 disabled={eliminando}
               >
                 Cancelar
               </button>
               <button 
-                className={styles.saveButton} 
-                style={{ backgroundColor: 'var(--color-error)' }} 
+                type="button"
+                className={`${styles.btnPremium} ${styles.btnDangerSolidPremium}`} 
                 onClick={handleEliminar} 
                 disabled={eliminando}
               >
@@ -143,50 +145,45 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ categoria, isOpen, onCl
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  Nombre <span style={{ color: 'var(--color-error)' }}>*</span>
-                </label>
-                <input
-                  className={styles.formInput}
-                  value={form.nombre_categoria}
-                  onChange={(e) => setForm({ nombre_categoria: e.target.value })}
-                  placeholder="Ej: Smartphones, Tablets, Accesorios..."
-                  disabled={guardando || readonly}
-                  required
-                  autoFocus
-                />
-              </div>
+            <div className={styles.modalBodyPremium}>
+              <Input
+                id="nombre_categoria"
+                name="nombre_categoria"
+                label="Nombre de la Categoría"
+                value={form.nombre_categoria}
+                onChange={(e) => setForm({ nombre_categoria: e.target.value })}
+                placeholder="Ej: Smartphones, Tablets, Accesorios..."
+                disabled={guardando || readonly}
+                required
+                autoFocus
+              />
             </div>
 
-            <div className={styles.modalFooter} style={{ display: 'flex', justifyContent: modoEdicion && puedeEliminar ? 'space-between' : 'flex-end' }}>
+            <div className={styles.modalFooterPremium}>
               {modoEdicion && puedeEliminar && (
                 <button 
                   type="button" 
-                  className={styles.cancelButton} 
-                  style={{ color: 'var(--color-error)', border: '1px solid var(--color-error)', backgroundColor: 'transparent' }} 
+                  className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
+                  style={{ marginRight: 'auto' }}
                   onClick={() => setShowConfirmDelete(true)} 
                   disabled={guardando}
                 >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4, verticalAlign: 'text-bottom' }}>delete</span>
+                  <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
                   Eliminar
                 </button>
               )}
               
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
-                  Cancelar
+              <button type="button" className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
+                Cancelar
+              </button>
+              {!readonly && (
+                <button type="submit" className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} disabled={guardando}>
+                  <span className="material-icons" style={{ fontSize: 18 }}>
+                    {guardando ? 'hourglass_empty' : 'save'}
+                  </span>
+                  {guardando ? 'Guardando...' : 'Guardar'}
                 </button>
-                {!readonly && (
-                  <button type="submit" className={styles.saveButton} disabled={guardando}>
-                    <span className="material-icons" style={{ fontSize: 18, marginRight: 6, verticalAlign: 'text-bottom' }}>
-                      {guardando ? 'hourglass_empty' : 'save'}
-                    </span>
-                    {guardando ? 'Guardando...' : 'Guardar'}
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </form>
         )}

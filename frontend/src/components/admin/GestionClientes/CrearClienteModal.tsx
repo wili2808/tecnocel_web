@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionClientes.module.css';
+import Input from '../../common/Input/Input';
 
 interface Props {
   onClose: () => void;
@@ -55,57 +56,53 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalPremium} onClick={(e) => e.stopPropagation()}>
+    <div className="modalOverlayPremium" onClick={onClose}>
+      <div className="modalPremium" onClick={(e) => e.stopPropagation()}>
         
         {/* Header Premium */}
-        <div className={styles.modalHeaderPremium}>
-          <h2 className={styles.modalTitlePremium}>
+        <div className="modalHeaderPremium">
+          <h2 className="modalTitlePremium">
             <span className="material-icons">person_add_alt</span>
             Registrar Nuevo Cliente
           </h2>
-          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando}>
+          <button className="closeButtonPremium" onClick={onClose} disabled={guardando}>
             <span className="material-icons">close</span>
           </button>
         </div>
 
         <form id="create-cliente-form" onSubmit={handleSubmit}>
-          <div className={styles.modalBodyPremium}>
+          <div className="modalBodyPremium">
             
             <span className={styles.sectionTitlePremium}>Información de Contacto</span>
             
             <div className={styles.formGridPremium}>
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>Nombre *</label>
-                <input
-                  className={styles.formInputPremium}
-                  name="nombre_cliente"
-                  value={form.nombre_cliente}
-                  onChange={handleChange}
-                  placeholder="Ej: Juan"
-                  disabled={guardando}
-                  required
-                />
-              </div>
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>Apellido *</label>
-                <input
-                  className={styles.formInputPremium}
-                  name="apellido_cliente"
-                  value={form.apellido_cliente}
-                  onChange={handleChange}
-                  placeholder="Ej: Pérez"
-                  disabled={guardando}
-                  required
-                />
-              </div>
+              <Input
+                id="nombre_cliente"
+                name="nombre_cliente"
+                label="Nombre"
+                value={form.nombre_cliente}
+                onChange={handleChange}
+                placeholder="Ej: Juan"
+                disabled={guardando}
+                required
+              />
+              <Input
+                id="apellido_cliente"
+                name="apellido_cliente"
+                label="Apellido"
+                value={form.apellido_cliente}
+                onChange={handleChange}
+                placeholder="Ej: Pérez"
+                disabled={guardando}
+                required
+              />
 
               <div className={styles.formGroupFullPremium}>
-                <label className={styles.formLabelPremium}>Correo Electrónico *</label>
-                <input
-                  className={styles.formInputPremium}
-                  type="email"
+                <Input
+                  id="email_cliente"
                   name="email_cliente"
+                  label="Correo Electrónico"
+                  type="email"
                   value={form.email_cliente}
                   onChange={handleChange}
                   placeholder="juan@ejemplo.com"
@@ -114,28 +111,24 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
                 />
               </div>
 
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>Celular</label>
-                <input
-                  className={styles.formInputPremium}
-                  name="celular_cliente"
-                  value={form.celular_cliente}
-                  onChange={handleChange}
-                  placeholder="Ej: 3512345678"
-                  disabled={guardando}
-                />
-              </div>
-              <div className={styles.formGroupPremium}>
-                <label className={styles.formLabelPremium}>DNI / CUIT</label>
-                <input
-                  className={styles.formInputPremium}
-                  name="nit_ci_cliente"
-                  value={form.nit_ci_cliente}
-                  onChange={handleChange}
-                  placeholder="Ej: 12345678"
-                  disabled={guardando}
-                />
-              </div>
+              <Input
+                id="celular_cliente"
+                name="celular_cliente"
+                label="Celular"
+                value={form.celular_cliente}
+                onChange={handleChange}
+                placeholder="Ej: 3512345678"
+                disabled={guardando}
+              />
+              <Input
+                id="nit_ci_cliente"
+                name="nit_ci_cliente"
+                label="DNI / CUIT"
+                value={form.nit_ci_cliente}
+                onChange={handleChange}
+                placeholder="Ej: 12345678"
+                disabled={guardando}
+              />
             </div>
 
             <div style={{ 
@@ -156,14 +149,14 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
         </form>
 
         {/* Footer Premium */}
-        <div className={styles.modalFooterPremium}>
-          <button type="button" className={styles.cancelButtonPremium} onClick={onClose} disabled={guardando}>
+        <div className="modalFooterPremium">
+          <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
             Cancelar
           </button>
           <button 
             type="submit" 
             form="create-cliente-form"
-            className={styles.saveButtonPremium} 
+            className="btnPremium btnPrimaryPremium" 
             disabled={guardando}
           >
             <span className="material-icons">

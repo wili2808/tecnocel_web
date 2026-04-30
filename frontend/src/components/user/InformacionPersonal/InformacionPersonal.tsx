@@ -9,6 +9,7 @@ import clienteService from '../../../services/clienteService';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './InformacionPersonal.module.css';
 import type { Cliente } from '../../../types/cliente';
+import Input from '../../common/Input/Input';
 
 interface DatosPersonales {
   nombre_cliente: string;
@@ -58,7 +59,7 @@ const InformacionPersonal = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: DatosPersonales) => ({ ...prev, [name]: value }));
 
     // Limpiar error del campo
     if (errors[name as keyof DatosPersonales]) {
@@ -158,76 +159,59 @@ const InformacionPersonal = () => {
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGrid}>
           {/* Nombre */}
-          <div className={styles.formGroup}>
-            <label htmlFor="nombre_cliente" className={styles.label}>
-              <span className="material-icons">person</span>
-              Nombre *
-            </label>
-            <input
-              type="text"
-              id="nombre_cliente"
-              name="nombre_cliente"
-              value={formData.nombre_cliente}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.nombre_cliente ? styles.inputError : ''}`}
-              placeholder="Ingresa tu nombre"
-            />
-            {errors.nombre_cliente && <span className={styles.error}>{errors.nombre_cliente}</span>}
-          </div>
+          <Input
+            id="nombre_cliente"
+            name="nombre_cliente"
+            label="Nombre"
+            icon="person"
+            value={formData.nombre_cliente}
+            onChange={handleChange}
+            error={errors.nombre_cliente}
+            required
+            disabled={guardando}
+            placeholder="Ingresa tu nombre"
+          />
 
           {/* Apellido */}
-          <div className={styles.formGroup}>
-            <label htmlFor="apellido_cliente" className={styles.label}>
-              <span className="material-icons">person_outline</span>
-              Apellido *
-            </label>
-            <input
-              type="text"
-              id="apellido_cliente"
-              name="apellido_cliente"
-              value={formData.apellido_cliente}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.apellido_cliente ? styles.inputError : ''}`}
-              placeholder="Ingresa tu apellido"
-            />
-            {errors.apellido_cliente && <span className={styles.error}>{errors.apellido_cliente}</span>}
-          </div>
+          <Input
+            id="apellido_cliente"
+            name="apellido_cliente"
+            label="Apellido"
+            icon="person_outline"
+            value={formData.apellido_cliente}
+            onChange={handleChange}
+            error={errors.apellido_cliente}
+            required
+            disabled={guardando}
+            placeholder="Ingresa tu apellido"
+          />
 
           {/* Celular */}
-          <div className={styles.formGroup}>
-            <label htmlFor="celular_cliente" className={styles.label}>
-              <span className="material-icons">phone</span>
-              Celular
-            </label>
-            <input
-              type="tel"
-              id="celular_cliente"
-              name="celular_cliente"
-              value={formData.celular_cliente}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.celular_cliente ? styles.inputError : ''}`}
-              placeholder="Ej: 70123456"
-            />
-            {errors.celular_cliente && <span className={styles.error}>{errors.celular_cliente}</span>}
-          </div>
+          <Input
+            id="celular_cliente"
+            name="celular_cliente"
+            type="tel"
+            label="Celular"
+            icon="phone"
+            value={formData.celular_cliente}
+            onChange={handleChange}
+            error={errors.celular_cliente}
+            disabled={guardando}
+            placeholder="Ej: 70123456"
+          />
 
           {/* NIT/CI */}
-          <div className={styles.formGroup}>
-            <label htmlFor="nit_ci_cliente" className={styles.label}>
-              <span className="material-icons">badge</span>
-              NIT/CI
-            </label>
-            <input
-              type="text"
-              id="nit_ci_cliente"
-              name="nit_ci_cliente"
-              value={formData.nit_ci_cliente}
-              onChange={handleChange}
-              className={`${styles.input} ${errors.nit_ci_cliente ? styles.inputError : ''}`}
-              placeholder="Ingresa tu NIT o CI"
-            />
-            {errors.nit_ci_cliente && <span className={styles.error}>{errors.nit_ci_cliente}</span>}
-          </div>
+          <Input
+            id="nit_ci_cliente"
+            name="nit_ci_cliente"
+            label="NIT/CI"
+            icon="badge"
+            value={formData.nit_ci_cliente}
+            onChange={handleChange}
+            error={errors.nit_ci_cliente}
+            disabled={guardando}
+            placeholder="Ingresa tu NIT o CI"
+          />
         </div>
 
         <div className={styles.actions}>

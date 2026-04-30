@@ -1,0 +1,118 @@
+/* ============================================================================
+   SELECT COMPONENT — Atomic Design
+   ============================================================================ */
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.required {
+  color: var(--color-error);
+}
+
+.container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  height: 44px;
+  transition: border-color var(--transition-fast) var(--transition-curve),
+              box-shadow var(--transition-fast) var(--transition-curve);
+}
+
+.container:hover:not(.disabled) {
+  border-color: var(--color-primary);
+}
+
+.container.focused {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+.container.error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(var(--color-error-rgb), 0.1);
+}
+
+.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--background-secondary);
+}
+
+.iconLeft {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-sm);
+  color: var(--text-muted);
+}
+
+.container.focused .iconLeft {
+  color: var(--color-primary);
+}
+
+.select {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  background: transparent;
+  font-family: inherit;
+  height: 100%;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:disabled {
+  cursor: not-allowed;
+}
+
+.select option {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.iconRight {
+  position: absolute;
+  right: var(--spacing-sm);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  margin-top: 4px;
+}
+
+.errorMessage span.material-icons {
+  font-size: 14px;
+}

@@ -4,6 +4,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS, SIGUIENTE_ESTADO } from '../../../types/envio';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, EnvioAdminDetalle, EstadoEnvio } from '../../../types/envio';
+import Input from '../../common/Input/Input';
 
 const ESTADO_COLORS: Record<EstadoEnvio, string> = {
   pendiente: styles.estadoPendiente,
@@ -90,24 +91,24 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
   const indiceActual = ESTADOS_ORDEN.indexOf(envio.estado_envio);
 
   return (
-    <div className={styles.modalOverlayPremium} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={styles.modalPremium} style={{ maxWidth: '850px' }}>
+    <div className="modalOverlayPremium" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modalPremium" style={{ maxWidth: '850px' }}>
         {/* Header Premium */}
-        <div className={styles.modalHeaderPremium}>
-          <h2 className={styles.modalTitlePremium}>
+        <div className="modalHeaderPremium">
+          <h2 className="modalTitlePremium">
             <span className="material-icons">local_shipping</span>
             Envío #{envio.nro_venta}
             <span className={`${styles.estadoBadge} ${ESTADO_COLORS[envio.estado_envio]}`}>
               {ESTADO_ENVIO_LABELS[envio.estado_envio]}
             </span>
           </h2>
-          <button className={styles.closeButtonPremium} onClick={onClose} aria-label="Cerrar">
+          <button className="closeButtonPremium" onClick={onClose} aria-label="Cerrar">
             <span className="material-icons">close</span>
           </button>
         </div>
 
         {/* Body Premium */}
-        <div className={styles.modalBodyPremium}>
+        <div className="modalBodyPremium">
           {/* Stepper */}
           <div className={styles.envioStepper}>
             {ESTADOS_ORDEN.map((estado, idx) => {
@@ -270,69 +271,67 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
                 </tbody>
               </table>
 
-              {/* Panel de gestión de estado */}
-              {!esEntregado && siguienteEstado && (
-                <div className={styles.envioAccionPanel}>
-                  {!confirmando ? (
-                    <button className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} onClick={() => setConfirmando(true)}>
-                      <span className="material-icons" style={{ fontSize: 18 }}>
-                        arrow_forward
-                      </span>
-                      Avanzar a "{ESTADO_ENVIO_LABELS[siguienteEstado]}"
-                    </button>
-                  ) : (
-                    <div className={styles.envioConfirmar}>
-                      <p className={styles.envioConfirmarTitulo}>
-                        Confirmá el cambio de estado a <strong>"{ESTADO_ENVIO_LABELS[siguienteEstado]}"</strong>
-                      </p>
-
-                      {/* Campo nro_seguimiento obligatorio al despachar */}
-                      {siguienteEstado === 'en_camino' && (
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>
-                            Número de seguimiento <span className={styles.requerido}>*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className={styles.input}
-                            placeholder="Ej: AR123456789"
-                            value={nroSeguimiento}
-                            onChange={(e) => setNroSeguimiento(e.target.value)}
-                            maxLength={100}
-                          />
-                        </div>
-                      )}
-
-                      {/* Aviso de email */}
-                      {ESTADOS_CON_EMAIL.has(siguienteEstado) && detalle.email_cliente && (
-                        <div className={styles.envioEmailAviso}>
-                          <span className="material-icons" style={{ fontSize: 16 }}>
-                            email
+                  {/* Panel de gestión de estado */}
+                  {!esEntregado && siguienteEstado && (
+                    <div className={styles.envioAccionPanel}>
+                      {!confirmando ? (
+                        <button className="btnPremium btnPrimaryPremium" onClick={() => setConfirmando(true)}>
+                          <span className="material-icons" style={{ fontSize: 18 }}>
+                            arrow_forward
                           </span>
-                          Se enviará un email de notificación a <strong>{detalle.email_cliente}</strong>
+                          Avanzar a "{ESTADO_ENVIO_LABELS[siguienteEstado]}"
+                        </button>
+                      ) : (
+                        <div className={styles.envioConfirmar}>
+                          <p className={styles.envioConfirmarTitulo}>
+                            Confirmá el cambio de estado a <strong>"{ESTADO_ENVIO_LABELS[siguienteEstado]}"</strong>
+                          </p>
+    
+                          {/* Campo nro_seguimiento obligatorio al despachar */}
+                          {siguienteEstado === 'en_camino' && (
+                            <Input
+                              id="nroSeguimiento"
+                              name="nroSeguimiento"
+                              label="Número de seguimiento"
+                              value={nroSeguimiento}
+                              onChange={(e) => setNroSeguimiento(e.target.value)}
+                              placeholder="Ej: AR123456789"
+                              maxLength={100}
+                              required
+                              disabled={guardando}
+                            />
+                          )}
+    
+                          {/* Aviso de email */}
+                          {ESTADOS_CON_EMAIL.has(siguienteEstado) && detalle.email_cliente && (
+                            <div className={styles.envioEmailAviso}>
+                              <span className="material-icons" style={{ fontSize: 16 }}>
+                                email
+                              </span>
+                              Se enviará un email de notificación a <strong>{detalle.email_cliente}</strong>
+                            </div>
+                          )}
+    
+                          <div className={styles.envioConfirmarBtns}>
+                            <button
+                              className="btnPremium btnSecondaryPremium"
+                              onClick={() => setConfirmando(false)}
+                              disabled={guardando}
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                              className="btnPremium btnPrimaryPremium"
+                              onClick={handleAvanzar}
+                              disabled={guardando || (siguienteEstado === 'en_camino' && !nroSeguimiento.trim())}
+                            >
+                              {guardando ? 'Guardando...' : 'Confirmar'}
+                            </button>
+                          </div>
                         </div>
                       )}
-
-                      <div className={styles.envioConfirmarBtns}>
-                        <button
-                          className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
-                          onClick={() => setConfirmando(false)}
-                          disabled={guardando}
-                        >
-                          Cancelar
-                        </button>
-                        <button
-                          className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`}
-                          onClick={handleAvanzar}
-                          disabled={guardando || (siguienteEstado === 'en_camino' && !nroSeguimiento.trim())}
-                        >
-                          {guardando ? 'Guardando...' : 'Confirmar'}
-                        </button>
-                      </div>
                     </div>
                   )}
-                </div>
-              )}
             </>
           ) : (
             <div className={styles.errorMsg}>No se pudo cargar el detalle del envío.</div>
@@ -340,8 +339,8 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
         </div>
 
         {/* Footer Premium */}
-        <div className={styles.modalFooterPremium}>
-          <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose}>
+        <div className="modalFooterPremium">
+          <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
             Cerrar
           </button>
         </div>
