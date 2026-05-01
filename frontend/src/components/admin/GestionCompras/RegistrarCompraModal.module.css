@@ -1,0 +1,79 @@
+.body {
+  padding: 0;
+}
+
+.providerActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-end;
+}
+
+.selectWrapper {
+  flex: 1;
+}
+
+.addButton {
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+}
+
+.searchContainer {
+  position: relative;
+  margin-bottom: var(--spacing-lg);
+}
+
+.loadingIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: spin 1s linear infinite;
+  color: var(--color-primary);
+}
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) 0;
+}
+
+.resumenHeader {
+  border-top: 1px dashed var(--border-color);
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+}
+
+.footerBtn {
+  min-width: 180px;
+}
+
+/* Tabla Ajustes */
+.productCell {
+  padding-left: var(--spacing-lg);
+}
+
+.actionCell {
+  padding-right: var(--spacing-lg);
+}
+
+.newBadge {
+  font-size: 0.65rem;
+  color: var(--color-primary);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+@media (max-width: 480px) {
+  .footerBtn {
+    width: 100%;
+  }
+}

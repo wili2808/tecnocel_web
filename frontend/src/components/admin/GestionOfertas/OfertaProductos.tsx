@@ -7,6 +7,9 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import type { OfertaConProductos, ProductoEnOferta, Product } from '../../../types';
 import { AdminSearch } from '../common';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS } from '../../../utils/formatPrecio';
 import styles from './OfertaProductos.module.css';
 
 interface OfertaProductosProps {
@@ -21,6 +24,7 @@ interface ProductoSeleccionado {
 
 const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) => {
   const { showNotification } = useNotification();
+  const { tipoCambio } = useTipoCambio();
 
   // Productos asignados
   const [productosAsignados, setProductosAsignados] = useState<ProductoEnOferta[]>(
@@ -34,8 +38,6 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
   const [loadingBusqueda, setLoadingBusqueda] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Map<number, ProductoSeleccionado>>(new Map());
   const [asignando, setAsignando] = useState(false);
-
-
 
   // Sincronizar productos cuando cambia la oferta
   useEffect(() => {
@@ -53,7 +55,7 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
     } finally {
       setLoadingBusqueda(false);
     }
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
     if (!showBuscador) return;
@@ -96,7 +98,12 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
 
     try {
       setAsignando(true);
-      const productos = Array.from(seleccionados.values());
+      // Convertir precios personalizados de ARS a USD antes de enviar
+      const productos = Array.from(seleccionados.values()).map(p => ({
+        ...p,
+        precio_oferta: p.precio_oferta ? p.precio_oferta / tipoCambio : undefined
+      }));
+      
       await adminOfertaService.asignarProductos(oferta.id_oferta, productos);
       showNotification(
         `${productos.length} producto${productos.length > 1 ? 's' : ''} asignado${productos.length > 1 ? 's' : ''} exitosamente`,
@@ -154,30 +161,30 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
           <span className="material-icons">inventory_2</span>
           Productos en esta Oferta ({productosAsignados.length})
         </h3>
-        <button className={styles.addButton} onClick={handleAbrirBuscador}>
+        <button className="btnPremium btnPrimaryPremium btnSmPremium" onClick={handleAbrirBuscador}>
           <span className="material-icons">add</span>
           <span>Agregar Productos</span>
         </button>
       </div>
 
       {/* Tabla de productos asignados */}
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
+      <div className="modalTableWrapperPremium">
+        <table className="modalTablePremium">
           <thead>
             <tr>
               <th>Imagen</th>
               <th>Código</th>
               <th>Nombre</th>
-              <th>Precio Original</th>
-              <th>Precio Oferta</th>
-              <th>Tipo Precio</th>
-              <th>Acción</th>
+              <th className="text-right">Precio Original</th>
+              <th className="text-right">Precio Oferta</th>
+              <th className="text-center">Tipo Precio</th>
+              <th className="text-right">Acción</th>
             </tr>
           </thead>
           <tbody>
             {productosAsignados.length === 0 ? (
               <tr>
-                <td colSpan={7} className={styles.emptyMessage}>
+                <td colSpan={7} className="text-center py-8 text-secondary">
                   No hay productos asignados a esta oferta
                 </td>
               </tr>
@@ -205,24 +212,24 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
                         )}
                       </div>
                     </td>
-                    <td className={styles.codigoCell}>{producto.codigo}</td>
-                    <td>{producto.nombre}</td>
-                    <td className={styles.precioCell}>
-                      {parseFloat(producto.precio_venta).toFixed(2)} ARS
+                    <td className="font-mono text-xs">{producto.codigo}</td>
+                    <td className="font-bold">{producto.nombre}</td>
+                    <td className="text-right text-secondary">
+                      {formatARS(parseFloat(producto.precio_venta), tipoCambio)}
                     </td>
-                    <td className={styles.precioCell}>
-                      {precioOferta} ARS
+                    <td className="text-right font-bold text-primary">
+                      {formatARS(Number(precioOferta), tipoCambio)}
                     </td>
-                    <td>
+                    <td className="text-center">
                       {producto.ProductoOferta?.es_precio_personalizado ? (
-                        <span className={styles.personalizadoBadge}>Personalizado</span>
+                        <span className="modalBadgePremium error badgeSmallPremium">Manual</span>
                       ) : (
-                        <span className={styles.calculadoBadge}>Calculado</span>
+                        <span className="modalBadgePremium success badgeSmallPremium">Auto</span>
                       )}
                     </td>
-                    <td>
+                    <td className="text-right">
                       <button
-                        className={styles.removeButton}
+                        className="modalIconButtonPremium text-error"
                         title="Remover de la oferta"
                         onClick={() => handleRemoverProducto(producto.id_producto, producto.nombre)}
                       >
@@ -238,95 +245,96 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
       </div>
 
       {/* Modal buscador de productos */}
-      {showBuscador && (
-        <div className={styles.overlay} onClick={handleCerrarBuscador}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                <span className="material-icons">add_shopping_cart</span>
-                Agregar Productos a la Oferta
-              </h3>
-              <button className={styles.closeButton} onClick={handleCerrarBuscador}>
-                <span className="material-icons">close</span>
-              </button>
-            </div>
+      <PremiumModal
+        isOpen={showBuscador}
+        onClose={handleCerrarBuscador}
+        title="Agregar Productos a la Oferta"
+        icon="add_shopping_cart"
+        maxWidth="800px"
+      >
+        <div className="modalBodyPremium">
+          <div className="mb-4">
+            <AdminSearch
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Buscar por nombre, marca o modelo..."
+              delay={300}
+            />
+          </div>
 
-            <div className={styles.modalSearchBlock}>
-              <AdminSearch
-                value={searchTerm}
-                onChange={setSearchTerm}
-                placeholder="Buscar por nombre, marca o modelo..."
-                delay={300}
-              />
-            </div>
+          <div className={styles.searchContainer}>
+            {loadingBusqueda && (
+              <div className="modalLoadingPremium">
+                <span className="material-icons">autorenew</span>
+                <p>Buscando productos...</p>
+              </div>
+            )}
 
-            <div className={styles.modalBody}>
-              {loadingBusqueda && (
-                <div className={styles.loadingSmall}>
-                  <p>Buscando productos...</p>
-                </div>
-              )}
+            {!loadingBusqueda && productosNoAsignados.length === 0 && productosDisponibles.length > 0 && (
+              <div className="modalEmptyStateSimplePremium">
+                <p>Todos los productos encontrados ya están asignados</p>
+              </div>
+            )}
 
-              {!loadingBusqueda && productosNoAsignados.length === 0 && productosDisponibles.length > 0 && (
-                <div className={styles.emptySearch}>
-                  <p>Todos los productos encontrados ya están asignados</p>
-                </div>
-              )}
+            {!loadingBusqueda && productosDisponibles.length === 0 && searchTerm && (
+              <div className="modalEmptyStateSimplePremium">
+                <span className={`material-icons ${styles.emptyIcon}`}>search_off</span>
+                <p>No se encontraron productos para "{searchTerm}"</p>
+              </div>
+            )}
 
-              {!loadingBusqueda && productosDisponibles.length === 0 && searchTerm && (
-                <div className={styles.emptySearch}>
-                  <span className="material-icons">search_off</span>
-                  <p>No se encontraron productos para "{searchTerm}"</p>
-                </div>
-              )}
+            {!loadingBusqueda && productosNoAsignados.length > 0 && (
+              <div className="modalSearchListPremium">
+                {productosNoAsignados.map((producto) => {
+                  const isSelected = seleccionados.has(producto.id_producto);
+                  const selItem = seleccionados.get(producto.id_producto);
+                  const precioCalculado = calcularPrecioDescuento(producto.precio_venta);
 
-              {!loadingBusqueda && productosNoAsignados.map((producto) => {
-                const isSelected = seleccionados.has(producto.id_producto);
-                const selItem = seleccionados.get(producto.id_producto);
-                const precioCalculado = calcularPrecioDescuento(producto.precio_venta);
-
-                return (
-                  <div
-                    key={producto.id_producto}
-                    className={`${styles.productoItem} ${isSelected ? styles.productoItemSelected : ''}`}
-                    onClick={() => handleToggleSeleccion(producto)}
-                  >
-                    <div className={styles.productoItemLeft}>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => {}} // Se maneja con el onClick del div
-                        className={styles.productoCheckbox}
-                      />
-                      <div className={styles.productoInfo}>
-                        <div className={styles.productoNombre}>{producto.nombre}</div>
-                        <div className={styles.productoCodigo}>{producto.codigo}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.productoItemRight}>
-                      <div className={styles.productoPrecios}>
-                        <div className={styles.precioOriginal}>
-                          <span>Original:</span>
-                          <strong>{parseFloat(producto.precio_venta).toFixed(2)} ARS</strong>
+                  return (
+                    <div
+                      key={producto.id_producto}
+                      className={`modalSearchResultItemPremium ${isSelected ? 'active' : ''}`}
+                      onClick={() => handleToggleSeleccion(producto)}
+                    >
+                      <div className="modalResultMainPremium">
+                        <div className="flex items-center gap-md">
+                          <span className="material-icons text-primary" style={{ fontSize: '20px' }}>
+                            {isSelected ? 'check_box' : 'check_box_outline_blank'}
+                          </span>
+                          <div className="flex flex-col">
+                            <span className="modalResultTitlePremium">{producto.nombre}</span>
+                            <span className="modalResultSubPremium">SKU: {producto.codigo}</span>
+                          </div>
                         </div>
-                        <div className={styles.precioCalculado}>
-                          <span>Oferta:</span>
-                          <strong>{precioCalculado} ARS</strong>
+
+                        <div className="text-right">
+                          <div className="text-xxs text-secondary">
+                            Original: <span className="line-through">{formatARS(parseFloat(producto.precio_venta), tipoCambio)}</span>
+                          </div>
+                          <div className="text-sm font-bold text-primary">
+                            Oferta: {formatARS(Number(precioCalculado), tipoCambio)}
+                          </div>
                         </div>
                       </div>
                       
                       {isSelected && (
-                        <div className={styles.personalizadoWrapper} onClick={e => e.stopPropagation()}>
-                          <div className={styles.personalizadoLabel}>Precio manual:</div>
-                          <div className={styles.inputWithIcon}>
-                            <span className="material-icons">edit</span>
+                        <div 
+                          className="mt-3 pt-3 border-t flex items-center justify-between animate-fade-in" 
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-xxs font-bold text-primary uppercase">Precio Personalizado</span>
+                            <span className="text-xxs text-secondary">Sobrescribe el cálculo automático</span>
+                          </div>
+                          <div className="flex items-center gap-sm">
+                            <span className="text-xs font-bold">ARS $</span>
                             <input
                               type="number"
-                              placeholder="Ej: 500.00"
+                              placeholder="Precio en pesos"
                               value={selItem?.precio_oferta ?? ''}
                               onChange={(e) => handlePrecioOfertaChange(producto.id_producto, e.target.value)}
-                              className={styles.precioOfertaInput}
+                              className="modalTableInputPremium"
+                              style={{ width: '120px', textAlign: 'right' }}
                               step="0.01"
                               min="0"
                             />
@@ -334,27 +342,33 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
                         </div>
                       )}
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className={styles.modalFooter}>
-              <span className={styles.seleccionInfo}>
-                {seleccionados.size} producto{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
-              </span>
-              <button
-                className={styles.asignarButton}
-                onClick={handleAsignarProductos}
-                disabled={seleccionados.size === 0 || asignando}
-              >
-                <span className="material-icons">check</span>
-                {asignando ? 'Asignando...' : 'Asignar Seleccionados'}
-              </button>
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        <div className="modalFooterPremium">
+          <div className="mr-auto text-sm text-secondary">
+            {seleccionados.size} producto{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
+          </div>
+          <button
+            className="btnPremium btnSecondaryPremium"
+            onClick={handleCerrarBuscador}
+          >
+            Cancelar
+          </button>
+          <button
+            className="btnPremium btnPrimaryPremium"
+            onClick={handleAsignarProductos}
+            disabled={seleccionados.size === 0 || asignando}
+          >
+            <span className="material-icons">{asignando ? 'hourglass_empty' : 'check'}</span>
+            {asignando ? 'Asignando...' : 'Asignar Seleccionados'}
+          </button>
+        </div>
+      </PremiumModal>
     </div>
   );
 };

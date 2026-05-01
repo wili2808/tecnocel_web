@@ -78,7 +78,7 @@ class AdminVentaController {
    */
   static async listarVentasAdmin(req: Request, res: Response) {
     try {
-      const limit  = Math.min(parseInt(req.query.limit  as string) || 50, 100);
+      const limit  = Math.min(parseInt(req.query.limit  as string) || 10, 100);
       const offset = parseInt(req.query.offset as string) || 0;
       const { fecha_inicio, fecha_fin, estado, tipo_venta, metodo_pago, search, id_vendedor } = req.query as Record<string, string>;
 

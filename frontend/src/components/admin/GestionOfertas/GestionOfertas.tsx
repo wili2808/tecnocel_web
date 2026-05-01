@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import OfertaForm from './OfertaForm';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
@@ -14,6 +15,7 @@ import {
   AdminSectionActions,
   AdminSurface,
   AdminSearch,
+  AdminPagination,
 } from '../common';
 import styles from './GestionOfertas.module.css';
 
@@ -45,7 +47,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 type FiltroEstado = 'todas' | 'activas' | 'inactivas' | 'expiradas';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 10;
 
 /** Determina el estado visual de una oferta basado en activo y fechas */
 const getEstadoOferta = (oferta: OfertaConConteo) => {
@@ -120,6 +122,7 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
 const GestionOfertas = () => {
   const { tienePermiso } = useAuth();
   const { showNotification } = useNotification();
+  const { tipoCambio } = useTipoCambio();
   const puedeVer = tienePermiso('ver_ofertas');
   const puedeCrear = tienePermiso('crear_oferta');
   const puedeEditar = tienePermiso('editar_oferta');
@@ -263,11 +266,15 @@ const GestionOfertas = () => {
       header: 'Valor',
       cell: info => {
         const oferta = info.row.original;
+        const valorMostrar = oferta.tipo_descuento === 'monto_fijo' 
+          ? Math.round(oferta.valor_descuento * tipoCambio) 
+          : parseFloat(oferta.valor_descuento.toString());
+
         return (
           <span className={styles.valorCell}>
             {oferta.tipo_descuento === 'porcentaje'
-              ? `${oferta.valor_descuento}%`
-              : `$ ${oferta.valor_descuento}`
+              ? `${valorMostrar}%`
+              : `$ ${Number(valorMostrar).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
             }
           </span>
         );
@@ -483,27 +490,18 @@ const GestionOfertas = () => {
           </div>
 
           {/* Paginación */}
-          {table.getPageCount() > 1 && (
-            <div className={styles.pagination}>
-              <button
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                className={styles.pageButton}
-              >
-                <span className="material-icons">chevron_left</span>
-              </button>
-              <span className={styles.pageInfo}>
-                Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-              </span>
-              <button
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                className={styles.pageButton}
-              >
-                <span className="material-icons">chevron_right</span>
-              </button>
-            </div>
-          )}
+          <AdminPagination
+            total={filteredOfertas.length}
+            limit={pagination.pageSize}
+            offset={pagination.pageIndex * pagination.pageSize}
+            onPageChange={(newOffset) => {
+              setPagination(prev => ({
+                ...prev,
+                pageIndex: Math.floor(newOffset / prev.pageSize)
+              }));
+            }}
+            itemLabel="ofertas"
+          />
         </>
       )}
 

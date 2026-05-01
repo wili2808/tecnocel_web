@@ -1,14 +1,7 @@
-/**
- * @file DetalleClienteModal.tsx
- *
- * Modal de solo lectura para ver el detalle completo de un cliente.
- * Disponible para todos los roles del sistema (admin, empleado, vendedor).
- * No realiza ninguna llamada API adicional: usa los datos ya cargados en la lista.
- */
-
-import React, { useEffect } from 'react';
-import styles from './GestionClientes.module.css';
+import React, { memo } from 'react';
 import type { ClienteListItem } from '../../../types/usuario';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './ClienteModals.module.css';
 
 interface Props {
   cliente: ClienteListItem;
@@ -16,13 +9,7 @@ interface Props {
   onEdit?: () => void;
 }
 
-const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose, onEdit }) => {
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onClose]);
+const DetalleClienteModal: React.FC<Props> = memo(({ cliente, onClose, onEdit }) => {
 
   const formatFecha = (date: Date | string | null) =>
     date
@@ -34,102 +21,85 @@ const DetalleClienteModal: React.FC<Props> = ({ cliente, onClose, onEdit }) => {
 
   const activo = cliente.email_verified && cliente.is_web_enabled;
 
-  const BadgeSiNo = ({ valor }: { valor: boolean }) => (
-    <span className={`${styles.badge} ${valor ? styles.badgeActive : styles.badgeInactive}`}>
-      {valor ? 'Sí' : 'No'}
-    </span>
-  );
-
   return (
-    <div className="modalOverlayPremium" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modalPremium">
-
-        {/* Header Premium */}
-        <div className="modalHeaderPremium">
-          <h2 className="modalTitlePremium">
-            <span className="material-icons">account_circle</span>
-            {cliente.nombre_cliente} {cliente.apellido_cliente}
-          </h2>
-          <button className="closeButtonPremium" onClick={onClose} title="Cerrar">
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-
-        {/* Body Premium */}
-        <div className="modalBodyPremium">
-          <div className={styles.formGridPremium}>
-
-            {/* Sección: Información Personal */}
-            <div className={styles.formGroupFullPremium}>
-              <span className={styles.sectionTitlePremium}>Información Personal</span>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>ID del Cliente</span>
-                <span className={styles.detalleValuePremium}>#{cliente.id_cliente}</span>
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Nombre Completo</span>
-                <span className={styles.detalleValuePremium}>{cliente.nombre_cliente} {cliente.apellido_cliente}</span>
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Correo Electrónico</span>
-                <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)' }}>{cliente.email_cliente}</span>
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Celular / WhatsApp</span>
-                <span className={styles.detalleValuePremium}>{cliente.celular_cliente || '—'}</span>
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>NIT / CI</span>
-                <span className={styles.detalleValuePremium}>{cliente.nit_ci_cliente || '—'}</span>
-              </div>
-            </div>
-
-            {/* Sección: Estado de Cuenta */}
-            <div className={styles.formGroupFullPremium} style={{ marginTop: '12px' }}>
-              <span className={styles.sectionTitlePremium}>Estado de la Cuenta</span>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Estado Global</span>
-                <span className={`${styles.badge} ${activo ? styles.badgeActive : styles.badgeInactive}`} style={{ margin: 0 }}>
-                  {activo ? 'Activo' : 'Inactivo'}
-                </span>
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Verificación de Email</span>
-                <BadgeSiNo valor={cliente.email_verified} />
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Acceso Web Habilitado</span>
-                <BadgeSiNo valor={cliente.is_web_enabled} />
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Fecha de Registro</span>
-                <span className={styles.detalleValuePremium}>{formatFecha(cliente.fyh_creacion)}</span>
-              </div>
-              <div className={styles.detalleRowPremium}>
-                <span className={styles.detalleLabelPremium}>Última Actividad</span>
-                <span className={styles.detalleValuePremium}>{formatFecha(cliente.last_login)}</span>
-              </div>
-            </div>
-
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title={`${cliente.nombre_cliente} ${cliente.apellido_cliente}`}
+      icon="account_circle"
+    >
+      <div className="modalBodyPremium">
+        <h4 className="sectionTitleWithDividerPremium">Información Personal</h4>
+        <div className={styles.detailGrid}>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>ID del Cliente</span>
+            <span className={styles.detailValue}>#{cliente.id_cliente}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Nombre Completo</span>
+            <span className={styles.detailValue}>{cliente.nombre_cliente} {cliente.apellido_cliente}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Correo Electrónico</span>
+            <span className={styles.detailValue} style={{ color: 'var(--color-primary)' }}>{cliente.email_cliente}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Celular / WhatsApp</span>
+            <span className={styles.detailValue}>{cliente.celular_cliente || '—'}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>NIT / CI</span>
+            <span className={styles.detailValue}>{cliente.nit_ci_cliente || '—'}</span>
           </div>
         </div>
 
-        {/* Footer Premium */}
-        <div className="modalFooterPremium">
-          {onEdit && (
-            <button className="btnPremium btnPrimaryPremium" onClick={onEdit}>
-              <span className="material-icons">edit</span>
-              Editar Cliente
-            </button>
-          )}
-          <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
-            Cerrar
-          </button>
+        <h4 className="sectionTitleWithDividerPremium mt-8">Estado de la Cuenta</h4>
+        <div className={styles.detailGrid}>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Estado Global</span>
+            <span className={`${styles.statusBadge} ${activo ? styles.statusActive : styles.statusInactive}`}>
+              <span className="material-icons" style={{ fontSize: 16 }}>{activo ? 'check_circle' : 'error'}</span>
+              {activo ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Verificación de Email</span>
+            <span className={`${styles.statusBadge} ${cliente.email_verified ? styles.statusActive : styles.statusInactive}`}>
+              {cliente.email_verified ? 'Sí' : 'No'}
+            </span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Acceso Web Habilitado</span>
+            <span className={`${styles.statusBadge} ${cliente.is_web_enabled ? styles.statusActive : styles.statusInactive}`}>
+              {cliente.is_web_enabled ? 'Sí' : 'No'}
+            </span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Fecha de Registro</span>
+            <span className={styles.detailValue}>{formatFecha(cliente.fyh_creacion)}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Última Actividad</span>
+            <span className={styles.detailValue}>{formatFecha(cliente.last_login)}</span>
+          </div>
         </div>
-
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        {onEdit && (
+          <button className="btnPremium btnPrimaryPremium mr-auto" onClick={onEdit}>
+            <span className="material-icons">edit</span>
+            Editar Cliente
+          </button>
+        )}
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </PremiumModal>
   );
-};
+});
+
+DetalleClienteModal.displayName = 'DetalleClienteModal';
 
 export default DetalleClienteModal;

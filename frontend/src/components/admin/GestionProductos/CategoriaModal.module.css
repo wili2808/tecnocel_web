@@ -1,0 +1,8 @@
+.deleteMessage {
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.deleteMessage strong {
+  color: var(--color-text);
+}

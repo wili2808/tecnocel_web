@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch, AdminPagination } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
 import CrearClienteModal from './CrearClienteModal';
 import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
+
+const LIMIT = 10;
 
 import {
   useReactTable,
@@ -95,6 +97,10 @@ const GestionClientes = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Paginación
+  const [offset, setOffset] = useState(0);
+  const [total, setTotal] = useState(0);
+
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_cliente', desc: false }]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
@@ -110,31 +116,20 @@ const GestionClientes = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await usuarioService.listarClientes(50, 0);
+      const data = await usuarioService.listarClientes(LIMIT, offset, searchTerm || undefined);
       setClientes(data.clientes || []);
+      setTotal(data.total || 0);
     } catch (err: any) {
       setError(err.message || 'Error al cargar clientes');
       showNotification(err.message || 'Error al cargar clientes', 'error');
     } finally {
       setLoading(false);
     }
-  }, [showNotification]);
+  }, [offset, searchTerm, showNotification]);
 
   useEffect(() => {
     cargarClientes();
   }, [cargarClientes]);
-
-  // ── Filtrado local por búsqueda ──────────────────────────────────────────
-  const filteredClientes = useMemo(() => {
-    if (!searchTerm) return clientes;
-    const term = searchTerm.toLowerCase();
-    return clientes.filter(
-      (c) =>
-        `${c.nombre_cliente} ${c.apellido_cliente}`.toLowerCase().includes(term) ||
-        c.email_cliente.toLowerCase().includes(term) ||
-        (c.celular_cliente || '').toLowerCase().includes(term),
-    );
-  }, [clientes, searchTerm]);
 
   // ── Handlers de modal ──────────────────────────────────────────────────────
   const handleVerDetalle = useCallback((cliente: ClienteListItem) => {
@@ -215,7 +210,7 @@ const GestionClientes = () => {
   ], [handleEditar, handleVerDetalle]);
 
   const table = useReactTable({
-    data: filteredClientes,
+    data: clientes,
     columns,
     state: {
       sorting,
@@ -258,7 +253,7 @@ const GestionClientes = () => {
     );
   }
 
-  if (loading) {
+  if (loading && clientes.length === 0) {
     return (
       <div className={styles.container}>
         <AdminEmptyState
@@ -271,7 +266,7 @@ const GestionClientes = () => {
     );
   }
 
-  if (error) {
+  if (error && clientes.length === 0) {
     return (
       <div className={styles.container}>
         <AdminEmptyState
@@ -310,15 +305,18 @@ const GestionClientes = () => {
             <AdminSearch
               value={searchTerm}
               placeholder="Buscar por nombre, email o celular..."
-              onChange={setSearchTerm}
+              onChange={(val) => {
+                setSearchTerm(val);
+                setOffset(0);
+              }}
             />
           </div>
         </AdminSurface>
 
         <div className={styles.tableInfo}>
           <span>
-            {table.getRowModel().rows.length} cliente{table.getRowModel().rows.length !== 1 ? 's' : ''}
-            {searchTerm ? ' visibles con el filtro actual' : ' registrados'}
+            {total} cliente{total !== 1 ? 's' : ''} registrados
+            {searchTerm ? ` visibles con el filtro "${searchTerm}"` : ''}
           </span>
         </div>
 
@@ -344,7 +342,7 @@ const GestionClientes = () => {
                 {table.getRowModel().rows.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className={styles.emptyMessage}>
-                      No se encontraron clientes
+                      {loading ? 'Cargando...' : 'No se encontraron clientes'}
                     </td>
                   </tr>
                 ) : (
@@ -366,6 +364,15 @@ const GestionClientes = () => {
             </table>
           </DndContext>
         </div>
+
+        {/* Paginación */}
+        <AdminPagination
+          total={total}
+          limit={LIMIT}
+          offset={offset}
+          onPageChange={setOffset}
+          itemLabel="clientes"
+        />
       </div>
 
       {/* Modal de detalle (solo lectura) */}

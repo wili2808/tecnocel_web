@@ -37,7 +37,7 @@ Oferta.init({
     allowNull: false
   },
   valor_descuento: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL(19, 4),
     allowNull: false
   },
   fecha_inicio: {
@@ -53,11 +53,11 @@ Oferta.init({
     defaultValue: true
   },
   precio_minimo: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL(19, 4),
     allowNull: true
   },
   precio_maximo: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL(19, 4),
     allowNull: true
   },
   limite_uso: {

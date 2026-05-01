@@ -11,7 +11,7 @@ import ProductoModal from './ProductoModal';
 import GestionMarcas from './GestionMarcas';
 import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
-import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch, AdminPagination } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
@@ -134,7 +134,7 @@ const GestionProductos = () => {
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock'
   ]);
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   const cargarProductos = useCallback(async () => {
     try {
@@ -508,27 +508,18 @@ const GestionProductos = () => {
               </div>
 
               {/* Paginación */}
-              {table.getPageCount() > 1 && (
-                <div className={styles.pagination}>
-                  <button
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    className={styles.pageButton}
-                  >
-                    <span className="material-icons">chevron_left</span>
-                  </button>
-                  <span className={styles.pageInfo}>
-                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-                  </span>
-                  <button
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    className={styles.pageButton}
-                  >
-                    <span className="material-icons">chevron_right</span>
-                  </button>
-                </div>
-              )}
+              <AdminPagination
+                total={table.getFilteredRowModel().rows.length}
+                limit={pagination.pageSize}
+                offset={pagination.pageIndex * pagination.pageSize}
+                onPageChange={(newOffset) => {
+                  setPagination(prev => ({
+                    ...prev,
+                    pageIndex: Math.floor(newOffset / prev.pageSize)
+                  }));
+                }}
+                itemLabel="productos"
+              />
             </>
           )}
         </>

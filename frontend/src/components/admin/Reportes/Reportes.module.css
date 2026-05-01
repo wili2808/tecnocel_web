@@ -70,6 +70,31 @@
   cursor: not-allowed;
 }
 
+.montoBadgeWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.montoBadge {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.montoBadgeUsd {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.montoBadgeArs {
+  background-color: #cffafe;
+  color: #0369a1;
+}
+
 .exportButton .material-icons {
   font-size: 16px;
 }

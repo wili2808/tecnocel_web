@@ -376,136 +376,68 @@
   }
 }
 
-/* ============================================================================
-   PREMIUM MODAL SYSTEM - Estilos Unificados
-   ============================================================================ */
-
-.modalOverlayPremium {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
+/* Toggle Card */
+.toggleCard {
+  margin-top: 24px;
   padding: 20px;
-}
-
-.modalPremium {
-  background: var(--background-elevated);
+  background: var(--background-secondary);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-xl);
-  width: 100%;
-  max-width: 750px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
   border: 1px solid var(--border-color);
-  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modalHeaderPremium {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--background-secondary);
-  flex-shrink: 0;
+  gap: 16px;
 }
 
-.modalTitlePremium {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
+.toggleInfo {
+  flex: 1;
+}
+
+.toggleLabel {
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text);
 }
 
-.modalTitlePremium .material-icons {
-  color: var(--color-primary);
-  font-size: 24px;
+.toggleDesc {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
-.closeButtonPremium {
-  background: none;
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--border-color);
+  border-radius: 100px;
   border: none;
   cursor: pointer;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  border-radius: var(--border-radius-sm);
-  transition: all var(--transition-fast);
+  transition: background 0.3s;
 }
 
-.closeButtonPremium:hover {
-  background: var(--background-hover);
-  color: var(--text-primary);
+.toggleOn {
+  background: var(--color-success);
 }
 
-.modalBodyPremium {
-  padding: 0; /* Las pestañas manejan su propio padding o se define en el JSX */
-  overflow-y: auto;
-  flex: 1;
-  background: var(--background-primary);
+.toggleKnob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.modalFooterPremium {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  flex-shrink: 0;
-  background: var(--background-secondary);
+.toggleOn .toggleKnob {
+  transform: translateX(20px);
 }
 
-.btnPremium {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--border-radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  border: 1px solid transparent;
-}
-
-.btnPrimaryPremium {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btnPrimaryPremium:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-}
-
-.btnSecondaryPremium {
-  background: var(--background-secondary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-.btnSecondaryPremium:hover:not(:disabled) {
-  background: var(--background-hover);
-}
-
-.btnDangerPremium {
-  background: none;
-  color: var(--color-error);
-  border: 1.5px solid var(--color-error);
-}
-
-.btnDangerPremium:hover:not(:disabled) {
-  background: var(--color-error);
-  color: white;
-  transform: translateY(-1px);
+/* Products Container */
+.productosContainer {
+  padding: var(--spacing-lg);
 }

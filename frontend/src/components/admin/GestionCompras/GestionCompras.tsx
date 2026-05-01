@@ -3,7 +3,7 @@ import adminCompraService from '../../../services/adminCompraService';
 import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch, AdminPagination } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
@@ -13,6 +13,7 @@ import type { ProductoStockBajo } from '../../../types/reporte';
 import {
   useReactTable,
   getCoreRowModel,
+  getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table';
 import type { ColumnDef, PaginationState } from '@tanstack/react-table';
@@ -38,7 +39,7 @@ import { CSS } from '@dnd-kit/utilities';
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
 const GestionProveedores = React.lazy(() => import('./GestionProveedores'));
 
-const LIMIT = 20;
+const LIMIT = 10;
 
 type TabType = 'compras' | 'proveedores' | 'stock';
 
@@ -105,6 +106,7 @@ const GestionCompras: React.FC = memo(() => {
   // === Paginación y TanStack (Compras) ===
   const [offset, setOffset] = useState(0);
   const [total, setTotal] = useState(0);
+  const [stockPagination, setStockPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   
   const pagination = useMemo<PaginationState>(() => ({
     pageIndex: Math.floor(offset / LIMIT),
@@ -416,9 +418,14 @@ const GestionCompras: React.FC = memo(() => {
   const stockTable = useReactTable({
     data: stockBajo,
     columns: stockColumns,
-    state: { columnOrder: stockColumnOrder },
+    state: { 
+      columnOrder: stockColumnOrder,
+      pagination: stockPagination
+    },
     onColumnOrderChange: setStockColumnOrder,
+    onPaginationChange: setStockPagination,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(
@@ -701,28 +708,13 @@ const GestionCompras: React.FC = memo(() => {
               </div>
 
               {/* Paginación (Servidor) */}
-              <div className={styles.pagination}>
-                <span>
-                  Mostrando {comprasTable.getRowModel().rows.length} de {total} compras
-                </span>
-                <div className={styles.paginationControls}>
-                  <button
-                    className={styles.paginationBtn}
-                    onClick={() => comprasTable.previousPage()}
-                    disabled={!comprasTable.getCanPreviousPage()}
-                  >
-                    ← Anterior
-                  </button>
-                  <span>Página {comprasTable.getState().pagination.pageIndex + 1} de {comprasTable.getPageCount()}</span>
-                  <button
-                    className={styles.paginationBtn}
-                    onClick={() => comprasTable.nextPage()}
-                    disabled={!comprasTable.getCanNextPage()}
-                  >
-                    Siguiente →
-                  </button>
-                </div>
-              </div>
+              <AdminPagination
+                total={total}
+                limit={LIMIT}
+                offset={offset}
+                onPageChange={setOffset}
+                itemLabel="compras"
+              />
             </>
           )}
         </>
@@ -804,6 +796,18 @@ const GestionCompras: React.FC = memo(() => {
                 </table>
                 </DndContext>
               </div>
+              <AdminPagination
+                total={stockBajo.length}
+                limit={stockPagination.pageSize}
+                offset={stockPagination.pageIndex * stockPagination.pageSize}
+                onPageChange={(newOffset) => {
+                  setStockPagination(prev => ({
+                    ...prev,
+                    pageIndex: Math.floor(newOffset / prev.pageSize)
+                  }));
+                }}
+                itemLabel="productos"
+              />
             </>
           )}
         </div>

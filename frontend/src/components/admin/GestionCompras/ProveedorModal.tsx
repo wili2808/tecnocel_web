@@ -1,18 +1,19 @@
 import React, { memo, useState } from 'react';
 import proveedorAdminService from '../../../services/proveedorAdminService';
-import { createPortal } from 'react-dom';
-import styles from './GestionCompras.module.css';
 import type { CreateProveedorData, ProveedorListItem } from '../../../types';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './ProveedorModal.module.css';
 
 interface ProveedorModalProps {
+  isOpen?: boolean;
   proveedor?: ProveedorListItem;
   onClose: () => void;
   onGuardado: (proveedor: ProveedorListItem) => void;
 }
 
-const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose, onGuardado }) => {
+const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, proveedor, onClose, onGuardado }) => {
   const [formData, setFormData] = useState<CreateProveedorData & { id_proveedor?: number }>({
     nombre_proveedor: proveedor?.nombre_proveedor || '',
     empresa: proveedor?.empresa || '',
@@ -73,50 +74,41 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
 
   const isEditing = !!proveedor;
 
-  const modalContent = (
-    <div className="modalOverlayPremium" onClick={onClose}>
-      <div className="modalPremium" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-        
-        <div className="modalHeaderPremium">
-          <h2 className="modalTitlePremium">
-            <span className="material-icons">{isEditing ? 'edit' : 'add_business'}</span>
-            {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
-          </h2>
-          <button className="closeButtonPremium" onClick={onClose} disabled={guardando}>
-            <span className="material-icons">close</span>
-          </button>
-        </div>
+  return (
+    <PremiumModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
+      icon={isEditing ? 'edit' : 'add_business'}
+      maxWidth="600px"
+    >
+      <div className={`modalBodyPremium ${styles.body}`}>
+        {error && (
+          <div className="modalAlertErrorPremium mb-4">
+            <span className="material-icons">error</span>
+            {error}
+          </div>
+        )}
 
-        <div className="modalBodyPremium">
-          {error && (
-            <div style={{ color: 'var(--color-error)', background: 'rgba(var(--color-error-rgb), 0.1)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', fontWeight: 500, border: '1px solid rgba(var(--color-error-rgb), 0.2)' }}>
-              <span className="material-icons" style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: '8px' }}>error</span>
-              {error}
-            </div>
-          )}
+        <form id="proveedor-form" onSubmit={handleGuardar}>
+          
+          <h4 className="sectionTitleWithDividerPremium">Razón Social</h4>
+          <div className="modalFormGridPremium" style={{ gridTemplateColumns: '1fr' }}>
+            <Input
+              id="empresa"
+              name="empresa"
+              label="Nombre de Empresa / Razón Social"
+              value={formData.empresa}
+              onChange={handleChange}
+              placeholder="Ej: Distribuidora de Tecnología S.A."
+              required
+              autoFocus
+              disabled={guardando}
+            />
+          </div>
 
-          <form id="proveedor-form" onSubmit={handleGuardar}>
-            
-            <span className={styles.sectionTitlePremium}>Razón Social</span>
-            <div className={styles.formGroupFullPremium} style={{ marginBottom: '24px' }}>
-              <Input
-                id="empresa"
-                name="empresa"
-                label="Nombre de Empresa / Razón Social"
-                value={formData.empresa}
-                onChange={handleChange}
-                placeholder="Ej: Distribuidora de Tecnología S.A."
-                required
-                autoFocus
-                disabled={guardando}
-              />
-            </div>
-
-            <div className={styles.formDivider} style={{ margin: '24px 0' }} />
-
-            <span className={styles.sectionTitlePremium}>Información de Contacto</span>
-            
-            <div className={styles.formGridPremium}>
+          <h4 className="sectionTitleWithDividerPremium mt-8">Información de Contacto</h4>
+          <div className="modalFormGridPremium">
               <Input
                 id="nombre_proveedor"
                 name="nombre_proveedor"
@@ -160,7 +152,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                 disabled={guardando}
               />
 
-              <div className={styles.formGroupFullPremium}>
+              <div className="modalFormGroupFullPremium">
                 <TextArea
                   id="direccion"
                   name="direccion"
@@ -174,28 +166,27 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
                 />
               </div>
             </div>
-          </form>
-        </div>
-
-        <div className="modalFooterPremium">
-          <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-            Cancelar
-          </button>
-          <button 
-            type="submit" 
-            form="proveedor-form" 
-            className="btnPremium btnPrimaryPremium" 
-            disabled={guardando}
-          >
-            <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
-            {guardando ? 'Guardando...' : isEditing ? 'Actualizar Proveedor' : 'Crear Proveedor'}
-          </button>
-        </div>
+        </form>
       </div>
-    </div>
-  );
 
-  return createPortal(modalContent, document.body);
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          form="proveedor-form" 
+          className="btnPremium btnPrimaryPremium" 
+          disabled={guardando}
+        >
+          <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
+          {guardando ? 'Guardando...' : isEditing ? 'Actualizar Proveedor' : 'Crear Proveedor'}
+        </button>
+      </div>
+    </PremiumModal>
+  );
 });
+
+ProveedorModal.displayName = 'ProveedorModal';
 
 export default ProveedorModal;

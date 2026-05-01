@@ -9,7 +9,7 @@ import envioAdminService from '../../../services/envioAdminService';
 import usuarioService from '../../../services/usuarioService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch, AdminPagination } from '../common';
 import styles from './GestionVentas.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
@@ -40,7 +40,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 // ── Tipos internos ───────────────────────────────────────────────────────────
 
-const LIMIT = 20;
+const LIMIT = 10;
 
 // ── Utilidades ────────────────────────────────────────────────────────────────
 
@@ -816,36 +816,14 @@ const GestionVentas: React.FC = () => {
                   </table>
                 </DndContext>
               </div>
+              <AdminPagination
+                total={total}
+                limit={LIMIT}
+                offset={offset}
+                onPageChange={setOffset}
+                itemLabel="ventas"
+              />
 
-              {/* Paginación */}
-              {total > LIMIT && (
-                <div className={styles.pagination}>
-                  <span className={styles.paginationInfo}>
-                    Mostrando {offset + 1}–{Math.min(offset + LIMIT, total)} de {total}
-                  </span>
-                  <div className={styles.paginationControls}>
-                    <button
-                      className={styles.paginationButton}
-                      onClick={() => table.previousPage()}
-                      disabled={!table.getCanPreviousPage()}
-                    >
-                      <span className="material-icons">chevron_left</span>
-                      Anterior
-                    </button>
-                    <span className={styles.paginationPage}>
-                      {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-                    </span>
-                    <button
-                      className={styles.paginationButton}
-                      onClick={() => table.nextPage()}
-                      disabled={!table.getCanNextPage()}
-                    >
-                      Siguiente
-                      <span className="material-icons">chevron_right</span>
-                    </button>
-                  </div>
-                </div>
-              )}
             </>
           )}
 

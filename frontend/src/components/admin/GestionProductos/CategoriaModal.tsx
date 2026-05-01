@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Category } from '../../../types/product';
-import styles from './GestionProductos.module.css';
 import Input from '../../common/Input/Input';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './CategoriaModal.module.css';
 
 interface CategoriaModalProps {
   categoria?: Category | null;
@@ -13,7 +14,7 @@ interface CategoriaModalProps {
   onGuardado: () => void;
 }
 
-const CategoriaModal: React.FC<CategoriaModalProps> = ({ categoria, isOpen, onClose, onGuardado }) => {
+const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen, onClose, onGuardado }) => {
   const { showNotification } = useNotification();
   const { tienePermiso } = useAuth();
   
@@ -43,8 +44,6 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ categoria, isOpen, onCl
       setShowConfirmDelete(false);
     }
   }, [isOpen, categoria]);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,95 +100,95 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ categoria, isOpen, onCl
   const readonly = modoEdicion ? !puedeEditar : !puedeCrear;
 
   return (
-    <div className={styles.modalOverlayPremium} onClick={onClose}>
-      <div className={styles.modalPremium} style={{ maxWidth: '450px' }} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeaderPremium}>
-          <h3 className={styles.modalTitlePremium}>
-            <span className="material-icons">{modoEdicion ? 'edit' : 'add_circle'}</span>
-            {modoEdicion ? 'Editar Categoría' : 'Nueva Categoría'}
-          </h3>
-          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando || eliminando}>
-            <span className="material-icons">close</span>
+    <>
+      <PremiumModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={modoEdicion ? 'Editar Categoría' : 'Nueva Categoría'}
+        icon={modoEdicion ? 'edit' : 'add_circle'}
+        maxWidth="450px"
+      >
+        <form id="categoria-form" onSubmit={handleSubmit}>
+          <div className="modalBodyPremium">
+            <Input
+              id="nombre_categoria"
+              name="nombre_categoria"
+              label="Nombre de la Categoría"
+              value={form.nombre_categoria}
+              onChange={(e) => setForm({ nombre_categoria: e.target.value })}
+              placeholder="Ej: Smartphones, Tablets, Accesorios..."
+              disabled={guardando || readonly}
+              required
+              autoFocus
+            />
+          </div>
+
+          <div className="modalFooterPremium">
+            {modoEdicion && puedeEliminar && (
+              <button 
+                type="button" 
+                className="btnPremium btnDangerPremium mr-auto" 
+                onClick={() => setShowConfirmDelete(true)} 
+                disabled={guardando}
+              >
+                <span className="material-icons">delete</span>
+                Eliminar
+              </button>
+            )}
+            
+            <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
+              Cancelar
+            </button>
+            {!readonly && (
+              <button type="submit" form="categoria-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
+                <span className="material-icons">
+                  {guardando ? 'hourglass_empty' : 'save'}
+                </span>
+                {guardando ? 'Guardando...' : 'Guardar'}
+              </button>
+            )}
+          </div>
+        </form>
+      </PremiumModal>
+
+      {/* Sub-modal Confirmar Eliminación */}
+      <PremiumModal
+        isOpen={showConfirmDelete}
+        onClose={() => setShowConfirmDelete(false)}
+        title="¿Eliminar categoría?"
+        icon="warning"
+        maxWidth="400px"
+        titleStyle={{ color: 'var(--color-error)' }}
+      >
+        <div className="modalBodyPremium">
+          <p className={styles.deleteMessage}>
+            Estás a punto de eliminar la categoría <strong>{categoria?.nombre_categoria}</strong>. Esta acción no se puede deshacer.
+          </p>
+        </div>
+        <div className="modalFooterPremium">
+          <button 
+            type="button"
+            className="btnPremium btnSecondaryPremium" 
+            onClick={() => setShowConfirmDelete(false)} 
+            disabled={eliminando}
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button"
+            className="btnPremium btnDangerPremium" 
+            onClick={handleEliminar} 
+            disabled={eliminando}
+          >
+            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
+            {eliminando ? 'Eliminando...' : 'Sí, eliminar categoría'}
           </button>
         </div>
-
-        {showConfirmDelete ? (
-          <div className={styles.modalBodyPremium}>
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <span className="material-icons" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 16 }}>
-                warning
-              </span>
-              <h4 style={{ margin: '0 0 8px', fontSize: 18 }}>¿Eliminar categoría?</h4>
-              <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-                Estás a punto de eliminar la categoría <strong>{categoria?.nombre_categoria}</strong>. Esta acción no se puede deshacer.
-              </p>
-            </div>
-            <div className={styles.modalFooterPremium}>
-              <button 
-                type="button"
-                className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} 
-                onClick={() => setShowConfirmDelete(false)} 
-                disabled={eliminando}
-              >
-                Cancelar
-              </button>
-              <button 
-                type="button"
-                className={`${styles.btnPremium} ${styles.btnDangerSolidPremium}`} 
-                onClick={handleEliminar} 
-                disabled={eliminando}
-              >
-                {eliminando ? 'Eliminando...' : 'Sí, eliminar categoría'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div className={styles.modalBodyPremium}>
-              <Input
-                id="nombre_categoria"
-                name="nombre_categoria"
-                label="Nombre de la Categoría"
-                value={form.nombre_categoria}
-                onChange={(e) => setForm({ nombre_categoria: e.target.value })}
-                placeholder="Ej: Smartphones, Tablets, Accesorios..."
-                disabled={guardando || readonly}
-                required
-                autoFocus
-              />
-            </div>
-
-            <div className={styles.modalFooterPremium}>
-              {modoEdicion && puedeEliminar && (
-                <button 
-                  type="button" 
-                  className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
-                  style={{ marginRight: 'auto' }}
-                  onClick={() => setShowConfirmDelete(true)} 
-                  disabled={guardando}
-                >
-                  <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
-                  Eliminar
-                </button>
-              )}
-              
-              <button type="button" className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
-                Cancelar
-              </button>
-              {!readonly && (
-                <button type="submit" className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} disabled={guardando}>
-                  <span className="material-icons" style={{ fontSize: 18 }}>
-                    {guardando ? 'hourglass_empty' : 'save'}
-                  </span>
-                  {guardando ? 'Guardando...' : 'Guardar'}
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+      </PremiumModal>
+    </>
   );
-};
+});
+
+CategoriaModal.displayName = 'CategoriaModal';
 
 export default CategoriaModal;

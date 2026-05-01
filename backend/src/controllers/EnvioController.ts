@@ -49,7 +49,7 @@ class EnvioController {
         fecha_inicio,
         fecha_fin,
         search,
-        limit = 20,
+        limit = 10,
         offset = 0,
         tipo_entrega = 'envio',
       } = req.query as unknown as FiltrosEnviosAdmin;

@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.calendarIcon {
+  font-size: 14px;
+}
+
+.providerBox {
+  padding: var(--spacing-md);
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-primary);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.observacionesBox {
+  background: var(--background-neutral);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+}
+
+.totalContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+}
+
+.totalBox {
+  min-width: 250px;
+}
+
+.footerBtn {
+  min-width: 120px;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}

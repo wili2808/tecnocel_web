@@ -1,0 +1,87 @@
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.galleryHint {
+  margin-bottom: var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.starIcon {
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.deleteConfirmBody {
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.deleteConfirmTitle {
+  color: var(--color-error);
+}
+
+/* Ficha Técnica / Especificaciones */
+.specsSearchContainer {
+  margin-bottom: var(--spacing-lg);
+}
+
+.specsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.specCard {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  transition: all 0.2s ease;
+}
+
+.specCardActive {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.booleanGroup {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.booleanBtn {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.booleanBtnActivePrimary {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.booleanBtnActiveDanger {
+  background: var(--color-error);
+  color: white;
+  border-color: var(--color-error);
+}
+
+@media (max-width: 600px) {
+  .specsGrid {
+    grid-template-columns: 1fr;
+  }
+}

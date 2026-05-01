@@ -1,19 +1,22 @@
-import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import proveedorAdminService from '../../../services/proveedorAdminService';
 import adminProductService from '../../../services/adminProductService';
 import ProductoNuevoModalRapido from './ProductoNuevoModalRapido';
 import ProveedorModal from './ProveedorModal';
 import { useNotification } from '../../../contexts/NotificationContext';
-import styles from './GestionCompras.module.css';
 import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
 import { AdminSearch, AdminEmptyState } from '../common';
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+
+import styles from './RegistrarCompraModal.module.css';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
+// ... (rest of imports and types remain the same)
 
 interface RegistrarCompraModalProps {
   onClose: () => void;
@@ -50,523 +53,453 @@ interface ProductoParaBuscar {
 const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClose, onRegistrada, productosIniciales }) => {
   const { showNotification } = useNotification();
 
-  // Estado general
-  const [registrando, setRegistrando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Proveedor
-  const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
-  const [idProveedor, setIdProveedor] = useState<number | ''>('');
-  const [mostrarCrearProveedor, setMostrarCrearProveedor] = useState(false);
-
-  // Datos de compra
-  const [fechaCompra, setFechaCompra] = useState(new Date().toISOString().split('T')[0]);
+  // ── Estados de Formulario ──────────────────────────────────────────
+  const [idProveedor, setIdProveedor] = useState<number>(0);
   const [comprobante, setComprobante] = useState('');
   const [observaciones, setObservaciones] = useState('');
-
-  // Búsqueda de productos
+  const [items, setItems] = useState<ItemForm[]>([]);
+  
+  // ── Estados de UI ──────────────────────────────────────────────────
+  const [registrando, setRegistrando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // ── Catálogos y Búsqueda ──────────────────────────────────────────
+  const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
   const [busqProducto, setBusqProducto] = useState('');
   const [productosEncontrados, setProductosEncontrados] = useState<ProductoParaBuscar[]>([]);
   const [buscandoProducto, setBuscandoProducto] = useState(false);
-  const productoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Items y producto nuevo
-  const [items, setItems] = useState<ItemForm[]>([]);
+  
+  // ── Modales Secundarios ────────────────────────────────────────────
+  const [mostrarCrearProveedor, setMostrarCrearProveedor] = useState(false);
   const [mostrarProductoNuevo, setMostrarProductoNuevo] = useState(false);
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
 
-  // Cargar datos iniciales
-  useEffect(() => {
-    cargarProveedores();
-    cargarCategoriasMarcas();
+  // ── Cargar Catálogos ───────────────────────────────────────────────
+  const cargarProveedores = useCallback(async () => {
+    try {
+      const response = await proveedorAdminService.listarProveedores();
+      setProveedores(response.data);
+    } catch (err) {
+      console.error('Error al cargar proveedores:', err);
+    }
   }, []);
 
-  // Pre-cargar ítems desde productos con stock bajo seleccionados
+  const cargarCatalogoProductos = useCallback(async () => {
+    try {
+      const [cats, marks] = await Promise.all([
+        adminProductService.obtenerCategorias(),
+        adminProductService.obtenerMarcas()
+      ]);
+      setCategorias(cats);
+      setMarcas(marks);
+    } catch (err) {
+      console.error('Error al cargar catálogos:', err);
+    }
+  }, []);
+
   useEffect(() => {
-    if (!productosIniciales?.length) return;
-    const itemsIniciales: ItemForm[] = productosIniciales.map((p) => {
-      const pc = Number(p.precio_compra) || 0;
-      const pv = Number(p.precio_venta) || 0;
-      return {
+    cargarProveedores();
+    cargarCatalogoProductos();
+  }, [cargarProveedores, cargarCatalogoProductos]);
+
+  // Cargar productos iniciales si existen (desde Stock Bajo)
+  useEffect(() => {
+    if (productosIniciales && productosIniciales.length > 0 && items.length === 0) {
+      const initialItems: ItemForm[] = productosIniciales.map(p => ({
         id_producto: p.id_producto,
-        nombre_producto: `${p.nombre}${p.codigo ? ` (${p.codigo})` : ''}`,
-        cantidad: Math.max(1, p.stock_minimo - p.stock),
-        precio_unitario: pc > 0 ? pc : pv,
-        precio_venta: pv,
-      };
-    });
-    setItems(itemsIniciales);
-  }, [productosIniciales]);
-
-  const cargarProveedores = async () => {
-    try {
-      const res = await proveedorAdminService.listarProveedores();
-      setProveedores(res.data || []);
-    } catch (err) {
-      console.error('Error cargando proveedores:', err);
+        nombre_producto: p.nombre,
+        cantidad: Math.max(1, (p.stock_minimo || 0) - (p.stock || 0)),
+        precio_unitario: p.precio_compra || 0,
+        precio_venta: p.precio_venta || 0,
+        es_nuevo: false
+      }));
+      setItems(initialItems);
     }
-  };
+  }, [productosIniciales, items.length]);
 
-  const cargarCategoriasMarcas = async () => {
-    try {
-      const resCat = await adminProductService.obtenerCategorias();
-      setCategorias(resCat);
-      const resMar = await adminProductService.obtenerMarcas();
-      setMarcas(resMar);
-    } catch (err) {
-      console.error('Error cargando categorías/marcas:', err);
-    }
-  };
-
-  const buscarProductos = useCallback((q: string) => {
-    if (productoTimerRef.current) clearTimeout(productoTimerRef.current);
-    if (!q.trim()) {
+  // ── Handlers ───────────────────────────────────────────────────────
+  const handleBuscarProducto = async (query: string) => {
+    setBusqProducto(query);
+    if (query.length < 2) {
       setProductosEncontrados([]);
       return;
     }
-    productoTimerRef.current = setTimeout(async () => {
-      setBuscandoProducto(true);
-      try {
-        const res = await adminProductService.listarProductos(q.trim());
-        setProductosEncontrados(
-          res.map((p: any) => {
-            const pv = parseFloat(p.precio_venta);
-            const pc = parseFloat(p.precio_compra || 0);
-            return {
-              id_producto: p.id_producto,
-              nombre: p.nombre,
-              codigo: p.codigo || '',
-              precio_venta: isNaN(pv) ? 0 : pv,
-              precio_compra: isNaN(pc) ? 0 : pc,
-              stock: p.stock ?? 0,
-            };
-          }),
-        );
-      } catch {
-        setProductosEncontrados([]);
-      } finally {
-        setBuscandoProducto(false);
-      }
-    }, 400);
-  }, []);
-
-  const handleBusqProductoChange = (v: string) => {
-    setBusqProducto(v);
-    buscarProductos(v);
+    setBuscandoProducto(true);
+    try {
+      const results = await adminProductService.listarProductos(query);
+      setProductosEncontrados(results.map((p: any) => ({
+        id_producto: p.id_producto,
+        nombre: p.nombre,
+        codigo: p.codigo,
+        precio_venta: Number(p.precio_venta),
+        precio_compra: Number(p.precio_compra) || 0,
+        stock: p.stock
+      })));
+    } catch (err) {
+      console.error('Error buscando productos:', err);
+    } finally {
+      setBuscandoProducto(false);
+    }
   };
 
   const agregarProducto = (p: ProductoParaBuscar) => {
-    if (items.some((i) => i.id_producto === p.id_producto && !i.es_nuevo)) {
-      showNotification('El producto ya fue agregado', 'warning');
+    // Evitar duplicados
+    if (items.some(i => i.id_producto === p.id_producto)) {
+      showNotification('Este producto ya está en la lista', 'warning');
       return;
     }
-    setItems((prev) => [
+
+    setItems(prev => [
       ...prev,
       {
         id_producto: p.id_producto,
         nombre_producto: p.nombre,
         cantidad: 1,
-        precio_unitario: p.precio_compra || p.precio_venta,
-        precio_venta: p.precio_venta || 0,
-      },
+        precio_unitario: p.precio_compra,
+        precio_venta: p.precio_venta,
+        es_nuevo: false
+      }
     ]);
     setBusqProducto('');
     setProductosEncontrados([]);
   };
 
-  const handleProductoNuevo = (productoData: any) => {
-    setItems((prev) => [
+  const handleProductoNuevo = (p: any) => {
+    setItems(prev => [
       ...prev,
       {
         es_nuevo: true,
-        nuevo_codigo: productoData.codigo,
-        nuevo_nombre: productoData.nombre,
-        nuevo_precio_venta: productoData.precio_venta,
-        nuevo_id_categoria: productoData.id_categoria,
-        nuevo_id_marca: productoData.id_marca,
+        nuevo_nombre: p.nombre,
+        nuevo_codigo: p.codigo,
+        nuevo_precio_venta: p.precio_venta,
+        nuevo_id_categoria: p.id_categoria,
+        nuevo_id_marca: p.id_marca,
         cantidad: 1,
-        precio_unitario: productoData.precio_compra || 0,
-        precio_venta: productoData.precio_venta || 0,
-      },
+        precio_unitario: 0,
+        precio_venta: p.precio_venta
+      }
     ]);
     setMostrarProductoNuevo(false);
   };
 
-  const actualizarItem = (index: number, field: string, value: any) => {
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+  const actualizarItem = (index: number, campo: keyof ItemForm, valor: any) => {
+    setItems(prev => {
+      const newItems = [...prev];
+      newItems[index] = { ...newItems[index], [campo]: valor };
+      return newItems;
+    });
   };
 
   const eliminarItem = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+    setItems(prev => prev.filter((_, i) => i !== index));
   };
+
+  const totalCompra = items.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
 
   const registrarCompra = async () => {
     if (!idProveedor) {
-      setError('Seleccione un proveedor');
-      return;
-    }
-    if (!fechaCompra || !comprobante.trim()) {
-      setError('Fecha y comprobante son requeridos');
+      setError('Debes seleccionar un proveedor');
       return;
     }
     if (items.length === 0) {
-      setError('Agregue al menos un producto');
+      setError('Debes agregar al menos un producto');
       return;
-    }
-
-    for (const item of items) {
-      if (!item.cantidad || item.cantidad < 1) {
-        setError(`${item.nombre_producto || 'Producto'} requiere cantidad >= 1`);
-        return;
-      }
-      if (!item.precio_unitario || item.precio_unitario < 0) {
-        setError(`${item.nombre_producto || 'Producto'} requiere precio válido`);
-        return;
-      }
-      if (item.es_nuevo && (!item.nuevo_codigo || !item.nuevo_nombre || !item.nuevo_precio_venta)) {
-        setError('Producto nuevo requiere código, nombre y precio venta');
-        return;
-      }
     }
 
     setRegistrando(true);
     setError(null);
-
     try {
-      const data: RegistrarCompraData = {
-        id_proveedor: Number(idProveedor),
-        fecha_compra: fechaCompra,
-        comprobante: comprobante.trim(),
-        observaciones: observaciones || undefined,
-        items: items.map((item) => ({
-          id_producto: item.id_producto,
-          es_nuevo: item.es_nuevo,
-          nuevo_codigo: item.nuevo_codigo,
-          nuevo_nombre: item.nuevo_nombre,
-          nuevo_precio_venta: item.nuevo_precio_venta,
-          nuevo_id_categoria: item.nuevo_id_categoria,
-          nuevo_id_marca: item.nuevo_id_marca,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario,
-        })),
+      const payload: RegistrarCompraData = {
+        id_proveedor: idProveedor,
+        comprobante: comprobante.trim() || 'S/N',
+        fecha_compra: new Date().toISOString().split('T')[0],
+        observaciones: observaciones.trim() || undefined,
+        items: items.map(i => ({
+          id_producto: i.id_producto,
+          cantidad: i.cantidad,
+          precio_unitario: i.precio_unitario,
+          // Datos para producto nuevo
+          es_nuevo: i.es_nuevo,
+          nuevo_nombre: i.nuevo_nombre,
+          nuevo_codigo: i.nuevo_codigo,
+          nuevo_precio_venta: i.nuevo_precio_venta,
+          nuevo_id_categoria: i.nuevo_id_categoria,
+          nuevo_id_marca: i.nuevo_id_marca
+        }))
       };
 
-      await adminCompraService.registrarCompra(data);
+      await adminCompraService.registrarCompra(payload);
       showNotification('Compra registrada exitosamente', 'success');
       onRegistrada();
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al registrar compra');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al registrar la compra');
     } finally {
       setRegistrando(false);
     }
   };
 
-  const totalCompra = items.reduce((sum, item) => sum + item.cantidad * item.precio_unitario, 0);
-  const proveedorSeleccionado = proveedores.find((p) => p.id_proveedor === idProveedor);
+  const proveedorSeleccionado = proveedores.find(p => p.id_proveedor === idProveedor);
 
   return (
-    <>
-      <div className={styles.modalOverlay} onClick={onClose}>
-        <div className={styles.modalPremium} style={{ maxWidth: '1000px' }} onClick={(e) => e.stopPropagation()}>
-          
-          {/* Header Premium */}
-          <div className={styles.modalHeaderPremium}>
-            <h2 className={styles.modalTitlePremium}>
-              <span className="material-icons">shopping_cart_checkout</span>
-              Registrar Compra a Proveedor
-            </h2>
-            <button className={styles.closeButtonPremium} onClick={onClose} disabled={registrando}>
-              <span className="material-icons">close</span>
-            </button>
-          </div>
-
-          {/* Cuerpo - Dos columnas optimizadas */}
-          <div className={styles.registrarCompraGrid}>
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title="Registrar Ingreso de Mercadería"
+      icon="inventory"
+      maxWidth="1200px"
+    >
+      <div className={`modalBodyPremium ${styles.body}`}>
+        <div className="modalSplitLayoutPremium">
+          {/* Columna Izquierda - Formulario Principal */}
+          <div className="modalMainColumnPremium">
             
-            {/* Columna Izquierda - Formulario y Items */}
-            <div className={styles.registrarCompraLeft} style={{ padding: '24px' }}>
-              
-              <div className={styles.formGrid} style={{ marginBottom: '24px' }}>
-                <div className={styles.formGroupPremium} style={{ gridColumn: '1 / span 2' }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+            {/* 1. Proveedor y Datos de Factura */}
+            <span className={styles.sectionTitleWithDivider}>Información del Proveedor</span>
+            <div className="modalFormGridPremium">
+              <div className="modalFormGroupPremium">
+                <div className={styles.providerActions}>
+                  <div className={styles.selectWrapper}>
                     <Select
-                      id="idProveedor"
-                      name="idProveedor"
+                      id="id_proveedor"
+                      name="id_proveedor"
                       label="Proveedor"
                       value={String(idProveedor)}
-                      onChange={(e) => setIdProveedor(Number(e.target.value) || '')}
+                      onChange={(e) => { setIdProveedor(Number(e.target.value)); setError(null); }}
+                      disabled={registrando}
                       required
                       options={[
-                        { value: '', label: '-- Seleccionar Proveedor --', disabled: true },
-                        ...proveedores.map((p) => ({
-                          value: String(p.id_proveedor),
-                          label: `${p.nombre_proveedor} (${p.empresa})`
-                        }))
+                        { value: '0', label: 'Seleccionar proveedor...', disabled: true },
+                        ...proveedores.map(p => ({ value: String(p.id_proveedor), label: p.nombre_proveedor }))
                       ]}
-                      style={{ flex: 1 }}
                     />
-                    <button
-                      onClick={() => setMostrarCrearProveedor(true)}
-                      className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`}
-                      style={{ padding: '8px 14px', whiteSpace: 'nowrap', marginBottom: '8px' }}
-                      title="Agregar nuevo proveedor"
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setMostrarCrearProveedor(true)}
+                    className={`btnPremium btnSecondaryPremium ${styles.addButton}`}
+                    title="Nuevo Proveedor"
+                  >
+                    <span className="material-icons">add</span>
+                  </button>
+                </div>
+              </div>
+              
+              <Input
+                id="comprobante"
+                name="comprobante"
+                label="Nº de Comprobante / Factura"
+                value={comprobante}
+                onChange={(e) => setComprobante(e.target.value)}
+                placeholder="Ej: 0001-00001234"
+                disabled={registrando}
+              />
+
+              <div className="modalFormGroupFullPremium">
+                <TextArea
+                  id="observaciones"
+                  name="observaciones"
+                  label="Notas de la Compra"
+                  value={observaciones}
+                  onChange={(e) => setObservaciones(e.target.value)}
+                  placeholder="Detalles internos, estado de los productos, etc."
+                  rows={2}
+                  disabled={registrando}
+                />
+              </div>
+            </div>
+
+            <div className="modalDividerPremium" />
+
+            {/* 2. Búsqueda de Productos */}
+            <span className={styles.sectionTitleWithDivider}>Selección de Productos</span>
+            <div className={`modalFormGroupFullPremium ${styles.searchContainer}`}>
+              <AdminSearch
+                value={busqProducto}
+                onChange={handleBuscarProducto}
+                placeholder="Buscar por nombre o código de barras..."
+                delay={300}
+              />
+              {buscandoProducto && (
+                <div className={styles.loadingIcon}>
+                  <span className="material-icons">autorenew</span>
+                </div>
+              )}
+              
+              {/* Resultados de búsqueda */}
+              {productosEncontrados.length > 0 && (
+                <div className="modalSearchListPremium">
+                  {productosEncontrados.map(p => (
+                    <div 
+                      key={p.id_producto} 
+                      className="modalSearchResultItemPremium"
+                      onClick={() => agregarProducto(p)}
                     >
-                      <span className="material-icons" style={{ fontSize: '18px' }}>person_add</span>
-                      Nuevo
-                    </button>
-                  </div>
-                </div>
-
-                <Input
-                  id="fechaCompra"
-                  name="fechaCompra"
-                  type="date"
-                  label="Fecha de Compra"
-                  value={fechaCompra}
-                  onChange={(e) => setFechaCompra(e.target.value)}
-                  required
-                />
-                
-                <Input
-                  id="comprobante"
-                  name="comprobante"
-                  label="Comprobante / Nro. Factura"
-                  value={comprobante}
-                  onChange={(e) => setComprobante(e.target.value)}
-                  placeholder="Ej: FAC-001-1234"
-                  required
-                />
-
-                <div className={styles.formGroupFullPremium}>
-                  <TextArea
-                    id="observaciones"
-                    name="observaciones"
-                    label="Observaciones"
-                    value={observaciones}
-                    onChange={(e) => setObservaciones(e.target.value)}
-                    placeholder="Notas adicionales sobre esta compra..."
-                    rows={1}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formDivider} style={{ margin: '20px 0' }} />
-
-              {/* Búsqueda de productos */}
-              <div style={{ marginBottom: '24px' }}>
-                <span className={styles.sectionTitlePremium}>Agregar Productos</span>
-                <div style={{ position: 'relative' }}>
-                  <AdminSearch
-                    value={busqProducto}
-                    onChange={handleBusqProductoChange}
-                    placeholder="Escriba código o nombre para buscar..."
-                    delay={400}
-                  />
-                  {buscandoProducto && (
-                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
-                      <span className="material-icons" style={{ animation: 'spin 1s linear infinite', fontSize: '20px', color: 'var(--color-primary)' }}>autorenew</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Dropdown de Resultados */}
-                {buscandoProducto && <p style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '10px' }}>Buscando...</p>}
-                {productosEncontrados.length > 0 && (
-                  <div style={{ 
-                    position: 'absolute', 
-                    zIndex: 100, 
-                    width: '100%', 
-                    maxWidth: '500px',
-                    background: 'var(--background-elevated)', 
-                    border: '1px solid var(--border-color)', 
-                    borderRadius: '8px', 
-                    boxShadow: 'var(--shadow-lg)',
-                    marginTop: '4px',
-                    maxHeight: '250px',
-                    overflowY: 'auto'
-                  }}>
-                    {productosEncontrados.map((p) => (
-                      <div
-                        key={p.id_producto}
-                        onClick={() => agregarProducto(p)}
-                        style={{ padding: '12px', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--background-hover)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.nombre}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                          SKU: {p.codigo} • Stock: {p.stock} • Últ. Costo: ${p.precio_compra.toFixed(2)}
-                        </div>
+                      <div className="modalResultMainPremium">
+                        <span className="modalResultTitlePremium">{p.nombre}</span>
+                        <span className="modalResultBadgePremium">${p.precio_venta.toLocaleString()}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
-                  <div style={{ padding: '16px', textAlign: 'center', background: 'var(--background-neutral)', borderRadius: '8px', marginTop: '8px' }}>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>No se encontró el producto</p>
-                    <button onClick={() => setMostrarProductoNuevo(true)} className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} style={{ margin: '0 auto', fontSize: '12px' }}>
-                      <span className="material-icons" style={{ fontSize: '16px' }}>add</span>
-                      Crear como Producto Nuevo
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Lista de Items Agregados */}
-              {items.length > 0 ? (
-                <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', background: 'var(--background-primary)', boxShadow: 'var(--shadow-sm)' }}>
-                  <table className={styles.table} style={{ margin: 0, fontSize: '13px' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ paddingLeft: '16px' }}>Producto</th>
-                        <th className={styles.textRight} style={{ width: '80px' }}>Cant.</th>
-                        <th className={styles.textRight} style={{ width: '100px' }}>P. Costo</th>
-                        <th className={styles.textRight} style={{ width: '100px' }}>Subtotal</th>
-                        <th className={styles.textRight} style={{ width: '80px' }}>Margen</th>
-                        <th style={{ width: '40px', paddingRight: '16px' }}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item, idx) => {
-                        const pc = Number(item.precio_unitario) || 0;
-                        const pv = Number(item.precio_venta) || 0;
-                        const margen = pc > 0 ? ((pv - pc) / pc) * 100 : 0;
-
-                        return (
-                          <tr key={idx}>
-                            <td style={{ paddingLeft: '16px' }}>
-                              <div style={{ fontWeight: 600 }}>{item.nombre_producto || item.nuevo_nombre}</div>
-                              {item.es_nuevo && <span style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 700, textTransform: 'uppercase' }}>NUEVO</span>}
-                            </td>
-                            <td className={styles.textRight}>
-                              <input
-                                type="number"
-                                value={item.cantidad}
-                                onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
-                                className={styles.formInputPremium}
-                                style={{ padding: '6px 8px', textAlign: 'right', minHeight: '32px' }}
-                              />
-                            </td>
-                            <td className={styles.textRight}>
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={item.precio_unitario}
-                                onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
-                                className={styles.formInputPremium}
-                                style={{ padding: '6px 8px', textAlign: 'right', minHeight: '32px' }}
-                              />
-                            </td>
-                            <td className={styles.textRight} style={{ fontWeight: 700 }}>
-                              ${(item.cantidad * item.precio_unitario).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className={styles.textRight} style={{ color: margen > 0 ? 'var(--color-success)' : 'var(--color-error)', fontWeight: 600 }}>
-                              {margen.toFixed(1)}%
-                            </td>
-                            <td style={{ paddingRight: '16px' }}>
-                              <button 
-                                onClick={() => eliminarItem(idx)} 
-                                style={{ color: 'var(--color-error)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-error-100)')}
-                                onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-                                title="Quitar producto"
-                              >
-                                <span className="material-icons" style={{ fontSize: '18px' }}>delete_outline</span>
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                      <div className="modalResultSubPremium">
+                        SKU: {p.codigo} • Stock: {p.stock} • Últ. Costo: ${p.precio_compra.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <AdminEmptyState
-                  icon="inventory"
-                  title="Sin productos"
-                  message="Busca y agrega productos para iniciar el registro de la compra."
-                />
+              )}
+              {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
+                <div className="modalEmptyStateSimplePremium">
+                  <p className="text-sm text-secondary mb-2">No se encontró el producto</p>
+                  <button onClick={() => setMostrarProductoNuevo(true)} className="btnPremium btnPrimaryPremium btnSmPremium">
+                    <span className="material-icons">add</span>
+                    Crear como Producto Nuevo
+                  </button>
+                </div>
               )}
             </div>
 
-            {/* Columna Derecha - Resumen Dinámico */}
-            <div className={styles.registrarCompraRight} style={{ padding: '24px' }}>
-              <span className={styles.sectionTitlePremium}>Resumen de la Operación</span>
-              
-              <div className={styles.resumenBodyPremium}>
-                <div className={styles.infoCardPremium}>
-                  <div className={styles.detalleRowPremium}>
-                    <span className={styles.detalleLabelPremium}>Proveedor</span>
-                    <span className={styles.detalleValuePremium} style={{ color: proveedorSeleccionado ? 'var(--color-primary)' : 'var(--color-error)' }}>
-                      {proveedorSeleccionado ? proveedorSeleccionado.nombre_proveedor : 'No seleccionado'}
-                    </span>
-                  </div>
-                  
-                  <div className={styles.resumenSplitMobile}>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Productos</span>
-                      <span className={styles.detalleValuePremium}>{items.length} tipo(s)</span>
-                    </div>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Total Unidades</span>
-                      <span className={styles.detalleValuePremium}>{items.reduce((sum, i) => sum + i.cantidad, 0)}</span>
-                    </div>
-                  </div>
+            {/* Lista de Items Agregados */}
+            {items.length > 0 ? (
+              <div className="modalTableContainerPremium">
+                <table className="modalTablePremium">
+                  <thead>
+                    <tr>
+                      <th className={styles.productCell}>Producto</th>
+                      <th className="text-right" style={{ width: '80px' }}>Cant.</th>
+                      <th className="text-right" style={{ width: '100px' }}>P. Costo</th>
+                      <th className="text-right" style={{ width: '100px' }}>Subtotal</th>
+                      <th className="text-right" style={{ width: '80px' }}>Margen</th>
+                      <th style={{ width: '40px' }} className={styles.actionCell}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item, idx) => {
+                      const pc = Number(item.precio_unitario) || 0;
+                      const pv = Number(item.precio_venta) || 0;
+                      const margen = pc > 0 ? ((pv - pc) / pc) * 100 : 0;
 
-                  {proveedorSeleccionado && (
-                    <div className={styles.detalleRowPremium} style={{ borderTop: '1px dashed var(--border-color)', borderBottom: 'none', marginTop: '4px', paddingTop: '8px' }}>
-                      <span className={styles.detalleLabelPremium}>Empresa</span>
-                      <span className={styles.detalleValuePremium} style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{proveedorSeleccionado.empresa}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.totalBoxPremium}>
-                  <span className={styles.totalLabelPremium}>Total a Pagar</span>
-                  <span className={styles.totalValuePremium}>
-                    ${totalCompra.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-
-                {error && (
-                  <div style={{ padding: '12px 16px', background: 'var(--color-error-100)', border: '1px solid var(--color-error)', borderRadius: '12px', color: 'var(--color-error)', fontSize: '13px', fontWeight: 600, animation: 'fadeIn 0.3s ease' }}>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span className="material-icons" style={{ fontSize: '20px' }}>error_outline</span>
-                      {error}
-                    </div>
-                  </div>
-                )}
+                      return (
+                        <tr key={idx}>
+                          <td className={styles.productCell}>
+                            <div className="font-bold">{item.nombre_producto || item.nuevo_nombre}</div>
+                            {item.es_nuevo && <span className={styles.newBadge}>NUEVO</span>}
+                          </td>
+                          <td className="text-right">
+                            <input
+                              type="number"
+                              value={item.cantidad}
+                              onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
+                              className="modalTableInputPremium"
+                            />
+                          </td>
+                          <td className="text-right">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={item.precio_unitario}
+                              onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
+                              className="modalTableInputPremium"
+                            />
+                          </td>
+                          <td className="text-right font-bold">
+                            ${(item.cantidad * item.precio_unitario).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className={`text-right font-bold ${margen > 0 ? 'text-success' : 'text-error'}`}>
+                            {margen.toFixed(1)}%
+                          </td>
+                          <td className={styles.actionCell}>
+                            <button 
+                              onClick={() => eliminarItem(idx)} 
+                              className="modalIconButtonPremium text-error"
+                              title="Quitar producto"
+                            >
+                              <span className="material-icons">delete_outline</span>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            </div>
+            ) : (
+              <AdminEmptyState
+                icon="inventory"
+                title="Sin productos"
+                message="Busca y agrega productos para iniciar el registro de la compra."
+              />
+            )}
           </div>
 
-          {/* Footer Premium */}
-          <div className={styles.modalFooterPremium}>
-            <button className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={registrando}>
-              Cancelar
-            </button>
-            <button 
-              className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} 
-              onClick={registrarCompra}
-              disabled={registrando || items.length === 0 || !idProveedor}
-              style={{ minWidth: '180px' }}
-            >
-              <span className="material-icons">{registrando ? 'hourglass_empty' : 'check_circle'}</span>
-              {registrando ? 'Procesando...' : 'Confirmar Registro'}
-            </button>
+          {/* Columna Derecha - Resumen Dinámico */}
+          <div className="modalSideColumnPremium">
+            <span className={styles.sectionTitleWithDivider}>Resumen de la Operación</span>
+            
+            <div className="modalResumenCardPremium">
+              <div className="modalResumenRowPremium">
+                <span className="text-secondary">Proveedor</span>
+                <span className={`font-bold ${proveedorSeleccionado ? 'text-primary' : 'text-error'}`}>
+                  {proveedorSeleccionado ? proveedorSeleccionado.nombre_proveedor : 'No seleccionado'}
+                </span>
+              </div>
+              
+              <div className="modalResumenRowPremium">
+                <span className="text-secondary">Productos</span>
+                <span className="font-bold">{items.length} tipo(s)</span>
+              </div>
+              
+              <div className="modalResumenRowPremium">
+                <span className="text-secondary">Total Unidades</span>
+                <span className="font-bold">{items.reduce((sum, i) => sum + i.cantidad, 0)}</span>
+              </div>
+
+              {proveedorSeleccionado && (
+                <div className={`modalResumenRowPremium ${styles.resumenHeader}`}>
+                  <span className="text-secondary">Empresa</span>
+                  <span className="text-xs font-bold">{proveedorSeleccionado.empresa}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="modalTotalBoxPremium">
+              <span className="modalTotalLabelPremium">Total a Pagar</span>
+              <span className="modalTotalValuePremium">
+                ${totalCompra.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            {error && (
+              <div className="modalAlertErrorPremium mt-4">
+                <span className="material-icons">error_outline</span>
+                {error}
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Footer Premium */}
+        <div className="modalFooterPremium">
+          <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={registrando}>
+            Cancelar
+          </button>
+          <button 
+            type="button"
+            className={`btnPremium btnPrimaryPremium ${styles.footerBtn}`} 
+            onClick={registrarCompra}
+            disabled={registrando || items.length === 0 || !idProveedor}
+          >
+            <span className="material-icons">{registrando ? 'hourglass_empty' : 'check_circle'}</span>
+            {registrando ? 'Procesando...' : 'Confirmar Registro'}
+          </button>
         </div>
       </div>
 
       {/* Modales Secundarios */}
-      {mostrarCrearProveedor && (
-        <ProveedorModal
-          onClose={() => setMostrarCrearProveedor(false)}
-          onGuardado={(p) => { setIdProveedor(p.id_proveedor); cargarProveedores(); }}
-        />
-      )}
+      <ProveedorModal
+        isOpen={mostrarCrearProveedor}
+        onClose={() => setMostrarCrearProveedor(false)}
+        onGuardado={(p) => { setIdProveedor(p.id_proveedor); cargarProveedores(); }}
+      />
 
       {mostrarProductoNuevo && (
         <ProductoNuevoModalRapido
@@ -576,7 +509,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
           onGuardado={handleProductoNuevo}
         />
       )}
-    </>
+    </PremiumModal>
   );
 });
 

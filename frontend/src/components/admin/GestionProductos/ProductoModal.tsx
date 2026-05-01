@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Product, Marca, Category, TipoCaracteristica, ProductoFormData } from '../../../types/product';
-import styles from './GestionProductos.module.css';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import Select from '../../common/Select/Select';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './ProductoModal.module.css';
 
 interface ProductoModalProps {
   producto?: Product | null;
@@ -33,7 +34,7 @@ const INITIAL_FORM: ProductoFormData = {
   es_destacado: false,
 };
 
-const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose, onGuardado }) => {
+const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, onClose, onGuardado }) => {
 
   const { showNotification } = useNotification();
   const { tienePermiso } = useAuth();
@@ -135,8 +136,6 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
       setShowConfirmDelete(false);
     }
   }, [isOpen, producto, cargarDatosMaestros]);
-
-  if (!isOpen) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -272,20 +271,15 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
   const readonly = modoEdicion ? !puedeEditar : !puedeCrear;
 
   return (
-    <div className="modalOverlayPremium" onClick={onClose}>
-      <div className="modalPremium" style={{ maxWidth: '900px' }} onClick={(e) => e.stopPropagation()}>
-        
-        <div className="modalHeaderPremium">
-          <h3 className="modalTitlePremium">
-            <span className="material-icons">{modoEdicion ? 'edit_note' : 'add_box'}</span>
-            {modoEdicion ? `Editando Producto: ${producto?.nombre}` : 'Nuevo Producto en Almacén'}
-          </h3>
-          <button className="closeButtonPremium" onClick={onClose} disabled={guardando}>
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-
-        <div className={styles.tabsPremium} style={{ display: 'flex', background: 'var(--background-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+    <>
+      <PremiumModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={modoEdicion ? `Editando: ${producto?.nombre}` : 'Nuevo Producto en Almacén'}
+        icon={modoEdicion ? 'edit_note' : 'add_box'}
+        maxWidth="900px"
+      >
+        <div className="modalTabsPremium">
           {[
             { id: 'general', icon: 'inventory_2', label: 'General' },
             { id: 'precios', icon: 'payments', label: 'Costos y Stock' },
@@ -295,32 +289,16 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
             <button
               key={tab.id}
               type="button"
-              className={`${styles.tabBtnPremium} ${activeTab === tab.id ? styles.tabActivePremium : ''}`}
-              style={{ 
-                flex: 1, 
-                padding: '14px', 
-                border: 'none', 
-                background: 'none', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--text-secondary)',
-                borderBottom: activeTab === tab.id ? '2px solid var(--color-primary)' : '2px solid transparent',
-                transition: 'all 0.2s ease'
-              }}
+              className={`modalTabBtnPremium ${activeTab === tab.id ? 'modalTabActivePremium' : ''}`}
               onClick={() => setActiveTab(tab.id as TabType)}
             >
-              <span className="material-icons" style={{ fontSize: '18px' }}>{tab.icon}</span>
+              <span className="material-icons">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
         </div>
 
-        <div className={styles.modalBodyPremium} style={{ minHeight: '400px' }}>
+        <div className="modalBodyPremium">
           <form id="product-form" onSubmit={handleSubmit}>
             {activeTab === 'general' && (
               <div className="fade-in">
@@ -345,13 +323,10 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                   placeholder="Ej: TC-S23U-001"
                   disabled={modoEdicion || readonly}
                   required
-                  style={{ 
-                    fontFamily: 'monospace',
-                    fontWeight: 'bold'
-                  }}
+                  className="font-mono font-bold"
                 />
 
-                <div className={styles.formGridPremium}>
+                <div className="modalFormGridPremium">
                   <Select
                     id="id_marca"
                     name="id_marca"
@@ -391,8 +366,8 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                   disabled={readonly}
                 />
 
-                <div style={{ display: 'flex', gap: 20, marginTop: 10 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+                <div className="modalFormGroupPremium mt-sm">
+                  <label className={styles.checkboxLabel}>
                     <input type="checkbox" name="es_destacado" checked={form.es_destacado} onChange={handleCheckboxChange} disabled={readonly} />
                     Destacar en Portada
                   </label>
@@ -402,7 +377,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
 
             {activeTab === 'precios' && (
               <div className="fade-in">
-                <div className={styles.formGridPremium}>
+                <div className="modalFormGridPremium">
                   <Input
                     id="precio_compra"
                     name="precio_compra"
@@ -412,10 +387,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                     onChange={handleInputChange}
                     disabled={modoEdicion || readonly}
                     placeholder="0.00"
-                    style={{ 
-                      fontFamily: 'monospace',
-                      textAlign: 'center'
-                    }}
+                    className="font-mono text-center"
                   />
 
                   <Input
@@ -428,16 +400,11 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                     disabled={readonly}
                     required
                     placeholder="0.00"
-                    style={{ 
-                      fontFamily: 'monospace',
-                      textAlign: 'center',
-                      fontWeight: 'bold',
-                      color: 'var(--color-primary)'
-                    }}
+                    className="font-mono text-center font-bold text-primary"
                   />
                 </div>
 
-                <div className={styles.formGridPremium}>
+                <div className="modalFormGridPremium">
                   <Input
                     id="stock"
                     name="stock"
@@ -448,10 +415,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                     onChange={handleInputChange}
                     disabled={modoEdicion || readonly}
                     placeholder="0"
-                    style={{ 
-                      textAlign: 'center', 
-                      fontWeight: 'bold'
-                    }}
+                    className="text-center font-bold"
                   />
 
                   <Input
@@ -463,11 +427,11 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                     onChange={handleInputChange}
                     disabled={readonly}
                     placeholder="Ej: SM-S918B"
-                    style={{ textAlign: 'center' }}
+                    className="text-center"
                   />
                 </div>
 
-                <div className={styles.formGridPremium}>
+                <div className="modalFormGridPremium">
                   <Input
                     id="stock_minimo"
                     name="stock_minimo"
@@ -478,7 +442,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                     onChange={handleInputChange}
                     disabled={readonly}
                     placeholder="0"
-                    style={{ textAlign: 'center' }}
+                    className="text-center"
                   />
 
                   <Input
@@ -491,7 +455,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                     onChange={handleInputChange}
                     disabled={readonly}
                     placeholder="0"
-                    style={{ textAlign: 'center' }}
+                    className="text-center"
                   />
                 </div>
               </div>
@@ -499,86 +463,45 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
 
             {activeTab === 'imagenes' && (
               <div className="fade-in">
-                <label className={styles.formLabelPremium}>Galería de Imágenes (Máx. 5)</label>
-                <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 15 }}>
-                  La primera imagen será la portada. Haz clic en <span className="material-icons" style={{ fontSize: 14, verticalAlign: 'middle' }}>star</span> para elegir la portada.
+                <label className="modalFormLabelPremium">Galería de Imágenes (Máx. 5)</label>
+                <p className={styles.galleryHint}>
+                  La primera imagen será la portada. Haz clic en <span className={`material-icons ${styles.starIcon}`}>star</span> para elegir la portada.
                 </p>
-                <div className={styles.opcionesList} style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 15 }}>
+                
+                <div className="modalGalleryPremium">
                   {galeria.map((item, idx) => (
-                    <div key={idx} className={styles.logoPreviewWrapper} style={{ 
-                      width: 120, 
-                      height: 120,
-                      border: idx === 0 ? '2px solid var(--color-success)' : '1px solid var(--border-color)',
-                      padding: 4
-                    }}>
-                      <img src={item.preview} alt="Preview" className={styles.logoImg} style={{ borderRadius: 4 }} />
+                    <div key={idx} className={`modalImageItemPremium ${idx === 0 ? 'isPortada' : ''}`}>
+                      <img src={item.preview} alt="Preview" className="modalImagePreviewPremium" />
                       {!readonly && (
-                        <div style={{ 
-                          position: 'absolute', 
-                          bottom: -8, 
-                          right: -8, 
-                          display: 'flex', 
-                          gap: 6,
-                          zIndex: 20 
-                        }}>
+                        <div className="modalImageActionsPremium">
                           {idx !== 0 && (
                             <button 
                               type="button" 
-                              className={styles.logoEditBtn} 
-                              style={{ 
-                                position: 'static',
-                                backgroundColor: 'var(--color-primary)', 
-                                width: 28, 
-                                height: 28,
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                              }}
+                              className="modalImageBtnPremium primary"
                               onClick={() => establecerComoPortada(idx)}
                               title="Establecer como portada"
                             >
-                              <span className="material-icons" style={{ fontSize: 18 }}>star</span>
+                              <span className="material-icons">star</span>
                             </button>
                           )}
                           <button 
                             type="button" 
-                            className={styles.logoEditBtn} 
-                            style={{ 
-                              position: 'static',
-                              backgroundColor: 'var(--color-error)', 
-                              width: 28, 
-                              height: 28,
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                            }}
+                            className="modalImageBtnPremium danger"
                             onClick={() => removerImagen(idx)}
                             title="Eliminar imagen"
                           >
-                            <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
+                            <span className="material-icons">delete</span>
                           </button>
                         </div>
                       )}
-                      {idx === 0 && (
-                        <span style={{ 
-                          position: 'absolute', 
-                          top: -8, 
-                          left: -8, 
-                          background: 'var(--color-success)', 
-                          color: '#fff', 
-                          fontSize: 9, 
-                          padding: '3px 8px', 
-                          borderRadius: 12, 
-                          fontWeight: 800,
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                          zIndex: 10
-                        }}>PORTADA</span>
-                      )}
+                      {idx === 0 && <span className="modalImageBadgePremium">PORTADA</span>}
                     </div>
                   ))}
                   
                   {galeria.length < 5 && !readonly && (
-                    <label className={styles.logoPreviewWrapper} style={{ width: 120, height: 120, cursor: 'pointer', borderStyle: 'dashed' }}>
-                      <div className={styles.logoPlaceholder}>
-                        <span className="material-icons">add_a_photo</span>
-                        <span style={{ fontSize: 10 }}>Añadir Foto</span>
-                      </div>
+                    <label className="modalImageUploadPremium">
+                      <span className="material-icons">add_a_photo</span>
+                      <span className="text-xxs font-bold">Añadir Foto</span>
                       <input type="file" hidden accept="image/*" multiple onChange={handleFileChange} />
                     </label>
                   )}
@@ -587,26 +510,20 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
             )}
 
             {activeTab === 'especificaciones' && (
-              <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <Input
-                  id="search-specs"
-                  name="search-specs"
-                  label="Buscar especificaciones"
-                  placeholder="Buscar especificación técnica (ej: RAM, Batería, Almacenamiento...)"
-                  value={searchSpecs}
-                  onChange={(e) => setSearchSpecs(e.target.value)}
-                  icon="search"
-                />
+              <div className="fade-in">
+                <div className={styles.specsSearchContainer}>
+                  <Input
+                    id="search-specs"
+                    name="search-specs"
+                    label="Buscar especificaciones"
+                    placeholder="Buscar especificación técnica..."
+                    value={searchSpecs}
+                    onChange={(e) => setSearchSpecs(e.target.value)}
+                    icon="search"
+                  />
+                </div>
                 
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr 1fr', 
-                  gap: '16px',
-                  overflowY: 'auto',
-                  paddingRight: 8,
-                  maxHeight: '400px',
-                  marginTop: '12px'
-                }}>
+                <div className={styles.specsGrid}>
                   {tiposCaracteristicas
                     .filter(t => t.nombre_tipo.toLowerCase().includes(searchSpecs.toLowerCase()))
                     .map(tipo => (
@@ -630,42 +547,20 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                           ]}
                         />
                       ) : tipo.tipo_dato === 'booleano' ? (
-                        <div className={styles.formGroupPremium}>
-                          <label className={styles.formLabelPremium}>
+                        <div className="modalFormGroupPremium">
+                          <label className="modalFormLabelPremium">
                             {tipo.nombre_tipo}{tipo.unidad_medida ? ` (${tipo.unidad_medida})` : ''}
                           </label>
-                          <div style={{ display: 'flex', gap: 8 }}>
+                          <div className={styles.booleanGroup}>
                             <button 
                               type="button" 
-                              className={styles.cancelButtonPremium} 
-                              style={{ 
-                                flex: 1, 
-                                padding: '8px', 
-                                fontSize: '11px',
-                                fontWeight: 700,
-                                background: (caracteristicas[tipo.id_tipo] === true || caracteristicas[tipo.id_tipo] === 'true' || caracteristicas[tipo.id_tipo] === '1') ? 'var(--color-primary)' : 'var(--background-neutral)',
-                                color: (caracteristicas[tipo.id_tipo] === true || caracteristicas[tipo.id_tipo] === 'true' || caracteristicas[tipo.id_tipo] === '1') ? 'white' : 'var(--text-secondary)',
-                                borderColor: (caracteristicas[tipo.id_tipo] === true || caracteristicas[tipo.id_tipo] === 'true' || caracteristicas[tipo.id_tipo] === '1') ? 'var(--color-primary)' : 'var(--border-color)',
-                                opacity: 1,
-                                borderRadius: 'var(--border-radius-md)'
-                              }}
+                              className={`${styles.booleanBtn} ${(caracteristicas[tipo.id_tipo] === true || caracteristicas[tipo.id_tipo] === 'true' || caracteristicas[tipo.id_tipo] === '1') ? styles.booleanBtnActivePrimary : ''}`}
                               onClick={() => handleCaracteristicaChange(tipo.id_tipo, true)}
                               disabled={readonly}
                             >SÍ</button>
                             <button 
                               type="button" 
-                              className={styles.cancelButtonPremium} 
-                              style={{ 
-                                flex: 1, 
-                                padding: '8px', 
-                                fontSize: '11px',
-                                fontWeight: 700,
-                                background: (caracteristicas[tipo.id_tipo] === false || caracteristicas[tipo.id_tipo] === 'false' || caracteristicas[tipo.id_tipo] === '0') ? 'var(--color-error)' : 'var(--background-neutral)',
-                                color: (caracteristicas[tipo.id_tipo] === false || caracteristicas[tipo.id_tipo] === 'false' || caracteristicas[tipo.id_tipo] === '0') ? 'white' : 'var(--text-secondary)',
-                                borderColor: (caracteristicas[tipo.id_tipo] === false || caracteristicas[tipo.id_tipo] === 'false' || caracteristicas[tipo.id_tipo] === '0') ? 'var(--color-error)' : 'var(--border-color)',
-                                opacity: 1,
-                                borderRadius: 'var(--border-radius-md)'
-                              }}
+                              className={`${styles.booleanBtn} ${(caracteristicas[tipo.id_tipo] === false || caracteristicas[tipo.id_tipo] === 'false' || caracteristicas[tipo.id_tipo] === '0') ? styles.booleanBtnActiveDanger : ''}`}
                               onClick={() => handleCaracteristicaChange(tipo.id_tipo, false)}
                               disabled={readonly}
                             >NO</button>
@@ -684,7 +579,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
                         />
                       )}
                     </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}
@@ -695,12 +590,11 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
           {modoEdicion && puedeEliminar && (
             <button 
               type="button" 
-              className="btnPremium btnDangerPremium" 
-              style={{ marginRight: 'auto' }}
+              className="btnPremium btnDangerPremium mr-auto" 
               onClick={() => setShowConfirmDelete(true)}
               disabled={guardando}
             >
-              <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
+              <span className="material-icons">delete</span>
               Eliminar Producto
             </button>
           )}
@@ -709,36 +603,41 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ producto, isOpen, onClose
           </button>
           {!readonly && (
             <button type="submit" form="product-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
-              <span className="material-icons" style={{ fontSize: 18 }}>{guardando ? 'sync' : 'save'}</span>
+              <span className="material-icons">{guardando ? 'sync' : 'save'}</span>
               {guardando ? 'Procesando...' : 'Guardar Cambios'}
             </button>
           )}
         </div>
+      </PremiumModal>
 
-        {showConfirmDelete && (
-          <div className="modalOverlayPremium" style={{ zIndex: 2100 }}>
-             <div className="modalPremium" style={{ maxWidth: '400px' }}>
-                <div className="modalBodyPremium" style={{ textAlign: 'center', padding: '30px' }}>
-                  <span className="material-icons" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 16 }}>warning</span>
-                  <h4 style={{ margin: '0 0 10px' }}>¿Confirmar eliminación?</h4>
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Esta acción borrará permanentemente el producto del catálogo.</p>
-                </div>
-                <div className="modalFooterPremium">
-                  <button className="btnPremium btnSecondaryPremium" onClick={() => setShowConfirmDelete(false)}>Cancelar</button>
-                  <button 
-                    className="btnPremium btnDangerSolidPremium" 
-                    onClick={handleEliminar}
-                    disabled={eliminando}
-                  >
-                    {eliminando ? 'Eliminando...' : 'Sí, Eliminar'}
-                  </button>
-                </div>
-             </div>
-          </div>
-        )}
-      </div>
-    </div>
+      {/* Sub-modal de Confirmación de Eliminación */}
+      <PremiumModal
+        isOpen={showConfirmDelete}
+        onClose={() => setShowConfirmDelete(false)}
+        title="Confirmar eliminación"
+        icon="warning"
+        maxWidth="400px"
+        titleStyle={{ color: 'var(--color-error)' }}
+      >
+        <div className={styles.deleteConfirmBody}>
+          <p className="text-secondary">Esta acción borrará permanentemente el producto del catálogo.</p>
+        </div>
+        <div className="modalFooterPremium">
+          <button className="btnPremium btnSecondaryPremium" onClick={() => setShowConfirmDelete(false)}>Cancelar</button>
+          <button 
+            className="btnPremium btnDangerPremium" 
+            onClick={handleEliminar}
+            disabled={eliminando}
+          >
+            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
+            {eliminando ? 'Eliminando...' : 'Sí, Eliminar'}
+          </button>
+        </div>
+      </PremiumModal>
+    </>
   );
-};
+});
+
+ProductoModal.displayName = 'ProductoModal';
 
 export default ProductoModal;

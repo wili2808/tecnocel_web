@@ -707,7 +707,7 @@ class UsuarioAdminController {
    */
   static async listarClientes(req: Request, res: Response) {
     try {
-      const limit = parseInt(req.query.limit as string) || 50;
+      const limit = parseInt(req.query.limit as string) || 10;
       const offset = parseInt(req.query.offset as string) || 0;
       const search = req.query.search as string;
 

@@ -95,6 +95,12 @@
   color: var(--text-primary);
 }
 
+/* Fallback for some browsers that might ignore the above in dark mode */
+:global([data-theme="dark"]) .select option {
+  background-color: var(--color-bg-dark-secondary);
+  color: var(--color-text-dark-primary);
+}
+
 .iconRight {
   position: absolute;
   right: var(--spacing-sm);

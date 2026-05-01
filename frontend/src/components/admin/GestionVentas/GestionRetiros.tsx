@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminSearch } from '../common';
+import { AdminSearch, AdminPagination } from '../common';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
@@ -31,7 +31,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const LIMIT = 20;
+const LIMIT = 10;
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
@@ -348,29 +348,13 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
       )}
 
       {/* Paginación */}
-      {total > LIMIT && (
-        <div className={styles.paginacion}>
-          <span>
-            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()} ({total} retiros)
-          </span>
-          <div className={styles.paginacionBtns}>
-            <button
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
-              className={styles.btnPag}
-            >
-              ← Anterior
-            </button>
-            <button
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.nextPage()}
-              className={styles.btnPag}
-            >
-              Siguiente →
-            </button>
-          </div>
-        </div>
-      )}
+      <AdminPagination
+        total={total}
+        limit={LIMIT}
+        offset={offset}
+        onPageChange={setOffset}
+        itemLabel="retiros"
+      />
 
       {/* Modal */}
       {retiroSeleccionado && (

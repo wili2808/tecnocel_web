@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, EnvioAdminDetalle } from '../../../types/envio';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+
+import styles from './GestionRetirosModal.module.css';
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
@@ -66,154 +68,150 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   };
 
   return (
-    <div className="modalOverlayPremium" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modalPremium" style={{ maxWidth: '850px' }}>
-        {/* Header Premium */}
-        <div className="modalHeaderPremium">
-          <h2 className="modalTitlePremium">
-            <span className="material-icons">store</span>
-            Retiro en tienda #{retiro.nro_venta}
-            <span
-              className={`${styles.estadoBadge} ${retiro.estado_envio === 'entregado' ? styles.estadoEntregado : styles.estadoPendiente}`}
-            >
-              {(retiro.estado_envio as string) === 'no_aplica'
-                ? ESTADO_ENVIO_LABELS.pendiente
-                : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
-            </span>
-          </h2>
-          <button className="closeButtonPremium" onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-
-        {/* Body Premium */}
-        <div className="modalBodyPremium">
-          {cargando ? (
-            <div className={styles.loadingMsg}>Cargando detalle...</div>
-          ) : detalle ? (
-            <>
-              {/* Detalle Premium Organizado */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-                
-                {/* Card Cliente */}
-                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <span className={styles.sectionTitlePremium}>Información del Cliente</span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Nombre</span>
-                      <span className={styles.detalleValuePremium}>{detalle.nombre_cliente ?? '—'}</span>
-                    </div>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Email</span>
-                      <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)' }}>{detalle.email_cliente ?? '—'}</span>
-                    </div>
-                    {detalle.envio_telefono_contacto && (
-                      <div className={styles.detalleRowPremium}>
-                        <span className={styles.detalleLabelPremium}>Teléfono</span>
-                        <span className={styles.detalleValuePremium}>{detalle.envio_telefono_contacto}</span>
-                      </div>
-                    )}
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title={`Retiro en tienda #${retiro.nro_venta}`}
+      icon="store"
+      maxWidth="900px"
+      headerChildren={
+        <span
+          className={`modalBadgePremium ${retiro.estado_envio === 'entregado' ? 'success' : 'neutral'} ${styles.headerBadge}`}
+        >
+          {(retiro.estado_envio as string) === 'no_aplica'
+            ? ESTADO_ENVIO_LABELS.pendiente
+            : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
+        </span>
+      }
+    >
+      <div className="modalBodyPremium">
+        {cargando ? (
+          <div className="modalLoadingPremium">
+            <span className="material-icons">hourglass_empty</span>
+            <p>Cargando detalles del retiro...</p>
+          </div>
+        ) : detalle ? (
+          <>
+            <div className="modalSplitLayoutPremium modalSplitEqualPremium mb-3">
+              
+              {/* Card Cliente */}
+              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
+                <span className={styles.sectionTitleWithDivider}>Información del Cliente</span>
+                <div className="flex flex-col gap-xs mt-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-secondary font-bold">Nombre</span>
+                    <span className="font-bold text-right ml-2">{detalle.nombre_cliente ?? '—'}</span>
                   </div>
-                </div>
-
-                {/* Card Operación */}
-                <div style={{ padding: '20px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <span className={styles.sectionTitlePremium}>Datos de la Operación</span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Fecha Venta</span>
-                      <span className={styles.detalleValuePremium}>{formatFecha(detalle.fyh_venta)}</span>
-                    </div>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Total Pagado</span>
-                      <span className={styles.detalleValuePremium} style={{ color: 'var(--color-primary)', fontWeight: 800 }}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
-                    </div>
-                    <div className={styles.detalleRowPremium}>
-                      <span className={styles.detalleLabelPremium}>Método Pago</span>
-                      <span className={styles.detalleValuePremium}>{detalle.metodo_pago}</span>
-                    </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-secondary font-bold">Email</span>
+                    <span className="font-bold text-primary text-right ml-2" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Productos */}
-              <h4 className={styles.sectionTitlePremium} style={{ marginTop: '24px' }}>Productos del pedido</h4>
-              <table className={styles.itemsTable}>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th className={styles.textRight}>Cant.</th>
-                    <th className={styles.textRight}>Precio unit.</th>
-                    <th className={styles.textRight}>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detalle.items.map((item, i) => (
-                    <tr key={i}>
-                      <td>{item.nombre_producto}</td>
-                      <td className={styles.textRight}>{item.cantidad}</td>
-                      <td className={styles.textRight}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                      <td className={styles.textRight}>
-                        {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr className={styles.totalRow}>
-                    <td colSpan={3}>
-                      <strong>Total</strong>
-                    </td>
-                    <td className={styles.textRight}>
-                      <strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* Panel de acción */}
-              {!esEntregado && (
-                <div className={styles.envioAccionPanel}>
-                  {!confirmando ? (
-                    <button className="btnPremium btnPrimaryPremium" onClick={() => setConfirmando(true)}>
-                      <span className="material-icons" style={{ fontSize: 18 }}>
-                        check_circle
-                      </span>
-                      Marcar como Entregado
-                    </button>
-                  ) : (
-                    <div className={styles.envioConfirmar}>
-                      <p className={styles.envioConfirmarTitulo}>
-                        ¿Confirmás que el cliente retiró el pedido <strong>#{retiro.nro_venta}</strong>?
-                      </p>
-                      <div className={styles.envioConfirmarBtns}>
-                        <button
-                          className="btnPremium btnSecondaryPremium"
-                          onClick={() => setConfirmando(false)}
-                          disabled={guardando}
-                        >
-                          Cancelar
-                        </button>
-                        <button className="btnPremium btnPrimaryPremium" onClick={handleMarcarEntregado} disabled={guardando}>
-                          {guardando ? 'Guardando...' : 'Confirmar entrega'}
-                        </button>
-                      </div>
+                  {detalle.envio_telefono_contacto && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-secondary font-bold">Teléfono</span>
+                      <span className="font-bold text-right ml-2">{detalle.envio_telefono_contacto}</span>
                     </div>
                   )}
                 </div>
-              )}
-            </>
-          ) : (
-            <div className={styles.errorMsg}>No se pudo cargar el detalle del retiro.</div>
-          )}
-        </div>
+              </div>
 
-        {/* Footer Premium */}
-        <div className="modalFooterPremium">
-          <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
-            Cerrar
-          </button>
-        </div>
+              {/* Card Operación */}
+              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
+                <span className={styles.sectionTitleWithDivider}>Datos de la Operación</span>
+                <div className="flex flex-col gap-xs mt-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-secondary font-bold">Fecha Venta</span>
+                    <span className="font-bold text-right ml-2">{formatFecha(detalle.fyh_venta)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-secondary font-bold">Total Pagado</span>
+                    <span className="font-bold text-primary text-right ml-2">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-secondary font-bold">Método Pago</span>
+                    <span className="font-bold text-right ml-2" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Productos */}
+            <div className="mb-4">
+              <span className={styles.sectionTitleWithDivider}>Productos del pedido</span>
+              <div className="modalTableWrapperPremium mt-md">
+                <table className="modalTablePremium">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th style={{ textAlign: 'right' }}>Cant.</th>
+                      <th style={{ textAlign: 'right' }}>Precio unit.</th>
+                      <th style={{ textAlign: 'right' }}>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalle.items.map((item, i) => (
+                      <tr key={i}>
+                        <td className="font-bold">{item.nombre_producto}</td>
+                        <td style={{ textAlign: 'right' }}>{item.cantidad}</td>
+                        <td style={{ textAlign: 'right' }}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
+                        <td className="text-right font-bold text-primary">
+                          {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Panel de acción */}
+            {!esEntregado && (
+              <div className={styles.managementPanel}>
+                {!confirmando ? (
+                  <button className={`btnPremium btnPrimaryPremium ${styles.fullWidthBtn}`} onClick={() => setConfirmando(true)}>
+                    <span className="material-icons">check_circle</span>
+                    Marcar como Entregado
+                  </button>
+                ) : (
+                  <div className="animate-fade-in">
+                    <p className={styles.managementTitle}>
+                      ¿Confirmás que el cliente retiró el pedido <span className="text-primary">#{retiro.nro_venta}</span>?
+                    </p>
+                    <div className={styles.actionButtons}>
+                      <button
+                        className={`btnPremium btnSecondaryPremium ${styles.flex1}`}
+                        onClick={() => setConfirmando(false)}
+                        disabled={guardando}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        className={`btnPremium btnPrimaryPremium ${styles.flex1}`} 
+                        onClick={handleMarcarEntregado} 
+                        disabled={guardando}
+                      >
+                        {guardando ? 'Guardando...' : 'Confirmar Entrega'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="modalLoadingPremium" style={{ color: 'var(--color-error)' }}>
+            <span className="material-icons" style={{ animation: 'none' }}>error_outline</span>
+            <p>No se pudo cargar el detalle del retiro.</p>
+          </div>
+        )}
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </PremiumModal>
   );
 };
 

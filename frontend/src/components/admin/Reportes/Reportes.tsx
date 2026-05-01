@@ -2,7 +2,7 @@ import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSurface } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSurface, AdminPagination } from '../common';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -18,9 +18,10 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 import {
   DndContext,
@@ -88,20 +89,9 @@ const formatUSD = (value: number | null): string => {
 
 // Helper para renderizar monto con badge de moneda (JSX)
 const MontoConBadge: React.FC<{ valor: string; moneda: 'ARS' | 'USD' }> = ({ valor, moneda }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+  <span className={styles.montoBadgeWrapper}>
     <span>{valor}</span>
-    <span
-      style={{
-        fontSize: '0.65rem',
-        padding: '2px 5px',
-        borderRadius: '2px',
-        backgroundColor: moneda === 'USD' ? '#dbeafe' : '#cffafe',
-        color: moneda === 'USD' ? '#1e40af' : '#0369a1',
-        fontWeight: '600',
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
-      }}
-    >
+    <span className={`${styles.montoBadge} ${moneda === 'USD' ? styles.montoBadgeUsd : styles.montoBadgeArs}`}>
       {moneda}
     </span>
   </span>
@@ -570,6 +560,7 @@ const Reportes: React.FC = memo(() => {
 const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data }) => {
   const { datos } = data;
   const [sorting, setSorting] = useState<SortingState>([{ id: 'periodo', desc: false }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['periodo', 'ventas', 'ingresos_ars', 'ingresos_usd', 'ticket_promedio']);
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
@@ -616,11 +607,13 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
   const table = useReactTable({
     data: datos,
     columns,
-    state: { sorting, columnOrder },
+    state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
@@ -661,6 +654,18 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
           </tbody>
         </table>
       </DndContext>
+      <AdminPagination
+        total={datos.length}
+        limit={pagination.pageSize}
+        offset={pagination.pageIndex * pagination.pageSize}
+        onPageChange={(newOffset) => {
+          setPagination(prev => ({
+            ...prev,
+            pageIndex: Math.floor(newOffset / prev.pageSize)
+          }));
+        }}
+        itemLabel="registros"
+      />
     </div>
   );
 });
@@ -670,6 +675,7 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
 const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo(({ data }) => {
   const { datos } = data;
   const [sorting, setSorting] = useState<SortingState>([{ id: 'ventas', desc: true }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'ventas', 'ingresos_ars', 'ingresos_usd', 'ticket_promedio', 'porcentaje_ventas']);
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
@@ -719,11 +725,13 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
   const table = useReactTable({
     data: datos,
     columns,
-    state: { sorting, columnOrder },
+    state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
@@ -764,6 +772,18 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
           </tbody>
         </table>
       </DndContext>
+      <AdminPagination
+        total={datos.length}
+        limit={pagination.pageSize}
+        offset={pagination.pageIndex * pagination.pageSize}
+        onPageChange={(newOffset) => {
+          setPagination(prev => ({
+            ...prev,
+            pageIndex: Math.floor(newOffset / prev.pageSize)
+          }));
+        }}
+        itemLabel="vendedores"
+      />
     </div>
   );
 });
@@ -773,6 +793,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
 const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo(({ data }) => {
   const { mas_vendidos } = data;
   const [sorting, setSorting] = useState<SortingState>([{ id: 'unidades_vendidas', desc: true }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'codigo', 'categoria', 'marca', 'unidades_vendidas', 'ingreso_total', 'precio_venta_actual', 'stock_actual']);
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
@@ -809,11 +830,13 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
   const table = useReactTable({
     data: mas_vendidos,
     columns,
-    state: { sorting, columnOrder },
+    state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
@@ -854,6 +877,18 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
           </tbody>
         </table>
       </DndContext>
+      <AdminPagination
+        total={mas_vendidos.length}
+        limit={pagination.pageSize}
+        offset={pagination.pageIndex * pagination.pageSize}
+        onPageChange={(newOffset) => {
+          setPagination(prev => ({
+            ...prev,
+            pageIndex: Math.floor(newOffset / prev.pageSize)
+          }));
+        }}
+        itemLabel="productos"
+      />
     </div>
   );
 });
@@ -863,6 +898,7 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
 const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ data }) => {
   const { top_clientes } = data;
   const [sorting, setSorting] = useState<SortingState>([{ id: 'monto_ars', desc: true }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'email', 'total_compras', 'monto_ars', 'monto_usd', 'ultima_compra']);
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
@@ -898,11 +934,13 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
   const table = useReactTable({
     data: top_clientes,
     columns,
-    state: { sorting, columnOrder },
+    state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
@@ -943,6 +981,18 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
           </tbody>
         </table>
       </DndContext>
+      <AdminPagination
+        total={top_clientes.length}
+        limit={pagination.pageSize}
+        offset={pagination.pageIndex * pagination.pageSize}
+        onPageChange={(newOffset) => {
+          setPagination(prev => ({
+            ...prev,
+            pageIndex: Math.floor(newOffset / prev.pageSize)
+          }));
+        }}
+        itemLabel="clientes"
+      />
     </div>
   );
 });
@@ -952,6 +1002,7 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
 const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> = memo(({ data }) => {
   const { datos } = data;
   const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha_cancelacion', desc: true }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nro_venta', 'fecha_cancelacion', 'monto_ars', 'monto_usd', 'motivo', 'cancelado_por']);
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
@@ -977,11 +1028,13 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> 
   const table = useReactTable({
     data: datos,
     columns,
-    state: { sorting, columnOrder },
+    state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
@@ -1022,6 +1075,18 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> 
           </tbody>
         </table>
       </DndContext>
+      <AdminPagination
+        total={datos.length}
+        limit={pagination.pageSize}
+        offset={pagination.pageIndex * pagination.pageSize}
+        onPageChange={(newOffset) => {
+          setPagination(prev => ({
+            ...prev,
+            pageIndex: Math.floor(newOffset / prev.pageSize)
+          }));
+        }}
+        itemLabel="cancelaciones"
+      />
     </div>
   );
 });

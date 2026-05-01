@@ -2,20 +2,22 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ROLES } from '../../../constants/roles';
-import { AdminEmptyState, AdminSectionActions } from '../common';
+import { AdminEmptyState, AdminSectionActions, AdminPagination } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionUsuarios.module.css';
 import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
 
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 import {
   DndContext,
@@ -139,6 +141,7 @@ const GestionUsuarios = () => {
   const [editFormData, setEditFormData] = useState<EditarUsuarioFormData>(INITIAL_EDIT_FORM);
 
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_usuario', desc: false }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'id_usuario', 'nombres', 'email', 'rol', 'fecha', 'ultimo_login'
   ]);
@@ -398,12 +401,15 @@ const GestionUsuarios = () => {
     columns,
     state: {
       sorting,
+      pagination,
       columnOrder,
     },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(
@@ -525,223 +531,218 @@ const GestionUsuarios = () => {
               </tbody>
             </table>
           </DndContext>
-        </div>
+          <AdminPagination
+          total={usuarios.length}
+          limit={pagination.pageSize}
+          offset={pagination.pageIndex * pagination.pageSize}
+          onPageChange={(newOffset) => {
+            setPagination(prev => ({
+              ...prev,
+              pageIndex: Math.floor(newOffset / prev.pageSize)
+            }));
+          }}
+          itemLabel="usuarios"
+        />
+      </div>
       </div>
 
-      {showCrearForm && (
-        <div className="modalOverlayPremium" onClick={handleCancelarCrear}>
-          <div className="modalPremium" onClick={(e) => e.stopPropagation()}>
-            <div className="modalHeaderPremium">
-              <h3 className="modalTitlePremium">
-                <span className="material-icons">person_add</span>
-                Registrar Nuevo Usuario del Sistema
-              </h3>
-              <button className="closeButtonPremium" onClick={handleCancelarCrear} disabled={creando}>
-                <span className="material-icons">close</span>
-              </button>
+      <PremiumModal
+        isOpen={showCrearForm}
+        onClose={handleCancelarCrear}
+        title="Registrar Nuevo Usuario del Sistema"
+        icon="person_add"
+      >
+        <form id="crear-usuario-form" onSubmit={handleCrearUsuario}>
+          <div className="modalBodyPremium">
+            <h4 className="sectionTitleWithDividerPremium">Información de Perfil</h4>
+            
+            <div className="modalFormGridPremium">
+              <Input
+                id="nombres"
+                name="nombres"
+                label="Nombre Completo"
+                value={formData.nombres}
+                onChange={handleFormChange}
+                placeholder="Ej: Juan Pérez"
+                disabled={creando}
+                required
+                autoFocus
+              />
+
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Email de Acceso"
+                value={formData.email}
+                onChange={handleFormChange}
+                placeholder="Ej: juan@tecnocel.com"
+                disabled={creando}
+                required
+              />
+
+              <Select
+                id="id_rol"
+                name="id_rol"
+                label="Rol de Sistema"
+                value={String(formData.id_rol)}
+                onChange={handleFormChange}
+                disabled={creando}
+                required
+                options={[
+                  { value: '0', label: 'Seleccionar rol...', disabled: true },
+                  ...roles.map(rol => ({ value: String(rol.id_rol), label: rol.rol }))
+                ]}
+              />
+
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                label="Contraseña"
+                value={formData.password}
+                onChange={handleFormChange}
+                placeholder="Mínimo 6 caracteres"
+                disabled={creando}
+                required
+              />
+
+              <div className="modalFormGroupFullPremium">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  label="Confirmar Contraseña"
+                  value={formData.confirmPassword}
+                  onChange={handleFormChange}
+                  placeholder="Repite la contraseña"
+                  disabled={creando}
+                  required
+                />
+              </div>
             </div>
 
-            <form onSubmit={handleCrearUsuario}>
-              <div className="modalBodyPremium">
-                <span className={styles.sectionTitlePremium}>Información de Perfil</span>
-                
-                <div className={styles.formGridPremium}>
-                  <Input
-                    id="nombres"
-                    name="nombres"
-                    label="Nombre Completo"
-                    value={formData.nombres}
-                    onChange={handleFormChange}
-                    placeholder="Ej: Juan Pérez"
-                    disabled={creando}
-                    required
-                    autoFocus
-                  />
+            <p className={styles.helpTextPremium}>
+              <span className="material-icons">info</span>
+              El usuario podrá iniciar sesión inmediatamente después de su creación.
+            </p>
+          </div>
 
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    label="Email de Acceso"
-                    value={formData.email}
-                    onChange={handleFormChange}
-                    placeholder="Ej: juan@tecnocel.com"
-                    disabled={creando}
-                    required
-                  />
+          <div className="modalFooterPremium">
+            <button type="button" onClick={handleCancelarCrear} className="btnPremium btnSecondaryPremium" disabled={creando}>
+              Cancelar
+            </button>
+            <button type="submit" form="crear-usuario-form" disabled={creando} className="btnPremium btnPrimaryPremium">
+              <span className="material-icons">{creando ? 'hourglass_empty' : 'person_add'}</span>
+              {creando ? 'Creando...' : 'Crear Usuario'}
+            </button>
+          </div>
+        </form>
+      </PremiumModal>
 
-                  <Select
-                    id="id_rol"
-                    name="id_rol"
-                    label="Rol de Sistema"
-                    value={String(formData.id_rol)}
-                    onChange={handleFormChange}
-                    disabled={creando}
-                    required
-                    options={[
-                      { value: '0', label: 'Seleccionar rol...', disabled: true },
-                      ...roles.map(rol => ({ value: String(rol.id_rol), label: rol.rol }))
-                    ]}
-                  />
+      <PremiumModal
+        isOpen={!!editandoUsuario}
+        onClose={handleCancelarEditar}
+        title={editandoUsuario ? `Editar Usuario: ${editandoUsuario.nombres}` : 'Editar Usuario'}
+        icon="manage_accounts"
+      >
+        {editandoUsuario && (
+          <form id="editar-usuario-form" onSubmit={handleEditarUsuario}>
+            <div className="modalBodyPremium">
+              <h4 className="sectionTitleWithDividerPremium">Información del Empleado</h4>
+              
+              <div className="modalFormGridPremium">
+                <Input
+                  id="edit_nombres"
+                  name="nombres"
+                  label="Nombre Completo"
+                  value={editFormData.nombres}
+                  onChange={handleEditFormChange}
+                  placeholder="Ej: Juan Pérez"
+                  disabled={editando}
+                  required
+                />
 
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    label="Contraseña"
-                    value={formData.password}
-                    onChange={handleFormChange}
-                    placeholder="Mínimo 6 caracteres"
-                    disabled={creando}
-                    required
-                  />
+                <Input
+                  id="edit_email"
+                  name="email"
+                  type="email"
+                  label="Email de Acceso"
+                  value={editFormData.email}
+                  onChange={handleEditFormChange}
+                  placeholder="Ej: juan@tecnocel.com"
+                  disabled={editando}
+                  required
+                />
 
-                  <div className={styles.formGroupFullPremium}>
+                <Select
+                  id="edit_id_rol"
+                  name="id_rol"
+                  label="Rol Actual"
+                  value={String(editFormData.id_rol)}
+                  onChange={handleEditFormChange}
+                  disabled={editando}
+                  required
+                  options={[
+                    { value: '0', label: 'Seleccionar rol...', disabled: true },
+                    ...roles.map(rol => ({ value: String(rol.id_rol), label: rol.rol }))
+                  ]}
+                />
+
+                <Input
+                  id="edit_password"
+                  name="password"
+                  type="password"
+                  label="Cambiar Contraseña"
+                  value={editFormData.password}
+                  onChange={handleEditFormChange}
+                  placeholder="Dejar vacío para mantener"
+                  disabled={editando}
+                  autoComplete="new-password"
+                />
+
+                {editFormData.password && (
+                  <div className="modalFormGroupFullPremium">
                     <Input
-                      id="confirmPassword"
+                      id="edit_confirmPassword"
                       name="confirmPassword"
                       type="password"
-                      label="Confirmar Contraseña"
-                      value={formData.confirmPassword}
-                      onChange={handleFormChange}
-                      placeholder="Repite la contraseña"
-                      disabled={creando}
-                      required
+                      label="Confirmar Nueva Contraseña"
+                      value={editFormData.confirmPassword}
+                      onChange={handleEditFormChange}
+                      placeholder="Repite la nueva contraseña"
+                      disabled={editando}
+                      autoComplete="new-password"
                     />
                   </div>
-                </div>
-
-                <p className={styles.helpTextPremium} style={{ marginTop: '16px' }}>
-                  <span className="material-icons" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>info</span>
-                  El usuario podrá iniciar sesión inmediatamente después de su creación.
-                </p>
+                )}
               </div>
-
-              <div className="modalFooterPremium">
-                <button type="button" onClick={handleCancelarCrear} className="btnPremium btnSecondaryPremium" disabled={creando}>
-                  Cancelar
-                </button>
-                <button type="submit" disabled={creando} className="btnPremium btnPrimaryPremium">
-                  <span className="material-icons">{creando ? 'hourglass_empty' : 'person_add'}</span>
-                  {creando ? 'Creando...' : 'Crear Usuario'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {editandoUsuario && (
-        <div className="modalOverlayPremium" onClick={handleCancelarEditar}>
-          <div className="modalPremium" onClick={(e) => e.stopPropagation()}>
-            <div className="modalHeaderPremium">
-              <h3 className="modalTitlePremium">
-                <span className="material-icons">manage_accounts</span>
-                Editar Usuario #{editandoUsuario.id_usuario}
-              </h3>
-              <button className="closeButtonPremium" onClick={handleCancelarEditar} disabled={editando}>
-                <span className="material-icons">close</span>
-              </button>
             </div>
 
-            <form onSubmit={handleEditarUsuario}>
-              <div className="modalBodyPremium">
-                <span className={styles.sectionTitlePremium}>Información del Empleado</span>
-                
-                <div className={styles.formGridPremium}>
-                  <Input
-                    id="edit_nombres"
-                    name="nombres"
-                    label="Nombre Completo"
-                    value={editFormData.nombres}
-                    onChange={handleEditFormChange}
-                    placeholder="Ej: Juan Pérez"
-                    disabled={editando}
-                    required
-                  />
-
-                  <Input
-                    id="edit_email"
-                    name="email"
-                    type="email"
-                    label="Email de Acceso"
-                    value={editFormData.email}
-                    onChange={handleEditFormChange}
-                    placeholder="Ej: juan@tecnocel.com"
-                    disabled={editando}
-                    required
-                  />
-
-                  <Select
-                    id="edit_id_rol"
-                    name="id_rol"
-                    label="Rol Actual"
-                    value={String(editFormData.id_rol)}
-                    onChange={handleEditFormChange}
-                    disabled={editando}
-                    required
-                    options={[
-                      { value: '0', label: 'Seleccionar rol...', disabled: true },
-                      ...roles.map(rol => ({ value: String(rol.id_rol), label: rol.rol }))
-                    ]}
-                  />
-
-                  <Input
-                    id="edit_password"
-                    name="password"
-                    type="password"
-                    label="Cambiar Contraseña"
-                    value={editFormData.password}
-                    onChange={handleEditFormChange}
-                    placeholder="Dejar vacío para mantener"
-                    disabled={editando}
-                    autoComplete="new-password"
-                  />
-
-                  {editFormData.password && (
-                    <div className={styles.formGroupFullPremium}>
-                      <Input
-                        id="edit_confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        label="Confirmar Nueva Contraseña"
-                        value={editFormData.confirmPassword}
-                        onChange={handleEditFormChange}
-                        placeholder="Repite la nueva contraseña"
-                        disabled={editando}
-                        autoComplete="new-password"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="modalFooterPremium">
-                <button type="button" onClick={handleCancelarEditar} className="btnPremium btnSecondaryPremium" disabled={editando}>
-                  Cancelar
+            <div className="modalFooterPremium">
+              {puedeEliminar && editandoUsuario.id_usuario !== 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleEliminar(editandoUsuario.id_usuario, editandoUsuario.nombres)}
+                  className="btnPremium btnDangerPremium mr-auto"
+                  title="Eliminar usuario"
+                  disabled={editando}
+                >
+                  <span className="material-icons">delete</span>
+                  Eliminar
                 </button>
-                {puedeEliminar && editandoUsuario && editandoUsuario.id_usuario !== 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleEliminar(editandoUsuario.id_usuario, editandoUsuario.nombres)}
-                    className="btnPremium btnDangerPremium"
-                    style={{ marginRight: 'auto' }}
-                    title="Eliminar usuario"
-                    disabled={editando}
-                  >
-                    <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
-                    Eliminar
-                  </button>
-                )}
-                <button type="submit" disabled={editando} className="btnPremium btnPrimaryPremium">
-                  <span className="material-icons">{editando ? 'hourglass_empty' : 'save'}</span>
-                  {editando ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+              )}
+              <button type="button" onClick={handleCancelarEditar} className="btnPremium btnSecondaryPremium" disabled={editando}>
+                Cancelar
+              </button>
+              <button type="submit" form="editar-usuario-form" disabled={editando} className="btnPremium btnPrimaryPremium">
+                <span className="material-icons">{editando ? 'hourglass_empty' : 'save'}</span>
+                {editando ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </div>
+          </form>
+        )}
+      </PremiumModal>
     </>
   );
 };

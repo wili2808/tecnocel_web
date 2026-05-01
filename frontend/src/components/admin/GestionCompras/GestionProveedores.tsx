@@ -3,7 +3,7 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminSearch } from '../common';
+import { AdminSearch, AdminPagination } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
@@ -75,6 +75,9 @@ const GestionProveedores: React.FC = memo(() => {
   const { showNotification } = useNotification();
 
   const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(10);
+  const [offset, setOffset] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,15 +91,16 @@ const GestionProveedores: React.FC = memo(() => {
     try {
       setCargando(true);
       setError(null);
-      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined);
+      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined, limit, offset);
       setProveedores(response.data);
+      setTotal(response.count);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar proveedores');
       setProveedores([]);
     } finally {
       setCargando(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, limit, offset]);
 
   // Ejecutar búsqueda cuando cambia debouncedSearch (500ms después de dejar de escribir)
   // Ejecutar búsqueda cuando cambia searchTerm (ya viene debounced de AdminSearch)
@@ -228,7 +232,10 @@ const GestionProveedores: React.FC = memo(() => {
             <AdminSearch
               value={searchTerm}
               placeholder="Nombre, empresa, celular..."
-              onChange={setSearchTerm}
+              onChange={(val) => {
+                setSearchTerm(val);
+                setOffset(0);
+              }}
             />
           </div>
           <button
@@ -251,46 +258,55 @@ const GestionProveedores: React.FC = memo(() => {
           <p>No hay proveedores registrados</p>
         </div>
       ) : (
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                        />
+        <div className={styles.tableContainer}>
+          <div className={styles.tableWrapper}>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <table className={styles.table}>
+                <thead>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                        {headerGroup.headers.map(header => (
+                          <DraggableTableHeader 
+                            key={header.id} 
+                            header={header} 
+                          />
+                        ))}
+                      </SortableContext>
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map((row) => (
+                    <tr 
+                      key={row.id}
+                      onClick={() => {
+                        if (puedeEditar) {
+                          setModalProveedor(row.original);
+                        } else {
+                          showNotification('No tienes permisos para editar proveedores', 'info');
+                        }
+                      }}
+                      className={styles.clickableRow}
+                    >
+                      {row.getVisibleCells().map(cell => (
+                        <td key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
                       ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr 
-                    key={row.id}
-                    onClick={() => {
-                      if (puedeEditar) {
-                        setModalProveedor(row.original);
-                      } else {
-                        showNotification('No tienes permisos para editar proveedores', 'info');
-                      }
-                    }}
-                    className={styles.clickableRow}
-                  >
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </DndContext>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </DndContext>
+          </div>
+          <AdminPagination
+            total={total}
+            limit={limit}
+            offset={offset}
+            onPageChange={setOffset}
+            itemLabel="proveedores"
+          />
         </div>
       )}
 

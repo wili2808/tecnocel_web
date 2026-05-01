@@ -9,6 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { TipoCaracteristica } from '../../../types/product';
 import CaracteristicaModal from './CaracteristicaModal';
+import { AdminPagination } from '../common';
 import styles from './GestionCaracteristicas.module.css';
 
 const TIPO_DATO_LABELS: Record<TipoCaracteristica['tipo_dato'], string> = {
@@ -45,9 +46,10 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 import {
   DndContext,
@@ -130,6 +132,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
 
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'tipo', 'unidad', 'estado']);
 
   const cargarTipos = useCallback(async () => {
@@ -229,12 +232,15 @@ const GestionCaracteristicas: React.FC = memo(() => {
     columns,
     state: {
       sorting,
+      pagination,
       columnOrder,
     },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(
@@ -328,6 +334,18 @@ const GestionCaracteristicas: React.FC = memo(() => {
                 </table>
               </DndContext>
             </div>
+            <AdminPagination
+              total={tipos.length}
+              limit={pagination.pageSize}
+              offset={pagination.pageIndex * pagination.pageSize}
+              onPageChange={(newOffset) => {
+                setPagination(prev => ({
+                  ...prev,
+                  pageIndex: Math.floor(newOffset / prev.pageSize)
+                }));
+              }}
+              itemLabel="características"
+            />
           </div>
 
           <CaracteristicaModal

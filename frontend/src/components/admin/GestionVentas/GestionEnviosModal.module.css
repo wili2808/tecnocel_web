@@ -1,0 +1,137 @@
+.headerBadge {
+  margin-left: var(--spacing-lg);
+}
+
+.stepper {
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Grilla de información de 2 columnas */
+.infoGrid {
+  grid-template-columns: repeat(2, 1fr) !important;
+  align-items: start !important;
+  gap: var(--spacing-lg) !important;
+}
+
+/* Evitar que las tarjetas se estiren verticalmente */
+:global(.modalSplitLayoutPremium) {
+  align-items: start !important;
+}
+
+.stepIcon {
+  font-size: 18px;
+}
+
+.infoCard {
+  gap: var(--spacing-xs) !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardContainer {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  height: fit-content; /* Evita que crezcan innecesariamente */
+}
+
+.tableWrapper {
+  margin-top: var(--spacing-md);
+}
+
+.managementPanel {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  background: var(--background-secondary);
+  border: 2px solid var(--color-primary-100);
+}
+
+.managementTitle {
+  margin: 0 0 var(--spacing-lg) 0;
+  font-weight: 700;
+  text-align: center;
+}
+
+.emailAlert {
+  background: var(--color-info-100);
+  color: var(--color-info-dark);
+  border-color: var(--color-info-200);
+  margin-bottom: var(--spacing-lg);
+}
+
+.actionButtons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.fullWidthBtn {
+  width: 100%;
+  justify-content: center;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .infoGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .headerBadge {
+    margin-left: 0;
+    margin-top: var(--spacing-xs);
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .cardContainer {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Títulos con separador */
+.sectionTitleWithDivider {
+  display: block;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+  color: var(--color-primary-300);
+}
+
+/* Refinamiento de Badges */
+:global(.modalBadgePremium.success) {
+  background: rgba(var(--color-success-rgb), 0.15) !important;
+  color: #00ff88 !important;
+  border: 1px solid rgba(0, 255, 136, 0.2) !important;
+}
+
+:global(.modalBadgePremium.primary) {
+  background: rgba(var(--color-primary-rgb), 0.15) !important;
+  color: var(--color-primary-300) !important;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2) !important;
+}
+
+:global(.modalBadgePremium.neutral) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #ccc !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Mejora del Stepper */
+:global(.stepItemPremium:not(.stepActivePremium):not(.stepCompletedPremium)) {
+  opacity: 0.4;
+}
+
+:global(.stepCirclePremium) {
+  border-width: 2px !important;
+}

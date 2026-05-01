@@ -9,15 +9,17 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Category } from '../../../types/product';
 import CategoriaModal from './CategoriaModal';
+import { AdminPagination } from '../common';
 import styles from './GestionCategorias.module.css';
 
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 import {
   DndContext,
@@ -103,6 +105,7 @@ const GestionCategorias: React.FC = memo(() => {
 
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'fecha']);
 
   const cargarCategorias = useCallback(async () => {
@@ -155,12 +158,15 @@ const GestionCategorias: React.FC = memo(() => {
     columns,
     state: {
       sorting,
+      pagination,
       columnOrder,
     },
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const sensors = useSensors(
@@ -209,50 +215,64 @@ const GestionCategorias: React.FC = memo(() => {
       {loading ? (
         <div className={styles.loadingState}>Cargando categorías...</div>
       ) : (
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader key={header.id} header={header} />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className={styles.emptyMessage}>
-                      No hay categorías registradas
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => {
-                    const cat = row.original;
-                    return (
-                      <tr 
-                        key={row.id}
-                        onClick={puedeEditar ? () => iniciarEdicion(cat) : undefined}
-                        style={{ cursor: puedeEditar ? 'pointer' : 'default' }}
-                        className={puedeEditar ? styles.clickableRow : ''}
-                      >
-                        {row.getVisibleCells().map(cell => (
-                          <td key={cell.id} className={styles.td}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
+        <>
+          <div className={styles.tableWrapper}>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <table className={styles.table}>
+                <thead>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
+                        {headerGroup.headers.map(header => (
+                          <DraggableTableHeader key={header.id} header={header} />
                         ))}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </DndContext>
-        </div>
+                      </SortableContext>
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length} className={styles.emptyMessage}>
+                        No hay categorías registradas
+                      </td>
+                    </tr>
+                  ) : (
+                    table.getRowModel().rows.map((row) => {
+                      const cat = row.original;
+                      return (
+                        <tr 
+                          key={row.id}
+                          onClick={puedeEditar ? () => iniciarEdicion(cat) : undefined}
+                          style={{ cursor: puedeEditar ? 'pointer' : 'default' }}
+                          className={puedeEditar ? styles.clickableRow : ''}
+                        >
+                          {row.getVisibleCells().map(cell => (
+                            <td key={cell.id} className={styles.td}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </DndContext>
+          </div>
+          <AdminPagination
+            total={categorias.length}
+            limit={pagination.pageSize}
+            offset={pagination.pageIndex * pagination.pageSize}
+            onPageChange={(newOffset) => {
+              setPagination(prev => ({
+                ...prev,
+                pageIndex: Math.floor(newOffset / prev.pageSize)
+              }));
+            }}
+            itemLabel="categorías"
+          />
+        </>
       )}
 
       <CategoriaModal

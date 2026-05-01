@@ -28,6 +28,8 @@ class ProveedorController {
   static async listarProveedores(req: Request, res: Response) {
     try {
       const { search } = req.query;
+      const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
+      const offset = parseInt(req.query.offset as string) || 0;
 
       let whereClause: any = {};
       if (search && typeof search === 'string' && search.trim()) {
@@ -42,21 +44,26 @@ class ProveedorController {
         };
       }
 
-      const proveedores = await Proveedor.findAll({
+      const { count, rows: proveedores } = await Proveedor.findAndCountAll({
         where: whereClause,
-        order: [['nombre_proveedor', 'ASC']]
+        order: [['nombre_proveedor', 'ASC']],
+        limit,
+        offset
       });
 
       logger.info('Listado de proveedores obtenido', {
         operacion: 'listar_proveedores',
         cantidad: proveedores.length,
+        total: count,
         con_busqueda: !!search
       });
 
       return res.status(200).json({
         success: true,
         data: proveedores,
-        count: proveedores.length
+        count: count,
+        limit,
+        offset
       });
     } catch (error) {
       logger.error('Error listando proveedores:', error);

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { TipoCaracteristica } from '../../../types/product';
-import styles from './GestionProductos.module.css';
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
+import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './CaracteristicaModal.module.css';
 
 interface CaracteristicaModalProps {
   tipo?: TipoCaracteristica | null;
@@ -42,7 +44,7 @@ const parseOpciones = (opciones: unknown): string[] => {
   }
 };
 
-const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen, onClose, onGuardado }) => {
+const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, isOpen, onClose, onGuardado }) => {
   const { showNotification } = useNotification();
   const { tienePermiso } = useAuth();
   
@@ -76,8 +78,6 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
       setShowConfirmDelete(false);
     }
   }, [isOpen, tipo]);
-
-  if (!isOpen) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -178,89 +178,56 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
   const readonly = modoEdicion ? !puedeEditar : !puedeCrear;
 
   return (
-    <div className={styles.modalOverlayPremium} onClick={onClose}>
-      <div className={styles.modalPremium} style={{ maxWidth: '550px' }} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeaderPremium}>
-          <h3 className={styles.modalTitlePremium}>
-            <span className="material-icons">{modoEdicion ? 'edit' : 'add_circle'}</span>
-            {modoEdicion ? 'Editar Tipo de Característica' : 'Nuevo Tipo'}
-          </h3>
-          <button className={styles.closeButtonPremium} onClick={onClose} disabled={guardando || eliminando}>
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-
-        {showConfirmDelete ? (
-          <div className={styles.modalBodyPremium}>
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <span className="material-icons" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 16 }}>
-                warning
-              </span>
-              <h4 style={{ margin: '0 0 8px', fontSize: 18 }}>¿Desactivar tipo de característica?</h4>
-              <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-                Estás a punto de desactivar <strong>{tipo?.nombre_tipo}</strong>. 
-              </p>
-            </div>
-            <div className={styles.modalFooterPremium}>
-              <button 
-                type="button"
-                className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} 
-                onClick={() => setShowConfirmDelete(false)} 
-                disabled={eliminando}
-              >
-                Cancelar
-              </button>
-              <button 
-                type="button"
-                className={`${styles.btnPremium} ${styles.btnDangerSolidPremium}`} 
-                onClick={handleEliminar} 
-                disabled={eliminando}
-              >
-                {eliminando ? 'Desactivando...' : 'Sí, desactivar tipo'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div className={styles.modalBodyPremium}>
-              <div className={styles.formGrid}>
-                <Input
-                  id="nombre_tipo"
-                  name="nombre_tipo"
-                  label="Nombre"
-                  value={form.nombre_tipo}
-                  onChange={handleInputChange}
-                  placeholder="Ej: RAM, Procesador..."
-                  disabled={guardando || readonly}
-                  required
-                  autoFocus
-                />
-
-                <Select
-                  id="tipo_dato"
-                  name="tipo_dato"
-                  label="Tipo de dato"
-                  value={form.tipo_dato}
-                  onChange={handleInputChange}
-                  disabled={guardando || readonly}
-                  required
-                  options={(Object.entries(TIPO_DATO_LABELS) as [TipoCaracteristica['tipo_dato'], string][]).map(
-                    ([val, label]) => ({ value: val, label: label })
-                  )}
-                />
-              </div>
-
+    <>
+      <PremiumModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={modoEdicion ? 'Editar Tipo de Característica' : 'Nuevo Tipo'}
+        icon={modoEdicion ? 'edit' : 'add_circle'}
+        maxWidth="550px"
+      >
+        <form id="caracteristica-form" onSubmit={handleSubmit}>
+          <div className="modalBodyPremium">
+            <div className="modalFormGridPremium">
               <Input
-                id="descripcion"
-                name="descripcion"
-                label="Descripción"
-                value={form.descripcion}
+                id="nombre_tipo"
+                name="nombre_tipo"
+                label="Nombre"
+                value={form.nombre_tipo}
                 onChange={handleInputChange}
-                placeholder="Descripción opcional"
+                placeholder="Ej: RAM, Procesador..."
                 disabled={guardando || readonly}
-                style={{ marginTop: 16 }}
+                required
+                autoFocus
               />
 
+              <Select
+                id="tipo_dato"
+                name="tipo_dato"
+                label="Tipo de dato"
+                value={form.tipo_dato}
+                onChange={handleInputChange}
+                disabled={guardando || readonly}
+                required
+                options={(Object.entries(TIPO_DATO_LABELS) as [TipoCaracteristica['tipo_dato'], string][]).map(
+                  ([val, label]) => ({ value: val, label: label })
+                )}
+              />
+            </div>
+
+            <TextArea
+              id="descripcion"
+              name="descripcion"
+              label="Descripción"
+              value={form.descripcion}
+              onChange={handleInputChange}
+              placeholder="Descripción opcional"
+              disabled={guardando || readonly}
+              className="mt-4"
+              rows={2}
+            />
+
+            <div className="mt-4">
               {form.tipo_dato === 'numero' && (
                 <Input
                   id="unidad_medida"
@@ -270,102 +237,130 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = ({ tipo, isOpen,
                   onChange={handleInputChange}
                   placeholder="Ej: GB, GHz, pulgadas..."
                   disabled={guardando || readonly}
-                  style={{ marginTop: 16 }}
                 />
               )}
+            </div>
 
-              {form.tipo_dato === 'seleccion' && (
-                <div className={styles.formGroupPremium} style={{ marginTop: 16 }}>
-                  <label className={styles.formLabelPremium}>
-                    Opciones de selección <span style={{ color: 'var(--color-error)' }}>*</span>
-                  </label>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <input
-                      className={styles.formInputPremium}
-                      value={nuevaOpcion}
-                      onChange={(e) => setNuevaOpcion(e.target.value)}
-                      placeholder="Agregar opción..."
-                      disabled={guardando || readonly}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (!readonly) agregarOpcion();
-                        }
-                      }}
-                    />
-                    {!readonly && (
-                      <button
-                        type="button"
-                        onClick={agregarOpcion}
-                        disabled={!nuevaOpcion.trim() || guardando}
-                        style={{
-                          background: 'var(--color-primary)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 6,
-                          width: 40,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <span className="material-icons">add</span>
-                      </button>
-                    )}
-                  </div>
-                  {form.opciones_seleccion.length > 0 && (
-                    <div className={styles.opcionesList}>
-                      {form.opciones_seleccion.map((op) => (
-                        <div key={op} className={styles.opcionTag}>
-                          {op}
-                          {!readonly && (
-                            <button 
-                              type="button" 
-                              onClick={() => quitarOpcion(op)} 
-                            >
-                              <span className="material-icons" style={{ fontSize: 14 }}>close</span>
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+            {form.tipo_dato === 'seleccion' && (
+              <div className={styles.selectionGroup}>
+                <label className="modalFormLabelPremium">
+                  Opciones de selección <span className="text-error">*</span>
+                </label>
+                <div className={styles.selectionInputContainer}>
+                  <Input
+                    label=""
+                    id="nuevaOpcion"
+                    name="nuevaOpcion"
+                    value={nuevaOpcion}
+                    onChange={(e) => setNuevaOpcion(e.target.value)}
+                    placeholder="Agregar opción..."
+                    disabled={guardando || readonly}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (!readonly) agregarOpcion();
+                      }
+                    }}
+                  />
+                  {!readonly && (
+                    <button
+                      type="button"
+                      className={styles.addBtn}
+                      onClick={agregarOpcion}
+                      disabled={!nuevaOpcion.trim() || guardando}
+                    >
+                      <span className="material-icons">add</span>
+                    </button>
                   )}
                 </div>
-              )}
-            </div>
+                {form.opciones_seleccion.length > 0 && (
+                  <div className={styles.tagsContainer}>
+                    {form.opciones_seleccion.map((op) => (
+                      <div key={op} className={styles.tag}>
+                        {op}
+                        {!readonly && (
+                          <button 
+                            type="button" 
+                            className={styles.removeTagBtn}
+                            onClick={() => quitarOpcion(op)} 
+                          >
+                            <span className="material-icons" style={{ fontSize: 14 }}>close</span>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
-            <div className={styles.modalFooterPremium}>
-              {modoEdicion && puedeEliminar && tipo?.activo && (
-                <button 
-                  type="button" 
-                  className={`${styles.btnPremium} ${styles.btnDangerPremium}`} 
-                  style={{ marginRight: 'auto' }}
-                  onClick={() => setShowConfirmDelete(true)} 
-                  disabled={guardando}
-                >
-                  <span className="material-icons" style={{ fontSize: 18 }}>delete</span>
-                  Desactivar
-                </button>
-              )}
-              
-              <button type="button" className={`${styles.btnPremium} ${styles.btnSecondaryPremium}`} onClick={onClose} disabled={guardando}>
-                Cancelar
+          <div className="modalFooterPremium">
+            {modoEdicion && puedeEliminar && tipo?.activo && (
+              <button 
+                type="button" 
+                className="btnPremium btnDangerPremium mr-auto" 
+                onClick={() => setShowConfirmDelete(true)} 
+                disabled={guardando}
+              >
+                <span className="material-icons">delete</span>
+                Desactivar
               </button>
-              {!readonly && (
-                <button type="submit" className={`${styles.btnPremium} ${styles.btnPrimaryPremium}`} disabled={guardando}>
-                  <span className="material-icons" style={{ fontSize: 18 }}>
-                    {guardando ? 'hourglass_empty' : 'save'}
-                  </span>
-                  {guardando ? 'Guardando...' : 'Guardar'}
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+            )}
+            
+            <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
+              Cancelar
+            </button>
+            {!readonly && (
+              <button type="submit" form="caracteristica-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
+                <span className="material-icons">
+                  {guardando ? 'hourglass_empty' : 'save'}
+                </span>
+                {guardando ? 'Guardando...' : 'Guardar'}
+              </button>
+            )}
+          </div>
+        </form>
+      </PremiumModal>
+
+      {/* Sub-modal Confirmar Desactivación */}
+      <PremiumModal
+        isOpen={showConfirmDelete}
+        onClose={() => setShowConfirmDelete(false)}
+        title="¿Desactivar tipo de característica?"
+        icon="warning"
+        maxWidth="400px"
+        titleStyle={{ color: 'var(--color-error)' }}
+      >
+        <div className="modalBodyPremium">
+          <p className={styles.deleteConfirmText}>
+            Estás a punto de desactivar <strong>{tipo?.nombre_tipo}</strong>. 
+          </p>
+        </div>
+        <div className="modalFooterPremium">
+          <button 
+            type="button"
+            className="btnPremium btnSecondaryPremium" 
+            onClick={() => setShowConfirmDelete(false)} 
+            disabled={eliminando}
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button"
+            className="btnPremium btnDangerPremium" 
+            onClick={handleEliminar} 
+            disabled={eliminando}
+          >
+            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
+            {eliminando ? 'Desactivando...' : 'Sí, desactivar tipo'}
+          </button>
+        </div>
+      </PremiumModal>
+    </>
   );
-};
+});
+
+CaracteristicaModal.displayName = 'CaracteristicaModal';
 
 export default CaracteristicaModal;

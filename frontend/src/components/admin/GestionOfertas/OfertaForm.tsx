@@ -1,8 +1,4 @@
-/**
- * Componente OfertaForm - Formulario para crear/editar ofertas
- * Maneja campos de la oferta y en modo edición muestra la asignación de productos
- */
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import OfertaProductos from './OfertaProductos';
@@ -11,6 +7,8 @@ import styles from './OfertaForm.module.css';
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 
 interface OfertaFormProps {
   modo: 'crear' | 'editar';
@@ -49,8 +47,9 @@ const INITIAL_FORM: OfertaFormState = {
   activo: true,
 };
 
-const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal = false }: OfertaFormProps) => {
+const OfertaForm: React.FC<OfertaFormProps> = memo(({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal = false }) => {
   const { showNotification } = useNotification();
+  const { tipoCambio } = useTipoCambio();
   const [formData, setFormData] = useState<OfertaFormState>(INITIAL_FORM);
   const [ofertaActual, setOfertaActual] = useState<OfertaConProductos | null>(oferta || null);
   const [loading, setLoading] = useState(false);
@@ -63,11 +62,13 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal 
         nombre_oferta: oferta.nombre_oferta || '',
         descripcion: oferta.descripcion || '',
         tipo_descuento: oferta.tipo_descuento || 'porcentaje',
-        valor_descuento: oferta.valor_descuento?.toString() || '',
+        valor_descuento: (oferta.tipo_descuento === 'monto_fijo' 
+          ? Math.round(oferta.valor_descuento * tipoCambio) 
+          : parseFloat(oferta.valor_descuento.toString()))?.toString() || '',
         fecha_inicio: oferta.fecha_inicio ? oferta.fecha_inicio.split('T')[0] : '',
         fecha_fin: oferta.fecha_fin ? oferta.fecha_fin.split('T')[0] : '',
-        precio_minimo: oferta.precio_minimo?.toString() || '',
-        precio_maximo: oferta.precio_maximo?.toString() || '',
+        precio_minimo: oferta.precio_minimo ? Math.round(oferta.precio_minimo * tipoCambio).toString() : '',
+        precio_maximo: oferta.precio_maximo ? Math.round(oferta.precio_maximo * tipoCambio).toString() : '',
         limite_uso: oferta.limite_uso?.toString() || '',
         activo: oferta.activo ?? true,
       });
@@ -125,11 +126,13 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal 
         nombre_oferta: formData.nombre_oferta.trim(),
         descripcion: formData.descripcion.trim() || undefined,
         tipo_descuento: formData.tipo_descuento,
-        valor_descuento: parseFloat(formData.valor_descuento),
+        valor_descuento: formData.tipo_descuento === 'monto_fijo'
+          ? parseFloat(formData.valor_descuento) / tipoCambio
+          : parseFloat(formData.valor_descuento),
         fecha_inicio: formData.fecha_inicio,
         fecha_fin: formData.fecha_fin,
-        precio_minimo: formData.precio_minimo ? parseFloat(formData.precio_minimo) : null,
-        precio_maximo: formData.precio_maximo ? parseFloat(formData.precio_maximo) : null,
+        precio_minimo: formData.precio_minimo ? parseFloat(formData.precio_minimo) / tipoCambio : null,
+        precio_maximo: formData.precio_maximo ? parseFloat(formData.precio_maximo) / tipoCambio : null,
         limite_uso: formData.limite_uso ? parseInt(formData.limite_uso) : null,
         activo: formData.activo,
       };
@@ -163,274 +166,207 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal 
     }
   };
 
-  // Renderizado optimizado para Modal (Estilo Premium)
   if (isModal) {
     return (
-      <div className="modalOverlayPremium" onClick={(e) => { if (e.target === e.currentTarget) onCancelar(); }}>
-        <div className="modalPremium" style={{ maxWidth: activeTab === 'productos' ? '950px' : '750px' }} onClick={(e) => e.stopPropagation()}>
-          
-          {/* Header del Modal */}
-          <div className="modalHeaderPremium">
-            <h2 className="modalTitlePremium">
-              <span className="material-icons">
-                {modo === 'crear' ? 'add_circle' : 'local_offer'}
-              </span>
-              {modo === 'crear' ? 'Nueva Oferta' : `Editar Oferta: ${formData.nombre_oferta}`}
-            </h2>
-            <button className="closeButtonPremium" onClick={onCancelar} title="Cerrar">
-              <span className="material-icons">close</span>
+      <PremiumModal
+        isOpen={true}
+        onClose={onCancelar}
+        title={modo === 'crear' ? 'Nueva Oferta' : `Editar Oferta: ${formData.nombre_oferta}`}
+        icon={modo === 'crear' ? 'add_circle' : 'local_offer'}
+        maxWidth={activeTab === 'productos' ? '950px' : '750px'}
+      >
+        {/* Navegación por Tabs (Solo en edición) */}
+        {modo === 'editar' && (
+          <div className="modalTabsPremium">
+            <button 
+              type="button"
+              className={`modalTabBtnPremium ${activeTab === 'general' ? 'modalTabActivePremium' : ''}`}
+              onClick={() => setActiveTab('general')}
+            >
+              <span className="material-icons">settings</span>
+              Configuración General
+            </button>
+            <button 
+              type="button"
+              className={`modalTabBtnPremium ${activeTab === 'productos' ? 'modalTabActivePremium' : ''}`}
+              onClick={() => setActiveTab('productos')}
+            >
+              <span className="material-icons">inventory_2</span>
+              Productos Asignados ({ofertaActual?.productos?.length || 0})
             </button>
           </div>
+        )}
 
-          {/* Navegación por Tabs (Solo en edición) */}
-          {modo === 'editar' && (
-            <div className={styles.tabsPremium} style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', background: 'var(--background-secondary)' }}>
-              <button 
-                type="button"
-                className={`${styles.tabBtnPremium} ${activeTab === 'general' ? styles.tabActivePremium : ''}`}
-                style={{ 
-                  flex: 1, 
-                  padding: '12px', 
-                  border: 'none', 
-                  background: 'none', 
-                  fontSize: '13px', 
-                  fontWeight: 600, 
-                  color: activeTab === 'general' ? 'var(--color-primary)' : 'var(--text-secondary)',
-                  borderBottom: activeTab === 'general' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-                onClick={() => setActiveTab('general')}
-              >
-                <span className="material-icons" style={{ fontSize: '18px' }}>settings</span>
-                Configuración General
-              </button>
-              <button 
-                type="button"
-                className={`${styles.tabBtnPremium} ${activeTab === 'productos' ? styles.tabActivePremium : ''}`}
-                style={{ 
-                  flex: 1, 
-                  padding: '12px', 
-                  border: 'none', 
-                  background: 'none', 
-                  fontSize: '13px', 
-                  fontWeight: 600, 
-                  color: activeTab === 'productos' ? 'var(--color-primary)' : 'var(--text-secondary)',
-                  borderBottom: activeTab === 'productos' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-                onClick={() => setActiveTab('productos')}
-              >
-                <span className="material-icons" style={{ fontSize: '18px' }}>inventory_2</span>
-                Productos Asignados ({ofertaActual?.productos?.length || 0})
-              </button>
+        {/* Cuerpo del Modal */}
+        <div className="modalBodyPremium" style={{ padding: activeTab === 'productos' ? '0' : undefined }}>
+          {activeTab === 'general' ? (
+            <form id="oferta-form" onSubmit={handleSubmit}>
+              
+              <h4 className="sectionTitleWithDividerPremium">Información de la Oferta</h4>
+              <div className="modalFormGridPremium" style={{ gridTemplateColumns: '1fr' }}>
+                <Input
+                  id="nombre_oferta"
+                  name="nombre_oferta"
+                  label="Nombre de la Oferta"
+                  value={formData.nombre_oferta}
+                  onChange={handleChange}
+                  placeholder="Ej: Ofertas de Verano"
+                  required
+                  disabled={loading}
+                />
+                <TextArea
+                  id="descripcion"
+                  name="descripcion"
+                  label="Descripción Corta"
+                  value={formData.descripcion}
+                  onChange={handleChange}
+                  placeholder="Breve descripción para control interno..."
+                  rows={2}
+                  disabled={loading}
+                  className="mt-4"
+                />
+              </div>
+
+              <h4 className="sectionTitleWithDividerPremium mt-8">Configuración y Vigencia</h4>
+              <div className="modalFormGridPremium">
+                <Select
+                  id="tipo_descuento"
+                  name="tipo_descuento"
+                  label="Tipo de Descuento"
+                  value={formData.tipo_descuento}
+                  onChange={handleChange}
+                  disabled={loading}
+                  options={[
+                    { value: 'porcentaje', label: 'Porcentaje (%)' },
+                    { value: 'monto_fijo', label: 'Monto Fijo ($)' }
+                  ]}
+                />
+                <Input
+                  id="valor_descuento"
+                  name="valor_descuento"
+                  type="number"
+                  label="Valor del Descuento"
+                  value={formData.valor_descuento}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  required
+                  disabled={loading}
+                  icon={formData.tipo_descuento === 'porcentaje' ? 'percent' : 'payments'}
+                />
+                <Input
+                  id="fecha_inicio"
+                  name="fecha_inicio"
+                  type="date"
+                  label="Inicia el..."
+                  value={formData.fecha_inicio}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+                <Input
+                  id="fecha_fin"
+                  name="fecha_fin"
+                  type="date"
+                  label="Termina el..."
+                  value={formData.fecha_fin}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  min={formData.fecha_inicio}
+                />
+              </div>
+
+              <h4 className="sectionTitleWithDividerPremium mt-8">Restricciones y Límites</h4>
+              <div className="modalFormGridPremium">
+                <Input
+                  id="precio_minimo"
+                  name="precio_minimo"
+                  type="number"
+                  label="Precio Mínimo ($)"
+                  value={formData.precio_minimo}
+                  onChange={handleChange}
+                  placeholder="Sin mínimo"
+                  disabled={loading}
+                />
+                <Input
+                  id="precio_maximo"
+                  name="precio_maximo"
+                  type="number"
+                  label="Precio Máximo ($)"
+                  value={formData.precio_maximo}
+                  onChange={handleChange}
+                  placeholder="Sin máximo"
+                  disabled={loading}
+                />
+                <Input
+                  id="limite_uso"
+                  name="limite_uso"
+                  type="number"
+                  label="Límite de Uso"
+                  value={formData.limite_uso}
+                  onChange={handleChange}
+                  placeholder="Ilimitado"
+                  disabled={loading}
+                />
+              </div>
+
+              {modo === 'editar' && (
+                <div className={styles.toggleCard}>
+                  <div className={styles.toggleInfo}>
+                    <p className={styles.toggleLabel}>Oferta Activa</p>
+                    <p className={styles.toggleDesc}>Define si el descuento es aplicable en el sitio</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={`${styles.toggle} ${formData.activo ? styles.toggleOn : ''}`}
+                    onClick={() => setFormData(p => ({ ...p, activo: !p.activo }))}
+                  >
+                    <span className={styles.toggleKnob} />
+                  </button>
+                </div>
+              )}
+            </form>
+          ) : (
+            <div className={styles.productosContainer}>
+              {ofertaActual && (
+                <OfertaProductos
+                  oferta={ofertaActual}
+                  onProductosChanged={handleProductosChanged}
+                />
+              )}
             </div>
           )}
-
-          {/* Cuerpo del Modal */}
-          <div className="modalBodyPremium" style={{ padding: activeTab === 'productos' ? '0' : '24px' }}>
-            {activeTab === 'general' ? (
-              <form id="oferta-form" onSubmit={handleSubmit}>
-                
-                <span className={styles.sectionTitlePremium}>Información de la Oferta</span>
-                <div className={styles.formGridPremium} style={{ gridTemplateColumns: '1fr', gap: '16px', marginBottom: '24px' }}>
-                  <Input
-                    id="nombre_oferta"
-                    name="nombre_oferta"
-                    label="Nombre de la Oferta"
-                    value={formData.nombre_oferta}
-                    onChange={handleChange}
-                    placeholder="Ej: Ofertas de Verano"
-                    required
-                    disabled={loading}
-                  />
-                  <TextArea
-                    id="descripcion"
-                    name="descripcion"
-                    label="Descripción Corta"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    placeholder="Breve descripción para control interno..."
-                    rows={2}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className={styles.formDivider} style={{ margin: '24px 0' }} />
-
-                <span className={styles.sectionTitlePremium}>Configuración y Vigencia</span>
-                <div className={styles.formGridPremium} style={{ marginBottom: '24px' }}>
-                  <Select
-                    id="tipo_descuento"
-                    name="tipo_descuento"
-                    label="Tipo de Descuento"
-                    value={formData.tipo_descuento}
-                    onChange={handleChange}
-                    disabled={loading}
-                    options={[
-                      { value: 'porcentaje', label: 'Porcentaje (%)' },
-                      { value: 'monto_fijo', label: 'Monto Fijo ($)' }
-                    ]}
-                  />
-                  <Input
-                    id="valor_descuento"
-                    name="valor_descuento"
-                    type="number"
-                    label="Valor del Descuento"
-                    value={formData.valor_descuento}
-                    onChange={handleChange}
-                    placeholder="0.00"
-                    required
-                    disabled={loading}
-                    icon={formData.tipo_descuento === 'porcentaje' ? 'percent' : 'payments'}
-                  />
-                  <Input
-                    id="fecha_inicio"
-                    name="fecha_inicio"
-                    type="date"
-                    label="Inicia el..."
-                    value={formData.fecha_inicio}
-                    onChange={handleChange}
-                    required
-                    disabled={loading}
-                  />
-                  <Input
-                    id="fecha_fin"
-                    name="fecha_fin"
-                    type="date"
-                    label="Termina el..."
-                    value={formData.fecha_fin}
-                    onChange={handleChange}
-                    required
-                    disabled={loading}
-                    min={formData.fecha_inicio}
-                  />
-                </div>
-
-                <div className={styles.formDivider} style={{ margin: '24px 0' }} />
-
-                <span className={styles.sectionTitlePremium}>Restricciones y Límites</span>
-                <div className={styles.formGridPremium} style={{ marginBottom: '24px' }}>
-                  <Input
-                    id="precio_minimo"
-                    name="precio_minimo"
-                    type="number"
-                    label="Precio Mínimo ($)"
-                    value={formData.precio_minimo}
-                    onChange={handleChange}
-                    placeholder="Sin mínimo"
-                    disabled={loading}
-                  />
-                  <Input
-                    id="precio_maximo"
-                    name="precio_maximo"
-                    type="number"
-                    label="Precio Máximo ($)"
-                    value={formData.precio_maximo}
-                    onChange={handleChange}
-                    placeholder="Sin máximo"
-                    disabled={loading}
-                  />
-                  <Input
-                    id="limite_uso"
-                    name="limite_uso"
-                    type="number"
-                    label="Límite de Uso"
-                    value={formData.limite_uso}
-                    onChange={handleChange}
-                    placeholder="Ilimitado"
-                    disabled={loading}
-                  />
-                </div>
-
-                {modo === 'editar' && (
-                  <div style={{ marginTop: '24px', padding: '16px', background: 'var(--background-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>Oferta Activa</p>
-                        <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>Define si el descuento es aplicable en el sitio</p>
-                      </div>
-                      <button
-                        type="button"
-                        className={`${styles.toggle} ${formData.activo ? styles.toggleOn : styles.toggleOff}`}
-                        style={{ 
-                          width: '44px', 
-                          height: '24px', 
-                          borderRadius: '12px', 
-                          border: 'none', 
-                          cursor: 'pointer',
-                          position: 'relative',
-                          transition: 'all 0.3s ease',
-                          background: formData.activo ? 'var(--color-success)' : 'var(--background-neutral)'
-                        }}
-                        onClick={() => setFormData(p => ({ ...p, activo: !p.activo }))}
-                      >
-                        <div style={{ 
-                          width: '18px', 
-                          height: '18px', 
-                          borderRadius: '50%', 
-                          background: 'white', 
-                          position: 'absolute', 
-                          top: '3px', 
-                          left: formData.activo ? '23px' : '3px',
-                          transition: 'all 0.3s ease',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                        }} />
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </form>
-            ) : (
-              <div style={{ padding: '20px' }}>
-                {ofertaActual && (
-                  <OfertaProductos
-                    oferta={ofertaActual}
-                    onProductosChanged={handleProductosChanged}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Footer del Modal */}
-          <div className="modalFooterPremium">
-            {modo === 'editar' && onEliminar && (
-              <button 
-                type="button"
-                className="btnPremium btnDangerPremium" 
-                onClick={onEliminar}
-                title="Eliminar esta oferta permanentemente"
-                style={{ marginRight: 'auto' }}
-              >
-                <span className="material-icons">delete</span>
-                Eliminar
-              </button>
-            )}
-            <button type="button" className="btnPremium btnSecondaryPremium" onClick={onCancelar}>
-              Cancelar
-            </button>
-            {activeTab === 'general' && (
-              <button 
-                type="submit" 
-                form="oferta-form" 
-                disabled={loading} 
-                className="btnPremium btnPrimaryPremium"
-              >
-                <span className="material-icons">{loading ? 'hourglass_empty' : 'save'}</span>
-                {loading ? 'Guardando...' : 'Guardar Cambios'}
-              </button>
-            )}
-          </div>
         </div>
-      </div>
+
+        {/* Footer del Modal */}
+        <div className="modalFooterPremium">
+          {modo === 'editar' && onEliminar && (
+            <button 
+              type="button"
+              className="btnPremium btnDangerPremium mr-auto" 
+              onClick={onEliminar}
+              title="Eliminar esta oferta permanentemente"
+            >
+              <span className="material-icons">delete</span>
+              Eliminar
+            </button>
+          )}
+          <button type="button" className="btnPremium btnSecondaryPremium" onClick={onCancelar}>
+            Cancelar
+          </button>
+          {activeTab === 'general' && (
+            <button 
+              type="submit" 
+              form="oferta-form" 
+              disabled={loading} 
+              className="btnPremium btnPrimaryPremium"
+            >
+              <span className="material-icons">{loading ? 'hourglass_empty' : 'save'}</span>
+              {loading ? 'Guardando...' : 'Guardar Cambios'}
+            </button>
+          )}
+        </div>
+      </PremiumModal>
     );
   }
 
@@ -687,6 +623,8 @@ const OfertaForm = ({ modo, oferta, onGuardado, onCancelar, onEliminar, isModal 
       )}
     </div>
   );
-};
+});
+
+OfertaForm.displayName = 'OfertaForm';
 
 export default OfertaForm;
