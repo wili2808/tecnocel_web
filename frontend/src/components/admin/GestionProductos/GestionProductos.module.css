@@ -7,51 +7,6 @@
   min-height: 100%;
 }
 
-/* --- TABS DE NAVEGACIÓN --- */
-
-.tabsBar {
-  display: flex;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1px;
-  margin-bottom: var(--spacing-md);
-  gap: 0;
-  overflow-x: auto;
-}
-
-.tabBtn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color var(--transition-fast) var(--transition-curve),
-              border-bottom-color var(--transition-fast) var(--transition-curve);
-}
-
-.tabBtn .material-icons {
-  font-size: 17px;
-}
-
-.tabBtn:hover {
-  color: var(--color-primary);
-}
-
-.tabActive {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-  font-weight: 600;
-}
-
 .toggleBtn {
   display: inline-flex;
   align-items: center;

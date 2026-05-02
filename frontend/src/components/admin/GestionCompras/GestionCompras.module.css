@@ -8,66 +8,39 @@
 }
 
 /* ============================================================================
-   TABS
+   TABS OVERRIDES
    ============================================================================ */
-
-.tabsBar {
-  display: flex;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1px;
-  margin: var(--spacing-md) 0;
-  gap: 0;
-  overflow-x: auto;
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-  position: relative;
-}
-
-.tabBtn:hover {
-  color: var(--text-primary);
-  background: var(--background-hover);
-}
-
-.tabActive {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-}
-
-.tabBadge {
-  font-size: 10px;
-  padding: 2px 6px;
-  background: var(--color-error);
-  color: white;
-  border-radius: 10px;
-  font-weight: 700;
-  margin-left: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-}
 
 .tabContent {
   animation: fadeIn var(--transition-normal) var(--transition-curve);
+}
+
+.stockActionsBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  animation: slideDown 0.3s ease-out;
+}
+
+.selectionInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: var(--spacing-sm);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================================================
@@ -227,7 +200,7 @@
   color: var(--text-secondary);
 }
 
-/* --- CABECERAS ORDENABLES (Missing in original) --- */
+/* --- CABECERAS ORDENABLES --- */
 
 .sortableHeader {
   cursor: pointer;
@@ -269,7 +242,6 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Forzar que el buscador ocupe lo necesario y no empuje los botones fuera */
   .searchWrapper {
     flex: 1;
     min-width: 150px;
@@ -284,7 +256,6 @@
     min-width: 140px;
   }
 
-  /* Modales: En tablets, mantener 2 columnas pero compactar */
   .registrarCompraGrid {
     grid-template-columns: 1fr 280px;
     max-height: calc(90vh - 140px);
@@ -298,14 +269,12 @@
     padding: 16px;
   }
 
-  /* En tablets, formulario con 2 columnas se compacta */
   .formRow2Cols {
     flex-direction: row;
     gap: 10px;
     margin-bottom: 14px;
   }
 
-  /* DetalleCompra: En tablets, dos columnas apiladas */
   .detalleCompraGrid {
     grid-template-columns: 1fr;
   }
@@ -324,7 +293,6 @@
     padding: 16px 12px;
   }
 
-  /* Usar flex-direction column para que el buscador y botones no compitan horizontalmente */
   div[class*="searchForm"] {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -372,18 +340,6 @@
     flex-wrap: wrap;
   }
 
-  .tabsBar {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tabBtn {
-    flex: 0 0 auto;
-    min-width: 120px;
-  }
-
-  /* === MODALES EN TABLETS (768px) === */
-
   .modalOverlay {
     padding: var(--spacing-md);
   }
@@ -424,14 +380,12 @@
     padding: 14px;
   }
 
-  /* Mantener 2 columnas en tablets pero más compactas */
   .registrarCompraGrid {
     grid-template-columns: 1fr 260px;
     max-height: calc(90vh - 120px);
     gap: 0;
   }
 
-  /* Formulario: 1 columna en tablets */
   .formRow2Cols {
     flex-direction: column;
     gap: 10px;
@@ -496,10 +450,6 @@
     padding: 12px 10px;
   }
 
-  .filterRowsContainer {
-    gap: var(--spacing-sm);
-  }
-
   div[class*="searchForm"] {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -524,14 +474,6 @@
     flex: 1;
   }
 
-  .title {
-    font-size: 14px;
-  }
-
-  .statValue {
-    font-size: 18px;
-  }
-
   .table {
     font-size: 11px;
   }
@@ -546,26 +488,8 @@
     padding: 3px 6px;
   }
 
-  .filterBar {
-    padding: var(--spacing-sm);
-    gap: var(--spacing-sm);
-  }
-
-  .filterLabel {
-    font-size: 11px;
-  }
-
-  .sectionTitlePremium {
-    margin-bottom: 10px;
-  }
-
-  /* === MODALES EN MÓVILES (480px) === */
   .modalOverlay {
     padding: 8px;
-  }
-
-  .modalContent {
-    border-radius: 10px;
   }
 
   .registrarCompraModal {
@@ -632,7 +556,6 @@
     padding: 14px;
   }
 
-  /* Apilar verticalmente en móvil - Resumen debajo */
   .registrarCompraGrid {
     display: grid;
     grid-template-columns: 1fr !important;
@@ -641,17 +564,10 @@
     gap: 0;
   }
 
-  /* Formulario: 1 columna en móviles con espaciado optimizado */
   .formRow2Cols {
     flex-direction: column !important;
     gap: 16px !important;
     margin-bottom: 16px !important;
-  }
-
-  .formGroupInput {
-    gap: 6px;
-    flex: 1;
-    width: 100%;
   }
 
   .formInput,
@@ -664,11 +580,6 @@
     line-height: 1.4;
   }
 
-  .formLabel {
-    font-size: 11px;
-  }
-
-  /* Tabla de items en móvil: Scroll horizontal con tamaño de fuente reducido */
   .table {
     font-size: 10px;
   }
@@ -712,15 +623,9 @@
   }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

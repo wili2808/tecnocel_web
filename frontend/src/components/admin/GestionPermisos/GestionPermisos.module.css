@@ -1,369 +1,249 @@
 .container {
-  padding: 20px 24px;
+  padding: var(--spacing-md);
   min-height: 100%;
 }
 
-.header {
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.headerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: right;
-  gap: var(--spacing-lg);
-}
-
-.guardarButton {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.guardarButton:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.guardarButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
+/* --- CONTENIDO PRINCIPAL --- */
 .mainContent {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 20px;
-}
-
-.sidebar {
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 16px;
-  height: fit-content;
-  position: sticky;
-  top: 20px;
-}
-
-.sidebarTitle {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  margin: 0 0 12px;
-  padding: 0 8px;
-}
-
-.rolesList {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.rolButton {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--border-radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--transition-curve);
-  text-align: left;
-  width: 100%;
-}
-
-.rolButton:hover {
-  background: var(--background-primary);
-  border-color: var(--border-color);
-}
-
-.rolButtonActive {
-  background: rgba(var(--color-primary-rgb), 0.08);
-  border-color: var(--color-primary);
-}
-
-.rolButton .material-icons {
-  color: var(--text-secondary);
-  font-size: 18px;
-}
-
-.rolButtonActive .material-icons {
-  color: var(--color-primary);
-}
-
-.rolInfo {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.rolNombre {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.rolButtonActive .rolNombre {
-  color: var(--color-primary);
-}
-
-.rolPermisos {
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-
-.lockedBadge {
-  font-size: 9px;
-  font-weight: 600;
-  padding: 2px 6px;
-  background: #fef3c7;
-  color: #92400e;
-  border-radius: 3px;
-  margin-right: 30px !important;
-  flex-shrink: 0;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-}
-
-.filterGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filterLabel {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  gap: var(--spacing-md);
 }
 
 .filterSelect {
-  padding: 6px 10px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius-md);
   background: var(--background-primary);
   color: var(--text-primary);
-  font-size: 12px;
-  font-family: var(--font-family-primary);
+  font-size: 13px;
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
 .filterSelect:focus {
-  outline: none;
   border-color: var(--color-primary);
 }
 
-.searchGroup {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  position: relative;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-secondary);
-  font-size: 16px;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 7px 10px 7px 34px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  font-size: 12px;
-  font-family: var(--font-family-primary);
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.searchInput::placeholder {
-  color: var(--text-tertiary);
-}
-
-.adminInfo {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-}
-
-.adminInfo .material-icons {
-  color: var(--color-primary);
-  font-size: 20px;
-}
-
-.adminInfo strong {
-  display: block;
-  font-size: 14px;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.adminInfo p {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.permisosStack {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.moduloRow {
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-.moduloHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  background: transparent;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.moduloTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  text-transform: capitalize;
-  letter-spacing: 0.3px;
-}
-
-.moduloCount {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: var(--background-primary);
-  padding: 4px 8px;
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
-}
-
-.permisosList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 16px 20px;
-  background: var(--background-primary);
-}
-
-.permisoItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
-  background: var(--background-secondary);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--transition-curve);
-  min-width: 160px;
-}
-
-.permisoItem:hover {
-  border-color: var(--color-primary);
-  background: var(--background-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.permisoCheckbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  margin: 0;
-}
-
-.accionBadge {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 9px;
-  font-weight: 600;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.accionBadge .material-icons {
-  font-size: 10px;
-}
-
-.permisoNombre {
-  flex: 1;
-  font-size: 12px;
-  color: var(--text-primary);
-  text-transform: capitalize;
-}
-
+/* --- ESTADOS --- */
 .loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 60px;
+  gap: var(--spacing-md);
+  padding: var(--spacing-2xl);
   color: var(--text-secondary);
 }
 
-.loading .material-icons {
-  font-size: 28px;
+.loading span:first-child {
+  font-size: 40px;
   color: var(--color-primary);
+}
+
+/* --- ADMIN INFO --- */
+.adminInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-primary-25);
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--border-radius-md);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--spacing-md);
+}
+
+.adminInfo .material-icons {
+  font-size: 24px;
+}
+
+.adminInfo p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* --- TARJETAS DE PERMISOS --- */
+.permisosStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.moduloRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.moduloHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.moduloTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.moduloCount {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--background-neutral);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.permisosList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Tarjeta Elongada Modernista */
+.permisoCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 12px 16px;
+  background: var(--background-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.permisoCard:hover {
+  border-color: var(--color-primary-200);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.permisoCardSelected {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--background-primary));
+}
+
+.permisoCardSelected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-primary);
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.permisoCardSelected .checkboxWrapper {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkboxWrapper .material-icons {
+  font-size: 16px;
+  color: white;
+  display: none;
+}
+
+.permisoCardSelected .checkboxWrapper .material-icons {
+  display: block;
+}
+
+.permisoCardContent {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.permisoNombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.permisoDescripcion {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.accionBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.accionBadge .material-icons {
+  font-size: 14px;
+}
+
+/* --- EMPTY STATE --- */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xl);
+  color: var(--text-muted);
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-lg);
+  border: 1px dashed var(--border-color);
+}
+
+.emptyState .material-icons {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+  .permisosList {
+    grid-template-columns: 1fr;
+  }
+  
+  .tabBtn {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
 }
 
 .spin {
@@ -373,56 +253,4 @@
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 60px;
-  color: var(--text-secondary);
-}
-
-.emptyState .material-icons {
-  font-size: 40px;
-  opacity: 0.5;
-}
-
-@media (max-width: 900px) {
-  .mainContent {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: static;
-  }
-
-  .filters {
-    flex-wrap: wrap;
-  }
-
-  .filterGroup {
-    min-width: 140px;
-  }
-
-  .searchGroup {
-    width: 100%;
-  }
-}
-
-@media (max-width: 600px) {
-  .headerTop {
-    flex-direction: column;
-  }
-
-  .guardarButton {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .permisosStack {
-    gap: 12px;
-  }
 }

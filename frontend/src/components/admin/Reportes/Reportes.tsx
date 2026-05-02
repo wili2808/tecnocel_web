@@ -9,7 +9,9 @@ import {
   AdminFilterPanel,
   AdminMetricsStrip,
   AdminDataTable,
+  AdminTabs,
 } from '../common';
+import type { AdminTabConfig } from '../common';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -23,13 +25,8 @@ import type {
 
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
-interface TabConfig {
-  id: ReporteTab;
-  label: string;
-  icon: string;
-}
 
-const TABS: TabConfig[] = [
+const TABS: AdminTabConfig[] = [
   { id: 'ventas', label: 'Ventas', icon: 'point_of_sale' },
   { id: 'vendedores', label: 'Vendedores', icon: 'group' },
   { id: 'productos', label: 'Productos', icon: 'inventory_2' },
@@ -341,18 +338,12 @@ const Reportes: React.FC = memo(() => {
       ) : null}
 
       {/* Tabs */}
-      <div className={styles.tabBar}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
-            onClick={() => handleTabChange(tab.id)}
-          >
-            <span className="material-icons">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <AdminTabs 
+        tabs={TABS} 
+        activeTab={activeTab} 
+        onChange={handleTabChange} 
+        hasMarginTop={true}
+      />
 
       {/* Filtros - Usando Sistema Global */}
       <AdminFilterPanel>

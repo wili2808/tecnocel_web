@@ -35,6 +35,10 @@
   cursor: not-allowed;
 }
 
+.exportButton .material-icons {
+  font-size: 16px;
+}
+
 .montoBadgeWrapper {
   display: inline-flex;
   align-items: center;
@@ -60,57 +64,6 @@
 .montoBadgeArs {
   background-color: #cffafe;
   color: #0369a1;
-}
-
-.exportButton .material-icons {
-  font-size: 16px;
-}
-
-/* ============================================================================
-   BARRA DE PESTAÑAS
-   ============================================================================ */
-
-.tabBar {
-  display: flex;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1px;
-  margin: var(--spacing-md) 0;
-  gap: 0;
-  overflow-x: auto;
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-  position: relative;
-}
-
-.tab:hover {
-  color: var(--color-primary);
-}
-
-.tab .material-icons {
-  font-size: 17px;
-}
-
-.tabActive {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
 }
 
 /* ============================================================================
@@ -404,13 +357,6 @@
     padding: 16px;
   }
 
-  .tab {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-
-
   .table th,
   .table td {
     padding: 7px 10px;
@@ -418,14 +364,9 @@
 }
 
 @media (max-width: 480px) {
-  .tab .material-icons {
-    display: none;
-  }
-
   .kpiGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {

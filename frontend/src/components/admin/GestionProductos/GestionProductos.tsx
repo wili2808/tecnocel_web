@@ -16,7 +16,9 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminDataTable,
+  AdminTabs,
 } from '../common';
+import type { AdminTabConfig } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
@@ -222,6 +224,13 @@ const GestionProductos = () => {
   ], []);
 
 
+  const productTabs = useMemo<AdminTabConfig[]>(() => [
+    { id: 'productos', icon: 'inventory_2', label: 'Productos' },
+    { id: 'marcas', icon: 'branding_watermark', label: 'Marcas' },
+    { id: 'categorias', icon: 'category', label: 'Categorías' },
+    { id: 'caracteristicas', icon: 'tune', label: 'Características' },
+  ], []);
+
   if (!puedeVer) {
     return (
       <div className={styles.container}>
@@ -240,23 +249,11 @@ const GestionProductos = () => {
     <div className={styles.container}>
 
       {/* Barra de tabs */}
-      <div className={styles.tabsBar}>
-        {[
-          { key: 'productos', icon: 'inventory_2', label: 'Productos' },
-          { key: 'marcas', icon: 'branding_watermark', label: 'Marcas' },
-          { key: 'categorias', icon: 'category', label: 'Categorías' },
-          { key: 'caracteristicas', icon: 'tune', label: 'Características' },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            className={`${styles.tabBtn} ${activeTab === tab.key ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab(tab.key as TabProductos)}
-          >
-            <span className="material-icons">{tab.icon}</span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </div>
+      <AdminTabs 
+        tabs={productTabs} 
+        activeTab={activeTab} 
+        onChange={(id) => setActiveTab(id as TabProductos)} 
+      />
 
       {activeTab === 'marcas' && <GestionMarcas />}
       {activeTab === 'categorias' && <GestionCategorias />}

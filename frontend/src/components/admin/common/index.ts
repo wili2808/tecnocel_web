@@ -12,3 +12,5 @@ export { default as AdminPagination } from './AdminPagination';
 export { default as AdminSearch } from './AdminSearch';
 export { default as DraggableTableHeader } from './DraggableTableHeader';
 export { default as AdminDataTable } from './AdminDataTable';
+export { default as AdminTabs } from './AdminTabs';
+export type { AdminTabConfig } from './AdminTabs';

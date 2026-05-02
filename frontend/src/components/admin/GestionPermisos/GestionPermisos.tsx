@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import permisoService from '../../../services/permisoService';
 import styles from './GestionPermisos.module.css';
-import { AdminSearch } from '../common';
+import { AdminFilterPanel, AdminEntitySearchBar, AdminTabs } from '../common';
+import type { AdminTabConfig } from '../common';
 import type { RolesConPermisos, PermisoItem } from '../../../types/permiso';
 
 interface PermisoCheck extends PermisoItem {
@@ -114,6 +115,13 @@ const GestionPermisos = () => {
       });
       showNotification('Permisos guardados correctamente', 'success');
       setOriginalPermisos(permisosAsignados);
+      
+      // Actualizar cantidad de permisos en la lista de roles localmente
+      setRoles(prev => prev.map(r => 
+        r.id_rol === rolSeleccionado 
+          ? { ...r, cantidad_permisos: permisosAsignados.length }
+          : r
+      ));
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
       showNotification(error.response?.data?.error || 'Error al guardar permisos', 'error');
@@ -158,12 +166,20 @@ const GestionPermisos = () => {
     return ['todos', ...Array.from(mods).sort()];
   }, [permisos]);
 
+  const roleTabs = useMemo<AdminTabConfig[]>(() => 
+    roles.map(rol => ({
+      id: rol.id_rol.toString(),
+      label: rol.rol,
+      icon: rol.id_rol === 1 ? 'shield' : rol.id_rol === 2 ? 'supervisor_account' : 'person',
+      badge: rol.id_rol === 1 ? 'Admin' : undefined
+    })), [roles]);
+
   if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>
           <span className="material-icons spin">sync</span>
-          <span>Cargando permisos...</span>
+          <span>Cargando configuración de permisos...</span>
         </div>
       </div>
     );
@@ -171,55 +187,19 @@ const GestionPermisos = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <button
-            className={styles.guardarButton}
-            onClick={handleGuardar}
-            disabled={guardando || !hayCambios || rolSeleccionado === 1}
-          >
-            {guardando ? (
-              <>
-                <span className="material-icons spin">sync</span>
-                Guardando...
-              </>
-            ) : (
-              <>
-                <span className="material-icons">save</span>
-                Guardar Cambios
-              </>
-            )}
-          </button>
-        </div>
-      </div>
+      {/* Barra de Tabs para Roles */}
+      <AdminTabs 
+        tabs={roleTabs} 
+        activeTab={rolSeleccionado?.toString() || ''} 
+        onChange={(id) => setRolSeleccionado(parseInt(id))}
+      />
 
       <div className={styles.mainContent}>
-        <aside className={styles.sidebar}>
-          <h3 className={styles.sidebarTitle}>Roles</h3>
-          <div className={styles.rolesList}>
-            {roles.map((rol) => (
-              <button
-                key={rol.id_rol}
-                className={`${styles.rolButton} ${rol.id_rol === rolSeleccionado ? styles.rolButtonActive : ''}`}
-                onClick={() => setRolSeleccionado(rol.id_rol)}
-              >
-                <span className="material-icons">
-                  {rol.id_rol === 1 ? 'shield' : rol.id_rol === 2 ? 'supervisor_account' : 'person'}
-                </span>
-                <div className={styles.rolInfo}>
-                  <span className={styles.rolNombre}>{rol.rol}</span>
-                  <span className={styles.rolPermisos}>{rol.cantidad_permisos} permisos</span>
-                </div>
-                {rol.id_rol === 1 && <span className={styles.lockedBadge}>Bloqueado</span>}
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        <div className={styles.content}>
-          <div className={styles.filters}>
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Módulo:</label>
+        {/* Panel de Filtros y Búsqueda */}
+        <AdminFilterPanel>
+          <AdminFilterPanel.Row variant="bottom">
+            <AdminFilterPanel.Group minWidth="md">
+              <AdminFilterPanel.Label>Módulo</AdminFilterPanel.Label>
               <select
                 className={styles.filterSelect}
                 value={filtroModulo}
@@ -231,69 +211,83 @@ const GestionPermisos = () => {
                   </option>
                 ))}
               </select>
-            </div>
-            <div className={styles.searchGroup}>
-              <AdminSearch
-                value={busqueda}
-                onChange={setBusqueda}
-                placeholder="Buscar permiso..."
-                delay={0}
+            </AdminFilterPanel.Group>
+
+            <AdminFilterPanel.Grow>
+              <AdminEntitySearchBar
+                searchValue={busqueda}
+                onSearchChange={setBusqueda}
+                searchPlaceholder="Buscar por nombre o descripción..."
+                searchLabel="Buscar Permiso"
+                primaryActionLabel={guardando ? 'Guardando...' : 'Guardar Cambios'}
+                primaryActionIcon={guardando ? 'sync' : 'save'}
+                onPrimaryAction={handleGuardar}
+                primaryActionDisabled={guardando || !hayCambios || rolSeleccionado === 1}
               />
+            </AdminFilterPanel.Grow>
+          </AdminFilterPanel.Row>
+        </AdminFilterPanel>
+
+        {rolSeleccionado === 1 ? (
+          <div className={styles.adminInfo}>
+            <span className="material-icons">verified_user</span>
+            <div>
+              <strong>Configuración del Administrador</strong>
+              <p>Este rol posee acceso total a todos los módulos y funciones. Por seguridad, sus permisos son estáticos y no pueden ser revocados.</p>
             </div>
           </div>
-
-          {rolSeleccionado === 1 ? (
-            <div className={styles.adminInfo}>
-              <span className="material-icons">info</span>
-              <div>
-                <strong>Rol Administrador</strong>
-                <p>El administrador tiene todos los permisos del sistema y no puede ser modificado.</p>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.permisosStack}>
-              {Object.entries(permisosPorModulo).map(([modulo, perms]) => (
-                <div key={modulo} className={styles.moduloRow}>
-                  <div className={styles.moduloHeader}>
-                    <h4 className={styles.moduloTitle}>{modulo.charAt(0).toUpperCase() + modulo.slice(1)}</h4>
-                    <span className={styles.moduloCount}>
-                      {perms.filter((p) => p.asignado).length}/{perms.length}
-                    </span>
-                  </div>
-                  <div className={styles.permisosList}>
-                    {perms.map((perm) => (
-                      <label key={perm.id_permiso} className={styles.permisoItem}>
-                        <input
-                          type="checkbox"
-                          checked={perm.asignado}
-                          onChange={() => handleTogglePermiso(perm.id_permiso)}
-                          className={styles.permisoCheckbox}
-                        />
-                        <span
-                          className={styles.accionBadge}
-                          style={{ backgroundColor: ACCION_COLORES[perm.accion] || '#6b7280' }}
-                        >
-                          <span className="material-icons">{ACCION_ICONS[perm.accion] || 'check'}</span>
-                          {perm.accion}
-                        </span>
+        ) : (
+          <div className={styles.permisosStack}>
+            {Object.entries(permisosPorModulo).map(([modulo, perms]) => (
+              <div key={modulo} className={styles.moduloRow}>
+                <div className={styles.moduloHeader}>
+                  <h4 className={styles.moduloTitle}>{modulo.charAt(0).toUpperCase() + modulo.slice(1)}</h4>
+                  <span className={styles.moduloCount}>
+                    {perms.filter((p) => p.asignado).length}/{perms.length} asignados
+                  </span>
+                </div>
+                <div className={styles.permisosList}>
+                  {perms.map((perm) => (
+                    <div
+                      key={perm.id_permiso}
+                      className={`${styles.permisoCard} ${perm.asignado ? styles.permisoCardSelected : ''}`}
+                      onClick={() => handleTogglePermiso(perm.id_permiso)}
+                    >
+                      <div className={styles.checkboxWrapper}>
+                        <span className="material-icons">check</span>
+                      </div>
+                      
+                      <div className={styles.permisoCardContent}>
                         <span className={styles.permisoNombre}>
                           {perm.descripcion || perm.nombre.replace(`${perm.accion}_`, '')}
                         </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                        <span className={styles.permisoDescripcion}>
+                          Acceso para {perm.accion} en el módulo de {modulo}
+                        </span>
+                      </div>
 
-          {permisosFiltrados.length === 0 && (
-            <div className={styles.emptyState}>
-              <span className="material-icons">search_off</span>
-              <span>No se encontraron permisos</span>
-            </div>
-          )}
-        </div>
+                      <span
+                        className={styles.accionBadge}
+                        style={{ backgroundColor: ACCION_COLORES[perm.accion] || '#6b7280' }}
+                        title={`Acción: ${perm.accion}`}
+                      >
+                        <span className="material-icons">{ACCION_ICONS[perm.accion] || 'settings'}</span>
+                        {perm.accion}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {permisosFiltrados.length === 0 && (
+          <div className={styles.emptyState}>
+            <span className="material-icons">search_off</span>
+            <span>No se encontraron permisos que coincidan con los filtros</span>
+          </div>
+        )}
       </div>
     </div>
   );

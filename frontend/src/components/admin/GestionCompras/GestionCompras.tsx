@@ -9,7 +9,9 @@ import {
   AdminFilterPanel,
   AdminMetricsStrip,
   AdminDataTable,
+  AdminTabs,
 } from '../common';
+import type { AdminTabConfig } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import styles from './GestionCompras.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
@@ -390,6 +392,12 @@ const GestionCompras: React.FC = memo(() => {
     );
   }
 
+  const comprasTabs = useMemo<AdminTabConfig[]>(() => [
+    { id: 'compras', icon: 'receipt_long', label: 'Compras' },
+    { id: 'proveedores', icon: 'business', label: 'Proveedores' },
+    { id: 'stock', icon: 'warning', label: 'Stock Bajo', badge: stockBajo.length > 0 ? stockBajo.length : undefined },
+  ], [stockBajo.length]);
+
   return (
     <div className={styles.container}>
 
@@ -406,59 +414,43 @@ const GestionCompras: React.FC = memo(() => {
       )}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid var(--border-color)', borderTop: '1px solid var(--border-color)', margin: 'var(--spacing-md) 0' }}>
-        <div className={styles.tabsBar} style={{ border: 'none', margin: 0, marginBottom: '-1px', flex: 1, paddingBottom: '1px', overflowX: 'auto', overflowY: 'hidden' }}>
+      <AdminTabs 
+        tabs={comprasTabs} 
+        activeTab={activeTab} 
+        onChange={(id) => {
+          setActiveTab(id as TabType);
+          if (id === 'compras') setPagination(prev => ({ ...prev, pageIndex: 0 }));
+        }}
+        hasMarginTop={true}
+      />
+
+      {/* Acciones para Stock Bajo (Selección) */}
+      {activeTab === 'stock' && seleccionados.size > 0 && (
+        <div className={styles.stockActionsBar}>
+          <div className={styles.selectionInfo}>
+            <span className="material-icons" style={{ fontSize: '18px' }}>check_circle</span>
+            <span>{seleccionados.size} seleccionado{seleccionados.size !== 1 ? 's' : ''}</span>
+          </div>
+          
           <button
-            className={`${styles.tab} ${activeTab === 'compras' ? styles.tabActive : ''}`}
-            onClick={() => {
-              setActiveTab('compras');
-              setPagination(prev => ({ ...prev, pageIndex: 0 }));
-            }}
+            className={controlStyles.secondaryButton}
+            onClick={() => setSeleccionados(new Set())}
+            title="Limpiar selección"
           >
-            <span className="material-icons">receipt_long</span>
-            Compras
+            <span className="material-icons">close</span>
+            <span>Limpiar</span>
           </button>
+
           <button
-            className={`${styles.tab} ${activeTab === 'proveedores' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('proveedores')}
+            className={controlStyles.primaryButton}
+            onClick={() => abrirCompraConSeleccion()}
+            disabled={!puedeCrear}
           >
-            <span className="material-icons">business</span>
-            Proveedores
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'stock' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('stock')}
-          >
-            <span className="material-icons">warning</span>
-            Stock Bajo
-            {stockBajo.length > 0 && <span className={styles.tabBadge}>{stockBajo.length}</span>}
+            <span className="material-icons">shopping_cart</span>
+            <span>Ordenar compra</span>
           </button>
         </div>
-
-        {activeTab === 'stock' && seleccionados.size > 0 && (
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingBottom: '4px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginRight: '8px' }}>
-              {seleccionados.size} seleccionado{seleccionados.size !== 1 ? 's' : ''}
-            </span>
-            <button
-              onClick={() => setSeleccionados(new Set())}
-              title="Limpiar selección"
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: 'transparent', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)', cursor: 'pointer' }}
-            >
-              <span className="material-icons" style={{ fontSize: '14px' }}>close</span>
-              Limpiar
-            </button>
-            <button
-              onClick={() => abrirCompraConSeleccion()}
-              disabled={!puedeCrear}
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: 'var(--color-primary)', border: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 600, color: 'white', cursor: !puedeCrear ? 'not-allowed' : 'pointer', opacity: !puedeCrear ? 0.6 : 1 }}
-            >
-              <span className="material-icons" style={{ fontSize: '14px' }}>shopping_cart</span>
-              Ordenar compra
-            </button>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Tab: Compras */}
       {activeTab === 'compras' && (

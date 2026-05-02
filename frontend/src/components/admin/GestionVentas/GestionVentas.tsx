@@ -15,7 +15,9 @@ import {
   AdminFilterPanel,
   AdminMetricsStrip,
   AdminDataTable,
+  AdminTabs,
 } from '../common';
+import type { AdminTabConfig } from '../common';
 import styles from './GestionVentas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
@@ -193,7 +195,7 @@ const GestionVentas: React.FC = () => {
         cargandoRef.current = false;
       }
     },
-    [showNotification],
+    [pagination.pageSize, showNotification],
   );
 
   // ── Carga inicial ──────────────────────────────────────────────────────────
@@ -266,6 +268,19 @@ const GestionVentas: React.FC = () => {
       tone: 'success' as const,
     },
   ], [stats, tipoCambio]);
+
+  const ventasTabs = useMemo<AdminTabConfig[]>(() => {
+    const items: AdminTabConfig[] = [
+      { id: 'ventas', icon: 'receipt_long', label: 'Ventas' }
+    ];
+    if (puedeVerEnvios) {
+      items.push({ id: 'envios', icon: 'local_shipping', label: 'Envíos', badge: enviosPendientes > 0 ? enviosPendientes : undefined });
+    }
+    if (puedeVerRetiros) {
+      items.push({ id: 'retiros', icon: 'store', label: 'Retiros', badge: retirosPendientes > 0 ? retirosPendientes : undefined });
+    }
+    return items;
+  }, [puedeVerEnvios, enviosPendientes, puedeVerRetiros, retirosPendientes]);
 
   // === Columnas TanStack ===
   const columns = useMemo<ColumnDef<VentaListItem>[]>(() => [
@@ -390,8 +405,6 @@ const GestionVentas: React.FC = () => {
 
   return (
     <div className={styles.container}>
-
-
       <AdminMetricsStrip
         items={statsItems}
         loading={cargandoStats}
@@ -399,7 +412,7 @@ const GestionVentas: React.FC = () => {
         itemClassName={styles.statCard}
       />
 
-      {/* Cotización del dólar - Reubicada entre estadísticas y tabs */}
+      {/* Cotización del dólar */}
       {puedeVerConfiguracion && (
         <div className={styles.cotizacionCard}>
           <div className={styles.cotizacionHeader}>
@@ -467,35 +480,12 @@ const GestionVentas: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className={styles.tabsBar}>
-        <button
-          className={`${styles.tab} ${activeTab === 'ventas' ? styles.tabActivo : ''}`}
-          onClick={() => setActiveTab('ventas')}
-        >
-          <span className="material-icons">receipt_long</span>
-          Ventas
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'envios' ? styles.tabActivo : ''}`}
-          onClick={() => setActiveTab('envios')}
-          disabled={!puedeVerEnvios}
-          title={!puedeVerEnvios ? 'Sin permisos para ver envíos' : undefined}
-        >
-          <span className="material-icons">local_shipping</span>
-          Envíos a domicilio
-          {puedeVerEnvios && enviosPendientes > 0 && <span className={styles.tabBadge}>{enviosPendientes}</span>}
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'retiros' ? styles.tabActivo : ''}`}
-          onClick={() => setActiveTab('retiros')}
-          disabled={!puedeVerRetiros}
-          title={!puedeVerRetiros ? 'Sin permisos para ver retiros' : undefined}
-        >
-          <span className="material-icons">store</span>
-          Retiro en tienda
-          {puedeVerRetiros && retirosPendientes > 0 && <span className={styles.tabBadge}>{retirosPendientes}</span>}
-        </button>
-      </div>
+      <AdminTabs 
+        tabs={ventasTabs} 
+        activeTab={activeTab} 
+        onChange={(id) => setActiveTab(id as any)} 
+        hasMarginTop={true}
+      />
 
       {activeTab === 'envios' && puedeVerEnvios && (
         <GestionEnvios onPendientesChange={setEnviosPendientes} />
@@ -507,93 +497,91 @@ const GestionVentas: React.FC = () => {
 
       {activeTab === 'ventas' && (
         <>
-
-
           {/* Filtros Premium de 2 Filas - Usando Sistema Global */}
           <AdminFilterPanel>
             <AdminFilterPanel.Row variant="top">
               <AdminFilterPanel.Group>
                 <AdminFilterPanel.Label>Desde</AdminFilterPanel.Label>
-                  <input
-                    type="date"
-                    className={controlStyles.field}
-                    value={filtros.fecha_inicio || ''}
-                    onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
-                  />
+                <input
+                  type="date"
+                  className={controlStyles.field}
+                  value={filtros.fecha_inicio || ''}
+                  onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+                />
               </AdminFilterPanel.Group>
               <AdminFilterPanel.Group>
                 <AdminFilterPanel.Label>Hasta</AdminFilterPanel.Label>
-                  <input
-                    type="date"
-                    className={controlStyles.field}
-                    value={filtros.fecha_fin || ''}
-                    onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
-                  />
+                <input
+                  type="date"
+                  className={controlStyles.field}
+                  value={filtros.fecha_fin || ''}
+                  onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+                />
               </AdminFilterPanel.Group>
               <AdminFilterPanel.Group>
                 <AdminFilterPanel.Label>Vendedor</AdminFilterPanel.Label>
-                  <select
-                    className={controlStyles.field}
-                    value={filtros.id_vendedor || ''}
-                    onChange={(e) =>
-                      setFiltros((prev) => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))
-                    }
-                  >
-                    <option value="">Todos</option>
-                    {vendedores.map((v) => (
-                      <option key={v.id_usuario} value={v.id_usuario}>
-                        {v.nombres}
-                      </option>
-                    ))}
-                  </select>
+                <select
+                  className={controlStyles.field}
+                  value={filtros.id_vendedor || ''}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))
+                  }
+                >
+                  <option value="">Todos</option>
+                  {vendedores.map((v) => (
+                    <option key={v.id_usuario} value={v.id_usuario}>
+                      {v.nombres}
+                    </option>
+                  ))}
+                </select>
               </AdminFilterPanel.Group>
               <AdminFilterPanel.Group>
                 <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
-                  <select
-                    className={controlStyles.field}
-                    value={filtros.estado || ''}
-                    onChange={(e) =>
-                      setFiltros((prev) => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))
-                    }
-                  >
-                    <option value="">Todos</option>
-                    <option value="completada">Completada</option>
-                    <option value="cancelada">Cancelada</option>
-                    <option value="pendiente">Pendiente</option>
-                  </select>
+                <select
+                  className={controlStyles.field}
+                  value={filtros.estado || ''}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))
+                  }
+                >
+                  <option value="">Todos</option>
+                  <option value="completada">Completada</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="pendiente">Pendiente</option>
+                </select>
               </AdminFilterPanel.Group>
               <AdminFilterPanel.Group>
                 <AdminFilterPanel.Label>Tipo</AdminFilterPanel.Label>
-                  <select
-                    className={controlStyles.field}
-                    value={filtros.tipo_venta || ''}
-                    onChange={(e) =>
-                      setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
-                    }
-                  >
-                    <option value="">Todos</option>
-                    <option value="web">Web</option>
-                    <option value="manual">Manual</option>
-                  </select>
+                <select
+                  className={controlStyles.field}
+                  value={filtros.tipo_venta || ''}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
+                  }
+                >
+                  <option value="">Todos</option>
+                  <option value="web">Web</option>
+                  <option value="manual">Manual</option>
+                </select>
               </AdminFilterPanel.Group>
               <AdminFilterPanel.Group>
                 <AdminFilterPanel.Label>Método pago</AdminFilterPanel.Label>
-                  <select
-                    className={controlStyles.field}
-                    value={filtros.metodo_pago || ''}
-                    onChange={(e) =>
-                      setFiltros((prev) => ({
-                        ...prev,
-                        metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'],
-                      }))
-                    }
-                  >
-                    <option value="">Todos</option>
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="qr">QR</option>
-                  </select>
+                <select
+                  className={controlStyles.field}
+                  value={filtros.metodo_pago || ''}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({
+                      ...prev,
+                      metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'],
+                    }))
+                  }
+                >
+                  <option value="">Todos</option>
+                  <option value="efectivo">Efectivo</option>
+                  <option value="tarjeta">Tarjeta</option>
+                  <option value="transferencia">Transferencia</option>
+                  <option value="qr">QR</option>
+                </select>
               </AdminFilterPanel.Group>
             </AdminFilterPanel.Row>
 
@@ -641,23 +629,21 @@ const GestionVentas: React.FC = () => {
               className={styles.errorState}
             />
           ) : (
-            <>
-              <AdminDataTable
-                data={ventas}
-                columns={columns}
-                sorting={sorting}
-                onSortingChange={setSorting}
-                columnOrder={columnOrder}
-                onColumnOrderChange={setColumnOrder}
-                pagination={pagination}
-                onPaginationChange={setPagination}
-                totalItems={total}
-                itemLabel="ventas"
-                onRowClick={(row) => setIdDetalleAbierto(row.id_venta)}
-                isLoading={cargando}
-                emptyMessage="No hay ventas que coincidan con los filtros aplicados"
-              />
-            </>
+            <AdminDataTable
+              data={ventas}
+              columns={columns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={total}
+              itemLabel="ventas"
+              onRowClick={(row) => setIdDetalleAbierto(row.id_venta)}
+              isLoading={cargando}
+              emptyMessage="No hay ventas que coincidan con los filtros aplicados"
+            />
           )}
         </>
       )}
