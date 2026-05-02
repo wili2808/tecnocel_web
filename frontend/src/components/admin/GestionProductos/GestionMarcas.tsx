@@ -9,7 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Marca } from '../../../types/product';
 import MarcaModal from './MarcaModal';
-import { AdminSurface, AdminSearch, AdminPagination } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination } from '../common';
 import styles from './GestionMarcas.module.css';
 
 import {
@@ -243,31 +243,25 @@ const GestionMarcas: React.FC = memo(() => {
 
   return (
     <div className={styles.panel}>
-      <AdminSurface className="admin-filter-shell" tone="muted">
-        <div className="admin-search-form">
-          <div className="admin-search-wrapper">
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Buscar marcas..."
-              onChange={(val) => {
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              searchLabel="Búsqueda"
+              searchPlaceholder="Buscar marcas..."
+              onSearchChange={(val) => {
                 setSearchTerm(val);
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }));
               }}
+              primaryActionLabel="Nueva Marca"
+              primaryActionIcon="add"
+              onPrimaryAction={iniciarCreacion}
+              primaryActionDisabled={!puedeCrear}
             />
-          </div>
-          <div className="admin-action-row">
-            <button
-              className={styles.addButton}
-              onClick={iniciarCreacion}
-              disabled={!puedeCrear}
-              title={!puedeCrear ? 'Sin permisos para crear marcas' : undefined}
-            >
-              <span className="material-icons">add</span>
-              <span>Nueva Marca</span>
-            </button>
-          </div>
-        </div>
-      </AdminSurface>
+          </AdminFilterPanel.Grow>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {loading ? (
         <div className={styles.loadingState}>Cargando marcas...</div>

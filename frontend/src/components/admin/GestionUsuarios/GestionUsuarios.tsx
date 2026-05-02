@@ -2,7 +2,12 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ROLES } from '../../../constants/roles';
-import { AdminEmptyState, AdminSurface, AdminSearch, AdminPagination } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminPagination,
+} from '../common';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionUsuarios.module.css';
 import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
@@ -485,31 +490,25 @@ const GestionUsuarios = () => {
   return (
     <>
       <div className={styles.container}>
-        <AdminSurface className="admin-filter-shell" tone="muted">
-          <div className="admin-search-form">
-            <div className="admin-search-wrapper">
-              <AdminSearch
-                value={searchTerm}
-                placeholder="Buscar usuarios..."
-                onChange={(val) => {
+        <AdminFilterPanel>
+          <AdminFilterPanel.Row variant="bottom">
+            <AdminFilterPanel.Grow>
+              <AdminEntitySearchBar
+                searchValue={searchTerm}
+                searchLabel="Búsqueda"
+                searchPlaceholder="Buscar usuarios..."
+                onSearchChange={(val) => {
                   setSearchTerm(val);
                   setPagination((prev) => ({ ...prev, pageIndex: 0 }));
                 }}
+                primaryActionLabel="Crear Usuario"
+                primaryActionIcon="person_add"
+                onPrimaryAction={() => setShowCrearForm(true)}
+                primaryActionDisabled={!puedeCrear}
               />
-            </div>
-            <div className="admin-action-row">
-              <button
-                className={styles.crearButton}
-                onClick={() => setShowCrearForm(true)}
-                disabled={!puedeCrear}
-                title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
-              >
-                <span className="material-icons">person_add</span>
-                <span>Crear Usuario</span>
-              </button>
-            </div>
-          </div>
-        </AdminSurface>
+            </AdminFilterPanel.Grow>
+          </AdminFilterPanel.Row>
+        </AdminFilterPanel>
 
         <div className={styles.tableWrapper}>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

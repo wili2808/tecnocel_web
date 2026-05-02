@@ -1,4 +1,10 @@
 export { default as AdminEmptyState } from './AdminEmptyState';
+export { default as AdminEntitySearchBar } from './AdminEntitySearchBar';
+export type { AdminEntitySearchBarProps } from './AdminEntitySearchBar';
+export { default as AdminFilterPanel } from './AdminFilterPanel';
+export type { AdminFilterPanelProps } from './AdminFilterPanel';
+export { default as AdminMetricsStrip } from './AdminMetricsStrip';
+export type { AdminMetricsStripItem, AdminMetricsStripProps } from './AdminMetricsStrip';
 export { default as AdminSectionActions, AdminSectionLeadText } from './AdminSectionActions';
 export { default as AdminStatCard } from './AdminStatCard';
 export { default as AdminSurface } from './AdminSurface';

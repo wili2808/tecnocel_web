@@ -39,6 +39,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .montoBadge {
@@ -125,11 +127,7 @@
 }
 
 .kpiCard {
-  padding: var(--spacing-sm);
-  border: none;
-  border-right: 1px solid var(--border-color);
-  border-radius: 0;
-  box-shadow: none;
+  min-width: 0;
 }
 
 .kpiCard:last-child {
@@ -170,57 +168,6 @@
   background-color: var(--background-neutral);
   border-radius: var(--border-radius-md);
   animation: pulse 1.5s ease-in-out infinite;
-}
-
-
-
-
-
-.filterInput,
-.filterSelect {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background-color: var(--background-primary);
-  color: var(--text-primary);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.filterInput:focus,
-.filterSelect:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-
-
-
-
-.clearButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.clearButton:hover {
-  background-color: var(--background-hover);
-  border-color: var(--text-secondary);
 }
 
 /* ============================================================================
@@ -439,6 +386,10 @@
    ============================================================================ */
 
 @media (max-width: 1024px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .kpiCard {
     border-bottom: 1px solid var(--border-color);
   }
@@ -474,10 +425,7 @@
   .kpiGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  .kpiValue {
-    font-size: 22px;
-  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

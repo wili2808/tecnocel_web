@@ -7,44 +7,6 @@
   min-height: 100%;
 }
 
-.header {
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.headerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-lg);
-}
-
-.crearButton {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.crearButton:hover {
-  background: var(--color-primary-dark);
-}
-
-.crearButton:active {
-  background: var(--color-primary-dark);
-}
-
 /* ============================================================================
    TABS
    ============================================================================ */
@@ -109,149 +71,8 @@
 }
 
 /* ============================================================================
-   ESTADÍSTICAS (STRIP HORIZONTAL)
-   ============================================================================ */
-
-.statsBar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  background: var(--background-primary);
-}
-
-.statCard {
-  display: flex;
-  flex-direction: row;
-  padding: var(--spacing-sm);
-  border: none;
-  border-right: 1px solid var(--border-color);
-  border-radius: 0;
-  box-shadow: none;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.clickableRow {
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.clickableRow:hover {
-  background-color: var(--color-primary-25) !important;
-}
-
-.statLabel {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.statLabel .material-icons {
-  font-size: 14px !important;
-  color: var(--color-primary);
-}
-
-.statValue {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-
-.statSub {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.statsLoading {
-  height: 76px;
-  background: var(--background-neutral);
-  border-radius: var(--border-radius-md);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* ============================================================================
-   BARRA DE FILTROS
-   ============================================================================ */
-
-
-
-
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  min-width: 130px;
-}
-.filterGroupWide {
-  flex: 1;
-  min-width: 180px;
-}
-.filterLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-}
-
-.filterInput,
-.filterSelect {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.filterInput:focus,
-.filterSelect:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.clearButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.clearButton:hover {
-  background: var(--background-hover);
-  border-color: var(--text-secondary);
-}
-
-/* ============================================================================
    TABLA
-   ============================================================================ */
+============================================================================ */
 
 .loading,
 .error {
@@ -292,6 +113,14 @@
   margin-bottom: 14px;
 }
 
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow:hover {
+  background-color: var(--background-hover) !important;
+}
+
 .tableWrapper {
   overflow-x: auto;
   border-radius: var(--border-radius-md);
@@ -307,22 +136,19 @@
 }
 
 .table thead {
-  background: var(--background-secondary);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  background: var(--background-neutral);
 }
 
 .table th {
-  padding: 12px 14px;
+  padding: 8px 12px;
   text-align: left;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-primary);
-  border: none;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color var(--transition-fast) var(--transition-curve);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .table th:hover {
@@ -401,58 +227,48 @@
   color: var(--text-secondary);
 }
 
-/* ============================================================================
-   PAGINACIÓN
-   ============================================================================ */
+/* --- CABECERAS ORDENABLES (Missing in original) --- */
 
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.paginationControls {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.paginationBtn {
-  padding: 5px 10px;
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--text-primary);
+.sortableHeader {
   cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
-  font-family: var(--font-family-primary);
-  transition: all var(--transition-fast) var(--transition-curve);
+  user-select: none;
 }
 
-.paginationBtn:hover:not(:disabled) {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
+.sortableHeaderContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color var(--transition-fast);
 }
 
-.paginationBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.sortableHeader:hover .sortableHeaderContent {
+  color: var(--color-primary);
+}
+
+.sortIcon {
+  font-size: 14px !important;
+  opacity: 0.3;
+  transition: opacity var(--transition-fast);
+}
+
+.sortableHeader:hover .sortableHeaderContent .sortIcon {
+  opacity: 0.6;
+}
+
+.sortIconActive {
+  opacity: 1 !important;
+  color: var(--color-primary);
 }
 
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
-/* ============================================================================
-   RESPONSIVE - TABLETS Y DESKTOP PEQUEÑO
-   ============================================================================ */
-
 @media (max-width: 1024px) {
+  .statsBar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   /* Forzar que el buscador ocupe lo necesario y no empuje los botones fuera */
   .searchWrapper {
     flex: 1;
@@ -537,7 +353,6 @@
     gap: var(--spacing-sm);
   }
 
-  .clearButton,
   .crearButton {
     flex: 1;
     justify-content: center;
@@ -702,7 +517,6 @@
     min-width: 100%;
   }
 
-  .clearButton,
   .crearButton {
     padding: 10px;
     font-size: 12px;
@@ -741,22 +555,11 @@
     font-size: 11px;
   }
 
-  .filterInput,
-  .filterSelect {
-    font-size: 12px;
-    padding: 6px 10px;
-    height: 38px;
-  }
-
   .sectionTitlePremium {
     margin-bottom: 10px;
   }
 
   /* === MODALES EN MÓVILES (480px) === */
-  .statsBar {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .modalOverlay {
     padding: 8px;
   }
@@ -897,200 +700,6 @@
 }
 
 /* ============================================================================
-   RESPONSIVE - MÓVILES ULTRA-PEQUEÑOS (< 400px)
-   ============================================================================ */
-
-@media (max-width: 380px) {
-  /* Reducir padding en espacios muy reducidos */
-  .registrarCompraLeft {
-    padding: 10px 12px;
-  }
-
-  .registrarCompraRight {
-    padding: 10px 12px;
-  }
-
-  .modalBody {
-    padding: 10px 12px;
-  }
-
-  .formRow2Cols {
-    gap: 4px;
-    margin-bottom: 10px;
-  }
-
-  .formInput,
-  .formSelect,
-  .formTextarea {
-    padding: 5px 8px;
-    font-size: 11px;
-    min-height: 32px;
-  }
-
-  .formLabel {
-    font-size: 10px;
-  }
-
-  /* Tabla más compacta en móviles ultra pequeños */
-  .table {
-    font-size: 9px;
-  }
-
-  .table th,
-  .table td {
-    padding: 4px 2px;
-  }
-}
-
-/* ============================================================================
-   MODALES - ESTILOS RESPONSIVOS
-   ============================================================================ */
-
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10050;
-  padding: var(--spacing-lg);
-  backdrop-filter: blur(2px);
-}
-
-.modalContent {
-  background: var(--background-primary);
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-}
-
-/* RegistrarCompra: Dos columnas en desktop */
-.registrarCompraModal {
-  max-width: 900px;
-}
-
-.registrarCompraGrid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 0;
-  flex: 1;
-  min-height: 0;
-  max-height: calc(90vh - 140px);
-}
-
-.registrarCompraLeft {
-  overflow-y: auto;
-  padding: 24px;
-  border-right: 1px solid var(--border-color);
-}
-
-.registrarCompraRight {
-  padding: 24px;
-  overflow-y: auto;
-  border-left: 1px solid var(--border-color);
-  background: var(--background-secondary);
-}
-
-/* Definición base del grid de registro de compra */
-.registrarCompraGrid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 0;
-  flex: 1;
-  min-height: 0;
-  max-height: calc(90vh - 140px);
-}
-
-/* Formularios dentro del modal de compra */
-.formRow2Cols {
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.formGroupInput {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-
-.formLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  display: block;
-}
-
-.formInput,
-.formSelect,
-.formTextarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 13px;
-  background-color: var(--background-primary);
-  color: var(--text-primary);
-  font-family: var(--font-family-primary);
-  box-sizing: border-box;
-  min-height: 40px;
-}
-
-.formTextarea {
-  min-height: 70px;
-  resize: vertical;
-}
-
-/* DetalleCompra: Dos columnas en desktop */
-.detalleCompraModal {
-  max-width: 700px;
-}
-
-.detalleCompraGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  padding: 20px;
-}
-
-/* ProveedorModal */
-.proveedorModal {
-  max-width: 520px;
-}
-
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.modalBody {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.modalFooter {
-  display: flex;
-  gap: 12px;
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  flex-shrink: 0;
-  background: var(--background-secondary);
-  justify-content: flex-end;
-}
-
-/* ============================================================================
    ANIMACIÓN DE CARGA
    ============================================================================ */
 
@@ -1120,387 +729,3 @@
     transition: none !important;
   }
 }
-
-/* ============================================================================
-   BARRA FLOTANTE - COMPRA RÁPIDA DESDE STOCK BAJO
-   ============================================================================ */
-
-.floatingActionBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
-  margin-bottom: 12px;
-  background: var(--background-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--border-radius-md);
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent);
-  animation: slideUpFadeIn 0.2s ease-out;
-  flex-wrap: wrap;
-}
-
-@keyframes slideUpFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.floatingActionInfo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.floatingActionClear {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.floatingActionClear:hover {
-  background: var(--background-hover);
-  border-color: var(--text-secondary);
-}
-
-.floatingActionComprar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.floatingActionComprar:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-}
-
-.floatingActionComprar:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.floatingActionComprar:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-@media (max-width: 480px) {
-  .floatingActionBar {
-    padding: 8px 12px;
-    gap: 8px;
-  }
-
-  .floatingActionInfo {
-    font-size: 12px;
-  }
-
-  .floatingActionComprar {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-}
-
-/* ============================================================================
-   PREMIUM MODAL SYSTEM - Estilos Unificados
-   ============================================================================ */
-
-.modalOverlayPremium {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-}
-
-.modalPremium {
-  background: var(--background-elevated);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-xl);
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.modalHeaderPremium {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--background-secondary);
-  flex-shrink: 0;
-}
-
-.modalTitlePremium {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.modalTitlePremium .material-icons {
-  color: var(--color-primary);
-  font-size: 24px;
-}
-
-.closeButtonPremium {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  border-radius: var(--border-radius-sm);
-  transition: all var(--transition-fast);
-}
-
-.closeButtonPremium:hover {
-  background: var(--background-hover);
-  color: var(--text-primary);
-}
-
-.modalBodyPremium {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-  background: var(--background-primary);
-}
-
-.modalFooterPremium {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  flex-shrink: 0;
-  background: var(--background-secondary);
-}
-
-/* --- FORMULARIOS PREMIUM --- */
-.formGridPremium {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.formGroupPremium {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.formGroupFullPremium {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.formLabelPremium {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.formInputPremium,
-.formTextareaPremium {
-  padding: 10px 14px;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13.5px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  transition: all var(--transition-fast);
-  width: 100%;
-}
-
-.formInputPremium:focus,
-.formTextareaPremium:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
-}
-
-.sectionTitlePremium {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-  display: block;
-}
-
-.formDivider {
-  height: 1px;
-  background: var(--border-color);
-  margin: 20px 0;
-}
-
-/* --- BOTONES PREMIUM --- */
-.btnPremium {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--border-radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  border: 1px solid transparent;
-}
-
-.btnPrimaryPremium {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btnPrimaryPremium:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-}
-
-.btnSecondaryPremium {
-  background: var(--background-secondary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-.btnSecondaryPremium:hover:not(:disabled) {
-  background: var(--background-hover);
-}
-
-/* --- DETALLE ROW --- */
-.detalleRowPremium {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.detalleRowPremium:last-child {
-  border-bottom: none;
-}
-
-.detalleLabelPremium {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.detalleValuePremium {
-  font-size: 14px;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.resumenBodyPremium {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.infoCardPremium {
-  padding: 20px;
-  background: var(--background-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-}
-
-.resumenSplitMobile {
-  display: contents; /* Default */
-}
-
-/* --- TOTAL BOX PREMIUM --- */
-.totalBoxPremium {
-  padding: 24px;
-  background: var(--background-primary);
-  border: 2px solid var(--color-primary-100);
-  border-radius: var(--border-radius-md);
-  text-align: center;
-  margin-top: 8px;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.totalBoxPremium:hover {
-  border-color: var(--color-primary-200);
-  box-shadow: var(--shadow-md);
-}
-
-.totalLabelPremium {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.totalValuePremium {
-  font-size: 32px;
-  font-weight: 900;
-  color: var(--text-primary);
-}
-

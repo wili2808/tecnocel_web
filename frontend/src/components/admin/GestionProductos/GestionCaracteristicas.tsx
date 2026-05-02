@@ -9,7 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { TipoCaracteristica } from '../../../types/product';
 import CaracteristicaModal from './CaracteristicaModal';
-import { AdminSurface, AdminSearch, AdminPagination } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination } from '../common';
 import styles from './GestionCaracteristicas.module.css';
 
 const TIPO_DATO_LABELS: Record<TipoCaracteristica['tipo_dato'], string> = {
@@ -162,7 +162,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
     setModalOpen(true);
   }, []);
 
-  const renderUnidadOpciones = (tipo: TipoCaracteristica) => {
+  const renderUnidadOpciones = useCallback((tipo: TipoCaracteristica) => {
     if (tipo.tipo_dato === 'numero' && tipo.unidad_medida) {
       return <span className={styles.unidadBadge}>{tipo.unidad_medida}</span>;
     }
@@ -181,7 +181,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
       );
     }
     return <span className={styles.emptyValue}>—</span>;
-  };
+  }, []);
 
   // --- Columnas ---
   const columns = useMemo<ColumnDef<TipoCaracteristica>[]>(() => [
@@ -285,26 +285,25 @@ const GestionCaracteristicas: React.FC = memo(() => {
 
   return (
     <div className={styles.panel}>
-      <AdminSurface className="admin-filter-shell" tone="muted">
-        <div className="admin-search-form">
-          <div className="admin-search-wrapper">
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Buscar características..."
-              onChange={(val) => {
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              searchLabel="Búsqueda"
+              searchPlaceholder="Buscar características..."
+              onSearchChange={(val) => {
                 setSearchTerm(val);
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }));
               }}
+              primaryActionLabel="Nuevo tipo"
+              primaryActionIcon="add"
+              onPrimaryAction={abrirFormCrear}
+              primaryActionDisabled={!puedeCrear}
             />
-          </div>
-          <div className="admin-action-row">
-            <button className={styles.addButton} onClick={abrirFormCrear} disabled={!puedeCrear}>
-              <span className="material-icons">add</span>
-              <span>Nuevo tipo</span>
-            </button>
-          </div>
-        </div>
-      </AdminSurface>
+          </AdminFilterPanel.Grow>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {loading ? (
         <div className={styles.loadingState}>Cargando tipos de características...</div>

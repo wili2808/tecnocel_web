@@ -20,114 +20,6 @@
   gap: var(--spacing-lg);
 }
 
-.crearButton {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.crearButton:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.crearButton:active:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.crearButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--color-primary);
-}
-
-/* ============================================================================
-   BÚSQUEDA Y FILTROS
-   ============================================================================ */
-
-.filterRow {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-}
-
-.searchInputWrapper {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  background: var(--background-primary);
-  padding: 0 10px;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.searchInputWrapper:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.searchInputWrapper .material-icons {
-  color: var(--text-secondary);
-  font-size: 18px;
-}
-
-.searchInput {
-  flex: 1;
-  padding: 7px 10px;
-  border: none;
-  background: none;
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.clearButton {
-  background: none;
-  border: none;
-  padding: 4px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-.clearButton:hover {
-  color: var(--color-error);
-}
-
-.filterSelect {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  outline: none;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-  min-width: 130px;
-}
-
-.filterSelect:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
 /* ============================================================================
    ESTADOS
    ============================================================================ */
@@ -709,10 +601,6 @@
 @media (max-width: 768px) {
   .container {
     padding: 16px;
-  }
-
-  .filterRow {
-    flex-direction: column;
   }
 
   .formRow,

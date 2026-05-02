@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSurface, AdminSearch, AdminPagination } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminPagination,
+} from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
@@ -207,7 +212,7 @@ const GestionClientes = () => {
         return fyh_creacion ? new Date(fyh_creacion).toLocaleDateString('es-AR') : '-';
       }
     },
-  ], [handleEditar, handleVerDetalle]);
+  ], []);
 
   const table = useReactTable({
     data: clientes,
@@ -285,31 +290,25 @@ const GestionClientes = () => {
   return (
     <>
       <div className={styles.container}>
-        <AdminSurface className="admin-filter-shell" tone="muted">
-          <div className="admin-search-form">
-            <div className="admin-search-wrapper">
-              <AdminSearch
-                value={searchTerm}
-                placeholder="Buscar por nombre, email o celular..."
-                onChange={(val) => {
+        <AdminFilterPanel>
+          <AdminFilterPanel.Row variant="bottom">
+            <AdminFilterPanel.Grow>
+              <AdminEntitySearchBar
+                searchValue={searchTerm}
+                searchLabel="Búsqueda"
+                searchPlaceholder="Buscar por nombre, email o celular..."
+                onSearchChange={(val) => {
                   setSearchTerm(val);
                   setOffset(0);
                 }}
+                primaryActionLabel="Crear Cliente"
+                primaryActionIcon="person_add"
+                onPrimaryAction={() => setShowCrearModal(true)}
+                primaryActionDisabled={!puedeCrear}
               />
-            </div>
-            <div className="admin-action-row">
-              <button
-                className={styles.crearButton}
-                onClick={() => setShowCrearModal(true)}
-                disabled={!puedeCrear}
-                title={!puedeCrear ? 'Sin permisos para crear clientes' : undefined}
-              >
-                <span className="material-icons">person_add</span>
-                <span>Crear Cliente</span>
-              </button>
-            </div>
-          </div>
-        </AdminSurface>
+            </AdminFilterPanel.Grow>
+          </AdminFilterPanel.Row>
+        </AdminFilterPanel>
 
         <div className={styles.tableWrapper}>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

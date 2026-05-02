@@ -2,9 +2,10 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminSearch, AdminPagination, AdminSurface } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination } from '../common';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
 
 import {
@@ -242,64 +243,63 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   return (
     <div>
       {/* Filtros - Usando Sistema Global */}
-      <AdminSurface className="admin-filter-shell" tone="muted">
-        <div className="admin-filter-rows">
-          <div className="admin-filter-row-top">
-            <div className="admin-filter-group">
-              <label className="admin-filter-label">Desde</label>
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="top">
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Desde</AdminFilterPanel.Label>
               <input
                 type="date"
                 value={filtros.fecha_inicio ?? ''}
                 onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
-                className={styles.filterInput}
+                className={controlStyles.field}
               />
-            </div>
-            <div className="admin-filter-group">
-              <label className="admin-filter-label">Hasta</label>
+          </AdminFilterPanel.Group>
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Hasta</AdminFilterPanel.Label>
               <input
                 type="date"
                 value={filtros.fecha_fin ?? ''}
                 onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
-                className={styles.filterInput}
+                className={controlStyles.field}
               />
-            </div>
-            <div className="admin-filter-group">
-              <label className="admin-filter-label">Estado</label>
+          </AdminFilterPanel.Group>
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
               <select
                 value={filtros.estado_envio ?? ''}
                 onChange={(e) =>
                   setFiltros((prev) => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))
                 }
-                className={styles.filterSelect}
+                className={controlStyles.field}
               >
                 <option value="">Todos los estados</option>
                 <option value="pendiente">{ESTADO_ENVIO_LABELS.pendiente}</option>
                 <option value="entregado">{ESTADO_ENVIO_LABELS.entregado}</option>
               </select>
-            </div>
-          </div>
+          </AdminFilterPanel.Group>
+        </AdminFilterPanel.Row>
 
-          <div className="admin-search-form">
-            <div className="admin-search-wrapper">
-              <label className="admin-filter-label">Búsqueda</label>
-              <AdminSearch
-                value={filtros.search || ''}
-                placeholder="Buscar por nro. venta o cliente..."
-                onChange={(val) => {
-                  setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                  setOffset(0);
-                }}
-              />
-            </div>
-            <div className="admin-action-row">
-              <button onClick={limpiarFiltros} className={styles.clearButton}>
-                <span className="material-icons">backspace</span>
-                <span>Limpiar</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </AdminSurface>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={filtros.search || ''}
+              searchPlaceholder="Buscar por nro. venta o cliente..."
+              onSearchChange={(val) => {
+                setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                setOffset(0);
+              }}
+              searchLabel="Búsqueda"
+              primaryActionHidden
+            />
+          </AdminFilterPanel.Grow>
+          <AdminFilterPanel.Actions>
+            <button onClick={limpiarFiltros} className={controlStyles.secondaryButton}>
+              <span className="material-icons">backspace</span>
+              <span>Limpiar</span>
+            </button>
+          </AdminFilterPanel.Actions>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {/* Tabla */}
       {cargando ? (

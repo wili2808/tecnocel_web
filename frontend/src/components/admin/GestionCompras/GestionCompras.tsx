@@ -3,9 +3,16 @@ import adminCompraService from '../../../services/adminCompraService';
 import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminStatCard, AdminSearch, AdminPagination, AdminSurface } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminMetricsStrip,
+  AdminPagination,
+} from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import styles from './GestionCompras.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
 
@@ -14,8 +21,9 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel,
 } from '@tanstack/react-table';
-import type { ColumnDef, PaginationState } from '@tanstack/react-table';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
 import {
   DndContext,
@@ -42,7 +50,7 @@ const LIMIT = 10;
 
 type TabType = 'compras' | 'proveedores' | 'stock';
 
-// Componente para cabeceras arrastrables (sin sorting, dado que la paginación es del lado del servidor y no hay sorting implementado backend)
+// Componente para cabeceras arrastrables con soporte de ordenamiento local
 const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
   const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
     id: header.column.id,
@@ -56,7 +64,6 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
     whiteSpace: 'nowrap',
     width: header.column.getSize(),
     zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
   };
 
   return (
@@ -71,8 +78,24 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
         >
           drag_indicator
         </span>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
+        
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
           {flexRender(header.column.columnDef.header, header.getContext())}
+          
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
         </div>
       </div>
     </th>
@@ -106,6 +129,9 @@ const GestionCompras: React.FC = memo(() => {
   const [total, setTotal] = useState(0);
   const [stockPagination, setStockPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [stockSorting, setStockSorting] = useState<SortingState>([]);
+
   const pagination = useMemo<PaginationState>(() => ({
     pageIndex: Math.floor(offset / LIMIT),
     pageSize: LIMIT,
@@ -207,6 +233,37 @@ const GestionCompras: React.FC = memo(() => {
     setOffset(0);
   };
 
+  const statsItems = useMemo(() => {
+    if (!stats) return [];
+
+    const stockTone: 'danger' | 'success' = stockBajo.length > 0 ? 'danger' : 'success';
+
+    return [
+      {
+        icon: 'today',
+        label: 'Hoy',
+        value: stats.compras_hoy,
+      },
+      {
+        icon: 'attach_money',
+        label: 'Gasto del mes',
+        value: `$${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}`,
+        tone: 'warning' as const,
+      },
+      {
+        icon: 'warning',
+        label: 'Stock Bajo',
+        value: stockBajo.length,
+        tone: stockTone,
+      },
+      {
+        icon: 'local_shipping',
+        label: 'Proveedores',
+        value: 'Activos',
+      },
+    ];
+  }, [stats, stockBajo.length]);
+
   // === Columnas TanStack para Compras ===
   const comprasColumns = useMemo<ColumnDef<CompraListItem>[]>(() => [
     {
@@ -279,18 +336,25 @@ const GestionCompras: React.FC = memo(() => {
     state: {
       pagination,
       columnOrder,
+      sorting,
     },
     onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
+    onSortingChange: setSorting,
     manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   // === Helpers de selección de stock bajo ===
   const toggleSeleccion = useCallback((p: ProductoStockBajo) => {
     setSeleccionados((prev) => {
       const next = new Set(prev);
-      next.has(p.id_producto) ? next.delete(p.id_producto) : next.add(p.id_producto);
+      if (next.has(p.id_producto)) {
+        next.delete(p.id_producto);
+      } else {
+        next.add(p.id_producto);
+      }
       return next;
     });
   }, []);
@@ -416,11 +480,14 @@ const GestionCompras: React.FC = memo(() => {
     columns: stockColumns,
     state: { 
       columnOrder: stockColumnOrder,
-      pagination: stockPagination
+      pagination: stockPagination,
+      sorting: stockSorting,
     },
     onColumnOrderChange: setStockColumnOrder,
     onPaginationChange: setStockPagination,
+    onSortingChange: setStockSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
@@ -472,38 +539,11 @@ const GestionCompras: React.FC = memo(() => {
 
       {/* Estadísticas */}
       {stats ? (
-        <div className={styles.statsBar}>
-          <AdminStatCard
-            icon="today"
-            label="Hoy"
-            value={stats.compras_hoy}
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="attach_money"
-            label="Gasto del mes"
-            value={`$${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}`}
-            tone="warning"
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="warning"
-            label="Stock Bajo"
-            value={stockBajo.length}
-            tone={stockBajo.length > 0 ? 'danger' : 'success'}
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="local_shipping"
-            label="Proveedores"
-            value="Activos"
-            variant="flush"
-            className={styles.statCard}
-          />
-        </div>
+        <AdminMetricsStrip
+          items={statsItems}
+          className={styles.statsBar}
+          itemClassName={styles.statCard}
+        />
       ) : (
         <div className={styles.statsLoading} />
       )}
@@ -567,38 +607,36 @@ const GestionCompras: React.FC = memo(() => {
       {activeTab === 'compras' && (
         <>
           {/* Barra de Filtros Premium de 2 Filas - Usando Sistema Global */}
-          <AdminSurface className="admin-filter-shell" tone="muted">
-            <div className="admin-filter-rows">
-              {/* Fila Superior: Filtros de Fecha y Estado */}
-              <div className="admin-filter-row-top">
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Fecha Desde</label>
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row variant="top">
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Fecha Desde</AdminFilterPanel.Label>
                   <input
                     type="date"
-                    className={styles.filterInput}
+                    className={controlStyles.field}
                     value={filtros.fecha_inicio || ''}
                     onChange={(e) => {
                       setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }));
                       setOffset(0);
                     }}
                   />
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Fecha Hasta</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Fecha Hasta</AdminFilterPanel.Label>
                   <input
                     type="date"
-                    className={styles.filterInput}
+                    className={controlStyles.field}
                     value={filtros.fecha_fin || ''}
                     onChange={(e) => {
                       setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }));
                       setOffset(0);
                     }}
                   />
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Estado</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
                   <select
-                    className={styles.filterSelect}
+                    className={controlStyles.field}
                     value={filtros.estado || ''}
                     onChange={(e) => {
                       setFiltros((prev) => ({
@@ -612,42 +650,34 @@ const GestionCompras: React.FC = memo(() => {
                     <option value="activa">Activa</option>
                     <option value="anulada">Anulada</option>
                   </select>
-                </div>
-              </div>
+              </AdminFilterPanel.Group>
+            </AdminFilterPanel.Row>
 
-              {/* Fila Inferior: Búsqueda, Limpiar y Acciones */}
-              <div className="admin-search-form">
-                <div className="admin-search-wrapper">
-                  <AdminSearch
-                    value={filtros.search || ''}
-                    placeholder="Ej: C-00001 o nombre proveedor"
-                    onChange={(val) => {
-                      setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                      setOffset(0);
-                    }}
-                  />
-                </div>
-                
-                <div className="admin-action-row">
-                  <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
-                    <span className="material-icons">backspace</span>
-                    <span>Limpiar</span>
-                  </button>
-                  
-                  {puedeCrear && (
-                    <button 
-                      className={styles.crearButton} 
-                      onClick={() => setMostrarRegistrar(true)} 
-                      disabled={cargando}
-                    >
-                      <span className="material-icons">add_box</span>
-                      <span>Nueva Compra</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </AdminSurface>
+            <AdminFilterPanel.Row variant="bottom">
+              <AdminFilterPanel.Grow>
+                <AdminEntitySearchBar
+                  searchValue={filtros.search || ''}
+                  searchPlaceholder="Ej: C-00001 o nombre proveedor"
+                  onSearchChange={(val) => {
+                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                    setOffset(0);
+                  }}
+                  searchLabel="Búsqueda"
+                  primaryActionLabel={puedeCrear ? 'Nueva Compra' : undefined}
+                  primaryActionIcon="add_box"
+                  onPrimaryAction={puedeCrear ? () => setMostrarRegistrar(true) : undefined}
+                  primaryActionDisabled={cargando}
+                  primaryActionHidden={!puedeCrear}
+                />
+              </AdminFilterPanel.Grow>
+              <AdminFilterPanel.Actions>
+                <button className={controlStyles.secondaryButton} onClick={handleLimpiarFiltros}>
+                  <span className="material-icons">backspace</span>
+                  <span>Limpiar</span>
+                </button>
+              </AdminFilterPanel.Actions>
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
 
           {/* Tabla */}
           {error ? (

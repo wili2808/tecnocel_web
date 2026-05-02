@@ -115,53 +115,6 @@
 
 
 
-.filterInput,
-.filterSelect {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.filterInput:focus,
-.filterSelect:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-
-
-
-
-.clearButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.clearButton:hover {
-  background: var(--background-hover);
-  border-color: var(--text-secondary);
-}
-
 /* ============================================================================
    TABLA DE VENTAS
    ============================================================================ */
@@ -1641,7 +1594,7 @@
   }
 
   .statsBar {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 
   .cotizacionValor {

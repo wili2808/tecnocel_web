@@ -1,0 +1,68 @@
+.field {
+  height: 38px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-family: var(--font-family-primary);
+  background: var(--background-primary);
+  color: var(--text-primary);
+  transition:
+    border-color var(--transition-fast) var(--transition-curve),
+    box-shadow var(--transition-fast) var(--transition-curve);
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.secondaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 12px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-family-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--transition-fast) var(--transition-curve),
+    border-color var(--transition-fast) var(--transition-curve),
+    opacity var(--transition-fast) var(--transition-curve);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: var(--background-hover);
+  border-color: var(--text-secondary);
+}
+
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryButton .material-icons {
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .field {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .secondaryButton {
+    min-height: 42px;
+    padding: 10px;
+    font-size: 12px;
+  }
+}

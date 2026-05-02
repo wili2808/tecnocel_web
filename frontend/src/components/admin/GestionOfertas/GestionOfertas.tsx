@@ -12,11 +12,12 @@ import OfertaForm from './OfertaForm';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import {
   AdminEmptyState,
-  AdminSurface,
-  AdminSearch,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
   AdminPagination,
 } from '../common';
 import styles from './GestionOfertas.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 
 import {
   useReactTable,
@@ -314,7 +315,7 @@ const GestionOfertas = () => {
         );
       }
     }
-  ], []);
+  ], [tipoCambio]);
 
   const table = useReactTable({
     data: filteredOfertas,
@@ -364,49 +365,47 @@ const GestionOfertas = () => {
 
   return (
     <div className={styles.container}>
-      <AdminSurface className="admin-filter-shell" tone="muted">
-        <div className="admin-search-form">
-          <div className="admin-search-wrapper">
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Buscar por nombre de oferta..."
-              onChange={(val) => { 
-                setSearchTerm(val); 
-                table.setPageIndex(0); 
-              }}
-              delay={0}
-            />
-          </div>
-          <div className="admin-action-row">
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="top">
+          <AdminFilterPanel.Group minWidth="sm">
+            <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
             <select
               value={filtroEstado}
-              onChange={(e) => { 
-                setFiltroEstado(e.target.value as FiltroEstado); 
-                table.setPageIndex(0); 
+              onChange={(e) => {
+                setFiltroEstado(e.target.value as FiltroEstado);
+                table.setPageIndex(0);
               }}
-              className={styles.filterSelect}
+              className={controlStyles.field}
             >
               <option value="todas">Todas</option>
               <option value="activas">Activas</option>
               <option value="inactivas">Inactivas</option>
               <option value="expiradas">Expiradas</option>
             </select>
-            <button
-              className={styles.crearButton}
-              onClick={() => {
+          </AdminFilterPanel.Group>
+        </AdminFilterPanel.Row>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              searchLabel="Búsqueda"
+              searchPlaceholder="Buscar por nombre de oferta..."
+              onSearchChange={(val) => {
+                setSearchTerm(val);
+                table.setPageIndex(0);
+              }}
+              primaryActionLabel="Nueva Oferta"
+              primaryActionIcon="add_box"
+              onPrimaryAction={() => {
                 setModoModal('crear');
                 setEditandoOferta(null);
                 setShowCrearForm(true);
               }}
-              disabled={!puedeCrear}
-              title={!puedeCrear ? 'Sin permisos para crear ofertas' : undefined}
-            >
-              <span className="material-icons">add_box</span>
-              <span>Nueva Oferta</span>
-            </button>
-          </div>
-        </div>
-      </AdminSurface>
+              primaryActionDisabled={!puedeCrear}
+            />
+          </AdminFilterPanel.Grow>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {/* Estado de carga */}
       {loading && (

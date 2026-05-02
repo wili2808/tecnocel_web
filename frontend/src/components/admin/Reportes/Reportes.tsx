@@ -1,8 +1,15 @@
 import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import styles from './Reportes.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import { reporteService } from '../../../services/reporteService';
-import { AdminEmptyState, AdminStatCard, AdminSurface, AdminPagination, AdminSearch } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminMetricsStrip,
+  AdminPagination,
+} from '../common';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -259,170 +266,126 @@ const Reportes: React.FC = memo(() => {
     }
   }, [activeTab, filtros]);
 
-  const activeKpiStrip = useMemo(() => {
+  const activeKpiItems = useMemo(() => {
     switch (activeTab) {
       case 'ventas':
         if (!ventasData) return null;
-        return (
-          <div className={styles.kpiGrid}>
-            <AdminStatCard
-              icon="receipt_long"
-              label="Total ventas"
-              value={formatNumber(ventasData.resumen.total_ventas)}
-              detail={`ARS: ${ventasData.resumen.ventas_ars} | USD: ${ventasData.resumen.ventas_usd}`}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="payments"
-              label="Ingresos ARS"
-              value={formatCurrency(ventasData.resumen.ingresos_ars)}
-              detail={formatUSD(ventasData.resumen.ingresos_usd)}
-              tone="success"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="confirmation_number"
-              label="Ticket promedio"
-              value={formatCurrency(ventasData.resumen.ticket_promedio)}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="credit_card"
-              label="Metodo mas usado"
-              value={ventasData.resumen.metodo_mas_usado}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-          </div>
-        );
+        return [
+          {
+            icon: 'receipt_long',
+            label: 'Total ventas',
+            value: formatNumber(ventasData.resumen.total_ventas),
+            detail: `ARS: ${ventasData.resumen.ventas_ars} | USD: ${ventasData.resumen.ventas_usd}`,
+          },
+          {
+            icon: 'payments',
+            label: 'Ingresos ARS',
+            value: formatCurrency(ventasData.resumen.ingresos_ars),
+            detail: formatUSD(ventasData.resumen.ingresos_usd),
+            tone: 'success' as const,
+          },
+          {
+            icon: 'confirmation_number',
+            label: 'Ticket promedio',
+            value: formatCurrency(ventasData.resumen.ticket_promedio),
+          },
+          {
+            icon: 'credit_card',
+            label: 'Metodo mas usado',
+            value: ventasData.resumen.metodo_mas_usado,
+          },
+        ];
       case 'vendedores':
         if (!vendedoresData) return null;
-        return (
-          <div className={styles.kpiGrid}>
-            <AdminStatCard
-              icon="group"
-              label="Vendedores activos"
-              value={formatNumber(vendedoresData.resumen.total_vendedores_activos)}
-              detail="en el periodo"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="point_of_sale"
-              label="Total ventas"
-              value={formatNumber(vendedoresData.resumen.total_ventas_periodo)}
-              detail="ventas en el periodo"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="trending_up"
-              label="Top ingresos"
-              value={vendedoresData.resumen.vendedor_top_ingresos}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="leaderboard"
-              label="Top volumen"
-              value={vendedoresData.resumen.vendedor_top_ventas}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-          </div>
-        );
+        return [
+          {
+            icon: 'group',
+            label: 'Vendedores activos',
+            value: formatNumber(vendedoresData.resumen.total_vendedores_activos),
+            detail: 'en el periodo',
+          },
+          {
+            icon: 'point_of_sale',
+            label: 'Total ventas',
+            value: formatNumber(vendedoresData.resumen.total_ventas_periodo),
+            detail: 'ventas en el periodo',
+          },
+          {
+            icon: 'trending_up',
+            label: 'Top ingresos',
+            value: vendedoresData.resumen.vendedor_top_ingresos,
+          },
+          {
+            icon: 'leaderboard',
+            label: 'Top volumen',
+            value: vendedoresData.resumen.vendedor_top_ventas,
+          },
+        ];
       case 'productos':
         if (!productosData) return null;
-        return (
-          <div className={styles.kpiGrid}>
-            <AdminStatCard
-              icon="category"
-              label="Productos vendidos"
-              value={formatNumber(productosData.resumen.productos_distintos_vendidos)}
-              detail="productos distintos"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="inventory"
-              label="Unidades totales"
-              value={formatNumber(productosData.resumen.unidades_totales)}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="attach_money"
-              label="Ingreso total"
-              value={formatCurrency(productosData.resumen.ingreso_total_productos)}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-          </div>
-        );
+        return [
+          {
+            icon: 'category',
+            label: 'Productos vendidos',
+            value: formatNumber(productosData.resumen.productos_distintos_vendidos),
+            detail: 'productos distintos',
+          },
+          {
+            icon: 'inventory',
+            label: 'Unidades totales',
+            value: formatNumber(productosData.resumen.unidades_totales),
+          },
+          {
+            icon: 'attach_money',
+            label: 'Ingreso total',
+            value: formatCurrency(productosData.resumen.ingreso_total_productos),
+          },
+        ];
       case 'clientes':
         if (!clientesData) return null;
-        return (
-          <div className={styles.kpiGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            <AdminStatCard
-              icon="person_add"
-              label="Clientes nuevos"
-              value={formatNumber(clientesData.resumen.clientes_nuevos_periodo)}
-              detail="en el periodo"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="shopping_bag"
-              label="Con compras"
-              value={formatNumber(clientesData.resumen.clientes_con_compras)}
-              detail="clientes activos"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="groups"
-              label="Total registrados"
-              value={formatNumber(clientesData.resumen.clientes_totales)}
-              variant="flush"
-              className={styles.kpiCard}
-            />
-          </div>
-        );
+        return [
+          {
+            icon: 'person_add',
+            label: 'Clientes nuevos',
+            value: formatNumber(clientesData.resumen.clientes_nuevos_periodo),
+            detail: 'en el periodo',
+          },
+          {
+            icon: 'shopping_bag',
+            label: 'Con compras',
+            value: formatNumber(clientesData.resumen.clientes_con_compras),
+            detail: 'clientes activos',
+          },
+          {
+            icon: 'groups',
+            label: 'Total registrados',
+            value: formatNumber(clientesData.resumen.clientes_totales),
+          },
+        ];
       case 'cancelaciones':
         if (!cancelacionesData) return null;
-        return (
-          <div className={styles.kpiGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            <AdminStatCard
-              icon="cancel"
-              label="Total cancelaciones"
-              value={formatNumber(cancelacionesData.resumen.total_cancelaciones)}
-              tone="danger"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="money_off"
-              label="Monto cancelado"
-              value={formatCurrency(cancelacionesData.resumen.monto_ars)}
-              detail={formatUSD(cancelacionesData.resumen.monto_usd)}
-              tone="danger"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-            <AdminStatCard
-              icon="percent"
-              label="Tasa de cancelacion"
-              value={`${cancelacionesData.resumen.tasa_cancelacion}%`}
-              detail="del total de ventas"
-              tone="warning"
-              variant="flush"
-              className={styles.kpiCard}
-            />
-          </div>
-        );
+        return [
+          {
+            icon: 'cancel',
+            label: 'Total cancelaciones',
+            value: formatNumber(cancelacionesData.resumen.total_cancelaciones),
+            tone: 'danger' as const,
+          },
+          {
+            icon: 'money_off',
+            label: 'Monto cancelado',
+            value: formatCurrency(cancelacionesData.resumen.monto_ars),
+            detail: formatUSD(cancelacionesData.resumen.monto_usd),
+            tone: 'danger' as const,
+          },
+          {
+            icon: 'percent',
+            label: 'Tasa de cancelacion',
+            value: `${cancelacionesData.resumen.tasa_cancelacion}%`,
+            detail: 'del total de ventas',
+            tone: 'warning' as const,
+          },
+        ];
       default:
         return null;
     }
@@ -443,7 +406,14 @@ const Reportes: React.FC = memo(() => {
 
   return (
     <div className={styles.container}>
-      {activeKpiStrip}
+      {activeKpiItems ? (
+        <AdminMetricsStrip
+          items={activeKpiItems}
+          columns={activeKpiItems.length === 3 ? 3 : 4}
+          className={styles.kpiGrid}
+          itemClassName={styles.kpiCard}
+        />
+      ) : null}
 
       {/* Tabs */}
       <div className={styles.tabBar}>
@@ -460,32 +430,31 @@ const Reportes: React.FC = memo(() => {
       </div>
 
       {/* Filtros - Usando Sistema Global */}
-      <AdminSurface className="admin-filter-shell" tone="muted">
-        <div className="admin-filter-rows">
-          <div className="admin-filter-row-top">
-            <div className="admin-filter-group">
-              <label className="admin-filter-label">Fecha inicio</label>
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="top">
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Fecha inicio</AdminFilterPanel.Label>
               <input
                 type="date"
-                className={styles.filterInput}
+                className={controlStyles.field}
                 value={filtros.fecha_inicio || ''}
                 onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
               />
-            </div>
-            <div className="admin-filter-group">
-              <label className="admin-filter-label">Fecha fin</label>
+          </AdminFilterPanel.Group>
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Fecha fin</AdminFilterPanel.Label>
               <input
                 type="date"
-                className={styles.filterInput}
+                className={controlStyles.field}
                 value={filtros.fecha_fin || ''}
                 onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
               />
-            </div>
-            {activeTab === 'ventas' && (
-              <div className="admin-filter-group">
-                <label className="admin-filter-label">Agrupación</label>
+          </AdminFilterPanel.Group>
+          {activeTab === 'ventas' && (
+            <AdminFilterPanel.Group>
+              <AdminFilterPanel.Label>Agrupación</AdminFilterPanel.Label>
                 <select
-                  className={styles.filterSelect}
+                  className={controlStyles.field}
                   value={filtros.agrupacion || 'dia'}
                   onChange={(e) => handleFiltroChange('agrupacion', e.target.value)}
                 >
@@ -493,37 +462,31 @@ const Reportes: React.FC = memo(() => {
                   <option value="semana">Por semana</option>
                   <option value="mes">Por mes</option>
                 </select>
-              </div>
-            )}
-          </div>
+            </AdminFilterPanel.Group>
+          )}
+        </AdminFilterPanel.Row>
 
-          <div className="admin-search-form">
-            <div className="admin-search-wrapper">
-              <label className="admin-filter-label">Búsqueda rápida</label>
-              <AdminSearch
-                value={searchTerm}
-                placeholder="Filtrar en los resultados..."
-                onChange={setSearchTerm}
-              />
-            </div>
-            <div className="admin-action-row">
-              <button className={styles.clearButton} onClick={handleLimpiarFiltros} disabled={loading}>
-                <span className="material-icons">backspace</span>
-                <span>Limpiar</span>
-              </button>
-              <button
-                className={styles.exportButton}
-                onClick={handleExportar}
-                disabled={exporting || loading || !puedeExportar}
-                title={!puedeExportar ? 'Sin permisos para exportar reportes' : undefined}
-              >
-                <span className="material-icons">download</span>
-                <span>{exporting ? 'Exportando...' : 'Exportar CSV'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </AdminSurface>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              searchLabel="Búsqueda rápida"
+              searchPlaceholder="Filtrar en los resultados..."
+              primaryActionLabel={exporting ? 'Exportando...' : 'Exportar CSV'}
+              primaryActionIcon="download"
+              onPrimaryAction={handleExportar}
+              primaryActionDisabled={exporting || loading || !puedeExportar}
+            />
+          </AdminFilterPanel.Grow>
+          <AdminFilterPanel.Actions>
+            <button className={controlStyles.secondaryButton} onClick={handleLimpiarFiltros} disabled={loading}>
+              <span className="material-icons">backspace</span>
+              <span>Limpiar</span>
+            </button>
+          </AdminFilterPanel.Actions>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {/* Estado de carga/error */}
       {loading && (

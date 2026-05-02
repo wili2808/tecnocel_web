@@ -3,7 +3,7 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminSearch, AdminPagination, AdminSurface, AdminEmptyState } from '../common';
+import { AdminEntitySearchBar, AdminPagination, AdminFilterPanel, AdminEmptyState } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
@@ -11,8 +11,9 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  getSortedRowModel,
 } from '@tanstack/react-table';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
 
 import {
   DndContext,
@@ -44,7 +45,6 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
     whiteSpace: 'nowrap',
     width: header.column.getSize(),
     zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
   };
 
   return (
@@ -59,8 +59,24 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
         >
           drag_indicator
         </span>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
+        
+        <div
+          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
+          onClick={header.column.getToggleSortingHandler()}
+          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
           {flexRender(header.column.columnDef.header, header.getContext())}
+          
+          {header.column.getCanSort() && (
+            <span
+              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
+            >
+              {{
+                asc: 'arrow_upward',
+                desc: 'arrow_downward',
+              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
+            </span>
+          )}
         </div>
       </div>
     </th>
@@ -82,6 +98,7 @@ const GestionProveedores: React.FC = memo(() => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [modalProveedor, setModalProveedor] = useState<ProveedorListItem | null | 'new'>(null);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nombre', 'empresa', 'celular', 'email', 'direccion'
@@ -102,7 +119,6 @@ const GestionProveedores: React.FC = memo(() => {
     }
   }, [searchTerm, limit, offset]);
 
-  // Ejecutar búsqueda cuando cambia debouncedSearch (500ms después de dejar de escribir)
   // Ejecutar búsqueda cuando cambia searchTerm (ya viene debounced de AdminSearch)
   useEffect(() => {
     cargarProveedores();
@@ -161,9 +177,12 @@ const GestionProveedores: React.FC = memo(() => {
     columns,
     state: {
       columnOrder,
+      sorting,
     },
     onColumnOrderChange: setColumnOrder,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const sensors = useSensors(
@@ -228,39 +247,31 @@ const GestionProveedores: React.FC = memo(() => {
 
   return (
     <>
-      {/* Buscador y botón crear - Usando Sistema Global */}
-      <AdminSurface className="admin-filter-shell" tone="muted">
-        <div className="admin-search-form">
-          <div className="admin-search-wrapper">
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Nombre, empresa, celular..."
-              onChange={(val) => {
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              searchPlaceholder="Nombre, empresa, celular..."
+              onSearchChange={(val) => {
                 setSearchTerm(val);
                 setOffset(0);
               }}
+              searchLabel="Búsqueda"
+              primaryActionLabel="Nuevo Proveedor"
+              primaryActionIcon="person_add"
+              onPrimaryAction={() => setModalProveedor('new')}
+              primaryActionDisabled={!puedeCrear}
             />
-          </div>
-          <div className="admin-action-row">
-            <button
-              className={styles.crearButton}
-              onClick={() => setModalProveedor('new')}
-              disabled={!puedeCrear}
-              title={!puedeCrear ? 'Sin permisos para crear proveedores' : undefined}
-            >
-              <span className="material-icons">person_add</span>
-              <span>Nuevo Proveedor</span>
-            </button>
-          </div>
-        </div>
-      </AdminSurface>
+          </AdminFilterPanel.Grow>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
-      {/* Tabla */}
       {proveedores.length === 0 ? (
         <AdminEmptyState
           icon="inventory_2"
           title="No hay proveedores"
-          message={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay proveedores registrados aún."}
+          message={searchTerm ? `No se encontraron resultados for "${searchTerm}"` : "No hay proveedores registrados aún."}
           className={styles.loadingState}
         />
       ) : (
@@ -316,7 +327,6 @@ const GestionProveedores: React.FC = memo(() => {
         </div>
       )}
 
-      {/* Modal */}
       {modalProveedor && (
         <ProveedorModal
           proveedor={modalProveedor === 'new' ? undefined : modalProveedor}

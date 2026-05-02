@@ -11,7 +11,12 @@ import ProductoModal from './ProductoModal';
 import GestionMarcas from './GestionMarcas';
 import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
-import { AdminEmptyState, AdminSurface, AdminSearch, AdminPagination } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminPagination,
+} from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
@@ -381,20 +386,24 @@ const GestionProductos = () => {
 
       {activeTab === 'productos' && (
         <>
-          {/* Barra de búsqueda - Usando Sistema Global */}
-          <AdminSurface className="admin-filter-shell" tone="muted">
-            <div className="admin-search-form">
-              <div className="admin-search-wrapper">
-                <AdminSearch
-                  value={searchTerm}
-                  placeholder="Buscar por nombre o código..."
-                  onChange={(val) => {
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row variant="bottom">
+              <AdminFilterPanel.Grow>
+                <AdminEntitySearchBar
+                  searchValue={searchTerm}
+                  searchLabel="Búsqueda"
+                  searchPlaceholder="Buscar por nombre o código..."
+                  onSearchChange={(val) => {
                     setSearchTerm(val);
                     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
                   }}
+                  primaryActionLabel="Agregar Producto"
+                  primaryActionIcon="add_box"
+                  onPrimaryAction={handleCrear}
+                  primaryActionDisabled={!puedeCrear}
                 />
-              </div>
-              <div className="admin-action-row">
+              </AdminFilterPanel.Grow>
+              <AdminFilterPanel.Actions>
                 <button
                   type="button"
                   className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
@@ -403,18 +412,9 @@ const GestionProductos = () => {
                 >
                   <span className="material-icons">{soloDestacados ? 'star' : 'star_outline'}</span>
                 </button>
-                <button
-                  className={styles.crearButton}
-                  onClick={handleCrear}
-                  disabled={!puedeCrear}
-                  title={!puedeCrear ? 'Sin permisos para crear productos' : undefined}
-                >
-                  <span className="material-icons">add_box</span>
-                  <span>Agregar Producto</span>
-                </button>
-              </div>
-            </div>
-          </AdminSurface>
+              </AdminFilterPanel.Actions>
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
 
           {/* Estado de carga */}
           {loading && (

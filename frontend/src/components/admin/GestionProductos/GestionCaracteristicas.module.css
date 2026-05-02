@@ -6,42 +6,6 @@
   padding: 0;
 }
 
-.panelHeader {
-  display: flex;
-  justify-content: right;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.addButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.addButton:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-}
-
-.addButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* ============================================================================
    TABLA
    ============================================================================ */
@@ -520,10 +484,6 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
-  .panelHeader {
-    flex-direction: column;
-  }
-
   .th,
   .td {
     padding: 7px 10px;

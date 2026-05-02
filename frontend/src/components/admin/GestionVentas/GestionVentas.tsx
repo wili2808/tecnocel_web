@@ -9,8 +9,15 @@ import envioAdminService from '../../../services/envioAdminService';
 import usuarioService from '../../../services/usuarioService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminStatCard, AdminSearch, AdminPagination, AdminSurface } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminMetricsStrip,
+  AdminPagination,
+} from '../common';
 import styles from './GestionVentas.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
 import {
@@ -55,10 +62,10 @@ const formatFecha = (iso: string) =>
 
 const formatMonto = (n: number) => n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatIngreso = (n: number) => {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${formatMonto(n)}`;
+const formatIngresoUsd = (n: number) => {
+  if (n >= 1_000_000) return `USD ${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `USD ${(n / 1_000).toFixed(1)}K`;
+  return `USD ${formatMonto(n)}`;
 };
 
 const badgeEstado = (estado: string) => {
@@ -319,6 +326,30 @@ const GestionVentas: React.FC = () => {
     cargarStats();
   };
 
+  const statsItems = useMemo(() => [
+    {
+      icon: 'today',
+      label: 'Ventas hoy',
+      value: stats?.ventas_hoy ?? 0,
+    },
+    {
+      icon: 'date_range',
+      label: 'Esta semana',
+      value: stats?.ventas_semana ?? 0,
+    },
+    {
+      icon: 'calendar_month',
+      label: 'Este mes',
+      value: stats?.ventas_mes ?? 0,
+    },
+    {
+      icon: 'payments',
+      label: 'Ingresos del mes',
+      value: formatIngresoUsd((stats?.ingresos_mes ?? 0) / tipoCambio),
+      tone: 'success' as const,
+    },
+  ], [stats, tipoCambio]);
+
   // === Columnas TanStack ===
   const columns = useMemo<ColumnDef<VentaListItem>[]>(() => [
     {
@@ -476,48 +507,12 @@ const GestionVentas: React.FC = () => {
     <div className={styles.container}>
 
 
-      <div className={styles.statsBar}>
-        {cargandoStats ? (
-          <>
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className={styles.statsLoading} />
-            ))}
-          </>
-        ) : (
-          <>
-            <AdminStatCard
-              icon="today"
-              label="Ventas hoy"
-              value={stats?.ventas_hoy ?? 0}
-              variant="flush"
-              className={styles.statCard}
-            />
-            <AdminStatCard
-              icon="date_range"
-              label="Esta semana"
-              value={stats?.ventas_semana ?? 0}
-              variant="flush"
-              className={styles.statCard}
-            />
-            <AdminStatCard
-              icon="calendar_month"
-              label="Este mes"
-              value={stats?.ventas_mes ?? 0}
-              variant="flush"
-              className={styles.statCard}
-            />
-            <AdminStatCard
-              icon="payments"
-              label="Ingresos del mes"
-              value={formatIngreso(stats?.ingresos_mes ?? 0)}
-              detail={stats ? `$${formatMonto(stats.ingresos_mes)}` : '—'}
-              tone="success"
-              variant="flush"
-              className={styles.statCard}
-            />
-          </>
-        )}
-      </div>
+      <AdminMetricsStrip
+        items={statsItems}
+        loading={cargandoStats}
+        className={styles.statsBar}
+        itemClassName={styles.statCard}
+      />
 
       {/* Cotización del dólar - Reubicada entre estadísticas y tabs */}
       {puedeVerConfiguracion && (
@@ -630,32 +625,30 @@ const GestionVentas: React.FC = () => {
 
 
           {/* Filtros Premium de 2 Filas - Usando Sistema Global */}
-          <AdminSurface className="admin-filter-shell" tone="muted">
-            <div className="admin-filter-rows">
-              {/* Fila Superior: Filtros de Fecha, Vendedor, Estado, Tipo, Método */}
-              <div className="admin-filter-row-top">
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Desde</label>
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row variant="top">
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Desde</AdminFilterPanel.Label>
                   <input
                     type="date"
-                    className={styles.filterInput}
+                    className={controlStyles.field}
                     value={filtros.fecha_inicio || ''}
                     onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
                   />
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Hasta</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Hasta</AdminFilterPanel.Label>
                   <input
                     type="date"
-                    className={styles.filterInput}
+                    className={controlStyles.field}
                     value={filtros.fecha_fin || ''}
                     onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
                   />
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Vendedor</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Vendedor</AdminFilterPanel.Label>
                   <select
-                    className={styles.filterSelect}
+                    className={controlStyles.field}
                     value={filtros.id_vendedor || ''}
                     onChange={(e) =>
                       setFiltros((prev) => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))
@@ -668,11 +661,11 @@ const GestionVentas: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Estado</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
                   <select
-                    className={styles.filterSelect}
+                    className={controlStyles.field}
                     value={filtros.estado || ''}
                     onChange={(e) =>
                       setFiltros((prev) => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))
@@ -683,11 +676,11 @@ const GestionVentas: React.FC = () => {
                     <option value="cancelada">Cancelada</option>
                     <option value="pendiente">Pendiente</option>
                   </select>
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Tipo</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Tipo</AdminFilterPanel.Label>
                   <select
-                    className={styles.filterSelect}
+                    className={controlStyles.field}
                     value={filtros.tipo_venta || ''}
                     onChange={(e) =>
                       setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
@@ -697,11 +690,11 @@ const GestionVentas: React.FC = () => {
                     <option value="web">Web</option>
                     <option value="manual">Manual</option>
                   </select>
-                </div>
-                <div className="admin-filter-group">
-                  <label className="admin-filter-label">Método pago</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Método pago</AdminFilterPanel.Label>
                   <select
-                    className={styles.filterSelect}
+                    className={controlStyles.field}
                     value={filtros.metodo_pago || ''}
                     onChange={(e) =>
                       setFiltros((prev) => ({
@@ -716,40 +709,33 @@ const GestionVentas: React.FC = () => {
                     <option value="transferencia">Transferencia</option>
                     <option value="qr">QR</option>
                   </select>
-                </div>
-              </div>
+              </AdminFilterPanel.Group>
+            </AdminFilterPanel.Row>
 
-              {/* Fila Inferior: Búsqueda y Acciones */}
-              <div className="admin-search-form">
-                <div className="admin-search-wrapper">
-                  <label className="admin-filter-label">Búsqueda</label>
-                  <AdminSearch
-                    value={filtros.search || ''}
-                    placeholder="N° venta, cliente..."
-                    onChange={(val) => {
-                      setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                      setOffset(0);
-                    }}
-                  />
-                </div>
-                <div className="admin-action-row">
-                  <button className={styles.clearButton} onClick={limpiarFiltros}>
-                    <span className="material-icons">backspace</span>
-                    <span>Limpiar</span>
-                  </button>
-                  {puedeCrear && (
-                    <button
-                      className={styles.crearButton}
-                      onClick={() => setMostrarRegistrar(true)}
-                    >
-                      <span className="material-icons">add_box</span>
-                      <span>Registrar Venta</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </AdminSurface>
+            <AdminFilterPanel.Row variant="bottom">
+              <AdminFilterPanel.Grow>
+                <AdminEntitySearchBar
+                  searchValue={filtros.search || ''}
+                  searchPlaceholder="N° venta, cliente..."
+                  onSearchChange={(val) => {
+                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                    setOffset(0);
+                  }}
+                  searchLabel="Búsqueda"
+                  primaryActionLabel={puedeCrear ? 'Registrar Venta' : undefined}
+                  primaryActionIcon="add_box"
+                  onPrimaryAction={puedeCrear ? () => setMostrarRegistrar(true) : undefined}
+                  primaryActionHidden={!puedeCrear}
+                />
+              </AdminFilterPanel.Grow>
+              <AdminFilterPanel.Actions>
+                <button className={controlStyles.secondaryButton} onClick={limpiarFiltros}>
+                  <span className="material-icons">backspace</span>
+                  <span>Limpiar</span>
+                </button>
+              </AdminFilterPanel.Actions>
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
 
           {/* Tabla */}
           {cargando ? (
