@@ -5,7 +5,7 @@ import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
 import type { EnvioAdminListItem, EnvioAdminDetalle } from '../../../types/envio';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 
-import styles from './GestionRetirosModal.module.css';
+import styles from './VentaModals.module.css';
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
@@ -96,7 +96,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
               
               {/* Card Cliente */}
               <div className={styles.infoCard}>
-                <h4 className="modalSectionTitlePremium">Información del Cliente</h4>
+                <h4 className={styles.sectionTitle}>Información del Cliente</h4>
                 <div className="flex flex-col gap-sm mt-2">
                   <div className="modalInfoBoxPremium">
                     <div className="flex flex-col w-full">
@@ -123,7 +123,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
 
               {/* Card Operación */}
               <div className={styles.infoCard}>
-                <h4 className="modalSectionTitlePremium">Datos de la Operación</h4>
+                <h4 className={styles.sectionTitle}>Datos de la Operación</h4>
                 <div className="flex flex-col gap-sm mt-2">
                   <div className="modalInfoBoxPremium">
                     <div className="flex flex-col w-full">
@@ -149,7 +149,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
 
             {/* Productos */}
             <div className="mb-6">
-              <h4 className="modalSectionTitlePremium">Productos del pedido</h4>
+              <h4 className={styles.sectionTitle}>Productos del pedido</h4>
               <div className="modalTableWrapperPremium mt-2">
                 <table className="modalTablePremium">
                   <thead>

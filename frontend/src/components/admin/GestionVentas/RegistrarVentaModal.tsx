@@ -8,7 +8,7 @@ import { AdminSearch } from '../common';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './RegistrarVentaModal.module.css';
+import styles from './VentaModals.module.css';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 

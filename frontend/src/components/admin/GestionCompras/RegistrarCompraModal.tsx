@@ -15,7 +15,7 @@ import PremiumModal from '../../common/PremiumModal/PremiumModal';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import { formatARS, formatUSD } from '../../../utils/formatPrecio';
 
-import styles from './RegistrarCompraModal.module.css';
+import styles from './CompraModals.module.css';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 // ... (rest of imports and types remain the same)

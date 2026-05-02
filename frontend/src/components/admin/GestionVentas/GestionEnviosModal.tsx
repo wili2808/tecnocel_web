@@ -5,7 +5,7 @@ import { ESTADO_ENVIO_LABELS, SIGUIENTE_ESTADO } from '../../../types/envio';
 import type { EnvioAdminListItem, EnvioAdminDetalle, EstadoEnvio } from '../../../types/envio';
 import Input from '../../common/Input/Input';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './GestionEnviosModal.module.css';
+import styles from './VentaModals.module.css';
 
 const ESTADO_BADGES: Record<EstadoEnvio, string> = {
   pendiente: 'neutral',
@@ -137,7 +137,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
               
               {/* Información de Contacto */}
               <div className={styles.infoCard}>
-                <h4 className="modalSectionTitlePremium">Contacto del Cliente</h4>
+                <h4 className={styles.sectionTitle}>Contacto del Cliente</h4>
                 <div className="flex flex-col gap-sm mt-2">
                   <div className="modalInfoBoxPremium">
                     <div className="flex flex-col w-full">
@@ -164,7 +164,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
               {/* Información de Entrega */}
               <div className={styles.infoCard}>
-                <h4 className="modalSectionTitlePremium">Dirección de Entrega</h4>
+                <h4 className={styles.sectionTitle}>Dirección de Entrega</h4>
                 <div className="flex flex-col gap-sm mt-2">
                   <div className="modalInfoBoxPremium">
                     <div className="flex flex-col w-full">
@@ -197,7 +197,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
               {/* Información Venta */}
               <div className={styles.infoCard}>
-                <h4 className="modalSectionTitlePremium">Detalles de la Venta</h4>
+                <h4 className={styles.sectionTitle}>Detalles de la Venta</h4>
                 <div className="flex flex-col gap-sm mt-2">
                   <div className="modalInfoBoxPremium">
                     <div className="grid grid-cols-2 w-full gap-md">
@@ -222,7 +222,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
               {/* Información Seguimiento */}
               <div className={styles.infoCard}>
-                <h4 className="modalSectionTitlePremium">Seguimiento y Logística</h4>
+                <h4 className={styles.sectionTitle}>Seguimiento y Logística</h4>
                 <div className="flex flex-col gap-sm mt-2">
                   <div className="modalInfoBoxPremium">
                     <div className="flex flex-col w-full">
@@ -246,7 +246,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
             {/* Productos */}
             <div className="mb-6">
-              <h4 className="modalSectionTitlePremium">Productos del pedido</h4>
+              <h4 className={styles.sectionTitle}>Productos del pedido</h4>
               <div className="modalTableWrapperPremium mt-2">
                 <table className="modalTablePremium">
                   <thead>
@@ -304,7 +304,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
                     )}
 
                     {ESTADOS_CON_EMAIL.has(siguienteEstado) && detalle.email_cliente && (
-                      <div className={`modalAlertWarningPremium mb-4 ${styles.emailAlert}`}>
+                      <div className={styles.infoAlert}>
                         <span className="material-icons">email</span>
                         <p className="m-0 text-xs">Se enviará un email de notificación a <strong>{detalle.email_cliente}</strong></p>
                       </div>

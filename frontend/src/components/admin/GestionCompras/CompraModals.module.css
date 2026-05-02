@@ -1,0 +1,218 @@
+/* ============================================================================
+   COMPRA MODALS - Estilos compartidos para Registro, Detalle y Proveedores
+   ============================================================================ */
+
+/* --- GENERAL & ESTRUCTURA --- */
+
+.modalBodyContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sectionTitle {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.observacionesBox {
+  background: var(--background-neutral);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* --- REGISTRO DE COMPRA --- */
+
+/* Acciones de Proveedor */
+.providerActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-end;
+}
+
+.selectWrapper {
+  flex: 1;
+}
+
+.addButton {
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tabla de Productos */
+.productCell {
+  padding-left: var(--spacing-lg) !important;
+}
+
+.actionCell {
+  padding-right: var(--spacing-lg) !important;
+}
+
+.productosTable th:nth-child(1) { width: 45%; }
+.productosTable th:nth-child(2) { width: 15%; }
+.productosTable th:nth-child(3) { width: 10%; }
+.productosTable th:nth-child(4) { width: 15%; }
+.productosTable th:nth-child(5) { width: 15%; }
+
+.arsSpacer {
+  font-size: 0.7rem;
+  margin-top: 2px;
+  line-height: 1.2;
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.searchContainer {
+  position: relative;
+  margin-bottom: var(--spacing-lg);
+}
+
+.loadingIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: spin 1s linear infinite;
+  color: var(--color-primary);
+}
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+.newBadge {
+  font-size: 0.65rem;
+  color: var(--color-primary);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Panel de Tipo de Cambio */
+.tipoCambioPanel {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: rgba(var(--color-primary-rgb), 0.03);
+  border: 1px dashed rgba(var(--text-secondary-rgb), 0.2);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.tcHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tcValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-family: var(--font-family-mono);
+}
+
+/* Referencias ARS */
+.arsReference {
+  font-size: 0.7rem;
+  color: var(--color-secondary);
+  font-weight: 500;
+  margin-top: 2px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.totalARS {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 4px;
+  opacity: 0.8;
+  text-align: center;
+}
+
+/* --- DETALLE DE COMPRA --- */
+
+.headerBadges {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-lg);
+}
+
+.totalContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+}
+
+.totalBox {
+  min-width: 250px;
+}
+
+/* --- ANULACIÓN --- */
+
+.warningBox {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(var(--color-warning-rgb), 0.1);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-warning);
+  color: var(--color-warning);
+  margin-bottom: var(--spacing-xl);
+}
+
+.warningBox span {
+  font-size: 24px;
+}
+
+.warningBox p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* --- FOOTER & RESPONSIVE --- */
+
+.footerBtn {
+  min-width: 180px;
+}
+
+@media (max-width: 480px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .totalBox, .footerBtn {
+    min-width: 100%;
+  }
+}

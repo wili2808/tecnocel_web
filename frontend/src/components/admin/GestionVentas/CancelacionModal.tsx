@@ -3,7 +3,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import adminVentaService from '../../../services/adminVentaService';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './CancelacionModal.module.css';
+import styles from './VentaModals.module.css';
 
 interface CancelacionModalProps {
   idVenta: number;
@@ -45,26 +45,24 @@ const CancelacionModal: React.FC<CancelacionModalProps> = ({ idVenta, nroVenta, 
       maxWidth="450px"
     >
       <div className="modalBodyPremium">
-        <div className={`modalAlertErrorPremium ${styles.alert}`}>
+        <div className={styles.warningBox}>
           <span className="material-icons">report_problem</span>
           <p className="m-0 text-sm">
             Estás por anular la venta <strong>{nroVenta}</strong>. Esta acción restaurará el stock de los productos automáticamente y **no se puede deshacer**.
           </p>
         </div>
 
-        <div className={styles.textArea}>
-          <TextArea
-            id="motivo"
-            name="motivo"
-            label="Motivo de la Anulación (opcional)"
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-            placeholder="Ej: Error en el pedido, duplicado, etc..."
-            maxLength={300}
-            disabled={procesando}
-            rows={4}
-          />
-        </div>
+        <TextArea
+          id="motivo"
+          name="motivo"
+          label="Motivo de la Anulación (opcional)"
+          value={motivo}
+          onChange={(e) => setMotivo(e.target.value)}
+          placeholder="Ej: Error en el pedido, duplicado, etc..."
+          maxLength={300}
+          disabled={procesando}
+          rows={4}
+        />
       </div>
 
       <div className="modalFooterPremium">

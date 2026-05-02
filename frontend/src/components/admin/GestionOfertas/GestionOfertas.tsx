@@ -8,7 +8,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import adminOfertaService from '../../../services/adminOfertaService';
-import OfertaForm from './OfertaForm';
+import OfertaModal from './OfertaModal';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import {
   AdminEmptyState,
@@ -27,13 +27,13 @@ const ITEMS_PER_PAGE = 10;
 
 /** Determina el estado visual de una oferta basado en activo y fechas */
 const getEstadoOferta = (oferta: OfertaConConteo) => {
-  if (!oferta.activo) return { label: 'Inactiva', className: styles.estadoInactiva };
+  if (!oferta.activo) return { label: 'Inactiva', className: styles.badgeInactiva };
   const now = new Date();
   const inicio = new Date(oferta.fecha_inicio);
   const fin = new Date(oferta.fecha_fin);
-  if (now < inicio) return { label: 'Programada', className: styles.estadoProgramada };
-  if (now > fin) return { label: 'Expirada', className: styles.estadoExpirada };
-  return { label: 'Activa', className: styles.estadoActiva };
+  if (now < inicio) return { label: 'Programada', className: styles.badgeProgramada };
+  if (now > fin) return { label: 'Expirada', className: styles.badgeExpirada };
+  return { label: 'Activa', className: styles.badgeActiva };
 };
 
 /** Formatea una fecha ISO a formato legible */
@@ -181,7 +181,7 @@ const GestionOfertas = () => {
       id: 'tipo_descuento',
       header: 'Tipo',
       cell: info => (
-        <span className={styles.tipoBadge}>
+        <span className={styles.badgeTipo}>
           {info.getValue() === 'porcentaje' ? 'Porcentaje' : 'Monto Fijo'}
         </span>
       ),
@@ -355,13 +355,12 @@ const GestionOfertas = () => {
 
       {/* Modal para crear/editar oferta */}
       {showCrearForm && (
-        <OfertaForm
+        <OfertaModal
           oferta={editandoOferta}
           onCancelar={handleCancelar}
           onGuardado={handleGuardado}
           onEliminar={editandoOferta ? () => handleEliminarOferta(editandoOferta.id_oferta, editandoOferta.nombre_oferta) : undefined}
           modo={modoModal}
-          isModal={true}
         />
       )}
     </div>

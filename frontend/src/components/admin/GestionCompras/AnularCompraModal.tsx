@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './CompraModals.module.css';
 
 interface AnularCompraModalProps {
   idCompra: number;
@@ -43,9 +44,9 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
         maxWidth="450px"
       >
         <div className="modalBodyPremium">
-          <div className="modalAlertErrorPremium mb-6">
+          <div className={styles.warningBox}>
             <span className="material-icons">report_problem</span>
-            <p className="m-0 text-sm">
+            <p className="m-0">
               Estás por anular la compra <strong>{nroCompra}</strong>. Esta acción revertirá el stock de los productos ingresados y **no se puede deshacer**.
             </p>
           </div>

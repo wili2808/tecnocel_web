@@ -1,40 +1,18 @@
-/**
- * GestionCategorias — CRUD completo de categorías desde el panel admin
- * Tabla con edición inline, creación inline y confirmación de eliminación inline.
- * Refactorizado con TanStack Table v8 y dnd-kit.
- */
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Category } from '../../../types/product';
 import CategoriaModal from './CategoriaModal';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination, DraggableTableHeader } from '../common';
-import styles from './GestionCategorias.module.css';
+import { 
+  AdminEntitySearchBar, 
+  AdminFilterPanel, 
+  AdminDataTable,
+  AdminEmptyState
+} from '../common';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
+
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 const GestionCategorias: React.FC = memo(() => {
   const { showNotification } = useNotification();
@@ -43,14 +21,13 @@ const GestionCategorias: React.FC = memo(() => {
   const puedeCrear = tienePermiso('crear_categoria');
   const puedeEditar = tienePermiso('editar_categoria');
 
-
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<Category | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Estados TanStack
+  // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'fecha']);
@@ -81,22 +58,19 @@ const GestionCategorias: React.FC = memo(() => {
     setModalOpen(true);
   }, []);
 
-  const formatearFecha = (fecha: string) =>
-    new Date(fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
   // --- Columnas ---
   const columns = useMemo<ColumnDef<Category>[]>(() => [
     {
       accessorKey: 'nombre_categoria',
       id: 'nombre',
       header: 'Nombre',
-      cell: info => info.getValue() as string,
+      cell: info => <span className="font-bold">{info.getValue() as string}</span>,
     },
     {
       accessorFn: row => new Date(row.fyh_creacion).getTime(),
       id: 'fecha',
       header: 'Fecha creación',
-      cell: info => formatearFecha(info.row.original.fyh_creacion),
+      cell: info => new Date(info.row.original.fyh_creacion).toLocaleDateString('es-AR'),
     },
   ], []);
 
@@ -109,53 +83,21 @@ const GestionCategorias: React.FC = memo(() => {
     );
   }, [categorias, searchTerm]);
 
-  const table = useReactTable({
-    data: categoriasFiltradas,
-    columns,
-    state: {
-      sorting,
-      pagination,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
-
   if (!puedeVer) {
     return (
-      <div className={styles.container}>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
-            lock
-          </span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver categorías</p>
-        </div>
+      <div>
+        <AdminEmptyState
+          icon="lock"
+          title="Sin acceso"
+          message="No tienes permisos para consultar ni administrar las categorías de productos."
+          tone="warning"
+        />
       </div>
     );
   }
 
   return (
-    <div className={styles.panel}>
+    <div>
       <AdminFilterPanel>
         <AdminFilterPanel.Row variant="bottom">
           <AdminFilterPanel.Grow>
@@ -176,68 +118,21 @@ const GestionCategorias: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {loading ? (
-        <div className={styles.loadingState}>Cargando categorías...</div>
-      ) : (
-        <>
-          <div className={styles.tableWrapper}>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <table className={styles.table}>
-                <thead>
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
-                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                        {headerGroup.headers.map(header => (
-                          <DraggableTableHeader key={header.id} header={header} />
-                        ))}
-                      </SortableContext>
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.length === 0 ? (
-                    <tr>
-                      <td colSpan={columns.length} className={styles.emptyMessage}>
-                        No hay categorías registradas
-                      </td>
-                    </tr>
-                  ) : (
-                    table.getRowModel().rows.map((row) => {
-                      const cat = row.original;
-                      return (
-                        <tr 
-                          key={row.id}
-                          onClick={puedeEditar ? () => iniciarEdicion(cat) : undefined}
-                          style={{ cursor: puedeEditar ? 'pointer' : 'default' }}
-                          className={puedeEditar ? styles.clickableRow : ''}
-                        >
-                          {row.getVisibleCells().map(cell => (
-                            <td key={cell.id} className={styles.td}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </DndContext>
-          </div>
-          <AdminPagination
-            total={categoriasFiltradas.length}
-            limit={pagination.pageSize}
-            offset={pagination.pageIndex * pagination.pageSize}
-            onPageChange={(newOffset) => {
-              setPagination(prev => ({
-                ...prev,
-                pageIndex: Math.floor(newOffset / prev.pageSize)
-              }));
-            }}
-            itemLabel="categorías"
-          />
-        </>
-      )}
+      <AdminDataTable
+        data={categoriasFiltradas}
+        columns={columns}
+        isLoading={loading}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        columnOrder={columnOrder}
+        onColumnOrderChange={setColumnOrder}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        totalItems={categoriasFiltradas.length}
+        onRowClick={puedeEditar ? iniciarEdicion : undefined}
+        itemLabel="categorías"
+        emptyMessage={loading ? 'Cargando categorías...' : 'No se encontraron categorías'}
+      />
 
       <CategoriaModal
         isOpen={modalOpen}

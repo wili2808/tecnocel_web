@@ -1,9 +1,12 @@
+/* ============================================================================
+   GESTION PERMISOS - Configuración de matriz de acceso por roles
+   ============================================================================ */
+
 .container {
   padding: var(--spacing-md);
   min-height: 100%;
 }
 
-/* --- CONTENIDO PRINCIPAL --- */
 .mainContent {
   display: flex;
   flex-direction: column;
@@ -20,38 +23,23 @@
   font-size: 13px;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color var(--transition-fast);
 }
 
 .filterSelect:focus {
   border-color: var(--color-primary);
 }
 
-/* --- ESTADOS --- */
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-2xl);
-  color: var(--text-secondary);
-}
+/* --- INFORMACIÓN DE SEGURIDAD (ADMIN) --- */
 
-.loading span:first-child {
-  font-size: 40px;
-  color: var(--color-primary);
-}
-
-/* --- ADMIN INFO --- */
 .adminInfo {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  padding: 16px;
   background: var(--color-primary-25);
   border: 1px solid var(--color-primary-100);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   color: var(--color-primary-dark);
   margin-bottom: var(--spacing-md);
 }
@@ -61,12 +49,13 @@
 }
 
 .adminInfo p {
-  margin: 0;
+  margin: 4px 0 0;
   font-size: 13px;
   opacity: 0.8;
 }
 
-/* --- TARJETAS DE PERMISOS --- */
+/* --- GRID DE MODULOS Y PERMISOS --- */
+
 .permisosStack {
   display: flex;
   flex-direction: column;
@@ -84,7 +73,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -98,43 +87,44 @@
 
 .moduloCount {
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--text-secondary);
   background: var(--background-neutral);
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 2px 10px;
+  border-radius: 20px;
 }
 
 .permisosList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: var(--spacing-md);
 }
 
-/* Tarjeta Elongada Modernista */
+/* TARJETA ELONGADA MODERNISTA */
+
 .permisoCard {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: 12px 16px;
+  padding: 14px 18px;
   background: var(--background-primary);
   border: 1.5px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
 
 .permisoCard:hover {
-  border-color: var(--color-primary-200);
+  border-color: var(--color-primary-300);
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
 
 .permisoCardSelected {
   border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 4%, var(--background-primary));
+  background: var(--color-primary-25);
 }
 
 .permisoCardSelected::before {
@@ -151,11 +141,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border: 2px solid var(--border-color);
-  border-radius: 4px;
-  transition: all 0.2s;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
@@ -184,7 +174,7 @@
 
 .permisoNombre {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -200,57 +190,46 @@
 .accionBadge {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: 6px;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   color: white;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .accionBadge .material-icons {
   font-size: 14px;
 }
 
-/* --- EMPTY STATE --- */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-2xl);
-  color: var(--text-muted);
-  background: var(--background-neutral);
-  border-radius: var(--border-radius-lg);
-  border: 1px dashed var(--border-color);
-}
-
-.emptyState .material-icons {
-  font-size: 40px;
-  opacity: 0.5;
-}
-
-/* --- RESPONSIVIDAD --- */
-@media (max-width: 768px) {
-  .permisosList {
-    grid-template-columns: 1fr;
-  }
-  
-  .tabBtn {
-    padding: 10px 14px;
-    font-size: 12px;
-  }
-}
+/* === HELPERS === */
 
 .spin {
-  animation: spin 1s linear infinite;
+  animation: spin 1.5s linear infinite;
 }
 
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .permisosList {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

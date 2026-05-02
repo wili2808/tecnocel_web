@@ -1,40 +1,18 @@
-/**
- * GestionMarcas — CRUD completo de marcas desde el panel admin
- * Tabla con edición inline, creación inline y confirmación de eliminación inline.
- * Refactorizado con TanStack Table v8 y dnd-kit.
- */
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Marca } from '../../../types/product';
 import MarcaModal from './MarcaModal';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination, DraggableTableHeader } from '../common';
-import styles from './GestionMarcas.module.css';
+import { 
+  AdminEntitySearchBar, 
+  AdminFilterPanel, 
+  AdminDataTable,
+  AdminEmptyState 
+} from '../common';
+import styles from './GestionProductos.module.css';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 const GestionMarcas: React.FC = memo(() => {
   const { showNotification } = useNotification();
@@ -49,7 +27,7 @@ const GestionMarcas: React.FC = memo(() => {
   const [marcaSeleccionada, setMarcaSeleccionada] = useState<Marca | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Estados TanStack
+  // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['logo', 'nombre', 'descripcion', 'estado', 'fecha']);
@@ -80,9 +58,6 @@ const GestionMarcas: React.FC = memo(() => {
     setModalOpen(true);
   }, []);
 
-  const formatearFecha = (fecha: string) =>
-    new Date(fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
   // --- Columnas ---
   const columns = useMemo<ColumnDef<Marca>[]>(() => [
     {
@@ -92,9 +67,13 @@ const GestionMarcas: React.FC = memo(() => {
       cell: (info) => {
         const marca = info.row.original;
         return marca.logo_marca ? (
-          <img src={marca.logo_marca} alt={marca.nombre_marca} className={styles.logoThumb} />
+          <div className={styles.logoContainer}>
+            <img src={marca.logo_marca} alt={marca.nombre_marca} className={styles.logoThumb} />
+          </div>
         ) : (
-          <span className={`material-icons ${styles.logoPlaceholder}`}>image_not_supported</span>
+          <div className={styles.logoPlaceholder}>
+            <span className="material-icons">image_not_supported</span>
+          </div>
         );
       }
     },
@@ -102,14 +81,14 @@ const GestionMarcas: React.FC = memo(() => {
       accessorKey: 'nombre_marca',
       id: 'nombre',
       header: 'Nombre',
-      cell: info => info.getValue() as string,
+      cell: info => <span className="font-bold">{info.getValue() as string}</span>,
     },
     {
       accessorKey: 'descripcion_marca',
       id: 'descripcion',
       header: 'Descripción',
       enableSorting: false,
-      cell: info => info.getValue() ? (info.getValue() as string) : <span className={styles.emptyValue}>—</span>,
+      cell: info => info.getValue() ? (info.getValue() as string) : <span className="text-muted">—</span>,
     },
     {
       accessorFn: row => row.activo ? 1 : 0,
@@ -118,7 +97,7 @@ const GestionMarcas: React.FC = memo(() => {
       cell: info => {
         const activo = info.row.original.activo;
         return (
-          <span className={activo ? styles.badgeActivo : styles.badgeInactivo}>
+          <span className={`modalBadgePremium ${activo ? 'success' : 'error'}`}>
             {activo ? 'Activa' : 'Inactiva'}
           </span>
         );
@@ -128,7 +107,7 @@ const GestionMarcas: React.FC = memo(() => {
       accessorFn: row => new Date(row.fyh_creacion).getTime(),
       id: 'fecha',
       header: 'Creación',
-      cell: info => formatearFecha(info.row.original.fyh_creacion),
+      cell: info => new Date(info.row.original.fyh_creacion).toLocaleDateString('es-AR'),
     },
   ], []);
 
@@ -142,53 +121,21 @@ const GestionMarcas: React.FC = memo(() => {
     );
   }, [marcas, searchTerm]);
 
-  const table = useReactTable({
-    data: marcasFiltradas,
-    columns,
-    state: {
-      sorting,
-      pagination,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
-
   if (!puedeVer) {
     return (
-      <div className={styles.container}>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
-            lock
-          </span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver marcas</p>
-        </div>
+      <div>
+        <AdminEmptyState
+          icon="lock"
+          title="Acceso restringido"
+          message="No tienes permisos para visualizar ni administrar las marcas del sistema."
+          tone="warning"
+        />
       </div>
     );
   }
 
   return (
-    <div className={styles.panel}>
+    <div>
       <AdminFilterPanel>
         <AdminFilterPanel.Row variant="bottom">
           <AdminFilterPanel.Grow>
@@ -209,71 +156,21 @@ const GestionMarcas: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {loading ? (
-        <div className={styles.loadingState}>Cargando marcas...</div>
-      ) : (
-        <>
-          <div className={styles.tableWrapper}>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <table className={styles.table}>
-                <thead>
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
-                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                        {headerGroup.headers.map(header => (
-                          <DraggableTableHeader 
-                            key={header.id} 
-                            header={header} 
-                          />
-                        ))}
-                      </SortableContext>
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.length === 0 ? (
-                    <tr>
-                      <td colSpan={columns.length} className={styles.emptyMessage}>
-                        No hay marcas registradas
-                      </td>
-                    </tr>
-                  ) : (
-                    table.getRowModel().rows.map((row) => {
-                      const marca = row.original;
-                      return (
-                        <tr 
-                          key={row.id}
-                          onClick={puedeEditar ? () => iniciarEdicion(marca) : undefined}
-                          style={{ cursor: puedeEditar ? 'pointer' : 'default' }}
-                          className={puedeEditar ? styles.clickableRow : ''}
-                        >
-                          {row.getVisibleCells().map(cell => (
-                            <td key={cell.id} className={styles.td}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </DndContext>
-          </div>
-          <AdminPagination
-            total={marcasFiltradas.length}
-            limit={pagination.pageSize}
-            offset={pagination.pageIndex * pagination.pageSize}
-            onPageChange={(newOffset) => {
-              setPagination(prev => ({
-                ...prev,
-                pageIndex: Math.floor(newOffset / prev.pageSize)
-              }));
-            }}
-            itemLabel="marcas"
-          />
-        </>
-      )}
+      <AdminDataTable
+        data={marcasFiltradas}
+        columns={columns}
+        isLoading={loading}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        columnOrder={columnOrder}
+        onColumnOrderChange={setColumnOrder}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        totalItems={marcasFiltradas.length}
+        onRowClick={puedeEditar ? iniciarEdicion : undefined}
+        itemLabel="marcas"
+        emptyMessage={loading ? 'Cargando marcas...' : 'No se encontraron marcas'}
+      />
 
       <MarcaModal
         isOpen={modalOpen}

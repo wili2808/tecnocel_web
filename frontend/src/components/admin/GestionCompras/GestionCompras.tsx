@@ -57,6 +57,7 @@ const GestionCompras: React.FC = memo(() => {
   
   const [sorting, setSorting] = useState<SortingState>([]);
   const [stockSorting, setStockSorting] = useState<SortingState>([]);
+  const [stockSearchTerm, setStockSearchTerm] = useState('');
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado'
@@ -274,6 +275,15 @@ const GestionCompras: React.FC = memo(() => {
     setMostrarRegistrar(true);
   }, [seleccionados, stockBajo]);
 
+  const stockFiltrado = useMemo(() => {
+    if (!stockSearchTerm) return stockBajo;
+    const lower = stockSearchTerm.toLowerCase();
+    return stockBajo.filter(p => 
+      p.nombre.toLowerCase().includes(lower) || 
+      (p.codigo && p.codigo.toLowerCase().includes(lower))
+    );
+  }, [stockBajo, stockSearchTerm]);
+
   // === Columnas TanStack para Stock ===
   const stockColumns = useMemo<ColumnDef<ProductoStockBajo>[]>(() => [
     {
@@ -400,8 +410,6 @@ const GestionCompras: React.FC = memo(() => {
 
   return (
     <div className={styles.container}>
-
-
       {/* Estadísticas */}
       {stats ? (
         <AdminMetricsStrip
@@ -424,38 +432,9 @@ const GestionCompras: React.FC = memo(() => {
         hasMarginTop={true}
       />
 
-      {/* Acciones para Stock Bajo (Selección) */}
-      {activeTab === 'stock' && seleccionados.size > 0 && (
-        <div className={styles.stockActionsBar}>
-          <div className={styles.selectionInfo}>
-            <span className="material-icons" style={{ fontSize: '18px' }}>check_circle</span>
-            <span>{seleccionados.size} seleccionado{seleccionados.size !== 1 ? 's' : ''}</span>
-          </div>
-          
-          <button
-            className={controlStyles.secondaryButton}
-            onClick={() => setSeleccionados(new Set())}
-            title="Limpiar selección"
-          >
-            <span className="material-icons">close</span>
-            <span>Limpiar</span>
-          </button>
-
-          <button
-            className={controlStyles.primaryButton}
-            onClick={() => abrirCompraConSeleccion()}
-            disabled={!puedeCrear}
-          >
-            <span className="material-icons">shopping_cart</span>
-            <span>Ordenar compra</span>
-          </button>
-        </div>
-      )}
-
       {/* Tab: Compras */}
       {activeTab === 'compras' && (
         <>
-          {/* Barra de Filtros Premium de 2 Filas - Usando Sistema Global */}
           <AdminFilterPanel>
             <AdminFilterPanel.Row variant="top">
               <AdminFilterPanel.Group>
@@ -528,7 +507,6 @@ const GestionCompras: React.FC = memo(() => {
             </AdminFilterPanel.Row>
           </AdminFilterPanel>
 
-          {/* Tabla */}
           {error ? (
             <AdminEmptyState
               icon="error_outline"
@@ -600,23 +578,39 @@ const GestionCompras: React.FC = memo(() => {
             />
           ) : (
             <>
-              {/* Barra flotante de compra rápida eliminada */}
+              <AdminFilterPanel>
+                <AdminFilterPanel.Row variant="bottom">
+                  <AdminFilterPanel.Grow>
+                    <AdminEntitySearchBar
+                      searchValue={stockSearchTerm}
+                      onSearchChange={setStockSearchTerm}
+                      searchPlaceholder="Buscar por nombre o código..."
+                      searchLabel="Búsqueda de Alertas"
+                      primaryActionLabel={seleccionados.size > 0 ? `Comprar seleccionados (${seleccionados.size})` : 'Seleccionar productos'}
+                      primaryActionIcon="shopping_cart"
+                      onPrimaryAction={() => abrirCompraConSeleccion()}
+                      primaryActionDisabled={!puedeCrear || seleccionados.size === 0}
+                    />
+                  </AdminFilterPanel.Grow>
+                </AdminFilterPanel.Row>
+              </AdminFilterPanel>
 
-            <AdminDataTable
-              data={stockBajo}
-              columns={stockColumns}
-              sorting={stockSorting}
-              onSortingChange={setStockSorting}
-              columnOrder={stockColumnOrder}
-              onColumnOrderChange={setStockColumnOrder}
-              pagination={stockPagination}
-              onPaginationChange={setStockPagination}
-              totalItems={stockBajo.length}
-              itemLabel="productos"
-              isLoading={cargandoStock}
-              manualPagination={false}
-              emptyMessage="No hay productos con stock bajo en este momento."
-            />
+              <AdminDataTable
+                data={stockFiltrado}
+                columns={stockColumns}
+                sorting={stockSorting}
+                onSortingChange={setStockSorting}
+                columnOrder={stockColumnOrder}
+                onColumnOrderChange={setStockColumnOrder}
+                pagination={stockPagination}
+                onPaginationChange={setStockPagination}
+                totalItems={stockFiltrado.length}
+                itemLabel="productos"
+                isLoading={cargandoStock}
+                manualPagination={false}
+                onRowClick={toggleSeleccion}
+                emptyMessage={stockSearchTerm ? `No se encontraron resultados para "${stockSearchTerm}"` : "No hay productos con stock bajo en este momento."}
+              />
             </>
           )}
         </div>

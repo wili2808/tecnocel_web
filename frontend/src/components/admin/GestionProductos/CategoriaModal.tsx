@@ -5,7 +5,7 @@ import adminProductService from '../../../services/adminProductService';
 import type { Category } from '../../../types/product';
 import Input from '../../common/Input/Input';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './CategoriaModal.module.css';
+import styles from './ProductoModals.module.css';
 
 interface CategoriaModalProps {
   categoria?: Category | null;

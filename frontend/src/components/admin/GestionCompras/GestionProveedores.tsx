@@ -101,7 +101,7 @@ const GestionProveedores: React.FC = memo(() => {
 
   if (!puedeVer) {
     return (
-      <div className={styles.container}>
+      <div>
         <div className={styles.header}>
           <h1 className={styles.title}>
             <span className="material-icons">local_shipping</span>

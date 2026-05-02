@@ -1,32 +1,24 @@
-/**
- * GestionCaracteristicas — CRUD de tipos de características desde el panel admin
- * Tabla con panel de formulario lateral para crear/editar (por complejidad de campos).
- * Refactorizado con TanStack Table v8 y dnd-kit.
- */
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { TipoCaracteristica } from '../../../types/product';
 import CaracteristicaModal from './CaracteristicaModal';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination, DraggableTableHeader } from '../common';
-import styles from './GestionCaracteristicas.module.css';
+import { 
+  AdminEntitySearchBar, 
+  AdminFilterPanel, 
+  AdminDataTable,
+  AdminEmptyState 
+} from '../common';
+import styles from './GestionProductos.module.css';
+
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 const TIPO_DATO_LABELS: Record<TipoCaracteristica['tipo_dato'], string> = {
   texto: 'Texto',
   numero: 'Número',
   booleano: 'Booleano (Sí/No)',
   seleccion: 'Selección',
-};
-
-const getErrorMessage = (error: unknown, fallback: string): string => {
-  const err = error as {
-    response?: { data?: { error?: string; message?: string; mensaje?: string } };
-    message?: string;
-  };
-  return (
-    err.response?.data?.error || err.response?.data?.message || err.response?.data?.mensaje || err.message || fallback
-  );
 };
 
 const parseOpciones = (opciones: unknown): string[] => {
@@ -42,30 +34,6 @@ const parseOpciones = (opciones: unknown): string[] => {
   }
 };
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
 const GestionCaracteristicas: React.FC = memo(() => {
   const { showNotification } = useNotification();
   const { tienePermiso } = useAuth();
@@ -79,7 +47,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoCaracteristica | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Estados TanStack
+  // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'tipo', 'unidad', 'estado']);
@@ -89,8 +57,8 @@ const GestionCaracteristicas: React.FC = memo(() => {
       setLoading(true);
       const data = await adminProductService.obtenerTiposCaracteristicas();
       setTipos(data);
-    } catch (err: unknown) {
-      showNotification(getErrorMessage(err, 'Error al cargar tipos de características'), 'error');
+    } catch (err: any) {
+      showNotification(err.message || 'Error al cargar tipos de características', 'error');
     } finally {
       setLoading(false);
     }
@@ -112,23 +80,23 @@ const GestionCaracteristicas: React.FC = memo(() => {
 
   const renderUnidadOpciones = useCallback((tipo: TipoCaracteristica) => {
     if (tipo.tipo_dato === 'numero' && tipo.unidad_medida) {
-      return <span className={styles.unidadBadge}>{tipo.unidad_medida}</span>;
+      return <span className="modalBadgePremium neutral">{tipo.unidad_medida}</span>;
     }
     if (tipo.tipo_dato === 'seleccion') {
       const opciones = parseOpciones(tipo.opciones_seleccion);
-      if (!opciones.length) return <span className={styles.emptyValue}>—</span>;
+      if (!opciones.length) return <span className="text-muted">—</span>;
       return (
-        <div className={styles.opcionesList}>
-          {opciones.slice(0, 3).map((op) => (
-            <span key={op} className={styles.opcionChip}>
+        <div className="flex gap-xs flex-wrap">
+          {opciones.slice(0, 2).map((op) => (
+            <span key={op} className="modalBadgePremium primary text-xxs">
               {op}
             </span>
           ))}
-          {opciones.length > 3 && <span className={styles.opcionChipMore}>+{opciones.length - 3}</span>}
+          {opciones.length > 2 && <span className="modalBadgePremium neutral text-xxs">+{opciones.length - 2}</span>}
         </div>
       );
     }
-    return <span className={styles.emptyValue}>—</span>;
+    return <span className="text-muted">—</span>;
   }, []);
 
   // --- Columnas ---
@@ -140,10 +108,10 @@ const GestionCaracteristicas: React.FC = memo(() => {
       cell: info => {
         const tipo = info.row.original;
         return (
-          <>
+          <div className="flex flex-col">
             <span className={styles.tipoNombre}>{tipo.nombre_tipo}</span>
             {tipo.descripcion && <span className={styles.tipoDescripcion}>{tipo.descripcion}</span>}
-          </>
+          </div>
         );
       }
     },
@@ -152,7 +120,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
       id: 'tipo',
       header: 'Tipo de dato',
       cell: info => (
-        <span className={styles.tipoDatoBadge}>{TIPO_DATO_LABELS[info.getValue() as TipoCaracteristica['tipo_dato']]}</span>
+        <span className="modalBadgePremium neutral">{TIPO_DATO_LABELS[info.getValue() as TipoCaracteristica['tipo_dato']]}</span>
       )
     },
     {
@@ -168,7 +136,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
       cell: info => {
         const activo = info.row.original.activo;
         return (
-          <span className={activo ? styles.badgeActivo : styles.badgeInactivo}>
+          <span className={`modalBadgePremium ${activo ? 'success' : 'error'}`}>
             {activo ? 'Activo' : 'Inactivo'}
           </span>
         );
@@ -186,53 +154,21 @@ const GestionCaracteristicas: React.FC = memo(() => {
     );
   }, [tipos, searchTerm]);
 
-  const table = useReactTable({
-    data: tiposFiltrados,
-    columns,
-    state: {
-      sorting,
-      pagination,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
-
   if (!puedeVer) {
     return (
-      <div className={styles.container}>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-          <span className="material-icons" style={{ fontSize: 48, opacity: 0.5 }}>
-            lock
-          </span>
-          <p style={{ marginTop: 16 }}>No tienes permisos para ver características</p>
-        </div>
+      <div>
+        <AdminEmptyState
+          icon="lock"
+          title="Permisos insuficientes"
+          message="No cuentas con la autorización necesaria para gestionar las características de productos."
+          tone="warning"
+        />
       </div>
     );
   }
 
   return (
-    <div className={styles.panel}>
+    <div>
       <AdminFilterPanel>
         <AdminFilterPanel.Row variant="bottom">
           <AdminFilterPanel.Grow>
@@ -244,7 +180,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
                 setSearchTerm(val);
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }));
               }}
-              primaryActionLabel="Nuevo tipo"
+              primaryActionLabel="Nueva Característica"
               primaryActionIcon="add"
               onPrimaryAction={abrirFormCrear}
               primaryActionDisabled={!puedeCrear}
@@ -253,77 +189,28 @@ const GestionCaracteristicas: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {loading ? (
-        <div className={styles.loadingState}>Cargando tipos de características...</div>
-      ) : (
-        <>
-          <div className={styles.mainContent}>
-            <div className={styles.tableWrapper}>
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <table className={styles.table}>
-                  <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                      <tr key={headerGroup.id}>
-                        <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                          {headerGroup.headers.map(header => (
-                            <DraggableTableHeader key={header.id} header={header} />
-                          ))}
-                        </SortableContext>
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody>
-                    {table.getRowModel().rows.length === 0 ? (
-                      <tr>
-                        <td colSpan={columns.length} className={styles.emptyMessage}>
-                          No hay tipos de características registrados
-                        </td>
-                      </tr>
-                    ) : (
-                      table.getRowModel().rows.map((row) => {
-                        const tipo = row.original;
-                        return (
-                          <tr 
-                            key={row.id} 
-                            onClick={puedeEditar ? () => abrirFormEditar(tipo) : undefined}
-                            style={{ cursor: puedeEditar ? 'pointer' : 'default' }}
-                            className={puedeEditar ? styles.clickableRow : ''}
-                          >
-                            {row.getVisibleCells().map(cell => (
-                              <td key={cell.id} className={styles.td}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </DndContext>
-            </div>
-            <AdminPagination
-              total={tiposFiltrados.length}
-              limit={pagination.pageSize}
-              offset={pagination.pageIndex * pagination.pageSize}
-              onPageChange={(newOffset) => {
-                setPagination(prev => ({
-                  ...prev,
-                  pageIndex: Math.floor(newOffset / prev.pageSize)
-                }));
-              }}
-              itemLabel="características"
-            />
-          </div>
+      <AdminDataTable
+        data={tiposFiltrados}
+        columns={columns}
+        isLoading={loading}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        columnOrder={columnOrder}
+        onColumnOrderChange={setColumnOrder}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        totalItems={tiposFiltrados.length}
+        onRowClick={puedeEditar ? abrirFormEditar : undefined}
+        itemLabel="características"
+        emptyMessage={loading ? 'Cargando características...' : 'No se encontraron características'}
+      />
 
-          <CaracteristicaModal
-            isOpen={modalOpen}
-            tipo={tipoSeleccionado}
-            onClose={() => setModalOpen(false)}
-            onGuardado={cargarTipos}
-          />
-        </>
-      )}
+      <CaracteristicaModal
+        isOpen={modalOpen}
+        tipo={tipoSeleccionado}
+        onClose={() => setModalOpen(false)}
+        onGuardado={cargarTipos}
+      />
     </div>
   );
 });

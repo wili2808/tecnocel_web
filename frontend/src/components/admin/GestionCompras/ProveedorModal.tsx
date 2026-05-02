@@ -4,7 +4,7 @@ import type { CreateProveedorData, ProveedorListItem } from '../../../types';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './ProveedorModal.module.css';
+import styles from './CompraModals.module.css';
 
 interface ProveedorModalProps {
   isOpen?: boolean;
@@ -82,7 +82,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, pro
       icon={isEditing ? 'edit' : 'add_business'}
       maxWidth="600px"
     >
-      <div className={`modalBodyPremium ${styles.body}`}>
+      <div className={`modalBodyPremium ${styles.modalBodyContent}`}>
         {error && (
           <div className="modalAlertErrorPremium mb-4">
             <span className="material-icons">error</span>
@@ -92,7 +92,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, pro
 
         <form id="proveedor-form" onSubmit={handleGuardar}>
           
-          <h4 className="sectionTitleWithDividerPremium">Razón Social</h4>
+          <h4 className={styles.sectionTitle}>Razón Social</h4>
           <div className="modalFormGridPremium" style={{ gridTemplateColumns: '1fr' }}>
             <Input
               id="empresa"
@@ -107,7 +107,7 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, pro
             />
           </div>
 
-          <h4 className="sectionTitleWithDividerPremium mt-8">Información de Contacto</h4>
+          <h4 className={`${styles.sectionTitle} mt-8`}>Información de Contacto</h4>
           <div className="modalFormGridPremium">
               <Input
                 id="nombre_proveedor"

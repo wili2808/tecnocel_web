@@ -5,7 +5,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import adminVentaService from '../../../services/adminVentaService';
 import type { VentaDetalle } from '../../../types/venta';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './DetalleVentaModal.module.css';
+import styles from './VentaModals.module.css';
 
 interface DetalleVentaModalProps {
   idVenta: number;

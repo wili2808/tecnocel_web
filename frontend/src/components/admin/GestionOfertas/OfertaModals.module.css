@@ -1,0 +1,196 @@
+/* ============================================================================
+   OFERTA MODALS - Estilos compartidos para Gestión de Ofertas
+   ============================================================================ */
+
+/* --- GENERAL & ESTRUCTURA --- */
+
+.modalBodyContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sectionTitle {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+/* --- TOGGLE CARD (OFERTA ACTIVA) --- */
+
+.toggleCard {
+  margin-top: var(--spacing-lg);
+  padding: 16px 20px;
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all var(--transition-fast);
+}
+
+.toggleCard:hover {
+  border-color: var(--color-primary-300);
+  background: var(--background-neutral);
+}
+
+.toggleInfo {
+  flex: 1;
+}
+
+.toggleLabel {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.toggleDesc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* --- TOGGLE SWITCH --- */
+
+.toggle {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  background: var(--border-color);
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.toggleOn {
+  background: var(--color-success);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition-normal) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggleOn .toggleKnob {
+  transform: translateX(20px);
+}
+
+/* --- TABLA DE PRODUCTOS ASIGNADOS --- */
+
+.thumbnailWrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--background-neutral);
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  font-size: 14px;
+}
+
+/* --- BADGES Y ESTADOS --- */
+
+.badgePremium {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.personalizadoBadge {
+  background-color: rgba(var(--color-info-rgb), 0.1);
+  color: var(--color-info);
+  border: 1px solid rgba(var(--color-info-rgb), 0.2);
+}
+
+.calculadoBadge {
+  background-color: var(--background-neutral);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* --- ACCIONES --- */
+
+.removeButton {
+  padding: 6px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.removeButton:hover {
+  background-color: var(--color-error-100);
+  color: var(--color-error);
+  border-color: var(--color-error);
+  transform: scale(1.05);
+}
+
+/* --- RESPONSIVE --- */
+
+@media (max-width: 480px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .toggleCard {
+    padding: 14px;
+    gap: 12px;
+  }
+  
+  .thumbnailWrapper {
+    width: 32px;
+    height: 32px;
+  }
+}

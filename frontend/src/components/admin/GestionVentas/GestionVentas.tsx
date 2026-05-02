@@ -48,15 +48,15 @@ const formatIngresoUsd = (n: number) => {
 
 const badgeEstado = (estado: string) => {
   const map: Record<string, string> = {
-    completada: styles.badgeCompletada,
-    cancelada: styles.badgeCancelada,
+    completada: styles.badgeActiva,
+    cancelada: styles.badgeAnulada,
     pendiente: styles.badgePendiente,
   };
-  return `${styles.badge} ${map[estado] || ''}`;
+  return map[estado] || '';
 };
 
 const badgeTipo = (tipo: string) =>
-  `${styles.badge} ${tipo === 'web' ? styles.badgeWeb : styles.badgeManual}`;
+  tipo === 'web' ? styles.badgeActiva : styles.badgePendiente;
 
 // ── Componente ────────────────────────────────────────────────────────────────
 

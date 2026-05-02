@@ -7,7 +7,7 @@ import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './CaracteristicaModal.module.css';
+import styles from './ProductoModals.module.css';
 
 interface CaracteristicaModalProps {
   tipo?: TipoCaracteristica | null;

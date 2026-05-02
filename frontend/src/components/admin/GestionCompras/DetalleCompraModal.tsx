@@ -4,7 +4,7 @@ import AnularCompraModal from './AnularCompraModal';
 import type { CompraDetalle } from '../../../types';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 import { formatUSD } from '../../../utils/formatPrecio';
-import styles from './DetalleCompraModal.module.css';
+import styles from './CompraModals.module.css';
 
 interface DetalleCompraModalProps {
   idCompra: number;

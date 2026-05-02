@@ -1,7 +1,3 @@
-/**
- * Componente OfertaProductos - Asignación y gestión de productos en una oferta
- * Muestra productos asignados y permite agregar/remover productos con precio personalizado
- */
 import { useState, useEffect, useCallback } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
@@ -10,9 +6,9 @@ import { AdminSearch } from '../common';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import { formatARS } from '../../../utils/formatPrecio';
-import styles from './OfertaProductos.module.css';
+import styles from './OfertaModals.module.css';
 
-interface OfertaProductosProps {
+interface OfertaModalProductosProps {
   oferta: OfertaConProductos;
   onProductosChanged: () => void;
 }
@@ -22,7 +18,7 @@ interface ProductoSeleccionado {
   precio_oferta?: number;
 }
 
-const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) => {
+const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProductosProps) => {
   const { showNotification } = useNotification();
   const { tipoCambio } = useTipoCambio();
 
@@ -62,7 +58,6 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
     buscarProductos(searchTerm);
   }, [searchTerm, showBuscador, buscarProductos]);
 
-  // Filtrar productos ya asignados del resultado de búsqueda
   const productosNoAsignados = productosDisponibles.filter(
     p => !productosAsignados.some(pa => pa.id_producto === p.id_producto)
   );
@@ -98,7 +93,6 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
 
     try {
       setAsignando(true);
-      // Convertir precios personalizados de ARS a USD antes de enviar
       const productos = Array.from(seleccionados.values()).map(p => ({
         ...p,
         precio_oferta: p.precio_oferta ? p.precio_oferta / tipoCambio : undefined
@@ -145,7 +139,6 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
     setSearchTerm('');
   };
 
-  /** Calcula el precio con descuento para mostrar en la tabla */
   const calcularPrecioDescuento = (precioVenta: string) => {
     const precio = parseFloat(precioVenta);
     if (oferta.tipo_descuento === 'porcentaje') {
@@ -155,10 +148,10 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>
-          <span className="material-icons">inventory_2</span>
+    <div className={styles.modalBodyContent}>
+      <div className="flex items-center justify-between p-lg border-b bg-neutral-50" style={{ marginBottom: '14px' }}>
+        <h3 className="m-0 text-sm font-bold flex items-center gap-sm">
+          <span className="material-icons text-primary" style={{ fontSize: '18px' }}>inventory_2</span>
           Productos en esta Oferta ({productosAsignados.length})
         </h3>
         <button className="btnPremium btnPrimaryPremium btnSmPremium" onClick={handleAbrirBuscador}>
@@ -167,12 +160,11 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
         </button>
       </div>
 
-      {/* Tabla de productos asignados */}
-      <div className="modalTableWrapperPremium">
+      <div className="modalTableWrapperPremium" style={{ margin: '0 var(--spacing-lg)' }}>
         <table className="modalTablePremium">
           <thead>
             <tr>
-              <th>Imagen</th>
+              <th style={{ width: '60px' }}>Imagen</th>
               <th>Código</th>
               <th>Nombre</th>
               <th className="text-right">Precio Original</th>
@@ -222,18 +214,18 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
                     </td>
                     <td className="text-center">
                       {producto.ProductoOferta?.es_precio_personalizado ? (
-                        <span className="modalBadgePremium error badgeSmallPremium">Manual</span>
+                        <span className={`${styles.badgePremium} ${styles.personalizadoBadge}`}>Manual</span>
                       ) : (
-                        <span className="modalBadgePremium success badgeSmallPremium">Auto</span>
+                        <span className={`${styles.badgePremium} ${styles.calculadoBadge}`}>Auto</span>
                       )}
                     </td>
                     <td className="text-right">
                       <button
-                        className="modalIconButtonPremium text-error"
+                        className={styles.removeButton}
                         title="Remover de la oferta"
                         onClick={() => handleRemoverProducto(producto.id_producto, producto.nombre)}
                       >
-                        <span className="material-icons">close</span>
+                        <span className="material-icons" style={{ fontSize: '18px' }}>close</span>
                       </button>
                     </td>
                   </tr>
@@ -244,7 +236,6 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
         </table>
       </div>
 
-      {/* Modal buscador de productos */}
       <PremiumModal
         isOpen={showBuscador}
         onClose={handleCerrarBuscador}
@@ -262,7 +253,7 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
             />
           </div>
 
-          <div className={styles.searchContainer}>
+          <div style={{ minHeight: '300px', position: 'relative' }}>
             {loadingBusqueda && (
               <div className="modalLoadingPremium">
                 <span className="material-icons">autorenew</span>
@@ -278,7 +269,7 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
 
             {!loadingBusqueda && productosDisponibles.length === 0 && searchTerm && (
               <div className="modalEmptyStateSimplePremium">
-                <span className={`material-icons ${styles.emptyIcon}`}>search_off</span>
+                <span className="material-icons opacity-30" style={{ fontSize: '48px' }}>search_off</span>
                 <p>No se encontraron productos para "{searchTerm}"</p>
               </div>
             )}
@@ -373,4 +364,4 @@ const OfertaProductos = ({ oferta, onProductosChanged }: OfertaProductosProps) =
   );
 };
 
-export default OfertaProductos;
+export default OfertaModalProductos;

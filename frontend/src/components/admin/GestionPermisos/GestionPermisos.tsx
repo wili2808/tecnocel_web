@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import permisoService from '../../../services/permisoService';
 import styles from './GestionPermisos.module.css';
-import { AdminFilterPanel, AdminEntitySearchBar, AdminTabs } from '../common';
+import { AdminFilterPanel, AdminEntitySearchBar, AdminTabs, AdminEmptyState } from '../common';
 import type { AdminTabConfig } from '../common';
 import type { RolesConPermisos, PermisoItem } from '../../../types/permiso';
 
@@ -177,10 +177,12 @@ const GestionPermisos = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>
-          <span className="material-icons spin">sync</span>
-          <span>Cargando configuración de permisos...</span>
-        </div>
+        <AdminEmptyState
+          icon="sync"
+          title="Cargando configuración"
+          message="Estamos recuperando la matriz de permisos y roles del sistema."
+          className={styles.spin}
+        />
       </div>
     );
   }
@@ -283,10 +285,12 @@ const GestionPermisos = () => {
         )}
 
         {permisosFiltrados.length === 0 && (
-          <div className={styles.emptyState}>
-            <span className="material-icons">search_off</span>
-            <span>No se encontraron permisos que coincidan con los filtros</span>
-          </div>
+          <AdminEmptyState
+            icon="search_off"
+            title="Sin coincidencias"
+            message={`No se encontraron permisos que coincidan con "${busqueda}" en el módulo seleccionado.`}
+            tone="neutral"
+          />
         )}
       </div>
     </div>

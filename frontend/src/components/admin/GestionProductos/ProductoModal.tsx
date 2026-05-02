@@ -7,7 +7,7 @@ import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import Select from '../../common/Select/Select';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './ProductoModal.module.css';
+import styles from './ProductoModals.module.css';
 
 interface ProductoModalProps {
   producto?: Product | null;

@@ -7,612 +7,79 @@
   min-height: 100%;
 }
 
-.header {
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.headerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-lg);
-}
-
 /* ============================================================================
-   ESTADOS
+   BADGES DE ESTADO (USADOS EN TABLA)
    ============================================================================ */
 
-.loading,
-.error {
-  display: flex;
-  flex-direction: column;
+.badgeActiva,
+.badgeInactiva,
+.badgeExpirada,
+.badgeProgramada,
+.badgeTipo {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-2xl);
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.error .material-icons {
-  font-size: var(--font-size-3xl);
-  color: var(--color-error);
-}
-
-.retryButton {
-  padding: 7px 14px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-weight: 600;
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-}
-
-.retryButton:hover {
-  background: var(--color-primary-dark);
-}
-
-.stateBlock {
-  margin-bottom: 14px;
-}
-
-
-
-/* ============================================================================
-   TABLA DE OFERTAS
-   ============================================================================ */
-
-.tableWrapper {
-  overflow-x: auto;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--background-primary);
-  font-size: 13px;
-}
-
-.table thead {
-  background: var(--background-neutral);
-}
-
-.table th {
-  padding: 8px 12px;
-  text-align: left;
+  padding: 4px 10px;
+  border-radius: 20px;
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.7px;
-  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
-.sortableHeader {
-  cursor: pointer;
-  user-select: none;
-}
-
-.sortableHeaderContent {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: color var(--transition-fast);
-}
-
-.sortableHeader:hover .sortableHeaderContent {
-  color: var(--color-primary);
-}
-
-.sortIcon {
-  font-size: 14px !important;
-  opacity: 0.3;
-  transition: opacity var(--transition-fast);
-}
-
-.sortableHeader:hover .sortableHeaderContent .sortIcon {
-  opacity: 0.6;
-}
-
-.sortIconActive {
-  opacity: 1 !important;
-  color: var(--color-primary);
-}
-
-.table td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  vertical-align: middle;
-  font-size: 13px;
-}
-
-.table tbody tr {
-  transition: background-color var(--transition-fast) var(--transition-curve);
-}
-
-.table tbody tr:hover {
-  background: var(--color-primary-25);
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.clickableRow {
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.clickableRow:hover {
-  background-color: var(--color-primary-25) !important;
-}
-
-.emptyMessage {
-  text-align: center;
-  color: var(--text-secondary);
-  font-style: italic;
-  padding: var(--spacing-xl) var(--spacing-md);
-  font-size: 13px;
-}
-
-/* === BADGES DE ESTADO === */
-
-.estadoBadge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--border-radius-sm);
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.estadoActiva {
-  background: var(--color-success-100);
+.badgeActiva {
+  background: rgba(var(--color-success-rgb), 0.1);
   color: var(--color-success);
 }
 
-.estadoInactiva {
-  background: var(--background-neutral);
+.badgeInactiva {
+  background: rgba(var(--text-secondary-rgb), 0.1);
   color: var(--text-secondary);
 }
 
-.estadoExpirada {
-  background: var(--color-error-100);
-  color: var(--color-error);
+.badgeExpirada {
+  background: rgba(var(--color-danger-rgb), 0.1);
+  color: var(--color-danger);
 }
 
-.estadoProgramada {
-  background: var(--color-info-100);
+.badgeProgramada {
+  background: rgba(var(--color-info-rgb), 0.1);
   color: var(--color-info);
 }
 
-.tipoBadge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--border-radius-sm);
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--color-primary-100);
+.badgeTipo {
+  background: rgba(var(--color-primary-rgb), 0.1);
   color: var(--color-primary);
 }
 
+/* ============================================================================
+   HELPERS DE CELDA
+   ============================================================================ */
+
 .valorCell {
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
 }
 
 .productosCount {
   font-size: 12px;
   color: var(--text-secondary);
-}
-
-/* === ACCIONES === */
-
-.actions {
-  display: flex;
-  gap: 5px;
-}
-
-.actionButton {
-  padding: 5px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.actionButton:hover:not(:disabled) {
-  background: var(--color-primary-100);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.actionButtonDanger:hover:not(:disabled) {
-  background: var(--color-error-100);
-  color: var(--color-error);
-  border-color: var(--color-error);
-}
-
-.actionButton:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  color: var(--text-disabled);
-  border-color: var(--border-color);
-  background: none;
-}
-
-.actionButton .material-icons {
-  font-size: 16px;
+  font-weight: 600;
 }
 
 /* ============================================================================
-   PAGINACIÓN
+   ESTADOS DE CARGA Y HELPERS
    ============================================================================ */
 
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.pageButton {
-  padding: 5px 10px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  display: flex;
-  align-items: center;
-}
-
-.pageButton:hover:not(:disabled) {
-  background: var(--color-primary-100);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.pageButton:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.pageInfo {
-  font-size: 13px;
-  color: var(--text-secondary);
+.stateBlock {
+  margin-bottom: 14px;
 }
 
 /* ============================================================================
-   MODAL
+   ANIMACIONES
    ============================================================================ */
-
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-modal);
-  padding: var(--spacing-lg);
-}
-
-.modal {
-  background: var(--background-elevated);
-  border-radius: var(--border-radius-lg);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-}
-
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.modalTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.modalTitle .material-icons {
-  color: var(--color-primary);
-  font-size: 18px;
-}
-
-.closeButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  padding: 5px;
-  border-radius: var(--border-radius-sm);
-  transition: color var(--transition-fast) var(--transition-curve),
-              background-color var(--transition-fast) var(--transition-curve);
-}
-
-.closeButton:hover:not(:disabled) {
-  background: var(--background-hover);
-  color: var(--text-primary);
-}
-
-.closeButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.modalBody {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.modalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 20px;
-  border-top: 1px solid var(--border-color);
-  flex-shrink: 0;
-  background: var(--background-secondary);
-}
-
-/* === FORM STYLES INSIDE MODAL === */
-
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.1px;
-}
-
-.input,
-.select {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.input:focus,
-.select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.textarea {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  resize: vertical;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.helpText {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.cancelButton {
-  padding: 7px 14px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-}
-
-.cancelButton:hover {
-  background: var(--background-hover);
-  border-color: var(--text-secondary);
-}
-
-.submitButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.submitButton:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.submitButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* === FORM FIELDSETS AND SECTIONS === */
-
-.section {
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: 16px 20px;
-  background: var(--background-primary);
-}
-
-.sectionTitle {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  margin: 0 0 12px;
-  border: none;
-  padding: 0;
-}
-
-.sectionTitle .material-icons {
-  color: var(--color-primary);
-  font-size: 16px;
-}
-
-.formGroupFull {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.formRow3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-.textarea {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background: var(--background-primary);
-  color: var(--text-primary);
-  resize: vertical;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.checkboxGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-primary);
-  cursor: pointer;
-  user-select: none;
-}
-
-.checkbox {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--color-primary);
-}
-
-/* ============================================================================
-   RESPONSIVE
-   ============================================================================ */
-
-@media (max-width: 768px) {
-  .container {
-    padding: 16px;
-  }
-
-  .formRow,
-  .formRow3 {
-    grid-template-columns: 1fr;
-  }
-
-  .table th,
-  .table td {
-    padding: 7px 10px;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   * {

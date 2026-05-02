@@ -6,7 +6,7 @@ import type { Marca } from '../../../types/product';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './MarcaModal.module.css';
+import styles from './ProductoModals.module.css';
 
 interface MarcaModalProps {
   marca?: Marca | null;
