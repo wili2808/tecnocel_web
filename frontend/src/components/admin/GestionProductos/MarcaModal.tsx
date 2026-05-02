@@ -173,28 +173,32 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
               </div>
             </div>
 
-            <Input
-              id="nombre_marca"
-              name="nombre_marca"
-              label="Nombre de la Marca"
-              value={form.nombre_marca}
-              onChange={handleInputChange}
-              placeholder="Ej: Samsung, Apple, Xiaomi"
-              disabled={guardando || readonly}
-              required
-              autoFocus
-            />
+            <div className="modalFormGroupFullPremium">
+              <Input
+                id="nombre_marca"
+                name="nombre_marca"
+                label="Nombre de la Marca"
+                value={form.nombre_marca}
+                onChange={handleInputChange}
+                placeholder="Ej: Samsung, Apple, Xiaomi"
+                disabled={guardando || readonly}
+                required
+                autoFocus
+              />
+            </div>
 
-            <TextArea
-              id="descripcion_marca"
-              name="descripcion_marca"
-              label="Descripción"
-              value={form.descripcion_marca}
-              onChange={handleInputChange}
-              placeholder="Descripción opcional de la marca..."
-              disabled={guardando || readonly}
-              rows={3}
-            />
+            <div className="modalFormGroupFullPremium">
+              <TextArea
+                id="descripcion_marca"
+                name="descripcion_marca"
+                label="Descripción"
+                value={form.descripcion_marca}
+                onChange={handleInputChange}
+                placeholder="Descripción opcional de la marca..."
+                disabled={guardando || readonly}
+                rows={3}
+              />
+            </div>
           </div>
 
           <div className="modalFooterPremium">

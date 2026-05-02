@@ -9,7 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { Marca } from '../../../types/product';
 import MarcaModal from './MarcaModal';
-import { AdminPagination } from '../common';
+import { AdminSurface, AdminSearch, AdminPagination } from '../common';
 import styles from './GestionMarcas.module.css';
 
 import {
@@ -101,6 +101,7 @@ const GestionMarcas: React.FC = memo(() => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [marcaSeleccionada, setMarcaSeleccionada] = useState<Marca | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
@@ -185,8 +186,18 @@ const GestionMarcas: React.FC = memo(() => {
     },
   ], []);
 
+  // Filtrado local por nombre
+  const marcasFiltradas = useMemo(() => {
+    if (!searchTerm) return marcas;
+    const lowerSearch = searchTerm.toLowerCase();
+    return marcas.filter(m => 
+      m.nombre_marca.toLowerCase().includes(lowerSearch) || 
+      (m.descripcion_marca && m.descripcion_marca.toLowerCase().includes(lowerSearch))
+    );
+  }, [marcas, searchTerm]);
+
   const table = useReactTable({
-    data: marcas,
+    data: marcasFiltradas,
     columns,
     state: {
       sorting,
@@ -232,17 +243,31 @@ const GestionMarcas: React.FC = memo(() => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelHeader}>
-        <button
-          className={styles.addButton}
-          onClick={iniciarCreacion}
-          disabled={!puedeCrear}
-          title={!puedeCrear ? 'Sin permisos para crear marcas' : undefined}
-        >
-          <span className="material-icons">add</span>
-          Nueva Marca
-        </button>
-      </div>
+      <AdminSurface className="admin-filter-shell" tone="muted">
+        <div className="admin-search-form">
+          <div className="admin-search-wrapper">
+            <AdminSearch
+              value={searchTerm}
+              placeholder="Buscar marcas..."
+              onChange={(val) => {
+                setSearchTerm(val);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            />
+          </div>
+          <div className="admin-action-row">
+            <button
+              className={styles.addButton}
+              onClick={iniciarCreacion}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear marcas' : undefined}
+            >
+              <span className="material-icons">add</span>
+              <span>Nueva Marca</span>
+            </button>
+          </div>
+        </div>
+      </AdminSurface>
 
       {loading ? (
         <div className={styles.loadingState}>Cargando marcas...</div>

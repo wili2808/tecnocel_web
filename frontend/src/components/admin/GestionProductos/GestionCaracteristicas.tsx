@@ -9,7 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
 import type { TipoCaracteristica } from '../../../types/product';
 import CaracteristicaModal from './CaracteristicaModal';
-import { AdminPagination } from '../common';
+import { AdminSurface, AdminSearch, AdminPagination } from '../common';
 import styles from './GestionCaracteristicas.module.css';
 
 const TIPO_DATO_LABELS: Record<TipoCaracteristica['tipo_dato'], string> = {
@@ -129,6 +129,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoCaracteristica | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
@@ -225,10 +226,20 @@ const GestionCaracteristicas: React.FC = memo(() => {
         );
       }
     },
-  ], []);
+  ], [renderUnidadOpciones]);
+
+  // Filtrado local
+  const tiposFiltrados = useMemo(() => {
+    if (!searchTerm) return tipos;
+    const lowerSearch = searchTerm.toLowerCase();
+    return tipos.filter(t => 
+      t.nombre_tipo.toLowerCase().includes(lowerSearch) || 
+      (t.descripcion && t.descripcion.toLowerCase().includes(lowerSearch))
+    );
+  }, [tipos, searchTerm]);
 
   const table = useReactTable({
-    data: tipos,
+    data: tiposFiltrados,
     columns,
     state: {
       sorting,
@@ -274,12 +285,26 @@ const GestionCaracteristicas: React.FC = memo(() => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelHeader}>
-        <button className={styles.addButton} onClick={abrirFormCrear} disabled={!puedeCrear}>
-          <span className="material-icons">add</span>
-          Nuevo tipo
-        </button>
-      </div>
+      <AdminSurface className="admin-filter-shell" tone="muted">
+        <div className="admin-search-form">
+          <div className="admin-search-wrapper">
+            <AdminSearch
+              value={searchTerm}
+              placeholder="Buscar características..."
+              onChange={(val) => {
+                setSearchTerm(val);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            />
+          </div>
+          <div className="admin-action-row">
+            <button className={styles.addButton} onClick={abrirFormCrear} disabled={!puedeCrear}>
+              <span className="material-icons">add</span>
+              <span>Nuevo tipo</span>
+            </button>
+          </div>
+        </div>
+      </AdminSurface>
 
       {loading ? (
         <div className={styles.loadingState}>Cargando tipos de características...</div>

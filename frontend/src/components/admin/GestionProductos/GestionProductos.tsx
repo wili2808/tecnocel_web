@@ -11,7 +11,7 @@ import ProductoModal from './ProductoModal';
 import GestionMarcas from './GestionMarcas';
 import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
-import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch, AdminPagination } from '../common';
+import { AdminEmptyState, AdminSurface, AdminSearch, AdminPagination } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
@@ -158,6 +158,8 @@ const GestionProductos = () => {
     setSoloDestacados((prev) => !prev);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
+
+
 
   const handleEditar = useCallback(async (id: number) => {
     try {
@@ -352,20 +354,7 @@ const GestionProductos = () => {
   // Renderizado principal
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          <button
-            className={styles.crearButton}
-            onClick={handleCrear}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear productos' : undefined}
-          >
-            <span className="material-icons">add_box</span>
-            <span>Agregar Producto</span>
-          </button>
-        }
-      />
+
 
       {/* Barra de tabs */}
       <div className={styles.tabsBar}>
@@ -392,27 +381,38 @@ const GestionProductos = () => {
 
       {activeTab === 'productos' && (
         <>
-          {/* Barra de búsqueda */}
-          <AdminSurface className={styles.filterShell} tone="muted">
-            <div className={styles.searchForm}>
-              <AdminSearch
-                value={searchTerm}
-                placeholder="Buscar por nombre o código..."
-                onChange={(val) => {
-                  setSearchTerm(val);
-                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-                }}
-              />
-              {/* Boton para mostrar solo productos destacados */}
-              <button
-                type="button"
-                className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
-                onClick={handleToggleDestacados}
-                title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
-              >
-                <span className="material-icons">star</span>
-                <span>Destacados</span>
-              </button>
+          {/* Barra de búsqueda - Usando Sistema Global */}
+          <AdminSurface className="admin-filter-shell" tone="muted">
+            <div className="admin-search-form">
+              <div className="admin-search-wrapper">
+                <AdminSearch
+                  value={searchTerm}
+                  placeholder="Buscar por nombre o código..."
+                  onChange={(val) => {
+                    setSearchTerm(val);
+                    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                  }}
+                />
+              </div>
+              <div className="admin-action-row">
+                <button
+                  type="button"
+                  className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
+                  onClick={handleToggleDestacados}
+                  title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
+                >
+                  <span className="material-icons">{soloDestacados ? 'star' : 'star_outline'}</span>
+                </button>
+                <button
+                  className={styles.crearButton}
+                  onClick={handleCrear}
+                  disabled={!puedeCrear}
+                  title={!puedeCrear ? 'Sin permisos para crear productos' : undefined}
+                >
+                  <span className="material-icons">add_box</span>
+                  <span>Agregar Producto</span>
+                </button>
+              </div>
             </div>
           </AdminSurface>
 
@@ -442,13 +442,6 @@ const GestionProductos = () => {
           {/* Tabla de productos (TanStack Table) */}
           {!loading && !error && (
             <>
-              <div className={styles.tableInfo}>
-                <span>
-                  {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''} encontrado{filteredProductos.length !== 1 ? 's' : ''}
-                  {soloDestacados && <span className={styles.filterBadge}>Solo destacados</span>}
-                </span>
-              </div>
-
               <div className={styles.tableWrapper}>
                 <DndContext
                   sensors={sensors}

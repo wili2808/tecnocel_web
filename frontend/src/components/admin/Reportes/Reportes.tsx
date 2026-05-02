@@ -2,7 +2,7 @@ import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import styles from './Reportes.module.css';
 import { reporteService } from '../../../services/reporteService';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSurface, AdminPagination } from '../common';
+import { AdminEmptyState, AdminStatCard, AdminSurface, AdminPagination, AdminSearch } from '../common';
 import type {
   ReporteTab,
   FiltrosReporte,
@@ -178,6 +178,7 @@ const Reportes: React.FC = memo(() => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Datos de cada reporte
   const [ventasData, setVentasData] = useState<ReporteVentasResponse | null>(null);
@@ -235,6 +236,7 @@ const Reportes: React.FC = memo(() => {
 
   const handleTabChange = useCallback((tab: ReporteTab) => {
     setActiveTab(tab);
+    setSearchTerm(''); // Limpiar búsqueda al cambiar pestaña
   }, []);
 
   const handleFiltroChange = useCallback((campo: keyof FiltrosReporte, valor: string) => {
@@ -243,6 +245,7 @@ const Reportes: React.FC = memo(() => {
 
   const handleLimpiarFiltros = useCallback(() => {
     setFiltros({ ...getDefaultDates(), agrupacion: 'dia' });
+    setSearchTerm('');
   }, []);
 
   const handleExportar = useCallback(async () => {
@@ -440,21 +443,6 @@ const Reportes: React.FC = memo(() => {
 
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          <button
-            className={styles.exportButton}
-            onClick={handleExportar}
-            disabled={exporting || loading || !puedeExportar}
-            title={!puedeExportar ? 'Sin permisos para exportar reportes' : undefined}
-          >
-            <span className="material-icons">download</span>
-            {exporting ? 'Exportando...' : 'Exportar CSV'}
-          </button>
-        }
-      />
-
       {activeKpiStrip}
 
       {/* Tabs */}
@@ -471,50 +459,68 @@ const Reportes: React.FC = memo(() => {
         ))}
       </div>
 
-      {/* Filtros */}
-      <AdminSurface className={styles.filterShell} tone="muted">
-        <div className={styles.filterBar}>
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Fecha inicio</label>
-            <input
-              type="date"
-              className={styles.filterInput}
-              value={filtros.fecha_inicio || ''}
-              onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
-            />
-          </div>
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Fecha fin</label>
-            <input
-              type="date"
-              className={styles.filterInput}
-              value={filtros.fecha_fin || ''}
-              onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
-            />
-          </div>
-          {activeTab === 'ventas' && (
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Agrupacion</label>
-              <select
-                className={styles.filterSelect}
-                value={filtros.agrupacion || 'dia'}
-                onChange={(e) => handleFiltroChange('agrupacion', e.target.value)}
-              >
-                <option value="dia">Por dia</option>
-                <option value="semana">Por semana</option>
-                <option value="mes">Por mes</option>
-              </select>
+      {/* Filtros - Usando Sistema Global */}
+      <AdminSurface className="admin-filter-shell" tone="muted">
+        <div className="admin-filter-rows">
+          <div className="admin-filter-row-top">
+            <div className="admin-filter-group">
+              <label className="admin-filter-label">Fecha inicio</label>
+              <input
+                type="date"
+                className={styles.filterInput}
+                value={filtros.fecha_inicio || ''}
+                onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
+              />
             </div>
-          )}
-          <div className={styles.filterActions}>
-            <button className={styles.filterButton} onClick={cargarDatos}>
-              <span className="material-icons">search</span>
-              Filtrar
-            </button>
-            <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
-              <span className="material-icons">clear</span>
-              Limpiar
-            </button>
+            <div className="admin-filter-group">
+              <label className="admin-filter-label">Fecha fin</label>
+              <input
+                type="date"
+                className={styles.filterInput}
+                value={filtros.fecha_fin || ''}
+                onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
+              />
+            </div>
+            {activeTab === 'ventas' && (
+              <div className="admin-filter-group">
+                <label className="admin-filter-label">Agrupación</label>
+                <select
+                  className={styles.filterSelect}
+                  value={filtros.agrupacion || 'dia'}
+                  onChange={(e) => handleFiltroChange('agrupacion', e.target.value)}
+                >
+                  <option value="dia">Por día</option>
+                  <option value="semana">Por semana</option>
+                  <option value="mes">Por mes</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="admin-search-form">
+            <div className="admin-search-wrapper">
+              <label className="admin-filter-label">Búsqueda rápida</label>
+              <AdminSearch
+                value={searchTerm}
+                placeholder="Filtrar en los resultados..."
+                onChange={setSearchTerm}
+              />
+            </div>
+            <div className="admin-action-row">
+              <button className={styles.clearButton} onClick={handleLimpiarFiltros} disabled={loading}>
+                <span className="material-icons">backspace</span>
+                <span>Limpiar</span>
+              </button>
+              <button
+                className={styles.exportButton}
+                onClick={handleExportar}
+                disabled={exporting || loading || !puedeExportar}
+                title={!puedeExportar ? 'Sin permisos para exportar reportes' : undefined}
+              >
+                <span className="material-icons">download</span>
+                <span>{exporting ? 'Exportando...' : 'Exportar CSV'}</span>
+              </button>
+            </div>
           </div>
         </div>
       </AdminSurface>
@@ -544,11 +550,11 @@ const Reportes: React.FC = memo(() => {
       {/* Contenido del reporte */}
       {!loading && !error && (
         <>
-          {activeTab === 'ventas' && ventasData && <ReporteVentasTab data={ventasData} />}
-          {activeTab === 'vendedores' && vendedoresData && <ReporteVendedoresTab data={vendedoresData} />}
-          {activeTab === 'productos' && productosData && <ReporteProductosTab data={productosData} />}
-          {activeTab === 'clientes' && clientesData && <ReporteClientesTab data={clientesData} />}
-          {activeTab === 'cancelaciones' && cancelacionesData && <ReporteCancelacionesTab data={cancelacionesData} />}
+          {activeTab === 'ventas' && ventasData && <ReporteVentasTab data={ventasData} searchTerm={searchTerm} />}
+          {activeTab === 'vendedores' && vendedoresData && <ReporteVendedoresTab data={vendedoresData} searchTerm={searchTerm} />}
+          {activeTab === 'productos' && productosData && <ReporteProductosTab data={productosData} searchTerm={searchTerm} />}
+          {activeTab === 'clientes' && clientesData && <ReporteClientesTab data={clientesData} searchTerm={searchTerm} />}
+          {activeTab === 'cancelaciones' && cancelacionesData && <ReporteCancelacionesTab data={cancelacionesData} searchTerm={searchTerm} />}
         </>
       )}
     </div>
@@ -557,8 +563,17 @@ const Reportes: React.FC = memo(() => {
 
 // SUB-COMPONENTE: REPORTE DE VENTAS
 
-const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data }) => {
+const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse; searchTerm: string }> = memo(({ data, searchTerm }) => {
   const { datos } = data;
+  
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return datos;
+    const term = searchTerm.toLowerCase();
+    return datos.filter(item => 
+      item.periodo.toLowerCase().includes(term)
+    );
+  }, [datos, searchTerm]);
+
   const [sorting, setSorting] = useState<SortingState>([{ id: 'periodo', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['periodo', 'ventas', 'ingresos_ars', 'ingresos_usd', 'ticket_promedio']);
@@ -605,7 +620,7 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
   ], []);
 
   const table = useReactTable({
-    data: datos,
+    data: filteredData,
     columns,
     state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
@@ -655,7 +670,7 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
         </table>
       </DndContext>
       <AdminPagination
-        total={datos.length}
+        total={filteredData.length}
         limit={pagination.pageSize}
         offset={pagination.pageIndex * pagination.pageSize}
         onPageChange={(newOffset) => {
@@ -672,8 +687,17 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse }> = memo(({ data
 
 // SUB-COMPONENTE: REPORTE DE VENDEDORES
 
-const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo(({ data }) => {
+const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse; searchTerm: string }> = memo(({ data, searchTerm }) => {
   const { datos } = data;
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return datos;
+    const term = searchTerm.toLowerCase();
+    return datos.filter(item => 
+      item.nombre.toLowerCase().includes(term)
+    );
+  }, [datos, searchTerm]);
+
   const [sorting, setSorting] = useState<SortingState>([{ id: 'ventas', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'ventas', 'ingresos_ars', 'ingresos_usd', 'ticket_promedio', 'porcentaje_ventas']);
@@ -723,7 +747,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
   ], []);
 
   const table = useReactTable({
-    data: datos,
+    data: filteredData,
     columns,
     state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
@@ -773,7 +797,7 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
         </table>
       </DndContext>
       <AdminPagination
-        total={datos.length}
+        total={filteredData.length}
         limit={pagination.pageSize}
         offset={pagination.pageIndex * pagination.pageSize}
         onPageChange={(newOffset) => {
@@ -790,8 +814,20 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse }> = memo
 
 // SUB-COMPONENTE: REPORTE DE PRODUCTOS
 
-const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo(({ data }) => {
+const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse; searchTerm: string }> = memo(({ data, searchTerm }) => {
   const { mas_vendidos } = data;
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return mas_vendidos;
+    const term = searchTerm.toLowerCase();
+    return mas_vendidos.filter(item => 
+      item.nombre.toLowerCase().includes(term) ||
+      item.codigo.toLowerCase().includes(term) ||
+      item.categoria.toLowerCase().includes(term) ||
+      item.marca.toLowerCase().includes(term)
+    );
+  }, [mas_vendidos, searchTerm]);
+
   const [sorting, setSorting] = useState<SortingState>([{ id: 'unidades_vendidas', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'codigo', 'categoria', 'marca', 'unidades_vendidas', 'ingreso_total', 'precio_venta_actual', 'stock_actual']);
@@ -828,7 +864,7 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
   ], []);
 
   const table = useReactTable({
-    data: mas_vendidos,
+    data: filteredData,
     columns,
     state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
@@ -878,7 +914,7 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
         </table>
       </DndContext>
       <AdminPagination
-        total={mas_vendidos.length}
+        total={filteredData.length}
         limit={pagination.pageSize}
         offset={pagination.pageIndex * pagination.pageSize}
         onPageChange={(newOffset) => {
@@ -895,8 +931,18 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse }> = memo((
 
 // SUB-COMPONENTE: REPORTE DE CLIENTES
 
-const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ data }) => {
+const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse; searchTerm: string }> = memo(({ data, searchTerm }) => {
   const { top_clientes } = data;
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return top_clientes;
+    const term = searchTerm.toLowerCase();
+    return top_clientes.filter(item => 
+      item.nombre.toLowerCase().includes(term) ||
+      item.email.toLowerCase().includes(term)
+    );
+  }, [top_clientes, searchTerm]);
+
   const [sorting, setSorting] = useState<SortingState>([{ id: 'monto_ars', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'email', 'total_compras', 'monto_ars', 'monto_usd', 'ultima_compra']);
@@ -932,7 +978,7 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
   ], []);
 
   const table = useReactTable({
-    data: top_clientes,
+    data: filteredData,
     columns,
     state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
@@ -982,7 +1028,7 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
         </table>
       </DndContext>
       <AdminPagination
-        total={top_clientes.length}
+        total={filteredData.length}
         limit={pagination.pageSize}
         offset={pagination.pageIndex * pagination.pageSize}
         onPageChange={(newOffset) => {
@@ -999,8 +1045,19 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse }> = memo(({ 
 
 // SUB-COMPONENTE: REPORTE DE CANCELACIONES
 
-const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> = memo(({ data }) => {
+const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse; searchTerm: string }> = memo(({ data, searchTerm }) => {
   const { datos } = data;
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return datos;
+    const term = searchTerm.toLowerCase();
+    return datos.filter(item => 
+      item.nro_venta.toLowerCase().includes(term) ||
+      item.motivo.toLowerCase().includes(term) ||
+      item.cancelado_por.toLowerCase().includes(term)
+    );
+  }, [datos, searchTerm]);
+
   const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha_cancelacion', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>(['nro_venta', 'fecha_cancelacion', 'monto_ars', 'monto_usd', 'motivo', 'cancelado_por']);
@@ -1026,7 +1083,7 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> 
   ], []);
 
   const table = useReactTable({
-    data: datos,
+    data: filteredData,
     columns,
     state: { sorting, pagination, columnOrder },
     onSortingChange: setSorting,
@@ -1076,7 +1133,7 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse }> 
         </table>
       </DndContext>
       <AdminPagination
-        total={datos.length}
+        total={filteredData.length}
         limit={pagination.pageSize}
         offset={pagination.pageIndex * pagination.pageSize}
         onPageChange={(newOffset) => {

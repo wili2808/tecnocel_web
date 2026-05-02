@@ -98,43 +98,7 @@
 
 /* --- BÚSQUEDA --- */
 
-.searchForm {
-  display: flex;
-  gap: 10px;
-}
 
-.searchInputWrapper {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  background: var(--background-primary);
-  padding: 0 10px;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.searchInputWrapper:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.searchInputWrapper .material-icons {
-  color: var(--text-secondary);
-  font-size: 18px;
-}
-
-.searchInput {
-  flex: 1;
-  padding: 7px 10px;
-  border: none;
-  background: none;
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  color: var(--text-primary);
-  outline: none;
-}
 
 .clearButton {
   background: none;
@@ -290,16 +254,6 @@
 
 .stateBlock {
   margin-bottom: 14px;
-}
-
-.tableInfo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
 }
 
 /* --- TABLA DE PRODUCTOS --- */

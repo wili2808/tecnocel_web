@@ -83,6 +83,7 @@ export interface RegistrarCompraItemData {
   nuevo_id_marca?: number;
   cantidad: number;
   precio_unitario: number;
+  precio_venta?: number;
 }
 
 export interface RegistrarCompraData {

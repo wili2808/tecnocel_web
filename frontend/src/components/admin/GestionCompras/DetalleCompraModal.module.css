@@ -1,24 +1,28 @@
-.header {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-}
-
 .calendarIcon {
   font-size: 14px;
 }
 
-.providerBox {
-  padding: var(--spacing-md);
-  background: var(--background-secondary);
-  border-radius: var(--border-radius-md);
-  border-left: 3px solid var(--color-primary);
+.headerBadges {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-lg);
+}
+
+.productosTable th:nth-child(1) { width: 45%; }
+.productosTable th:nth-child(2) { width: 15%; }
+.productosTable th:nth-child(3) { width: 10%; }
+.productosTable th:nth-child(4) { width: 15%; }
+.productosTable th:nth-child(5) { width: 15%; }
+
+.providerInfo {
+  width: 100%;
 }
 
 .infoGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-md);
+  width: 100%;
 }
 
 .observacionesBox {

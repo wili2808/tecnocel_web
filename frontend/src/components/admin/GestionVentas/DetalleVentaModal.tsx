@@ -153,49 +153,55 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
           ) : (
             <div className={styles.container}>
               {/* Contexto de la Transacción */}
-              <div className="modalSplitLayoutPremium modalSplitEqualPremium mb-4">
+              <div className="modalGrid2Premium mb-6">
                 
                 {/* Bloque Cliente */}
-                <div className={`modalMainColumnPremium ${styles.infoCard}`}>
+                <div className={styles.infoCard}>
                   <span className="modalSectionTitlePremium">Información del Cliente</span>
                   {detalle.cliente ? (
                     <div className="flex flex-col gap-xs mt-2">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-secondary font-bold">Nombre</span>
-                        <span className="font-bold text-right ml-2">{detalle.cliente.nombre_cliente} {detalle.cliente.apellido_cliente}</span>
+                      <div className="modalInfoBoxPremium">
+                        <div className="flex flex-col w-full">
+                          <span className="text-xxs text-secondary uppercase font-bold">Nombre</span>
+                          <span className="text-sm font-bold">{detalle.cliente.nombre_cliente} {detalle.cliente.apellido_cliente}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-secondary font-bold">Correo</span>
-                        <span className="font-bold text-primary text-right ml-2" style={{ wordBreak: 'break-all' }}>{detalle.cliente.correo}</span>
+                      <div className="modalInfoBoxPremium">
+                        <div className="flex flex-col w-full">
+                          <span className="text-xxs text-secondary uppercase font-bold">Correo Electrónico</span>
+                          <span className="text-sm font-bold text-primary" style={{ wordBreak: 'break-all' }}>{detalle.cliente.correo}</span>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="modalAlertWarningPremium mt-2" style={{ background: 'transparent', border: 'none', padding: '0' }}>
-                      <span className="material-icons" style={{ color: 'var(--color-warning)' }}>storefront</span>
+                    <div className="modalAlertWarningPremium mt-2">
+                      <span className="material-icons">storefront</span>
                       <span className="font-bold">Venta de mostrador (Sin registro)</span>
                     </div>
                   )}
                 </div>
 
-                {/* Bloque Metadatos */}
-                <div className={`modalSideColumnPremium ${styles.infoCard}`}>
+                <div className={styles.infoCard}>
                   <span className="modalSectionTitlePremium">Datos de la Operación</span>
                   <div className="flex flex-col gap-xs mt-2">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-secondary font-bold">Fecha / Hora</span>
-                      <span className="font-bold text-right ml-2">{formatFecha(detalle.fyh_creacion)}</span>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Fecha y Hora</span>
+                        <span className="text-sm font-bold">{formatFecha(detalle.fyh_creacion)}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-secondary font-bold">Método Pago</span>
-                      <span className="font-bold text-right ml-2" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-secondary font-bold">Moneda</span>
-                      <span className="font-bold text-right ml-2">ARS ($)</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-secondary font-bold">Entrega</span>
-                      <span className="font-bold text-right ml-2">{detalle.envio?.tipo_entrega || '—'}</span>
+                    
+                    <div className="modalInfoBoxPremium">
+                      <div className="grid grid-cols-2 w-full gap-md">
+                        <div>
+                          <span className="text-xxs text-secondary uppercase font-bold">Método Pago</span>
+                          <p className="text-sm font-bold m-0" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</p>
+                        </div>
+                        <div>
+                          <span className="text-xxs text-secondary uppercase font-bold">Entrega</span>
+                          <p className="text-sm font-bold m-0">{detalle.envio?.tipo_entrega || '—'}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -249,8 +255,8 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
               </div>
 
               {/* Resumen Total */}
-              <div className="flex justify-end">
-                <div className="modalTotalBoxPremium" style={{ minWidth: '220px' }}>
+              <div className="flex mt-6">
+                <div className="modalTotalBoxPremium ml-auto" style={{ minWidth: '220px' }}>
                   <span className="modalTotalLabelPremium">Total de la Venta</span>
                   <span className="modalTotalValuePremium">{formatMonto(total)}</span>
                 </div>

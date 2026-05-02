@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ROLES } from '../../../constants/roles';
-import { AdminEmptyState, AdminSectionActions, AdminPagination } from '../common';
+import { AdminEmptyState, AdminSurface, AdminSearch, AdminPagination } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionUsuarios.module.css';
 import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../types/usuario';
@@ -139,6 +139,7 @@ const GestionUsuarios = () => {
   const [editando, setEditando] = useState(false);
   const editandoRef = useRef(false);
   const [editFormData, setEditFormData] = useState<EditarUsuarioFormData>(INITIAL_EDIT_FORM);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_usuario', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -396,8 +397,19 @@ const GestionUsuarios = () => {
     }
   ], [roles]);
 
+  // Filtrado local
+  const usuariosFiltrados = useMemo(() => {
+    if (!searchTerm) return usuarios;
+    const lowerSearch = searchTerm.toLowerCase();
+    return usuarios.filter(u => 
+      u.nombres.toLowerCase().includes(lowerSearch) || 
+      u.email.toLowerCase().includes(lowerSearch) ||
+      (u.Rol?.rol && u.Rol.rol.toLowerCase().includes(lowerSearch))
+    );
+  }, [usuarios, searchTerm]);
+
   const table = useReactTable({
-    data: usuarios,
+    data: usuariosFiltrados,
     columns,
     state: {
       sorting,
@@ -473,20 +485,31 @@ const GestionUsuarios = () => {
   return (
     <>
       <div className={styles.container}>
-        <AdminSectionActions
-          lead={null}
-          actions={
-            <button
-              className={styles.crearButton}
-              onClick={() => setShowCrearForm(true)}
-              disabled={!puedeCrear}
-              title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
-            >
-              <span className="material-icons">person_add</span>
-              <span>Crear Usuario</span>
-            </button>
-          }
-        />
+        <AdminSurface className="admin-filter-shell" tone="muted">
+          <div className="admin-search-form">
+            <div className="admin-search-wrapper">
+              <AdminSearch
+                value={searchTerm}
+                placeholder="Buscar usuarios..."
+                onChange={(val) => {
+                  setSearchTerm(val);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
+              />
+            </div>
+            <div className="admin-action-row">
+              <button
+                className={styles.crearButton}
+                onClick={() => setShowCrearForm(true)}
+                disabled={!puedeCrear}
+                title={!puedeCrear ? 'Sin permisos para crear usuarios' : undefined}
+              >
+                <span className="material-icons">person_add</span>
+                <span>Crear Usuario</span>
+              </button>
+            </div>
+          </div>
+        </AdminSurface>
 
         <div className={styles.tableWrapper}>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -510,7 +533,9 @@ const GestionUsuarios = () => {
                 {table.getRowModel().rows.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className={styles.emptyMessage}>
-                      No hay usuarios registrados
+                      {searchTerm 
+                        ? `No se encontraron usuarios para "${searchTerm}"`
+                        : 'No hay usuarios registrados'}
                     </td>
                   </tr>
                 ) : (
@@ -532,7 +557,7 @@ const GestionUsuarios = () => {
             </table>
           </DndContext>
           <AdminPagination
-          total={usuarios.length}
+          total={usuariosFiltrados.length}
           limit={pagination.pageSize}
           offset={pagination.pageIndex * pagination.pageSize}
           onPageChange={(newOffset) => {

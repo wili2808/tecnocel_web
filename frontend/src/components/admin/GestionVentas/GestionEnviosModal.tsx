@@ -97,129 +97,147 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
       onClose={onClose}
       title={`Envío #${envio.nro_venta}`}
       icon="local_shipping"
-      maxWidth="900px"
+      maxWidth="1000px"
       headerChildren={
         <span className={`modalBadgePremium ${ESTADO_BADGES[envio.estado_envio]} ${styles.headerBadge}`}>
           {ESTADO_ENVIO_LABELS[envio.estado_envio]}
         </span>
       }
     >
-      <div className="modalBodyPremium">
-        {/* Stepper Premium */}
-        <div className={`stepperPremium ${styles.stepper}`}>
-          {ESTADOS_ORDEN.map((estado, idx) => {
-            const completado = idx < indiceActual;
-            const actual = idx === indiceActual;
-            return (
-              <React.Fragment key={idx}>
-                <div className={`stepItemPremium ${actual ? 'stepActivePremium' : ''} ${completado ? 'stepCompletedPremium' : ''}`}>
-                  <div className="stepCirclePremium">
-                    {completado ? <span className={`material-icons ${styles.stepIcon}`}>check</span> : idx + 1}
-                  </div>
-                  <span className="stepLabelPremium">{ESTADO_ENVIO_LABELS[estado]}</span>
-                </div>
-                {idx < ESTADOS_ORDEN.length - 1 && (
-                  <div className={`stepLinePremium ${idx < indiceActual ? 'stepLineActivePremium' : ''}`} />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-
+      <div className="modalBodyPremium p-0">
         {cargando ? (
           <div className="modalLoadingPremium">
             <span className="material-icons">hourglass_empty</span>
             <p>Cargando detalles del envío...</p>
           </div>
         ) : detalle ? (
-            <>
-            <div className={`modalSplitLayoutPremium ${styles.infoGrid} mb-4`}>
+          <div className="p-xl">
+            {/* Stepper Premium */}
+            <div className={`stepperPremium ${styles.stepper}`}>
+              {ESTADOS_ORDEN.map((estado, idx) => {
+                const completado = idx < indiceActual;
+                const actual = idx === indiceActual;
+                return (
+                  <React.Fragment key={idx}>
+                    <div className={`stepItemPremium ${actual ? 'stepActivePremium' : ''} ${completado ? 'stepCompletedPremium' : ''}`}>
+                      <div className="stepCirclePremium">
+                        {completado ? <span className="material-icons" style={{ fontSize: '16px' }}>check</span> : idx + 1}
+                      </div>
+                      <span className="stepLabelPremium">{ESTADO_ENVIO_LABELS[estado]}</span>
+                    </div>
+                    {idx < ESTADOS_ORDEN.length - 1 && (
+                      <div className={`stepLinePremium ${idx < indiceActual ? 'stepLineActivePremium' : ''}`} />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            <div className="modalGrid2Premium mb-6">
               
               {/* Información de Contacto */}
-              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
-                <span className={styles.sectionTitleWithDivider}>Contacto del Cliente</span>
-                <div className="flex flex-col gap-xs mt-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Nombre</span>
-                    <span className="font-bold text-right ml-2">{detalle.nombre_cliente ?? '—'}</span>
+              <div className={styles.infoCard}>
+                <h4 className="modalSectionTitlePremium">Contacto del Cliente</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Nombre Completo</span>
+                      <span className="text-sm font-bold">{detalle.nombre_cliente ?? '—'}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Email</span>
-                    <span className="font-bold text-primary text-right ml-2" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Email de Contacto</span>
+                      <span className="text-sm font-bold text-primary" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
+                    </div>
                   </div>
                   {detalle.envio_telefono_contacto && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-secondary font-bold">Teléfono</span>
-                      <span className="font-bold text-right ml-2">{detalle.envio_telefono_contacto}</span>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Teléfono</span>
+                        <span className="text-sm font-bold">{detalle.envio_telefono_contacto}</span>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Información de Entrega */}
-              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
-                <span className={styles.sectionTitleWithDivider}>Dirección de Entrega</span>
-                <div className="flex flex-col gap-xs mt-2">
-                  <div className="flex flex-col text-sm">
-                    <span className="text-secondary font-bold">Ubicación</span>
-                    <span className="font-bold">
-                      {[detalle.envio_calle, detalle.envio_numero].filter(Boolean).join(' ') || '—'}
-                      {detalle.envio_piso && `, Piso ${detalle.envio_piso}`}
-                      {detalle.envio_departamento && ` Dto. ${detalle.envio_departamento}`}
-                    </span>
+              <div className={styles.infoCard}>
+                <h4 className="modalSectionTitlePremium">Dirección de Entrega</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Calle y Número</span>
+                      <span className="text-sm font-bold">
+                        {[detalle.envio_calle, detalle.envio_numero].filter(Boolean).join(' ') || '—'}
+                        {detalle.envio_piso && `, Piso ${detalle.envio_piso}`}
+                        {detalle.envio_departamento && ` Dto. ${detalle.envio_departamento}`}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Ciudad/Prov.</span>
-                    <span className="font-bold text-right ml-2">
-                      {[detalle.envio_ciudad, detalle.envio_provincia].filter(Boolean).join(', ') || '—'}
-                    </span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Ciudad y Provincia</span>
+                      <span className="text-sm font-bold">
+                        {[detalle.envio_ciudad, detalle.envio_provincia].filter(Boolean).join(', ') || '—'}
+                      </span>
+                    </div>
                   </div>
                   {detalle.envio_referencia && (
-                    <div className="flex flex-col text-sm">
-                      <span className="text-secondary font-bold">Referencia</span>
-                      <span className="italic opacity-80">"{detalle.envio_referencia}"</span>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Referencia / Observaciones</span>
+                        <span className="text-sm italic opacity-80">"{detalle.envio_referencia}"</span>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Información Venta */}
-              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
-                <span className={styles.sectionTitleWithDivider}>Detalles de la Venta</span>
-                <div className="flex flex-col gap-xs mt-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Fecha Venta</span>
-                    <span className="font-bold text-right ml-2">{formatFecha(detalle.fyh_venta)}</span>
+              <div className={styles.infoCard}>
+                <h4 className="modalSectionTitlePremium">Detalles de la Venta</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="grid grid-cols-2 w-full gap-md">
+                      <div>
+                        <span className="text-xxs text-secondary uppercase font-bold">Fecha Venta</span>
+                        <p className="text-sm font-bold m-0">{formatFecha(detalle.fyh_venta)}</p>
+                      </div>
+                      <div>
+                        <span className="text-xxs text-secondary uppercase font-bold">Método Pago</span>
+                        <p className="text-sm font-bold m-0" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Método Pago</span>
-                    <span className="font-bold text-right ml-2" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Total Pagado</span>
-                    <span className="font-bold text-primary text-right ml-2">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Total Pagado</span>
+                      <span className="text-lg font-bold text-primary">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Información Seguimiento */}
-              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
-                <span className={styles.sectionTitleWithDivider}>Seguimiento</span>
-                <div className="flex flex-col gap-xs mt-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Estado Actual</span>
-                    <span className="font-bold text-right ml-2">{ESTADO_ENVIO_LABELS[detalle.estado_envio]}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Nro. Seguimiento</span>
-                    <span className="font-bold text-right ml-2">
-                      {detalle.nro_seguimiento ?? <em className="opacity-50 font-normal">Sin asignar</em>}
-                    </span>
+              <div className={styles.infoCard}>
+                <h4 className="modalSectionTitlePremium">Seguimiento y Logística</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Nro. de Seguimiento</span>
+                      <span className="text-sm font-bold">
+                        {detalle.nro_seguimiento ?? <em className="opacity-50 font-normal">Pendiente de despacho</em>}
+                      </span>
+                    </div>
                   </div>
                   {detalle.fyh_despacho && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-secondary font-bold">Fecha Despacho</span>
-                      <span className="font-bold text-right ml-2">{formatFecha(detalle.fyh_despacho)}</span>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Fecha de Despacho</span>
+                        <span className="text-sm font-bold">{formatFecha(detalle.fyh_despacho)}</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -227,9 +245,9 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
             </div>
 
             {/* Productos */}
-            <div className="mb-4">
-              <span className={styles.sectionTitleWithDivider}>Productos del pedido</span>
-              <div className="modalTableWrapperPremium mt-md">
+            <div className="mb-6">
+              <h4 className="modalSectionTitlePremium">Productos del pedido</h4>
+              <div className="modalTableWrapperPremium mt-2">
                 <table className="modalTablePremium">
                   <thead>
                     <tr>
@@ -312,7 +330,7 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
                 )}
               </div>
             )}
-          </>
+          </div>
         ) : (
           <div className="modalLoadingPremium" style={{ color: 'var(--color-error)' }}>
             <span className="material-icons" style={{ animation: 'none' }}>error_outline</span>

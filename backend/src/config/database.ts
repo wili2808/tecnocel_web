@@ -59,10 +59,10 @@ const sequelize = new Sequelize({
 
   // Configuración del pool de conexiones
   pool: {
-    max: 5,        // Máximo número de conexiones
-    min: 0,        // Mínimo número de conexiones
-    acquire: 30000, // Tiempo máximo para adquirir una conexión
-    idle: 10000    // Tiempo máximo que una conexión puede estar inactiva
+    max: 20,
+    min: 1,
+    acquire: 30000,
+    idle: 10000
   }
 });
 

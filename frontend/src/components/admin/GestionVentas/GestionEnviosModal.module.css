@@ -6,38 +6,9 @@
   margin-bottom: var(--spacing-xl);
 }
 
-/* Grilla de información de 2 columnas */
-.infoGrid {
-  grid-template-columns: repeat(2, 1fr) !important;
-  align-items: start !important;
-  gap: var(--spacing-lg) !important;
-}
-
-/* Evitar que las tarjetas se estiren verticalmente */
-:global(.modalSplitLayoutPremium) {
-  align-items: start !important;
-}
-
-.stepIcon {
-  font-size: 18px;
-}
-
 .infoCard {
-  gap: var(--spacing-xs) !important;
   display: flex;
   flex-direction: column;
-}
-
-.cardContainer {
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--background-secondary);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--border-color);
-  height: fit-content; /* Evita que crezcan innecesariamente */
-}
-
-.tableWrapper {
-  margin-top: var(--spacing-md);
 }
 
 .managementPanel {
@@ -98,14 +69,7 @@
 
 /* Títulos con separador */
 .sectionTitleWithDivider {
-  display: block;
-  padding-bottom: var(--spacing-xs);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: var(--spacing-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.75rem;
-  color: var(--color-primary-300);
+  display: none;
 }
 
 /* Refinamiento de Badges */

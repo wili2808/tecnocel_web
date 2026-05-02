@@ -110,17 +110,19 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
       >
         <form id="categoria-form" onSubmit={handleSubmit}>
           <div className="modalBodyPremium">
-            <Input
-              id="nombre_categoria"
-              name="nombre_categoria"
-              label="Nombre de la Categoría"
-              value={form.nombre_categoria}
-              onChange={(e) => setForm({ nombre_categoria: e.target.value })}
-              placeholder="Ej: Smartphones, Tablets, Accesorios..."
-              disabled={guardando || readonly}
-              required
-              autoFocus
-            />
+            <div className="modalFormGroupFullPremium">
+              <Input
+                id="nombre_categoria"
+                name="nombre_categoria"
+                label="Nombre de la Categoría"
+                value={form.nombre_categoria}
+                onChange={(e) => setForm({ nombre_categoria: e.target.value })}
+                placeholder="Ej: Smartphones, Tablets, Accesorios..."
+                disabled={guardando || readonly}
+                required
+                autoFocus
+              />
+            </div>
           </div>
 
           <div className="modalFooterPremium">

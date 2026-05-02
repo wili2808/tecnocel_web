@@ -331,82 +331,67 @@ class CompraController {
    */
   static async registrarCompra(req: Request, res: Response) {
     const transaction = await sequelize.transaction();
+    logger.info('Iniciando proceso de registro de compra en backend');
 
     try {
       const { id_proveedor, fecha_compra, comprobante, observaciones, items } = req.body as RegistrarCompraBody;
       const usuario = req.usuario as UsuarioSession;
 
+      logger.debug('Datos recibidos:', { id_proveedor, comprobante, itemsCount: items?.length });
+
       // Validaciones
       if (!id_proveedor) {
-        return res.status(400).json({
-          success: false,
-          error: 'id_proveedor es requerido'
-        });
-      }
-      if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'Debe incluir al menos un producto'
-        });
+        await transaction.rollback();
+        return res.status(400).json({ success: false, error: 'El proveedor es requerido' });
       }
 
-      // 1. Validar que el proveedor existe
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        await transaction.rollback();
+        return res.status(400).json({ success: false, error: 'La compra debe tener al menos un ítem' });
+      }
+
+      // 1. Validar proveedor
+      logger.debug('Validando proveedor...');
       const proveedor = await Proveedor.findByPk(id_proveedor, { transaction });
       if (!proveedor) {
         await transaction.rollback();
-        return res.status(404).json({
-          success: false,
-          error: 'Proveedor no encontrado'
-        });
+        return res.status(404).json({ success: false, error: 'Proveedor no encontrado' });
       }
 
-      // 2. Procesar items y crear productos si es necesario
-      const itemsProcesados = [];
+      const itemsProcesados: any[] = [];
+
+      // 2. Procesar ítems (crear productos nuevos si aplica)
+      logger.debug('Procesando ítems de la compra...');
       for (const item of items) {
         let idProducto = item.id_producto;
 
         if (item.es_nuevo) {
-          // Crear producto nuevo
+          logger.info('Detectado producto nuevo, creando...', { nombre: item.nuevo_nombre });
+          // Validar datos mínimos para producto nuevo
           if (!item.nuevo_codigo || !item.nuevo_nombre || !item.nuevo_precio_venta || !item.nuevo_id_categoria) {
             await transaction.rollback();
             return res.status(400).json({
               success: false,
-              error: 'Productos nuevos requieren: nuevo_codigo, nuevo_nombre, nuevo_precio_venta, nuevo_id_categoria'
+              error: 'Faltan datos obligatorios para el nuevo producto: ' + item.nuevo_nombre
             });
           }
 
-          // Verificar que el código no existe
-          const existeProducto = await Almacen.findOne({
-            where: { codigo: item.nuevo_codigo },
-            transaction
-          });
-
-          if (existeProducto) {
-            await transaction.rollback();
-            return res.status(409).json({
-              success: false,
-              error: `El código de producto "${item.nuevo_codigo}" ya existe`
-            });
-          }
-
-          // Crear el producto con todos los campos requeridos
           const nuevoProducto = await Almacen.create({
             codigo: item.nuevo_codigo,
             nombre: item.nuevo_nombre,
-            stock: 0,
+            stock: 0, // Se incrementará luego
             precio_compra: String(item.precio_unitario),
             precio_venta: String(item.nuevo_precio_venta),
             id_categoria: item.nuevo_id_categoria,
-            id_marca: item.nuevo_id_marca || null,
-            es_destacado: false,
-            fecha_ingreso: new Date().toISOString().split('T')[0],
+            id_marca: item.nuevo_id_marca,
+            fecha_ingreso: new Date(),
             id_usuario: usuario.id,
-            orden_destacado: 0,
             fyh_creacion: new Date(),
             fyh_actualizacion: new Date()
           }, { transaction });
 
           idProducto = nuevoProducto.id_producto;
+          logger.info(`Producto nuevo creado exitosamente con ID: ${idProducto}`);
         } else {
           // Validar que el producto existe
           const producto = await Almacen.findByPk(idProducto, { transaction });
@@ -422,22 +407,33 @@ class CompraController {
         itemsProcesados.push({
           id_producto: idProducto,
           cantidad: item.cantidad,
-          precio_unitario: parseFloat(String(item.precio_unitario))
+          precio_unitario: parseFloat(String(item.precio_unitario)),
+          precio_venta: (item.precio_venta !== undefined && item.precio_venta !== null) ? parseFloat(String(item.precio_venta)) : undefined
         });
       }
 
       // 3. Calcular totales
+      logger.debug('Calculando totales de la compra...');
       const subtotales = itemsProcesados.map(item => item.cantidad * item.precio_unitario);
       const precioTotal = subtotales.reduce((a, b) => a + b, 0);
 
-      // 4. Generar nro_compra
+      if (isNaN(precioTotal)) {
+        logger.error('Error: precioTotal es NaN', { itemsProcesados });
+        await transaction.rollback();
+        return res.status(400).json({ success: false, error: 'Error en el cálculo de totales (valores inválidos)' });
+      }
+
+      // 4. Generar nro_compra (incremental basado en el último)
+      logger.debug('Generando número de compra...');
       const ultimaCompra = await Compra.findOne({
         order: [['nro_compra', 'DESC']],
         transaction
       });
       const nroCompra = (ultimaCompra?.nro_compra || 0) + 1;
+      logger.info(`Número de compra asignado: ${nroCompra}`);
 
       // 5. Crear DetalleCompra PRIMERO (por FK invertida en BD)
+      logger.debug('Insertando detalles de compra...');
       for (let i = 0; i < itemsProcesados.length; i++) {
         const item = itemsProcesados[i];
         const subtotal = subtotales[i];
@@ -454,11 +450,12 @@ class CompraController {
       }
 
       // 6. Crear Compra DESPUÉS de los DetalleCompra
+      logger.debug('Insertando cabecera de compra...');
       const compra = await Compra.create({
         nro_compra: nroCompra,
         fecha_compra: new Date(fecha_compra),
         id_proveedor: id_proveedor,
-        comprobante,
+        comprobante: comprobante || 'S/N',
         id_usuario: usuario.id,
         precio_total: String(Math.round(precioTotal)),
         estado: 'activa',
@@ -467,35 +464,37 @@ class CompraController {
         fyh_actualizacion: new Date()
       }, { transaction });
 
-      // 7. Incrementar stock e actualizar precio_compra en Almacen
+      // 7. Actualizar stock y precio_compra en Almacén
+      logger.debug('Actualizando stock y precios en Almacén...');
       for (const item of itemsProcesados) {
         const producto = await Almacen.findByPk(item.id_producto, { transaction });
         if (producto) {
-          await Almacen.update({
-            stock: producto.stock + item.cantidad,
+          const nuevoStock = producto.stock + item.cantidad;
+          const updateData: any = {
+            stock: nuevoStock,
             precio_compra: String(item.precio_unitario),
             fyh_actualizacion: new Date()
-          }, {
+          };
+
+          // Actualizar precio_venta si se proporcionó uno nuevo
+          if (item.precio_venta !== undefined && item.precio_venta !== null) {
+            updateData.precio_venta = String(item.precio_venta);
+          }
+
+          await Almacen.update(updateData, {
             where: { id_producto: item.id_producto },
             transaction
           });
         }
       }
 
-      // Commit
+      logger.info('Confirmando transacción...');
       await transaction.commit();
-
-      logger.info('Compra registrada exitosamente', {
-        operacion: 'registrar_compra',
-        id_compra: compra.id_compra,
-        nro_compra: nroCompra,
-        id_proveedor: id_proveedor,
-        cantidad_items: itemsProcesados.length,
-        id_usuario: usuario.id
-      });
+      logger.info(`✅ Compra registrada exitosamente: ID ${compra.id_compra}, NRO ${nroCompra}`);
 
       return res.status(201).json({
         success: true,
+        message: 'Compra registrada exitosamente',
         data: {
           id_compra: compra.id_compra,
           nro_compra: `C-${String(nroCompra).padStart(5, '0')}`,

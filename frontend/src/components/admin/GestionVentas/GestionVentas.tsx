@@ -9,7 +9,7 @@ import envioAdminService from '../../../services/envioAdminService';
 import usuarioService from '../../../services/usuarioService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch, AdminPagination } from '../common';
+import { AdminEmptyState, AdminStatCard, AdminSearch, AdminPagination, AdminSurface } from '../common';
 import styles from './GestionVentas.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
@@ -129,9 +129,7 @@ const GestionVentas: React.FC = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_ventas');
   const puedeVerEnvios = tienePermiso('ver_envios');
-  const puedeGestionarEnvios = tienePermiso('gestionar_envios');
   const puedeVerRetiros = tienePermiso('ver_retiros');
-  const puedeGestionarRetiros = tienePermiso('gestionar_retiros');
   const puedeCrear = tienePermiso('crear_venta');
   const puedeVerConfiguracion = tienePermiso('ver_configuracion');
   const puedeEditarConfiguracion = tienePermiso('editar_configuracion');
@@ -476,20 +474,7 @@ const GestionVentas: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          <button
-            className={styles.crearButton}
-            onClick={() => setMostrarRegistrar(true)}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para registrar ventas' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Registrar Venta
-          </button>
-        }
-      />
+
 
       <div className={styles.statsBar}>
         {cargandoStats ? (
@@ -534,6 +519,73 @@ const GestionVentas: React.FC = () => {
         )}
       </div>
 
+      {/* Cotización del dólar - Reubicada entre estadísticas y tabs */}
+      {puedeVerConfiguracion && (
+        <div className={styles.cotizacionCard}>
+          <div className={styles.cotizacionHeader}>
+            <span className="material-icons">attach_money</span>
+            <span className={styles.cotizacionTitle}>Cotización USD</span>
+            {tipoCambioFecha && (
+              <span className={styles.cotizacionFecha}>
+                Actualizada:{' '}
+                {new Date(tipoCambioFecha).toLocaleString('es-AR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            )}
+          </div>
+
+          {editandoCambio ? (
+            <div className={styles.cotizacionEdit}>
+              <span className={styles.cotizacionPrefix}>1 USD =</span>
+              <input
+                type="number"
+                min={1}
+                step={0.01}
+                className={styles.cotizacionInput}
+                value={tipoCambioInput}
+                onChange={(e) => setTipoCambioInput(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') guardarCambio();
+                  if (e.key === 'Escape') setEditandoCambio(false);
+                }}
+              />
+              <span className={styles.cotizacionSuffix}>ARS</span>
+              <button className={styles.cotizacionSave} onClick={guardarCambio} disabled={guardandoCambio}>
+                <span className="material-icons">{guardandoCambio ? 'hourglass_empty' : 'check'}</span>
+              </button>
+              <button className={styles.cotizacionCancel} onClick={() => setEditandoCambio(false)}>
+                <span className="material-icons">close</span>
+              </button>
+            </div>
+          ) : (
+            <div className={styles.cotizacionDisplay}>
+              <span className={styles.cotizacionValor}>
+                1 USD = {tipoCambio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
+              </span>
+              <button
+                className={styles.cotizacionEditBtn}
+                onClick={() => {
+                  setTipoCambioInput(tipoCambio.toString());
+                  setEditandoCambio(true);
+                }}
+                disabled={!puedeEditarConfiguracion}
+                title={
+                  !puedeEditarConfiguracion ? 'Sin permisos para modificar configuración' : 'Modificar cotización'
+                }
+              >
+                <span className="material-icons">edit</span>
+                Modificar
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tabs */}
       <div className={styles.tabsBar}>
         <button
@@ -566,192 +618,138 @@ const GestionVentas: React.FC = () => {
       </div>
 
       {activeTab === 'envios' && puedeVerEnvios && (
-        <GestionEnvios onPendientesChange={setEnviosPendientes} puedeGestionar={puedeGestionarEnvios} />
+        <GestionEnvios onPendientesChange={setEnviosPendientes} />
       )}
 
       {activeTab === 'retiros' && puedeVerRetiros && (
-        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarRetiros} />
+        <GestionRetiros onPendientesChange={setRetirosPendientes} />
       )}
 
       {activeTab === 'ventas' && (
         <>
-          {/* Cotización del dólar */}
-          {puedeVerConfiguracion && (
-            <div className={styles.cotizacionCard}>
-              <div className={styles.cotizacionHeader}>
-                <span className="material-icons">attach_money</span>
-                <span className={styles.cotizacionTitle}>Cotización USD</span>
-                {tipoCambioFecha && (
-                  <span className={styles.cotizacionFecha}>
-                    Actualizada:{' '}
-                    {new Date(tipoCambioFecha).toLocaleString('es-AR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                )}
-              </div>
 
-              {editandoCambio ? (
-                <div className={styles.cotizacionEdit}>
-                  <span className={styles.cotizacionPrefix}>1 USD =</span>
+
+          {/* Filtros Premium de 2 Filas - Usando Sistema Global */}
+          <AdminSurface className="admin-filter-shell" tone="muted">
+            <div className="admin-filter-rows">
+              {/* Fila Superior: Filtros de Fecha, Vendedor, Estado, Tipo, Método */}
+              <div className="admin-filter-row-top">
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Desde</label>
                   <input
-                    type="number"
-                    min={1}
-                    step={0.01}
-                    className={styles.cotizacionInput}
-                    value={tipoCambioInput}
-                    onChange={(e) => setTipoCambioInput(e.target.value)}
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') guardarCambio();
-                      if (e.key === 'Escape') setEditandoCambio(false);
-                    }}
+                    type="date"
+                    className={styles.filterInput}
+                    value={filtros.fecha_inicio || ''}
+                    onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
                   />
-                  <span className={styles.cotizacionSuffix}>ARS</span>
-                  <button className={styles.cotizacionSave} onClick={guardarCambio} disabled={guardandoCambio}>
-                    <span className="material-icons">{guardandoCambio ? 'hourglass_empty' : 'check'}</span>
-                  </button>
-                  <button className={styles.cotizacionCancel} onClick={() => setEditandoCambio(false)}>
-                    <span className="material-icons">close</span>
-                  </button>
                 </div>
-              ) : (
-                <div className={styles.cotizacionDisplay}>
-                  <span className={styles.cotizacionValor}>
-                    1 USD = {tipoCambio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
-                  </span>
-                  <button
-                    className={styles.cotizacionEditBtn}
-                    onClick={() => {
-                      setTipoCambioInput(tipoCambio.toString());
-                      setEditandoCambio(true);
-                    }}
-                    disabled={!puedeEditarConfiguracion}
-                    title={
-                      !puedeEditarConfiguracion ? 'Sin permisos para modificar configuración' : 'Modificar cotización'
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Hasta</label>
+                  <input
+                    type="date"
+                    className={styles.filterInput}
+                    value={filtros.fecha_fin || ''}
+                    onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+                  />
+                </div>
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Vendedor</label>
+                  <select
+                    className={styles.filterSelect}
+                    value={filtros.id_vendedor || ''}
+                    onChange={(e) =>
+                      setFiltros((prev) => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))
                     }
                   >
-                    <span className="material-icons">edit</span>
-                    Modificar
-                  </button>
+                    <option value="">Todos</option>
+                    {vendedores.map((v) => (
+                      <option key={v.id_usuario} value={v.id_usuario}>
+                        {v.nombres}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              )}
-            </div>
-          )}
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Estado</label>
+                  <select
+                    className={styles.filterSelect}
+                    value={filtros.estado || ''}
+                    onChange={(e) =>
+                      setFiltros((prev) => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))
+                    }
+                  >
+                    <option value="">Todos</option>
+                    <option value="completada">Completada</option>
+                    <option value="cancelada">Cancelada</option>
+                    <option value="pendiente">Pendiente</option>
+                  </select>
+                </div>
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Tipo</label>
+                  <select
+                    className={styles.filterSelect}
+                    value={filtros.tipo_venta || ''}
+                    onChange={(e) =>
+                      setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
+                    }
+                  >
+                    <option value="">Todos</option>
+                    <option value="web">Web</option>
+                    <option value="manual">Manual</option>
+                  </select>
+                </div>
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Método pago</label>
+                  <select
+                    className={styles.filterSelect}
+                    value={filtros.metodo_pago || ''}
+                    onChange={(e) =>
+                      setFiltros((prev) => ({
+                        ...prev,
+                        metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'],
+                      }))
+                    }
+                  >
+                    <option value="">Todos</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="qr">QR</option>
+                  </select>
+                </div>
+              </div>
 
-          {/* Barra de filtros */}
-          <div className={styles.filterBar}>
-            {/* Fila 1: fechas, estado, tipo, método de pago */}
-            <div className={styles.filterRow}>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Desde</label>
-                <input
-                  type="date"
-                  className={styles.filterInput}
-                  value={filtros.fecha_inicio || ''}
-                  onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
-                />
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Hasta</label>
-                <input
-                  type="date"
-                  className={styles.filterInput}
-                  value={filtros.fecha_fin || ''}
-                  onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
-                />
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Tipo</label>
-                <select
-                  className={styles.filterSelect}
-                  value={filtros.tipo_venta || ''}
-                  onChange={(e) =>
-                    setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  <option value="web">Web</option>
-                  <option value="manual">Manual</option>
-                </select>
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Vendedor</label>
-                <select
-                  className={styles.filterSelect}
-                  value={filtros.id_vendedor || ''}
-                  onChange={(e) =>
-                    setFiltros((prev) => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  {vendedores.map((v) => (
-                    <option key={v.id_usuario} value={v.id_usuario}>
-                      {v.nombres}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Estado</label>
-                <select
-                  className={styles.filterSelect}
-                  value={filtros.estado || ''}
-                  onChange={(e) =>
-                    setFiltros((prev) => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  <option value="completada">Completada</option>
-                  <option value="cancelada">Cancelada</option>
-                  <option value="pendiente">Pendiente</option>
-                </select>
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Método pago</label>
-                <select
-                  className={styles.filterSelect}
-                  value={filtros.metodo_pago || ''}
-                  onChange={(e) =>
-                    setFiltros((prev) => ({
-                      ...prev,
-                      metodo_pago: e.target.value as FiltrosVentasAdmin['metodo_pago'],
-                    }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="tarjeta">Tarjeta</option>
-                  <option value="transferencia">Transferencia</option>
-                  <option value="qr">QR</option>
-                </select>
+              {/* Fila Inferior: Búsqueda y Acciones */}
+              <div className="admin-search-form">
+                <div className="admin-search-wrapper">
+                  <label className="admin-filter-label">Búsqueda</label>
+                  <AdminSearch
+                    value={filtros.search || ''}
+                    placeholder="N° venta, cliente..."
+                    onChange={(val) => {
+                      setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                      setOffset(0);
+                    }}
+                  />
+                </div>
+                <div className="admin-action-row">
+                  <button className={styles.clearButton} onClick={limpiarFiltros}>
+                    <span className="material-icons">backspace</span>
+                    <span>Limpiar</span>
+                  </button>
+                  {puedeCrear && (
+                    <button
+                      className={styles.crearButton}
+                      onClick={() => setMostrarRegistrar(true)}
+                    >
+                      <span className="material-icons">add_box</span>
+                      <span>Registrar Venta</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-
-            {/* Fila 2: búsqueda + acciones */}
-            <div className={styles.filterRow}>
-              <div className={`${styles.filterGroup} ${styles.filterGroupWide}`}>
-                <label className={styles.filterLabel}>Búsqueda</label>
-                <AdminSearch
-                  value={filtros.search || ''}
-                  placeholder="N° venta, cliente..."
-                  onChange={(val) => {
-                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                    setOffset(0);
-                  }}
-                />
-              </div>
-              <div className={styles.filterActions}>
-                <button className={styles.clearButton} onClick={limpiarFiltros}>
-                  <span className="material-icons">clear</span>
-                  Limpiar
-                </button>
-              </div>
-            </div>
-          </div>
+          </AdminSurface>
 
           {/* Tabla */}
           {cargando ? (
@@ -823,41 +821,41 @@ const GestionVentas: React.FC = () => {
                 onPageChange={setOffset}
                 itemLabel="ventas"
               />
-
             </>
           )}
-
-          {/* Modal detalle */}
-          {idDetalleAbierto !== null && (
-            <DetalleVentaModal
-              idVenta={idDetalleAbierto}
-              onClose={() => setIdDetalleAbierto(null)}
-              onCancelada={refreshTodo}
-            />
-          )}
-
-          {/* Modal registrar venta */}
-          {mostrarRegistrar && (
-            <RegistrarVentaModal
-              onClose={() => setMostrarRegistrar(false)}
-              onRegistrada={refreshTodo}
-              tipoCambioUsd={tipoCambio}
-            />
-          )}
-
-          {/* Modal cancelar venta (desde tabla) */}
-          {cancelacionModal && (
-            <CancelacionModal
-              idVenta={cancelacionModal.id}
-              nroVenta={cancelacionModal.nro}
-              onClose={() => setCancelacionModal(null)}
-              onCancelada={() => {
-                setCancelacionModal(null);
-                refreshTodo();
-              }}
-            />
-          )}
         </>
+      )}
+
+      {/* Modales globales del módulo */}
+      {/* Modal detalle */}
+      {idDetalleAbierto !== null && (
+        <DetalleVentaModal
+          idVenta={idDetalleAbierto}
+          onClose={() => setIdDetalleAbierto(null)}
+          onCancelada={refreshTodo}
+        />
+      )}
+
+      {/* Modal registrar venta */}
+      {mostrarRegistrar && (
+        <RegistrarVentaModal
+          onClose={() => setMostrarRegistrar(false)}
+          onRegistrada={refreshTodo}
+          tipoCambioUsd={tipoCambio}
+        />
+      )}
+
+      {/* Modal cancelar venta (desde tabla) */}
+      {cancelacionModal && (
+        <CancelacionModal
+          idVenta={cancelacionModal.id}
+          nroVenta={cancelacionModal.nro}
+          onClose={() => setCancelacionModal(null)}
+          onCancelada={() => {
+            setCancelacionModal(null);
+            refreshTodo();
+          }}
+        />
       )}
     </div>
   );

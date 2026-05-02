@@ -45,7 +45,7 @@ const adminProductService = {
    */
   crearProducto: async (data: ProductoFormData): Promise<Product> => {
     const response = await adminApi.post('/almacen/productos', data);
-    return response.data;
+    return response.data.data || response.data;
   },
 
   /**

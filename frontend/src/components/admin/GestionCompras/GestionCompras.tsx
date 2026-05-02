@@ -3,9 +3,8 @@ import adminCompraService from '../../../services/adminCompraService';
 import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch, AdminPagination } from '../common';
+import { AdminEmptyState, AdminStatCard, AdminSearch, AdminPagination, AdminSurface } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
-import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
@@ -84,7 +83,6 @@ const GestionCompras: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_compras');
   const puedeCrear = tienePermiso('crear_compra');
-  const puedeEditar = tienePermiso('editar_compra');
   const { showNotification } = useNotification();
 
   // === Estado principal ===
@@ -129,7 +127,6 @@ const GestionCompras: React.FC = memo(() => {
   // === Modales ===
   const [idDetalleAbierto, setIdDetalleAbierto] = useState<number | null>(null);
   const [mostrarRegistrar, setMostrarRegistrar] = useState(false);
-  const [anularModal, setAnularModal] = useState<{ id: number; nro: string } | null>(null);
 
   // === Refs ===
   const cargandoRef = useRef(false);
@@ -199,7 +196,6 @@ const GestionCompras: React.FC = memo(() => {
   };
 
   const handleAnulada = () => {
-    setAnularModal(null);
     setOffset(0);
     cargarCompras();
     cargarStats();
@@ -472,17 +468,7 @@ const GestionCompras: React.FC = memo(() => {
 
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          puedeCrear ? (
-            <button className={styles.crearButton} onClick={() => setMostrarRegistrar(true)} disabled={cargando}>
-              <span className="material-icons">add</span>
-              Nueva Compra
-            </button>
-          ) : null
-        }
-      />
+
 
       {/* Estadísticas */}
       {stats ? (
@@ -580,68 +566,88 @@ const GestionCompras: React.FC = memo(() => {
       {/* Tab: Compras */}
       {activeTab === 'compras' && (
         <>
-          {/* Filtros */}
-          <div className={styles.filterBar}>
-            <div className={styles.filterRow}>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Fecha Desde</label>
-                <input
-                  type="date"
-                  className={styles.filterInput}
-                  value={filtros.fecha_inicio || ''}
-                  onChange={(e) => {
-                    setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }));
-                    setOffset(0);
-                  }}
-                />
+          {/* Barra de Filtros Premium de 2 Filas - Usando Sistema Global */}
+          <AdminSurface className="admin-filter-shell" tone="muted">
+            <div className="admin-filter-rows">
+              {/* Fila Superior: Filtros de Fecha y Estado */}
+              <div className="admin-filter-row-top">
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Fecha Desde</label>
+                  <input
+                    type="date"
+                    className={styles.filterInput}
+                    value={filtros.fecha_inicio || ''}
+                    onChange={(e) => {
+                      setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }));
+                      setOffset(0);
+                    }}
+                  />
+                </div>
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Fecha Hasta</label>
+                  <input
+                    type="date"
+                    className={styles.filterInput}
+                    value={filtros.fecha_fin || ''}
+                    onChange={(e) => {
+                      setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }));
+                      setOffset(0);
+                    }}
+                  />
+                </div>
+                <div className="admin-filter-group">
+                  <label className="admin-filter-label">Estado</label>
+                  <select
+                    className={styles.filterSelect}
+                    value={filtros.estado || ''}
+                    onChange={(e) => {
+                      setFiltros((prev) => ({
+                        ...prev,
+                        estado: (e.target.value as 'activa' | 'anulada') || undefined,
+                      }));
+                      setOffset(0);
+                    }}
+                  >
+                    <option value="">Todas</option>
+                    <option value="activa">Activa</option>
+                    <option value="anulada">Anulada</option>
+                  </select>
+                </div>
               </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Fecha Hasta</label>
-                <input
-                  type="date"
-                  className={styles.filterInput}
-                  value={filtros.fecha_fin || ''}
-                  onChange={(e) => {
-                    setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }));
-                    setOffset(0);
-                  }}
-                />
+
+              {/* Fila Inferior: Búsqueda, Limpiar y Acciones */}
+              <div className="admin-search-form">
+                <div className="admin-search-wrapper">
+                  <AdminSearch
+                    value={filtros.search || ''}
+                    placeholder="Ej: C-00001 o nombre proveedor"
+                    onChange={(val) => {
+                      setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                      setOffset(0);
+                    }}
+                  />
+                </div>
+                
+                <div className="admin-action-row">
+                  <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
+                    <span className="material-icons">backspace</span>
+                    <span>Limpiar</span>
+                  </button>
+                  
+                  {puedeCrear && (
+                    <button 
+                      className={styles.crearButton} 
+                      onClick={() => setMostrarRegistrar(true)} 
+                      disabled={cargando}
+                    >
+                      <span className="material-icons">add_box</span>
+                      <span>Nueva Compra</span>
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Estado</label>
-                <select
-                  className={styles.filterSelect}
-                  value={filtros.estado || ''}
-                  onChange={(e) => {
-                    setFiltros((prev) => ({
-                      ...prev,
-                      estado: (e.target.value as 'activa' | 'anulada') || undefined,
-                    }));
-                    setOffset(0);
-                  }}
-                >
-                  <option value="">Todas</option>
-                  <option value="activa">Activa</option>
-                  <option value="anulada">Anulada</option>
-                </select>
-              </div>
-              <div className={styles.filterGroupWide}>
-                <label className={styles.filterLabel}>Buscar (Nro. Compra)</label>
-                <AdminSearch
-                  value={filtros.search || ''}
-                  placeholder="Ej: C-00001 o nombre proveedor"
-                  onChange={(val) => {
-                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                    setOffset(0);
-                  }}
-                />
-              </div>
-              <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
-                <span className="material-icons">clear</span>
-                Limpiar
-              </button>
             </div>
-          </div>
+          </AdminSurface>
 
           {/* Tabla */}
           {error ? (
@@ -831,18 +837,6 @@ const GestionCompras: React.FC = memo(() => {
         <DetalleCompraModal
           idCompra={idDetalleAbierto}
           onClose={() => setIdDetalleAbierto(null)}
-          onAnularClick={puedeEditar ? (id, nro) => {
-            setIdDetalleAbierto(null);
-            setAnularModal({ id, nro });
-          } : undefined}
-        />
-      )}
-
-      {anularModal && (
-        <AnularCompraModal
-          idCompra={anularModal.id}
-          nroCompra={anularModal.nro}
-          onClose={() => setAnularModal(null)}
           onAnulada={handleAnulada}
         />
       )}

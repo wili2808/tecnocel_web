@@ -12,7 +12,6 @@ import OfertaForm from './OfertaForm';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import {
   AdminEmptyState,
-  AdminSectionActions,
   AdminSurface,
   AdminSearch,
   AdminPagination,
@@ -365,28 +364,9 @@ const GestionOfertas = () => {
 
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={(
-          <button
-            className={styles.crearButton}
-            onClick={() => {
-              setModoModal('crear');
-              setEditandoOferta(null);
-              setShowCrearForm(true);
-            }}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear ofertas' : undefined}
-          >
-            <span className="material-icons">add_box</span>
-            <span>Nueva Oferta</span>
-          </button>
-        )}
-      />
-
-      {/* Barra de búsqueda y filtro */}
-      <AdminSurface className={styles.filterShell} tone="muted">
-        <div className={styles.filterRow}>
+      <AdminSurface className="admin-filter-shell" tone="muted">
+        <div className="admin-search-form">
+          <div className="admin-search-wrapper">
             <AdminSearch
               value={searchTerm}
               placeholder="Buscar por nombre de oferta..."
@@ -396,19 +376,35 @@ const GestionOfertas = () => {
               }}
               delay={0}
             />
-          <select
-            value={filtroEstado}
-            onChange={(e) => { 
-              setFiltroEstado(e.target.value as FiltroEstado); 
-              table.setPageIndex(0); 
-            }}
-            className={styles.filterSelect}
-          >
-            <option value="todas">Todas</option>
-            <option value="activas">Activas</option>
-            <option value="inactivas">Inactivas</option>
-            <option value="expiradas">Expiradas</option>
-          </select>
+          </div>
+          <div className="admin-action-row">
+            <select
+              value={filtroEstado}
+              onChange={(e) => { 
+                setFiltroEstado(e.target.value as FiltroEstado); 
+                table.setPageIndex(0); 
+              }}
+              className={styles.filterSelect}
+            >
+              <option value="todas">Todas</option>
+              <option value="activas">Activas</option>
+              <option value="inactivas">Inactivas</option>
+              <option value="expiradas">Expiradas</option>
+            </select>
+            <button
+              className={styles.crearButton}
+              onClick={() => {
+                setModoModal('crear');
+                setEditandoOferta(null);
+                setShowCrearForm(true);
+              }}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear ofertas' : undefined}
+            >
+              <span className="material-icons">add_box</span>
+              <span>Nueva Oferta</span>
+            </button>
+          </div>
         </div>
       </AdminSurface>
 
@@ -438,9 +434,7 @@ const GestionOfertas = () => {
       {/* Tabla de ofertas */}
       {!loading && !error && (
         <>
-          <div className={styles.tableInfo}>
-            <span>{filteredOfertas.length} oferta{filteredOfertas.length !== 1 ? 's' : ''} encontrada{filteredOfertas.length !== 1 ? 's' : ''}</span>
-          </div>
+
 
           <div className={styles.tableWrapper}>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

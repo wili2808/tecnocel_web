@@ -13,7 +13,7 @@ interface ProductoModalProps {
   producto?: Product | null;
   isOpen: boolean;
   onClose: () => void;
-  onGuardado: () => void;
+  onGuardado: (nuevoProducto?: Product) => void;
 }
 
 type TabType = 'general' | 'precios' | 'imagenes' | 'especificaciones';
@@ -240,11 +240,12 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
       if (modoEdicion) {
         await adminProductService.actualizarProducto(producto!.id_producto, payload);
         showNotification('Producto actualizado correctamente', 'success');
+        onGuardado();
       } else {
-        await adminProductService.crearProducto(payload);
+        const nuevoProd = await adminProductService.crearProducto(payload);
         showNotification('Producto creado correctamente', 'success');
+        onGuardado(nuevoProd);
       }
-      onGuardado();
       onClose();
     } catch (err: any) {
       showNotification(err.response?.data?.error || err.message || 'Error al guardar el producto', 'error');
@@ -302,29 +303,33 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
           <form id="product-form" onSubmit={handleSubmit}>
             {activeTab === 'general' && (
               <div className="fade-in">
-                <Input
-                  id="nombre"
-                  name="nombre"
-                  label="Nombre del Producto"
-                  value={form.nombre}
-                  onChange={handleInputChange}
-                  placeholder="Ej: Samsung Galaxy S23 Ultra"
-                  disabled={readonly}
-                  required
-                  autoFocus
-                />
+                <div className="modalFormGroupFullPremium">
+                  <Input
+                    id="nombre"
+                    name="nombre"
+                    label="Nombre del Producto"
+                    value={form.nombre}
+                    onChange={handleInputChange}
+                    placeholder="Ej: Samsung Galaxy S23 Ultra"
+                    disabled={readonly}
+                    required
+                    autoFocus
+                  />
+                </div>
 
-                <Input
-                  id="codigo"
-                  name="codigo"
-                  label="Código de Producto (SKU)"
-                  value={form.codigo}
-                  onChange={handleInputChange}
-                  placeholder="Ej: TC-S23U-001"
-                  disabled={modoEdicion || readonly}
-                  required
-                  className="font-mono font-bold"
-                />
+                <div className="modalFormGroupFullPremium">
+                  <Input
+                    id="codigo"
+                    name="codigo"
+                    label="Código de Producto (SKU)"
+                    value={form.codigo}
+                    onChange={handleInputChange}
+                    placeholder="Ej: TC-S23U-001"
+                    disabled={modoEdicion || readonly}
+                    required
+                    className="font-mono font-bold"
+                  />
+                </div>
 
                 <div className="modalFormGridPremium">
                   <Select
@@ -355,16 +360,18 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
                   />
                 </div>
 
-                <TextArea
-                  id="descripcion"
-                  name="descripcion"
-                  label="Descripción Corta"
-                  value={form.descripcion}
-                  onChange={handleInputChange}
-                  placeholder="Breve descripción del producto para el listado..."
-                  rows={4}
-                  disabled={readonly}
-                />
+                <div className="modalFormGroupFullPremium">
+                  <TextArea
+                    id="descripcion"
+                    name="descripcion"
+                    label="Descripción Corta"
+                    value={form.descripcion}
+                    onChange={handleInputChange}
+                    placeholder="Breve descripción del producto para el listado..."
+                    rows={4}
+                    disabled={readonly}
+                  />
+                </div>
 
                 <div className="modalFormGroupPremium mt-sm">
                   <label className={styles.checkboxLabel}>

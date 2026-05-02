@@ -185,28 +185,13 @@
    BARRA DE FILTROS
    ============================================================================ */
 
-.filterBar {
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 
-.filterRow {
-  display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+
+
 
 .filterGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
   min-width: 130px;
 }
 .filterGroupWide {
@@ -468,9 +453,19 @@
    ============================================================================ */
 
 @media (max-width: 1024px) {
-  .filterGroup,
-  .filterGroupWide {
-    width: 100%;
+  /* Forzar que el buscador ocupe lo necesario y no empuje los botones fuera */
+  .searchWrapper {
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .filterRowTop {
+    gap: var(--spacing-md);
+  }
+
+  .filterGroup {
+    flex: 1;
+    min-width: 140px;
   }
 
   /* Modales: En tablets, mantener 2 columnas pero compactar */
@@ -513,9 +508,40 @@
     padding: 16px 12px;
   }
 
-  .crearButton {
+  /* Usar flex-direction column para que el buscador y botones no compitan horizontalmente */
+  div[class*="searchForm"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--spacing-sm) !important;
+  }
+
+  .filterRowTop {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .filterGroup {
     width: 100%;
+  }
+
+  .searchWrapper {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .actionRow {
+    width: 100%;
+    justify-content: stretch;
+    padding-bottom: 0;
+    gap: var(--spacing-sm);
+  }
+
+  .clearButton,
+  .crearButton {
+    flex: 1;
     justify-content: center;
+    padding: 9px;
   }
 
   .table {
@@ -652,7 +678,36 @@
 
 @media (max-width: 480px) {
   .container {
-    padding: 12px 8px;
+    padding: 12px 10px;
+  }
+
+  .filterRowsContainer {
+    gap: var(--spacing-sm);
+  }
+
+  div[class*="searchForm"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .actionRow {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .searchWrapper {
+    min-width: 100%;
+  }
+
+  .clearButton,
+  .crearButton {
+    padding: 10px;
+    font-size: 12px;
+    height: 42px;
+    flex: 1;
   }
 
   .title {
@@ -678,17 +733,19 @@
   }
 
   .filterBar {
-    padding: var(--spacing-md);
-    gap: 8px;
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
   }
 
-  .filterGroup {
-    min-width: 100px;
+  .filterLabel {
+    font-size: 11px;
   }
 
   .filterInput,
   .filterSelect {
     font-size: 12px;
+    padding: 6px 10px;
+    height: 38px;
   }
 
   .sectionTitlePremium {

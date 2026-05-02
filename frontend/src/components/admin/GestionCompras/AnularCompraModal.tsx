@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './AnularCompraModal.module.css';
 
 interface AnularCompraModalProps {
   idCompra: number;
@@ -39,53 +38,47 @@ const AnularCompraModal: React.FC<AnularCompraModalProps> = memo(
       <PremiumModal
         isOpen={true}
         onClose={onClose}
-        title="Anular Compra"
+        title="Confirmar Anulación"
         icon="warning_amber"
         maxWidth="450px"
       >
         <div className="modalBodyPremium">
-          <div>
-            <p className={`text-sm text-secondary mb-4 ${styles.message}`}>
-              ¿Está seguro que desea anular la compra <strong className="text-primary">{nroCompra}</strong>?
+          <div className="modalAlertErrorPremium mb-6">
+            <span className="material-icons">report_problem</span>
+            <p className="m-0 text-sm">
+              Estás por anular la compra <strong>{nroCompra}</strong>. Esta acción revertirá el stock de los productos ingresados y **no se puede deshacer**.
             </p>
-
-            <div className={styles.warningBox}>
-              <span className="material-icons">warning</span>
-              <p>
-                Esta acción revertirá el stock de los productos ingresados y es irreversible.
-              </p>
-            </div>
-
-            <TextArea
-              id="motivo"
-              name="motivo"
-              label="Motivo de la Anulación (Opcional)"
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-              placeholder="Ej: Error en carga de datos, devolución al proveedor..."
-              rows={3}
-              disabled={anulando}
-            />
-
-            {error && (
-              <div className="modalAlertErrorPremium mt-4">
-                <span className="material-icons">error_outline</span>
-                {error}
-              </div>
-            )}
           </div>
+
+          <TextArea
+            id="motivo"
+            name="motivo"
+            label="Motivo de la Anulación (Opcional)"
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+            placeholder="Ej: Error en carga de datos, devolución al proveedor..."
+            rows={4}
+            disabled={anulando}
+          />
+
+          {error && (
+            <div className="modalAlertErrorPremium mt-4">
+              <span className="material-icons">error_outline</span>
+              {error}
+            </div>
+          )}
         </div>
 
         <div className="modalFooterPremium">
           <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={anulando}>
-            Cancelar
+            Volver
           </button>
           <button 
             className="btnPremium btnDangerPremium" 
             onClick={handleAnular} 
             disabled={anulando}
           >
-            <span className="material-icons">{anulando ? 'hourglass_empty' : 'block'}</span>
+            <span className="material-icons">{anulando ? 'hourglass_empty' : 'delete_forever'}</span>
             {anulando ? 'Anulando...' : 'Confirmar Anulación'}
           </button>
         </div>

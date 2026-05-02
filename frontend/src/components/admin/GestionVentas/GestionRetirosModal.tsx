@@ -73,7 +73,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
       onClose={onClose}
       title={`Retiro en tienda #${retiro.nro_venta}`}
       icon="store"
-      maxWidth="900px"
+      maxWidth="1000px"
       headerChildren={
         <span
           className={`modalBadgePremium ${retiro.estado_envio === 'entregado' ? 'success' : 'neutral'} ${styles.headerBadge}`}
@@ -84,61 +84,73 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
         </span>
       }
     >
-      <div className="modalBodyPremium">
+      <div className="modalBodyPremium p-0">
         {cargando ? (
           <div className="modalLoadingPremium">
             <span className="material-icons">hourglass_empty</span>
             <p>Cargando detalles del retiro...</p>
           </div>
         ) : detalle ? (
-          <>
-            <div className="modalSplitLayoutPremium modalSplitEqualPremium mb-3">
+          <div className="p-xl">
+            <div className="modalGrid2Premium mb-6">
               
               {/* Card Cliente */}
-              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
-                <span className={styles.sectionTitleWithDivider}>Información del Cliente</span>
-                <div className="flex flex-col gap-xs mt-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Nombre</span>
-                    <span className="font-bold text-right ml-2">{detalle.nombre_cliente ?? '—'}</span>
+              <div className={styles.infoCard}>
+                <h4 className="modalSectionTitlePremium">Información del Cliente</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Nombre Completo</span>
+                      <span className="text-sm font-bold">{detalle.nombre_cliente ?? '—'}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Email</span>
-                    <span className="font-bold text-primary text-right ml-2" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Email de Contacto</span>
+                      <span className="text-sm font-bold text-primary" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
+                    </div>
                   </div>
                   {detalle.envio_telefono_contacto && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-secondary font-bold">Teléfono</span>
-                      <span className="font-bold text-right ml-2">{detalle.envio_telefono_contacto}</span>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Teléfono</span>
+                        <span className="text-sm font-bold">{detalle.envio_telefono_contacto}</span>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Card Operación */}
-              <div className={`${styles.cardContainer} ${styles.infoCard}`}>
-                <span className={styles.sectionTitleWithDivider}>Datos de la Operación</span>
-                <div className="flex flex-col gap-xs mt-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Fecha Venta</span>
-                    <span className="font-bold text-right ml-2">{formatFecha(detalle.fyh_venta)}</span>
+              <div className={styles.infoCard}>
+                <h4 className="modalSectionTitlePremium">Datos de la Operación</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Fecha de la Venta</span>
+                      <span className="text-sm font-bold">{formatFecha(detalle.fyh_venta)}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Total Pagado</span>
-                    <span className="font-bold text-primary text-right ml-2">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Total Pagado</span>
+                      <span className="text-lg font-bold text-primary">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-secondary font-bold">Método Pago</span>
-                    <span className="font-bold text-right ml-2" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Método de Pago</span>
+                      <span className="text-sm font-bold" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Productos */}
-            <div className="mb-4">
-              <span className={styles.sectionTitleWithDivider}>Productos del pedido</span>
-              <div className="modalTableWrapperPremium mt-md">
+            <div className="mb-6">
+              <h4 className="modalSectionTitlePremium">Productos del pedido</h4>
+              <div className="modalTableWrapperPremium mt-2">
                 <table className="modalTablePremium">
                   <thead>
                     <tr>
@@ -197,7 +209,7 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
                 )}
               </div>
             )}
-          </>
+          </div>
         ) : (
           <div className="modalLoadingPremium" style={{ color: 'var(--color-error)' }}>
             <span className="material-icons" style={{ animation: 'none' }}>error_outline</span>

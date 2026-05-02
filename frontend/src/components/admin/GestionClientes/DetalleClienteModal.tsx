@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import type { ClienteListItem } from '../../../types/usuario';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
-import styles from './ClienteModals.module.css';
 
 interface Props {
   cliente: ClienteListItem;
@@ -27,60 +26,88 @@ const DetalleClienteModal: React.FC<Props> = memo(({ cliente, onClose, onEdit })
       onClose={onClose}
       title={`${cliente.nombre_cliente} ${cliente.apellido_cliente}`}
       icon="account_circle"
+      headerChildren={
+        <div className="flex gap-sm">
+          <span className={`modalBadgePremium ${activo ? 'success' : 'error'}`}>
+            {activo ? 'Activo' : 'Inactivo'}
+          </span>
+          <span className="modalBadgePremium neutral">
+            ID: #{cliente.id_cliente}
+          </span>
+        </div>
+      }
     >
       <div className="modalBodyPremium">
-        <h4 className="sectionTitleWithDividerPremium">Información Personal</h4>
-        <div className={styles.detailGrid}>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>ID del Cliente</span>
-            <span className={styles.detailValue}>#{cliente.id_cliente}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Nombre Completo</span>
-            <span className={styles.detailValue}>{cliente.nombre_cliente} {cliente.apellido_cliente}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Correo Electrónico</span>
-            <span className={styles.detailValue} style={{ color: 'var(--color-primary)' }}>{cliente.email_cliente}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Celular / WhatsApp</span>
-            <span className={styles.detailValue}>{cliente.celular_cliente || '—'}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>NIT / CI</span>
-            <span className={styles.detailValue}>{cliente.nit_ci_cliente || '—'}</span>
-          </div>
-        </div>
+        <div className="modalGrid2Premium">
+          {/* Columna Izquierda: Identidad y Contacto */}
+          <div>
+            <span className="modalSectionTitlePremium">Identidad y Contacto</span>
+            <div className="flex flex-col gap-sm mt-2">
+              <div className="modalInfoBoxPremium">
+                <div className="flex flex-col w-full">
+                  <span className="text-xxs text-secondary uppercase font-bold">Nombre Completo</span>
+                  <span className="text-sm font-bold">{cliente.nombre_cliente} {cliente.apellido_cliente}</span>
+                </div>
+              </div>
+              
+              <div className="modalInfoBoxPremium">
+                <div className="flex flex-col w-full">
+                  <span className="text-xxs text-secondary uppercase font-bold">Correo Electrónico</span>
+                  <span className="text-sm font-bold" style={{ wordBreak: 'break-all' }}>{cliente.email_cliente || '—'}</span>
+                </div>
+              </div>
 
-        <h4 className="sectionTitleWithDividerPremium mt-8">Estado de la Cuenta</h4>
-        <div className={styles.detailGrid}>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Estado Global</span>
-            <span className={`${styles.statusBadge} ${activo ? styles.statusActive : styles.statusInactive}`}>
-              <span className="material-icons" style={{ fontSize: 16 }}>{activo ? 'check_circle' : 'error'}</span>
-              {activo ? 'Activo' : 'Inactivo'}
-            </span>
+              <div className="grid grid-cols-2 gap-sm">
+                <div className="modalInfoBoxPremium">
+                  <div className="flex flex-col w-full">
+                    <span className="text-xxs text-secondary uppercase font-bold">Celular / WhatsApp</span>
+                    <span className="text-sm font-bold">{cliente.celular_cliente || '—'}</span>
+                  </div>
+                </div>
+                <div className="modalInfoBoxPremium">
+                  <div className="flex flex-col w-full">
+                    <span className="text-xxs text-secondary uppercase font-bold">NIT / CI</span>
+                    <span className="text-sm font-bold">{cliente.nit_ci_cliente || '—'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Verificación de Email</span>
-            <span className={`${styles.statusBadge} ${cliente.email_verified ? styles.statusActive : styles.statusInactive}`}>
-              {cliente.email_verified ? 'Sí' : 'No'}
-            </span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Acceso Web Habilitado</span>
-            <span className={`${styles.statusBadge} ${cliente.is_web_enabled ? styles.statusActive : styles.statusInactive}`}>
-              {cliente.is_web_enabled ? 'Sí' : 'No'}
-            </span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Fecha de Registro</span>
-            <span className={styles.detailValue}>{formatFecha(cliente.fyh_creacion)}</span>
-          </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Última Actividad</span>
-            <span className={styles.detailValue}>{formatFecha(cliente.last_login)}</span>
+
+          {/* Columna Derecha: Actividad y Seguridad */}
+          <div>
+            <span className="modalSectionTitlePremium">Actividad y Seguridad</span>
+            <div className="flex flex-col gap-sm mt-2">
+              <div className="modalInfoBoxPremium">
+                <div className="flex flex-col w-full">
+                  <span className="text-xxs text-secondary uppercase font-bold">Fecha de Registro</span>
+                  <span className="text-sm font-bold">{formatFecha(cliente.fyh_creacion)}</span>
+                </div>
+              </div>
+
+              <div className="modalInfoBoxPremium">
+                <div className="flex flex-col w-full">
+                  <span className="text-xxs text-secondary uppercase font-bold">Última Actividad</span>
+                  <span className="text-sm font-bold">{formatFecha(cliente.last_login)}</span>
+                </div>
+              </div>
+
+              <div className="modalInfoBoxPremium">
+                <div className="flex flex-col w-full">
+                  <span className="text-xxs text-secondary uppercase font-bold mb-2">Estados de Cuenta</span>
+                  <div className="flex gap-sm">
+                    <div className={`modalBadgePremium ${cliente.email_verified ? 'success' : 'error'}`}>
+                      <span className="material-icons" style={{ fontSize: 14 }}>{cliente.email_verified ? 'verified' : 'pending'}</span>
+                      Email {cliente.email_verified ? 'Verificado' : 'Pendiente'}
+                    </div>
+                    <div className={`modalBadgePremium ${cliente.is_web_enabled ? 'primary' : 'error'}`}>
+                      <span className="material-icons" style={{ fontSize: 14 }}>{cliente.is_web_enabled ? 'language' : 'no_accounts'}</span>
+                      Web {cliente.is_web_enabled ? 'Habilitada' : 'Bloqueada'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

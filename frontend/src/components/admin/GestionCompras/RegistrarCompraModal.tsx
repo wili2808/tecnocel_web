@@ -2,16 +2,18 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import proveedorAdminService from '../../../services/proveedorAdminService';
 import adminProductService from '../../../services/adminProductService';
-import ProductoNuevoModalRapido from './ProductoNuevoModalRapido';
+import ProductoModal from '../GestionProductos/ProductoModal';
 import ProveedorModal from './ProveedorModal';
 import { useNotification } from '../../../contexts/NotificationContext';
-import type { RegistrarCompraData, ProveedorListItem, Category, Marca } from '../../../types';
+import type { RegistrarCompraData, ProveedorListItem } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
 import { AdminSearch, AdminEmptyState } from '../common';
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS, formatUSD } from '../../../utils/formatPrecio';
 
 import styles from './RegistrarCompraModal.module.css';
 
@@ -52,6 +54,7 @@ interface ProductoParaBuscar {
 
 const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClose, onRegistrada, productosIniciales }) => {
   const { showNotification } = useNotification();
+  const { tipoCambio, cargando: cargandoTC, esConfiable } = useTipoCambio();
 
   // ── Estados de Formulario ──────────────────────────────────────────
   const [idProveedor, setIdProveedor] = useState<number>(0);
@@ -72,8 +75,6 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   // ── Modales Secundarios ────────────────────────────────────────────
   const [mostrarCrearProveedor, setMostrarCrearProveedor] = useState(false);
   const [mostrarProductoNuevo, setMostrarProductoNuevo] = useState(false);
-  const [categorias, setCategorias] = useState<Category[]>([]);
-  const [marcas, setMarcas] = useState<Marca[]>([]);
 
   // ── Cargar Catálogos ───────────────────────────────────────────────
   const cargarProveedores = useCallback(async () => {
@@ -86,16 +87,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   }, []);
 
   const cargarCatalogoProductos = useCallback(async () => {
-    try {
-      const [cats, marks] = await Promise.all([
-        adminProductService.obtenerCategorias(),
-        adminProductService.obtenerMarcas()
-      ]);
-      setCategorias(cats);
-      setMarcas(marks);
-    } catch (err) {
-      console.error('Error al cargar catálogos:', err);
-    }
+    // ProductoModal carga sus propios catálogos
   }, []);
 
   useEffect(() => {
@@ -166,18 +158,29 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   };
 
   const handleProductoNuevo = (p: any) => {
+    if (!p) {
+      setMostrarProductoNuevo(false);
+      return;
+    }
+
+    // Extraer producto de forma robusta (por si viene envuelto en .data)
+    const prod = p.id_producto ? p : (p.data || p);
+
+    if (!prod.id_producto) {
+      showNotification('Error: No se pudo obtener la información del producto creado', 'error');
+      setMostrarProductoNuevo(false);
+      return;
+    }
+
     setItems(prev => [
       ...prev,
       {
-        es_nuevo: true,
-        nuevo_nombre: p.nombre,
-        nuevo_codigo: p.codigo,
-        nuevo_precio_venta: p.precio_venta,
-        nuevo_id_categoria: p.id_categoria,
-        nuevo_id_marca: p.id_marca,
+        id_producto: prod.id_producto,
+        nombre_producto: prod.nombre,
         cantidad: 1,
-        precio_unitario: 0,
-        precio_venta: p.precio_venta
+        precio_unitario: Number(prod.precio_compra) || 0,
+        precio_venta: Number(prod.precio_venta) || 0,
+        es_nuevo: false 
       }
     ]);
     setMostrarProductoNuevo(false);
@@ -219,6 +222,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
           id_producto: i.id_producto,
           cantidad: i.cantidad,
           precio_unitario: i.precio_unitario,
+          precio_venta: i.precio_venta,
           // Datos para producto nuevo
           es_nuevo: i.es_nuevo,
           nuevo_nombre: i.nuevo_nombre,
@@ -229,12 +233,15 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
         }))
       };
 
+      console.log('Enviando registro de compra:', payload);
       await adminCompraService.registrarCompra(payload);
+      
       showNotification('Compra registrada exitosamente', 'success');
       onRegistrada();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al registrar la compra');
+      console.error('Error detallado al registrar compra:', err);
+      setError(err.message || 'Error al registrar la compra');
     } finally {
       setRegistrando(false);
     }
@@ -247,18 +254,18 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
       isOpen={true}
       onClose={onClose}
       title="Registrar Ingreso de Mercadería"
-      icon="inventory"
+      icon="add_business"
       maxWidth="1200px"
     >
-      <div className={`modalBodyPremium ${styles.body}`}>
+      <div className="modalBodyPremium p-0">
         <div className="modalSplitLayoutPremium">
           {/* Columna Izquierda - Formulario Principal */}
           <div className="modalMainColumnPremium">
             
             {/* 1. Proveedor y Datos de Factura */}
-            <span className={styles.sectionTitleWithDivider}>Información del Proveedor</span>
-            <div className="modalFormGridPremium">
-              <div className="modalFormGroupPremium">
+            <h4 className="modalSectionTitlePremium">Información del Proveedor</h4>
+            <div className={`${styles.providerGrid} modalFormGridPremium`}>
+              <div className="modalFormGroupPremium" style={{ width: '100%' }}>
                 <div className={styles.providerActions}>
                   <div className={styles.selectWrapper}>
                     <Select
@@ -294,9 +301,10 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                 onChange={(e) => setComprobante(e.target.value)}
                 placeholder="Ej: 0001-00001234"
                 disabled={registrando}
+                className="w-full"
               />
 
-              <div className="modalFormGroupFullPremium">
+              <div className="modalFormGroupFullPremium mb-0">
                 <TextArea
                   id="observaciones"
                   name="observaciones"
@@ -313,19 +321,33 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             <div className="modalDividerPremium" />
 
             {/* 2. Búsqueda de Productos */}
-            <span className={styles.sectionTitleWithDivider}>Selección de Productos</span>
-            <div className={`modalFormGroupFullPremium ${styles.searchContainer}`}>
-              <AdminSearch
-                value={busqProducto}
-                onChange={handleBuscarProducto}
-                placeholder="Buscar por nombre o código de barras..."
-                delay={300}
-              />
-              {buscandoProducto && (
-                <div className={styles.loadingIcon}>
-                  <span className="material-icons">autorenew</span>
-                </div>
-              )}
+            {/* 2. Búsqueda de Productos */}
+            <h4 className="modalSectionTitlePremium">Selección de Productos</h4>
+            <div className="flex gap-sm items-center w-full mb-lg" style={{ display: 'flex', width: '100%' }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <AdminSearch
+                  value={busqProducto}
+                  onChange={handleBuscarProducto}
+                  placeholder="Buscar por nombre o código de barras..."
+                  delay={300}
+                  className="w-full"
+                />
+                {buscandoProducto && (
+                  <div className={styles.loadingIcon}>
+                    <span className="material-icons">autorenew</span>
+                  </div>
+                )}
+              </div>
+              <button 
+                type="button"
+                className="btnPremium btnSecondaryPremium"
+                style={{ height: '32px', padding: '0 16px', whiteSpace: 'nowrap' }}
+                onClick={() => setMostrarProductoNuevo(true)}
+              >
+                <span className="material-icons" style={{ fontSize: '18px' }}>add_box</span>
+                Nuevo
+              </button>
+            </div>
               
               {/* Resultados de búsqueda */}
               {productosEncontrados.length > 0 && (
@@ -341,22 +363,13 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                         <span className="modalResultBadgePremium">${p.precio_venta.toLocaleString()}</span>
                       </div>
                       <div className="modalResultSubPremium">
-                        SKU: {p.codigo} • Stock: {p.stock} • Últ. Costo: ${p.precio_compra.toFixed(2)}
+                        SKU: {p.codigo} • Stock: {p.stock} • Últ. Costo: {formatUSD(p.precio_compra)}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-              {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
-                <div className="modalEmptyStateSimplePremium">
-                  <p className="text-sm text-secondary mb-2">No se encontró el producto</p>
-                  <button onClick={() => setMostrarProductoNuevo(true)} className="btnPremium btnPrimaryPremium btnSmPremium">
-                    <span className="material-icons">add</span>
-                    Crear como Producto Nuevo
-                  </button>
-                </div>
-              )}
-            </div>
+              {/* No se encontró producto eliminado por petición de usuario */}
 
             {/* Lista de Items Agregados */}
             {items.length > 0 ? (
@@ -365,10 +378,11 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                   <thead>
                     <tr>
                       <th className={styles.productCell}>Producto</th>
-                      <th className="text-right" style={{ width: '80px' }}>Cant.</th>
-                      <th className="text-right" style={{ width: '100px' }}>P. Costo</th>
-                      <th className="text-right" style={{ width: '100px' }}>Subtotal</th>
-                      <th className="text-right" style={{ width: '80px' }}>Margen</th>
+                      <th className="text-center" style={{ width: '80px' }}>Cant.</th>
+                      <th className="text-center" style={{ width: '110px' }}>Costo (USD)</th>
+                      <th className="text-center" style={{ width: '110px' }}>Venta (USD)</th>
+                      <th className="text-center" style={{ width: '120px' }}>Subtotal (USD)</th>
+                      <th className="text-center" style={{ width: '80px' }}>Margen</th>
                       <th style={{ width: '40px' }} className={styles.actionCell}></th>
                     </tr>
                   </thead>
@@ -383,16 +397,18 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                           <td className={styles.productCell}>
                             <div className="font-bold">{item.nombre_producto || item.nuevo_nombre}</div>
                             {item.es_nuevo && <span className={styles.newBadge}>NUEVO</span>}
+                            <div className={styles.arsSpacer}>&nbsp;</div>
                           </td>
-                          <td className="text-right">
+                          <td className="text-center">
                             <input
                               type="number"
                               value={item.cantidad}
                               onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
                               className="modalTableInputPremium"
                             />
+                            <div className={styles.arsSpacer}>&nbsp;</div>
                           </td>
-                          <td className="text-right">
+                          <td className="text-center">
                             <input
                               type="number"
                               step="0.01"
@@ -400,21 +416,47 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                               onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
                               className="modalTableInputPremium"
                             />
+                            <div className={styles.arsReference}>
+                              {formatARS(item.precio_unitario, tipoCambio)}
+                            </div>
                           </td>
-                          <td className="text-right font-bold">
-                            ${(item.cantidad * item.precio_unitario).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                          <td className="text-center">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={item.precio_venta}
+                              onChange={(e) => actualizarItem(idx, 'precio_venta', parseFloat(e.target.value) || 0)}
+                              className="modalTableInputPremium"
+                            />
+                            <div className={styles.arsReference}>
+                              {formatARS(item.precio_venta, tipoCambio)}
+                            </div>
                           </td>
-                          <td className={`text-right font-bold ${margen > 0 ? 'text-success' : 'text-error'}`}>
-                            {margen.toFixed(1)}%
+                          <td className="text-center">
+                            <div className="font-bold">
+                              {formatUSD(item.cantidad * item.precio_unitario)}
+                            </div>
+                            <div className={styles.arsReference}>
+                              {formatARS(item.cantidad * item.precio_unitario, tipoCambio)}
+                            </div>
+                          </td>
+                          <td className="text-center font-bold">
+                            <span className={margen > 0 ? 'text-success' : 'text-error'}>
+                              {margen.toFixed(1)}%
+                            </span>
+                            <div className={styles.arsSpacer}>&nbsp;</div>
                           </td>
                           <td className={styles.actionCell}>
-                            <button 
-                              onClick={() => eliminarItem(idx)} 
-                              className="modalIconButtonPremium text-error"
-                              title="Quitar producto"
-                            >
-                              <span className="material-icons">delete_outline</span>
-                            </button>
+                            <div className="flex justify-center">
+                              <button 
+                                onClick={() => eliminarItem(idx)} 
+                                className="modalIconButtonPremium text-error"
+                                title="Quitar producto"
+                              >
+                                <span className="material-icons">delete_outline</span>
+                              </button>
+                            </div>
+                            <div className={styles.arsSpacer}>&nbsp;</div>
                           </td>
                         </tr>
                       );
@@ -433,7 +475,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
           {/* Columna Derecha - Resumen Dinámico */}
           <div className="modalSideColumnPremium">
-            <span className={styles.sectionTitleWithDivider}>Resumen de la Operación</span>
+            <h4 className="modalSectionTitlePremium">Resumen de la Operación</h4>
             
             <div className="modalResumenCardPremium">
               <div className="modalResumenRowPremium">
@@ -459,13 +501,32 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
                   <span className="text-xs font-bold">{proveedorSeleccionado.empresa}</span>
                 </div>
               )}
+
+              <div className={styles.tipoCambioPanel}>
+                <div className={styles.tcHeader}>
+                  <span className="material-icons">currency_exchange</span>
+                  <span>Tipo de Cambio</span>
+                </div>
+                <div className={styles.tcValue}>
+                  {cargandoTC ? 'Cargando...' : formatARS(1, tipoCambio)}
+                </div>
+                {!esConfiable && (
+                  <div className={styles.tcWarning}>
+                    <span className="material-icons">warning</span>
+                    Valor de referencia
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="modalTotalBoxPremium">
-              <span className="modalTotalLabelPremium">Total a Pagar</span>
+              <span className="modalTotalLabelPremium">Total Operación (USD)</span>
               <span className="modalTotalValuePremium">
-                ${totalCompra.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatUSD(totalCompra)}
               </span>
+              <div className={styles.totalARS}>
+                Equivale a {formatARS(totalCompra, tipoCambio)}
+              </div>
             </div>
 
             {error && (
@@ -476,22 +537,22 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             )}
           </div>
         </div>
+      </div>
 
-        {/* Footer Premium */}
-        <div className="modalFooterPremium">
-          <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={registrando}>
-            Cancelar
-          </button>
-          <button 
-            type="button"
-            className={`btnPremium btnPrimaryPremium ${styles.footerBtn}`} 
-            onClick={registrarCompra}
-            disabled={registrando || items.length === 0 || !idProveedor}
-          >
-            <span className="material-icons">{registrando ? 'hourglass_empty' : 'check_circle'}</span>
-            {registrando ? 'Procesando...' : 'Confirmar Registro'}
-          </button>
-        </div>
+      {/* Footer Premium - FIJO */}
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={registrando}>
+          Cancelar
+        </button>
+        <button 
+          type="button"
+          className={`btnPremium btnPrimaryPremium ${styles.footerBtn}`} 
+          onClick={registrarCompra}
+          disabled={registrando || items.length === 0 || !idProveedor}
+        >
+          <span className="material-icons">{registrando ? 'hourglass_empty' : 'check_circle'}</span>
+          {registrando ? 'Procesando...' : 'Confirmar Registro'}
+        </button>
       </div>
 
       {/* Modales Secundarios */}
@@ -502,9 +563,8 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
       />
 
       {mostrarProductoNuevo && (
-        <ProductoNuevoModalRapido
-          categorias={categorias}
-          marcas={marcas}
+        <ProductoModal
+          isOpen={true}
           onClose={() => setMostrarProductoNuevo(false)}
           onGuardado={handleProductoNuevo}
         />

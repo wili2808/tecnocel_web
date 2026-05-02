@@ -192,12 +192,17 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
     return now >= inicio && now <= fin && oferta.activo;
   }, []);
 
+  const isProcessing = React.useRef(false);
+
   /**
    * Carga las ofertas desde el servidor o cache
    */
   const loadOfertas = useCallback(async () => {
-    // Verificar cache primero - MEJORADO para evitar llamadas duplicadas
+    if (isProcessing.current) return;
+    
+    // Verificar cache primero
     try {
+      isProcessing.current = true;
       const cachedData = localStorage.getItem(OFERTAS_CACHE_KEY);
       if (cachedData) {
         const parsed = JSON.parse(cachedData);
@@ -301,6 +306,8 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
         loading: false,
         error: error instanceof Error ? error.message : 'Error desconocido',
       }));
+    } finally {
+      isProcessing.current = false;
     }
   }, [isOfertaActive]);
 
@@ -477,8 +484,12 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
 
   // Cargar ofertas cuando se monta el componente
   useEffect(() => {
-    loadOfertas();
-  }, [loadOfertas]);
+    let mounted = true;
+    if (mounted) {
+      loadOfertas();
+    }
+    return () => { mounted = false; };
+  }, []); // Solo al montar
 
   // Configurar refresh automático
   useEffect(() => {

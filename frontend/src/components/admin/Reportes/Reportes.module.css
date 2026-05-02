@@ -3,43 +3,8 @@
    ============================================================================ */
 
 .container {
-  padding: 20px 24px;
+  padding: var(--spacing-md);
   min-height: 100%;
-}
-
-.header {
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.headerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-lg);
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: -0.3px;
-}
-
-.title .material-icons {
-  color: var(--color-primary);
-  font-size: 20px;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 .exportButton {
@@ -207,35 +172,9 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* ============================================================================
-   BARRA DE FILTROS
-   ============================================================================ */
 
-.filterBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px;
-}
 
-.filterShell {
-  margin-bottom: 16px;
-}
 
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 130px;
-}
-
-.filterLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
 
 .filterInput,
 .filterSelect {
@@ -257,32 +196,9 @@
   box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
-.filterActions {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
 
-.filterButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
 
-.filterButton:hover {
-  background-color: var(--color-primary-dark);
-}
+
 
 .clearButton {
   display: flex;
@@ -542,25 +458,7 @@
     font-size: 12px;
   }
 
-  .filterBar {
-    flex-direction: column;
-    align-items: stretch;
-  }
 
-  .filterGroup {
-    min-width: unset;
-  }
-
-  .filterActions {
-    flex-direction: row;
-    justify-content: stretch;
-  }
-
-  .filterButton,
-  .clearButton {
-    flex: 1;
-    justify-content: center;
-  }
 
   .table th,
   .table td {

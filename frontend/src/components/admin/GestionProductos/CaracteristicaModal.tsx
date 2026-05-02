@@ -215,20 +215,21 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, is
               />
             </div>
 
-            <TextArea
-              id="descripcion"
-              name="descripcion"
-              label="Descripción"
-              value={form.descripcion}
-              onChange={handleInputChange}
-              placeholder="Descripción opcional"
-              disabled={guardando || readonly}
-              className="mt-4"
-              rows={2}
-            />
+            <div className="modalFormGroupFullPremium">
+              <TextArea
+                id="descripcion"
+                name="descripcion"
+                label="Descripción"
+                value={form.descripcion}
+                onChange={handleInputChange}
+                placeholder="Descripción opcional"
+                disabled={guardando || readonly}
+                rows={2}
+              />
+            </div>
 
-            <div className="mt-4">
-              {form.tipo_dato === 'numero' && (
+            {form.tipo_dato === 'numero' && (
+              <div className="modalFormGroupFullPremium">
                 <Input
                   id="unidad_medida"
                   name="unidad_medida"
@@ -238,11 +239,11 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, is
                   placeholder="Ej: GB, GHz, pulgadas..."
                   disabled={guardando || readonly}
                 />
-              )}
-            </div>
+              </div>
+            )}
 
             {form.tipo_dato === 'seleccion' && (
-              <div className={styles.selectionGroup}>
+              <div className={`modalFormGroupFullPremium ${styles.selectionGroup}`}>
                 <label className="modalFormLabelPremium">
                   Opciones de selección <span className="text-error">*</span>
                 </label>

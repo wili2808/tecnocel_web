@@ -202,7 +202,7 @@ const OfertaForm: React.FC<OfertaFormProps> = memo(({ modo, oferta, onGuardado, 
           {activeTab === 'general' ? (
             <form id="oferta-form" onSubmit={handleSubmit}>
               
-              <h4 className="sectionTitleWithDividerPremium">Información de la Oferta</h4>
+              <h4 className="modalSectionTitlePremium">Información de la Oferta</h4>
               <div className="modalFormGridPremium" style={{ gridTemplateColumns: '1fr' }}>
                 <Input
                   id="nombre_oferta"
@@ -227,7 +227,7 @@ const OfertaForm: React.FC<OfertaFormProps> = memo(({ modo, oferta, onGuardado, 
                 />
               </div>
 
-              <h4 className="sectionTitleWithDividerPremium mt-8">Configuración y Vigencia</h4>
+              <h4 className="modalSectionTitlePremium mt-12">Configuración y Vigencia</h4>
               <div className="modalFormGridPremium">
                 <Select
                   id="tipo_descuento"
@@ -253,6 +253,9 @@ const OfertaForm: React.FC<OfertaFormProps> = memo(({ modo, oferta, onGuardado, 
                   disabled={loading}
                   icon={formData.tipo_descuento === 'porcentaje' ? 'percent' : 'payments'}
                 />
+              </div>
+
+              <div className="modalFormGridPremium">
                 <Input
                   id="fecha_inicio"
                   name="fecha_inicio"
@@ -276,7 +279,7 @@ const OfertaForm: React.FC<OfertaFormProps> = memo(({ modo, oferta, onGuardado, 
                 />
               </div>
 
-              <h4 className="sectionTitleWithDividerPremium mt-8">Restricciones y Límites</h4>
+              <h4 className="modalSectionTitlePremium mt-12">Restricciones y Límites</h4>
               <div className="modalFormGridPremium">
                 <Input
                   id="precio_minimo"

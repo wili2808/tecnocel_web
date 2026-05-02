@@ -3,7 +3,7 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminSearch, AdminPagination } from '../common';
+import { AdminSearch, AdminPagination, AdminSurface, AdminEmptyState } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
@@ -203,32 +203,35 @@ const GestionProveedores: React.FC = memo(() => {
 
   if (cargando) {
     return (
-      <div className={styles.loading}>
-        <span className="material-icons">hourglass_empty</span>
-        <p>Cargando proveedores...</p>
-      </div>
+      <AdminEmptyState
+        icon="hourglass_empty"
+        title="Cargando proveedores"
+        message="Estamos obteniendo la lista de proveedores registrados..."
+        className={styles.loadingState}
+      />
     );
   }
 
   if (error) {
     return (
-      <div className={styles.error}>
-        <span className="material-icons">error</span>
-        <p>{error}</p>
-        <button className={styles.retryButton} onClick={cargarProveedores}>
-          Reintentar
-        </button>
-      </div>
+      <AdminEmptyState
+        icon="error_outline"
+        title="No pudimos cargar los proveedores"
+        message={error}
+        actionLabel="Reintentar"
+        onAction={cargarProveedores}
+        tone="danger"
+        className={styles.errorState}
+      />
     );
   }
 
   return (
     <>
-      {/* Buscador y botón crear */}
-      <div className={styles.filterBar}>
-        <div className={styles.filterRow}>
-          <div className={styles.filterGroupWide}>
-            <label className={styles.filterLabel}>Buscar Proveedor</label>
+      {/* Buscador y botón crear - Usando Sistema Global */}
+      <AdminSurface className="admin-filter-shell" tone="muted">
+        <div className="admin-search-form">
+          <div className="admin-search-wrapper">
             <AdminSearch
               value={searchTerm}
               placeholder="Nombre, empresa, celular..."
@@ -238,25 +241,28 @@ const GestionProveedores: React.FC = memo(() => {
               }}
             />
           </div>
-          <button
-            className={`${styles.crearButton}`}
-            onClick={() => setModalProveedor('new')}
-            style={{ marginTop: '20px' }}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear proveedores' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Nuevo Proveedor
-          </button>
+          <div className="admin-action-row">
+            <button
+              className={styles.crearButton}
+              onClick={() => setModalProveedor('new')}
+              disabled={!puedeCrear}
+              title={!puedeCrear ? 'Sin permisos para crear proveedores' : undefined}
+            >
+              <span className="material-icons">person_add</span>
+              <span>Nuevo Proveedor</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </AdminSurface>
 
       {/* Tabla */}
       {proveedores.length === 0 ? (
-        <div className={styles.loading}>
-          <span className="material-icons">inbox</span>
-          <p>No hay proveedores registrados</p>
-        </div>
+        <AdminEmptyState
+          icon="inventory_2"
+          title="No hay proveedores"
+          message={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay proveedores registrados aún."}
+          className={styles.loadingState}
+        />
       ) : (
         <div className={styles.tableContainer}>
           <div className={styles.tableWrapper}>

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminSearch, AdminPagination } from '../common';
+import { AdminSearch, AdminPagination, AdminSurface } from '../common';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
@@ -93,10 +93,9 @@ const DraggableTableHeader = ({ header, className }: { header: any; className?: 
 
 interface GestionRetirosProps {
   onPendientesChange?: (count: number) => void;
-  puedeGestionar?: boolean;
 }
 
-const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange, puedeGestionar = true }) => {
+const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange }) => {
   const { showNotification } = useNotification();
 
   const [retiros, setRetiros] = useState<EnvioAdminListItem[]>([]);
@@ -110,7 +109,7 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   const [retiroSeleccionado, setRetiroSeleccionado] = useState<EnvioAdminListItem | null>(null);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nro_venta', 'cliente', 'fecha', 'estado', 'acciones'
+    'nro_venta', 'cliente', 'fecha', 'estado'
   ]);
 
   const pagination = useMemo<PaginationState>(() => ({
@@ -206,32 +205,7 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
         );
       },
     },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      cell: info => {
-        const retiro = info.row.original;
-        return (
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <button
-              className={retiro.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
-              onClick={() => setRetiroSeleccionado(retiro)}
-              disabled={retiro.estado_envio !== 'entregado' && !puedeGestionar}
-              title={
-                retiro.estado_envio !== 'entregado'
-                  ? !puedeGestionar
-                    ? 'Sin permisos para gestionar retiros'
-                    : 'Gestionar estado'
-                  : 'Ver detalle del retiro'
-              }
-            >
-              {retiro.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
-            </button>
-          </div>
-        );
-      },
-    }
-  ], [puedeGestionar]);
+  ], []);
 
   const table = useReactTable({
     data: retiros,
@@ -267,46 +241,65 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
 
   return (
     <div>
-      {/* Filtros */}
-      <div className={styles.filtrosBar}>
-        <select
-          value={filtros.estado_envio ?? ''}
-          onChange={(e) =>
-            setFiltros((prev) => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))
-          }
-          className={styles.filtroSelect}
-        >
-          <option value="">Todos los estados</option>
-          <option value="pendiente">{ESTADO_ENVIO_LABELS.pendiente}</option>
-          <option value="entregado">{ESTADO_ENVIO_LABELS.entregado}</option>
-        </select>
+      {/* Filtros - Usando Sistema Global */}
+      <AdminSurface className="admin-filter-shell" tone="muted">
+        <div className="admin-filter-rows">
+          <div className="admin-filter-row-top">
+            <div className="admin-filter-group">
+              <label className="admin-filter-label">Desde</label>
+              <input
+                type="date"
+                value={filtros.fecha_inicio ?? ''}
+                onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+                className={styles.filterInput}
+              />
+            </div>
+            <div className="admin-filter-group">
+              <label className="admin-filter-label">Hasta</label>
+              <input
+                type="date"
+                value={filtros.fecha_fin ?? ''}
+                onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+                className={styles.filterInput}
+              />
+            </div>
+            <div className="admin-filter-group">
+              <label className="admin-filter-label">Estado</label>
+              <select
+                value={filtros.estado_envio ?? ''}
+                onChange={(e) =>
+                  setFiltros((prev) => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))
+                }
+                className={styles.filterSelect}
+              >
+                <option value="">Todos los estados</option>
+                <option value="pendiente">{ESTADO_ENVIO_LABELS.pendiente}</option>
+                <option value="entregado">{ESTADO_ENVIO_LABELS.entregado}</option>
+              </select>
+            </div>
+          </div>
 
-        <AdminSearch
-          value={filtros.search || ''}
-          placeholder="Buscar por nro. venta o cliente..."
-          onChange={(val) => {
-            setFiltros((prev) => ({ ...prev, search: val || undefined }));
-            setOffset(0);
-          }}
-        />
-
-        <input
-          type="date"
-          value={filtros.fecha_inicio ?? ''}
-          onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
-          className={styles.filtroFecha}
-        />
-        <input
-          type="date"
-          value={filtros.fecha_fin ?? ''}
-          onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
-          className={styles.filtroFecha}
-        />
-
-        <button onClick={limpiarFiltros} className={styles.btnLimpiar}>
-          Limpiar
-        </button>
-      </div>
+          <div className="admin-search-form">
+            <div className="admin-search-wrapper">
+              <label className="admin-filter-label">Búsqueda</label>
+              <AdminSearch
+                value={filtros.search || ''}
+                placeholder="Buscar por nro. venta o cliente..."
+                onChange={(val) => {
+                  setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                  setOffset(0);
+                }}
+              />
+            </div>
+            <div className="admin-action-row">
+              <button onClick={limpiarFiltros} className={styles.clearButton}>
+                <span className="material-icons">backspace</span>
+                <span>Limpiar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </AdminSurface>
 
       {/* Tabla */}
       {cargando ? (
@@ -333,7 +326,11 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
               </thead>
               <tbody>
                 {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
+                  <tr 
+                    key={row.id}
+                    onClick={() => setRetiroSeleccionado(row.original)}
+                    className={styles.clickableRow}
+                  >
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
