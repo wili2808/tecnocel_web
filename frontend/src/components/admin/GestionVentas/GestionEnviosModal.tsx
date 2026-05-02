@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS, SIGUIENTE_ESTADO } from '../../../types/envio';
-import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, EnvioAdminDetalle, EstadoEnvio } from '../../../types/envio';
+import Input from '../../common/Input/Input';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './VentaModals.module.css';
 
-const ESTADO_COLORS: Record<EstadoEnvio, string> = {
-  pendiente: styles.estadoPendiente,
-  en_preparacion: styles.estadoEnPreparacion,
-  en_camino: styles.estadoEnCamino,
-  entregado: styles.estadoEntregado,
+const ESTADO_BADGES: Record<EstadoEnvio, string> = {
+  pendiente: 'neutral',
+  en_preparacion: 'primary',
+  en_camino: 'primary',
+  entregado: 'success',
 };
 
 const formatFecha = (iso: string) =>
@@ -90,265 +92,259 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
   const indiceActual = ESTADOS_ORDEN.indexOf(envio.estado_envio);
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`${styles.modal} ${styles.modalLarge}`}>
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">local_shipping</span>
-            Envío #{envio.nro_venta}
-            <span className={`${styles.estadoBadge} ${ESTADO_COLORS[envio.estado_envio]}`}>
-              {ESTADO_ENVIO_LABELS[envio.estado_envio]}
-            </span>
-          </h2>
-          <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons" style={{ fontSize: 18 }}>
-              close
-            </span>
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className={styles.modalBody}>
-          {/* Stepper */}
-          <div className={styles.envioStepper}>
-            {ESTADOS_ORDEN.map((estado, idx) => {
-              const completado = idx < indiceActual;
-              const actual = idx === indiceActual;
-              return (
-                <React.Fragment key={estado}>
-                  <div
-                    className={`${styles.stepperItem} ${actual ? styles.stepperActual : ''} ${completado ? styles.stepperCompletado : ''}`}
-                  >
-                    <div className={styles.stepperCirculo}>
-                      {completado ? (
-                        <span className="material-icons" style={{ fontSize: 14 }}>
-                          check
-                        </span>
-                      ) : (
-                        idx + 1
-                      )}
-                    </div>
-                    <span className={styles.stepperLabel}>{ESTADO_ENVIO_LABELS[estado]}</span>
-                  </div>
-                  {idx < ESTADOS_ORDEN.length - 1 && (
-                    <div
-                      className={`${styles.stepperConector} ${completado ? styles.stepperConectorCompletado : ''}`}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title={`Envío #${envio.nro_venta}`}
+      icon="local_shipping"
+      maxWidth="1000px"
+      headerChildren={
+        <span className={`modalBadgePremium ${ESTADO_BADGES[envio.estado_envio]} ${styles.headerBadge}`}>
+          {ESTADO_ENVIO_LABELS[envio.estado_envio]}
+        </span>
+      }
+    >
+      <div className="modalBodyPremium p-0">
+        {cargando ? (
+          <div className="modalLoadingPremium">
+            <span className="material-icons">hourglass_empty</span>
+            <p>Cargando detalles del envío...</p>
           </div>
+        ) : detalle ? (
+          <div className="p-xl">
+            {/* Stepper Premium */}
+            <div className={`stepperPremium ${styles.stepper}`}>
+              {ESTADOS_ORDEN.map((estado, idx) => {
+                const completado = idx < indiceActual;
+                const actual = idx === indiceActual;
+                return (
+                  <React.Fragment key={idx}>
+                    <div className={`stepItemPremium ${actual ? 'stepActivePremium' : ''} ${completado ? 'stepCompletedPremium' : ''}`}>
+                      <div className="stepCirclePremium">
+                        {completado ? <span className="material-icons" style={{ fontSize: '16px' }}>check</span> : idx + 1}
+                      </div>
+                      <span className="stepLabelPremium">{ESTADO_ENVIO_LABELS[estado]}</span>
+                    </div>
+                    {idx < ESTADOS_ORDEN.length - 1 && (
+                      <div className={`stepLinePremium ${idx < indiceActual ? 'stepLineActivePremium' : ''}`} />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
 
-          {cargando ? (
-            <div className={styles.loadingMsg}>Cargando detalle...</div>
-          ) : detalle ? (
-            <>
-              {/* Info del envío */}
-              <div className={styles.detalleGrid}>
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Cliente</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Nombre</span>
-                    <span className={styles.detalleRowValue}>{detalle.nombre_cliente ?? '—'}</span>
+            <div className="modalGrid2Premium mb-6">
+              
+              {/* Información de Contacto */}
+              <div className={styles.infoCard}>
+                <h4 className={styles.sectionTitle}>Contacto del Cliente</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Nombre Completo</span>
+                      <span className="text-sm font-bold">{detalle.nombre_cliente ?? '—'}</span>
+                    </div>
                   </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Email</span>
-                    <span className={styles.detalleRowValue}>{detalle.email_cliente ?? '—'}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Email de Contacto</span>
+                      <span className="text-sm font-bold text-primary" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
+                    </div>
                   </div>
                   {detalle.envio_telefono_contacto && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Teléfono</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_telefono_contacto}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Dirección de entrega</h3>
-                  {detalle.envio_nombre_direccion && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Alias</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_nombre_direccion}</span>
-                    </div>
-                  )}
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Dirección</span>
-                    <span className={styles.detalleRowValue}>
-                      {[detalle.envio_calle, detalle.envio_numero].filter(Boolean).join(' ') || '—'}
-                      {detalle.envio_piso && `, Piso ${detalle.envio_piso}`}
-                      {detalle.envio_departamento && ` Dto. ${detalle.envio_departamento}`}
-                    </span>
-                  </div>
-                  {detalle.envio_barrio && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Barrio</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_barrio}</span>
-                    </div>
-                  )}
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Ciudad</span>
-                    <span className={styles.detalleRowValue}>
-                      {[detalle.envio_ciudad, detalle.envio_provincia].filter(Boolean).join(', ') || '—'}
-                      {detalle.envio_codigo_postal && ` (CP ${detalle.envio_codigo_postal})`}
-                    </span>
-                  </div>
-                  {detalle.envio_referencia && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Referencia</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_referencia}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Datos de la venta</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Fecha</span>
-                    <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_venta)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Total</span>
-                    <span className={styles.detalleRowValue}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Pago</span>
-                    <span className={styles.detalleRowValue}>{detalle.metodo_pago}</span>
-                  </div>
-                  {detalle.fyh_despacho && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Despachado</span>
-                      <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_despacho)}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Seguimiento</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Estado</span>
-                    <span className={styles.detalleRowValue}>{ESTADO_ENVIO_LABELS[detalle.estado_envio]}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Nro. seguimiento</span>
-                    <span className={styles.detalleRowValue}>
-                      {detalle.nro_seguimiento ?? <em className={styles.sinDatos}>Sin asignar</em>}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Productos */}
-              <h4 className={styles.itemsTitle}>Productos del pedido</h4>
-              <table className={styles.itemsTable}>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th className={styles.textRight}>Cant.</th>
-                    <th className={styles.textRight}>Precio unit.</th>
-                    <th className={styles.textRight}>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detalle.items.map((item, i) => (
-                    <tr key={i}>
-                      <td>{item.nombre_producto}</td>
-                      <td className={styles.textRight}>{item.cantidad}</td>
-                      <td className={styles.textRight}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                      <td className={styles.textRight}>
-                        {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr className={styles.totalRow}>
-                    <td colSpan={3}>
-                      <strong>Total</strong>
-                    </td>
-                    <td className={styles.textRight}>
-                      <strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* Panel de gestión de estado */}
-              {!esEntregado && siguienteEstado && (
-                <div className={styles.envioAccionPanel}>
-                  {!confirmando ? (
-                    <button className={styles.submitButton} onClick={() => setConfirmando(true)}>
-                      <span className="material-icons" style={{ fontSize: 16 }}>
-                        arrow_forward
-                      </span>
-                      Avanzar a "{ESTADO_ENVIO_LABELS[siguienteEstado]}"
-                    </button>
-                  ) : (
-                    <div className={styles.envioConfirmar}>
-                      <p className={styles.envioConfirmarTitulo}>
-                        Confirmá el cambio de estado a <strong>"{ESTADO_ENVIO_LABELS[siguienteEstado]}"</strong>
-                      </p>
-
-                      {/* Campo nro_seguimiento obligatorio al despachar */}
-                      {siguienteEstado === 'en_camino' && (
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>
-                            Número de seguimiento <span className={styles.requerido}>*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className={styles.input}
-                            placeholder="Ej: AR123456789"
-                            value={nroSeguimiento}
-                            onChange={(e) => setNroSeguimiento(e.target.value)}
-                            maxLength={100}
-                          />
-                        </div>
-                      )}
-
-                      {/* Aviso de email */}
-                      {ESTADOS_CON_EMAIL.has(siguienteEstado) && detalle.email_cliente && (
-                        <div className={styles.envioEmailAviso}>
-                          <span className="material-icons" style={{ fontSize: 16 }}>
-                            email
-                          </span>
-                          Se enviará un email de notificación a <strong>{detalle.email_cliente}</strong>
-                        </div>
-                      )}
-
-                      <div className={styles.envioConfirmarBtns}>
-                        <button
-                          className={styles.cancelButton}
-                          onClick={() => setConfirmando(false)}
-                          disabled={guardando}
-                        >
-                          Cancelar
-                        </button>
-                        <button
-                          className={styles.submitButton}
-                          onClick={handleAvanzar}
-                          disabled={guardando || (siguienteEstado === 'en_camino' && !nroSeguimiento.trim())}
-                        >
-                          {guardando ? 'Guardando...' : 'Confirmar'}
-                        </button>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Teléfono</span>
+                        <span className="text-sm font-bold">{detalle.envio_telefono_contacto}</span>
                       </div>
                     </div>
                   )}
                 </div>
-              )}
-            </>
-          ) : (
-            <div className={styles.errorMsg}>No se pudo cargar el detalle del envío.</div>
-          )}
-        </div>
+              </div>
 
-        {/* Footer */}
-        <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
-            Cerrar
-          </button>
-        </div>
+              {/* Información de Entrega */}
+              <div className={styles.infoCard}>
+                <h4 className={styles.sectionTitle}>Dirección de Entrega</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Calle y Número</span>
+                      <span className="text-sm font-bold">
+                        {[detalle.envio_calle, detalle.envio_numero].filter(Boolean).join(' ') || '—'}
+                        {detalle.envio_piso && `, Piso ${detalle.envio_piso}`}
+                        {detalle.envio_departamento && ` Dto. ${detalle.envio_departamento}`}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Ciudad y Provincia</span>
+                      <span className="text-sm font-bold">
+                        {[detalle.envio_ciudad, detalle.envio_provincia].filter(Boolean).join(', ') || '—'}
+                      </span>
+                    </div>
+                  </div>
+                  {detalle.envio_referencia && (
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Referencia / Observaciones</span>
+                        <span className="text-sm italic opacity-80">"{detalle.envio_referencia}"</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Información Venta */}
+              <div className={styles.infoCard}>
+                <h4 className={styles.sectionTitle}>Detalles de la Venta</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="grid grid-cols-2 w-full gap-md">
+                      <div>
+                        <span className="text-xxs text-secondary uppercase font-bold">Fecha Venta</span>
+                        <p className="text-sm font-bold m-0">{formatFecha(detalle.fyh_venta)}</p>
+                      </div>
+                      <div>
+                        <span className="text-xxs text-secondary uppercase font-bold">Método Pago</span>
+                        <p className="text-sm font-bold m-0" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Total Pagado</span>
+                      <span className="text-lg font-bold text-primary">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información Seguimiento */}
+              <div className={styles.infoCard}>
+                <h4 className={styles.sectionTitle}>Seguimiento y Logística</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Nro. de Seguimiento</span>
+                      <span className="text-sm font-bold">
+                        {detalle.nro_seguimiento ?? <em className="opacity-50 font-normal">Pendiente de despacho</em>}
+                      </span>
+                    </div>
+                  </div>
+                  {detalle.fyh_despacho && (
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Fecha de Despacho</span>
+                        <span className="text-sm font-bold">{formatFecha(detalle.fyh_despacho)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Productos */}
+            <div className="mb-6">
+              <h4 className={styles.sectionTitle}>Productos del pedido</h4>
+              <div className="modalTableWrapperPremium mt-2">
+                <table className="modalTablePremium">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th style={{ textAlign: 'right' }}>Cant.</th>
+                      <th style={{ textAlign: 'right' }}>Precio unit.</th>
+                      <th style={{ textAlign: 'right' }}>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalle.items.map((item, i) => (
+                      <tr key={i}>
+                        <td className="font-bold">{item.nombre_producto}</td>
+                        <td style={{ textAlign: 'right' }}>{item.cantidad}</td>
+                        <td style={{ textAlign: 'right' }}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
+                        <td className="text-right font-bold text-primary">
+                          {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Panel de gestión de estado */}
+            {!esEntregado && siguienteEstado && (
+              <div className={styles.managementPanel}>
+                {!confirmando ? (
+                  <button className={`btnPremium btnPrimaryPremium ${styles.fullWidthBtn}`} onClick={() => setConfirmando(true)}>
+                    <span className="material-icons">arrow_forward</span>
+                    Avanzar a "{ESTADO_ENVIO_LABELS[siguienteEstado]}"
+                  </button>
+                ) : (
+                  <div className="animate-fade-in">
+                    <p className={styles.managementTitle}>
+                      Confirmar cambio de estado a <span className="text-primary">"{ESTADO_ENVIO_LABELS[siguienteEstado]}"</span>
+                    </p>
+
+                    {siguienteEstado === 'en_camino' && (
+                      <div className="mb-4">
+                        <Input
+                          id="nroSeguimiento"
+                          name="nroSeguimiento"
+                          label="Número de seguimiento"
+                          value={nroSeguimiento}
+                          onChange={(e) => setNroSeguimiento(e.target.value)}
+                          placeholder="Ej: AR123456789"
+                          maxLength={100}
+                          required
+                          disabled={guardando}
+                        />
+                      </div>
+                    )}
+
+                    {ESTADOS_CON_EMAIL.has(siguienteEstado) && detalle.email_cliente && (
+                      <div className={styles.infoAlert}>
+                        <span className="material-icons">email</span>
+                        <p className="m-0 text-xs">Se enviará un email de notificación a <strong>{detalle.email_cliente}</strong></p>
+                      </div>
+                    )}
+
+                    <div className={styles.actionButtons}>
+                      <button
+                        className={`btnPremium btnSecondaryPremium ${styles.flex1}`}
+                        onClick={() => setConfirmando(false)}
+                        disabled={guardando}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        className={`btnPremium btnPrimaryPremium ${styles.flex1}`}
+                        onClick={handleAvanzar}
+                        disabled={guardando || (siguienteEstado === 'en_camino' && !nroSeguimiento.trim())}
+                      >
+                        {guardando ? 'Guardando...' : 'Confirmar Cambio'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="modalLoadingPremium" style={{ color: 'var(--color-error)' }}>
+            <span className="material-icons" style={{ animation: 'none' }}>error_outline</span>
+            <p>No se pudo cargar el detalle del envío.</p>
+          </div>
+        )}
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </PremiumModal>
   );
 };
 

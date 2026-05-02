@@ -1,21 +1,14 @@
-/**
- * @file RegistrarVentaModal.tsx
- *
- * Wizard de 3 pasos para registrar una venta manual desde el panel admin.
- *
- * Paso 1 — Cliente: buscar y seleccionar cliente, o marcar como "venta de mostrador".
- * Paso 2 — Productos: buscar productos, agregar, ajustar cantidad/precio.
- * Paso 3 — Pago: elegir método de pago, moneda y observaciones. Confirmar.
- */
-
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import usuarioService from '../../../services/usuarioService';
 import adminVentaService from '../../../services/adminVentaService';
 import adminProductService from '../../../services/adminProductService';
-import styles from './GestionVentas.module.css';
 import { useNotification } from '../../../contexts/NotificationContext';
 import type { ItemVentaManual, ProductoParaVenta } from '../../../types/venta';
 import { AdminSearch } from '../common';
+import Select from '../../common/Select/Select';
+import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './VentaModals.module.css';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -64,15 +57,6 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   const [moneda, setMoneda] = useState<'ARS' | 'USD'>('ARS');
   const [observaciones, setObservaciones] = useState('');
 
-  // ── Cierre con Escape ─────────────────────────────────────────────────────
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [onClose]);
-
   // ── Búsqueda de clientes ─────────────────────────────────
   const buscarClientes = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -103,7 +87,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   };
 
   const toggleMostrador = () => {
-    setEsMostrador((prev) => {
+    setEsMostrador((prev: boolean) => {
       if (!prev) {
         setClienteSeleccionado(null);
         setBusqCliente('');
@@ -148,12 +132,11 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
       showNotification('El producto no tiene stock disponible', 'warning');
       return;
     }
-    // Evitar duplicados
-    if (items.some((i) => i.id_producto === p.id_producto)) {
+    if (items.some((i: ItemVentaManual) => i.id_producto === p.id_producto)) {
       showNotification('El producto ya fue agregado', 'warning');
       return;
     }
-    setItems((prev) => [
+    setItems((prev: ItemVentaManual[]) => [
       ...prev,
       {
         id_producto: p.id_producto,
@@ -168,11 +151,11 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     setProductosEncontrados([]);
   };
 
-  const quitarProducto = (id: number) => setItems((prev) => prev.filter((i) => i.id_producto !== id));
+  const quitarProducto = (id: number) => setItems((prev: ItemVentaManual[]) => prev.filter((i: ItemVentaManual) => i.id_producto !== id));
 
   const cambiarCantidad = (id: number, delta: number) => {
-    setItems((prev) =>
-      prev.map((i) => {
+    setItems((prev: ItemVentaManual[]) =>
+      prev.map((i: ItemVentaManual) => {
         if (i.id_producto !== id) return i;
         const nuevaCantidad = Math.max(1, Math.min(i.cantidad + delta, i.stock));
         return { ...i, cantidad: nuevaCantidad, subtotal: nuevaCantidad * i.precio_unitario };
@@ -180,28 +163,22 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     );
   };
 
-
   // ── Totales y formato ─────────────────────────────────────────────────────
-  const totalVenta = items.reduce((s, i) => s + i.subtotal, 0);
+  const totalVenta = items.reduce((s: number, i: ItemVentaManual) => s + i.subtotal, 0);
 
-  /** Precio en USD (catálogo — paso 2) */
   const formatUSD = (n: number) =>
     `USD ${n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  /** Precio en ARS ya convertido (paso 3 resumen) */
   const formatARSNum = (n: number) => `ARS ${Math.round(n).toLocaleString('es-AR')}`;
 
-  /** Total en la moneda de la venta */
   const totalDisplay = moneda === 'ARS' ? totalVenta * tipoCambioUsd : totalVenta;
 
-  // ── Validación de paso ────────────────────────────────────────────────────
   const puedeAvanzar = (): boolean => {
     if (paso === 0) return esMostrador || clienteSeleccionado !== null;
     if (paso === 1) return items.length > 0;
     return true;
   };
 
-  // ── Confirmar venta ───────────────────────────────────────────────────────
   const handleConfirmar = async () => {
     if (enviandoRef.current) return;
     enviandoRef.current = true;
@@ -209,7 +186,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     try {
       await adminVentaService.registrarVentaManual({
         id_cliente: clienteSeleccionado?.id_cliente ?? null,
-        items: items.map((i) => ({
+        items: items.map((i: ItemVentaManual) => ({
           id_producto: i.id_producto,
           cantidad: i.cantidad,
         })),
@@ -228,401 +205,327 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     }
   };
 
-  // ── Clases de paso ────────────────────────────────────────────────────────
-  const stepClass = (idx: number) => {
-    if (idx < paso) return styles.stepCompleted;
-    if (idx === paso) return styles.stepActive;
-    return '';
-  };
-
-  const connectorClass = (idx: number) => (idx < paso ? styles.stepConnectorCompleted : '');
-
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
-    <div
-      className={styles.modalOverlay}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title="Registrar Venta Manual"
+      icon="add_shopping_cart"
+      maxWidth="1000px"
     >
-      <div className={`${styles.modal} ${styles.modalLarge}`}>
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">add_shopping_cart</span>
-            Registrar Venta Manual
-          </h2>
-          <button className={styles.closeButton} onClick={onClose} title="Cerrar">
-            <span className="material-icons">close</span>
-          </button>
+      <div className="modalBodyPremium">
+        
+        {/* Stepper Premium */}
+        <div className={`stepperPremium ${styles.stepper}`}>
+          {PASOS.map((label, idx) => (
+            <React.Fragment key={idx}>
+              <div className={`stepItemPremium ${paso === idx ? 'stepActivePremium' : ''} ${paso > idx ? 'stepCompletedPremium' : ''}`}>
+                <div className="stepCirclePremium">
+                  {paso > idx ? <span className={`material-icons ${styles.stepIcon}`}>check</span> : idx + 1}
+                </div>
+                <span className="stepLabelPremium">{label}</span>
+              </div>
+              {idx < PASOS.length - 1 && (
+                <div className={`stepLinePremium ${paso > idx ? 'stepLineActivePremium' : ''}`} />
+              )}
+            </React.Fragment>
+          ))}
         </div>
 
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          {/* Indicador de pasos */}
-          <div className={styles.steps}>
-            {PASOS.map((label, idx) => (
-              <React.Fragment key={idx}>
-                <div className={`${styles.stepItem}`}>
-                  <div className={`${styles.step} ${stepClass(idx)}`}>
-                    <div className={styles.stepNumber}>
-                      {idx < paso ? (
-                        <span className="material-icons" style={{ fontSize: 16 }}>
-                          check
-                        </span>
-                      ) : (
-                        idx + 1
+        {/* ─── PASO 1: CLIENTE ───────────────────────────────────────── */}
+        {paso === 0 && (
+          <div className="animate-fade-in">
+            <div 
+              className={`modalToggleCardPremium ${esMostrador ? 'modalToggleCardActivePremium' : ''} ${styles.toggleCard}`}
+              onClick={toggleMostrador}
+            >
+              <div className="modalToggleIconBoxPremium">
+                <span className={`material-icons ${styles.toggleIcon}`}>{esMostrador ? 'check_circle' : 'storefront'}</span>
+              </div>
+              <div className="modalToggleContentPremium">
+                <p className="modalToggleTitlePremium">Venta de mostrador</p>
+                <p className="modalToggleDescPremium">Transacción rápida sin registro de cliente en base de datos</p>
+              </div>
+              <div className="modalToggleCheckPremium">
+                {esMostrador && <span className="material-icons" style={{ fontSize: '16px' }}>check</span>}
+              </div>
+            </div>
+
+            {!esMostrador && (
+              <div className="animate-slide-down">
+                <span className="modalSectionTitlePremium">Identificar Cliente</span>
+                {clienteSeleccionado ? (
+                  <div className="modalAlertWarningPremium mb-4" style={{ background: 'var(--color-primary-50)', borderColor: 'var(--color-primary-200)', color: 'var(--color-primary)' }}>
+                    <span className="material-icons">person</span>
+                    <div className="flex-1">
+                      <p className="m-0 font-bold">{clienteSeleccionado.nombre_cliente} {clienteSeleccionado.apellido_cliente}</p>
+                      <p className="m-0 text-xxs opacity-80">{clienteSeleccionado.correo}</p>
+                    </div>
+                    <button 
+                      className="modalIconButtonPremium"
+                      onClick={() => setClienteSeleccionado(null)}
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>close</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.clientSearchWrapper}>
+                      <AdminSearch
+                        value={busqCliente}
+                        onChange={handleBusqClienteChange}
+                        placeholder="Buscar cliente por nombre o correo..."
+                        delay={400}
+                      />
+                      {buscandoCliente && (
+                        <div className={styles.searchLoading}>
+                          <span className="material-icons">autorenew</span>
+                        </div>
                       )}
                     </div>
-                    <span className={styles.stepLabel}>{label}</span>
-                  </div>
-                </div>
-                {idx < PASOS.length - 1 && <div className={`${styles.stepConnector} ${connectorClass(idx)}`} />}
-              </React.Fragment>
-            ))}
-          </div>
 
-          {/* ─── PASO 1: CLIENTE ───────────────────────────────────────── */}
-          {paso === 0 && (
-            <div>
-              {/* Toggle mostrador */}
-              <button
-                className={`${styles.toggleMostrador} ${esMostrador ? styles.toggleMostradorActive : ''}`}
-                onClick={toggleMostrador}
-                type="button"
-              >
-                <span className="material-icons">{esMostrador ? 'check_circle' : 'storefront'}</span>
-                Venta de mostrador (sin cliente registrado)
-              </button>
-
-              {!esMostrador && (
-                <div style={{ marginTop: 'var(--spacing-md)' }}>
-                  {/* Cliente ya seleccionado */}
-                  {clienteSeleccionado ? (
-                    <div className={styles.clienteSeleccionado}>
-                      <div className={styles.clienteSeleccionadoInfo}>
-                        <span className={styles.clienteSeleccionadoNombre}>
-                          {clienteSeleccionado.nombre_cliente} {clienteSeleccionado.apellido_cliente}
-                        </span>
-                        <span className={styles.clienteSeleccionadoEmail}>{clienteSeleccionado.correo}</span>
+                    {clientesEncontrados.length > 0 && (
+                      <div className={`modalTablePremium ${styles.resultsTable}`}>
+                        {clientesEncontrados.map((c: ClienteOption) => (
+                          <div
+                            key={c.id_cliente}
+                            onClick={() => seleccionarCliente(c)}
+                            className={styles.resultItem}
+                          >
+                            <div>
+                              <p className="m-0 font-bold text-sm">{c.nombre_cliente} {c.apellido_cliente}</p>
+                              <p className="m-0 text-xxs text-secondary">{c.correo}</p>
+                            </div>
+                            <span className={`material-icons text-primary ${styles.resultItemIcon}`}>arrow_forward</span>
+                          </div>
+                        ))}
                       </div>
-                      <button
-                        className={styles.clienteRemoveButton}
-                        onClick={() => setClienteSeleccionado(null)}
-                        title="Quitar cliente"
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── PASO 2: PRODUCTOS ────────────────────────────────────── */}
+        {paso === 1 && (
+          <div className="animate-fade-in">
+            <div className="modalSplitLayoutPremium">
+              
+              {/* Columna Búsqueda */}
+              <div className="modalMainColumnPremium">
+                <span className="modalSectionTitlePremium">Agregar Productos</span>
+                <div className={styles.clientSearchWrapper}>
+                  <AdminSearch
+                    value={busqProducto}
+                    onChange={handleBusqProductoChange}
+                    placeholder="Nombre o código del producto..."
+                    delay={400}
+                  />
+                  {buscandoProducto && (
+                    <div className={styles.searchLoading}>
+                      <span className="material-icons">autorenew</span>
+                    </div>
+                  )}
+                </div>
+
+                {productosEncontrados.length > 0 && (
+                  <div className={`modalTablePremium ${styles.resultsTable}`} style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    {productosEncontrados.map((p: ProductoParaVenta) => (
+                      <div
+                        key={p.id_producto}
+                        className={styles.resultItem}
+                        style={{ opacity: p.stock <= 0 ? 0.6 : 1, cursor: p.stock > 0 ? 'pointer' : 'default' }}
+                        onClick={() => p.stock > 0 && agregarProducto(p)}
                       >
-                        <span className="material-icons">close</span>
-                      </button>
+                        <div className="flex-1">
+                          <p className="m-0 font-bold text-sm">{p.nombre}</p>
+                          <div className="flex gap-md mt-xs">
+                            <span className="text-xxs text-secondary">Cód: {p.codigo || '—'}</span>
+                            <span className="text-xxs font-bold text-primary">{formatUSD(p.precio_venta)}</span>
+                            <span className={`text-xxs ${p.stock <= 0 ? 'text-primary' : 'text-secondary'}`} style={{ color: p.stock <= 0 ? 'var(--color-error)' : '' }}>Stock: {p.stock}</span>
+                          </div>
+                        </div>
+                        {p.stock > 0 ? (
+                          <span className="material-icons text-primary" style={{ fontSize: '24px' }}>add_circle</span>
+                        ) : (
+                          <span className="text-xxs font-bold" style={{ color: 'var(--color-error)', textTransform: 'uppercase' }}>Sin Stock</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Columna Items Agregados */}
+              <div className="modalSideColumnPremium">
+                <span className="modalSectionTitlePremium">Carrito de Venta ({items.length})</span>
+                
+                <div className={`modalCartListPremium ${styles.cartList}`}>
+                  {items.length === 0 ? (
+                    <div className={styles.cartEmpty}>
+                      <span className={`material-icons ${styles.cartEmptyIcon}`}>shopping_basket</span>
+                      <p className="m-0 text-sm">Selecciona productos para iniciar la venta</p>
                     </div>
                   ) : (
                     <>
-                      {/* Buscador de clientes */}
-                      <div className={styles.searchWrapper}>
-                        <AdminSearch
-                          value={busqCliente}
-                          onChange={handleBusqClienteChange}
-                          placeholder="Buscar cliente por nombre o correo..."
-                          delay={400}
-                        />
-                      </div>
-
-                      {/* Resultados */}
-                      {buscandoCliente && (
-                        <p
-                          style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', padding: '4px 0' }}
-                        >
-                          Buscando...
-                        </p>
-                      )}
-                      {clientesEncontrados.length > 0 && (
-                        <div className={styles.clienteResults}>
-                          {clientesEncontrados.map((c) => (
-                            <div
-                              key={c.id_cliente}
-                              className={styles.clienteResultItem}
-                              onClick={() => seleccionarCliente(c)}
-                            >
-                              <span className={styles.clienteResultNombre}>
-                                {c.nombre_cliente} {c.apellido_cliente}
-                              </span>
-                              <span className={styles.clienteResultEmail}>{c.correo}</span>
+                      {items.map((item: ItemVentaManual) => (
+                        <div key={item.id_producto} className="modalCartItemPremium">
+                          <div className="modalCartItemHeaderPremium">
+                            <span className="modalCartItemTitlePremium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '160px' }}>{item.nombre}</span>
+                            <button className="modalIconButtonPremium" style={{ color: 'var(--color-error)' }} onClick={() => quitarProducto(item.id_producto)}>
+                              <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
+                            </button>
+                          </div>
+                          <div className="modalCartItemActionsPremium">
+                            <div className="modalQtyControlPremium">
+                              <button className="modalQtyBtnPremium" onClick={() => cambiarCantidad(item.id_producto, -1)} disabled={item.cantidad <= 1}>−</button>
+                              <span className="modalQtyValuePremium">{item.cantidad}</span>
+                              <button className="modalQtyBtnPremium" onClick={() => cambiarCantidad(item.id_producto, 1)} disabled={item.cantidad >= item.stock}>+</button>
                             </div>
-                          ))}
+                            <span className="font-bold text-primary text-sm">{formatUSD(item.subtotal)}</span>
+                          </div>
                         </div>
-                      )}
-                      {busqCliente && !buscandoCliente && clientesEncontrados.length === 0 && (
-                        <p
-                          style={{
-                            color: 'var(--text-secondary)',
-                            fontSize: 'var(--font-size-sm)',
-                            fontStyle: 'italic',
-                          }}
-                        >
-                          Sin resultados para "{busqCliente}"
-                        </p>
-                      )}
+                      ))}
                     </>
                   )}
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* ─── PASO 2: PRODUCTOS ────────────────────────────────────── */}
-          {paso === 1 && (
-            <div>
-              {/* Buscador de productos */}
-              <div className={styles.searchWrapper} style={{ marginBottom: 'var(--spacing-sm)' }}>
-                <AdminSearch
-                  value={busqProducto}
-                  onChange={handleBusqProductoChange}
-                  placeholder="Buscar producto por nombre o código..."
-                  delay={400}
-                />
+                <div className={`modalTotalBoxPremium ${styles.totalBox}`}>
+                  <span className="modalTotalLabelPremium">Total Carrito (USD)</span>
+                  <span className={`modalTotalValuePremium ${styles.totalValue}`}>{formatUSD(totalVenta)}</span>
+                </div>
               </div>
-
-              {buscandoProducto && (
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', padding: '4px 0' }}>
-                  Buscando...
-                </p>
-              )}
-
-              {productosEncontrados.length > 0 && (
-                <div className={styles.productosResults}>
-                  {productosEncontrados.map((p) => (
-                    <div
-                      key={p.id_producto}
-                      className={`${styles.productoResultItem} ${p.stock <= 0 ? '' : ''}`}
-                      onClick={() => agregarProducto(p)}
-                    >
-                      <div>
-                        <div className={styles.productoResultNombre}>{p.nombre}</div>
-                        <div className={styles.productoResultMeta}>
-                          <span>Cód: {p.codigo || '—'}</span>
-                          <span>Precio: {formatUSD(p.precio_venta)}</span>
-                          <span className={p.stock <= 0 ? styles.productoResultSinStock : ''}>Stock: {p.stock}</span>
-                        </div>
-                      </div>
-                      <span className="material-icons" style={{ color: 'var(--color-primary)' }}>
-                        add_circle
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {busqProducto && !buscandoProducto && productosEncontrados.length === 0 && (
-                <p
-                  style={{
-                    color: 'var(--text-secondary)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontStyle: 'italic',
-                    marginBottom: 'var(--spacing-sm)',
-                  }}
-                >
-                  Sin resultados para "{busqProducto}"
-                </p>
-              )}
-
-              {/* Lista de items agregados */}
-              {items.length > 0 && (
-                <div className={styles.itemsAgregados}>
-                  <div className={styles.itemsAgregadosHeader}>
-                    <span className={styles.itemsAgregadosTitle}>Productos ({items.length})</span>
-                  </div>
-
-                  {items.map((item) => {
-                    return (
-                      <div key={item.id_producto} className={styles.itemRow}>
-                        <span className={styles.itemNombre}>{item.nombre}</span>
-
-                        {/* Controles de cantidad */}
-                        <div className={styles.itemCantidadControls}>
-                          <button
-                            className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, -1)}
-                            disabled={item.cantidad <= 1}
-                          >
-                            −
-                          </button>
-                          <span className={styles.cantidadValue}>{item.cantidad}</span>
-                          <button
-                            className={styles.cantidadButton}
-                            onClick={() => cambiarCantidad(item.id_producto, 1)}
-                            disabled={item.cantidad >= item.stock}
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        {/* Precio fijo (solo lectura) */}
-                        <span className={styles.precioReadonly} title="Precio de catálogo">
-                          {formatUSD(item.precio_unitario)}
-                        </span>
-
-                        <span className={styles.itemSubtotal}>{formatUSD(item.subtotal)}</span>
-
-                        <button
-                          className={styles.itemRemoveButton}
-                          onClick={() => quitarProducto(item.id_producto)}
-                          title="Quitar producto"
-                        >
-                          <span className="material-icons">delete_outline</span>
-                        </button>
-                      </div>
-                    );
-                  })}
-
-                  {/* Total */}
-                  <div className={styles.totalBar}>
-                    <span className={styles.totalLabel}>Total:</span>
-                    <span className={styles.totalValue}>{formatUSD(totalVenta)}</span>
-                  </div>
-                </div>
-              )}
-
-              {items.length === 0 && !busqProducto && (
-                <p
-                  style={{
-                    textAlign: 'center',
-                    color: 'var(--text-secondary)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontStyle: 'italic',
-                    padding: 'var(--spacing-xl) 0',
-                  }}
-                >
-                  Busca un producto para agregarlo a la venta
-                </p>
-              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* ─── PASO 3: PAGO ─────────────────────────────────────────── */}
-          {paso === 2 && (
-            <div className={styles.pagoForm}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="metodo-pago">
-                    Método de pago *
-                  </label>
-                  <select
-                    id="metodo-pago"
-                    className={styles.select}
+        {/* ─── PASO 3: PAGO ─────────────────────────────────────────── */}
+        {paso === 2 && (
+          <div className="animate-fade-in">
+            <div className="modalSplitLayoutPremium">
+              
+              {/* Formulario de Pago */}
+              <div className="modalMainColumnPremium">
+                <span className="modalSectionTitlePremium">Configuración del Pago</span>
+                
+                <div className="modalFormGridPremium">
+                  <Select
+                    id="metodoPago"
+                    name="metodoPago"
+                    label="Método de Pago"
                     value={metodoPago}
-                    onChange={(e) => setMetodoPago(e.target.value as typeof metodoPago)}
-                  >
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="qr">QR</option>
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label} htmlFor="moneda">
-                    Moneda
-                  </label>
-                  <select
+                    onChange={(e) => setMetodoPago(e.target.value as any)}
+                    options={[
+                      { value: 'efectivo', label: 'Efectivo' },
+                      { value: 'tarjeta', label: 'Tarjeta' },
+                      { value: 'transferencia', label: 'Transferencia' },
+                      { value: 'qr', label: 'QR' }
+                    ]}
+                  />
+                  <Select
                     id="moneda"
-                    className={styles.select}
+                    name="moneda"
+                    label="Moneda"
                     value={moneda}
-                    onChange={(e) => setMoneda(e.target.value as 'ARS' | 'USD')}
-                  >
-                    <option value="ARS">Pesos (ARS)</option>
-                    <option value="USD">Dólares (USD)</option>
-                  </select>
+                    onChange={(e) => setMoneda(e.target.value as any)}
+                    options={[
+                      { value: 'ARS', label: 'Pesos (ARS)' },
+                      { value: 'USD', label: 'Dólares (USD)' }
+                    ]}
+                  />
                 </div>
-              </div>
 
-              {moneda === 'ARS' && (
-                <div className={styles.cotizacionAviso}>
-                  <span className="material-icons">info</span>
-                  Precios del catálogo en USD — cotización aplicada:&nbsp;
-                  <strong>1 USD = {tipoCambioUsd.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS</strong>
-                  <span className={styles.cotizacionAvisoSub}>
-                    Total en ARS: <strong>{formatARSNum(totalVenta * tipoCambioUsd)}</strong>
-                  </span>
-                </div>
-              )}
+                {moneda === 'ARS' && (
+                  <div className={`modalAlertWarningPremium ${styles.infoAlert}`}>
+                    <span className="material-icons">info</span>
+                    <div>
+                      <p className="m-0 text-sm">
+                        Conversión aplicada: <strong>1 USD = {tipoCambioUsd.toLocaleString('es-AR')} ARS</strong>
+                      </p>
+                      <p className="m-0 text-xxs opacity-70">Calculado según el tipo de cambio del sistema vigente hoy.</p>
+                    </div>
+                  </div>
+                )}
 
-              <div className={styles.formGroup}>
-                <label className={styles.label} htmlFor="observaciones">
-                  Observaciones
-                </label>
-                <textarea
+                <TextArea
                   id="observaciones"
-                  className={styles.textarea}
-                  placeholder="Notas adicionales sobre la venta (opcional)..."
+                  name="observaciones"
+                  label="Notas Internas"
+                  placeholder="Observaciones adicionales sobre la venta..."
                   value={observaciones}
                   onChange={(e) => setObservaciones(e.target.value)}
-                  maxLength={500}
+                  rows={4}
                 />
               </div>
 
-              {/* Resumen */}
-              <div className={styles.resumenCard}>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Cliente</span>
-                  <span className={styles.resumenValue}>
-                    {esMostrador
-                      ? 'Mostrador (sin cliente)'
-                      : clienteSeleccionado
-                        ? `${clienteSeleccionado.nombre_cliente} ${clienteSeleccionado.apellido_cliente}`
-                        : '—'}
-                  </span>
+              {/* Resumen Final */}
+              <div className="modalSideColumnPremium">
+                <span className="modalSectionTitlePremium">Resumen de Confirmación</span>
+                
+                <div className={`modalResumenCardPremium ${styles.resumenCard}`}>
+                  <div className="modalResumenRowPremium">
+                    <span className="text-secondary">Cliente</span>
+                    <span className="font-bold">{esMostrador ? 'Mostrador' : `${clienteSeleccionado?.nombre_cliente}`}</span>
+                  </div>
+                  <div className="modalResumenRowPremium">
+                    <span className="text-secondary">Items</span>
+                    <span className="font-bold">{items.length}</span>
+                  </div>
+                  <div className="modalResumenRowPremium">
+                    <span className="text-secondary">Pago</span>
+                    <span className="font-bold" style={{ textTransform: 'capitalize' }}>{metodoPago}</span>
+                  </div>
                 </div>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Productos</span>
-                  <span className={styles.resumenValue}>{items.length} ítem(s)</span>
-                </div>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Método de pago</span>
-                  <span className={styles.resumenValue}>{adminVentaService.formatearMetodoPago(metodoPago)}</span>
-                </div>
-                <div className={styles.resumenRow}>
-                  <span className={styles.resumenLabel}>Moneda</span>
-                  <span className={styles.resumenValue}>{moneda}</span>
-                </div>
-                <div className={`${styles.resumenRow} ${styles.resumenTotal}`}>
-                  <span className={styles.resumenLabel}>Total</span>
-                  <span className={styles.resumenValue}>
+
+                <div className="modalTotalBoxPremium">
+                  <span className="modalTotalLabelPremium">Total a Cobrar</span>
+                  <span className="modalTotalValuePremium">
                     {moneda === 'ARS' ? formatARSNum(totalDisplay) : formatUSD(totalDisplay)}
                   </span>
                 </div>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Pie */}
-        <div className={`${styles.modalFooter} ${styles.modalFooterLeft}`}>
-          {/* Izquierda: botón atrás o cancelar */}
-          {paso > 0 ? (
-            <button className={styles.backButton} onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
-              <span className="material-icons">arrow_back</span>
-              Atrás
-            </button>
-          ) : (
-            <button className={styles.cancelButton} onClick={onClose}>
-              Cancelar
-            </button>
-          )}
-
-          {/* Derecha: siguiente o confirmar */}
-          {paso < PASOS.length - 1 ? (
-            <button className={styles.nextButton} onClick={() => setPaso((p) => p + 1)} disabled={!puedeAvanzar()}>
-              Siguiente
-              <span className="material-icons">arrow_forward</span>
-            </button>
-          ) : (
-            <button className={styles.submitButton} onClick={handleConfirmar} disabled={enviando}>
-              <span className="material-icons">check_circle</span>
-              {enviando ? 'Registrando...' : 'Confirmar Venta'}
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        {paso > 0 ? (
+          <button className="btnPremium btnSecondaryPremium" onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
+            <span className="material-icons">arrow_back</span>
+            Atrás
+          </button>
+        ) : (
+          <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={enviando}>
+            Cancelar
+          </button>
+        )}
+
+        <div className="flex-1" />
+
+        {paso < PASOS.length - 1 ? (
+          <button 
+            className="btnPremium btnPrimaryPremium" 
+            onClick={() => setPaso((p) => p + 1)} 
+            disabled={!puedeAvanzar()}
+          >
+            Siguiente Paso
+            <span className="material-icons">arrow_forward</span>
+          </button>
+        ) : (
+          <button 
+            className="btnPremium btnPrimaryPremium" 
+            onClick={handleConfirmar} 
+            disabled={enviando}
+          >
+            <span className="material-icons">{enviando ? 'hourglass_empty' : 'check_circle'}</span>
+            {enviando ? 'Registrando...' : 'Finalizar Venta'}
+          </button>
+        )}
+      </div>
+    </PremiumModal>
   );
 };
 

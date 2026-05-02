@@ -1,0 +1,194 @@
+/* ============================================================================
+   VENTA MODALS - Estilos compartidos para Registro, Detalle, Envíos y Retiros
+   ============================================================================ */
+
+/* --- GENERAL & ESTRUCTURA --- */
+
+.modalBodyContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sectionTitle {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.headerBadges {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-lg);
+}
+
+/* --- REGISTRO DE VENTA --- */
+
+.clientSearchWrapper {
+  position: relative;
+  margin-bottom: var(--spacing-md);
+}
+
+.searchLoading {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+.resultsTable {
+  border: none;
+  background: var(--background-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+.resultItem {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s ease;
+}
+
+.resultItem:hover {
+  background: var(--background-hover);
+}
+
+.resultItem:last-child {
+  border-bottom: none;
+}
+
+.cartList {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 350px;
+  margin-bottom: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cartEmpty {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.totalBox {
+  padding: var(--spacing-lg);
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totalValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+/* --- GESTIÓN DE ENVÍOS Y RETIROS --- */
+
+.managementPanel {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.managementTitle {
+  margin: 0 0 var(--spacing-lg) 0;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+/* --- ALERTAS Y ADVERTENCIAS --- */
+
+.warningBox {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(var(--color-warning-rgb), 0.1);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-warning);
+  color: var(--color-warning);
+  margin-bottom: var(--spacing-xl);
+}
+
+.infoAlert {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(var(--color-info-rgb), 0.1);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-info);
+  color: var(--color-info-dark);
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.85rem;
+}
+
+/* --- HELPERS DE TABLA --- */
+
+.productosTable th:nth-child(1) { width: 40%; }
+.productosTable th:nth-child(2) { width: 15%; }
+.productosTable th:nth-child(3) { width: 10%; }
+.productosTable th:nth-child(4) { width: 15%; }
+.productosTable th:nth-child(5) { width: 20%; }
+
+/* --- ANIMACIONES --- */
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --- RESPONSIVE --- */
+
+@media (max-width: 480px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .headerBadges {
+    margin-left: 0;
+    margin-top: var(--spacing-xs);
+    flex-wrap: wrap;
+  }
+
+  .resultsTable {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+}

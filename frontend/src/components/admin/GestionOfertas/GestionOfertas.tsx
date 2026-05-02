@@ -6,56 +6,34 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import adminOfertaService from '../../../services/adminOfertaService';
-import OfertaForm from './OfertaForm';
+import OfertaModal from './OfertaModal';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import {
   AdminEmptyState,
-  AdminSectionActions,
-  AdminSurface,
-  AdminSearch,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminDataTable,
 } from '../common';
 import styles from './GestionOfertas.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 type FiltroEstado = 'todas' | 'activas' | 'inactivas' | 'expiradas';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 10;
 
 /** Determina el estado visual de una oferta basado en activo y fechas */
 const getEstadoOferta = (oferta: OfertaConConteo) => {
-  if (!oferta.activo) return { label: 'Inactiva', className: styles.estadoInactiva };
+  if (!oferta.activo) return { label: 'Inactiva', className: styles.badgeInactiva };
   const now = new Date();
   const inicio = new Date(oferta.fecha_inicio);
   const fin = new Date(oferta.fecha_fin);
-  if (now < inicio) return { label: 'Programada', className: styles.estadoProgramada };
-  if (now > fin) return { label: 'Expirada', className: styles.estadoExpirada };
-  return { label: 'Activa', className: styles.estadoActiva };
+  if (now < inicio) return { label: 'Programada', className: styles.badgeProgramada };
+  if (now > fin) return { label: 'Expirada', className: styles.badgeExpirada };
+  return { label: 'Activa', className: styles.badgeActiva };
 };
 
 /** Formatea una fecha ISO a formato legible */
@@ -67,59 +45,10 @@ const formatFecha = (fecha: string) => {
   });
 };
 
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div
-          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
-          onClick={header.column.getToggleSortingHandler()}
-          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
-        >
-          {flexRender(header.column.columnDef.header, header.getContext())}
-          {header.column.getCanSort() && (
-            <span
-              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
-            >
-              {{
-                asc: 'arrow_upward',
-                desc: 'arrow_downward',
-              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
-            </span>
-          )}
-        </div>
-      </div>
-    </th>
-  );
-};
-
 const GestionOfertas = () => {
   const { tienePermiso } = useAuth();
   const { showNotification } = useNotification();
+  const { tipoCambio } = useTipoCambio();
   const puedeVer = tienePermiso('ver_ofertas');
   const puedeCrear = tienePermiso('crear_oferta');
   const puedeEditar = tienePermiso('editar_oferta');
@@ -143,7 +72,7 @@ const GestionOfertas = () => {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre_oferta', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: ITEMS_PER_PAGE });
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nombre_oferta', 'tipo_descuento', 'valor_descuento', 'fecha_inicio', 'fecha_fin', 'productos', 'activo', 'acciones'
+    'nombre_oferta', 'tipo_descuento', 'valor_descuento', 'fecha_inicio', 'fecha_fin', 'productos', 'activo'
   ]);
 
   // 1. Filtrar por búsqueda y estado
@@ -190,16 +119,14 @@ const GestionOfertas = () => {
     cargarOfertas();
   }, [cargarOfertas]);
 
-
-
-  const handleEditar = useCallback(async (id: number) => {
+  const handleEditarOferta = useCallback(async (oferta: OfertaConConteo) => {
     if (!puedeEditar) {
       showNotification('No tienes permisos para editar ofertas', 'error');
       return;
     }
     try {
-      const oferta = await adminOfertaService.obtenerOferta(id);
-      setEditandoOferta(oferta);
+      const data = await adminOfertaService.obtenerOferta(oferta.id_oferta);
+      setEditandoOferta(data);
       setModoModal('editar');
       setShowCrearForm(true);
     } catch {
@@ -207,7 +134,7 @@ const GestionOfertas = () => {
     }
   }, [puedeEditar, showNotification]);
 
-  const handleEliminar = useCallback(async (id: number, nombre: string) => {
+  const handleEliminarOferta = useCallback(async (id: number, nombre: string) => {
     if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar ofertas', 'error');
       return;
@@ -220,6 +147,8 @@ const GestionOfertas = () => {
     try {
       await adminOfertaService.eliminarOferta(id);
       showNotification('Oferta desactivada exitosamente', 'success');
+      setShowCrearForm(false);
+      setEditandoOferta(null);
       cargarOfertas();
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar oferta', 'error');
@@ -252,7 +181,7 @@ const GestionOfertas = () => {
       id: 'tipo_descuento',
       header: 'Tipo',
       cell: info => (
-        <span className={styles.tipoBadge}>
+        <span className={styles.badgeTipo}>
           {info.getValue() === 'porcentaje' ? 'Porcentaje' : 'Monto Fijo'}
         </span>
       ),
@@ -263,11 +192,15 @@ const GestionOfertas = () => {
       header: 'Valor',
       cell: info => {
         const oferta = info.row.original;
+        const valorMostrar = oferta.tipo_descuento === 'monto_fijo' 
+          ? Math.round(oferta.valor_descuento * tipoCambio) 
+          : parseFloat(oferta.valor_descuento.toString());
+
         return (
           <span className={styles.valorCell}>
             {oferta.tipo_descuento === 'porcentaje'
-              ? `${oferta.valor_descuento}%`
-              : `$ ${oferta.valor_descuento}`
+              ? `${valorMostrar}%`
+              : `$ ${Number(valorMostrar).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
             }
           </span>
         );
@@ -307,68 +240,9 @@ const GestionOfertas = () => {
           </span>
         );
       }
-    },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: (info) => {
-        const oferta = info.row.original;
-        return (
-          <div className={styles.actions}>
-            <button
-              className={styles.actionButton}
-              title={!puedeEditar ? 'Sin permisos para editar ofertas' : 'Editar'}
-              onClick={() => handleEditar(oferta.id_oferta)}
-              disabled={!puedeEditar}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-            <button
-              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-              title={!puedeEliminar ? 'Sin permisos para eliminar ofertas' : 'Desactivar'}
-              onClick={() => handleEliminar(oferta.id_oferta, oferta.nombre_oferta)}
-              disabled={!puedeEliminar}
-            >
-              <span className="material-icons">delete</span>
-            </button>
-          </div>
-        );
-      }
     }
-  ], [handleEditar, handleEliminar, puedeEditar, puedeEliminar]);
+  ], [tipoCambio]);
 
-  const table = useReactTable({
-    data: filteredOfertas,
-    columns,
-    state: {
-      sorting,
-      pagination,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   // Vista de lista
   if (!puedeVer) {
@@ -386,52 +260,47 @@ const GestionOfertas = () => {
 
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={(
-          <button
-            className={styles.crearButton}
-            onClick={() => {
-              setModoModal('crear');
-              setEditandoOferta(null);
-              setShowCrearForm(true);
-            }}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear ofertas' : undefined}
-          >
-            <span className="material-icons">add_box</span>
-            <span>Nueva Oferta</span>
-          </button>
-        )}
-      />
-
-      {/* Barra de búsqueda y filtro */}
-      <AdminSurface className={styles.filterShell} tone="muted">
-        <div className={styles.filterRow}>
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Buscar por nombre de oferta..."
-              onChange={(val) => { 
-                setSearchTerm(val); 
-                table.setPageIndex(0); 
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="top">
+          <AdminFilterPanel.Group minWidth="sm">
+            <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
+            <select
+              value={filtroEstado}
+              onChange={(e) => {
+                setFiltroEstado(e.target.value as FiltroEstado);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
               }}
-              delay={0}
+              className={controlStyles.field}
+            >
+              <option value="todas">Todas</option>
+              <option value="activas">Activas</option>
+              <option value="inactivas">Inactivas</option>
+              <option value="expiradas">Expiradas</option>
+            </select>
+          </AdminFilterPanel.Group>
+        </AdminFilterPanel.Row>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              searchLabel="Búsqueda"
+              searchPlaceholder="Buscar por nombre de oferta..."
+              onSearchChange={(val) => {
+                setSearchTerm(val);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
+              }}
+              primaryActionLabel="Nueva Oferta"
+              primaryActionIcon="add_box"
+              onPrimaryAction={() => {
+                setModoModal('crear');
+                setEditandoOferta(null);
+                setShowCrearForm(true);
+              }}
+              primaryActionDisabled={!puedeCrear}
             />
-          <select
-            value={filtroEstado}
-            onChange={(e) => { 
-              setFiltroEstado(e.target.value as FiltroEstado); 
-              table.setPageIndex(0); 
-            }}
-            className={styles.filterSelect}
-          >
-            <option value="todas">Todas</option>
-            <option value="activas">Activas</option>
-            <option value="inactivas">Inactivas</option>
-            <option value="expiradas">Expiradas</option>
-          </select>
-        </div>
-      </AdminSurface>
+          </AdminFilterPanel.Grow>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {/* Estado de carga */}
       {loading && (
@@ -459,107 +328,40 @@ const GestionOfertas = () => {
       {/* Tabla de ofertas */}
       {!loading && !error && (
         <>
-          <div className={styles.tableInfo}>
-            <span>{filteredOfertas.length} oferta{filteredOfertas.length !== 1 ? 's' : ''} encontrada{filteredOfertas.length !== 1 ? 's' : ''}</span>
-          </div>
 
-          <div className={styles.tableWrapper}>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <table className={styles.table}>
-                <thead>
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
-                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                        {headerGroup.headers.map(header => (
-                          <DraggableTableHeader 
-                            key={header.id} 
-                            header={header} 
-                            className={header.column.getCanSort() ? styles.sortableHeader : undefined}
-                          />
-                        ))}
-                      </SortableContext>
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.length === 0 ? (
-                    <tr>
-                      <td colSpan={columns.length} className={styles.emptyMessage}>
-                        {searchTerm || filtroEstado !== 'todas'
-                          ? 'No se encontraron ofertas con los filtros aplicados'
-                          : 'No hay ofertas registradas'}
-                      </td>
-                    </tr>
-                  ) : (
-                    table.getRowModel().rows.map((row) => (
-                      <tr key={row.id}>
-                        {row.getVisibleCells().map(cell => (
-                          <td key={cell.id} className={cell.column.id === 'valor_descuento' ? styles.valorCell : undefined}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </DndContext>
-          </div>
 
-          {/* Paginación */}
-          {table.getPageCount() > 1 && (
-            <div className={styles.pagination}>
-              <button
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                className={styles.pageButton}
-              >
-                <span className="material-icons">chevron_left</span>
-              </button>
-              <span className={styles.pageInfo}>
-                Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-              </span>
-              <button
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                className={styles.pageButton}
-              >
-                <span className="material-icons">chevron_right</span>
-              </button>
-            </div>
-          )}
+          <AdminDataTable
+            data={filteredOfertas}
+            columns={columns}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnOrder={columnOrder}
+            onColumnOrderChange={setColumnOrder}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            totalItems={filteredOfertas.length}
+            itemLabel="ofertas"
+            onRowClick={(row) => handleEditarOferta(row)}
+            isLoading={loading}
+            manualPagination={false}
+            emptyMessage={
+              searchTerm || filtroEstado !== 'todas'
+                ? 'No se encontraron ofertas con los filtros aplicados'
+                : 'No hay ofertas registradas'
+            }
+          />
         </>
       )}
 
       {/* Modal para crear/editar oferta */}
       {showCrearForm && (
-        <div className={styles.modalOverlay} onClick={handleCancelar}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                <span className="material-icons">
-                  {modoModal === 'crear' ? 'add_box' : 'edit'}
-                </span>
-                {modoModal === 'crear' ? 'Nueva Oferta' : 'Editar Oferta'}
-              </h3>
-              <button className={styles.closeButton} onClick={handleCancelar}>
-                <span className="material-icons">close</span>
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <OfertaForm
-                modo={modoModal}
-                oferta={editandoOferta}
-                onGuardado={handleGuardado}
-                onCancelar={handleCancelar}
-                isModal={true}
-              />
-            </div>
-
-            <div className={styles.modalFooter}></div>
-          </div>
-        </div>
+        <OfertaModal
+          oferta={editandoOferta}
+          onCancelar={handleCancelar}
+          onGuardado={handleGuardado}
+          onEliminar={editandoOferta ? () => handleEliminarOferta(editandoOferta.id_oferta, editandoOferta.nombre_oferta) : undefined}
+          modo={modoModal}
+        />
       )}
     </div>
   );

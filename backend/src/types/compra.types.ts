@@ -15,6 +15,7 @@ export interface RegistrarCompraItemBody {
   // Campos comunes:
   cantidad: number;
   precio_unitario: number | string;
+  precio_venta?: number | string;
 }
 
 export interface RegistrarCompraBody {

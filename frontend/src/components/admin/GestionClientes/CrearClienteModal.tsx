@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import usuarioService from '../../../services/usuarioService';
-import styles from './GestionClientes.module.css';
+import Input from '../../common/Input/Input';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './ClienteModals.module.css';
 
 interface Props {
   onClose: () => void;
@@ -16,7 +18,7 @@ const INITIAL = {
   nit_ci_cliente: '',
 };
 
-const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
+const CrearClienteModal: React.FC<Props> = memo(({ onClose, onCreado }) => {
   const { showNotification } = useNotification();
   const [form, setForm] = useState(INITIAL);
   const [guardando, setGuardando] = useState(false);
@@ -55,58 +57,47 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>
-            <span className="material-icons">person_add</span>
-            Crear Cliente
-          </h3>
-          <button className={styles.closeButton} onClick={onClose} disabled={guardando}>
-            <span className="material-icons">close</span>
-          </button>
-        </div>
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title="Registrar Nuevo Cliente"
+      icon="person_add_alt"
+      maxWidth="600px"
+    >
+      <form id="create-cliente-form" onSubmit={handleSubmit}>
+        <div className="modalBodyPremium">
+          
+          <h4 className="sectionTitleWithDividerPremium">Información de Contacto</h4>
+          
+          <div className="modalFormGridPremium">
+            <Input
+              id="nombre_cliente"
+              name="nombre_cliente"
+              label="Nombre"
+              value={form.nombre_cliente}
+              onChange={handleChange}
+              placeholder="Ej: Juan"
+              disabled={guardando}
+              required
+              autoFocus
+            />
+            <Input
+              id="apellido_cliente"
+              name="apellido_cliente"
+              label="Apellido"
+              value={form.apellido_cliente}
+              onChange={handleChange}
+              placeholder="Ej: Pérez"
+              disabled={guardando}
+              required
+            />
 
-        <form onSubmit={handleSubmit}>
-          <div className={styles.modalBody}>
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  Nombre <span style={{ color: 'var(--color-error)' }}>*</span>
-                </label>
-                <input
-                  className={styles.formInput}
-                  name="nombre_cliente"
-                  value={form.nombre_cliente}
-                  onChange={handleChange}
-                  placeholder="Juan"
-                  disabled={guardando}
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  Apellido <span style={{ color: 'var(--color-error)' }}>*</span>
-                </label>
-                <input
-                  className={styles.formInput}
-                  name="apellido_cliente"
-                  value={form.apellido_cliente}
-                  onChange={handleChange}
-                  placeholder="Pérez"
-                  disabled={guardando}
-                  required
-                />
-              </div>
-            </div>
-            <div className={styles.formGroup} style={{ marginBottom: 14 }}>
-              <label className={styles.formLabel}>
-                Email <span style={{ color: 'var(--color-error)' }}>*</span>
-              </label>
-              <input
-                className={styles.formInput}
-                type="email"
+            <div className="modalFormGroupFullPremium">
+              <Input
+                id="email_cliente"
                 name="email_cliente"
+                label="Correo Electrónico"
+                type="email"
                 value={form.email_cliente}
                 onChange={handleChange}
                 placeholder="juan@ejemplo.com"
@@ -114,52 +105,56 @@ const CrearClienteModal: React.FC<Props> = ({ onClose, onCreado }) => {
                 required
               />
             </div>
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Celular</label>
-                <input
-                  className={styles.formInput}
-                  name="celular_cliente"
-                  value={form.celular_cliente}
-                  onChange={handleChange}
-                  placeholder="Ej: 3512345678"
-                  disabled={guardando}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>DNI / CUIT</label>
-                <input
-                  className={styles.formInput}
-                  name="nit_ci_cliente"
-                  value={form.nit_ci_cliente}
-                  onChange={handleChange}
-                  placeholder="Ej: 12345678"
-                  disabled={guardando}
-                />
-              </div>
-            </div>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '12px 0 0', lineHeight: 1.5 }}>
-              <span className="material-icons" style={{ fontSize: 14, verticalAlign: 'text-bottom', marginRight: 4 }}>
-                info
-              </span>
-              El cliente recibirá un email para activar su cuenta y establecer su propia contraseña.
+
+            <Input
+              id="celular_cliente"
+              name="celular_cliente"
+              label="Celular"
+              value={form.celular_cliente}
+              onChange={handleChange}
+              placeholder="Ej: 3512345678"
+              disabled={guardando}
+            />
+            <Input
+              id="nit_ci_cliente"
+              name="nit_ci_cliente"
+              label="DNI / CUIT"
+              value={form.nit_ci_cliente}
+              onChange={handleChange}
+              placeholder="Ej: 12345678"
+              disabled={guardando}
+            />
+          </div>
+
+          <div className={styles.infoBox}>
+            <span className={`material-icons ${styles.icon}`}>info</span>
+            <p className={styles.text}>
+              El cliente recibirá automáticamente un **correo electrónico de activación** para establecer su contraseña y habilitar su acceso a la plataforma web.
             </p>
           </div>
-          <div className={styles.modalFooter}>
-            <button type="button" className={styles.cancelButton} onClick={onClose} disabled={guardando}>
-              Cancelar
-            </button>
-            <button type="submit" className={styles.saveButton} disabled={guardando}>
-              <span className="material-icons" style={{ fontSize: 16 }}>
-                {guardando ? 'hourglass_empty' : 'person_add'}
-              </span>
-              {guardando ? 'Creando...' : 'Crear y enviar email'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        <div className="modalFooterPremium">
+          <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            form="create-cliente-form"
+            className="btnPremium btnPrimaryPremium" 
+            disabled={guardando}
+          >
+            <span className="material-icons">
+              {guardando ? 'hourglass_empty' : 'send'}
+            </span>
+            {guardando ? 'Creando...' : 'Crear y Enviar Invitación'}
+          </button>
+        </div>
+      </form>
+    </PremiumModal>
   );
-};
+});
+
+CrearClienteModal.displayName = 'CrearClienteModal';
 
 export default CrearClienteModal;

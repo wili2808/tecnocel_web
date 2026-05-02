@@ -1,0 +1,105 @@
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--background-primary);
+}
+
+.columns1 {
+  grid-template-columns: 1fr;
+}
+
+.columns2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.columns3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.columns4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.item {
+  padding: var(--spacing-sm);
+  border: none;
+  border-right: 1px solid var(--border-color);
+  border-radius: 0;
+  box-shadow: none;
+  transition: background-color var(--transition-fast) var(--transition-curve);
+}
+
+.item:last-child {
+  border-right: none;
+}
+
+.skeletonCard {
+  min-height: 78px;
+  border-right: 1px solid var(--border-color);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--background-secondary) 92%, transparent) 0%,
+      color-mix(in srgb, var(--background-primary) 96%, transparent) 50%,
+      color-mix(in srgb, var(--background-secondary) 92%, transparent) 100%
+    );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.skeletonCard:last-child {
+  border-right: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .columns3,
+  .columns4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .item:nth-child(2n),
+  .skeletonCard:nth-child(2n) {
+    border-right: none;
+  }
+
+  .item:nth-child(n + 3),
+  .skeletonCard:nth-child(n + 3) {
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+@media (max-width: 768px) {
+  .strip,
+  .columns2,
+  .columns3,
+  .columns4 {
+    grid-template-columns: 1fr;
+  }
+
+  .item,
+  .skeletonCard {
+    border-right: none;
+  }
+
+  .item:not(:last-child),
+  .skeletonCard:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .item:nth-child(n),
+  .skeletonCard:nth-child(n) {
+    border-top: none;
+  }
+}

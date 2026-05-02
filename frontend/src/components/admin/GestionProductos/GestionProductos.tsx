@@ -7,117 +7,39 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminProductService from '../../../services/adminProductService';
-import ProductoForm from './ProductoForm';
+import ProductoModal from './ProductoModal';
 import GestionMarcas from './GestionMarcas';
 import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
-import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminDataTable,
+  AdminTabs,
+} from '../common';
+import type { AdminTabConfig } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
-// --- TanStack Table & Dnd-kit Imports ---
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type {
-  ColumnDef,
-  SortingState,
-} from '@tanstack/react-table';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 // --- Tipos ---
-type Vista = 'lista' | 'crear' | 'editar';
 type TabProductos = 'productos' | 'marcas' | 'categorias' | 'caracteristicas';
-
-// --- Componente DraggableTableHeader ---
-// Este componente abstrae la cabecera de la tabla para que pueda ser reordenada
-const DraggableTableHeader = ({ header }: { header: any }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* Agarradera para drag & drop */}
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        
-        {/* Contenido clickeable para ordenar */}
-        <div
-          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
-          onClick={header.column.getToggleSortingHandler()}
-          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
-        >
-          {flexRender(header.column.columnDef.header, header.getContext())}
-          
-          {/* Icono de ordenamiento de TanStack Table */}
-          {header.column.getCanSort() && (
-            <span
-              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
-            >
-              {{
-                asc: 'arrow_upward',
-                desc: 'arrow_downward',
-              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
-            </span>
-          )}
-        </div>
-      </div>
-    </th>
-  );
-};
 
 const GestionProductos = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_productos');
   const puedeCrear = tienePermiso('crear_producto');
   const puedeEditar = tienePermiso('editar_producto');
-  const puedeEliminar = tienePermiso('eliminar_producto');
+
   const isReadOnly = !puedeEditar;
   const { showNotification } = useNotification();
 
   // Estado de la vista
-  const [vista, setVista] = useState<Vista>('lista');
   const [activeTab, setActiveTab] = useState<TabProductos>('productos');
   const [productoSeleccionado, setProductoSeleccionado] = useState<Product | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Estado de la lista
   const [allProductos, setAllProductos] = useState<Product[]>([]);
@@ -133,9 +55,9 @@ const GestionProductos = () => {
   // --- Estados de TanStack Table ---
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock', 'acciones'
+    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock'
   ]);
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
   const cargarProductos = useCallback(async () => {
     try {
@@ -152,10 +74,8 @@ const GestionProductos = () => {
   }, [searchTerm, showNotification]);
 
   useEffect(() => {
-    if (vista === 'lista') {
-      cargarProductos();
-    }
-  }, [cargarProductos, vista]);
+    cargarProductos();
+  }, [cargarProductos]);
 
   const handleToggleDestacados = () => {
     setSoloDestacados((prev) => !prev);
@@ -166,37 +86,25 @@ const GestionProductos = () => {
     try {
       const producto = await adminProductService.obtenerProducto(id);
       setProductoSeleccionado(producto);
-      setVista('editar');
+      setModalOpen(true);
     } catch {
       showNotification('Error al cargar producto para editar', 'error');
     }
   }, [showNotification]);
 
-  const handleEliminar = useCallback(async (id: number, nombre: string) => {
-    if (!puedeEliminar) {
-      showNotification('No tienes permisos para eliminar productos', 'error');
-      return;
-    }
-    if (!confirm(`¿Estás seguro de eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
-    try {
-      await adminProductService.eliminarProducto(id);
-      showNotification('Producto eliminado exitosamente', 'success');
-      cargarProductos();
-    } catch (err: any) {
-      showNotification(err.message || 'Error al eliminar producto', 'error');
-    }
-  }, [puedeEliminar, showNotification, cargarProductos]);
+  const handleCrear = useCallback(() => {
+    setProductoSeleccionado(null);
+    setModalOpen(true);
+  }, []);
 
   const handleGuardado = () => {
-    setVista('lista');
+    setModalOpen(false);
     setProductoSeleccionado(null);
     cargarProductos();
   };
 
   const handleCancelar = () => {
-    setVista('lista');
+    setModalOpen(false);
     setProductoSeleccionado(null);
   };
 
@@ -312,70 +220,16 @@ const GestionProductos = () => {
           </span>
         );
       },
-    },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: (info) => {
-        const p = info.row.original;
-        return (
-          <div className={styles.actions}>
-            <button
-              className={styles.actionButton}
-              title={isReadOnly ? 'Sin permisos para editar' : 'Editar'}
-              onClick={() => handleEditar(p.id_producto)}
-              disabled={isReadOnly}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-            <button
-              className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-              title={!puedeEliminar ? 'Sin permisos para eliminar' : 'Eliminar'}
-              onClick={() => handleEliminar(p.id_producto, p.nombre)}
-              disabled={!puedeEliminar}
-            >
-              <span className="material-icons">delete</span>
-            </button>
-          </div>
-        );
-      },
-    },
-  ], [isReadOnly, puedeEliminar, handleEditar, handleEliminar]);
-
-  // --- Instancia de TanStack Table ---
-  const table = useReactTable({
-    data: filteredProductos,
-    columns,
-    state: {
-      sorting,
-      columnOrder,
-      pagination,
-    },
-    onSortingChange: setSorting,
-    onColumnOrderChange: setColumnOrder,
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  // --- Sensores y Manejador para Dnd-kit (Reordenamiento de columnas) ---
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
     }
-  };
+  ], []);
+
+
+  const productTabs = useMemo<AdminTabConfig[]>(() => [
+    { id: 'productos', icon: 'inventory_2', label: 'Productos' },
+    { id: 'marcas', icon: 'branding_watermark', label: 'Marcas' },
+    { id: 'categorias', icon: 'category', label: 'Categorías' },
+    { id: 'caracteristicas', icon: 'tune', label: 'Características' },
+  ], []);
 
   if (!puedeVer) {
     return (
@@ -390,54 +244,16 @@ const GestionProductos = () => {
     );
   }
 
-  // Renderizar formulario si estamos en crear/editar
-  if (vista === 'crear' || vista === 'editar') {
-    return (
-      <ProductoForm
-        modo={vista}
-        producto={productoSeleccionado}
-        onGuardado={handleGuardado}
-        onCancelar={handleCancelar}
-      />
-    );
-  }
-
-  // Vista de lista
+  // Renderizado principal
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          <button
-            className={styles.crearButton}
-            onClick={() => setVista('crear')}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear productos' : undefined}
-          >
-            <span className="material-icons">add_box</span>
-            <span>Agregar Producto</span>
-          </button>
-        }
-      />
 
       {/* Barra de tabs */}
-      <div className={styles.tabsBar}>
-        {[
-          { key: 'productos', icon: 'inventory_2', label: 'Productos' },
-          { key: 'marcas', icon: 'branding_watermark', label: 'Marcas' },
-          { key: 'categorias', icon: 'category', label: 'Categorías' },
-          { key: 'caracteristicas', icon: 'tune', label: 'Características' },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            className={`${styles.tabBtn} ${activeTab === tab.key ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab(tab.key as TabProductos)}
-          >
-            <span className="material-icons">{tab.icon}</span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </div>
+      <AdminTabs 
+        tabs={productTabs} 
+        activeTab={activeTab} 
+        onChange={(id) => setActiveTab(id as TabProductos)} 
+      />
 
       {activeTab === 'marcas' && <GestionMarcas />}
       {activeTab === 'categorias' && <GestionCategorias />}
@@ -445,28 +261,35 @@ const GestionProductos = () => {
 
       {activeTab === 'productos' && (
         <>
-          {/* Barra de búsqueda */}
-          <AdminSurface className={styles.filterShell} tone="muted">
-            <div className={styles.searchForm}>
-              <AdminSearch
-                value={searchTerm}
-                placeholder="Buscar por nombre o código..."
-                onChange={(val) => {
-                  setSearchTerm(val);
-                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-                }}
-              />
-              <button
-                type="button"
-                className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
-                onClick={handleToggleDestacados}
-                title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
-              >
-                <span className="material-icons">star</span>
-                <span>Destacados</span>
-              </button>
-            </div>
-          </AdminSurface>
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row variant="bottom">
+              <AdminFilterPanel.Grow>
+                <AdminEntitySearchBar
+                  searchValue={searchTerm}
+                  searchLabel="Búsqueda"
+                  searchPlaceholder="Buscar por nombre o código..."
+                  onSearchChange={(val) => {
+                    setSearchTerm(val);
+                    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                  }}
+                  primaryActionLabel="Agregar Producto"
+                  primaryActionIcon="add_box"
+                  onPrimaryAction={handleCrear}
+                  primaryActionDisabled={!puedeCrear}
+                />
+              </AdminFilterPanel.Grow>
+              <AdminFilterPanel.Actions>
+                <button
+                  type="button"
+                  className={`${styles.toggleBtn} ${soloDestacados ? styles.toggleBtnActive : ''}`}
+                  onClick={handleToggleDestacados}
+                  title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
+                >
+                  <span className="material-icons">{soloDestacados ? 'star' : 'star_outline'}</span>
+                </button>
+              </AdminFilterPanel.Actions>
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
 
           {/* Estado de carga */}
           {loading && (
@@ -491,95 +314,43 @@ const GestionProductos = () => {
             />
           )}
 
-          {/* Tabla de productos (TanStack Table) */}
+          {/* Tabla de productos (AdminDataTable) */}
           {!loading && !error && (
-            <>
-              <div className={styles.tableInfo}>
-                <span>
-                  {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''} encontrado{filteredProductos.length !== 1 ? 's' : ''}
-                  {soloDestacados && <span className={styles.filterBadge}>Solo destacados</span>}
-                </span>
-              </div>
-
-              <div className={styles.tableWrapper}>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <table className={styles.table}>
-                    <thead>
-                      {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext
-                            items={columnOrder}
-                            strategy={horizontalListSortingStrategy}
-                          >
-                            {headerGroup.headers.map((header) => (
-                              <DraggableTableHeader
-                                key={header.id}
-                                header={header}
-                              />
-                            ))}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.length === 0 ? (
-                        <tr>
-                          <td colSpan={columns.length} className={styles.emptyMessage}>
-                            {searchTerm && soloDestacados
-                              ? `No se encontraron productos destacados para "${searchTerm}"`
-                              : searchTerm
-                                ? `No se encontraron productos para "${searchTerm}"`
-                                : soloDestacados
-                                  ? 'No hay productos destacados'
-                                  : 'No hay productos registrados'}
-                          </td>
-                        </tr>
-                      ) : (
-                        table.getRowModel().rows.map((row) => (
-                          <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                              <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-
-              {/* Paginación */}
-              {table.getPageCount() > 1 && (
-                <div className={styles.pagination}>
-                  <button
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    className={styles.pageButton}
-                  >
-                    <span className="material-icons">chevron_left</span>
-                  </button>
-                  <span className={styles.pageInfo}>
-                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-                  </span>
-                  <button
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    className={styles.pageButton}
-                  >
-                    <span className="material-icons">chevron_right</span>
-                  </button>
-                </div>
-              )}
-            </>
+            <AdminDataTable
+              data={filteredProductos}
+              columns={columns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={filteredProductos.length}
+              itemLabel="productos"
+              onRowClick={(row) => !isReadOnly && handleEditar(row.id_producto)}
+              isLoading={loading}
+              manualPagination={false}
+              emptyMessage={
+                searchTerm && soloDestacados
+                  ? `No se encontraron productos destacados para "${searchTerm}"`
+                  : searchTerm
+                    ? `No se encontraron productos para "${searchTerm}"`
+                    : soloDestacados
+                      ? 'No hay productos destacados'
+                      : 'No hay productos registrados'
+              }
+            />
           )}
         </>
       )}
+
+      {/* Modal de Producto */}
+      <ProductoModal
+        isOpen={modalOpen}
+        producto={productoSeleccionado}
+        onClose={handleCancelar}
+        onGuardado={handleGuardado}
+      />
     </div>
   );
 };

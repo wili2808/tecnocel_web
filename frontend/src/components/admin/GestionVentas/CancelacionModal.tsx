@@ -1,17 +1,9 @@
-/**
- * @file CancelacionModal.tsx
- *
- * Modal de confirmación para cancelar una venta.
- * Muestra una advertencia, permite ingresar un motivo opcional (máx. 300 chars)
- * y llama al servicio de cancelación al confirmar.
- *
- * Reutiliza los estilos de GestionVentas.module.css.
- */
-
-import React, { useState, useRef, useEffect } from 'react';
-import styles from './GestionVentas.module.css';
+import React, { useState, useRef } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminVentaService from '../../../services/adminVentaService';
+import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './VentaModals.module.css';
 
 interface CancelacionModalProps {
   idVenta: number;
@@ -26,14 +18,7 @@ const CancelacionModal: React.FC<CancelacionModalProps> = ({ idVenta, nroVenta, 
   const [procesando, setProcesando] = useState(false);
   const procesandoRef = useRef(false);
 
-  // Cerrar con Escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !procesando) onClose();
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onClose, procesando]);
+  // ELIMINADO: Cierre con Escape manual (manejado por PremiumModal)
 
   const handleConfirmar = async () => {
     if (procesandoRef.current) return;
@@ -52,68 +37,48 @@ const CancelacionModal: React.FC<CancelacionModalProps> = ({ idVenta, nroVenta, 
   };
 
   return (
-    <div
-      className={styles.modalOverlay}
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !procesando) onClose();
-      }}
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title="Confirmar Anulación"
+      icon="warning_amber"
+      maxWidth="450px"
     >
-      <div className={styles.modal}>
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">cancel</span>
-            Cancelar Venta {nroVenta}
-          </h2>
-          <button className={styles.closeButton} onClick={onClose} disabled={procesando} title="Cerrar">
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          <p
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--color-warning, #f59e0b)',
-              marginBottom: '16px',
-            }}
-          >
-            <span className="material-icons">warning</span>
-            Esta acción cancelará la venta y restaurará el stock de los productos. No se puede deshacer.
-          </p>
-
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-            Motivo de cancelación <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(opcional)</span>
-          </label>
-          <textarea
-            className={styles.textarea}
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-            placeholder="Ej: Error en el pedido, devolución solicitada por el cliente..."
-            maxLength={300}
-            rows={3}
-            disabled={procesando}
-          />
-          <p style={{ textAlign: 'right', fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-            {motivo.length}/300
+      <div className="modalBodyPremium">
+        <div className={styles.warningBox}>
+          <span className="material-icons">report_problem</span>
+          <p className="m-0 text-sm">
+            Estás por anular la venta <strong>{nroVenta}</strong>. Esta acción restaurará el stock de los productos automáticamente y **no se puede deshacer**.
           </p>
         </div>
 
-        {/* Pie */}
-        <div className={`${styles.modalFooter} ${styles.modalFooterLeft}`}>
-          <button className={styles.dangerButton} onClick={handleConfirmar} disabled={procesando}>
-            <span className="material-icons">cancel</span>
-            {procesando ? 'Cancelando...' : 'Cancelar Venta'}
-          </button>
-          <button className={styles.cancelButton} onClick={onClose} disabled={procesando}>
-            Volver
-          </button>
-        </div>
+        <TextArea
+          id="motivo"
+          name="motivo"
+          label="Motivo de la Anulación (opcional)"
+          value={motivo}
+          onChange={(e) => setMotivo(e.target.value)}
+          placeholder="Ej: Error en el pedido, duplicado, etc..."
+          maxLength={300}
+          disabled={procesando}
+          rows={4}
+        />
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={procesando}>
+          Volver
+        </button>
+        <button 
+          className="btnPremium btnDangerPremium" 
+          onClick={handleConfirmar} 
+          disabled={procesando}
+        >
+          <span className="material-icons">{procesando ? 'hourglass_empty' : 'delete_forever'}</span>
+          {procesando ? 'Procesando...' : 'Confirmar Anulación'}
+        </button>
+      </div>
+    </PremiumModal>
   );
 };
 

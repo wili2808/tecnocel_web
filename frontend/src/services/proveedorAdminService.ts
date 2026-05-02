@@ -5,14 +5,16 @@ const proveedorAdminService = {
   /**
    * Obtiene listado de proveedores con búsqueda opcional
    */
-  async listarProveedores(search?: string): Promise<{
+   async listarProveedores(search?: string, limit?: number, offset?: number): Promise<{
     success: boolean;
     data: ProveedorListItem[];
     count: number;
   }> {
     try {
-      const params: Record<string, string> = {};
+      const params: Record<string, any> = {};
       if (search) params.search = search;
+      if (limit !== undefined) params.limit = limit;
+      if (offset !== undefined) params.offset = offset;
 
       const response = await adminApi.get('/proveedores', { params });
       return response.data;

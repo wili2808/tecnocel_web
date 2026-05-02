@@ -9,38 +9,23 @@ import envioAdminService from '../../../services/envioAdminService';
 import usuarioService from '../../../services/usuarioService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminMetricsStrip,
+  AdminDataTable,
+  AdminTabs,
+} from '../common';
+import type { AdminTabConfig } from '../common';
 import styles from './GestionVentas.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-} from '@tanstack/react-table';
+
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-// ── Tipos internos ───────────────────────────────────────────────────────────
-
-const LIMIT = 20;
+const LIMIT = 10;
 
 // ── Utilidades ────────────────────────────────────────────────────────────────
 
@@ -55,73 +40,23 @@ const formatFecha = (iso: string) =>
 
 const formatMonto = (n: number) => n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatIngreso = (n: number) => {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${formatMonto(n)}`;
+const formatIngresoUsd = (n: number) => {
+  if (n >= 1_000_000) return `USD ${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `USD ${(n / 1_000).toFixed(1)}K`;
+  return `USD ${formatMonto(n)}`;
 };
 
 const badgeEstado = (estado: string) => {
   const map: Record<string, string> = {
-    completada: styles.badgeCompletada,
-    cancelada: styles.badgeCancelada,
+    completada: styles.badgeActiva,
+    cancelada: styles.badgeAnulada,
     pendiente: styles.badgePendiente,
   };
-  return `${styles.badge} ${map[estado] || ''}`;
+  return map[estado] || '';
 };
 
 const badgeTipo = (tipo: string) =>
-  `${styles.badge} ${tipo === 'web' ? styles.badgeWeb : styles.badgeManual}`;
-
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  const isSorted = header.column.getIsSorted();
-  const sortIcon = isSorted ? (isSorted === 'desc' ? 'arrow_downward' : 'arrow_upward') : 'unfold_more';
-  const canSort = header.column.getCanSort();
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div 
-          style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px', cursor: canSort ? 'pointer' : 'default' }}
-          onClick={header.column.getToggleSortingHandler()}
-        >
-          <span className={styles.sortableHeaderContent}>
-            {flexRender(header.column.columnDef.header, header.getContext())}
-            {canSort && (
-              <span className={`material-icons ${styles.sortIcon} ${isSorted ? styles.sortIconActive : ''}`}>
-                {sortIcon}
-              </span>
-            )}
-          </span>
-        </div>
-      </div>
-    </th>
-  );
-};
+  tipo === 'web' ? styles.badgeActiva : styles.badgePendiente;
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
@@ -129,13 +64,10 @@ const GestionVentas: React.FC = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_ventas');
   const puedeVerEnvios = tienePermiso('ver_envios');
-  const puedeGestionarEnvios = tienePermiso('gestionar_envios');
   const puedeVerRetiros = tienePermiso('ver_retiros');
-  const puedeGestionarRetiros = tienePermiso('gestionar_retiros');
   const puedeCrear = tienePermiso('crear_venta');
   const puedeVerConfiguracion = tienePermiso('ver_configuracion');
   const puedeEditarConfiguracion = tienePermiso('editar_configuracion');
-  const puedeCancelar = tienePermiso('cancelar_venta');
   const { showNotification } = useNotification();
 
   // ── Estado de datos ────────────────────────────────────────────────────────
@@ -151,22 +83,12 @@ const GestionVentas: React.FC = () => {
   const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
 
   // ── Paginación y ordenación TanStack ───────────────────────────────────────
-  const [offset, setOffset] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha', desc: true }]);
-  
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado', 'acciones'
+    'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado'
   ]);
 
-  const pagination = useMemo<PaginationState>(() => ({
-    pageIndex: Math.floor(offset / LIMIT),
-    pageSize: LIMIT,
-  }), [offset]);
-
-  const setPagination = useCallback((updater: any) => {
-    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
-    setOffset(nextPagination.pageIndex * LIMIT);
-  }, [pagination]);
 
   // ── Cotización USD ─────────────────────────────────────────────────────────
   const [tipoCambio, setTipoCambio] = useState<number>(1200);
@@ -255,13 +177,14 @@ const GestionVentas: React.FC = () => {
 
   // ── Cargar ventas ──────────────────────────────────────────────────────────
   const cargarVentas = useCallback(
-    async (f: FiltrosVentasAdmin, off: number) => {
+    async (f: FiltrosVentasAdmin, pIndex: number) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
-        const res = await adminVentaService.listarVentas(f, LIMIT, off);
+        const off = pIndex * pagination.pageSize;
+        const res = await adminVentaService.listarVentas(f, pagination.pageSize, off);
         setVentas(res.ventas);
         setTotal(res.total);
       } catch (err: any) {
@@ -272,7 +195,7 @@ const GestionVentas: React.FC = () => {
         cargandoRef.current = false;
       }
     },
-    [showNotification],
+    [pagination.pageSize, showNotification],
   );
 
   // ── Carga inicial ──────────────────────────────────────────────────────────
@@ -307,25 +230,57 @@ const GestionVentas: React.FC = () => {
   ]);
 
   useEffect(() => {
-    cargarVentas(filtros, offset);
-  }, [cargarVentas, filtros, offset]);
+    cargarVentas(filtros, pagination.pageIndex);
+  }, [cargarVentas, filtros, pagination.pageIndex, pagination.pageSize]);
 
   // ── Limpiar filtros ────────────────────────────────────────────────────────
   const limpiarFiltros = () => {
     setFiltros({});
-    setOffset(0);
-  };
-
-  // ── Cancelar venta rápido (desde fila de tabla) ────────────────────────────
-  const cancelarVentaFila = (id: number, nro: string) => {
-    setCancelacionModal({ id, nro });
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
   // ── Refresh tras acciones ──────────────────────────────────────────────────
   const refreshTodo = () => {
-    cargarVentas(filtros, offset);
+    cargarVentas(filtros, pagination.pageIndex);
     cargarStats();
   };
+
+  const statsItems = useMemo(() => [
+    {
+      icon: 'today',
+      label: 'Ventas hoy',
+      value: stats?.ventas_hoy ?? 0,
+    },
+    {
+      icon: 'date_range',
+      label: 'Esta semana',
+      value: stats?.ventas_semana ?? 0,
+    },
+    {
+      icon: 'calendar_month',
+      label: 'Este mes',
+      value: stats?.ventas_mes ?? 0,
+    },
+    {
+      icon: 'payments',
+      label: 'Ingresos del mes',
+      value: formatIngresoUsd((stats?.ingresos_mes ?? 0) / tipoCambio),
+      tone: 'success' as const,
+    },
+  ], [stats, tipoCambio]);
+
+  const ventasTabs = useMemo<AdminTabConfig[]>(() => {
+    const items: AdminTabConfig[] = [
+      { id: 'ventas', icon: 'receipt_long', label: 'Ventas' }
+    ];
+    if (puedeVerEnvios) {
+      items.push({ id: 'envios', icon: 'local_shipping', label: 'Envíos', badge: enviosPendientes > 0 ? enviosPendientes : undefined });
+    }
+    if (puedeVerRetiros) {
+      items.push({ id: 'retiros', icon: 'store', label: 'Retiros', badge: retirosPendientes > 0 ? retirosPendientes : undefined });
+    }
+    return items;
+  }, [puedeVerEnvios, enviosPendientes, puedeVerRetiros, retirosPendientes]);
 
   // === Columnas TanStack ===
   const columns = useMemo<ColumnDef<VentaListItem>[]>(() => [
@@ -430,69 +385,8 @@ const GestionVentas: React.FC = () => {
         </span>
       ),
     },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: info => {
-        const venta = info.row.original;
-        return (
-          <div className={styles.actions}>
-            <button
-              className={styles.actionButton}
-              onClick={() => setIdDetalleAbierto(venta.id_venta)}
-              title="Ver detalle"
-            >
-              <span className="material-icons">visibility</span>
-            </button>
-            {venta.estado === 'completada' && (
-              <button
-                className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                onClick={() => cancelarVentaFila(venta.id_venta, venta.nro_venta)}
-                title={!puedeCancelar ? 'Sin permisos para cancelar ventas' : 'Cancelar venta'}
-                disabled={!puedeCancelar}
-              >
-                <span className="material-icons">cancel</span>
-              </button>
-            )}
-          </div>
-        );
-      },
-    }
-  ], [puedeCancelar]);
+  ], []);
 
-  const table = useReactTable({
-    data: ventas,
-    columns,
-    pageCount: Math.ceil(total / LIMIT),
-    state: {
-      pagination,
-      sorting,
-      columnOrder,
-    },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    onColumnOrderChange: setColumnOrder,
-    manualPagination: true,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -511,212 +405,123 @@ const GestionVentas: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          <button
-            className={styles.crearButton}
-            onClick={() => setMostrarRegistrar(true)}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para registrar ventas' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Registrar Venta
-          </button>
-        }
+      <AdminMetricsStrip
+        items={statsItems}
+        loading={cargandoStats}
+        className={styles.statsBar}
+        itemClassName={styles.statCard}
       />
 
-      <div className={styles.statsBar}>
-        {cargandoStats ? (
-          <>
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className={styles.statsLoading} />
-            ))}
-          </>
-        ) : (
-          <>
-            <AdminStatCard
-              icon="today"
-              label="Ventas hoy"
-              value={stats?.ventas_hoy ?? 0}
-              variant="flush"
-              className={styles.statCard}
-            />
-            <AdminStatCard
-              icon="date_range"
-              label="Esta semana"
-              value={stats?.ventas_semana ?? 0}
-              variant="flush"
-              className={styles.statCard}
-            />
-            <AdminStatCard
-              icon="calendar_month"
-              label="Este mes"
-              value={stats?.ventas_mes ?? 0}
-              variant="flush"
-              className={styles.statCard}
-            />
-            <AdminStatCard
-              icon="payments"
-              label="Ingresos del mes"
-              value={formatIngreso(stats?.ingresos_mes ?? 0)}
-              detail={stats ? `$${formatMonto(stats.ingresos_mes)}` : '—'}
-              tone="success"
-              variant="flush"
-              className={styles.statCard}
-            />
-          </>
-        )}
-      </div>
+      {/* Cotización del dólar */}
+      {puedeVerConfiguracion && (
+        <div className={styles.cotizacionCard}>
+          <div className={styles.cotizacionHeader}>
+            <span className="material-icons">attach_money</span>
+            <span className={styles.cotizacionTitle}>Cotización USD</span>
+            {tipoCambioFecha && (
+              <span className={styles.cotizacionFecha}>
+                Actualizada:{' '}
+                {new Date(tipoCambioFecha).toLocaleString('es-AR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            )}
+          </div>
+
+          {editandoCambio ? (
+            <div className={styles.cotizacionEdit}>
+              <span className={styles.cotizacionPrefix}>1 USD =</span>
+              <input
+                type="number"
+                min={1}
+                step={0.01}
+                className={styles.cotizacionInput}
+                value={tipoCambioInput}
+                onChange={(e) => setTipoCambioInput(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') guardarCambio();
+                  if (e.key === 'Escape') setEditandoCambio(false);
+                }}
+              />
+              <span className={styles.cotizacionSuffix}>ARS</span>
+              <button className={styles.cotizacionSave} onClick={guardarCambio} disabled={guardandoCambio}>
+                <span className="material-icons">{guardandoCambio ? 'hourglass_empty' : 'check'}</span>
+              </button>
+              <button className={styles.cotizacionCancel} onClick={() => setEditandoCambio(false)}>
+                <span className="material-icons">close</span>
+              </button>
+            </div>
+          ) : (
+            <div className={styles.cotizacionDisplay}>
+              <span className={styles.cotizacionValor}>
+                1 USD = {tipoCambio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
+              </span>
+              <button
+                className={styles.cotizacionEditBtn}
+                onClick={() => {
+                  setTipoCambioInput(tipoCambio.toString());
+                  setEditandoCambio(true);
+                }}
+                disabled={!puedeEditarConfiguracion}
+                title={
+                  !puedeEditarConfiguracion ? 'Sin permisos para modificar configuración' : 'Modificar cotización'
+                }
+              >
+                <span className="material-icons">edit</span>
+                Modificar
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tabs */}
-      <div className={styles.tabsBar}>
-        <button
-          className={`${styles.tab} ${activeTab === 'ventas' ? styles.tabActivo : ''}`}
-          onClick={() => setActiveTab('ventas')}
-        >
-          <span className="material-icons">receipt_long</span>
-          Ventas
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'envios' ? styles.tabActivo : ''}`}
-          onClick={() => setActiveTab('envios')}
-          disabled={!puedeVerEnvios}
-          title={!puedeVerEnvios ? 'Sin permisos para ver envíos' : undefined}
-        >
-          <span className="material-icons">local_shipping</span>
-          Envíos a domicilio
-          {puedeVerEnvios && enviosPendientes > 0 && <span className={styles.tabBadge}>{enviosPendientes}</span>}
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'retiros' ? styles.tabActivo : ''}`}
-          onClick={() => setActiveTab('retiros')}
-          disabled={!puedeVerRetiros}
-          title={!puedeVerRetiros ? 'Sin permisos para ver retiros' : undefined}
-        >
-          <span className="material-icons">store</span>
-          Retiro en tienda
-          {puedeVerRetiros && retirosPendientes > 0 && <span className={styles.tabBadge}>{retirosPendientes}</span>}
-        </button>
-      </div>
+      <AdminTabs 
+        tabs={ventasTabs} 
+        activeTab={activeTab} 
+        onChange={(id) => setActiveTab(id as any)} 
+        hasMarginTop={true}
+      />
 
       {activeTab === 'envios' && puedeVerEnvios && (
-        <GestionEnvios onPendientesChange={setEnviosPendientes} puedeGestionar={puedeGestionarEnvios} />
+        <GestionEnvios onPendientesChange={setEnviosPendientes} />
       )}
 
       {activeTab === 'retiros' && puedeVerRetiros && (
-        <GestionRetiros onPendientesChange={setRetirosPendientes} puedeGestionar={puedeGestionarRetiros} />
+        <GestionRetiros onPendientesChange={setRetirosPendientes} />
       )}
 
       {activeTab === 'ventas' && (
         <>
-          {/* Cotización del dólar */}
-          {puedeVerConfiguracion && (
-            <div className={styles.cotizacionCard}>
-              <div className={styles.cotizacionHeader}>
-                <span className="material-icons">attach_money</span>
-                <span className={styles.cotizacionTitle}>Cotización USD</span>
-                {tipoCambioFecha && (
-                  <span className={styles.cotizacionFecha}>
-                    Actualizada:{' '}
-                    {new Date(tipoCambioFecha).toLocaleString('es-AR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                )}
-              </div>
-
-              {editandoCambio ? (
-                <div className={styles.cotizacionEdit}>
-                  <span className={styles.cotizacionPrefix}>1 USD =</span>
-                  <input
-                    type="number"
-                    min={1}
-                    step={0.01}
-                    className={styles.cotizacionInput}
-                    value={tipoCambioInput}
-                    onChange={(e) => setTipoCambioInput(e.target.value)}
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') guardarCambio();
-                      if (e.key === 'Escape') setEditandoCambio(false);
-                    }}
-                  />
-                  <span className={styles.cotizacionSuffix}>ARS</span>
-                  <button className={styles.cotizacionSave} onClick={guardarCambio} disabled={guardandoCambio}>
-                    <span className="material-icons">{guardandoCambio ? 'hourglass_empty' : 'check'}</span>
-                  </button>
-                  <button className={styles.cotizacionCancel} onClick={() => setEditandoCambio(false)}>
-                    <span className="material-icons">close</span>
-                  </button>
-                </div>
-              ) : (
-                <div className={styles.cotizacionDisplay}>
-                  <span className={styles.cotizacionValor}>
-                    1 USD = {tipoCambio.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS
-                  </span>
-                  <button
-                    className={styles.cotizacionEditBtn}
-                    onClick={() => {
-                      setTipoCambioInput(tipoCambio.toString());
-                      setEditandoCambio(true);
-                    }}
-                    disabled={!puedeEditarConfiguracion}
-                    title={
-                      !puedeEditarConfiguracion ? 'Sin permisos para modificar configuración' : 'Modificar cotización'
-                    }
-                  >
-                    <span className="material-icons">edit</span>
-                    Modificar
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Barra de filtros */}
-          <div className={styles.filterBar}>
-            {/* Fila 1: fechas, estado, tipo, método de pago */}
-            <div className={styles.filterRow}>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Desde</label>
+          {/* Filtros Premium de 2 Filas - Usando Sistema Global */}
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row variant="top">
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Desde</AdminFilterPanel.Label>
                 <input
                   type="date"
-                  className={styles.filterInput}
+                  className={controlStyles.field}
                   value={filtros.fecha_inicio || ''}
                   onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
                 />
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Hasta</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Hasta</AdminFilterPanel.Label>
                 <input
                   type="date"
-                  className={styles.filterInput}
+                  className={controlStyles.field}
                   value={filtros.fecha_fin || ''}
                   onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
                 />
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Tipo</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Vendedor</AdminFilterPanel.Label>
                 <select
-                  className={styles.filterSelect}
-                  value={filtros.tipo_venta || ''}
-                  onChange={(e) =>
-                    setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  <option value="web">Web</option>
-                  <option value="manual">Manual</option>
-                </select>
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Vendedor</label>
-                <select
-                  className={styles.filterSelect}
+                  className={controlStyles.field}
                   value={filtros.id_vendedor || ''}
                   onChange={(e) =>
                     setFiltros((prev) => ({ ...prev, id_vendedor: e.target.value ? parseInt(e.target.value) : '' }))
@@ -729,11 +534,11 @@ const GestionVentas: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Estado</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
                 <select
-                  className={styles.filterSelect}
+                  className={controlStyles.field}
                   value={filtros.estado || ''}
                   onChange={(e) =>
                     setFiltros((prev) => ({ ...prev, estado: e.target.value as FiltrosVentasAdmin['estado'] }))
@@ -744,11 +549,25 @@ const GestionVentas: React.FC = () => {
                   <option value="cancelada">Cancelada</option>
                   <option value="pendiente">Pendiente</option>
                 </select>
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Método pago</label>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Tipo</AdminFilterPanel.Label>
                 <select
-                  className={styles.filterSelect}
+                  className={controlStyles.field}
+                  value={filtros.tipo_venta || ''}
+                  onChange={(e) =>
+                    setFiltros((prev) => ({ ...prev, tipo_venta: e.target.value as FiltrosVentasAdmin['tipo_venta'] }))
+                  }
+                >
+                  <option value="">Todos</option>
+                  <option value="web">Web</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Método pago</AdminFilterPanel.Label>
+                <select
+                  className={controlStyles.field}
                   value={filtros.metodo_pago || ''}
                   onChange={(e) =>
                     setFiltros((prev) => ({
@@ -763,30 +582,33 @@ const GestionVentas: React.FC = () => {
                   <option value="transferencia">Transferencia</option>
                   <option value="qr">QR</option>
                 </select>
-              </div>
-            </div>
+              </AdminFilterPanel.Group>
+            </AdminFilterPanel.Row>
 
-            {/* Fila 2: búsqueda + acciones */}
-            <div className={styles.filterRow}>
-              <div className={`${styles.filterGroup} ${styles.filterGroupWide}`}>
-                <label className={styles.filterLabel}>Búsqueda</label>
-                <AdminSearch
-                  value={filtros.search || ''}
-                  placeholder="N° venta, cliente..."
-                  onChange={(val) => {
+            <AdminFilterPanel.Row variant="bottom">
+              <AdminFilterPanel.Grow>
+                <AdminEntitySearchBar
+                  searchValue={filtros.search || ''}
+                  searchPlaceholder="N° venta, cliente..."
+                  onSearchChange={(val) => {
                     setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                    setOffset(0);
+                    setPagination(prev => ({ ...prev, pageIndex: 0 }));
                   }}
+                  searchLabel="Búsqueda"
+                  primaryActionLabel={puedeCrear ? 'Registrar Venta' : undefined}
+                  primaryActionIcon="add_box"
+                  onPrimaryAction={puedeCrear ? () => setMostrarRegistrar(true) : undefined}
+                  primaryActionHidden={!puedeCrear}
                 />
-              </div>
-              <div className={styles.filterActions}>
-                <button className={styles.clearButton} onClick={limpiarFiltros}>
-                  <span className="material-icons">clear</span>
-                  Limpiar
+              </AdminFilterPanel.Grow>
+              <AdminFilterPanel.Actions>
+                <button className={controlStyles.secondaryButton} onClick={limpiarFiltros}>
+                  <span className="material-icons">backspace</span>
+                  <span>Limpiar</span>
                 </button>
-              </div>
-            </div>
-          </div>
+              </AdminFilterPanel.Actions>
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
 
           {/* Tabla */}
           {cargando ? (
@@ -802,115 +624,54 @@ const GestionVentas: React.FC = () => {
               title="No pudimos cargar las ventas"
               message={error}
               actionLabel="Reintentar"
-              onAction={() => cargarVentas(filtros, offset)}
+              onAction={() => cargarVentas(filtros, pagination.pageIndex)}
               tone="danger"
               className={styles.errorState}
             />
           ) : (
-            <>
-              <div className={styles.tableWrapper}>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <table className={styles.table}>
-                    <thead>
-                      {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                            {headerGroup.headers.map(header => (
-                              <DraggableTableHeader 
-                                key={header.id} 
-                                header={header} 
-                              />
-                            ))}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.length === 0 ? (
-                        <tr>
-                          <td colSpan={10} className={styles.emptyMessage}>
-                            No hay ventas que coincidan con los filtros aplicados
-                          </td>
-                        </tr>
-                      ) : (
-                        table.getRowModel().rows.map((row) => (
-                          <tr key={row.id}>
-                            {row.getVisibleCells().map(cell => (
-                              <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-
-              {/* Paginación */}
-              {total > LIMIT && (
-                <div className={styles.pagination}>
-                  <span className={styles.paginationInfo}>
-                    Mostrando {offset + 1}–{Math.min(offset + LIMIT, total)} de {total}
-                  </span>
-                  <div className={styles.paginationControls}>
-                    <button
-                      className={styles.paginationButton}
-                      onClick={() => table.previousPage()}
-                      disabled={!table.getCanPreviousPage()}
-                    >
-                      <span className="material-icons">chevron_left</span>
-                      Anterior
-                    </button>
-                    <span className={styles.paginationPage}>
-                      {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-                    </span>
-                    <button
-                      className={styles.paginationButton}
-                      onClick={() => table.nextPage()}
-                      disabled={!table.getCanNextPage()}
-                    >
-                      Siguiente
-                      <span className="material-icons">chevron_right</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Modal detalle */}
-          {idDetalleAbierto !== null && (
-            <DetalleVentaModal
-              idVenta={idDetalleAbierto}
-              onClose={() => setIdDetalleAbierto(null)}
-              onCancelada={refreshTodo}
-            />
-          )}
-
-          {/* Modal registrar venta */}
-          {mostrarRegistrar && (
-            <RegistrarVentaModal
-              onClose={() => setMostrarRegistrar(false)}
-              onRegistrada={refreshTodo}
-              tipoCambioUsd={tipoCambio}
-            />
-          )}
-
-          {/* Modal cancelar venta (desde tabla) */}
-          {cancelacionModal && (
-            <CancelacionModal
-              idVenta={cancelacionModal.id}
-              nroVenta={cancelacionModal.nro}
-              onClose={() => setCancelacionModal(null)}
-              onCancelada={() => {
-                setCancelacionModal(null);
-                refreshTodo();
-              }}
+            <AdminDataTable
+              data={ventas}
+              columns={columns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={total}
+              itemLabel="ventas"
+              onRowClick={(row) => setIdDetalleAbierto(row.id_venta)}
+              isLoading={cargando}
+              emptyMessage="No hay ventas que coincidan con los filtros aplicados"
             />
           )}
         </>
+      )}
+
+      {/* Modales */}
+      {idDetalleAbierto && (
+        <DetalleVentaModal
+          idVenta={idDetalleAbierto}
+          onClose={() => setIdDetalleAbierto(null)}
+          onCancelada={refreshTodo}
+        />
+      )}
+
+      {mostrarRegistrar && (
+        <RegistrarVentaModal
+          tipoCambioUsd={tipoCambio}
+          onClose={() => setMostrarRegistrar(false)}
+          onRegistrada={refreshTodo}
+        />
+      )}
+
+      {cancelacionModal && (
+        <CancelacionModal
+          idVenta={cancelacionModal.id}
+          nroVenta={cancelacionModal.nro}
+          onClose={() => setCancelacionModal(null)}
+          onCancelada={refreshTodo}
+        />
       )}
     </div>
   );

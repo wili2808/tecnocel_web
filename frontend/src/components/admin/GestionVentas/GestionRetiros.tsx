@@ -2,36 +2,14 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminSearch } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminDataTable } from '../common';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef, PaginationState } from '@tanstack/react-table';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-const LIMIT = 20;
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
@@ -55,84 +33,36 @@ const getEstadoLabel = (estado: string): string => {
   return ESTADO_ENVIO_LABELS[estado as EstadoEnvio] ?? estado;
 };
 
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {flexRender(header.column.columnDef.header, header.getContext())}
-        </div>
-      </div>
-    </th>
-  );
-};
-
 interface GestionRetirosProps {
   onPendientesChange?: (count: number) => void;
-  puedeGestionar?: boolean;
 }
 
-const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange, puedeGestionar = true }) => {
+const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange }) => {
   const { showNotification } = useNotification();
 
   const [retiros, setRetiros] = useState<EnvioAdminListItem[]>([]);
   const [total, setTotal] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [offset, setOffset] = useState(0);
-
   const [filtros, setFiltros] = useState<Omit<FiltrosEnviosAdmin, 'tipo_entrega'>>({});
-
   const [retiroSeleccionado, setRetiroSeleccionado] = useState<EnvioAdminListItem | null>(null);
-
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nro_venta', 'cliente', 'fecha', 'estado', 'acciones'
+    'nro_venta', 'cliente', 'fecha', 'estado'
   ]);
-
-  const pagination = useMemo<PaginationState>(() => ({
-    pageIndex: Math.floor(offset / LIMIT),
-    pageSize: LIMIT,
-  }), [offset]);
-
-  const setPagination = useCallback((updater: any) => {
-    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
-    setOffset(nextPagination.pageIndex * LIMIT);
-  }, [pagination]);
 
   const cargandoRef = useRef(false);
 
   const cargarRetiros = useCallback(
-    async (f: Omit<FiltrosEnviosAdmin, 'tipo_entrega'>, off: number) => {
+    async (f: Omit<FiltrosEnviosAdmin, 'tipo_entrega'>, pag: PaginationState) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
-        const result = await envioAdminService.listarRetiros({ ...f, limit: LIMIT, offset: off });
+        const off = pag.pageIndex * pag.pageSize;
+        const result = await envioAdminService.listarRetiros({ ...f, limit: pag.pageSize, offset: off });
         setRetiros(result.data);
         setTotal(result.total);
 
@@ -158,19 +88,19 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   );
 
   useEffect(() => {
-    cargarRetiros(filtros, offset);
-  }, [filtros, offset, cargarRetiros]);
+    cargarRetiros(filtros, pagination);
+  }, [filtros, pagination, cargarRetiros]);
 
 
 
   const limpiarFiltros = () => {
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
     setFiltros({});
   };
 
   const handleEntregado = () => {
     setRetiroSeleccionado(null);
-    cargarRetiros(filtros, offset);
+    cargarRetiros(filtros, pagination);
   };
 
   // === Columnas TanStack ===
@@ -206,171 +136,89 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
         );
       },
     },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      cell: info => {
-        const retiro = info.row.original;
-        return (
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <button
-              className={retiro.estado_envio !== 'entregado' ? styles.btnPrimario : styles.btnSecundario}
-              onClick={() => setRetiroSeleccionado(retiro)}
-              disabled={retiro.estado_envio !== 'entregado' && !puedeGestionar}
-              title={
-                retiro.estado_envio !== 'entregado'
-                  ? !puedeGestionar
-                    ? 'Sin permisos para gestionar retiros'
-                    : 'Gestionar estado'
-                  : 'Ver detalle del retiro'
-              }
-            >
-              {retiro.estado_envio !== 'entregado' ? 'Gestionar' : 'Ver detalle'}
-            </button>
-          </div>
-        );
-      },
-    }
-  ], [puedeGestionar]);
+  ], []);
 
-  const table = useReactTable({
-    data: retiros,
-    columns,
-    pageCount: Math.ceil(total / LIMIT),
-    state: {
-      pagination,
-      columnOrder,
-    },
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    manualPagination: true,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   if (error) return <div className={styles.errorMsg}>{error}</div>;
 
   return (
     <div>
-      {/* Filtros */}
-      <div className={styles.filtrosBar}>
-        <select
-          value={filtros.estado_envio ?? ''}
-          onChange={(e) =>
-            setFiltros((prev) => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))
-          }
-          className={styles.filtroSelect}
-        >
-          <option value="">Todos los estados</option>
-          <option value="pendiente">{ESTADO_ENVIO_LABELS.pendiente}</option>
-          <option value="entregado">{ESTADO_ENVIO_LABELS.entregado}</option>
-        </select>
+      {/* Filtros - Usando Sistema Global */}
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="top">
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Desde</AdminFilterPanel.Label>
+              <input
+                type="date"
+                value={filtros.fecha_inicio ?? ''}
+                onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
+                className={controlStyles.field}
+              />
+          </AdminFilterPanel.Group>
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Hasta</AdminFilterPanel.Label>
+              <input
+                type="date"
+                value={filtros.fecha_fin ?? ''}
+                onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
+                className={controlStyles.field}
+              />
+          </AdminFilterPanel.Group>
+          <AdminFilterPanel.Group>
+            <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
+              <select
+                value={filtros.estado_envio ?? ''}
+                onChange={(e) =>
+                  setFiltros((prev) => ({ ...prev, estado_envio: (e.target.value as EstadoEnvio) || undefined }))
+                }
+                className={controlStyles.field}
+              >
+                <option value="">Todos los estados</option>
+                <option value="pendiente">{ESTADO_ENVIO_LABELS.pendiente}</option>
+                <option value="entregado">{ESTADO_ENVIO_LABELS.entregado}</option>
+              </select>
+          </AdminFilterPanel.Group>
+        </AdminFilterPanel.Row>
 
-        <AdminSearch
-          value={filtros.search || ''}
-          placeholder="Buscar por nro. venta o cliente..."
-          onChange={(val) => {
-            setFiltros((prev) => ({ ...prev, search: val || undefined }));
-            setOffset(0);
-          }}
-        />
-
-        <input
-          type="date"
-          value={filtros.fecha_inicio ?? ''}
-          onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }))}
-          className={styles.filtroFecha}
-        />
-        <input
-          type="date"
-          value={filtros.fecha_fin ?? ''}
-          onChange={(e) => setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }))}
-          className={styles.filtroFecha}
-        />
-
-        <button onClick={limpiarFiltros} className={styles.btnLimpiar}>
-          Limpiar
-        </button>
-      </div>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={filtros.search || ''}
+              searchPlaceholder="Buscar por nro. venta o cliente..."
+              onSearchChange={(val) => {
+                setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
+              }}
+              searchLabel="Búsqueda"
+              primaryActionHidden
+            />
+          </AdminFilterPanel.Grow>
+          <AdminFilterPanel.Actions>
+            <button onClick={limpiarFiltros} className={controlStyles.secondaryButton}>
+              <span className="material-icons">backspace</span>
+              <span>Limpiar</span>
+            </button>
+          </AdminFilterPanel.Actions>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
       {/* Tabla */}
-      {cargando ? (
-        <div className={styles.loadingMsg}>Cargando retiros...</div>
-      ) : retiros.length === 0 ? (
-        <div className={styles.emptyMsg}>No se encontraron pedidos de retiro en tienda.</div>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.tabla}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                        />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </DndContext>
-        </div>
-      )}
-
-      {/* Paginación */}
-      {total > LIMIT && (
-        <div className={styles.paginacion}>
-          <span>
-            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()} ({total} retiros)
-          </span>
-          <div className={styles.paginacionBtns}>
-            <button
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
-              className={styles.btnPag}
-            >
-              ← Anterior
-            </button>
-            <button
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.nextPage()}
-              className={styles.btnPag}
-            >
-              Siguiente →
-            </button>
-          </div>
-        </div>
-      )}
+        <AdminDataTable
+          data={retiros}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="retiros"
+          onRowClick={(row) => setRetiroSeleccionado(row)}
+          isLoading={cargando}
+          manualPagination={true}
+          emptyMessage="No se encontraron pedidos de retiro en tienda."
+        />
 
       {/* Modal */}
       {retiroSeleccionado && (

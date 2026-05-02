@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import styles from './GestionVentas.module.css';
 import type { EnvioAdminListItem, EnvioAdminDetalle } from '../../../types/envio';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+
+import styles from './VentaModals.module.css';
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
@@ -66,149 +68,162 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`${styles.modal} ${styles.modalLarge}`}>
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">store</span>
-            Retiro en tienda #{retiro.nro_venta}
-            <span
-              className={`${styles.estadoBadge} ${retiro.estado_envio === 'entregado' ? styles.estadoEntregado : styles.estadoPendiente}`}
-            >
-              {(retiro.estado_envio as string) === 'no_aplica'
-                ? ESTADO_ENVIO_LABELS.pendiente
-                : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
-            </span>
-          </h2>
-          <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
-            <span className="material-icons" style={{ fontSize: 18 }}>
-              close
-            </span>
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className={styles.modalBody}>
-          {cargando ? (
-            <div className={styles.loadingMsg}>Cargando detalle...</div>
-          ) : detalle ? (
-            <>
-              {/* Info del cliente y venta */}
-              <div className={styles.detalleGrid}>
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Cliente</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Nombre</span>
-                    <span className={styles.detalleRowValue}>{detalle.nombre_cliente ?? '—'}</span>
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title={`Retiro en tienda #${retiro.nro_venta}`}
+      icon="store"
+      maxWidth="1000px"
+      headerChildren={
+        <span
+          className={`modalBadgePremium ${retiro.estado_envio === 'entregado' ? 'success' : 'neutral'} ${styles.headerBadge}`}
+        >
+          {(retiro.estado_envio as string) === 'no_aplica'
+            ? ESTADO_ENVIO_LABELS.pendiente
+            : ESTADO_ENVIO_LABELS[retiro.estado_envio]}
+        </span>
+      }
+    >
+      <div className="modalBodyPremium p-0">
+        {cargando ? (
+          <div className="modalLoadingPremium">
+            <span className="material-icons">hourglass_empty</span>
+            <p>Cargando detalles del retiro...</p>
+          </div>
+        ) : detalle ? (
+          <div className="p-xl">
+            <div className="modalGrid2Premium mb-6">
+              
+              {/* Card Cliente */}
+              <div className={styles.infoCard}>
+                <h4 className={styles.sectionTitle}>Información del Cliente</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Nombre Completo</span>
+                      <span className="text-sm font-bold">{detalle.nombre_cliente ?? '—'}</span>
+                    </div>
                   </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Email</span>
-                    <span className={styles.detalleRowValue}>{detalle.email_cliente ?? '—'}</span>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Email de Contacto</span>
+                      <span className="text-sm font-bold text-primary" style={{ wordBreak: 'break-all' }}>{detalle.email_cliente ?? '—'}</span>
+                    </div>
                   </div>
                   {detalle.envio_telefono_contacto && (
-                    <div className={styles.detalleRow}>
-                      <span className={styles.detalleRowLabel}>Teléfono</span>
-                      <span className={styles.detalleRowValue}>{detalle.envio_telefono_contacto}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.detalleSection}>
-                  <h3 className={styles.detalleSectionTitle}>Datos de la venta</h3>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Fecha</span>
-                    <span className={styles.detalleRowValue}>{formatFecha(detalle.fyh_venta)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Total</span>
-                    <span className={styles.detalleRowValue}>{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
-                  </div>
-                  <div className={styles.detalleRow}>
-                    <span className={styles.detalleRowLabel}>Pago</span>
-                    <span className={styles.detalleRowValue}>{detalle.metodo_pago}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Productos */}
-              <h4 className={styles.itemsTitle}>Productos del pedido</h4>
-              <table className={styles.itemsTable}>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th className={styles.textRight}>Cant.</th>
-                    <th className={styles.textRight}>Precio unit.</th>
-                    <th className={styles.textRight}>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detalle.items.map((item, i) => (
-                    <tr key={i}>
-                      <td>{item.nombre_producto}</td>
-                      <td className={styles.textRight}>{item.cantidad}</td>
-                      <td className={styles.textRight}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                      <td className={styles.textRight}>
-                        {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr className={styles.totalRow}>
-                    <td colSpan={3}>
-                      <strong>Total</strong>
-                    </td>
-                    <td className={styles.textRight}>
-                      <strong>{formatMoneda(detalle.total_pagado, detalle.moneda)}</strong>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* Panel de acción */}
-              {!esEntregado && (
-                <div className={styles.envioAccionPanel}>
-                  {!confirmando ? (
-                    <button className={styles.submitButton} onClick={() => setConfirmando(true)}>
-                      <span className="material-icons" style={{ fontSize: 16 }}>
-                        check_circle
-                      </span>
-                      Marcar como Entregado
-                    </button>
-                  ) : (
-                    <div className={styles.envioConfirmar}>
-                      <p className={styles.envioConfirmarTitulo}>
-                        ¿Confirmás que el cliente retiró el pedido <strong>#{retiro.nro_venta}</strong>?
-                      </p>
-                      <div className={styles.envioConfirmarBtns}>
-                        <button
-                          className={styles.cancelButton}
-                          onClick={() => setConfirmando(false)}
-                          disabled={guardando}
-                        >
-                          Cancelar
-                        </button>
-                        <button className={styles.submitButton} onClick={handleMarcarEntregado} disabled={guardando}>
-                          {guardando ? 'Guardando...' : 'Confirmar entrega'}
-                        </button>
+                    <div className="modalInfoBoxPremium">
+                      <div className="flex flex-col w-full">
+                        <span className="text-xxs text-secondary uppercase font-bold">Teléfono</span>
+                        <span className="text-sm font-bold">{detalle.envio_telefono_contacto}</span>
                       </div>
                     </div>
                   )}
                 </div>
-              )}
-            </>
-          ) : (
-            <div className={styles.errorMsg}>No se pudo cargar el detalle del retiro.</div>
-          )}
-        </div>
+              </div>
 
-        {/* Footer */}
-        <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
-            Cerrar
-          </button>
-        </div>
+              {/* Card Operación */}
+              <div className={styles.infoCard}>
+                <h4 className={styles.sectionTitle}>Datos de la Operación</h4>
+                <div className="flex flex-col gap-sm mt-2">
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Fecha de la Venta</span>
+                      <span className="text-sm font-bold">{formatFecha(detalle.fyh_venta)}</span>
+                    </div>
+                  </div>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Total Pagado</span>
+                      <span className="text-lg font-bold text-primary">{formatMoneda(detalle.total_pagado, detalle.moneda)}</span>
+                    </div>
+                  </div>
+                  <div className="modalInfoBoxPremium">
+                    <div className="flex flex-col w-full">
+                      <span className="text-xxs text-secondary uppercase font-bold">Método de Pago</span>
+                      <span className="text-sm font-bold" style={{ textTransform: 'capitalize' }}>{detalle.metodo_pago}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Productos */}
+            <div className="mb-6">
+              <h4 className={styles.sectionTitle}>Productos del pedido</h4>
+              <div className="modalTableWrapperPremium mt-2">
+                <table className="modalTablePremium">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th style={{ textAlign: 'right' }}>Cant.</th>
+                      <th style={{ textAlign: 'right' }}>Precio unit.</th>
+                      <th style={{ textAlign: 'right' }}>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalle.items.map((item, i) => (
+                      <tr key={i}>
+                        <td className="font-bold">{item.nombre_producto}</td>
+                        <td style={{ textAlign: 'right' }}>{item.cantidad}</td>
+                        <td style={{ textAlign: 'right' }}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
+                        <td className="text-right font-bold text-primary">
+                          {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Panel de acción */}
+            {!esEntregado && (
+              <div className={styles.managementPanel}>
+                {!confirmando ? (
+                  <button className={`btnPremium btnPrimaryPremium ${styles.fullWidthBtn}`} onClick={() => setConfirmando(true)}>
+                    <span className="material-icons">check_circle</span>
+                    Marcar como Entregado
+                  </button>
+                ) : (
+                  <div className="animate-fade-in">
+                    <p className={styles.managementTitle}>
+                      ¿Confirmás que el cliente retiró el pedido <span className="text-primary">#{retiro.nro_venta}</span>?
+                    </p>
+                    <div className={styles.actionButtons}>
+                      <button
+                        className={`btnPremium btnSecondaryPremium ${styles.flex1}`}
+                        onClick={() => setConfirmando(false)}
+                        disabled={guardando}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        className={`btnPremium btnPrimaryPremium ${styles.flex1}`} 
+                        onClick={handleMarcarEntregado} 
+                        disabled={guardando}
+                      >
+                        {guardando ? 'Guardando...' : 'Confirmar Entrega'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="modalLoadingPremium" style={{ color: 'var(--color-error)' }}>
+            <span className="material-icons" style={{ animation: 'none' }}>error_outline</span>
+            <p>No se pudo cargar el detalle del retiro.</p>
+          </div>
+        )}
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </PremiumModal>
   );
 };
 

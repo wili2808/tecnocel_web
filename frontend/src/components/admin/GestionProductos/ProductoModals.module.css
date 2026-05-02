@@ -1,0 +1,247 @@
+/* ============================================================================
+   PRODUCTO MODALS - Estilos compartidos para Productos, Categorías, Marcas y Specs
+   ============================================================================ */
+
+/* --- GENERAL & UTILS --- */
+
+.deleteConfirmBody {
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.deleteConfirmTitle {
+  color: var(--color-error);
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+}
+
+.deleteMessage {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.deleteMessage strong {
+  color: var(--text-primary);
+}
+
+/* --- PRODUCTO MODAL SPECIFIC --- */
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.galleryHint {
+  margin-bottom: var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.starIcon {
+  font-size: 14px;
+  vertical-align: middle;
+  color: var(--color-warning);
+}
+
+/* --- FICHA TÉCNICA / ESPECIFICACIONES --- */
+
+.specsSearchContainer {
+  margin-bottom: var(--spacing-lg);
+}
+
+.specsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.specCard {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+.specCardActive {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  background: var(--background-primary);
+}
+
+.booleanGroup {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.booleanBtn {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.booleanBtnActivePrimary {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.booleanBtnActiveDanger {
+  background: var(--color-error);
+  color: white;
+  border-color: var(--color-error);
+}
+
+/* --- CARACTERÍSTICAS (TAGS) --- */
+
+.selectionGroup {
+  margin-top: var(--spacing-md);
+}
+
+.selectionInputContainer {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.addBtn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.addBtn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.addBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  min-height: 42px;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--background-primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.removeTagBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+}
+
+.removeTagBtn:hover {
+  color: white;
+}
+
+/* --- MARCAS (LOGO UPLOAD) --- */
+
+.logoUploadContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.logoPreviewWrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--border-radius-lg);
+  background: var(--background-neutral);
+  border: 2px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.logoPreviewWrapper:hover {
+  border-color: var(--color-primary);
+}
+
+.logoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.logoPlaceholder {
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.logoEditBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--color-primary);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.logoEditBtn:hover {
+  transform: scale(1.1);
+  background: var(--color-primary-dark);
+}
+
+/* --- RESPONSIVE --- */
+
+@media (max-width: 600px) {
+  .specsGrid {
+    grid-template-columns: 1fr;
+  }
+}

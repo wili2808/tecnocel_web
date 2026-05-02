@@ -1,0 +1,100 @@
+/* ============================================================================
+   CLIENTE MODALS - Estilos compartidos para Crear, Editar y Detalle
+   ============================================================================ */
+
+.infoBox {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  margin-top: var(--spacing-xl);
+}
+
+.icon {
+  color: var(--color-primary);
+  font-size: 24px;
+}
+
+.text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* --- TOGGLES --- */
+
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toggleRow:last-child {
+  border-bottom: none;
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.toggleDesc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--background-neutral);
+  border: 1.5px solid var(--border-color);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggleOn {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 17px;
+  height: 17px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggleOn .toggleKnob {
+  transform: translateX(20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle, .toggleKnob {
+    transition: none !important;
+  }
+}

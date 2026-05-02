@@ -3,87 +3,35 @@ import adminCompraService from '../../../services/adminCompraService';
 import reporteService from '../../../services/reporteService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminStatCard, AdminSearch } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminMetricsStrip,
+  AdminDataTable,
+  AdminTabs,
+} from '../common';
+import type { AdminTabConfig } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
-import AnularCompraModal from './AnularCompraModal';
 import styles from './GestionCompras.module.css';
+import controlStyles from '../common/AdminControlStyles.module.css';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
 // Componentes que requieren lazy loading (más adelante)
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
 const GestionProveedores = React.lazy(() => import('./GestionProveedores'));
 
-const LIMIT = 20;
+const LIMIT = 10;
 
 type TabType = 'compras' | 'proveedores' | 'stock';
-
-// Componente para cabeceras arrastrables (sin sorting, dado que la paginación es del lado del servidor y no hay sorting implementado backend)
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {flexRender(header.column.columnDef.header, header.getContext())}
-        </div>
-      </div>
-    </th>
-  );
-};
 
 const GestionCompras: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_compras');
   const puedeCrear = tienePermiso('crear_compra');
-  const puedeEditar = tienePermiso('editar_compra');
   const { showNotification } = useNotification();
 
   // === Estado principal ===
@@ -103,21 +51,16 @@ const GestionCompras: React.FC = memo(() => {
   const [filtros, setFiltros] = useState<FiltrosComprasAdmin>({});
 
   // === Paginación y TanStack (Compras) ===
-  const [offset, setOffset] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [total, setTotal] = useState(0);
+  const [stockPagination, setStockPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   
-  const pagination = useMemo<PaginationState>(() => ({
-    pageIndex: Math.floor(offset / LIMIT),
-    pageSize: LIMIT,
-  }), [offset]);
-
-  const setPagination = useCallback((updater: any) => {
-    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
-    setOffset(nextPagination.pageIndex * LIMIT);
-  }, [pagination]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [stockSorting, setStockSorting] = useState<SortingState>([]);
+  const [stockSearchTerm, setStockSearchTerm] = useState('');
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado', 'acciones'
+    'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado'
   ]);
 
   const [stockColumnOrder, setStockColumnOrder] = useState<string[]>([
@@ -127,7 +70,6 @@ const GestionCompras: React.FC = memo(() => {
   // === Modales ===
   const [idDetalleAbierto, setIdDetalleAbierto] = useState<number | null>(null);
   const [mostrarRegistrar, setMostrarRegistrar] = useState(false);
-  const [anularModal, setAnularModal] = useState<{ id: number; nro: string } | null>(null);
 
   // === Refs ===
   const cargandoRef = useRef(false);
@@ -161,7 +103,8 @@ const GestionCompras: React.FC = memo(() => {
     try {
       setCargando(true);
       setError(null);
-      const response = await adminCompraService.listarCompras(filtros, LIMIT, offset);
+      const off = pagination.pageIndex * pagination.pageSize;
+      const response = await adminCompraService.listarCompras(filtros, pagination.pageSize, off);
 
       setCompras(response.data);
       setTotal(response.total);
@@ -172,7 +115,7 @@ const GestionCompras: React.FC = memo(() => {
       setCargando(false);
       cargandoRef.current = false;
     }
-  }, [filtros, offset]);
+  }, [filtros, pagination]);
 
   // === Efectos ===
   useEffect(() => {
@@ -191,14 +134,13 @@ const GestionCompras: React.FC = memo(() => {
     setMostrarRegistrar(false);
     setSeleccionados(new Set());
     setStockParaCompra([]);
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
     cargarCompras();
     cargarStats();
   };
 
   const handleAnulada = () => {
-    setAnularModal(null);
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
     cargarCompras();
     cargarStats();
     showNotification('Compra anulada exitosamente', 'success');
@@ -206,8 +148,39 @@ const GestionCompras: React.FC = memo(() => {
 
   const handleLimpiarFiltros = () => {
     setFiltros({});
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
+
+  const statsItems = useMemo(() => {
+    if (!stats) return [];
+
+    const stockTone: 'danger' | 'success' = stockBajo.length > 0 ? 'danger' : 'success';
+
+    return [
+      {
+        icon: 'today',
+        label: 'Hoy',
+        value: stats.compras_hoy,
+      },
+      {
+        icon: 'attach_money',
+        label: 'Gasto del mes',
+        value: `$${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}`,
+        tone: 'warning' as const,
+      },
+      {
+        icon: 'warning',
+        label: 'Stock Bajo',
+        value: stockBajo.length,
+        tone: stockTone,
+      },
+      {
+        icon: 'local_shipping',
+        label: 'Proveedores',
+        value: 'Activos',
+      },
+    ];
+  }, [stats, stockBajo.length]);
 
   // === Columnas TanStack para Compras ===
   const comprasColumns = useMemo<ColumnDef<CompraListItem>[]>(() => [
@@ -271,55 +244,19 @@ const GestionCompras: React.FC = memo(() => {
           </span>
         );
       },
-    },
-    {
-      id: 'acciones',
-      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Acciones</div>,
-      cell: info => {
-        const compra = info.row.original;
-        return (
-          <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
-            <button
-              className={styles.actionBtn}
-              title="Ver detalle"
-              onClick={() => setIdDetalleAbierto(compra.id_compra)}
-            >
-              <span className="material-icons">visibility</span>
-            </button>
-            {compra.estado === 'activa' && puedeEditar && (
-              <button
-                className={styles.actionBtn}
-                title="Anular"
-                onClick={() => setAnularModal({ id: compra.id_compra, nro: compra.nro_compra })}
-              >
-                <span className="material-icons">delete</span>
-              </button>
-            )}
-          </div>
-        );
-      },
     }
-  ], [puedeEditar]);
+  ], []);
 
-  const comprasTable = useReactTable({
-    data: compras,
-    columns: comprasColumns,
-    pageCount: Math.ceil(total / LIMIT),
-    state: {
-      pagination,
-      columnOrder,
-    },
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    manualPagination: true,
-    getCoreRowModel: getCoreRowModel(),
-  });
 
   // === Helpers de selección de stock bajo ===
   const toggleSeleccion = useCallback((p: ProductoStockBajo) => {
     setSeleccionados((prev) => {
       const next = new Set(prev);
-      next.has(p.id_producto) ? next.delete(p.id_producto) : next.add(p.id_producto);
+      if (next.has(p.id_producto)) {
+        next.delete(p.id_producto);
+      } else {
+        next.add(p.id_producto);
+      }
       return next;
     });
   }, []);
@@ -337,6 +274,15 @@ const GestionCompras: React.FC = memo(() => {
     setStockParaCompra(lista);
     setMostrarRegistrar(true);
   }, [seleccionados, stockBajo]);
+
+  const stockFiltrado = useMemo(() => {
+    if (!stockSearchTerm) return stockBajo;
+    const lower = stockSearchTerm.toLowerCase();
+    return stockBajo.filter(p => 
+      p.nombre.toLowerCase().includes(lower) || 
+      (p.codigo && p.codigo.toLowerCase().includes(lower))
+    );
+  }, [stockBajo, stockSearchTerm]);
 
   // === Columnas TanStack para Stock ===
   const stockColumns = useMemo<ColumnDef<ProductoStockBajo>[]>(() => [
@@ -440,40 +386,6 @@ const GestionCompras: React.FC = memo(() => {
     },
   ], [seleccionados, stockBajo, puedeCrear, toggleSeleccion, toggleTodos, abrirCompraConSeleccion]);
 
-  const stockTable = useReactTable({
-    data: stockBajo,
-    columns: stockColumns,
-    state: { columnOrder: stockColumnOrder },
-    onColumnOrderChange: setStockColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEndCompras = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const handleDragEndStock = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setStockColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
 
   // === Render ===
@@ -490,154 +402,111 @@ const GestionCompras: React.FC = memo(() => {
     );
   }
 
+  const comprasTabs = useMemo<AdminTabConfig[]>(() => [
+    { id: 'compras', icon: 'receipt_long', label: 'Compras' },
+    { id: 'proveedores', icon: 'business', label: 'Proveedores' },
+    { id: 'stock', icon: 'warning', label: 'Stock Bajo', badge: stockBajo.length > 0 ? stockBajo.length : undefined },
+  ], [stockBajo.length]);
+
   return (
     <div className={styles.container}>
-      <AdminSectionActions
-        lead={null}
-        actions={
-          puedeCrear ? (
-            <button className={styles.crearButton} onClick={() => setMostrarRegistrar(true)} disabled={cargando}>
-              <span className="material-icons">add</span>
-              Nueva Compra
-            </button>
-          ) : null
-        }
-      />
-
       {/* Estadísticas */}
       {stats ? (
-        <div className={styles.statsBar}>
-          <AdminStatCard
-            icon="today"
-            label="Hoy"
-            value={stats.compras_hoy}
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="attach_money"
-            label="Gasto del mes"
-            value={`$${parseFloat(stats.gasto_mes).toLocaleString('es-AR')}`}
-            tone="warning"
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="warning"
-            label="Stock Bajo"
-            value={stockBajo.length}
-            tone={stockBajo.length > 0 ? 'danger' : 'success'}
-            variant="flush"
-            className={styles.statCard}
-          />
-          <AdminStatCard
-            icon="local_shipping"
-            label="Proveedores"
-            value="Activos"
-            variant="flush"
-            className={styles.statCard}
-          />
-        </div>
+        <AdminMetricsStrip
+          items={statsItems}
+          className={styles.statsBar}
+          itemClassName={styles.statCard}
+        />
       ) : (
         <div className={styles.statsLoading} />
       )}
 
       {/* Tabs */}
-      <div className={styles.tabsBar}>
-        <button
-          className={`${styles.tab} ${activeTab === 'compras' ? styles.tabActive : ''}`}
-          onClick={() => {
-            setActiveTab('compras');
-            setOffset(0);
-          }}
-        >
-          <span className="material-icons">receipt_long</span>
-          Compras
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'proveedores' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('proveedores')}
-        >
-          <span className="material-icons">business</span>
-          Proveedores
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'stock' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('stock')}
-        >
-          <span className="material-icons">warning</span>
-          Stock Bajo
-          {stockBajo.length > 0 && <span className={styles.tabBadge}>{stockBajo.length}</span>}
-        </button>
-      </div>
+      <AdminTabs 
+        tabs={comprasTabs} 
+        activeTab={activeTab} 
+        onChange={(id) => {
+          setActiveTab(id as TabType);
+          if (id === 'compras') setPagination(prev => ({ ...prev, pageIndex: 0 }));
+        }}
+        hasMarginTop={true}
+      />
 
       {/* Tab: Compras */}
       {activeTab === 'compras' && (
         <>
-          {/* Filtros */}
-          <div className={styles.filterBar}>
-            <div className={styles.filterRow}>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Fecha Desde</label>
-                <input
-                  type="date"
-                  className={styles.filterInput}
-                  value={filtros.fecha_inicio || ''}
-                  onChange={(e) => {
-                    setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }));
-                    setOffset(0);
-                  }}
-                />
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Fecha Hasta</label>
-                <input
-                  type="date"
-                  className={styles.filterInput}
-                  value={filtros.fecha_fin || ''}
-                  onChange={(e) => {
-                    setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }));
-                    setOffset(0);
-                  }}
-                />
-              </div>
-              <div className={styles.filterGroup}>
-                <label className={styles.filterLabel}>Estado</label>
-                <select
-                  className={styles.filterSelect}
-                  value={filtros.estado || ''}
-                  onChange={(e) => {
-                    setFiltros((prev) => ({
-                      ...prev,
-                      estado: (e.target.value as 'activa' | 'anulada') || undefined,
-                    }));
-                    setOffset(0);
-                  }}
-                >
-                  <option value="">Todas</option>
-                  <option value="activa">Activa</option>
-                  <option value="anulada">Anulada</option>
-                </select>
-              </div>
-              <div className={styles.filterGroupWide}>
-                <label className={styles.filterLabel}>Buscar (Nro. Compra)</label>
-                <AdminSearch
-                  value={filtros.search || ''}
-                  placeholder="Ej: C-00001 o nombre proveedor"
-                  onChange={(val) => {
-                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                    setOffset(0);
-                  }}
-                />
-              </div>
-              <button className={styles.clearButton} onClick={handleLimpiarFiltros}>
-                <span className="material-icons">clear</span>
-                Limpiar
-              </button>
-            </div>
-          </div>
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row variant="top">
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Fecha Desde</AdminFilterPanel.Label>
+                  <input
+                    type="date"
+                    className={controlStyles.field}
+                    value={filtros.fecha_inicio || ''}
+                    onChange={(e) => {
+                      setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }));
+                      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+                    }}
+                  />
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Fecha Hasta</AdminFilterPanel.Label>
+                  <input
+                    type="date"
+                    className={controlStyles.field}
+                    value={filtros.fecha_fin || ''}
+                    onChange={(e) => {
+                      setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }));
+                      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+                    }}
+                  />
+              </AdminFilterPanel.Group>
+              <AdminFilterPanel.Group>
+                <AdminFilterPanel.Label>Estado</AdminFilterPanel.Label>
+                  <select
+                    className={controlStyles.field}
+                    value={filtros.estado || ''}
+                    onChange={(e) => {
+                      setFiltros((prev) => ({
+                        ...prev,
+                        estado: (e.target.value as 'activa' | 'anulada') || undefined,
+                      }));
+                      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+                    }}
+                  >
+                    <option value="">Todas</option>
+                    <option value="activa">Activa</option>
+                    <option value="anulada">Anulada</option>
+                  </select>
+              </AdminFilterPanel.Group>
+            </AdminFilterPanel.Row>
 
-          {/* Tabla */}
+            <AdminFilterPanel.Row variant="bottom">
+              <AdminFilterPanel.Grow>
+                <AdminEntitySearchBar
+                  searchValue={filtros.search || ''}
+                  searchPlaceholder="Ej: C-00001 o nombre proveedor"
+                  onSearchChange={(val) => {
+                    setFiltros((prev) => ({ ...prev, search: val || undefined }));
+                    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+                  }}
+                  searchLabel="Búsqueda"
+                  primaryActionLabel={puedeCrear ? 'Nueva Compra' : undefined}
+                  primaryActionIcon="add_box"
+                  onPrimaryAction={puedeCrear ? () => setMostrarRegistrar(true) : undefined}
+                  primaryActionDisabled={cargando}
+                  primaryActionHidden={!puedeCrear}
+                />
+              </AdminFilterPanel.Grow>
+              <AdminFilterPanel.Actions>
+                <button className={controlStyles.secondaryButton} onClick={handleLimpiarFiltros}>
+                  <span className="material-icons">backspace</span>
+                  <span>Limpiar</span>
+                </button>
+              </AdminFilterPanel.Actions>
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
+
           {error ? (
             <AdminEmptyState
               icon="error_outline"
@@ -663,63 +532,21 @@ const GestionCompras: React.FC = memo(() => {
               className={styles.loadingState}
             />
           ) : (
-            <>
-              <div className={styles.tableWrapper}>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCompras}>
-                  <table className={styles.table}>
-                    <thead>
-                      {comprasTable.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                            {headerGroup.headers.map(header => (
-                              <DraggableTableHeader 
-                                key={header.id} 
-                                header={header} 
-                              />
-                            ))}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {comprasTable.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                          {row.getVisibleCells().map(cell => (
-                            <td key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-
-              {/* Paginación (Servidor) */}
-              <div className={styles.pagination}>
-                <span>
-                  Mostrando {comprasTable.getRowModel().rows.length} de {total} compras
-                </span>
-                <div className={styles.paginationControls}>
-                  <button
-                    className={styles.paginationBtn}
-                    onClick={() => comprasTable.previousPage()}
-                    disabled={!comprasTable.getCanPreviousPage()}
-                  >
-                    ← Anterior
-                  </button>
-                  <span>Página {comprasTable.getState().pagination.pageIndex + 1} de {comprasTable.getPageCount()}</span>
-                  <button
-                    className={styles.paginationBtn}
-                    onClick={() => comprasTable.nextPage()}
-                    disabled={!comprasTable.getCanNextPage()}
-                  >
-                    Siguiente →
-                  </button>
-                </div>
-              </div>
-            </>
+            <AdminDataTable
+              data={compras}
+              columns={comprasColumns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={total}
+              itemLabel="compras"
+              onRowClick={(row) => setIdDetalleAbierto(row.id_compra)}
+              isLoading={cargando}
+              emptyMessage="No se encontraron compras para los filtros aplicados"
+            />
           )}
         </>
       )}
@@ -751,123 +578,67 @@ const GestionCompras: React.FC = memo(() => {
             />
           ) : (
             <>
-              {/* Barra flotante de compra rápida */}
-              {seleccionados.size > 0 && (
-                <div className={styles.floatingActionBar}>
-                  <span className={styles.floatingActionInfo}>
-                    <span className="material-icons" style={{ fontSize: '18px' }}>check_box</span>
-                    {seleccionados.size} producto{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
-                  </span>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button
-                      className={styles.floatingActionClear}
-                      onClick={() => setSeleccionados(new Set())}
-                      title="Limpiar selección"
-                    >
-                      <span className="material-icons" style={{ fontSize: '16px' }}>close</span>
-                      Limpiar
-                    </button>
-                    <button
-                      className={styles.floatingActionComprar}
-                      onClick={() => abrirCompraConSeleccion()}
-                      disabled={!puedeCrear}
-                    >
-                      <span className="material-icons" style={{ fontSize: '18px' }}>shopping_cart</span>
-                      Ordenar compra ({seleccionados.size})
-                    </button>
-                  </div>
-                </div>
-              )}
+              <AdminFilterPanel>
+                <AdminFilterPanel.Row variant="bottom">
+                  <AdminFilterPanel.Grow>
+                    <AdminEntitySearchBar
+                      searchValue={stockSearchTerm}
+                      onSearchChange={setStockSearchTerm}
+                      searchPlaceholder="Buscar por nombre o código..."
+                      searchLabel="Búsqueda de Alertas"
+                      primaryActionLabel={seleccionados.size > 0 ? `Comprar seleccionados (${seleccionados.size})` : 'Seleccionar productos'}
+                      primaryActionIcon="shopping_cart"
+                      onPrimaryAction={() => abrirCompraConSeleccion()}
+                      primaryActionDisabled={!puedeCrear || seleccionados.size === 0}
+                    />
+                  </AdminFilterPanel.Grow>
+                </AdminFilterPanel.Row>
+              </AdminFilterPanel>
 
-              <div className={styles.tableWrapper}>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStock}>
-                  <table className={styles.table}>
-                    <thead>
-                      {stockTable.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext items={stockColumnOrder} strategy={horizontalListSortingStrategy}>
-                            {headerGroup.headers.map((header) =>
-                              header.column.id === 'sel' ? (
-                                <th key={header.id} className={styles.sortableHeader} style={{ width: '40px' }}>
-                                  {flexRender(header.column.columnDef.header, header.getContext())}
-                                </th>
-                              ) : (
-                                <DraggableTableHeader key={header.id} header={header} />
-                              )
-                            )}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                  <tbody>
-                    {stockTable.getRowModel().rows.map((row) => (
-                      <tr
-                        key={row.id}
-                        style={{
-                          backgroundColor: seleccionados.has(row.original.id_producto)
-                            ? 'color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent)'
-                            : undefined,
-                          cursor: 'pointer',
-                          transition: 'background-color 0.15s',
-                        }}
-                        onClick={() => toggleSeleccion(row.original)}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <td
-                            key={cell.id}
-                            onClick={cell.column.id === 'accion' ? (e) => e.stopPropagation() : undefined}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </DndContext>
-              </div>
+              <AdminDataTable
+                data={stockFiltrado}
+                columns={stockColumns}
+                sorting={stockSorting}
+                onSortingChange={setStockSorting}
+                columnOrder={stockColumnOrder}
+                onColumnOrderChange={setStockColumnOrder}
+                pagination={stockPagination}
+                onPaginationChange={setStockPagination}
+                totalItems={stockFiltrado.length}
+                itemLabel="productos"
+                isLoading={cargandoStock}
+                manualPagination={false}
+                onRowClick={toggleSeleccion}
+                emptyMessage={stockSearchTerm ? `No se encontraron resultados para "${stockSearchTerm}"` : "No hay productos con stock bajo en este momento."}
+              />
             </>
           )}
         </div>
       )}
 
       {/* Modales */}
+      {idDetalleAbierto && (
+        <DetalleCompraModal
+          idCompra={idDetalleAbierto}
+          onClose={() => setIdDetalleAbierto(null)}
+          onAnulada={handleAnulada}
+        />
+      )}
+
       {mostrarRegistrar && (
-        <React.Suspense fallback={null}>
+        <React.Suspense fallback={<div className={styles.loading}>Cargando...</div>}>
           <RegistrarCompraModal
             onClose={() => {
               setMostrarRegistrar(false);
               setStockParaCompra([]);
             }}
             onRegistrada={handleRegistrada}
-            productosIniciales={stockParaCompra.length > 0 ? stockParaCompra : undefined}
+            productosIniciales={stockParaCompra}
           />
         </React.Suspense>
-      )}
-
-      {idDetalleAbierto && (
-        <DetalleCompraModal
-          idCompra={idDetalleAbierto}
-          onClose={() => setIdDetalleAbierto(null)}
-          onAnularClick={(id, nro) => {
-            setIdDetalleAbierto(null);
-            setAnularModal({ id, nro });
-          }}
-        />
-      )}
-
-      {anularModal && (
-        <AnularCompraModal
-          idCompra={anularModal.id}
-          nroCompra={anularModal.nro}
-          onClose={() => setAnularModal(null)}
-          onAnulada={handleAnulada}
-        />
       )}
     </div>
   );
 });
-
-GestionCompras.displayName = 'GestionCompras';
 
 export default GestionCompras;

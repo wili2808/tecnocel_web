@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminEmptyState, AdminSectionActions, AdminSurface, AdminSearch } from '../common';
+import {
+  AdminEmptyState,
+  AdminEntitySearchBar,
+  AdminFilterPanel,
+  AdminDataTable,
+} from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
 import EditarClienteModal from './EditarClienteModal';
@@ -9,86 +14,13 @@ import CrearClienteModal from './CrearClienteModal';
 import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div
-          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
-          onClick={header.column.getToggleSortingHandler()}
-          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
-        >
-          {flexRender(header.column.columnDef.header, header.getContext())}
-          {header.column.getCanSort() && (
-            <span
-              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
-            >
-              {{
-                asc: 'arrow_upward',
-                desc: 'arrow_downward',
-              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
-            </span>
-          )}
-        </div>
-      </div>
-    </th>
-  );
-};
 
 const GestionClientes = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_clientes');
   const puedeCrear = tienePermiso('crear_cliente');
-  const puedeEditar = tienePermiso('editar_cliente');
   const { showNotification } = useNotification();
 
   const [clientes, setClientes] = useState<ClienteListItem[]>([]);
@@ -96,10 +28,14 @@ const GestionClientes = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Paginación
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [total, setTotal] = useState(0);
+
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_cliente', desc: false }]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'id_cliente', 'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha', 'acciones'
+    'id_cliente', 'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha'
   ]);
 
   // Modal state
@@ -111,31 +47,21 @@ const GestionClientes = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await usuarioService.listarClientes(50, 0);
+      const off = pagination.pageIndex * pagination.pageSize;
+      const data = await usuarioService.listarClientes(pagination.pageSize, off, searchTerm || undefined);
       setClientes(data.clientes || []);
+      setTotal(data.total || 0);
     } catch (err: any) {
       setError(err.message || 'Error al cargar clientes');
       showNotification(err.message || 'Error al cargar clientes', 'error');
     } finally {
       setLoading(false);
     }
-  }, [showNotification]);
+  }, [pagination, searchTerm, showNotification]);
 
   useEffect(() => {
     cargarClientes();
   }, [cargarClientes]);
-
-  // ── Filtrado local por búsqueda ──────────────────────────────────────────
-  const filteredClientes = useMemo(() => {
-    if (!searchTerm) return clientes;
-    const term = searchTerm.toLowerCase();
-    return clientes.filter(
-      (c) =>
-        `${c.nombre_cliente} ${c.apellido_cliente}`.toLowerCase().includes(term) ||
-        c.email_cliente.toLowerCase().includes(term) ||
-        (c.celular_cliente || '').toLowerCase().includes(term),
-    );
-  }, [clientes, searchTerm]);
 
   // ── Handlers de modal ──────────────────────────────────────────────────────
   const handleVerDetalle = useCallback((cliente: ClienteListItem) => {
@@ -213,66 +139,8 @@ const GestionClientes = () => {
         return fyh_creacion ? new Date(fyh_creacion).toLocaleDateString('es-AR') : '-';
       }
     },
-    {
-      id: 'acciones',
-      header: 'Acciones',
-      enableSorting: false,
-      cell: (info) => {
-        const cliente = info.row.original;
-        return (
-          <div className={styles.actions}>
-            {/* Ver detalle: disponible para todos los roles */}
-            <button
-              className={styles.actionButton}
-              title="Ver detalles"
-              onClick={() => handleVerDetalle(cliente)}
-            >
-              <span className="material-icons">visibility</span>
-            </button>
+  ], []);
 
-            {/* Editar: solo para usuarios con permiso */}
-            <button
-              className={styles.actionButton}
-              title={!puedeEditar ? 'Sin permisos para editar clientes' : 'Editar cliente'}
-              onClick={() => handleEditar(cliente)}
-              disabled={!puedeEditar}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-          </div>
-        );
-      }
-    }
-  ], [handleEditar, handleVerDetalle, puedeEditar]);
-
-  const table = useReactTable({
-    data: filteredClientes,
-    columns,
-    state: {
-      sorting,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -289,7 +157,7 @@ const GestionClientes = () => {
     );
   }
 
-  if (loading) {
+  if (loading && clientes.length === 0) {
     return (
       <div className={styles.container}>
         <AdminEmptyState
@@ -302,7 +170,7 @@ const GestionClientes = () => {
     );
   }
 
-  if (error) {
+  if (error && clientes.length === 0) {
     return (
       <div className={styles.container}>
         <AdminEmptyState
@@ -321,83 +189,51 @@ const GestionClientes = () => {
   return (
     <>
       <div className={styles.container}>
-        <AdminSectionActions
-          lead={null}
-          actions={
-            <button
-              className={styles.crearButton}
-              onClick={() => setShowCrearModal(true)}
-              disabled={!puedeCrear}
-              title={!puedeCrear ? 'Sin permisos para crear clientes' : undefined}
-            >
-              <span className="material-icons">person_add</span>
-              <span>Crear Cliente</span>
-            </button>
-          }
+        <AdminFilterPanel>
+          <AdminFilterPanel.Row variant="bottom">
+            <AdminFilterPanel.Grow>
+              <AdminEntitySearchBar
+                searchValue={searchTerm}
+                searchLabel="Búsqueda"
+                searchPlaceholder="Buscar por nombre, email o celular..."
+                onSearchChange={(val) => {
+                  setSearchTerm(val);
+                  setPagination(prev => ({ ...prev, pageIndex: 0 }));
+                }}
+                primaryActionLabel="Crear Cliente"
+                primaryActionIcon="person_add"
+                onPrimaryAction={() => setShowCrearModal(true)}
+                primaryActionDisabled={!puedeCrear}
+              />
+            </AdminFilterPanel.Grow>
+          </AdminFilterPanel.Row>
+        </AdminFilterPanel>
+
+        <AdminDataTable
+          data={clientes}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="clientes"
+          onRowClick={(row) => handleVerDetalle(row)}
+          isLoading={loading}
+          manualPagination={true}
+          emptyMessage={loading ? 'Cargando...' : 'No se encontraron clientes'}
         />
-
-        <AdminSurface className={styles.filterShell} tone="muted">
-          <div className={styles.searchForm}>
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Buscar por nombre, email o celular..."
-              onChange={setSearchTerm}
-            />
-          </div>
-        </AdminSurface>
-
-        <div className={styles.tableInfo}>
-          <span>
-            {table.getRowModel().rows.length} cliente{table.getRowModel().rows.length !== 1 ? 's' : ''}
-            {searchTerm ? ' visibles con el filtro actual' : ' registrados'}
-          </span>
-        </div>
-
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                          className={header.column.getCanSort() ? styles.sortableHeader : undefined}
-                        />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className={styles.emptyMessage}>
-                      No se encontraron clientes
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </DndContext>
-        </div>
       </div>
 
       {/* Modal de detalle (solo lectura) */}
       {tipoModal === 'detalle' && clienteSeleccionado && (
-        <DetalleClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} />
+        <DetalleClienteModal 
+          cliente={clienteSeleccionado} 
+          onClose={handleCerrarModal} 
+          onEdit={() => handleEditar(clienteSeleccionado)}
+        />
       )}
 
       {/* Modal de edición (solo admin) */}

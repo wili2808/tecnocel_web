@@ -1,8 +1,3 @@
-/* ============================================================================
-   AUTH FORM — Silicon Precision
-   Card limpia sin decoraciones, inputs quirúrgicos, botones confiantes.
-   ============================================================================ */
-
 .loginCard {
   background: var(--background-secondary);
   padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
@@ -40,110 +35,8 @@
   gap: var(--spacing-md);
 }
 
-/* Ocultar botón nativo de contraseña en Chromium/Edge */
-input[type="password"]::-webkit-input-password-toggle-button,
-input[type="password"]::-ms-reveal { display: none !important; }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.label {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.required { color: var(--color-error); }
-
-.inputContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--background-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  height: 44px;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.inputContainer:hover { border-color: var(--color-primary); }
-
-.inputContainer.focused {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
-}
-
-.inputContainer.error {
-  border-color: var(--color-error);
-  box-shadow: 0 0 0 3px rgba(var(--color-error-rgb), 0.1);
-}
-
-.iconLeft {
-  display: flex;
-  align-items: center;
-  padding: 0 var(--spacing-sm);
-  color: var(--text-muted);
-}
-
-.inputContainer.focused .iconLeft { color: var(--color-primary); }
-
-.input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  background: transparent;
-  font-family: inherit;
-  height: 100%;
-}
-
-.input::placeholder { color: var(--text-placeholder); }
-.input:disabled { opacity: 0.55; cursor: not-allowed; }
-
-/* Autofill */
-.input:-webkit-autofill,
-.input:-webkit-autofill:hover,
-.input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 30px var(--background-primary) inset !important;
-  -webkit-text-fill-color: var(--text-primary) !important;
-}
-
-.passwordToggle {
-  display: flex;
-  align-items: center;
-  padding: 0 var(--spacing-sm);
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  height: 100%;
-  transition: color var(--transition-fast) var(--transition-curve);
-}
-
-.passwordToggle:hover { color: var(--color-primary); }
-.passwordToggle:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.errorMessage {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--color-error);
-  font-size: var(--font-size-xs);
-  margin-top: 4px;
-}
-
-/* Submit */
+/* ===== SUBMIT BUTTON ===== */
 .submitButton {
   width: 100%;
   display: flex;
@@ -174,7 +67,7 @@ input[type="password"]::-ms-reveal { display: none !important; }
 .submitButton:active:not(:disabled) { transform: translateY(0); }
 .submitButton:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* Divider */
+/* ===== DIVIDER ===== */
 .divider {
   position: relative;
   text-align: center;
@@ -196,7 +89,7 @@ input[type="password"]::-ms-reveal { display: none !important; }
 .divider::before { left: 0; }
 .divider::after  { right: 0; }
 
-/* Google Button */
+/* ===== GOOGLE BUTTON ===== */
 .googleButton {
   width: 100%;
   display: flex;
@@ -228,7 +121,7 @@ input[type="password"]::-ms-reveal { display: none !important; }
 .googleLogo { width: 18px; height: 18px; }
 .buttonText { font-size: var(--font-size-sm); }
 
-/* Auth Links */
+/* ===== AUTH LINKS ===== */
 .authLinks {
   display: flex;
   flex-direction: column;
@@ -255,13 +148,13 @@ input[type="password"]::-ms-reveal { display: none !important; }
   margin: 0;
 }
 
-/* Animation */
+/* ===== ANIMATION ===== */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   .loginCard { padding: var(--spacing-lg); }
   .logo { height: 44px; }

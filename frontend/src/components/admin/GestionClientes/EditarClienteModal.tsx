@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import usuarioService from '../../../services/usuarioService';
-import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
+import Input from '../../common/Input/Input';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './ClienteModals.module.css';
 
 interface Props {
   cliente: ClienteListItem;
@@ -11,7 +13,7 @@ interface Props {
   onGuardado: () => void;
 }
 
-const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) => {
+const EditarClienteModal: React.FC<Props> = memo(({ cliente, onClose, onGuardado }) => {
   const { showNotification } = useNotification();
   const [guardando, setGuardando] = useState(false);
 
@@ -24,18 +26,15 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
     email_verified: cliente.email_verified,
   });
 
-  // Cerrar con Escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !guardando) onClose();
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onClose, guardando]);
-
   const setField = (field: string, value: string | boolean) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleGuardar = async () => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setField(name, value);
+  };
+
+  const handleGuardar = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (guardando) return;
     if (!form.nombre_cliente.trim() || !form.apellido_cliente.trim()) {
       showNotification('El nombre y apellido son obligatorios', 'error');
@@ -62,136 +61,123 @@ const EditarClienteModal: React.FC<Props> = ({ cliente, onClose, onGuardado }) =
   };
 
   return (
-    <div
-      className={styles.modalOverlay}
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !guardando) onClose();
-      }}
+    <PremiumModal
+      isOpen={true}
+      onClose={onClose}
+      title="Editar Perfil de Cliente"
+      icon="manage_accounts"
     >
-      <div className={styles.modal}>
-        {/* Encabezado */}
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            <span className="material-icons">edit</span>
-            Editar cliente #{cliente.id_cliente}
-          </h2>
-          <button className={styles.closeButton} onClick={onClose} disabled={guardando} title="Cerrar">
-            <span className="material-icons">close</span>
-          </button>
-        </div>
+      <div className="modalBodyPremium">
+        <form id="edit-cliente-form" onSubmit={handleGuardar}>
+          
+          <h4 className="sectionTitleWithDividerPremium">Datos Identificativos</h4>
+          
+          <div className="modalFormGridPremium">
+            <Input
+              id="nombre_cliente"
+              name="nombre_cliente"
+              label="Nombre"
+              value={form.nombre_cliente}
+              onChange={handleInputChange}
+              disabled={guardando}
+              maxLength={100}
+              required
+              autoFocus
+            />
+            <Input
+              id="apellido_cliente"
+              name="apellido_cliente"
+              label="Apellido"
+              value={form.apellido_cliente}
+              onChange={handleInputChange}
+              disabled={guardando}
+              maxLength={100}
+              required
+            />
 
-        {/* Cuerpo */}
-        <div className={styles.modalBody}>
-          {/* Datos personales */}
-          <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Nombre</label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.nombre_cliente}
-                onChange={(e) => setField('nombre_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={100}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Apellido</label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.apellido_cliente}
-                onChange={(e) => setField('apellido_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={100}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                Celular <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span>
-              </label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.celular_cliente}
-                onChange={(e) => setField('celular_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={20}
-                placeholder="Ej: 11 1234-5678"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                NIT/CI <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(opcional)</span>
-              </label>
-              <input
-                className={styles.formInput}
-                type="text"
-                value={form.nit_ci_cliente}
-                onChange={(e) => setField('nit_ci_cliente', e.target.value)}
-                disabled={guardando}
-                maxLength={50}
-                placeholder="Ej: 12345678"
-              />
-            </div>
+            <Input
+              id="celular_cliente"
+              name="celular_cliente"
+              label="Celular / WhatsApp"
+              value={form.celular_cliente}
+              onChange={handleInputChange}
+              disabled={guardando}
+              maxLength={20}
+              placeholder="Ej: 11 1234-5678"
+            />
+            <Input
+              id="nit_ci_cliente"
+              name="nit_ci_cliente"
+              label="DNI / CUIT"
+              value={form.nit_ci_cliente}
+              onChange={handleInputChange}
+              disabled={guardando}
+              maxLength={50}
+              placeholder="Ej: 12345678"
+            />
           </div>
 
-          <div className={styles.formDivider} />
+          <h4 className="sectionTitleWithDividerPremium mt-8">Configuración de Cuenta</h4>
 
-          {/* Toggles de estado */}
           <div className={styles.toggleGroup}>
             <div className={styles.toggleRow}>
-              <div>
-                <p className={styles.toggleLabel}>Cuenta habilitada</p>
-                <p className={styles.toggleDesc}>Permite al cliente iniciar sesión en la plataforma web</p>
+              <div className={styles.toggleInfo}>
+                <span className={styles.toggleLabel}>Acceso Web Habilitado</span>
+                <span className={styles.toggleDesc}>Permitir inicio de sesión en la tienda</span>
               </div>
               <button
                 type="button"
-                className={`${styles.toggle} ${form.is_web_enabled ? styles.toggleOn : styles.toggleOff}`}
+                className={`${styles.toggle} ${form.is_web_enabled ? styles.toggleOn : ''}`}
                 onClick={() => setField('is_web_enabled', !form.is_web_enabled)}
                 disabled={guardando}
-                aria-label="Alternar cuenta habilitada"
               >
                 <span className={styles.toggleKnob} />
               </button>
             </div>
+
             <div className={styles.toggleRow}>
-              <div>
-                <p className={styles.toggleLabel}>Email verificado</p>
-                <p className={styles.toggleDesc}>Marca el email como verificado de forma manual</p>
+              <div className={styles.toggleInfo}>
+                <span className={styles.toggleLabel}>Correo Verificado</span>
+                <span className={styles.toggleDesc}>Validación manual de identidad por email</span>
               </div>
               <button
                 type="button"
-                className={`${styles.toggle} ${form.email_verified ? styles.toggleOn : styles.toggleOff}`}
+                className={`${styles.toggle} ${form.email_verified ? styles.toggleOn : ''}`}
                 onClick={() => setField('email_verified', !form.email_verified)}
                 disabled={guardando}
-                aria-label="Alternar email verificado"
               >
                 <span className={styles.toggleKnob} />
               </button>
             </div>
           </div>
 
-          {/* Info: email no editable */}
-          <p className={styles.emailReadonly}>
-            <span className="material-icons">lock</span>
-            El email no puede modificarse desde aquí: {cliente.email_cliente}
-          </p>
-        </div>
-
-        {/* Pie */}
-        <div className={styles.modalFooter}>
-          <button className={styles.saveButton} onClick={handleGuardar} disabled={guardando}>
-            <span className="material-icons">save</span>
-            {guardando ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-          <button className={styles.cancelButton} onClick={onClose} disabled={guardando}>
-            Cancelar
-          </button>
-        </div>
+          <div className={styles.infoBox}>
+            <span className={`material-icons ${styles.icon}`}>lock</span>
+            <p className={styles.text}>
+              Identificador de acceso: <strong>{cliente.email_cliente}</strong>
+            </p>
+          </div>
+        </form>
       </div>
-    </div>
+
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          form="edit-cliente-form"
+          className="btnPremium btnPrimaryPremium" 
+          disabled={guardando}
+        >
+          <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
+          {guardando ? 'Guardando...' : 'Guardar Cambios'}
+        </button>
+      </div>
+    </PremiumModal>
   );
-};
+});
+
+EditarClienteModal.displayName = 'EditarClienteModal';
 
 export default EditarClienteModal;

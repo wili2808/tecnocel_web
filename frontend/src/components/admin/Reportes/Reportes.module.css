@@ -1,464 +1,53 @@
 /* ============================================================================
-   REPORTES - Panel de reportes con pestañas, KPIs, filtros y tablas
+   REPORTES - Panel de reportes con KPIs y tablas unificadas
    ============================================================================ */
 
 .container {
-  padding: 20px 24px;
+  padding: var(--spacing-md);
   min-height: 100%;
 }
 
-.header {
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border-color);
-}
+/* === HELPERS DE TABLA Y MONTOS === */
 
-.headerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-lg);
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: -0.3px;
-}
-
-.title .material-icons {
-  color: var(--color-primary);
-  font-size: 20px;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.exportButton {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  background: none;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  color: var(--color-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.exportButton:hover:not(:disabled) {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.exportButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.exportButton .material-icons {
-  font-size: 16px;
-}
-
-/* ============================================================================
-   BARRA DE PESTAÑAS
-   ============================================================================ */
-
-.tabBar {
-  display: flex;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1px;
-  margin: var(--spacing-md) 0;
-  gap: 0;
-  overflow-x: auto;
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-  position: relative;
-}
-
-.tab:hover {
-  color: var(--color-primary);
-}
-
-.tab .material-icons {
-  font-size: 17px;
-}
-
-.tabActive {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-}
-
-/* ============================================================================
-   TARJETAS KPI - Horizontal strip
-   ============================================================================ */
-
-.kpiGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  background: var(--background-primary);
-}
-
-.kpiCard {
-  padding: var(--spacing-sm);
-  border: none;
-  border-right: 1px solid var(--border-color);
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.kpiCard:last-child {
-  border-right: none;
-}
-
-.kpiLabel {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.kpiLabel .material-icons {
-  font-size: 14px !important;
-  color: var(--color-primary);
-}
-
-.kpiValue {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-
-.kpiSub {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.kpiLoading {
-  height: 90px;
-  background-color: var(--background-neutral);
-  border-radius: var(--border-radius-md);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* ============================================================================
-   BARRA DE FILTROS
-   ============================================================================ */
-
-.filterBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.filterShell {
-  margin-bottom: 16px;
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 130px;
-}
-
-.filterLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.filterInput,
-.filterSelect {
-  padding: 7px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  background-color: var(--background-primary);
-  color: var(--text-primary);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-}
-
-.filterInput:focus,
-.filterSelect:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-.filterActions {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-
-.filterButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.filterButton:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.clearButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-family-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve),
-              border-color var(--transition-fast) var(--transition-curve);
-  white-space: nowrap;
-}
-
-.clearButton:hover {
-  background-color: var(--background-hover);
-  border-color: var(--text-secondary);
-}
-
-/* ============================================================================
-   ESTADOS
-   ============================================================================ */
-
-.loading,
-.error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-2xl);
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.error .material-icons {
-  font-size: var(--font-size-3xl);
-  color: var(--color-error);
-}
-
-.retryButton {
-  padding: 7px 14px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-weight: 600;
-  font-size: 13px;
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-}
-
-.retryButton:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.stateBlock {
-  margin-bottom: 16px;
-}
-
-/* ============================================================================
-   TABLA DE DATOS
-   ============================================================================ */
-
-.tableWrapper {
-  overflow-x: auto;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
-  margin-bottom: 12px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--background-primary);
-  font-size: 13px;
-}
-
-.table thead {
-  background: var(--background-neutral);
-}
-
-.table th {
-  padding: 8px 12px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  border-bottom: 1px solid var(--border-color);
-  white-space: nowrap;
-}
-
-.sortableHeader {
-  cursor: pointer;
-  user-select: none;
-  padding: 8px 12px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  border-bottom: 1px solid var(--border-color);
-  white-space: nowrap;
-}
-
-.sortableHeader:hover {
-  color: var(--color-primary);
-}
-
-.sortableHeaderContent {
+.montoBadgeWrapper {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.sortIcon {
-  font-size: 14px !important;
-  opacity: 0.3;
-  transition: opacity var(--transition-fast), color var(--transition-fast);
+.montoBadge {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.sortableHeader:hover .sortIcon {
-  opacity: 0.6;
+.montoBadgeUsd {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-dark);
 }
 
-.sortIconActive {
-  opacity: 1 !important;
-  color: var(--color-primary);
-}
-
-.table td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: 13px;
-}
-
-.table tbody tr {
-  transition: background-color var(--transition-fast) var(--transition-curve);
-}
-
-.table tbody tr:hover {
-  background-color: var(--color-primary-25);
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.emptyMessage {
-  text-align: center;
-  color: var(--text-secondary);
-  font-style: italic;
-  padding: var(--spacing-xl) var(--spacing-md);
-  font-size: 13px;
+.montoBadgeArs {
+  background-color: var(--color-info-100);
+  color: var(--color-info-dark);
 }
 
 .monoCell {
   font-family: var(--font-family-mono);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
 .textRight {
   text-align: right;
 }
 
-/* ============================================================================
-   ALERTA DE STOCK BAJO
-   ============================================================================ */
-
-.stockAlert {
-  margin-top: 16px;
-}
-
-.stockAlertTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-warning, #d97706);
-  margin: 0 0 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.stockAlertTitle .material-icons {
-  font-size: 16px;
-}
-
-/* ============================================================================
-   BADGES
-   ============================================================================ */
+/* === BADGES ESPECÍFICOS === */
 
 .badge {
   display: inline-block;
@@ -470,8 +59,8 @@
 }
 
 .badgeWarning {
-  background-color: var(--color-warning-100, #fef3c7);
-  color: var(--color-warning, #d97706);
+  background-color: var(--color-warning-100);
+  color: var(--color-warning-dark);
 }
 
 .badgeDanger {
@@ -480,80 +69,12 @@
 }
 
 /* ============================================================================
-   ANIMACIONES
-   ============================================================================ */
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-
-/* ============================================================================
    RESPONSIVE
    ============================================================================ */
-
-@media (max-width: 1024px) {
-  .kpiCard {
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .kpiCard:last-child {
-    border-bottom: none;
-  }
-}
 
 @media (max-width: 768px) {
   .container {
     padding: 16px;
-  }
-
-  .tab {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .filterBar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filterGroup {
-    min-width: unset;
-  }
-
-  .filterActions {
-    flex-direction: row;
-    justify-content: stretch;
-  }
-
-  .filterButton,
-  .clearButton {
-    flex: 1;
-    justify-content: center;
-  }
-
-  .table th,
-  .table td {
-    padding: 7px 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .tab .material-icons {
-    display: none;
-  }
-
-  .kpiGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .kpiValue {
-    font-size: 22px;
   }
 }
 

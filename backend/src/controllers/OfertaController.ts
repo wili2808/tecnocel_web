@@ -140,7 +140,7 @@ class OfertaController {
    */
   static async getProductosEnOferta(req: Request, res: Response) {
     try {
-      const { limit = 20, offset = 0 } = req.query;
+      const { limit = 10, offset = 0 } = req.query;
       const now = new Date();
 
       const productosEnOferta = await Almacen.findAndCountAll({

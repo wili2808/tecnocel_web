@@ -8,27 +8,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import Button from '../../common/Button';
+import Input from '../../common/Input/Input';
 import logo from '../../../assets/tecnocel.svg';
 import styles from './AuthForm.module.css';
 
 const AuthForm = () => {
-  // ============================================================================
-  // HOOKS Y CONTEXTOS
-  // ============================================================================
+  // -----> HOOKS Y CONTEXTOS ---------------------------------------------------
   const { login, googleLogin, error: authError, clearError } = useAuth();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
-  // ============================================================================
-  // ESTADOS DEL FORMULARIO
-  // ============================================================================
+  // -----> ESTADOS DEL FORMULARIO ----------------------------------------------
   const [formData, setFormData] = useState({
     email_cliente: '',
     contrasena: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   // Maneja errores de Google OAuth (el flujo no permite async/await directo)
   useEffect(() => {
@@ -41,10 +36,7 @@ const AuthForm = () => {
     }
   }, [authError, showNotification, clearError]);
 
-  // ============================================================================
-  // MANEJADORES DE EVENTOS
-  // ============================================================================
-
+  // -----> MANEJADORES DE EVENTOS --------------------------------------------
   /**
    * Maneja los cambios en los campos del formulario
    * Actualiza el estado local y mantiene la sincronización
@@ -54,34 +46,7 @@ const AuthForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /**
-   * Maneja el focus de los inputs para efectos visuales
-   * Activa el estado de campo enfocado para estilos CSS
-   */
-  const handleFocus = (fieldName: string) => {
-    setFocusedField(fieldName);
-  };
-
-  /**
-   * Maneja el blur de los inputs para efectos visuales
-   * Desactiva el estado de campo enfocado
-   */
-  const handleBlur = () => {
-    setFocusedField(null);
-  };
-
-  /**
-   * Toggle de visibilidad de contraseña
-   * Permite al usuario ver/ocultar el texto de la contraseña
-   */
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  // ============================================================================
-  // MANEJADORES DE FORMULARIO
-  // ============================================================================
-
+  // -----> MANEJADORES DE FORMULARIO ------------------------------------------
   /**
    * Maneja el envío del formulario de login
    * Valida campos, ejecuta autenticación y maneja navegación
@@ -141,10 +106,7 @@ const AuthForm = () => {
     googleLogin();
   };
 
-  // ============================================================================
-  // RENDERIZADO PRINCIPAL
-  // ============================================================================
-
+  // -----> RENDERIZADO PRINCIPAL ---------------------------------------------
   return (
     <div className={styles.loginCard}>
       {/* Encabezado integrado con logo y descripción */}
@@ -157,66 +119,33 @@ const AuthForm = () => {
 
       {/* Formulario de login con validación y estados */}
       <form onSubmit={handleSubmit} className={styles.loginForm}>
-        {/* Campo Email con validación y estados visuales */}
-        <div className={styles.formGroup}>
-          <label htmlFor="email_cliente" className={styles.label}>
-            Correo Electrónico
-            <span className={styles.required}>*</span>
-          </label>
-          <div className={`${styles.inputContainer} ${focusedField === 'email_cliente' ? styles.focused : ''}`}>
-            <span className={styles.iconLeft}>
-              <span className="material-icons">email</span>
-            </span>
-            <input
-              id="email_cliente"
-              name="email_cliente"
-              type="email"
-              value={formData.email_cliente}
-              onChange={handleInputChange}
-              onFocus={() => handleFocus('email_cliente')}
-              onBlur={handleBlur}
-              required
-              disabled={isLoading}
-              className={styles.input}
-              autoComplete="email"
-            />
-          </div>
-        </div>
+        {/* Campo Email */}
+        <Input
+          id="email_cliente"
+          name="email_cliente"
+          type="email"
+          label="Correo Electrónico"
+          icon="email"
+          value={formData.email_cliente}
+          onChange={handleInputChange}
+          required
+          disabled={isLoading}
+          autoComplete="email"
+        />
 
-        {/* Campo Contraseña con toggle de visibilidad */}
-        <div className={styles.formGroup}>
-          <label htmlFor="contrasena" className={styles.label}>
-            Contraseña
-            <span className={styles.required}>*</span>
-          </label>
-          <div className={`${styles.inputContainer} ${focusedField === 'contrasena' ? styles.focused : ''}`}>
-            <span className={styles.iconLeft}>
-              <span className="material-icons">lock</span>
-            </span>
-            <input
-              id="contrasena"
-              name="contrasena"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.contrasena}
-              onChange={handleInputChange}
-              onFocus={() => handleFocus('contrasena')}
-              onBlur={handleBlur}
-              required
-              disabled={isLoading}
-              className={styles.input}
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              className={styles.passwordToggle}
-              onClick={togglePasswordVisibility}
-              disabled={isLoading}
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-            >
-              <span className="material-icons">{showPassword ? 'visibility_off' : 'visibility'}</span>
-            </button>
-          </div>
-        </div>
+        {/* Campo Contraseña */}
+        <Input
+          id="contrasena"
+          name="contrasena"
+          type="password"
+          label="Contraseña"
+          icon="lock"
+          value={formData.contrasena}
+          onChange={handleInputChange}
+          required
+          disabled={isLoading}
+          autoComplete="current-password"
+        />
 
         {/* Botón de envío principal usando componente Button personalizado */}
         <Button

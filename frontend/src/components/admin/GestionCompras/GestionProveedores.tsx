@@ -3,69 +3,11 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminSearch } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminEmptyState, AdminDataTable } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {flexRender(header.column.columnDef.header, header.getContext())}
-        </div>
-      </div>
-    </th>
-  );
-};
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 const GestionProveedores: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
@@ -75,30 +17,34 @@ const GestionProveedores: React.FC = memo(() => {
   const { showNotification } = useNotification();
 
   const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [modalProveedor, setModalProveedor] = useState<ProveedorListItem | null | 'new'>(null);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'nombre', 'empresa', 'celular', 'email', 'direccion', 'acciones'
+    'nombre', 'empresa', 'celular', 'email', 'direccion'
   ]);
 
   const cargarProveedores = useCallback(async () => {
     try {
       setCargando(true);
       setError(null);
-      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined);
+      const off = pagination.pageIndex * pagination.pageSize;
+      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined, pagination.pageSize, off);
       setProveedores(response.data);
+      setTotal(response.count);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar proveedores');
       setProveedores([]);
     } finally {
       setCargando(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, pagination]);
 
-  // Ejecutar búsqueda cuando cambia debouncedSearch (500ms después de dejar de escribir)
   // Ejecutar búsqueda cuando cambia searchTerm (ya viene debounced de AdminSearch)
   useEffect(() => {
     cargarProveedores();
@@ -150,56 +96,12 @@ const GestionProveedores: React.FC = memo(() => {
         </span>
       ),
     },
-    {
-      id: 'acciones',
-      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Acciones</div>,
-      cell: info => {
-        const proveedor = info.row.original;
-        return (
-          <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
-            <button
-              className={styles.actionBtn}
-              title={!puedeEditar ? 'Sin permisos para editar' : 'Editar'}
-              onClick={() => setModalProveedor(proveedor)}
-              disabled={!puedeEditar}
-            >
-              <span className="material-icons">edit</span>
-            </button>
-          </div>
-        );
-      },
-    }
-  ], [puedeEditar]);
+  ], []);
 
-  const table = useReactTable({
-    data: proveedores,
-    columns,
-    state: {
-      columnOrder,
-    },
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   if (!puedeVer) {
     return (
-      <div className={styles.container}>
+      <div>
         <div className={styles.header}>
           <h1 className={styles.title}>
             <span className="material-icons">local_shipping</span>
@@ -218,92 +120,74 @@ const GestionProveedores: React.FC = memo(() => {
 
   if (cargando) {
     return (
-      <div className={styles.loading}>
-        <span className="material-icons">hourglass_empty</span>
-        <p>Cargando proveedores...</p>
-      </div>
+      <AdminEmptyState
+        icon="hourglass_empty"
+        title="Cargando proveedores"
+        message="Estamos obteniendo la lista de proveedores registrados..."
+        className={styles.loadingState}
+      />
     );
   }
 
   if (error) {
     return (
-      <div className={styles.error}>
-        <span className="material-icons">error</span>
-        <p>{error}</p>
-        <button className={styles.retryButton} onClick={cargarProveedores}>
-          Reintentar
-        </button>
-      </div>
+      <AdminEmptyState
+        icon="error_outline"
+        title="No pudimos cargar los proveedores"
+        message={error}
+        actionLabel="Reintentar"
+        onAction={cargarProveedores}
+        tone="danger"
+        className={styles.errorState}
+      />
     );
   }
 
   return (
     <>
-      {/* Buscador y botón crear */}
-      <div className={styles.filterBar}>
-        <div className={styles.filterRow}>
-          <div className={styles.filterGroupWide}>
-            <label className={styles.filterLabel}>Buscar Proveedor</label>
-            <AdminSearch
-              value={searchTerm}
-              placeholder="Nombre, empresa, celular..."
-              onChange={setSearchTerm}
+      <AdminFilterPanel>
+        <AdminFilterPanel.Row variant="bottom">
+          <AdminFilterPanel.Grow>
+            <AdminEntitySearchBar
+              searchValue={searchTerm}
+              searchPlaceholder="Nombre, empresa, celular..."
+              onSearchChange={(val) => {
+                setSearchTerm(val);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
+              }}
+              searchLabel="Búsqueda"
+              primaryActionLabel="Nuevo Proveedor"
+              primaryActionIcon="person_add"
+              onPrimaryAction={() => setModalProveedor('new')}
+              primaryActionDisabled={!puedeCrear}
             />
-          </div>
-          <button
-            className={`${styles.crearButton}`}
-            onClick={() => setModalProveedor('new')}
-            style={{ marginTop: '20px' }}
-            disabled={!puedeCrear}
-            title={!puedeCrear ? 'Sin permisos para crear proveedores' : undefined}
-          >
-            <span className="material-icons">add</span>
-            Nuevo Proveedor
-          </button>
-        </div>
-      </div>
+          </AdminFilterPanel.Grow>
+        </AdminFilterPanel.Row>
+      </AdminFilterPanel>
 
-      {/* Tabla */}
-      {proveedores.length === 0 ? (
-        <div className={styles.loading}>
-          <span className="material-icons">inbox</span>
-          <p>No hay proveedores registrados</p>
-        </div>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                        />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </DndContext>
-        </div>
-      )}
+        <AdminDataTable
+          data={proveedores}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="proveedores"
+          onRowClick={(row) => {
+            if (puedeEditar) {
+              setModalProveedor(row);
+            } else {
+              showNotification('No tienes permisos para editar proveedores', 'info');
+            }
+          }}
+          isLoading={cargando}
+          manualPagination={true}
+          emptyMessage={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay proveedores registrados aún."}
+        />
 
-      {/* Modal */}
       {modalProveedor && (
         <ProveedorModal
           proveedor={modalProveedor === 'new' ? undefined : modalProveedor}

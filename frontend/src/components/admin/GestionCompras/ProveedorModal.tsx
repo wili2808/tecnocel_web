@@ -1,16 +1,19 @@
 import React, { memo, useState } from 'react';
 import proveedorAdminService from '../../../services/proveedorAdminService';
-import { createPortal } from 'react-dom';
-import styles from './GestionCompras.module.css';
 import type { CreateProveedorData, ProveedorListItem } from '../../../types';
+import Input from '../../common/Input/Input';
+import TextArea from '../../common/TextArea/TextArea';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import styles from './CompraModals.module.css';
 
 interface ProveedorModalProps {
+  isOpen?: boolean;
   proveedor?: ProveedorListItem;
   onClose: () => void;
   onGuardado: (proveedor: ProveedorListItem) => void;
 }
 
-const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose, onGuardado }) => {
+const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, proveedor, onClose, onGuardado }) => {
   const [formData, setFormData] = useState<CreateProveedorData & { id_proveedor?: number }>({
     nombre_proveedor: proveedor?.nombre_proveedor || '',
     empresa: proveedor?.empresa || '',
@@ -29,7 +32,8 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleGuardar = async () => {
+  const handleGuardar = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
 
     if (!formData.nombre_proveedor.trim()) {
@@ -70,361 +74,117 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ proveedor, onClose
 
   const isEditing = !!proveedor;
 
-  const modalContent = (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={`${styles.modalContent} ${styles.proveedorModal}`} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
-            {isEditing ? '✏️ Editar Proveedor' : '➕ Nuevo Proveedor'}
-          </h2>
-          <button
-            onClick={onClose}
-            disabled={guardando}
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              padding: '0',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '6px',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-          >
-            ✕
-          </button>
-        </div>
+  return (
+    <PremiumModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
+      icon={isEditing ? 'edit' : 'add_business'}
+      maxWidth="600px"
+    >
+      <div className={`modalBodyPremium ${styles.modalBodyContent}`}>
+        {error && (
+          <div className="modalAlertErrorPremium mb-4">
+            <span className="material-icons">error</span>
+            {error}
+          </div>
+        )}
 
-        {/* Body */}
-        <div className={styles.modalBody}>
-          {/* Empresa - Protagonista */}
-          <div style={{ marginBottom: '24px' }}>
-            <label
-              style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                color: 'var(--text-secondary)',
-                display: 'block',
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}
-            >
-              Empresa *
-            </label>
-            <input
-              type="text"
+        <form id="proveedor-form" onSubmit={handleGuardar}>
+          
+          <h4 className={styles.sectionTitle}>Razón Social</h4>
+          <div className="modalFormGridPremium" style={{ gridTemplateColumns: '1fr' }}>
+            <Input
+              id="empresa"
               name="empresa"
+              label="Nombre de Empresa / Razón Social"
               value={formData.empresa}
               onChange={handleChange}
-              placeholder="Ej: Distribuidora XYZ"
+              placeholder="Ej: Distribuidora de Tecnología S.A."
+              required
+              autoFocus
               disabled={guardando}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                border: '2px solid var(--color-primary)',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 600,
-                fontFamily: 'var(--font-family-primary)',
-                backgroundColor: 'var(--background-primary)',
-                color: 'var(--color-primary)',
-                boxSizing: 'border-box',
-                transition: 'all 0.2s',
-              }}
             />
           </div>
 
-          {/* Nombre Proveedor */}
-          <div style={{ marginBottom: '24px' }}>
-            <label
-              style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: 'var(--text-secondary)',
-                display: 'block',
-                marginBottom: '6px',
-              }}
-            >
-              Nombre del Proveedor *
-            </label>
-            <input
-              type="text"
-              name="nombre_proveedor"
-              value={formData.nombre_proveedor}
-              onChange={handleChange}
-              placeholder="Ej: Juan García"
-              disabled={guardando}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontFamily: 'var(--font-family-primary)',
-                backgroundColor: 'var(--background-primary)',
-                color: 'var(--text-primary)',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-
-          {/* Canales de Contacto */}
-          <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
-            <p
-              style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                color: 'var(--text-secondary)',
-                margin: '0 0 12px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}
-            >
-              Canales de Contacto
-            </p>
-
-            {/* Celular */}
-            <div style={{ marginBottom: '12px' }}>
-              <label
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginBottom: '6px',
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>📱</span>
-                Celular *
-              </label>
-              <input
-                type="tel"
+          <h4 className={`${styles.sectionTitle} mt-8`}>Información de Contacto</h4>
+          <div className="modalFormGridPremium">
+              <Input
+                id="nombre_proveedor"
+                name="nombre_proveedor"
+                label="Contacto Principal"
+                value={formData.nombre_proveedor}
+                onChange={handleChange}
+                placeholder="Nombre de la persona"
+                required
+                disabled={guardando}
+              />
+              
+              <Input
+                id="celular"
                 name="celular"
+                label="Celular / WhatsApp"
                 value={formData.celular}
                 onChange={handleChange}
-                placeholder="+54 9 11 23456789"
+                placeholder="Ej: 11 2233 4455"
+                required
                 disabled={guardando}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontFamily: 'var(--font-family-primary)',
-                  backgroundColor: 'var(--background-primary)',
-                  color: 'var(--text-primary)',
-                  boxSizing: 'border-box',
-                }}
               />
-            </div>
 
-            {/* Teléfono */}
-            <div style={{ marginBottom: '12px' }}>
-              <label
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginBottom: '6px',
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>☎️</span>
-                Teléfono (opcional)
-              </label>
-              <input
-                type="tel"
-                name="telefono"
-                value={formData.telefono}
-                onChange={handleChange}
-                placeholder="(011) 4123-4567"
-                disabled={guardando}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontFamily: 'var(--font-family-primary)',
-                  backgroundColor: 'var(--background-primary)',
-                  color: 'var(--text-primary)',
-                  boxSizing: 'border-box',
-                }}
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginBottom: '6px',
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>✉️</span>
-                Email (opcional)
-              </label>
-              <input
-                type="email"
+              <Input
+                id="email"
                 name="email"
+                type="email"
+                label="Email (Opcional)"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="contacto@distribuidor.com"
+                placeholder="ejemplo@proveedor.com"
                 disabled={guardando}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontFamily: 'var(--font-family-primary)',
-                  backgroundColor: 'var(--background-primary)',
-                  color: 'var(--text-primary)',
-                  boxSizing: 'border-box',
-                }}
               />
+
+              <Input
+                id="telefono"
+                name="telefono"
+                label="Teléfono Fijo (Opcional)"
+                value={formData.telefono}
+                onChange={handleChange}
+                placeholder="Ej: 011 4455 6677"
+                disabled={guardando}
+              />
+
+              <div className="modalFormGroupFullPremium">
+                <TextArea
+                  id="direccion"
+                  name="direccion"
+                  label="Dirección / Localización"
+                  value={formData.direccion}
+                  onChange={handleChange}
+                  placeholder="Calle, Número, Localidad, Provincia..."
+                  required
+                  disabled={guardando}
+                  rows={3}
+                />
+              </div>
             </div>
-          </div>
-
-          {/* Dirección */}
-          <div style={{ marginBottom: '16px' }}>
-            <label
-              style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: 'var(--text-secondary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginBottom: '8px',
-              }}
-            >
-              <span style={{ fontSize: '16px' }}>📍</span>
-              Dirección *
-            </label>
-            <textarea
-              name="direccion"
-              value={formData.direccion}
-              onChange={handleChange}
-              placeholder="Calle 123, Piso 5, Ciudad"
-              disabled={guardando}
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontFamily: 'var(--font-family-primary)',
-                backgroundColor: 'var(--background-primary)',
-                color: 'var(--text-primary)',
-                boxSizing: 'border-box',
-                resize: 'vertical',
-                minHeight: '90px',
-              }}
-            />
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div
-              style={{
-                padding: '12px',
-                background: '#fee2e2',
-                border: '1px solid #fecaca',
-                borderRadius: '6px',
-                color: '#991b1b',
-                fontSize: '13px',
-                marginBottom: '16px',
-              }}
-            >
-              {error}
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className={styles.modalFooter}>
-          <button
-            onClick={onClose}
-            disabled={guardando}
-            style={{
-              flex: 1,
-              padding: '10px 16px',
-              border: '1px solid var(--border-color)',
-              backgroundColor: 'var(--background-primary)',
-              color: 'var(--text-primary)',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-family-primary)',
-              transition: 'background-color 0.2s',
-              opacity: guardando ? 0.5 : 1,
-            }}
-            onMouseEnter={(e) => !guardando && (e.currentTarget.style.backgroundColor = 'var(--background-secondary)')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background-primary)')}
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleGuardar}
-            disabled={guardando}
-            style={{
-              flex: 1,
-              padding: '10px 16px',
-              background: 'var(--color-primary)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-family-primary)',
-              transition: 'background-color 0.2s',
-              opacity: guardando ? 0.7 : 1,
-            }}
-            onMouseEnter={(e) => !guardando && (e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
-          >
-            {guardando ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear Proveedor'}
-          </button>
-        </div>
+        </form>
       </div>
 
-      <style>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </div>
+      <div className="modalFooterPremium">
+        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          form="proveedor-form" 
+          className="btnPremium btnPrimaryPremium" 
+          disabled={guardando}
+        >
+          <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
+          {guardando ? 'Guardando...' : isEditing ? 'Actualizar Proveedor' : 'Crear Proveedor'}
+        </button>
+      </div>
+    </PremiumModal>
   );
-
-  return createPortal(modalContent, document.body);
 });
 
 ProveedorModal.displayName = 'ProveedorModal';

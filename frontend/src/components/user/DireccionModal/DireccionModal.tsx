@@ -3,8 +3,8 @@
  * Formulario completo de dirección con validación
  */
 import { useState, useEffect } from 'react';
-import LoadingSpinner from '../../common/LoadingSpinner';
 import styles from './DireccionModal.module.css';
+import PremiumModal from '../../common/PremiumModal/PremiumModal';
 
 export interface DireccionFormData {
     nombre_direccion: string;
@@ -45,6 +45,9 @@ const initialFormData: DireccionFormData = {
     es_predeterminada: false,
     es_facturacion: false
 };
+
+import Input from '../../common/Input/Input';
+import TextArea from '../../common/TextArea/TextArea';
 
 const DireccionModal = ({ isOpen, onClose, onSave, direccion, title }: DireccionModalProps) => {
     const [formData, setFormData] = useState<DireccionFormData>(initialFormData);
@@ -144,221 +147,150 @@ const DireccionModal = ({ isOpen, onClose, onSave, direccion, title }: Direccion
         }
     };
 
-    const handleOverlayClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
-
-    if (!isOpen) return null;
-
     return (
-        <div className={styles.overlay} onClick={handleOverlayClick}>
-            <div className={styles.modal}>
-                <div className={styles.header}>
-                    <h2>{title}</h2>
-                    <button onClick={onClose} className={styles.closeBtn}>
-                        <span className="material-icons">close</span>
-                    </button>
-                </div>
+        <PremiumModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={title}
+            icon="location_on"
+            maxWidth="750px"
+        >
+            <div className="modalBodyPremium">
+                <form id="direccion-form" onSubmit={handleSubmit} className={styles.form}>
+                    
+                    <span className={styles.sectionTitlePremium}>Ubicación Principal</span>
+                    <div className={styles.formGridPremium}>
+                        <Input
+                            id="nombre_direccion"
+                            name="nombre_direccion"
+                            label="Nombre de Dirección"
+                            value={formData.nombre_direccion}
+                            onChange={handleChange}
+                            error={errors.nombre_direccion}
+                            required
+                            disabled={loading}
+                            placeholder="Ej: Casa, Trabajo, etc."
+                        />
 
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <div className={styles.formGrid}>
-                        {/* Nombre de dirección */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="nombre_direccion" className={styles.label}>
-                                Nombre de Dirección *
-                            </label>
-                            <input
-                                type="text"
-                                id="nombre_direccion"
-                                name="nombre_direccion"
-                                value={formData.nombre_direccion}
-                                onChange={handleChange}
-                                placeholder="Ej: Casa, Trabajo, etc."
-                                className={`${styles.input} ${errors.nombre_direccion ? styles.inputError : ''}`}
-                            />
-                            {errors.nombre_direccion && (
-                                <span className={styles.error}>{errors.nombre_direccion}</span>
-                            )}
-                        </div>
+                        <Input
+                            id="calle"
+                            name="calle"
+                            label="Calle"
+                            value={formData.calle}
+                            onChange={handleChange}
+                            error={errors.calle}
+                            required
+                            disabled={loading}
+                            placeholder="Nombre de la calle"
+                        />
 
-                        {/* Calle */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="calle" className={styles.label}>
-                                Calle *
-                            </label>
-                            <input
-                                type="text"
-                                id="calle"
-                                name="calle"
-                                value={formData.calle}
-                                onChange={handleChange}
-                                placeholder="Nombre de la calle"
-                                className={`${styles.input} ${errors.calle ? styles.inputError : ''}`}
-                            />
-                            {errors.calle && (
-                                <span className={styles.error}>{errors.calle}</span>
-                            )}
-                        </div>
+                        <Input
+                            id="numero"
+                            name="numero"
+                            label="Número"
+                            value={formData.numero}
+                            onChange={handleChange}
+                            error={errors.numero}
+                            required
+                            disabled={loading}
+                            placeholder="Ej: 123"
+                        />
 
-                        {/* Número */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="numero" className={styles.label}>
-                                Número *
-                            </label>
-                            <input
-                                type="text"
-                                id="numero"
-                                name="numero"
-                                value={formData.numero}
-                                onChange={handleChange}
-                                placeholder="Número de casa/edificio"
-                                className={`${styles.input} ${errors.numero ? styles.inputError : ''}`}
-                            />
-                            {errors.numero && (
-                                <span className={styles.error}>{errors.numero}</span>
-                            )}
-                        </div>
+                        <Input
+                            id="barrio"
+                            name="barrio"
+                            label="Barrio/Zona"
+                            value={formData.barrio}
+                            onChange={handleChange}
+                            error={errors.barrio}
+                            required
+                            disabled={loading}
+                            placeholder="Nombre del barrio o zona"
+                        />
 
-                        {/* Barrio */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="barrio" className={styles.label}>
-                                Barrio/Zona *
-                            </label>
-                            <input
-                                type="text"
-                                id="barrio"
-                                name="barrio"
-                                value={formData.barrio}
-                                onChange={handleChange}
-                                placeholder="Nombre del barrio o zona"
-                                className={`${styles.input} ${errors.barrio ? styles.inputError : ''}`}
-                            />
-                            {errors.barrio && (
-                                <span className={styles.error}>{errors.barrio}</span>
-                            )}
-                        </div>
+                        <Input
+                            id="ciudad"
+                            name="ciudad"
+                            label="Ciudad"
+                            value={formData.ciudad}
+                            onChange={handleChange}
+                            error={errors.ciudad}
+                            required
+                            disabled={loading}
+                            placeholder="Ciudad"
+                        />
 
-                        {/* Ciudad */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="ciudad" className={styles.label}>
-                                Ciudad *
-                            </label>
-                            <input
-                                type="text"
-                                id="ciudad"
-                                name="ciudad"
-                                value={formData.ciudad}
-                                onChange={handleChange}
-                                placeholder="Ciudad"
-                                className={`${styles.input} ${errors.ciudad ? styles.inputError : ''}`}
-                            />
-                            {errors.ciudad && (
-                                <span className={styles.error}>{errors.ciudad}</span>
-                            )}
-                        </div>
+                        <Input
+                            id="provincia"
+                            name="provincia"
+                            label="Departamento/Provincia"
+                            value={formData.provincia}
+                            onChange={handleChange}
+                            error={errors.provincia}
+                            required
+                            disabled={loading}
+                            placeholder="Ej: Santa Cruz"
+                        />
+                    </div>
 
-                        {/* Provincia/Departamento */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="provincia" className={styles.label}>
-                                Departamento/Provincia *
-                            </label>
-                            <input
-                                type="text"
-                                id="provincia"
-                                name="provincia"
-                                value={formData.provincia}
-                                onChange={handleChange}
-                                placeholder="Ej: Santa Cruz"
-                                className={`${styles.input} ${errors.provincia ? styles.inputError : ''}`}
-                            />
-                            {errors.provincia && (
-                                <span className={styles.error}>{errors.provincia}</span>
-                            )}
-                        </div>
+                    <div className={styles.formDivider} style={{ margin: '8px 0', borderBottom: '1px solid var(--border-color)' }} />
 
-                        {/* Piso (opcional) */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="piso" className={styles.label}>
-                                Piso
-                            </label>
-                            <input
-                                type="text"
-                                id="piso"
-                                name="piso"
-                                value={formData.piso}
-                                onChange={handleChange}
-                                placeholder="Ej: 3"
-                                className={styles.input}
-                            />
-                        </div>
+                    <span className={styles.sectionTitlePremium}>Detalles Adicionales</span>
+                    <div className={styles.formGridPremium}>
+                        <Input
+                            id="piso"
+                            name="piso"
+                            label="Piso (Opcional)"
+                            value={formData.piso}
+                            onChange={handleChange}
+                            disabled={loading}
+                            placeholder="Ej: 3"
+                        />
 
-                        {/* Departamento/Apto (opcional) */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="departamento" className={styles.label}>
-                                Departamento/Apto
-                            </label>
-                            <input
-                                type="text"
-                                id="departamento"
-                                name="departamento"
-                                value={formData.departamento}
-                                onChange={handleChange}
-                                placeholder="Ej: 3A"
-                                className={styles.input}
-                            />
-                        </div>
+                        <Input
+                            id="departamento"
+                            name="departamento"
+                            label="Departamento/Apto (Opcional)"
+                            value={formData.departamento}
+                            onChange={handleChange}
+                            disabled={loading}
+                            placeholder="Ej: 3A"
+                        />
 
-                        {/* Código Postal */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="codigo_postal" className={styles.label}>
-                                Código Postal
-                            </label>
-                            <input
-                                type="text"
-                                id="codigo_postal"
-                                name="codigo_postal"
-                                value={formData.codigo_postal}
-                                onChange={handleChange}
-                                placeholder="Opcional"
-                                className={styles.input}
-                            />
-                        </div>
+                        <Input
+                            id="codigo_postal"
+                            name="codigo_postal"
+                            label="Código Postal"
+                            value={formData.codigo_postal}
+                            onChange={handleChange}
+                            disabled={loading}
+                            placeholder="Ej: 3000"
+                        />
 
-                        {/* Referencia */}
-                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                            <label htmlFor="referencia" className={styles.label}>
-                                Referencia
-                            </label>
-                            <textarea
+                        <Input
+                            id="telefono_contacto"
+                            name="telefono_contacto"
+                            type="tel"
+                            label="Teléfono de Contacto"
+                            value={formData.telefono_contacto}
+                            onChange={handleChange}
+                            error={errors.telefono_contacto}
+                            required
+                            disabled={loading}
+                            placeholder="Ej: 70123456"
+                        />
+
+                        <div className={styles.formGroupFullPremium}>
+                            <TextArea
                                 id="referencia"
                                 name="referencia"
+                                label="Referencia / Indicaciones"
                                 value={formData.referencia}
                                 onChange={handleChange}
-                                placeholder="Ej: Cerca del parque, portón azul, etc."
-                                className={styles.textarea}
+                                placeholder="Ej: Portón azul, frente a la plaza, etc."
+                                disabled={loading}
                                 rows={3}
                             />
-                        </div>
-
-                        {/* Teléfono de contacto */}
-                        <div className={styles.formGroup}>
-                            <label htmlFor="telefono_contacto" className={styles.label}>
-                                Teléfono de Contacto *
-                            </label>
-                            <input
-                                type="tel"
-                                id="telefono_contacto"
-                                name="telefono_contacto"
-                                value={formData.telefono_contacto}
-                                onChange={handleChange}
-                                placeholder="70123456"
-                                className={`${styles.input} ${errors.telefono_contacto ? styles.inputError : ''}`}
-                            />
-                            {errors.telefono_contacto && (
-                                <span className={styles.error}>{errors.telefono_contacto}</span>
-                            )}
                         </div>
                     </div>
 
@@ -384,35 +316,31 @@ const DireccionModal = ({ isOpen, onClose, onSave, direccion, title }: Direccion
                             <span>Usar para facturación</span>
                         </label>
                     </div>
-
-                    {/* Botones */}
-                    <div className={styles.actions}>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className={styles.btnSecondary}
-                            disabled={loading}
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            className={styles.btnPrimary}
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <LoadingSpinner size="sm" className={styles.buttonSpinner} />
-                                    Guardando...
-                                </>
-                            ) : (
-                                'Guardar Dirección'
-                            )}
-                        </button>
-                    </div>
                 </form>
             </div>
-        </div>
+
+            <div className="modalFooterPremium">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="btnPremium btnSecondaryPremium"
+                    disabled={loading}
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    form="direccion-form"
+                    className="btnPremium btnPrimaryPremium"
+                    disabled={loading}
+                >
+                    <span className="material-icons" style={{ fontSize: '18px' }}>
+                        {loading ? 'hourglass_empty' : 'save'}
+                    </span>
+                    {loading ? 'Guardando...' : 'Guardar Dirección'}
+                </button>
+            </div>
+        </PremiumModal>
     );
 };
 
