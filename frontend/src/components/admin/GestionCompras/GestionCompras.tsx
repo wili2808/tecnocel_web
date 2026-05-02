@@ -9,6 +9,7 @@ import {
   AdminFilterPanel,
   AdminMetricsStrip,
   AdminPagination,
+  DraggableTableHeader,
 } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import styles from './GestionCompras.module.css';
@@ -38,9 +39,7 @@ import {
   arrayMove,
   SortableContext,
   horizontalListSortingStrategy,
-  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 // Componentes que requieren lazy loading (más adelante)
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
@@ -49,58 +48,6 @@ const GestionProveedores = React.lazy(() => import('./GestionProveedores'));
 const LIMIT = 10;
 
 type TabType = 'compras' | 'proveedores' | 'stock';
-
-// Componente para cabeceras arrastrables con soporte de ordenamiento local
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        
-        <div
-          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
-          onClick={header.column.getToggleSortingHandler()}
-          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
-        >
-          {flexRender(header.column.columnDef.header, header.getContext())}
-          
-          {header.column.getCanSort() && (
-            <span
-              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
-            >
-              {{
-                asc: 'arrow_upward',
-                desc: 'arrow_downward',
-              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
-            </span>
-          )}
-        </div>
-      </div>
-    </th>
-  );
-};
 
 const GestionCompras: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
@@ -793,45 +740,30 @@ const GestionCompras: React.FC = memo(() => {
                         <tr key={headerGroup.id}>
                           <SortableContext items={stockColumnOrder} strategy={horizontalListSortingStrategy}>
                             {headerGroup.headers.map((header) =>
-                              header.column.id === 'sel' ? (
-                                <th key={header.id} className={styles.sortableHeader} style={{ width: '40px' }}>
-                                  {flexRender(header.column.columnDef.header, header.getContext())}
-                                </th>
-                              ) : (
-                                <DraggableTableHeader key={header.id} header={header} />
-                              )
+                              <DraggableTableHeader 
+                                key={header.id} 
+                                header={header} 
+                              />
                             )}
                           </SortableContext>
                         </tr>
                       ))}
                     </thead>
-                  <tbody>
-                    {stockTable.getRowModel().rows.map((row) => (
-                      <tr
-                        key={row.id}
-                        style={{
-                          backgroundColor: seleccionados.has(row.original.id_producto)
-                            ? 'color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent)'
-                            : undefined,
-                          cursor: 'pointer',
-                          transition: 'background-color 0.15s',
-                        }}
-                        onClick={() => toggleSeleccion(row.original)}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <td
-                            key={cell.id}
-                            onClick={cell.column.id === 'accion' ? (e) => e.stopPropagation() : undefined}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    <tbody>
+                      {stockTable.getRowModel().rows.map((row) => (
+                        <tr key={row.id} className={styles.stockRow}>
+                          {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </DndContext>
               </div>
+              
               <AdminPagination
                 total={stockBajo.length}
                 limit={stockPagination.pageSize}
@@ -850,19 +782,6 @@ const GestionCompras: React.FC = memo(() => {
       )}
 
       {/* Modales */}
-      {mostrarRegistrar && (
-        <React.Suspense fallback={null}>
-          <RegistrarCompraModal
-            onClose={() => {
-              setMostrarRegistrar(false);
-              setStockParaCompra([]);
-            }}
-            onRegistrada={handleRegistrada}
-            productosIniciales={stockParaCompra.length > 0 ? stockParaCompra : undefined}
-          />
-        </React.Suspense>
-      )}
-
       {idDetalleAbierto && (
         <DetalleCompraModal
           idCompra={idDetalleAbierto}
@@ -870,10 +789,21 @@ const GestionCompras: React.FC = memo(() => {
           onAnulada={handleAnulada}
         />
       )}
+
+      {mostrarRegistrar && (
+        <React.Suspense fallback={<div className={styles.loading}>Cargando...</div>}>
+          <RegistrarCompraModal
+            onClose={() => {
+              setMostrarRegistrar(false);
+              setStockParaCompra([]);
+            }}
+            onRegistrada={handleRegistrada}
+            productosIniciales={stockParaCompra}
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 });
-
-GestionCompras.displayName = 'GestionCompras';
 
 export default GestionCompras;

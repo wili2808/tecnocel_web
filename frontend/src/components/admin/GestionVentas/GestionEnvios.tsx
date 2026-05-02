@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import { useNotification } from '../../../contexts/NotificationContext';
 import envioAdminService from '../../../services/envioAdminService';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination, DraggableTableHeader } from '../common';
 import GestionEnviosModal from './GestionEnviosModal';
 import styles from './GestionVentas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
@@ -28,9 +28,7 @@ import {
   arrayMove,
   SortableContext,
   horizontalListSortingStrategy,
-  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 const LIMIT = 10;
 
@@ -48,42 +46,6 @@ const ESTADO_COLORS: Record<EstadoEnvio, string> = {
   en_preparacion: styles.estadoEnPreparacion,
   en_camino: styles.estadoEnCamino,
   entregado: styles.estadoEntregado,
-};
-
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {flexRender(header.column.columnDef.header, header.getContext())}
-        </div>
-      </div>
-    </th>
-  );
 };
 
 interface GestionEnviosProps {

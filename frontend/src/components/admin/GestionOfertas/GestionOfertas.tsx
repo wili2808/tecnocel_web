@@ -15,6 +15,7 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminPagination,
+  DraggableTableHeader,
 } from '../common';
 import styles from './GestionOfertas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
@@ -41,9 +42,7 @@ import {
   arrayMove,
   SortableContext,
   horizontalListSortingStrategy,
-  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 type FiltroEstado = 'todas' | 'activas' | 'inactivas' | 'expiradas';
 
@@ -67,56 +66,6 @@ const formatFecha = (fecha: string) => {
     month: 'short',
     day: 'numeric'
   });
-};
-
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div
-          className={header.column.getCanSort() ? styles.sortableHeaderContent : ''}
-          onClick={header.column.getToggleSortingHandler()}
-          style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default', flex: 1, display: 'flex', alignItems: 'center', gap: '4px' }}
-        >
-          {flexRender(header.column.columnDef.header, header.getContext())}
-          {header.column.getCanSort() && (
-            <span
-              className={`material-icons ${styles.sortIcon} ${header.column.getIsSorted() ? styles.sortIconActive : ''}`}
-            >
-              {{
-                asc: 'arrow_upward',
-                desc: 'arrow_downward',
-              }[header.column.getIsSorted() as string] ?? 'unfold_more'}
-            </span>
-          )}
-        </div>
-      </div>
-    </th>
-  );
 };
 
 const GestionOfertas = () => {
@@ -446,7 +395,6 @@ const GestionOfertas = () => {
                           <DraggableTableHeader 
                             key={header.id} 
                             header={header} 
-                            className={header.column.getCanSort() ? styles.sortableHeader : undefined}
                           />
                         ))}
                       </SortableContext>

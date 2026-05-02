@@ -9,6 +9,7 @@ import {
   AdminFilterPanel,
   AdminMetricsStrip,
   AdminPagination,
+  DraggableTableHeader,
 } from '../common';
 import type {
   ReporteTab,
@@ -43,9 +44,7 @@ import {
   arrayMove,
   SortableContext,
   horizontalListSortingStrategy,
-  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 interface TabConfig {
   id: ReporteTab;
@@ -117,57 +116,6 @@ const getDefaultDates = () => {
     fecha_inicio: toLocalDateInput(firstDay),
     fecha_fin: toLocalDateInput(now),
   };
-};
-
-// Componente Drag & Drop para las cabeceras de todas las tablas
-const DraggableTableHeader = ({ header, className }: { header: any; className?: string }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: header.column.id,
-  });
-
-  const style: React.CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    position: 'relative',
-    transform: CSS.Translate.toString(transform),
-    transition: 'width transform 0.2s ease-in-out',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    cursor: 'default',
-  };
-
-  const isSorted = header.column.getIsSorted();
-  const sortIcon = isSorted ? (isSorted === 'desc' ? 'arrow_downward' : 'arrow_upward') : 'unfold_more';
-  const canSort = header.column.getCanSort();
-
-  return (
-    <th ref={setNodeRef} style={style} className={className || styles.sortableHeader}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span 
-          {...attributes} 
-          {...listeners} 
-          className="material-icons" 
-          style={{ fontSize: '16px', color: '#aaa', cursor: 'grab' }}
-          title="Arrastrar para mover columna"
-        >
-          drag_indicator
-        </span>
-        <div 
-          style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '4px', cursor: canSort ? 'pointer' : 'default' }}
-          onClick={header.column.getToggleSortingHandler()}
-        >
-          <span className={styles.sortableHeaderContent}>
-            {flexRender(header.column.columnDef.header, header.getContext())}
-            {canSort && (
-              <span className={`material-icons ${styles.sortIcon} ${isSorted ? styles.sortIconActive : ''}`}>
-                {sortIcon}
-              </span>
-            )}
-          </span>
-        </div>
-      </div>
-    </th>
-  );
 };
 
 // COMPONENTE PRINCIPAL
@@ -623,7 +571,7 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse; searchTerm: stri
             ) : (
               table.getRowModel().rows.map(row => (
                 <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
+                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                   ))}
                 </tr>
