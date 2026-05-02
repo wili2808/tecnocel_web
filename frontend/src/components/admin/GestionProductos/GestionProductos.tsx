@@ -15,38 +15,12 @@ import {
   AdminEmptyState,
   AdminEntitySearchBar,
   AdminFilterPanel,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import type { Product } from '../../../types/product';
 import styles from './GestionProductos.module.css';
 
-// --- TanStack Table & Dnd-kit Imports ---
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type {
-  ColumnDef,
-  SortingState,
-} from '@tanstack/react-table';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 // --- Tipos ---
 type TabProductos = 'productos' | 'marcas' | 'categorias' | 'caracteristicas';
@@ -81,7 +55,7 @@ const GestionProductos = () => {
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock'
   ]);
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
   const cargarProductos = useCallback(async () => {
     try {
@@ -106,8 +80,6 @@ const GestionProductos = () => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
-
-
   const handleEditar = useCallback(async (id: number) => {
     try {
       const producto = await adminProductService.obtenerProducto(id);
@@ -122,8 +94,6 @@ const GestionProductos = () => {
     setProductoSeleccionado(null);
     setModalOpen(true);
   }, []);
-
-
 
   const handleGuardado = () => {
     setModalOpen(false);
@@ -251,39 +221,6 @@ const GestionProductos = () => {
     }
   ], []);
 
-  // --- Instancia de TanStack Table ---
-  const table = useReactTable({
-    data: filteredProductos,
-    columns,
-    state: {
-      sorting,
-      columnOrder,
-      pagination,
-    },
-    onSortingChange: setSorting,
-    onColumnOrderChange: setColumnOrder,
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  // --- Sensores y Manejador para Dnd-kit (Reordenamiento de columnas) ---
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   if (!puedeVer) {
     return (
@@ -301,7 +238,6 @@ const GestionProductos = () => {
   // Renderizado principal
   return (
     <div className={styles.container}>
-
 
       {/* Barra de tabs */}
       <div className={styles.tabsBar}>
@@ -381,81 +317,32 @@ const GestionProductos = () => {
             />
           )}
 
-          {/* Tabla de productos (TanStack Table) */}
+          {/* Tabla de productos (AdminDataTable) */}
           {!loading && !error && (
-            <>
-              <div className={styles.tableWrapper}>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <table className={styles.table}>
-                    <thead>
-                      {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext
-                            items={columnOrder}
-                            strategy={horizontalListSortingStrategy}
-                          >
-                            {headerGroup.headers.map((header) => (
-                              <DraggableTableHeader
-                                key={header.id}
-                                header={header}
-                              />
-                            ))}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.length === 0 ? (
-                        <tr>
-                          <td colSpan={columns.length} className={styles.emptyMessage}>
-                            {searchTerm && soloDestacados
-                              ? `No se encontraron productos destacados para "${searchTerm}"`
-                              : searchTerm
-                                ? `No se encontraron productos para "${searchTerm}"`
-                                : soloDestacados
-                                  ? 'No hay productos destacados'
-                                  : 'No hay productos registrados'}
-                          </td>
-                        </tr>
-                      ) : (
-                        table.getRowModel().rows.map((row) => (
-                          <tr 
-                            key={row.id}
-                            onClick={() => !isReadOnly && handleEditar(row.original.id_producto)}
-                            style={{ cursor: isReadOnly ? 'default' : 'pointer' }}
-                            className={!isReadOnly ? styles.clickableRow : ''}
-                          >
-                            {row.getVisibleCells().map((cell) => (
-                              <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-
-              {/* Paginación */}
-              <AdminPagination
-                total={table.getFilteredRowModel().rows.length}
-                limit={pagination.pageSize}
-                offset={pagination.pageIndex * pagination.pageSize}
-                onPageChange={(newOffset) => {
-                  setPagination(prev => ({
-                    ...prev,
-                    pageIndex: Math.floor(newOffset / prev.pageSize)
-                  }));
-                }}
-                itemLabel="productos"
-              />
-            </>
+            <AdminDataTable
+              data={filteredProductos}
+              columns={columns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={filteredProductos.length}
+              itemLabel="productos"
+              onRowClick={(row) => !isReadOnly && handleEditar(row.id_producto)}
+              isLoading={loading}
+              manualPagination={false}
+              emptyMessage={
+                searchTerm && soloDestacados
+                  ? `No se encontraron productos destacados para "${searchTerm}"`
+                  : searchTerm
+                    ? `No se encontraron productos para "${searchTerm}"`
+                    : soloDestacados
+                      ? 'No hay productos destacados'
+                      : 'No hay productos registrados'
+              }
+            />
           )}
         </>
       )}

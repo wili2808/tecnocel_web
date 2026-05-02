@@ -8,8 +8,7 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import DetalleCompraModal from './DetalleCompraModal';
 import styles from './GestionCompras.module.css';
@@ -17,29 +16,7 @@ import controlStyles from '../common/AdminControlStyles.module.css';
 import type { CompraListItem, EstadisticasCompras, FiltrosComprasAdmin } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  flexRender,
-  getSortedRowModel,
-} from '@tanstack/react-table';
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 // Componentes que requieren lazy loading (más adelante)
 const RegistrarCompraModal = React.lazy(() => import('./RegistrarCompraModal'));
@@ -72,22 +49,12 @@ const GestionCompras: React.FC = memo(() => {
   const [filtros, setFiltros] = useState<FiltrosComprasAdmin>({});
 
   // === Paginación y TanStack (Compras) ===
-  const [offset, setOffset] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [total, setTotal] = useState(0);
   const [stockPagination, setStockPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   
   const [sorting, setSorting] = useState<SortingState>([]);
   const [stockSorting, setStockSorting] = useState<SortingState>([]);
-
-  const pagination = useMemo<PaginationState>(() => ({
-    pageIndex: Math.floor(offset / LIMIT),
-    pageSize: LIMIT,
-  }), [offset]);
-
-  const setPagination = useCallback((updater: any) => {
-    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
-    setOffset(nextPagination.pageIndex * LIMIT);
-  }, [pagination]);
 
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nro_compra', 'fecha', 'proveedor', 'comprobante', 'monto', 'items', 'estado'
@@ -133,7 +100,8 @@ const GestionCompras: React.FC = memo(() => {
     try {
       setCargando(true);
       setError(null);
-      const response = await adminCompraService.listarCompras(filtros, LIMIT, offset);
+      const off = pagination.pageIndex * pagination.pageSize;
+      const response = await adminCompraService.listarCompras(filtros, pagination.pageSize, off);
 
       setCompras(response.data);
       setTotal(response.total);
@@ -144,7 +112,7 @@ const GestionCompras: React.FC = memo(() => {
       setCargando(false);
       cargandoRef.current = false;
     }
-  }, [filtros, offset]);
+  }, [filtros, pagination]);
 
   // === Efectos ===
   useEffect(() => {
@@ -163,13 +131,13 @@ const GestionCompras: React.FC = memo(() => {
     setMostrarRegistrar(false);
     setSeleccionados(new Set());
     setStockParaCompra([]);
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
     cargarCompras();
     cargarStats();
   };
 
   const handleAnulada = () => {
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
     cargarCompras();
     cargarStats();
     showNotification('Compra anulada exitosamente', 'success');
@@ -177,7 +145,7 @@ const GestionCompras: React.FC = memo(() => {
 
   const handleLimpiarFiltros = () => {
     setFiltros({});
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
   const statsItems = useMemo(() => {
@@ -276,22 +244,6 @@ const GestionCompras: React.FC = memo(() => {
     }
   ], []);
 
-  const comprasTable = useReactTable({
-    data: compras,
-    columns: comprasColumns,
-    pageCount: Math.ceil(total / LIMIT),
-    state: {
-      pagination,
-      columnOrder,
-      sorting,
-    },
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    onSortingChange: setSorting,
-    manualPagination: true,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
 
   // === Helpers de selección de stock bajo ===
   const toggleSeleccion = useCallback((p: ProductoStockBajo) => {
@@ -422,48 +374,6 @@ const GestionCompras: React.FC = memo(() => {
     },
   ], [seleccionados, stockBajo, puedeCrear, toggleSeleccion, toggleTodos, abrirCompraConSeleccion]);
 
-  const stockTable = useReactTable({
-    data: stockBajo,
-    columns: stockColumns,
-    state: { 
-      columnOrder: stockColumnOrder,
-      pagination: stockPagination,
-      sorting: stockSorting,
-    },
-    onColumnOrderChange: setStockColumnOrder,
-    onPaginationChange: setStockPagination,
-    onSortingChange: setStockSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEndCompras = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const handleDragEndStock = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setStockColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
 
   // === Render ===
@@ -502,7 +412,7 @@ const GestionCompras: React.FC = memo(() => {
             className={`${styles.tab} ${activeTab === 'compras' ? styles.tabActive : ''}`}
             onClick={() => {
               setActiveTab('compras');
-              setOffset(0);
+              setPagination(prev => ({ ...prev, pageIndex: 0 }));
             }}
           >
             <span className="material-icons">receipt_long</span>
@@ -564,7 +474,7 @@ const GestionCompras: React.FC = memo(() => {
                     value={filtros.fecha_inicio || ''}
                     onChange={(e) => {
                       setFiltros((prev) => ({ ...prev, fecha_inicio: e.target.value || undefined }));
-                      setOffset(0);
+                      setPagination(prev => ({ ...prev, pageIndex: 0 }));
                     }}
                   />
               </AdminFilterPanel.Group>
@@ -576,7 +486,7 @@ const GestionCompras: React.FC = memo(() => {
                     value={filtros.fecha_fin || ''}
                     onChange={(e) => {
                       setFiltros((prev) => ({ ...prev, fecha_fin: e.target.value || undefined }));
-                      setOffset(0);
+                      setPagination(prev => ({ ...prev, pageIndex: 0 }));
                     }}
                   />
               </AdminFilterPanel.Group>
@@ -590,7 +500,7 @@ const GestionCompras: React.FC = memo(() => {
                         ...prev,
                         estado: (e.target.value as 'activa' | 'anulada') || undefined,
                       }));
-                      setOffset(0);
+                      setPagination(prev => ({ ...prev, pageIndex: 0 }));
                     }}
                   >
                     <option value="">Todas</option>
@@ -607,7 +517,7 @@ const GestionCompras: React.FC = memo(() => {
                   searchPlaceholder="Ej: C-00001 o nombre proveedor"
                   onSearchChange={(val) => {
                     setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                    setOffset(0);
+                    setPagination(prev => ({ ...prev, pageIndex: 0 }));
                   }}
                   searchLabel="Búsqueda"
                   primaryActionLabel={puedeCrear ? 'Nueva Compra' : undefined}
@@ -652,53 +562,21 @@ const GestionCompras: React.FC = memo(() => {
               className={styles.loadingState}
             />
           ) : (
-            <>
-              <div className={styles.tableWrapper}>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCompras}>
-                  <table className={styles.table}>
-                    <thead>
-                      {comprasTable.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                            {headerGroup.headers.map(header => (
-                              <DraggableTableHeader 
-                                key={header.id} 
-                                header={header} 
-                              />
-                            ))}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {comprasTable.getRowModel().rows.map((row) => (
-                        <tr 
-                          key={row.id}
-                          onClick={() => setIdDetalleAbierto(row.original.id_compra)}
-                          style={{ cursor: 'pointer' }}
-                          className={styles.clickableRow}
-                        >
-                          {row.getVisibleCells().map(cell => (
-                            <td key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-
-              {/* Paginación (Servidor) */}
-              <AdminPagination
-                total={total}
-                limit={LIMIT}
-                offset={offset}
-                onPageChange={setOffset}
-                itemLabel="compras"
-              />
-            </>
+            <AdminDataTable
+              data={compras}
+              columns={comprasColumns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={total}
+              itemLabel="compras"
+              onRowClick={(row) => setIdDetalleAbierto(row.id_compra)}
+              isLoading={cargando}
+              emptyMessage="No se encontraron compras para los filtros aplicados"
+            />
           )}
         </>
       )}
@@ -732,50 +610,21 @@ const GestionCompras: React.FC = memo(() => {
             <>
               {/* Barra flotante de compra rápida eliminada */}
 
-              <div className={styles.tableWrapper}>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndStock}>
-                  <table className={styles.table}>
-                    <thead>
-                      {stockTable.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext items={stockColumnOrder} strategy={horizontalListSortingStrategy}>
-                            {headerGroup.headers.map((header) =>
-                              <DraggableTableHeader 
-                                key={header.id} 
-                                header={header} 
-                              />
-                            )}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {stockTable.getRowModel().rows.map((row) => (
-                        <tr key={row.id} className={styles.stockRow}>
-                          {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-              
-              <AdminPagination
-                total={stockBajo.length}
-                limit={stockPagination.pageSize}
-                offset={stockPagination.pageIndex * stockPagination.pageSize}
-                onPageChange={(newOffset) => {
-                  setStockPagination(prev => ({
-                    ...prev,
-                    pageIndex: Math.floor(newOffset / prev.pageSize)
-                  }));
-                }}
-                itemLabel="productos"
-              />
+            <AdminDataTable
+              data={stockBajo}
+              columns={stockColumns}
+              sorting={stockSorting}
+              onSortingChange={setStockSorting}
+              columnOrder={stockColumnOrder}
+              onColumnOrderChange={setStockColumnOrder}
+              pagination={stockPagination}
+              onPaginationChange={setStockPagination}
+              totalItems={stockBajo.length}
+              itemLabel="productos"
+              isLoading={cargandoStock}
+              manualPagination={false}
+              emptyMessage="No hay productos con stock bajo en este momento."
+            />
             </>
           )}
         </div>

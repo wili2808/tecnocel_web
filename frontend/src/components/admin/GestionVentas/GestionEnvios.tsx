@@ -2,35 +2,14 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import { useNotification } from '../../../contexts/NotificationContext';
 import envioAdminService from '../../../services/envioAdminService';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminPagination, DraggableTableHeader } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminDataTable } from '../common';
 import GestionEnviosModal from './GestionEnviosModal';
 import styles from './GestionVentas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
 import type { EnvioAdminListItem, FiltrosEnviosAdmin, EstadoEnvio } from '../../../types/envio';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef, PaginationState } from '@tanstack/react-table';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
-const LIMIT = 10;
 
 const formatFecha = (iso: string) =>
   new Date(iso).toLocaleString('es-AR', {
@@ -56,39 +35,29 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
   const { showNotification } = useNotification();
 
   const [envios, setEnvios] = useState<EnvioAdminListItem[]>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const [total, setTotal] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [offset, setOffset] = useState(0);
-
   const [filtros, setFiltros] = useState<FiltrosEnviosAdmin>({});
-
   const [envioSeleccionado, setEnvioSeleccionado] = useState<EnvioAdminListItem | null>(null);
-
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nro_venta', 'cliente', 'direccion', 'fecha', 'estado', 'seguimiento'
   ]);
 
-  const pagination = useMemo<PaginationState>(() => ({
-    pageIndex: Math.floor(offset / LIMIT),
-    pageSize: LIMIT,
-  }), [offset]);
-
-  const setPagination = useCallback((updater: any) => {
-    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
-    setOffset(nextPagination.pageIndex * LIMIT);
-  }, [pagination]);
-
   const cargandoRef = useRef(false);
 
   const cargarEnvios = useCallback(
-    async (f: FiltrosEnviosAdmin, off: number) => {
+    async (f: FiltrosEnviosAdmin, pag: PaginationState) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
-        const result = await envioAdminService.listarEnvios({ ...f, limit: LIMIT, offset: off });
+        const off = pag.pageIndex * pag.pageSize;
+        const result = await envioAdminService.listarEnvios({ ...f, limit: pag.pageSize, offset: off });
         setEnvios(result.data);
         setTotal(result.total);
 
@@ -114,19 +83,19 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
   );
 
   useEffect(() => {
-    cargarEnvios(filtros, offset);
-  }, [filtros, offset, cargarEnvios]);
+    cargarEnvios(filtros, pagination);
+  }, [filtros, pagination, cargarEnvios]);
 
 
 
   const limpiarFiltros = () => {
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
     setFiltros({});
   };
 
   const handleEstadoActualizado = () => {
     setEnvioSeleccionado(null);
-    cargarEnvios(filtros, offset);
+    cargarEnvios(filtros, pagination);
   };
 
   // === Columnas TanStack ===
@@ -188,35 +157,6 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
     },
   ], []);
 
-  const table = useReactTable({
-    data: envios,
-    columns,
-    pageCount: Math.ceil(total / LIMIT),
-    state: {
-      pagination,
-      columnOrder,
-    },
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    manualPagination: true,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   if (error) return <div className={styles.errorMsg}>{error}</div>;
 
@@ -269,7 +209,7 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
               searchPlaceholder="Buscar por nro. venta o cliente..."
               onSearchChange={(val) => {
                 setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                setOffset(0);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
               }}
               searchLabel="Búsqueda"
               primaryActionHidden
@@ -285,56 +225,22 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
       </AdminFilterPanel>
 
       {/* Tabla */}
-      {cargando ? (
-        <div className={styles.loadingMsg}>Cargando envíos...</div>
-      ) : envios.length === 0 ? (
-        <div className={styles.emptyMsg}>No se encontraron envíos a domicilio.</div>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.tabla}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                        />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr 
-                    key={row.id}
-                    onClick={() => setEnvioSeleccionado(row.original)}
-                    className={styles.clickableRow}
-                  >
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </DndContext>
-        </div>
-      )}
-
-      {/* Paginación */}
-      <AdminPagination
-        total={total}
-        limit={LIMIT}
-        offset={offset}
-        onPageChange={setOffset}
-        itemLabel="envíos"
-      />
+        <AdminDataTable
+          data={envios}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="envíos"
+          onRowClick={(row) => setEnvioSeleccionado(row)}
+          isLoading={cargando}
+          manualPagination={true}
+          emptyMessage="No se encontraron envíos a domicilio."
+        />
 
       {/* Modal */}
       {envioSeleccionado && (

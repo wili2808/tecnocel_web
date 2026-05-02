@@ -6,8 +6,7 @@ import {
   AdminEmptyState,
   AdminEntitySearchBar,
   AdminFilterPanel,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionUsuarios.module.css';
@@ -16,29 +15,7 @@ import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 interface CrearUsuarioFormData {
   nombres: string;
@@ -362,37 +339,6 @@ const GestionUsuarios = () => {
     );
   }, [usuarios, searchTerm]);
 
-  const table = useReactTable({
-    data: usuariosFiltrados,
-    columns,
-    state: {
-      sorting,
-      pagination,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   if (!puedeVer) {
     return (
@@ -459,63 +405,22 @@ const GestionUsuarios = () => {
           </AdminFilterPanel.Row>
         </AdminFilterPanel>
 
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                        />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className={styles.emptyMessage}>
-                      {searchTerm 
-                        ? `No se encontraron usuarios para "${searchTerm}"`
-                        : 'No hay usuarios registrados'}
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr 
-                      key={row.id}
-                      onClick={() => handleEditarClick(row.original)}
-                      className={styles.clickableRow}
-                    >
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </DndContext>
-          <AdminPagination
-          total={usuariosFiltrados.length}
-          limit={pagination.pageSize}
-          offset={pagination.pageIndex * pagination.pageSize}
-          onPageChange={(newOffset) => {
-            setPagination(prev => ({
-              ...prev,
-              pageIndex: Math.floor(newOffset / prev.pageSize)
-            }));
-          }}
+        <AdminDataTable
+          data={usuariosFiltrados}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={usuariosFiltrados.length}
           itemLabel="usuarios"
+          onRowClick={handleEditarClick}
+          isLoading={loading}
+          emptyMessage={searchTerm ? `No se encontraron usuarios para "${searchTerm}"` : 'No hay usuarios registrados'}
+          manualPagination={false}
         />
-      </div>
       </div>
 
       <PremiumModal

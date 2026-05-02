@@ -14,37 +14,14 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import styles from './GestionVentas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
 import type { VentaListItem, EstadisticasVentas, FiltrosVentasAdmin } from '../../../types/venta';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-} from '@tanstack/react-table';
+
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
-// ── Tipos internos ───────────────────────────────────────────────────────────
 
 const LIMIT = 10;
 
@@ -104,22 +81,12 @@ const GestionVentas: React.FC = () => {
   const [vendedores, setVendedores] = useState<{ id_usuario: number; nombres: string }[]>([]);
 
   // ── Paginación y ordenación TanStack ───────────────────────────────────────
-  const [offset, setOffset] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([{ id: 'fecha', desc: true }]);
-  
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'nro_venta', 'fecha', 'vendedor', 'cliente', 'items', 'total_pagado', 'metodo', 'tipo', 'estado'
   ]);
 
-  const pagination = useMemo<PaginationState>(() => ({
-    pageIndex: Math.floor(offset / LIMIT),
-    pageSize: LIMIT,
-  }), [offset]);
-
-  const setPagination = useCallback((updater: any) => {
-    const nextPagination = typeof updater === 'function' ? updater(pagination) : updater;
-    setOffset(nextPagination.pageIndex * LIMIT);
-  }, [pagination]);
 
   // ── Cotización USD ─────────────────────────────────────────────────────────
   const [tipoCambio, setTipoCambio] = useState<number>(1200);
@@ -208,13 +175,14 @@ const GestionVentas: React.FC = () => {
 
   // ── Cargar ventas ──────────────────────────────────────────────────────────
   const cargarVentas = useCallback(
-    async (f: FiltrosVentasAdmin, off: number) => {
+    async (f: FiltrosVentasAdmin, pIndex: number) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
-        const res = await adminVentaService.listarVentas(f, LIMIT, off);
+        const off = pIndex * pagination.pageSize;
+        const res = await adminVentaService.listarVentas(f, pagination.pageSize, off);
         setVentas(res.ventas);
         setTotal(res.total);
       } catch (err: any) {
@@ -260,18 +228,18 @@ const GestionVentas: React.FC = () => {
   ]);
 
   useEffect(() => {
-    cargarVentas(filtros, offset);
-  }, [cargarVentas, filtros, offset]);
+    cargarVentas(filtros, pagination.pageIndex);
+  }, [cargarVentas, filtros, pagination.pageIndex, pagination.pageSize]);
 
   // ── Limpiar filtros ────────────────────────────────────────────────────────
   const limpiarFiltros = () => {
     setFiltros({});
-    setOffset(0);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
   // ── Refresh tras acciones ──────────────────────────────────────────────────
   const refreshTodo = () => {
-    cargarVentas(filtros, offset);
+    cargarVentas(filtros, pagination.pageIndex);
     cargarStats();
   };
 
@@ -404,38 +372,6 @@ const GestionVentas: React.FC = () => {
     },
   ], []);
 
-  const table = useReactTable({
-    data: ventas,
-    columns,
-    pageCount: Math.ceil(total / LIMIT),
-    state: {
-      pagination,
-      sorting,
-      columnOrder,
-    },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    onColumnOrderChange: setColumnOrder,
-    manualPagination: true,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -668,7 +604,7 @@ const GestionVentas: React.FC = () => {
                   searchPlaceholder="N° venta, cliente..."
                   onSearchChange={(val) => {
                     setFiltros((prev) => ({ ...prev, search: val || undefined }));
-                    setOffset(0);
+                    setPagination(prev => ({ ...prev, pageIndex: 0 }));
                   }}
                   searchLabel="Búsqueda"
                   primaryActionLabel={puedeCrear ? 'Registrar Venta' : undefined}
@@ -700,61 +636,26 @@ const GestionVentas: React.FC = () => {
               title="No pudimos cargar las ventas"
               message={error}
               actionLabel="Reintentar"
-              onAction={() => cargarVentas(filtros, offset)}
+              onAction={() => cargarVentas(filtros, pagination.pageIndex)}
               tone="danger"
               className={styles.errorState}
             />
           ) : (
             <>
-              <div className={styles.tableWrapper}>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <table className={styles.table}>
-                    <thead>
-                      {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                          <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                            {headerGroup.headers.map(header => (
-                              <DraggableTableHeader 
-                                key={header.id} 
-                                header={header} 
-                              />
-                            ))}
-                          </SortableContext>
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.length === 0 ? (
-                        <tr>
-                          <td colSpan={10} className={styles.emptyMessage}>
-                            No hay ventas que coincidan con los filtros aplicados
-                          </td>
-                        </tr>
-                      ) : (
-                        table.getRowModel().rows.map((row) => (
-                          <tr 
-                            key={row.id}
-                            onClick={() => setIdDetalleAbierto(row.original.id_venta)}
-                            className={styles.clickableRow}
-                          >
-                            {row.getVisibleCells().map(cell => (
-                              <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </DndContext>
-              </div>
-              <AdminPagination
-                total={total}
-                limit={LIMIT}
-                offset={offset}
-                onPageChange={setOffset}
+              <AdminDataTable
+                data={ventas}
+                columns={columns}
+                sorting={sorting}
+                onSortingChange={setSorting}
+                columnOrder={columnOrder}
+                onColumnOrderChange={setColumnOrder}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                totalItems={total}
                 itemLabel="ventas"
+                onRowClick={(row) => setIdDetalleAbierto(row.id_venta)}
+                isLoading={cargando}
+                emptyMessage="No hay ventas que coincidan con los filtros aplicados"
               />
             </>
           )}

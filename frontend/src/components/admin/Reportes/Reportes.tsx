@@ -8,8 +8,7 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import type {
   ReporteTab,
@@ -22,29 +21,7 @@ import type {
   ReporteVendedoresResponse,
 } from '../../../types/reporte';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 interface TabConfig {
   id: ReporteTab;
@@ -530,69 +507,22 @@ const ReporteVentasTab: React.FC<{ data: ReporteVentasResponse; searchTerm: stri
     }
   ], []);
 
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    state: { sorting, pagination, columnOrder },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
-    }
-  };
-
   return (
-    <div className={styles.tableWrapper}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <table className={styles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                  {headerGroup.headers.map(header => (
-                    <DraggableTableHeader key={header.id} header={header} />
-                  ))}
-                </SortableContext>
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={5} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                   {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </DndContext>
-      <AdminPagination
-        total={filteredData.length}
-        limit={pagination.pageSize}
-        offset={pagination.pageIndex * pagination.pageSize}
-        onPageChange={(newOffset) => {
-          setPagination(prev => ({
-            ...prev,
-            pageIndex: Math.floor(newOffset / prev.pageSize)
-          }));
-        }}
-        itemLabel="registros"
-      />
-    </div>
+    <AdminDataTable
+      data={filteredData}
+      columns={columns}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      columnOrder={columnOrder}
+      onColumnOrderChange={setColumnOrder}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      totalItems={filteredData.length}
+      itemLabel="registros"
+      isLoading={false}
+      manualPagination={false}
+      emptyMessage="No hay datos para el periodo seleccionado"
+    />
   );
 });
 
@@ -657,69 +587,22 @@ const ReporteVendedoresTab: React.FC<{ data: ReporteVendedoresResponse; searchTe
     }
   ], []);
 
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    state: { sorting, pagination, columnOrder },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
-    }
-  };
-
   return (
-    <div className={styles.tableWrapper}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <table className={styles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                  {headerGroup.headers.map(header => (
-                    <DraggableTableHeader key={header.id} header={header} />
-                  ))}
-                </SortableContext>
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={6} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </DndContext>
-      <AdminPagination
-        total={filteredData.length}
-        limit={pagination.pageSize}
-        offset={pagination.pageIndex * pagination.pageSize}
-        onPageChange={(newOffset) => {
-          setPagination(prev => ({
-            ...prev,
-            pageIndex: Math.floor(newOffset / prev.pageSize)
-          }));
-        }}
-        itemLabel="vendedores"
-      />
-    </div>
+    <AdminDataTable
+      data={filteredData}
+      columns={columns}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      columnOrder={columnOrder}
+      onColumnOrderChange={setColumnOrder}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      totalItems={filteredData.length}
+      itemLabel="vendedores"
+      isLoading={false}
+      manualPagination={false}
+      emptyMessage="No hay datos para el periodo seleccionado"
+    />
   );
 });
 
@@ -774,69 +657,22 @@ const ReporteProductosTab: React.FC<{ data: ReporteProductosResponse; searchTerm
     }
   ], []);
 
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    state: { sorting, pagination, columnOrder },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
-    }
-  };
-
   return (
-    <div className={styles.tableWrapper}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <table className={styles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                  {headerGroup.headers.map(header => (
-                    <DraggableTableHeader key={header.id} header={header} />
-                  ))}
-                </SortableContext>
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={8} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </DndContext>
-      <AdminPagination
-        total={filteredData.length}
-        limit={pagination.pageSize}
-        offset={pagination.pageIndex * pagination.pageSize}
-        onPageChange={(newOffset) => {
-          setPagination(prev => ({
-            ...prev,
-            pageIndex: Math.floor(newOffset / prev.pageSize)
-          }));
-        }}
-        itemLabel="productos"
-      />
-    </div>
+    <AdminDataTable
+      data={filteredData}
+      columns={columns}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      columnOrder={columnOrder}
+      onColumnOrderChange={setColumnOrder}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      totalItems={filteredData.length}
+      itemLabel="productos"
+      isLoading={false}
+      manualPagination={false}
+      emptyMessage="No hay productos vendidos en este periodo"
+    />
   );
 });
 
@@ -888,69 +724,22 @@ const ReporteClientesTab: React.FC<{ data: ReporteClientesResponse; searchTerm: 
     }
   ], []);
 
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    state: { sorting, pagination, columnOrder },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
-    }
-  };
-
   return (
-    <div className={styles.tableWrapper}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <table className={styles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                  {headerGroup.headers.map(header => (
-                    <DraggableTableHeader key={header.id} header={header} />
-                  ))}
-                </SortableContext>
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={6} className={styles.emptyMessage}>No hay datos para el periodo seleccionado</td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </DndContext>
-      <AdminPagination
-        total={filteredData.length}
-        limit={pagination.pageSize}
-        offset={pagination.pageIndex * pagination.pageSize}
-        onPageChange={(newOffset) => {
-          setPagination(prev => ({
-            ...prev,
-            pageIndex: Math.floor(newOffset / prev.pageSize)
-          }));
-        }}
-        itemLabel="clientes"
-      />
-    </div>
+    <AdminDataTable
+      data={filteredData}
+      columns={columns}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      columnOrder={columnOrder}
+      onColumnOrderChange={setColumnOrder}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      totalItems={filteredData.length}
+      itemLabel="clientes"
+      isLoading={false}
+      manualPagination={false}
+      emptyMessage="No hay clientes registrados con compras en este periodo"
+    />
   );
 });
 
@@ -993,69 +782,22 @@ const ReporteCancelacionesTab: React.FC<{ data: ReporteCancelacionesResponse; se
     { accessorKey: 'cancelado_por', id: 'cancelado_por', header: 'Cancelado por' }
   ], []);
 
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    state: { sorting, pagination, columnOrder },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), useSensor(KeyboardSensor));
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string)));
-    }
-  };
-
   return (
-    <div className={styles.tableWrapper}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <table className={styles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                  {headerGroup.headers.map(header => (
-                    <DraggableTableHeader key={header.id} header={header} />
-                  ))}
-                </SortableContext>
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={6} className={styles.emptyMessage}>No hay cancelaciones en el periodo seleccionado</td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </DndContext>
-      <AdminPagination
-        total={filteredData.length}
-        limit={pagination.pageSize}
-        offset={pagination.pageIndex * pagination.pageSize}
-        onPageChange={(newOffset) => {
-          setPagination(prev => ({
-            ...prev,
-            pageIndex: Math.floor(newOffset / prev.pageSize)
-          }));
-        }}
-        itemLabel="cancelaciones"
-      />
-    </div>
+    <AdminDataTable
+      data={filteredData}
+      columns={columns}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      columnOrder={columnOrder}
+      onColumnOrderChange={setColumnOrder}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      totalItems={filteredData.length}
+      itemLabel="cancelaciones"
+      isLoading={false}
+      manualPagination={false}
+      emptyMessage="No hay cancelaciones en el periodo seleccionado"
+    />
   );
 });
 

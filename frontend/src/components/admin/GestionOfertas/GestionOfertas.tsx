@@ -14,35 +14,12 @@ import {
   AdminEmptyState,
   AdminEntitySearchBar,
   AdminFilterPanel,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import styles from './GestionOfertas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 type FiltroEstado = 'todas' | 'activas' | 'inactivas' | 'expiradas';
 
@@ -266,37 +243,6 @@ const GestionOfertas = () => {
     }
   ], [tipoCambio]);
 
-  const table = useReactTable({
-    data: filteredOfertas,
-    columns,
-    state: {
-      sorting,
-      pagination,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   // Vista de lista
   if (!puedeVer) {
@@ -322,7 +268,7 @@ const GestionOfertas = () => {
               value={filtroEstado}
               onChange={(e) => {
                 setFiltroEstado(e.target.value as FiltroEstado);
-                table.setPageIndex(0);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
               }}
               className={controlStyles.field}
             >
@@ -341,7 +287,7 @@ const GestionOfertas = () => {
               searchPlaceholder="Buscar por nombre de oferta..."
               onSearchChange={(val) => {
                 setSearchTerm(val);
-                table.setPageIndex(0);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
               }}
               primaryActionLabel="Nueva Oferta"
               primaryActionIcon="add_box"
@@ -384,64 +330,25 @@ const GestionOfertas = () => {
         <>
 
 
-          <div className={styles.tableWrapper}>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <table className={styles.table}>
-                <thead>
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
-                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                        {headerGroup.headers.map(header => (
-                          <DraggableTableHeader 
-                            key={header.id} 
-                            header={header} 
-                          />
-                        ))}
-                      </SortableContext>
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.length === 0 ? (
-                    <tr>
-                      <td colSpan={columns.length} className={styles.emptyMessage}>
-                        {searchTerm || filtroEstado !== 'todas'
-                          ? 'No se encontraron ofertas con los filtros aplicados'
-                          : 'No hay ofertas registradas'}
-                      </td>
-                    </tr>
-                  ) : (
-                    table.getRowModel().rows.map((row) => (
-                      <tr 
-                        key={row.id}
-                        onClick={() => handleEditarOferta(row.original)}
-                        className={styles.clickableRow}
-                      >
-                        {row.getVisibleCells().map(cell => (
-                          <td key={cell.id} className={cell.column.id === 'valor_descuento' ? styles.valorCell : undefined}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </DndContext>
-          </div>
-
-          {/* Paginación */}
-          <AdminPagination
-            total={filteredOfertas.length}
-            limit={pagination.pageSize}
-            offset={pagination.pageIndex * pagination.pageSize}
-            onPageChange={(newOffset) => {
-              setPagination(prev => ({
-                ...prev,
-                pageIndex: Math.floor(newOffset / prev.pageSize)
-              }));
-            }}
+          <AdminDataTable
+            data={filteredOfertas}
+            columns={columns}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnOrder={columnOrder}
+            onColumnOrderChange={setColumnOrder}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            totalItems={filteredOfertas.length}
             itemLabel="ofertas"
+            onRowClick={(row) => handleEditarOferta(row)}
+            isLoading={loading}
+            manualPagination={false}
+            emptyMessage={
+              searchTerm || filtroEstado !== 'todas'
+                ? 'No se encontraron ofertas con los filtros aplicados'
+                : 'No hay ofertas registradas'
+            }
           />
         </>
       )}

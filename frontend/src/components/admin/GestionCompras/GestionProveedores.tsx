@@ -3,32 +3,11 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminEntitySearchBar, AdminPagination, AdminFilterPanel, AdminEmptyState, DraggableTableHeader } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminEmptyState, AdminDataTable } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  getSortedRowModel,
-} from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 const GestionProveedores: React.FC = memo(() => {
   const { tienePermiso } = useAuth();
@@ -39,8 +18,7 @@ const GestionProveedores: React.FC = memo(() => {
 
   const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
   const [total, setTotal] = useState(0);
-  const [limit] = useState(10);
-  const [offset, setOffset] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,7 +33,8 @@ const GestionProveedores: React.FC = memo(() => {
     try {
       setCargando(true);
       setError(null);
-      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined, limit, offset);
+      const off = pagination.pageIndex * pagination.pageSize;
+      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined, pagination.pageSize, off);
       setProveedores(response.data);
       setTotal(response.count);
     } catch (err) {
@@ -64,7 +43,7 @@ const GestionProveedores: React.FC = memo(() => {
     } finally {
       setCargando(false);
     }
-  }, [searchTerm, limit, offset]);
+  }, [searchTerm, pagination]);
 
   // Ejecutar búsqueda cuando cambia searchTerm (ya viene debounced de AdminSearch)
   useEffect(() => {
@@ -119,34 +98,6 @@ const GestionProveedores: React.FC = memo(() => {
     },
   ], []);
 
-  const table = useReactTable({
-    data: proveedores,
-    columns,
-    state: {
-      columnOrder,
-      sorting,
-    },
-    onColumnOrderChange: setColumnOrder,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   if (!puedeVer) {
     return (
@@ -202,7 +153,7 @@ const GestionProveedores: React.FC = memo(() => {
               searchPlaceholder="Nombre, empresa, celular..."
               onSearchChange={(val) => {
                 setSearchTerm(val);
-                setOffset(0);
+                setPagination(prev => ({ ...prev, pageIndex: 0 }));
               }}
               searchLabel="Búsqueda"
               primaryActionLabel="Nuevo Proveedor"
@@ -214,65 +165,28 @@ const GestionProveedores: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {proveedores.length === 0 ? (
-        <AdminEmptyState
-          icon="inventory_2"
-          title="No hay proveedores"
-          message={searchTerm ? `No se encontraron resultados for "${searchTerm}"` : "No hay proveedores registrados aún."}
-          className={styles.loadingState}
+        <AdminDataTable
+          data={proveedores}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="proveedores"
+          onRowClick={(row) => {
+            if (puedeEditar) {
+              setModalProveedor(row);
+            } else {
+              showNotification('No tienes permisos para editar proveedores', 'info');
+            }
+          }}
+          isLoading={cargando}
+          manualPagination={true}
+          emptyMessage={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay proveedores registrados aún."}
         />
-      ) : (
-        <div className={styles.tableContainer}>
-          <div className={styles.tableWrapper}>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <table className={styles.table}>
-                <thead>
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
-                      <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                        {headerGroup.headers.map(header => (
-                          <DraggableTableHeader 
-                            key={header.id} 
-                            header={header} 
-                          />
-                        ))}
-                      </SortableContext>
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.map((row) => (
-                    <tr 
-                      key={row.id}
-                      onClick={() => {
-                        if (puedeEditar) {
-                          setModalProveedor(row.original);
-                        } else {
-                          showNotification('No tienes permisos para editar proveedores', 'info');
-                        }
-                      }}
-                      className={styles.clickableRow}
-                    >
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </DndContext>
-          </div>
-          <AdminPagination
-            total={total}
-            limit={limit}
-            offset={offset}
-            onPageChange={setOffset}
-            itemLabel="proveedores"
-          />
-        </div>
-      )}
 
       {modalProveedor && (
         <ProveedorModal

@@ -5,8 +5,7 @@ import {
   AdminEmptyState,
   AdminEntitySearchBar,
   AdminFilterPanel,
-  AdminPagination,
-  DraggableTableHeader,
+  AdminDataTable,
 } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
@@ -15,30 +14,7 @@ import CrearClienteModal from './CrearClienteModal';
 import styles from './GestionClientes.module.css';
 import type { ClienteListItem } from '../../../types/usuario';
 
-const LIMIT = 10;
-
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 
 const GestionClientes = () => {
@@ -53,7 +29,7 @@ const GestionClientes = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Paginación
-  const [offset, setOffset] = useState(0);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [total, setTotal] = useState(0);
 
   // Estados TanStack
@@ -71,7 +47,8 @@ const GestionClientes = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await usuarioService.listarClientes(LIMIT, offset, searchTerm || undefined);
+      const off = pagination.pageIndex * pagination.pageSize;
+      const data = await usuarioService.listarClientes(pagination.pageSize, off, searchTerm || undefined);
       setClientes(data.clientes || []);
       setTotal(data.total || 0);
     } catch (err: any) {
@@ -80,7 +57,7 @@ const GestionClientes = () => {
     } finally {
       setLoading(false);
     }
-  }, [offset, searchTerm, showNotification]);
+  }, [pagination, searchTerm, showNotification]);
 
   useEffect(() => {
     cargarClientes();
@@ -164,34 +141,6 @@ const GestionClientes = () => {
     },
   ], []);
 
-  const table = useReactTable({
-    data: clientes,
-    columns,
-    state: {
-      sorting,
-      columnOrder,
-    },
-    onSortingChange: setSorting,
-    onColumnOrderChange: setColumnOrder,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((order) => {
-        const oldIndex = order.indexOf(active.id as string);
-        const newIndex = order.indexOf(over.id as string);
-        return arrayMove(order, oldIndex, newIndex);
-      });
-    }
-  };
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -249,7 +198,7 @@ const GestionClientes = () => {
                 searchPlaceholder="Buscar por nombre, email o celular..."
                 onSearchChange={(val) => {
                   setSearchTerm(val);
-                  setOffset(0);
+                  setPagination(prev => ({ ...prev, pageIndex: 0 }));
                 }}
                 primaryActionLabel="Crear Cliente"
                 primaryActionIcon="person_add"
@@ -260,57 +209,21 @@ const GestionClientes = () => {
           </AdminFilterPanel.Row>
         </AdminFilterPanel>
 
-        <div className={styles.tableWrapper}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <table className={styles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    <SortableContext items={columnOrder} strategy={horizontalListSortingStrategy}>
-                      {headerGroup.headers.map(header => (
-                        <DraggableTableHeader 
-                          key={header.id} 
-                          header={header} 
-                        />
-                      ))}
-                    </SortableContext>
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className={styles.emptyMessage}>
-                      {loading ? 'Cargando...' : 'No se encontraron clientes'}
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr 
-                      key={row.id}
-                      onClick={() => handleVerDetalle(row.original)}
-                      className={styles.clickableRow}
-                    >
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </DndContext>
-        </div>
-
-        {/* Paginación */}
-        <AdminPagination
-          total={total}
-          limit={LIMIT}
-          offset={offset}
-          onPageChange={setOffset}
+        <AdminDataTable
+          data={clientes}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
           itemLabel="clientes"
+          onRowClick={(row) => handleVerDetalle(row)}
+          isLoading={loading}
+          manualPagination={true}
+          emptyMessage={loading ? 'Cargando...' : 'No se encontraron clientes'}
         />
       </div>
 
