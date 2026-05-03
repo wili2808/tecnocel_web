@@ -84,8 +84,11 @@ const GestionPermisos = () => {
     try {
       const data = await permisoService.getPermisosConEstado(rolSeleccionado);
       setPermisos(data.permisos);
-      setPermisosAsignados(data.asignados);
-      setOriginalPermisos(data.asignados);
+      const idsAsignados = (data.asignados ?? [])
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id));
+      setPermisosAsignados(idsAsignados);
+      setOriginalPermisos(idsAsignados);
     } catch {
       showNotification('Error al cargar permisos del rol', 'error');
     }
@@ -251,11 +254,22 @@ const GestionPermisos = () => {
                   {perms.map((perm) => (
                     <div
                       key={perm.id_permiso}
+                      role="checkbox"
+                      tabIndex={0}
+                      aria-checked={perm.asignado}
                       className={`${styles.permisoCard} ${perm.asignado ? styles.permisoCardSelected : ''}`}
                       onClick={() => handleTogglePermiso(perm.id_permiso)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleTogglePermiso(perm.id_permiso);
+                        }
+                      }}
                     >
-                      <div className={styles.checkboxWrapper}>
-                        <span className="material-icons">check</span>
+                      <div className={styles.checkboxWrapper} aria-hidden="true">
+                        {perm.asignado ? (
+                          <span className={`material-icons ${styles.checkIcon}`}>check</span>
+                        ) : null}
                       </div>
                       
                       <div className={styles.permisoCardContent}>
