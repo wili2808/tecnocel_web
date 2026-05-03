@@ -213,27 +213,40 @@ const GestionUsuarios = () => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      <AdminDataTable
-        data={usuariosFiltrados}
-        columns={columns}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        columnOrder={columnOrder}
-        onColumnOrderChange={setColumnOrder}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        totalItems={usuariosFiltrados.length}
-        itemLabel="usuarios"
-        onRowClick={handleEditarClick}
-        isLoading={loading}
-        emptyMessage={
-          loading ? 'Cargando usuarios...' : 
-          error ? 'Error al cargar usuarios' :
-          searchTerm ? `No se encontraron usuarios para "${searchTerm}"` : 
-          'No hay usuarios registrados'
-        }
-        manualPagination={false}
-      />
+      {!loading && error && usuarios.length === 0 ? (
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar los usuarios"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={cargarUsuarios}
+          tone="danger"
+          className={styles.stateBlock}
+        />
+      ) : (
+        <AdminDataTable
+          data={usuariosFiltrados}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={usuariosFiltrados.length}
+          itemLabel="usuarios"
+          onRowClick={handleEditarClick}
+          isLoading={loading}
+          emptyMessage={
+            loading
+              ? 'Cargando usuarios...'
+              : searchTerm
+                ? `No se encontraron usuarios para "${searchTerm}"`
+                : 'No hay usuarios registrados'
+          }
+          manualPagination={false}
+        />
+      )}
 
       {/* Modales Separados */}
       <CrearUsuarioModal 

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import permisoService from '../../../services/permisoService';
 import styles from './GestionPermisos.module.css';
-import { AdminFilterPanel, AdminEntitySearchBar, AdminTabs, AdminEmptyState } from '../common';
+import { AdminFilterPanel, AdminEntitySearchBar, AdminTabs, AdminEmptyState, AdminLoading } from '../common';
 import type { AdminTabConfig } from '../common';
 import type { RolesConPermisos, PermisoItem } from '../../../types/permiso';
 
@@ -177,11 +177,10 @@ const GestionPermisos = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <AdminEmptyState
-          icon="sync"
+        <AdminLoading
+          variant="page"
           title="Cargando configuración"
           message="Estamos recuperando la matriz de permisos y roles del sistema."
-          className={styles.spin}
         />
       </div>
     );

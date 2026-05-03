@@ -11,6 +11,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
@@ -612,8 +613,8 @@ const GestionVentas: React.FC = () => {
 
           {/* Tabla */}
           {cargando ? (
-            <AdminEmptyState
-              icon="hourglass_empty"
+            <AdminLoading
+              variant="panel"
               title="Cargando ventas"
               message="Estamos preparando el listado y las estadísticas operativas de ventas."
               className={styles.loadingState}

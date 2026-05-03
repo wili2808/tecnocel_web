@@ -5,6 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
@@ -411,15 +412,13 @@ const GestionCompras: React.FC = memo(() => {
   return (
     <div className={styles.container}>
       {/* Estadísticas */}
-      {stats ? (
-        <AdminMetricsStrip
-          items={statsItems}
-          className={styles.statsBar}
-          itemClassName={styles.statCard}
-        />
-      ) : (
-        <div className={styles.statsLoading} />
-      )}
+      <AdminMetricsStrip
+        items={statsItems}
+        loading={!stats}
+        className={styles.statsBar}
+        itemClassName={styles.statCard}
+        columns={4}
+      />
 
       {/* Tabs */}
       <AdminTabs 
@@ -518,8 +517,8 @@ const GestionCompras: React.FC = memo(() => {
               className={styles.errorState}
             />
           ) : cargando ? (
-            <AdminEmptyState
-              icon="hourglass_empty"
+            <AdminLoading
+              variant="panel"
               title="Cargando compras"
               message="Estamos obteniendo el historial de compras y sus métricas de abastecimiento."
               className={styles.loadingState}
@@ -553,7 +552,7 @@ const GestionCompras: React.FC = memo(() => {
 
       {/* Tab: Proveedores */}
       {activeTab === 'proveedores' && (
-        <React.Suspense fallback={<div className={styles.loading}>Cargando...</div>}>
+        <React.Suspense fallback={<AdminLoading variant="compact" title="Cargando proveedores…" />}>
           <GestionProveedores />
         </React.Suspense>
       )}
@@ -562,10 +561,10 @@ const GestionCompras: React.FC = memo(() => {
       {activeTab === 'stock' && (
         <div className={styles.tabContent}>
           {cargandoStock ? (
-            <AdminEmptyState
-              icon="hourglass_empty"
+            <AdminLoading
+              variant="panel"
               title="Cargando alertas de stock"
-              message="Analizando inventario para detectar productos por debajo del mínimo..."
+              message="Analizando inventario para detectar productos por debajo del mínimo…"
               className={styles.loadingState}
             />
           ) : stockBajo.length === 0 ? (
@@ -626,7 +625,7 @@ const GestionCompras: React.FC = memo(() => {
       )}
 
       {mostrarRegistrar && (
-        <React.Suspense fallback={<div className={styles.loading}>Cargando...</div>}>
+        <React.Suspense fallback={<AdminLoading variant="compact" title="Cargando formulario…" />}>
           <RegistrarCompraModal
             onClose={() => {
               setMostrarRegistrar(false);

@@ -3,7 +3,7 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminEmptyState, AdminDataTable } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminEmptyState, AdminDataTable, AdminLoading } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
@@ -120,10 +120,10 @@ const GestionProveedores: React.FC = memo(() => {
 
   if (cargando) {
     return (
-      <AdminEmptyState
-        icon="hourglass_empty"
+      <AdminLoading
+        variant="panel"
         title="Cargando proveedores"
-        message="Estamos obteniendo la lista de proveedores registrados..."
+        message="Estamos obteniendo la lista de proveedores registrados…"
         className={styles.loadingState}
       />
     );

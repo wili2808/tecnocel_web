@@ -29,6 +29,7 @@ import {
 
 import DraggableTableHeader from './DraggableTableHeader';
 import AdminPagination from './AdminPagination';
+import AdminLoading from './AdminLoading';
 import styles from './AdminDataTable.module.css';
 
 interface AdminDataTableProps<T> {
@@ -123,14 +124,20 @@ const AdminDataTable = <T,>({
       onColumnOrderChange(newOrder as any);
     }
   };
+  const reserveMinHeightForOverlay = isLoading && data.length === 0;
+
   return (
-    <div className={styles.tableWrapper}>
-      {isLoading && (
-        <div className={styles.loadingOverlay}>
-          <span className={`material-icons ${styles.loadingIcon}`}>autorenew</span>
-          <p>Cargando datos...</p>
-        </div>
-      )}
+    <div
+      className={[
+        styles.tableWrapper,
+        reserveMinHeightForOverlay ? styles.wrapperMinForOverlay : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {isLoading ? (
+        <AdminLoading variant="overlay" title="Cargando datos" message="Sincronizando con el servidor…" />
+      ) : null}
 
       <div className={styles.tableContainer}>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

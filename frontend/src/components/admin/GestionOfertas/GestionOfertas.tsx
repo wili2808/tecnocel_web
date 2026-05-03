@@ -12,6 +12,7 @@ import OfertaModal from './OfertaModal';
 import type { OfertaConConteo, OfertaConProductos } from '../../../types';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminDataTable,
@@ -304,8 +305,8 @@ const GestionOfertas = () => {
 
       {/* Estado de carga */}
       {loading && (
-        <AdminEmptyState
-          icon="hourglass_empty"
+        <AdminLoading
+          variant="panel"
           title="Cargando ofertas"
           message="Estamos recuperando las campañas y descuentos disponibles."
           className={styles.stateBlock}

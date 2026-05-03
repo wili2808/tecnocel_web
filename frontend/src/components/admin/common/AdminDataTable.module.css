@@ -8,6 +8,11 @@
   position: relative;
 }
 
+/* Carga inicial: solo thead + fila vacía → el overlay quedaría muy bajo sin esto */
+.wrapperMinForOverlay {
+  min-height: clamp(220px, 38vh, 380px);
+}
+
 .tableContainer {
   overflow-x: auto;
   width: 100%;
@@ -67,29 +72,6 @@
   color: var(--text-muted);
   font-style: italic;
   font-size: 14px;
-}
-
-.loadingOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(var(--background-elevated-rgb), 0.7);
-  backdrop-filter: blur(2px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  gap: var(--spacing-sm);
-}
-
-.loadingIcon {
-  color: var(--color-primary);
-  animation: rotate 1.5s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 /* Responsiveness */

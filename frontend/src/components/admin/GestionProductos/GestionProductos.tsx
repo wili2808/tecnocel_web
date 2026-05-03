@@ -13,6 +13,7 @@ import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminDataTable,
@@ -293,8 +294,8 @@ const GestionProductos = () => {
 
           {/* Estado de carga */}
           {loading && (
-            <AdminEmptyState
-              icon="hourglass_empty"
+            <AdminLoading
+              variant="panel"
               title="Cargando productos"
               message="Estamos armando el catálogo para que puedas trabajar sobre inventario y precios."
               className={styles.stateBlock}

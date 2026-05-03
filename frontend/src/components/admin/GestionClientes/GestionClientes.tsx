@@ -157,35 +157,6 @@ const GestionClientes = () => {
     );
   }
 
-  if (loading && clientes.length === 0) {
-    return (
-      <div className={styles.container}>
-        <AdminEmptyState
-          icon="hourglass_empty"
-          title="Cargando clientes"
-          message="Estamos preparando el padrón de clientes registrados."
-          className={styles.stateBlock}
-        />
-      </div>
-    );
-  }
-
-  if (error && clientes.length === 0) {
-    return (
-      <div className={styles.container}>
-        <AdminEmptyState
-          icon="error_outline"
-          title="No pudimos cargar los clientes"
-          message={error}
-          actionLabel="Reintentar"
-          onAction={cargarClientes}
-          tone="danger"
-          className={styles.stateBlock}
-        />
-      </div>
-    );
-  }
-
   return (
     <>
       <div className={styles.container}>
@@ -209,22 +180,40 @@ const GestionClientes = () => {
           </AdminFilterPanel.Row>
         </AdminFilterPanel>
 
-        <AdminDataTable
-          data={clientes}
-          columns={columns}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          columnOrder={columnOrder}
-          onColumnOrderChange={setColumnOrder}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          totalItems={total}
-          itemLabel="clientes"
-          onRowClick={(row) => handleVerDetalle(row)}
-          isLoading={loading}
-          manualPagination={true}
-          emptyMessage={loading ? 'Cargando...' : 'No se encontraron clientes'}
-        />
+        {!loading && error && clientes.length === 0 ? (
+          <AdminEmptyState
+            icon="error_outline"
+            title="No pudimos cargar los clientes"
+            message={error}
+            actionLabel="Reintentar"
+            onAction={cargarClientes}
+            tone="danger"
+            className={styles.stateBlock}
+          />
+        ) : (
+          <AdminDataTable
+            data={clientes}
+            columns={columns}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnOrder={columnOrder}
+            onColumnOrderChange={setColumnOrder}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            totalItems={total}
+            itemLabel="clientes"
+            onRowClick={(row) => handleVerDetalle(row)}
+            isLoading={loading}
+            manualPagination={true}
+            emptyMessage={
+              loading
+                ? 'Cargando...'
+                : error
+                  ? error
+                  : 'No se encontraron clientes'
+            }
+          />
+        )}
       </div>
 
       {/* Modal de detalle (solo lectura) */}

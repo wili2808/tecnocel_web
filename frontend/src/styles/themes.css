@@ -45,6 +45,7 @@
   --background-primary: var(--color-bg-light-primary);
   --background-secondary: var(--color-bg-light-secondary);
   --background-elevated: var(--color-bg-light-elevated);
+  --background-elevated-rgb: 255, 255, 255;
   --background-neutral: var(--color-bg-light-neutral);
   --background-light: var(--color-neutral-50);
   --background-dark: var(--color-neutral-200);
@@ -131,6 +132,7 @@
   --background-primary: var(--color-bg-dark-primary);
   --background-secondary: var(--color-bg-dark-secondary);
   --background-elevated: var(--color-bg-dark-elevated);
+  --background-elevated-rgb: 63, 63, 70;
   --background-neutral: var(--color-bg-dark-neutral);
   --background-light: var(--color-neutral-900);
   --background-dark: var(--color-zinc-950);

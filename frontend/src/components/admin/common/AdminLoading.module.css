@@ -1,0 +1,216 @@
+/* ============================================================================
+   AdminLoading — Estados de carga unificados (panel / página / compacto / overlay)
+   ============================================================================ */
+
+.wrapPanel,
+.wrapPage {
+  width: 100%;
+}
+
+.surfaceInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--spacing-md);
+  padding: clamp(28px, 5vw, 44px) clamp(20px, 4vw, 32px);
+}
+
+.wrapPage .surfaceInner {
+  min-height: min(52vh, 420px);
+}
+
+.wrapCompact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+  border-radius: var(--border-radius-md);
+  background: color-mix(in srgb, var(--background-secondary) 88%, transparent);
+  box-sizing: border-box;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(var(--background-elevated-rgb), 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.overlay .title {
+  font-size: 13px;
+  margin-bottom: -4px;
+}
+
+.overlay .message {
+  font-size: 12px;
+  max-width: 22ch;
+}
+
+/* --- Anillo de progreso (gradiente marca) --- */
+
+.spinner {
+  flex-shrink: 0;
+}
+
+.ring {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  background: conic-gradient(
+    from 0deg,
+    var(--color-primary) 0%,
+    var(--color-secondary, var(--color-cyan-500, #06b6d4)) 35%,
+    rgba(var(--color-primary-rgb, 2, 132, 199), 0.12) 55%,
+    rgba(var(--color-primary-rgb, 2, 132, 199), 0.05) 100%
+  );
+  animation: adminLoadingSpin 0.95s linear infinite;
+}
+
+.ring::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--background-elevated, var(--background-secondary));
+}
+
+.wrapCompact .ring {
+  width: 32px;
+  height: 32px;
+}
+
+.wrapCompact .ring::after {
+  inset: 3px;
+}
+
+.overlay .ring {
+  width: 40px;
+  height: 40px;
+}
+
+.overlay .ring::after {
+  inset: 4px;
+}
+
+@keyframes adminLoadingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Textos --- */
+
+.textBlock {
+  display: grid;
+  gap: var(--spacing-xs);
+  max-width: 38ch;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  font-size: clamp(15px, 3.4vw, 17px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.message {
+  margin: 0;
+  font-size: clamp(13px, 3vw, 14px);
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.compactLabel {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* --- Rieles tipo skeleton (solo panel/página) --- */
+
+.skeletonRail {
+  width: 100%;
+  max-width: 320px;
+  display: grid;
+  gap: 10px;
+  margin-top: var(--spacing-sm);
+}
+
+.skeletonBar {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--border-color-light) 0%,
+    color-mix(in srgb, var(--color-primary) 18%, var(--background-neutral)) 50%,
+    var(--border-color-light) 100%
+  );
+  background-size: 200% 100%;
+  animation: adminLoadingShimmer 1.35s ease-in-out infinite;
+}
+
+.skeletonBar:nth-child(1) {
+  width: 100%;
+  animation-delay: 0s;
+}
+
+.skeletonBar:nth-child(2) {
+  width: 78%;
+  animation-delay: 0.12s;
+}
+
+.skeletonBar:nth-child(3) {
+  width: 54%;
+  animation-delay: 0.24s;
+}
+
+@keyframes adminLoadingShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapCompact {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring {
+    animation: none;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      var(--color-secondary, var(--color-cyan-500, #06b6d4))
+    );
+  }
+
+  .skeletonBar {
+    animation: none;
+    background: var(--border-color-light);
+  }
+}

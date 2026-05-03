@@ -5,6 +5,7 @@ import controlStyles from '../common/AdminControlStyles.module.css';
 import { reporteService } from '../../../services/reporteService';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
@@ -406,8 +407,8 @@ const Reportes: React.FC = memo(() => {
 
       {/* Estado de carga/error */}
       {loading && (
-        <AdminEmptyState
-          icon="hourglass_empty"
+        <AdminLoading
+          variant="panel"
           title="Cargando reporte"
           message="Estamos preparando la vista analítica del periodo seleccionado."
           className={styles.stateBlock}
