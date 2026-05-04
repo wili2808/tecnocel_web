@@ -33,13 +33,13 @@
 }
 
 .badgeInactiva {
-  background: rgba(var(--text-secondary-rgb), 0.1);
+  background: color-mix(in srgb, var(--text-secondary), transparent 90%);
   color: var(--text-secondary);
 }
 
 .badgeExpirada {
-  background: rgba(var(--color-danger-rgb), 0.1);
-  color: var(--color-danger);
+  background: rgba(var(--color-error-rgb), 0.1);
+  color: var(--color-error);
 }
 
 .badgeProgramada {

@@ -335,7 +335,7 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
 
   return (
     <div className={styles.modalBodyContent}>
-      <div className="flex items-center justify-between p-lg border-b bg-neutral-50" style={{ marginBottom: '14px' }}>
+      <div className={styles.assignedHeader}>
         <h3 className="m-0 text-sm font-bold flex items-center gap-sm">
           <span className="material-icons text-primary" style={{ fontSize: '18px' }}>inventory_2</span>
           Productos en esta Oferta ({productosAsignados.length})

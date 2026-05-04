@@ -180,17 +180,44 @@
 /* --- RESPONSIVE --- */
 
 @media (max-width: 480px) {
-  .infoGrid {
-    grid-template-columns: 1fr;
-  }
-  
-  .toggleCard {
-    padding: 14px;
-    gap: 12px;
-  }
-  
   .thumbnailWrapper {
     width: 32px;
     height: 32px;
+  }
+}
+
+/* --- PRODUCTOS ASIGNADOS HEADER --- */
+.assignedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  margin-bottom: 14px;
+}
+
+.assignedHeader h3 {
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .assignedHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .assignedHeader h3 {
+    font-size: 13px !important;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .assignedHeader button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px !important;
   }
 }
