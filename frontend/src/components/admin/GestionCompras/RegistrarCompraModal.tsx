@@ -194,17 +194,17 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     setMostrarProductoNuevo(false);
   };
 
-  const actualizarItem = (index: number, campo: keyof ItemForm, valor: any) => {
+  const actualizarItem = useCallback((index: number, campo: keyof ItemForm, valor: any) => {
     setItems(prev => {
       const newItems = [...prev];
       newItems[index] = { ...newItems[index], [campo]: valor };
       return newItems;
     });
-  };
+  }, []);
 
-  const eliminarItem = (index: number) => {
+  const eliminarItem = useCallback((index: number) => {
     setItems(prev => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
   const totalCompra = items.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
 
@@ -282,8 +282,11 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
         <div className="text-center">
           <input
             type="number"
-            value={info.row.original.cantidad}
-            onChange={(e) => actualizarItem(info.row.index, 'cantidad', parseInt(e.target.value) || 1)}
+            value={info.row.original.cantidad ?? ''}
+            onChange={(e) => {
+              const val = e.target.value === '' ? '' : parseInt(e.target.value);
+              actualizarItem(info.row.index, 'cantidad', val);
+            }}
             className="modalTableInputPremium"
             style={{ width: '60px', margin: '0 auto' }}
           />
@@ -302,13 +305,16 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             <input
               type="number"
               step="0.01"
-              value={val}
-              onChange={(e) => actualizarItem(info.row.index, 'precio_unitario', parseFloat(e.target.value) || 0)}
+              value={val ?? ''}
+              onChange={(e) => {
+                const v = e.target.value === '' ? '' : parseFloat(e.target.value);
+                actualizarItem(info.row.index, 'precio_unitario', v);
+              }}
               className="modalTableInputPremium"
               style={{ width: '100px', margin: '0 auto' }}
             />
             <div className={styles.arsReference}>
-              {formatARS(val, tipoCambio)}
+              {formatARS(Number(val) || 0, tipoCambio)}
             </div>
           </div>
         );
@@ -325,13 +331,16 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             <input
               type="number"
               step="0.01"
-              value={val}
-              onChange={(e) => actualizarItem(info.row.index, 'precio_venta', parseFloat(e.target.value) || 0)}
+              value={val ?? ''}
+              onChange={(e) => {
+                const v = e.target.value === '' ? '' : parseFloat(e.target.value);
+                actualizarItem(info.row.index, 'precio_venta', v);
+              }}
               className="modalTableInputPremium"
               style={{ width: '100px', margin: '0 auto' }}
             />
             <div className={styles.arsReference}>
-              {formatARS(val, tipoCambio)}
+              {formatARS(Number(val) || 0, tipoCambio)}
             </div>
           </div>
         );
@@ -461,8 +470,8 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
             {/* 2. Búsqueda de Productos */}
             {/* 2. Búsqueda de Productos */}
             <h4 className="modalSectionTitlePremium">Selección de Productos</h4>
-            <div className="flex gap-sm items-center w-full mb-lg" style={{ display: 'flex', width: '100%' }}>
-              <div style={{ flex: 1, position: 'relative' }}>
+            <div className={styles.productSearchActions}>
+              <div className={styles.searchWrapper}>
                 <AdminSearch
                   value={busqProducto}
                   onChange={handleBuscarProducto}
@@ -479,7 +488,6 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
               <button 
                 type="button"
                 className="btnPremium btnSecondaryPremium"
-                style={{ height: '32px', padding: '0 16px', whiteSpace: 'nowrap' }}
                 onClick={() => setMostrarProductoNuevo(true)}
               >
                 <span className="material-icons" style={{ fontSize: '18px' }}>add_box</span>

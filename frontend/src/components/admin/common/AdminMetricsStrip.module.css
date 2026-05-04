@@ -82,24 +82,49 @@
 
 @media (max-width: 768px) {
   .strip,
-  .columns2,
-  .columns3,
-  .columns4 {
+  .columns2 {
     grid-template-columns: 1fr;
   }
 
-  .item,
-  .skeletonCard {
+  /* Para 3 y 4 columnas, mantenemos 2 columnas en móvil */
+  .columns3,
+  .columns4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Reset de bordes para el estado de 1 columna (strip base y columns2) */
+  .strip .item,
+  .columns2 .item,
+  .strip .skeletonCard,
+  .columns2 .skeletonCard {
     border-right: none;
   }
 
-  .item:not(:last-child),
-  .skeletonCard:not(:last-child) {
+  .strip .item:not(:last-child),
+  .columns2 .item:not(:last-child),
+  .strip .skeletonCard:not(:last-child),
+  .columns2 .skeletonCard:not(:last-child) {
     border-bottom: 1px solid var(--border-color);
   }
 
-  .item:nth-child(n),
-  .skeletonCard:nth-child(n) {
-    border-top: none;
+  /* Asegurar bordes correctos para el estado de 2 columnas en móvil (columns3 y columns4) */
+  .columns3 .item:nth-child(odd),
+  .columns4 .item:nth-child(odd),
+  .columns3 .skeletonCard:nth-child(odd),
+  .columns4 .skeletonCard:nth-child(odd) {
+    border-right: 1px solid var(--border-color);
+  }
+
+  .columns3 .item:nth-child(2n),
+  .columns4 .item:nth-child(2n),
+  .columns3 .skeletonCard:nth-child(2n),
+  .columns4 .skeletonCard:nth-child(2n) {
+    border-right: none;
+  }
+
+  /* En móvil, para 2 columnas, todos a partir del 3 tienen borde superior */
+  .columns3 .item:nth-child(n + 3),
+  .columns4 .item:nth-child(n + 3) {
+    border-top: 1px solid var(--border-color);
   }
 }
