@@ -63,30 +63,28 @@
   .searchBar {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .searchColumn {
+    width: 100%;
   }
 
   .actions {
     width: 100%;
-    justify-content: stretch;
-  }
-
-  .actions > * {
-    flex: 1;
+    margin-top: 4px;
   }
 
   .primaryAction {
+    width: 100%;
     justify-content: center;
-    padding: 10px;
+    padding: 10px 16px;
+    min-height: 42px;
   }
 }
 
 @media (max-width: 480px) {
-  .actions {
-    flex-direction: row;
-  }
-
   .primaryAction {
-    font-size: 12px;
-    min-height: 42px;
+    font-size: 13px;
   }
 }

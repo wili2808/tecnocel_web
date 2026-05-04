@@ -404,12 +404,16 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                       style={{ opacity: p.stock <= 0 ? 0.6 : 1, cursor: p.stock > 0 ? 'pointer' : 'default' }}
                       onClick={() => p.stock > 0 && agregarProducto(p)}
                     >
-                      <div className="flex-1 flex items-center gap-md">
-                        <p className="m-0 font-bold text-sm" style={{ minWidth: '150px' }}>{p.nombre}</p>
-                        <div className="flex items-center gap-md">
-                          <span className="text-xxs text-secondary whitespace-nowrap">Cód: {p.codigo || '—'}</span>
-                          <span className="text-xxs font-bold text-primary whitespace-nowrap">{formatUSD(p.precio_venta)}</span>
-                          <span className={`text-xxs whitespace-nowrap ${p.stock <= 0 ? 'text-primary' : 'text-secondary'}`} style={{ color: p.stock <= 0 ? 'var(--color-error)' : '' }}>Stock: {p.stock}</span>
+                      <div className={styles.productResultInfo}>
+                        <div className={styles.productResultMain}>
+                          <p className={styles.productName}>{p.nombre}</p>
+                          <span className={styles.productCode}>Cód: {p.codigo || '—'}</span>
+                        </div>
+                        <div className={styles.productResultStats}>
+                          <span className={styles.productPrice}>{formatUSD(p.precio_venta)}</span>
+                          <span className={styles.productStock} style={{ color: p.stock <= 0 ? 'var(--color-error)' : 'var(--text-secondary)' }}>
+                            Stock: {p.stock}
+                          </span>
                         </div>
                       </div>
                       {p.stock > 0 ? (

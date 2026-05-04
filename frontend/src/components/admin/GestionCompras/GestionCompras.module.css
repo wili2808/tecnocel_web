@@ -74,8 +74,8 @@
 }
 
 .badgeAnulada {
-  background: rgba(var(--color-danger-rgb), 0.1);
-  color: var(--color-danger);
+  background: rgba(var(--color-error-rgb), 0.1);
+  color: var(--color-error);
 }
 
 /* ============================================================================
