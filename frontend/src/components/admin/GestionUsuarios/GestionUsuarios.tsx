@@ -26,6 +26,7 @@ const GestionUsuarios = () => {
 
   const [usuarios, setUsuarios] = useState<UsuarioListItem[]>([]);
   const [roles, setRoles] = useState<RolItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,12 +40,31 @@ const GestionUsuarios = () => {
     'id_usuario', 'nombres', 'email', 'rol', 'fecha', 'ultimo_login'
   ]);
 
-  const cargarUsuarios = useCallback(async () => {
+  const cargarUsuarios = useCallback(async (p: PaginationState, s: SortingState) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await usuarioService.listarUsuarios();
+      
+      const off = p.pageIndex * p.pageSize;
+      let sortBy = 'fyh_creacion';
+      let order: 'ASC' | 'DESC' = 'DESC';
+
+      if (s.length > 0) {
+        const st = s[0];
+        order = st.desc ? 'DESC' : 'ASC';
+        switch (st.id) {
+          case 'id_usuario': sortBy = 'id_usuario'; break;
+          case 'nombres': sortBy = 'nombres'; break;
+          case 'email': sortBy = 'email'; break;
+          case 'fecha': sortBy = 'fyh_creacion'; break;
+          case 'ultimo_login': sortBy = 'fyh_ultimo_login'; break;
+          default: sortBy = 'fyh_creacion';
+        }
+      }
+
+      const data = await usuarioService.listarUsuarios(p.pageSize, off, sortBy, order);
       setUsuarios(data.usuarios || []);
+      setTotal(data.total || 0);
     } catch (err: any) {
       setError(err.message || 'Error al cargar usuarios');
       showNotification(err.message || 'Error al cargar usuarios', 'error');
@@ -64,8 +84,8 @@ const GestionUsuarios = () => {
 
   useEffect(() => {
     cargarRoles();
-    cargarUsuarios();
-  }, [cargarRoles, cargarUsuarios]);
+    cargarUsuarios(pagination, sorting);
+  }, [cargarRoles, cargarUsuarios, pagination, sorting]);
 
   const handleEliminar = useCallback(async (id: number, nombre: string) => {
     if (!puedeEliminar) {
@@ -86,7 +106,7 @@ const GestionUsuarios = () => {
       await usuarioService.eliminarUsuario(id);
       showNotification('Usuario eliminado exitosamente', 'success');
       setEditandoUsuario(null);
-      cargarUsuarios();
+      cargarUsuarios(pagination, sorting);
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar usuario', 'error');
     }
@@ -100,7 +120,7 @@ const GestionUsuarios = () => {
   const handleSuccess = () => {
     setShowCrearModal(false);
     setEditandoUsuario(null);
-    cargarUsuarios();
+    cargarUsuarios(pagination, sorting);
   };
 
   const columns = useMemo<ColumnDef<UsuarioListItem>[]>(() => [
@@ -213,27 +233,41 @@ const GestionUsuarios = () => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      <AdminDataTable
-        data={usuariosFiltrados}
-        columns={columns}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        columnOrder={columnOrder}
-        onColumnOrderChange={setColumnOrder}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        totalItems={usuariosFiltrados.length}
-        itemLabel="usuarios"
-        onRowClick={handleEditarClick}
-        isLoading={loading}
-        emptyMessage={
-          loading ? 'Cargando usuarios...' : 
-          error ? 'Error al cargar usuarios' :
-          searchTerm ? `No se encontraron usuarios para "${searchTerm}"` : 
-          'No hay usuarios registrados'
-        }
-        manualPagination={false}
-      />
+      {!loading && error && usuarios.length === 0 ? (
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar los usuarios"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={() => cargarUsuarios(pagination, sorting)}
+          tone="danger"
+          className={styles.stateBlock}
+        />
+      ) : (
+        <AdminDataTable
+          data={usuariosFiltrados}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="usuarios"
+          onRowClick={handleEditarClick}
+          isLoading={loading}
+          emptyMessage={
+            loading
+              ? 'Cargando usuarios...'
+              : searchTerm
+                ? `No se encontraron usuarios para "${searchTerm}"`
+                : 'No hay usuarios registrados'
+          }
+          manualPagination={true}
+          manualSorting={true}
+        />
+      )}
 
       {/* Modales Separados */}
       <CrearUsuarioModal 

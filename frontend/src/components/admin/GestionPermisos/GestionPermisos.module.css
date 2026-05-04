@@ -122,6 +122,15 @@
   box-shadow: var(--shadow-sm);
 }
 
+.permisoCard:focus {
+  outline: none;
+}
+
+.permisoCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .permisoCardSelected {
   border-color: var(--color-primary);
   background: var(--color-primary-25);
@@ -154,14 +163,11 @@
   border-color: var(--color-primary);
 }
 
-.checkboxWrapper .material-icons {
-  font-size: 16px;
+/* Solo existe en el DOM cuando el permiso está asignado (evita display:none vs Material Icons CDN) */
+.checkIcon {
+  font-size: 16px !important;
+  line-height: 1;
   color: white;
-  display: none;
-}
-
-.permisoCardSelected .checkboxWrapper .material-icons {
-  display: block;
 }
 
 .permisoCardContent {
@@ -204,17 +210,6 @@
 
 .accionBadge .material-icons {
   font-size: 14px;
-}
-
-/* === HELPERS === */
-
-.spin {
-  animation: spin 1.5s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 /* ============================================================================

@@ -27,7 +27,7 @@ class ProveedorController {
    */
   static async listarProveedores(req: Request, res: Response) {
     try {
-      const { search } = req.query;
+      const { search, sortBy = 'nombre_proveedor', order = 'ASC' } = req.query;
       const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
       const offset = parseInt(req.query.offset as string) || 0;
 
@@ -46,7 +46,7 @@ class ProveedorController {
 
       const { count, rows: proveedores } = await Proveedor.findAndCountAll({
         where: whereClause,
-        order: [['nombre_proveedor', 'ASC']],
+        order: [[sortBy as string, order as string]],
         limit,
         offset
       });

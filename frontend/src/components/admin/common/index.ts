@@ -1,4 +1,6 @@
 export { default as AdminEmptyState } from './AdminEmptyState';
+export { default as AdminLoading } from './AdminLoading';
+export type { AdminLoadingVariant } from './AdminLoading';
 export { default as AdminEntitySearchBar } from './AdminEntitySearchBar';
 export type { AdminEntitySearchBarProps } from './AdminEntitySearchBar';
 export { default as AdminFilterPanel } from './AdminFilterPanel';

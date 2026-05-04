@@ -3,7 +3,7 @@ import proveedorAdminService from '../../../services/proveedorAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import ProveedorModal from './ProveedorModal';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminEmptyState, AdminDataTable } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminEmptyState, AdminDataTable, AdminLoading } from '../common';
 import styles from './GestionCompras.module.css';
 import type { ProveedorListItem } from '../../../types';
 
@@ -29,12 +29,27 @@ const GestionProveedores: React.FC = memo(() => {
     'nombre', 'empresa', 'celular', 'email', 'direccion'
   ]);
 
-  const cargarProveedores = useCallback(async () => {
+  const cargarProveedores = useCallback(async (p: PaginationState, s: SortingState) => {
     try {
       setCargando(true);
       setError(null);
-      const off = pagination.pageIndex * pagination.pageSize;
-      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined, pagination.pageSize, off);
+      const off = p.pageIndex * p.pageSize;
+      
+      let sortBy = 'nombre_proveedor';
+      let order: 'ASC' | 'DESC' = 'ASC';
+
+      if (s.length > 0) {
+        const st = s[0];
+        order = st.desc ? 'DESC' : 'ASC';
+        switch (st.id) {
+          case 'nombre': sortBy = 'nombre_proveedor'; break;
+          case 'empresa': sortBy = 'empresa'; break;
+          case 'email': sortBy = 'email'; break;
+          default: sortBy = 'nombre_proveedor';
+        }
+      }
+
+      const response = await proveedorAdminService.listarProveedores(searchTerm || undefined, p.pageSize, off, sortBy, order);
       setProveedores(response.data);
       setTotal(response.count);
     } catch (err) {
@@ -43,15 +58,14 @@ const GestionProveedores: React.FC = memo(() => {
     } finally {
       setCargando(false);
     }
-  }, [searchTerm, pagination]);
+  }, [searchTerm]);
 
-  // Ejecutar búsqueda cuando cambia searchTerm (ya viene debounced de AdminSearch)
   useEffect(() => {
-    cargarProveedores();
-  }, [cargarProveedores]);
+    cargarProveedores(pagination, sorting);
+  }, [cargarProveedores, pagination, sorting]);
 
   const handleGuardado = () => {
-    cargarProveedores();
+    cargarProveedores(pagination, sorting);
     setModalProveedor(null);
     showNotification('Proveedor guardado exitosamente', 'success');
   };
@@ -120,10 +134,10 @@ const GestionProveedores: React.FC = memo(() => {
 
   if (cargando) {
     return (
-      <AdminEmptyState
-        icon="hourglass_empty"
+      <AdminLoading
+        variant="panel"
         title="Cargando proveedores"
-        message="Estamos obteniendo la lista de proveedores registrados..."
+        message="Estamos obteniendo la lista de proveedores registrados…"
         className={styles.loadingState}
       />
     );
@@ -136,7 +150,7 @@ const GestionProveedores: React.FC = memo(() => {
         title="No pudimos cargar los proveedores"
         message={error}
         actionLabel="Reintentar"
-        onAction={cargarProveedores}
+        onAction={() => cargarProveedores(pagination, sorting)}
         tone="danger"
         className={styles.errorState}
       />
@@ -185,6 +199,7 @@ const GestionProveedores: React.FC = memo(() => {
           }}
           isLoading={cargando}
           manualPagination={true}
+          manualSorting={true}
           emptyMessage={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay proveedores registrados aún."}
         />
 

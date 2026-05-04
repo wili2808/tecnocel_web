@@ -14,21 +14,64 @@ const adminProductService = {
    * Usa /productos/buscar cuando hay término, /productos cuando no
    * La paginación y el ordenamiento se manejan en el componente
    */
-  listarProductos: async (search?: string): Promise<Product[]> => {
+  listarProductos: async (
+    search?: string, 
+    limit = 10, 
+    page = 1, 
+    sortBy?: string, 
+    order?: 'ASC' | 'DESC',
+    es_destacado?: boolean
+  ): Promise<{ items: Product[], total: number }> => {
+    // Si hay búsqueda, usamos el endpoint de búsqueda
+    // NOTA: El endpoint de búsqueda actual /buscar no soporta paginación nativa en el backend
+    // pero lo adaptaremos para que al menos devuelva la estructura correcta.
     if (search && search.trim()) {
       const response = await adminApi.get('/almacen/productos/buscar', {
-        params: { termino: search.trim() }
+        params: { 
+          termino: search.trim(),
+          limit,
+          page,
+          sortBy,
+          order
+        }
       });
-      // searchProducts devuelve { success, data: [...] }
-      return response.data.data || response.data;
+      const result = response.data;
+      // La búsqueda ahora devuelve la misma estructura que la lista general
+      if (result.data && result.data.items) {
+        return {
+          items: result.data.items,
+          total: result.data.pagination?.total || result.data.items.length
+        };
+      }
+      const items = Array.isArray(result.data) ? result.data : [];
+      return {
+        items,
+        total: result.pagination?.total || items.length
+      };
     }
 
     const response = await adminApi.get('/almacen/productos', {
-      params: { limit: 1000 }
+      params: { limit, page, sortBy, order, es_destacado }
     });
-    // Con paginación: { success, data: { items, pagination } }
-    const data = response.data.data;
-    return Array.isArray(data) ? data : data.items || [];
+    
+    // El backend devuelve { success: true, data: { items, pagination: { total } } }
+    // o a veces { success: true, data: [...], pagination: { total } }
+    const result = response.data;
+    
+    // El backend devuelve { success: true, data: { items, pagination: { total } } }
+    if (result.data && result.data.items) {
+      return {
+        items: result.data.items,
+        total: result.data.pagination?.total || result.data.items.length
+      };
+    }
+    
+    // Caso de búsqueda o fallback: { success: true, data: [...] }
+    const items = Array.isArray(result.data) ? result.data : [];
+    return {
+      items,
+      total: result.pagination?.total || items.length
+    };
   },
 
   /**

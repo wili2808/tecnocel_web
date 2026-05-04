@@ -43,13 +43,13 @@
   transition: transform var(--transition-fast) var(--transition-curve);
 }
 
-.tabBtn:hover {
-  color: var(--color-primary);
-  background-color: var(--color-primary-25);
+/* Mismo tratamiento que filas clicables en AdminDataTable (.clickableRow:hover) */
+.tabBtn:hover:not(.tabActive) {
+  color: var(--text-primary);
+  background-color: var(--color-primary-50);
 }
 
-.tabBtn:hover .material-icons {
-  transform: translateY(-1px);
+.tabBtn:hover:not(.tabActive) .material-icons {
   opacity: 1;
 }
 

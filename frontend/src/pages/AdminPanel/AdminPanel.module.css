@@ -266,10 +266,10 @@
   flex-shrink: 0;
 }
 
-.menuOption:hover {
-  background: var(--background-hover);
+/* Alineado con hover de filas en tablas de gestión (AdminDataTable .clickableRow) */
+.menuOption:hover:not(.activeOption) {
+  background-color: var(--color-primary-50);
   color: var(--text-primary);
-  transform: translateX(3px);
 }
 
 .menuOption.activeOption {

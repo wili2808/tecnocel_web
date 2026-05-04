@@ -50,14 +50,37 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
   const cargandoRef = useRef(false);
 
   const cargarEnvios = useCallback(
-    async (f: FiltrosEnviosAdmin, pag: PaginationState) => {
+    async (f: FiltrosEnviosAdmin, pag: PaginationState, sort: SortingState) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
         const off = pag.pageIndex * pag.pageSize;
-        const result = await envioAdminService.listarEnvios({ ...f, limit: pag.pageSize, offset: off });
+        
+        // Mapeo de columnas para el backend
+        let sortBy = 'fyh_creacion';
+        let order: 'ASC' | 'DESC' = 'DESC';
+        
+        if (sort.length > 0) {
+          const s = sort[0];
+          order = s.desc ? 'DESC' : 'ASC';
+          switch (s.id) {
+            case 'nro_venta': sortBy = 'nro_venta'; break;
+            case 'fecha': sortBy = 'fyh_creacion'; break;
+            case 'estado': sortBy = 'estado_envio'; break;
+            case 'seguimiento': sortBy = 'nro_seguimiento'; break;
+            default: sortBy = 'fyh_creacion';
+          }
+        }
+
+        const result = await envioAdminService.listarEnvios({ 
+          ...f, 
+          limit: pag.pageSize, 
+          offset: off,
+          sortBy,
+          order
+        });
         setEnvios(result.data);
         setTotal(result.total);
 
@@ -83,8 +106,8 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
   );
 
   useEffect(() => {
-    cargarEnvios(filtros, pagination);
-  }, [filtros, pagination, cargarEnvios]);
+    cargarEnvios(filtros, pagination, sorting);
+  }, [filtros, pagination, sorting, cargarEnvios]);
 
 
 
@@ -95,7 +118,7 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
 
   const handleEstadoActualizado = () => {
     setEnvioSeleccionado(null);
-    cargarEnvios(filtros, pagination);
+    cargarEnvios(filtros, pagination, sorting);
   };
 
   // === Columnas TanStack ===
@@ -239,7 +262,8 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
           onRowClick={(row) => setEnvioSeleccionado(row)}
           isLoading={cargando}
           manualPagination={true}
-          emptyMessage="No se encontraron envíos a domicilio."
+          manualSorting={true}
+          emptyMessage="No se encontraron pedidos de envío a domicilio."
         />
 
       {/* Modal */}

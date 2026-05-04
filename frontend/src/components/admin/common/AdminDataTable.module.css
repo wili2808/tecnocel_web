@@ -8,6 +8,11 @@
   position: relative;
 }
 
+/* Carga inicial: solo thead + fila vacía → el overlay quedaría muy bajo sin esto */
+.wrapperMinForOverlay {
+  min-height: clamp(220px, 38vh, 380px);
+}
+
 .tableContainer {
   overflow-x: auto;
   width: 100%;
@@ -42,11 +47,13 @@
 
 
 .table td {
-  padding: 16px 20px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border-color-light);
   font-size: 14px;
+  line-height: 1.4;
   color: var(--text-secondary);
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 .table tbody tr {
@@ -69,33 +76,10 @@
   font-size: 14px;
 }
 
-.loadingOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(var(--background-elevated-rgb), 0.7);
-  backdrop-filter: blur(2px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  gap: var(--spacing-sm);
-}
-
-.loadingIcon {
-  color: var(--color-primary);
-  animation: rotate 1.5s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 /* Responsiveness */
 @media (max-width: 768px) {
   .table td {
-    padding: 10px 12px;
+    padding: 8px 10px;
     font-size: 13px;
   }
 }

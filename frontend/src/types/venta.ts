@@ -149,4 +149,6 @@ export interface FiltrosVentasAdmin {
   metodo_pago?: 'efectivo' | 'tarjeta' | 'transferencia' | 'qr' | '';
   search?: string;
   id_vendedor?: number | '';
+  sortBy?: string;
+  order?: 'ASC' | 'DESC';
 }

@@ -158,10 +158,10 @@ const usuarioService = {
    * @param offset - Desplazamiento para paginación
    * @returns Lista de usuarios con total
    */
-  async listarUsuarios(limit: number = 100, offset: number = 0) {
+  async listarUsuarios(limit: number = 100, offset: number = 0, sortBy?: string, order?: 'ASC' | 'DESC') {
     try {
       const response = await adminApi.get('/usuarios/admin/usuarios', {
-        params: { limit, offset }
+        params: { limit, offset, sortBy, order }
       });
       return response.data;
     } catch (error: any) {
@@ -240,10 +240,10 @@ const usuarioService = {
    * @param search - Término de búsqueda opcional
    * @returns Lista de clientes con total
    */
-  async listarClientes(limit: number = 50, offset: number = 0, search?: string) {
+  async listarClientes(limit: number = 50, offset: number = 0, search?: string, sortBy?: string, order?: 'ASC' | 'DESC') {
     try {
       const response = await adminApi.get('/usuarios/admin/clientes', {
-        params: { limit, offset, search }
+        params: { limit, offset, search, sortBy, order }
       });
       return response.data;
     } catch (error: any) {

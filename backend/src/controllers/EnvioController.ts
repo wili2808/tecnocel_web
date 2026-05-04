@@ -52,7 +52,9 @@ class EnvioController {
         limit = 10,
         offset = 0,
         tipo_entrega = 'envio',
-      } = req.query as unknown as FiltrosEnviosAdmin;
+        sortBy = 'fyh_creacion',
+        order = 'DESC',
+      } = req.query as unknown as FiltrosEnviosAdmin & { sortBy?: string; order?: string };
 
       const permisoRequerido = tipo_entrega === 'retiro_en_tienda' ? 'ver_retiros' : 'ver_envios';
       const tienePermiso = await EnvioController._tienePermiso(req, permisoRequerido);
@@ -114,7 +116,10 @@ class EnvioController {
         ],
         limit: limitNum,
         offset: offsetNum,
-        order: [['fyh_creacion', 'DESC']],
+        subQuery: false,
+        order: (sortBy === 'nro_venta')
+          ? [[{ model: Venta, as: 'venta' }, 'nro_venta', order]]
+          : [[sortBy, order]],
       });
 
       const items: EnvioAdminListItem[] = rows.map(envio => {

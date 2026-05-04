@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import type { OfertaConProductos, ProductoEnOferta, Product } from '../../../types';
-import { AdminSearch } from '../common';
+import { AdminSearch, AdminDataTable } from '../common';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import { formatARS } from '../../../utils/formatPrecio';
@@ -35,6 +36,20 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
   const [seleccionados, setSeleccionados] = useState<Map<number, ProductoSeleccionado>>(new Map());
   const [asignando, setAsignando] = useState(false);
 
+  // ── Estados para Tabla Principal (Asignados) ───────────────────────
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'imagen', 'codigo', 'nombre', 'precio_original', 'precio_oferta', 'tipo_precio', 'acciones'
+  ]);
+
+  // ── Estados para Tabla de Búsqueda ──────────────────────────────────
+  const [searchSorting, setSearchSorting] = useState<SortingState>([]);
+  const [searchPagination, setSearchPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [searchColumnOrder, setSearchColumnOrder] = useState<string[]>([
+    'seleccion', 'producto', 'precio_original', 'precio_oferta', 'precio_personalizado'
+  ]);
+
   // Sincronizar productos cuando cambia la oferta
   useEffect(() => {
     setProductosAsignados(oferta.productos || []);
@@ -58,11 +73,12 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
     buscarProductos(searchTerm);
   }, [searchTerm, showBuscador, buscarProductos]);
 
-  const productosNoAsignados = productosDisponibles.filter(
-    p => !productosAsignados.some(pa => pa.id_producto === p.id_producto)
+  const productosNoAsignados = useMemo(() => 
+    productosDisponibles.filter(p => !productosAsignados.some(pa => pa.id_producto === p.id_producto)),
+    [productosDisponibles, productosAsignados]
   );
 
-  const handleToggleSeleccion = (producto: Product) => {
+  const handleToggleSeleccion = useCallback((producto: Product) => {
     setSeleccionados(prev => {
       const next = new Map(prev);
       if (next.has(producto.id_producto)) {
@@ -72,9 +88,9 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
       }
       return next;
     });
-  };
+  }, []);
 
-  const handlePrecioOfertaChange = (idProducto: number, precio: string) => {
+  const handlePrecioOfertaChange = useCallback((idProducto: number, precio: string) => {
     setSeleccionados(prev => {
       const next = new Map(prev);
       const item = next.get(idProducto);
@@ -86,9 +102,9 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
       }
       return next;
     });
-  };
+  }, []);
 
-  const handleAsignarProductos = async () => {
+  const handleAsignarProductos = useCallback(async () => {
     if (seleccionados.size === 0) return;
 
     try {
@@ -112,9 +128,9 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
     } finally {
       setAsignando(false);
     }
-  };
+  }, [seleccionados, tipoCambio, oferta.id_oferta, showNotification, onProductosChanged]);
 
-  const handleRemoverProducto = async (idProducto: number, nombre: string) => {
+  const handleRemoverProducto = useCallback(async (idProducto: number, nombre: string) => {
     if (!confirm(`¿Remover "${nombre}" de esta oferta?`)) return;
 
     try {
@@ -124,28 +140,198 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
     } catch (err: any) {
       showNotification(err.message || 'Error al remover producto', 'error');
     }
-  };
+  }, [oferta.id_oferta, showNotification, onProductosChanged]);
 
-  const handleAbrirBuscador = () => {
+  const handleAbrirBuscador = useCallback(() => {
     setShowBuscador(true);
     setSeleccionados(new Map());
     setSearchTerm('');
     setProductosDisponibles([]);
-  };
+  }, []);
 
-  const handleCerrarBuscador = () => {
+  const handleCerrarBuscador = useCallback(() => {
     setShowBuscador(false);
     setSeleccionados(new Map());
     setSearchTerm('');
-  };
+  }, []);
 
-  const calcularPrecioDescuento = (precioVenta: string) => {
+  const calcularPrecioDescuento = useCallback((precioVenta: string) => {
     const precio = parseFloat(precioVenta);
     if (oferta.tipo_descuento === 'porcentaje') {
       return (precio * (1 - oferta.valor_descuento / 100)).toFixed(2);
     }
     return Math.max(0, precio - oferta.valor_descuento).toFixed(2);
-  };
+  }, [oferta.tipo_descuento, oferta.valor_descuento]);
+
+  // ── Columnas para AdminDataTable (Tabla Principal) ────────────────
+  const columns = useMemo<ColumnDef<ProductoEnOferta>[]>(() => [
+    {
+      id: 'imagen',
+      header: 'Imagen',
+      cell: (info) => (
+        <div className={styles.thumbnailWrapper}>
+          {info.row.original.imagen_url ? (
+            <img
+              src={info.row.original.imagen_url}
+              alt={info.row.original.nombre}
+              className={styles.thumbnail}
+            />
+          ) : (
+            <div className={styles.thumbnailPlaceholder}>
+              <span className="material-icons">image</span>
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'codigo',
+      id: 'codigo',
+      header: 'Código',
+      cell: (info) => <span className="font-mono text-xs">{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'nombre',
+      id: 'nombre',
+      header: 'Nombre',
+      cell: (info) => <span className="font-bold">{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'precio_venta',
+      id: 'precio_original',
+      header: () => <div className="text-right">Precio Original</div>,
+      cell: (info) => (
+        <div className="text-right text-secondary">
+          {formatARS(parseFloat(info.getValue() as string), tipoCambio)}
+        </div>
+      ),
+    },
+    {
+      id: 'precio_oferta',
+      header: () => <div className="text-right">Precio Oferta</div>,
+      cell: (info) => {
+        const producto = info.row.original;
+        const precioOferta = producto.ProductoOferta?.es_precio_personalizado
+          && producto.ProductoOferta?.precio_oferta != null
+          ? producto.ProductoOferta.precio_oferta.toString()
+          : calcularPrecioDescuento(producto.precio_venta);
+        
+        return (
+          <div className="text-right font-bold text-primary">
+            {formatARS(Number(precioOferta), tipoCambio)}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'tipo_precio',
+      header: () => <div className="text-center">Tipo Precio</div>,
+      cell: (info) => (
+        <div className="text-center">
+          {info.row.original.ProductoOferta?.es_precio_personalizado ? (
+            <span className={`${styles.badgePremium} ${styles.personalizadoBadge}`}>Manual</span>
+          ) : (
+            <span className={`${styles.badgePremium} ${styles.calculadoBadge}`}>Auto</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: 'acciones',
+      header: () => <div className="text-right">Acción</div>,
+      enableSorting: false,
+      cell: (info) => (
+        <div className="text-right">
+          <button
+            className={styles.removeButton}
+            title="Remover de la oferta"
+            onClick={() => handleRemoverProducto(info.row.original.id_producto, info.row.original.nombre)}
+          >
+            <span className="material-icons" style={{ fontSize: '18px' }}>close</span>
+          </button>
+        </div>
+      ),
+    },
+  ], [tipoCambio, oferta.tipo_descuento, oferta.valor_descuento, handleRemoverProducto, calcularPrecioDescuento]);
+
+  const columnsBusqueda = useMemo<ColumnDef<Product>[]>(() => [
+    {
+      id: 'seleccion',
+      header: '',
+      enableSorting: false,
+      cell: (info) => {
+        const isSelected = seleccionados.has(info.row.original.id_producto);
+        return (
+          <div className="flex justify-center">
+            <span className={`material-icons ${isSelected ? 'text-primary' : 'text-secondary opacity-30'}`} style={{ fontSize: '20px' }}>
+              {isSelected ? 'check_box' : 'check_box_outline_blank'}
+            </span>
+          </div>
+        );
+      }
+    },
+    {
+      id: 'producto',
+      header: 'Producto',
+      cell: (info) => (
+        <div className="flex flex-col">
+          <span className="font-bold text-sm">{info.row.original.nombre}</span>
+          <span className="font-mono text-xxs text-secondary">SKU: {info.row.original.codigo}</span>
+        </div>
+      )
+    },
+    {
+      id: 'precio_original',
+      header: () => <div className="text-right">Precio Base</div>,
+      cell: (info) => (
+        <div className="text-right text-secondary text-xs line-through">
+          {formatARS(parseFloat(info.row.original.precio_venta), tipoCambio)}
+        </div>
+      )
+    },
+    {
+      id: 'precio_oferta',
+      header: () => <div className="text-right">Precio Promo</div>,
+      cell: (info) => {
+        const precioCalculado = calcularPrecioDescuento(info.row.original.precio_venta);
+        return (
+          <div className="text-right font-bold text-primary">
+            {formatARS(Number(precioCalculado), tipoCambio)}
+          </div>
+        );
+      }
+    },
+    {
+      id: 'precio_personalizado',
+      header: () => <div className="text-center">Precio Manual (ARS)</div>,
+      cell: (info) => {
+        const producto = info.row.original;
+        const isSelected = seleccionados.has(producto.id_producto);
+        const selItem = seleccionados.get(producto.id_producto);
+        
+        return (
+          <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+            <input
+              type="number"
+              placeholder="Pesos ($)"
+              value={selItem?.precio_oferta ?? ''}
+              onChange={(e) => handlePrecioOfertaChange(producto.id_producto, e.target.value)}
+              className="modalTableInputPremium"
+              style={{ 
+                width: '100px', 
+                textAlign: 'right',
+                opacity: isSelected ? 1 : 0.3,
+                pointerEvents: isSelected ? 'all' : 'none'
+              }}
+              step="0.01"
+              min="0"
+              disabled={!isSelected}
+            />
+          </div>
+        );
+      }
+    }
+  ], [seleccionados, tipoCambio, handlePrecioOfertaChange, calcularPrecioDescuento]);
 
   return (
     <div className={styles.modalBodyContent}>
@@ -160,80 +346,21 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
         </button>
       </div>
 
-      <div className="modalTableWrapperPremium" style={{ margin: '0 var(--spacing-lg)' }}>
-        <table className="modalTablePremium">
-          <thead>
-            <tr>
-              <th style={{ width: '60px' }}>Imagen</th>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th className="text-right">Precio Original</th>
-              <th className="text-right">Precio Oferta</th>
-              <th className="text-center">Tipo Precio</th>
-              <th className="text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productosAsignados.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center py-8 text-secondary">
-                  No hay productos asignados a esta oferta
-                </td>
-              </tr>
-            ) : (
-              productosAsignados.map((producto) => {
-                const precioOferta = producto.ProductoOferta?.es_precio_personalizado
-                  && producto.ProductoOferta?.precio_oferta != null
-                  ? producto.ProductoOferta.precio_oferta.toString()
-                  : calcularPrecioDescuento(producto.precio_venta);
-
-                return (
-                  <tr key={producto.id_producto}>
-                    <td>
-                      <div className={styles.thumbnailWrapper}>
-                        {producto.imagen_url ? (
-                          <img
-                            src={producto.imagen_url}
-                            alt={producto.nombre}
-                            className={styles.thumbnail}
-                          />
-                        ) : (
-                          <div className={styles.thumbnailPlaceholder}>
-                            <span className="material-icons">image</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="font-mono text-xs">{producto.codigo}</td>
-                    <td className="font-bold">{producto.nombre}</td>
-                    <td className="text-right text-secondary">
-                      {formatARS(parseFloat(producto.precio_venta), tipoCambio)}
-                    </td>
-                    <td className="text-right font-bold text-primary">
-                      {formatARS(Number(precioOferta), tipoCambio)}
-                    </td>
-                    <td className="text-center">
-                      {producto.ProductoOferta?.es_precio_personalizado ? (
-                        <span className={`${styles.badgePremium} ${styles.personalizadoBadge}`}>Manual</span>
-                      ) : (
-                        <span className={`${styles.badgePremium} ${styles.calculadoBadge}`}>Auto</span>
-                      )}
-                    </td>
-                    <td className="text-right">
-                      <button
-                        className={styles.removeButton}
-                        title="Remover de la oferta"
-                        onClick={() => handleRemoverProducto(producto.id_producto, producto.nombre)}
-                      >
-                        <span className="material-icons" style={{ fontSize: '18px' }}>close</span>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+      <div className="mt-2" style={{ margin: '0 var(--spacing-lg)' }}>
+        <AdminDataTable
+          data={productosAsignados}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={productosAsignados.length}
+          itemLabel="productos"
+          manualPagination={false}
+          emptyMessage="No hay productos asignados a esta oferta"
+        />
       </div>
 
       <PremiumModal
@@ -275,66 +402,22 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
             )}
 
             {!loadingBusqueda && productosNoAsignados.length > 0 && (
-              <div className="modalSearchListPremium">
-                {productosNoAsignados.map((producto) => {
-                  const isSelected = seleccionados.has(producto.id_producto);
-                  const selItem = seleccionados.get(producto.id_producto);
-                  const precioCalculado = calcularPrecioDescuento(producto.precio_venta);
-
-                  return (
-                    <div
-                      key={producto.id_producto}
-                      className={`modalSearchResultItemPremium ${isSelected ? 'active' : ''}`}
-                      onClick={() => handleToggleSeleccion(producto)}
-                    >
-                      <div className="modalResultMainPremium">
-                        <div className="flex items-center gap-md">
-                          <span className="material-icons text-primary" style={{ fontSize: '20px' }}>
-                            {isSelected ? 'check_box' : 'check_box_outline_blank'}
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="modalResultTitlePremium">{producto.nombre}</span>
-                            <span className="modalResultSubPremium">SKU: {producto.codigo}</span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="text-xxs text-secondary">
-                            Original: <span className="line-through">{formatARS(parseFloat(producto.precio_venta), tipoCambio)}</span>
-                          </div>
-                          <div className="text-sm font-bold text-primary">
-                            Oferta: {formatARS(Number(precioCalculado), tipoCambio)}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {isSelected && (
-                        <div 
-                          className="mt-3 pt-3 border-t flex items-center justify-between animate-fade-in" 
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-xxs font-bold text-primary uppercase">Precio Personalizado</span>
-                            <span className="text-xxs text-secondary">Sobrescribe el cálculo automático</span>
-                          </div>
-                          <div className="flex items-center gap-sm">
-                            <span className="text-xs font-bold">ARS $</span>
-                            <input
-                              type="number"
-                              placeholder="Precio en pesos"
-                              value={selItem?.precio_oferta ?? ''}
-                              onChange={(e) => handlePrecioOfertaChange(producto.id_producto, e.target.value)}
-                              className="modalTableInputPremium"
-                              style={{ width: '120px', textAlign: 'right' }}
-                              step="0.01"
-                              min="0"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="mt-2">
+                <AdminDataTable
+                  data={productosNoAsignados}
+                  columns={columnsBusqueda}
+                  sorting={searchSorting}
+                  onSortingChange={setSearchSorting}
+                  columnOrder={searchColumnOrder}
+                  onColumnOrderChange={setSearchColumnOrder}
+                  pagination={searchPagination}
+                  onPaginationChange={setSearchPagination}
+                  totalItems={productosNoAsignados.length}
+                  itemLabel="productos"
+                  manualPagination={false}
+                  onRowClick={(row) => handleToggleSeleccion(row)}
+                  emptyMessage="Busca productos para agregar a la oferta"
+                />
               </div>
             )}
           </div>

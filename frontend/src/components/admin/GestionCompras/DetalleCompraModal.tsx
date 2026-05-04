@@ -1,8 +1,10 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState, useMemo } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import AnularCompraModal from './AnularCompraModal';
-import type { CompraDetalle } from '../../../types';
+import type { CompraDetalle, CompraItem } from '../../../types';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { AdminDataTable } from '../common';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { formatUSD } from '../../../utils/formatPrecio';
 import styles from './CompraModals.module.css';
 
@@ -17,6 +19,13 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(({ idCompra, 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarAnularModal, setMostrarAnularModal] = useState(false);
+
+  // === Estados para AdminDataTable ===
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'producto', 'codigo', 'cantidad', 'precio', 'subtotal'
+  ]);
 
   const cargarDetalle = useCallback(async () => {
     try {
@@ -37,6 +46,40 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(({ idCompra, 
 
   const canAnular = detalle?.estado === 'activa';
   const isActiva = detalle?.estado === 'activa';
+
+  // === Columnas para la tabla de items ===
+  const columns = useMemo<ColumnDef<CompraItem>[]>(() => [
+    {
+      accessorKey: 'nombre_producto',
+      id: 'producto',
+      header: 'Producto',
+      cell: info => <span style={{ fontWeight: 600 }}>{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'codigo_producto',
+      id: 'codigo',
+      header: 'Código',
+      cell: info => <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>{(info.getValue() as string) || '—'}</span>,
+    },
+    {
+      accessorKey: 'cantidad',
+      id: 'cantidad',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Cant.</div>,
+      cell: info => <div style={{ textAlign: 'right', fontWeight: 600 }}>{info.getValue() as number}</div>,
+    },
+    {
+      accessorKey: 'precio_unitario',
+      id: 'precio',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>P. Unit.</div>,
+      cell: info => <div style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>{formatUSD(info.getValue() as number)}</div>,
+    },
+    {
+      accessorKey: 'subtotal',
+      id: 'subtotal',
+      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Subtotal</div>,
+      cell: info => <div style={{ textAlign: 'right', fontWeight: 700, color: 'var(--color-primary)' }}>{formatUSD(info.getValue() as number)}</div>,
+    },
+  ], []);
 
   return (
     <PremiumModal
@@ -129,35 +172,22 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(({ idCompra, 
             {/* Tabla de Productos */}
             <div className="mt-6">
               <span className="modalSectionTitlePremium">Detalle de Productos ({detalle.items?.length || 0})</span>
-              <div className="modalTableContainerPremium mt-3">
-                <table className={`modalTablePremium ${styles.productosTable}`}>
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Código</th>
-                      <th className="text-right">Cant.</th>
-                      <th className="text-right">P. Unit.</th>
-                      <th className="text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detalle.items?.map((item) => (
-                      <tr key={item.id_detalle_compra}>
-                        <td className="font-bold">{item.nombre_producto}</td>
-                        <td className="font-mono text-xxs text-secondary">
-                          {item.codigo_producto || '—'}
-                        </td>
-                        <td className="text-right font-bold">{item.cantidad}</td>
-                        <td className="text-right text-secondary">
-                          {formatUSD(item.precio_unitario)}
-                        </td>
-                        <td className="text-right font-bold text-primary">
-                          {formatUSD(item.subtotal)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-3">
+                <AdminDataTable
+                  data={detalle.items || []}
+                  columns={columns}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalItems={detalle.items?.length || 0}
+                  itemLabel="productos"
+                  isLoading={cargando}
+                  manualPagination={false}
+                  emptyMessage="No hay productos en esta compra"
+                />
               </div>
             </div>
 

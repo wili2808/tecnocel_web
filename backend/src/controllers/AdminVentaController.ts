@@ -80,7 +80,10 @@ class AdminVentaController {
     try {
       const limit  = Math.min(parseInt(req.query.limit  as string) || 10, 100);
       const offset = parseInt(req.query.offset as string) || 0;
-      const { fecha_inicio, fecha_fin, estado, tipo_venta, metodo_pago, search, id_vendedor } = req.query as Record<string, string>;
+      const { 
+        fecha_inicio, fecha_fin, estado, tipo_venta, metodo_pago, 
+        search, id_vendedor, sortBy = 'fyh_creacion', order = 'DESC' 
+      } = req.query as Record<string, string>;
 
       // Construcción dinámica del filtro WHERE
       const where: Record<string, unknown> = {};
@@ -114,6 +117,14 @@ class AdminVentaController {
 
       const { count, rows } = await Venta.findAndCountAll({
         where,
+        attributes: {
+          include: [
+            [
+              sequelize.literal(`(SELECT COUNT(*) FROM tb_venta_items WHERE tb_venta_items.id_venta = Venta.id_venta)`),
+              'cantidad_items_total'
+            ]
+          ]
+        },
         include: [
           {
             model: Cliente,
@@ -126,15 +137,13 @@ class AdminVentaController {
             as: 'vendedor',
             attributes: ['id_usuario', 'nombres'],
             required: false
-          },
-          {
-            model: VentaItem,
-            as: 'items',
-            attributes: ['id_item'],
-            required: false
           }
         ],
-        order: [['fyh_creacion', 'DESC']],
+        order: sortBy === 'cliente' || sortBy === 'nombre_cliente'
+          ? [[{ model: Cliente, as: 'Cliente' }, 'nombre_cliente', order]]
+          : (sortBy === 'cantidad_items' || sortBy === 'items')
+            ? [[sequelize.literal(`(SELECT COUNT(*) FROM tb_venta_items WHERE tb_venta_items.id_venta = Venta.id_venta)`), order]]
+            : [[sortBy, order]],
         limit,
         offset,
         distinct: true
@@ -152,7 +161,7 @@ class AdminVentaController {
             ? `${v.Cliente.nombre_cliente} ${v.Cliente.apellido_cliente}`
             : null,
           email_cliente:   v.Cliente?.email_cliente || null,
-          cantidad_items:  (v.items || []).length,
+          cantidad_items:  parseInt(venta.getDataValue('cantidad_items_total') as string) || 0,
           total_pagado:    parseFloat(v.total_pagado),
           metodo_pago:     v.metodo_pago,
           tipo_venta:      v.tipo_venta,

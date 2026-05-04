@@ -50,6 +50,9 @@ export interface FiltrosEnviosAdmin {
   search?: string;
   limit?: number;
   offset?: number;
+  tipo_entrega?: 'envio' | 'retiro_en_tienda';
+  sortBy?: string;
+  order?: 'ASC' | 'DESC';
 }
 
 export interface ListarEnviosResponse {

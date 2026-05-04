@@ -114,8 +114,8 @@
   border-left: 3px solid transparent;
 }
 
-.mobileMenuItem:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.04);
+.mobileMenuItem:hover:not(.mobileMenuItemActive) {
+  background-color: var(--color-primary-50);
   color: var(--text-primary);
 }
 

@@ -13,6 +13,7 @@ import GestionCategorias from './GestionCategorias';
 import GestionCaracteristicas from './GestionCaracteristicas';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminDataTable,
@@ -43,6 +44,7 @@ const GestionProductos = () => {
 
   // Estado de la lista
   const [allProductos, setAllProductos] = useState<Product[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,18 +55,43 @@ const GestionProductos = () => {
   const [soloDestacados, setSoloDestacados] = useState(false);
 
   // --- Estados de TanStack Table ---
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
     'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock'
   ]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
-  const cargarProductos = useCallback(async () => {
+  const cargarProductos = useCallback(async (p: PaginationState, s: SortingState, sd: boolean) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await adminProductService.listarProductos(searchTerm || undefined);
-      setAllProductos(data);
+      
+      const page = p.pageIndex + 1;
+      let sortBy = 'fyh_creacion';
+      let order: 'ASC' | 'DESC' = 'DESC';
+
+      if (s.length > 0) {
+        const st = s[0];
+        order = st.desc ? 'DESC' : 'ASC';
+        switch (st.id) {
+          case 'codigo': sortBy = 'codigo'; break;
+          case 'nombre': sortBy = 'nombre'; break;
+          case 'precio_venta': sortBy = 'precio_venta'; break;
+          case 'stock': sortBy = 'stock'; break;
+          default: sortBy = 'fyh_creacion';
+        }
+      }
+
+      const data = await adminProductService.listarProductos(
+        searchTerm || undefined, 
+        p.pageSize, 
+        page, 
+        sortBy, 
+        order,
+        sd
+      );
+      setAllProductos(data.items);
+      setTotal(data.total);
     } catch (err: any) {
       setError(err.message || 'Error al cargar productos');
       showNotification(err.message || 'Error al cargar productos', 'error');
@@ -74,8 +101,8 @@ const GestionProductos = () => {
   }, [searchTerm, showNotification]);
 
   useEffect(() => {
-    cargarProductos();
-  }, [cargarProductos]);
+    cargarProductos(pagination, sorting, soloDestacados);
+  }, [cargarProductos, pagination, sorting, soloDestacados]);
 
   const handleToggleDestacados = () => {
     setSoloDestacados((prev) => !prev);
@@ -100,7 +127,7 @@ const GestionProductos = () => {
   const handleGuardado = () => {
     setModalOpen(false);
     setProductoSeleccionado(null);
-    cargarProductos();
+    cargarProductos(pagination, sorting, soloDestacados);
   };
 
   const handleCancelar = () => {
@@ -109,10 +136,6 @@ const GestionProductos = () => {
   };
 
   // 1. Filtrar por destacados
-  const filteredProductos = useMemo(() => {
-    if (!soloDestacados) return allProductos;
-    return allProductos.filter((p) => p.es_destacado);
-  }, [allProductos, soloDestacados]);
 
   // --- Definición de columnas para TanStack Table ---
   const columns = useMemo<ColumnDef<Product>[]>(() => [
@@ -177,9 +200,8 @@ const GestionProductos = () => {
       cell: (info) => {
         const val = parseFloat(info.getValue() as string) || 0;
         return (
-          <div className={`${styles.precioCell} ${styles.textRight}`}>
+          <div className={`${styles.precioCell} ${styles.textLeft}`}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <span>$ {val.toFixed(2)}</span>
               <span
                 style={{
                   marginLeft: '0px',
@@ -194,6 +216,7 @@ const GestionProductos = () => {
               >
                 USD
               </span>
+              <span>$ {val.toFixed(2)}</span>
             </span>
           </div>
         );
@@ -207,17 +230,19 @@ const GestionProductos = () => {
         const p = info.row.original;
         const stockBajo = p.stock_minimo != null && p.stock <= p.stock_minimo;
         return (
-          <span
-            className={`${styles.stockBadge} ${
+          <div className={styles.textLeft}>
+            <span
+              className={`${styles.stockBadge} ${
               p.stock === 0
                 ? styles.stockAgotado
                 : stockBajo
                   ? styles.stockBajoStyle
                   : styles.stockNormal
-            }`}
-          >
-            {p.stock}
-          </span>
+              }`}
+            >
+              {p.stock}
+            </span>
+          </div>
         );
       },
     }
@@ -293,8 +318,8 @@ const GestionProductos = () => {
 
           {/* Estado de carga */}
           {loading && (
-            <AdminEmptyState
-              icon="hourglass_empty"
+            <AdminLoading
+              variant="panel"
               title="Cargando productos"
               message="Estamos armando el catálogo para que puedas trabajar sobre inventario y precios."
               className={styles.stateBlock}
@@ -308,7 +333,7 @@ const GestionProductos = () => {
               title="No pudimos cargar el catálogo"
               message={error}
               actionLabel="Reintentar"
-              onAction={cargarProductos}
+              onAction={() => cargarProductos(pagination, sorting, soloDestacados)}
               tone="danger"
               className={styles.stateBlock}
             />
@@ -317,7 +342,7 @@ const GestionProductos = () => {
           {/* Tabla de productos (AdminDataTable) */}
           {!loading && !error && (
             <AdminDataTable
-              data={filteredProductos}
+              data={allProductos}
               columns={columns}
               sorting={sorting}
               onSortingChange={setSorting}
@@ -325,11 +350,12 @@ const GestionProductos = () => {
               onColumnOrderChange={setColumnOrder}
               pagination={pagination}
               onPaginationChange={setPagination}
-              totalItems={filteredProductos.length}
+              totalItems={total}
               itemLabel="productos"
               onRowClick={(row) => !isReadOnly && handleEditar(row.id_producto)}
               isLoading={loading}
-              manualPagination={false}
+              manualPagination={true}
+              manualSorting={true}
               emptyMessage={
                 searchTerm && soloDestacados
                   ? `No se encontraron productos destacados para "${searchTerm}"`

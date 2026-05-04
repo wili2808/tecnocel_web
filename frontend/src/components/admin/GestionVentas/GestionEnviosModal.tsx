@@ -5,6 +5,8 @@ import { ESTADO_ENVIO_LABELS, SIGUIENTE_ESTADO } from '../../../types/envio';
 import type { EnvioAdminListItem, EnvioAdminDetalle, EstadoEnvio } from '../../../types/envio';
 import Input from '../../common/Input/Input';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { AdminDataTable } from '../common';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import styles from './VentaModals.module.css';
 
 const ESTADO_BADGES: Record<EstadoEnvio, string> = {
@@ -45,6 +47,11 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
 
   const [nroSeguimiento, setNroSeguimiento] = useState(envio.nro_seguimiento ?? '');
   const [confirmando, setConfirmando] = useState(false);
+
+  // ── Estados para AdminDataTable ────────────────────────────────────
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 5 });
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'cantidad', 'precio', 'subtotal']);
 
   const siguienteEstado = SIGUIENTE_ESTADO[envio.estado_envio];
   const esEntregado = envio.estado_envio === 'entregado';
@@ -88,6 +95,37 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
       setGuardando(false);
     }
   };
+
+  // ── Columnas para AdminDataTable ───────────────────────────────────
+  const columns = React.useMemo<ColumnDef<EnvioAdminDetalle['items'][0]>[]>(() => [
+    {
+      accessorKey: 'nombre_producto',
+      id: 'nombre',
+      header: 'Producto',
+      cell: (info) => <span className="font-bold">{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'cantidad',
+      id: 'cantidad',
+      header: () => <div className="text-right">Cant.</div>,
+      cell: (info) => <div className="text-right">{info.getValue() as number}</div>,
+    },
+    {
+      accessorKey: 'precio_unitario',
+      id: 'precio',
+      header: () => <div className="text-right">Precio unit.</div>,
+      cell: (info) => <div className="text-right">{formatMoneda(info.getValue() as number, detalle?.moneda)}</div>,
+    },
+    {
+      id: 'subtotal',
+      header: () => <div className="text-right">Subtotal</div>,
+      cell: (info) => (
+        <div className="text-right font-bold text-primary">
+          {formatMoneda((info.row.original.cantidad * info.row.original.precio_unitario), detalle?.moneda)}
+        </div>
+      ),
+    },
+  ], [detalle?.moneda]);
 
   const indiceActual = ESTADOS_ORDEN.indexOf(envio.estado_envio);
 
@@ -247,29 +285,21 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
             {/* Productos */}
             <div className="mb-6">
               <h4 className={styles.sectionTitle}>Productos del pedido</h4>
-              <div className="modalTableWrapperPremium mt-2">
-                <table className="modalTablePremium">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th style={{ textAlign: 'right' }}>Cant.</th>
-                      <th style={{ textAlign: 'right' }}>Precio unit.</th>
-                      <th style={{ textAlign: 'right' }}>Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detalle.items.map((item, i) => (
-                      <tr key={i}>
-                        <td className="font-bold">{item.nombre_producto}</td>
-                        <td style={{ textAlign: 'right' }}>{item.cantidad}</td>
-                        <td style={{ textAlign: 'right' }}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                        <td className="text-right font-bold text-primary">
-                          {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-2">
+                <AdminDataTable
+                  data={detalle.items}
+                  columns={columns}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalItems={detalle.items.length}
+                  itemLabel="productos"
+                  manualPagination={false}
+                  emptyMessage="No hay productos en este envío"
+                />
               </div>
             </div>
 

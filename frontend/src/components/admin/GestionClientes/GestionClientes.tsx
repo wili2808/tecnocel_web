@@ -43,12 +43,29 @@ const GestionClientes = () => {
   const [tipoModal, setTipoModal] = useState<'detalle' | 'editar' | null>(null);
   const [showCrearModal, setShowCrearModal] = useState(false);
 
-  const cargarClientes = useCallback(async () => {
+  const cargarClientes = useCallback(async (p: PaginationState, s: SortingState) => {
     try {
       setLoading(true);
       setError(null);
-      const off = pagination.pageIndex * pagination.pageSize;
-      const data = await usuarioService.listarClientes(pagination.pageSize, off, searchTerm || undefined);
+      const off = p.pageIndex * p.pageSize;
+
+      let sortBy = 'fyh_creacion';
+      let order: 'ASC' | 'DESC' = 'DESC';
+
+      if (s.length > 0) {
+        const st = s[0];
+        order = st.desc ? 'DESC' : 'ASC';
+        switch (st.id) {
+          case 'id_cliente': sortBy = 'id_cliente'; break;
+          case 'nombre': sortBy = 'nombre_cliente'; break;
+          case 'email': sortBy = 'email_cliente'; break;
+          case 'celular': sortBy = 'celular_cliente'; break;
+          case 'fecha': sortBy = 'fyh_creacion'; break;
+          default: sortBy = 'fyh_creacion';
+        }
+      }
+
+      const data = await usuarioService.listarClientes(p.pageSize, off, searchTerm || undefined, sortBy, order);
       setClientes(data.clientes || []);
       setTotal(data.total || 0);
     } catch (err: any) {
@@ -57,11 +74,11 @@ const GestionClientes = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination, searchTerm, showNotification]);
+  }, [searchTerm, showNotification]);
 
   useEffect(() => {
-    cargarClientes();
-  }, [cargarClientes]);
+    cargarClientes(pagination, sorting);
+  }, [cargarClientes, pagination, sorting]);
 
   // ── Handlers de modal ──────────────────────────────────────────────────────
   const handleVerDetalle = useCallback((cliente: ClienteListItem) => {
@@ -157,35 +174,6 @@ const GestionClientes = () => {
     );
   }
 
-  if (loading && clientes.length === 0) {
-    return (
-      <div className={styles.container}>
-        <AdminEmptyState
-          icon="hourglass_empty"
-          title="Cargando clientes"
-          message="Estamos preparando el padrón de clientes registrados."
-          className={styles.stateBlock}
-        />
-      </div>
-    );
-  }
-
-  if (error && clientes.length === 0) {
-    return (
-      <div className={styles.container}>
-        <AdminEmptyState
-          icon="error_outline"
-          title="No pudimos cargar los clientes"
-          message={error}
-          actionLabel="Reintentar"
-          onAction={cargarClientes}
-          tone="danger"
-          className={styles.stateBlock}
-        />
-      </div>
-    );
-  }
-
   return (
     <>
       <div className={styles.container}>
@@ -209,22 +197,41 @@ const GestionClientes = () => {
           </AdminFilterPanel.Row>
         </AdminFilterPanel>
 
-        <AdminDataTable
-          data={clientes}
-          columns={columns}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          columnOrder={columnOrder}
-          onColumnOrderChange={setColumnOrder}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          totalItems={total}
-          itemLabel="clientes"
-          onRowClick={(row) => handleVerDetalle(row)}
-          isLoading={loading}
-          manualPagination={true}
-          emptyMessage={loading ? 'Cargando...' : 'No se encontraron clientes'}
-        />
+        {!loading && error && clientes.length === 0 ? (
+          <AdminEmptyState
+            icon="error_outline"
+            title="No pudimos cargar los clientes"
+            message={error}
+            actionLabel="Reintentar"
+            onAction={() => cargarClientes(pagination, sorting)}
+            tone="danger"
+            className={styles.stateBlock}
+          />
+        ) : (
+          <AdminDataTable
+            data={clientes}
+            columns={columns}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnOrder={columnOrder}
+            onColumnOrderChange={setColumnOrder}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            totalItems={total}
+            itemLabel="clientes"
+            onRowClick={(row) => handleVerDetalle(row)}
+            isLoading={loading}
+            manualPagination={true}
+            manualSorting={true}
+            emptyMessage={
+              loading
+                ? 'Cargando...'
+                : error
+                  ? error
+                  : 'No se encontraron clientes'
+            }
+          />
+        )}
       </div>
 
       {/* Modal de detalle (solo lectura) */}
@@ -238,11 +245,11 @@ const GestionClientes = () => {
 
       {/* Modal de edición (solo admin) */}
       {tipoModal === 'editar' && clienteSeleccionado && (
-        <EditarClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} onGuardado={cargarClientes} />
+        <EditarClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} onGuardado={() => cargarClientes(pagination, sorting)} />
       )}
 
       {/* Modal de creación de cliente */}
-      {showCrearModal && <CrearClienteModal onClose={() => setShowCrearModal(false)} onCreado={cargarClientes} />}
+      {showCrearModal && <CrearClienteModal onClose={() => setShowCrearModal(false)} onCreado={() => cargarClientes(pagination, sorting)} />}
     </>
   );
 };

@@ -195,6 +195,7 @@ class UsuarioAdminController {
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const offset = parseInt(req.query.offset as string) || 0;
+      const { sortBy = 'fyh_creacion', order = 'DESC' } = req.query;
 
       const { count, rows: usuarios } = await Usuario.findAndCountAll({
         attributes: ['id_usuario', 'nombres', 'email', 'id_rol', 'fyh_ultimo_login', 'fyh_creacion', 'fyh_actualizacion'],
@@ -206,7 +207,7 @@ class UsuarioAdminController {
         ],
         limit,
         offset,
-        order: [['fyh_creacion', 'DESC']]
+        order: [[sortBy as string, order as string]]
       });
 
       logger.info('Lista de usuarios obtenida', {
@@ -709,7 +710,7 @@ class UsuarioAdminController {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const offset = parseInt(req.query.offset as string) || 0;
-      const search = req.query.search as string;
+      const { search, sortBy = 'fyh_creacion', order = 'DESC' } = req.query;
 
       // Construir filtros de búsqueda si se proporciona término
       let whereClause: WhereOptions = {};
@@ -741,7 +742,7 @@ class UsuarioAdminController {
         ],
         limit,
         offset,
-        order: [['fyh_creacion', 'DESC']]
+        order: [[sortBy as string, order as string]]
       });
 
       logger.info('Lista de clientes obtenida', {

@@ -11,6 +11,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import {
   AdminEmptyState,
+  AdminLoading,
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminMetricsStrip,
@@ -177,14 +178,36 @@ const GestionVentas: React.FC = () => {
 
   // ── Cargar ventas ──────────────────────────────────────────────────────────
   const cargarVentas = useCallback(
-    async (f: FiltrosVentasAdmin, pIndex: number) => {
+    async (f: FiltrosVentasAdmin, pIndex: number, sort: SortingState) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
         const off = pIndex * pagination.pageSize;
-        const res = await adminVentaService.listarVentas(f, pagination.pageSize, off);
+        
+        let sortBy = 'fyh_creacion';
+        let order: 'ASC' | 'DESC' = 'DESC';
+
+        if (sort.length > 0) {
+          const s = sort[0];
+          order = s.desc ? 'DESC' : 'ASC';
+          switch (s.id) {
+            case 'nro_venta': sortBy = 'nro_venta'; break;
+            case 'fecha': sortBy = 'fyh_creacion'; break;
+            case 'cliente': sortBy = 'cliente'; break;
+            case 'total_pagado': sortBy = 'total_pagado'; break;
+            case 'items': sortBy = 'cantidad_items'; break;
+            case 'estado': sortBy = 'estado'; break;
+            default: sortBy = 'fyh_creacion';
+          }
+        }
+
+        const res = await adminVentaService.listarVentas({ 
+          ...f, 
+          sortBy, 
+          order 
+        }, pagination.pageSize, off);
         setVentas(res.ventas);
         setTotal(res.total);
       } catch (err: any) {
@@ -230,8 +253,8 @@ const GestionVentas: React.FC = () => {
   ]);
 
   useEffect(() => {
-    cargarVentas(filtros, pagination.pageIndex);
-  }, [cargarVentas, filtros, pagination.pageIndex, pagination.pageSize]);
+    cargarVentas(filtros, pagination.pageIndex, sorting);
+  }, [cargarVentas, filtros, pagination.pageIndex, pagination.pageSize, sorting]);
 
   // ── Limpiar filtros ────────────────────────────────────────────────────────
   const limpiarFiltros = () => {
@@ -241,7 +264,7 @@ const GestionVentas: React.FC = () => {
 
   // ── Refresh tras acciones ──────────────────────────────────────────────────
   const refreshTodo = () => {
-    cargarVentas(filtros, pagination.pageIndex);
+    cargarVentas(filtros, pagination.pageIndex, sorting);
     cargarStats();
   };
 
@@ -324,7 +347,7 @@ const GestionVentas: React.FC = () => {
       accessorKey: 'cantidad_items',
       id: 'items',
       header: 'Items',
-      enableSorting: false,
+      enableSorting: true,
       cell: info => info.getValue() as number,
     },
     {
@@ -612,8 +635,8 @@ const GestionVentas: React.FC = () => {
 
           {/* Tabla */}
           {cargando ? (
-            <AdminEmptyState
-              icon="hourglass_empty"
+            <AdminLoading
+              variant="panel"
               title="Cargando ventas"
               message="Estamos preparando el listado y las estadísticas operativas de ventas."
               className={styles.loadingState}
@@ -624,7 +647,7 @@ const GestionVentas: React.FC = () => {
               title="No pudimos cargar las ventas"
               message={error}
               actionLabel="Reintentar"
-              onAction={() => cargarVentas(filtros, pagination.pageIndex)}
+              onAction={() => cargarVentas(filtros, pagination.pageIndex, sorting)}
               tone="danger"
               className={styles.errorState}
             />
@@ -642,7 +665,9 @@ const GestionVentas: React.FC = () => {
               itemLabel="ventas"
               onRowClick={(row) => setIdDetalleAbierto(row.id_venta)}
               isLoading={cargando}
-              emptyMessage="No hay ventas que coincidan con los filtros aplicados"
+              manualPagination={true}
+              manualSorting={true}
+              emptyMessage="No se encontraron ventas con los filtros aplicados."
             />
           )}
         </>
