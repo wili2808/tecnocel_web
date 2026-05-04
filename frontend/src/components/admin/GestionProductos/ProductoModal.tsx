@@ -106,15 +106,18 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
         
         // Galería Unificada - Cargamos existentes
         const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-        const exist = (producto.imagenes || []).map((img: any) => ({
-          id: img.id_imagen || img.id,
-          url_imagen: img.url_imagen || img.url,
-          alt_text: img.alt_text || '',
-          preview: (img.url_imagen || img.url).startsWith('http') 
-            ? (img.url_imagen || img.url) 
-            : `${apiBaseUrl}/images/${img.url_imagen || img.url}`,
-          esNuevo: false
-        })).filter(img => !!img.url_imagen);
+        const exist = (producto.imagenes || []).map((img: any) => {
+          const absoluteUrl = img.url || (img.url_imagen?.startsWith('http') ? img.url_imagen : null);
+          const filename = img.url_imagen || (img.url?.split('/').pop()) || '';
+          
+          return {
+            id: img.id_imagen || img.id,
+            url_imagen: filename,
+            alt_text: img.alt_text || '',
+            preview: absoluteUrl || `${apiBaseUrl}/images/${filename}`,
+            esNuevo: false
+          };
+        }).filter(img => !!img.url_imagen || !!img.preview);
         
         setGaleria(exist);
         
