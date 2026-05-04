@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import usuarioService from '../../../services/usuarioService';
 import adminVentaService from '../../../services/adminVentaService';
 import adminProductService from '../../../services/adminProductService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import type { ItemVentaManual, ProductoParaVenta } from '../../../types/venta';
-import { AdminSearch } from '../common';
+import { AdminSearch, AdminDataTable } from '../common';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
@@ -57,6 +58,11 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
   const [moneda, setMoneda] = useState<'ARS' | 'USD'>('ARS');
   const [observaciones, setObservaciones] = useState('');
 
+  // ── Estados para AdminDataTable (Carrito) ─────────────────────────
+  const [cartSorting, setCartSorting] = useState<SortingState>([]);
+  const [cartPagination, setCartPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [cartColumnOrder, setCartColumnOrder] = useState<string[]>(['nombre', 'cantidad', 'precio', 'subtotal', 'accion']);
+
   // ── Búsqueda de clientes ─────────────────────────────────
   const buscarClientes = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -107,7 +113,7 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
     try {
       const res = await adminProductService.listarProductos(q.trim());
       setProductosEncontrados(
-        res.map((p: any) => ({
+        res.items.map((p: any) => ({
           id_producto: p.id_producto,
           nombre: p.nombre,
           codigo: p.codigo || '',
@@ -162,6 +168,68 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
       }),
     );
   };
+
+  // ── Columnas Carrito ─────────────────────────────────────
+  const cartColumns = useMemo<ColumnDef<ItemVentaManual>[]>(() => [
+    {
+      accessorKey: 'nombre',
+      id: 'nombre',
+      header: 'Producto',
+      cell: (info) => <span className="font-bold text-sm">{info.getValue() as string}</span>,
+    },
+    {
+      id: 'cantidad',
+      header: () => <div className="text-center">Cantidad</div>,
+      cell: (info) => {
+        const item = info.row.original;
+        return (
+          <div className="flex justify-center" onClick={e => e.stopPropagation()}>
+            <div className="modalQtyControlPremium">
+              <button 
+                className="modalQtyBtnPremium" 
+                onClick={() => cambiarCantidad(item.id_producto, -1)} 
+                disabled={item.cantidad <= 1}
+              >−</button>
+              <span className="modalQtyValuePremium">{item.cantidad}</span>
+              <button 
+                className="modalQtyBtnPremium" 
+                onClick={() => cambiarCantidad(item.id_producto, 1)} 
+                disabled={item.cantidad >= item.stock}
+              >+</button>
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      accessorKey: 'precio_unitario',
+      id: 'precio',
+      header: () => <div className="text-right">P. Unit</div>,
+      cell: (info) => <div className="text-right text-xs">{formatUSD(info.getValue() as number)}</div>,
+    },
+    {
+      accessorKey: 'subtotal',
+      id: 'subtotal',
+      header: () => <div className="text-right">Subtotal</div>,
+      cell: (info) => <div className="text-right font-bold text-primary">{formatUSD(info.getValue() as number)}</div>,
+    },
+    {
+      id: 'accion',
+      header: '',
+      enableSorting: false,
+      cell: (info) => (
+        <div className="text-right">
+          <button 
+            className="modalIconButtonPremium" 
+            style={{ color: 'var(--color-error)' }} 
+            onClick={(e) => { e.stopPropagation(); quitarProducto(info.row.original.id_producto); }}
+          >
+            <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
+          </button>
+        </div>
+      )
+    }
+  ], [cambiarCantidad, quitarProducto]);
 
   // ── Totales y formato ─────────────────────────────────────────────────────
   const totalVenta = items.reduce((s: number, i: ItemVentaManual) => s + i.subtotal, 0);
@@ -292,9 +360,9 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
                             onClick={() => seleccionarCliente(c)}
                             className={styles.resultItem}
                           >
-                            <div>
-                              <p className="m-0 font-bold text-sm">{c.nombre_cliente} {c.apellido_cliente}</p>
-                              <p className="m-0 text-xxs text-secondary">{c.correo}</p>
+                            <div className="flex items-center gap-md">
+                              <p className="m-0 font-bold text-sm" style={{ minWidth: '150px' }}>{c.nombre_cliente} {c.apellido_cliente}</p>
+                              <p className="m-0 text-xxs text-secondary whitespace-nowrap">{c.correo}</p>
                             </div>
                             <span className={`material-icons text-primary ${styles.resultItemIcon}`}>arrow_forward</span>
                           </div>
@@ -308,92 +376,76 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
           </div>
         )}
 
-        {/* ─── PASO 2: PRODUCTOS ────────────────────────────────────── */}
         {paso === 1 && (
           <div className="animate-fade-in">
-            <div className="modalSplitLayoutPremium">
-              
-              {/* Columna Búsqueda */}
-              <div className="modalMainColumnPremium">
-                <span className="modalSectionTitlePremium">Agregar Productos</span>
-                <div className={styles.clientSearchWrapper}>
-                  <AdminSearch
-                    value={busqProducto}
-                    onChange={handleBusqProductoChange}
-                    placeholder="Nombre o código del producto..."
-                    delay={400}
-                  />
-                  {buscandoProducto && (
-                    <div className={styles.searchLoading}>
-                      <span className="material-icons">autorenew</span>
-                    </div>
-                  )}
-                </div>
-
-                {productosEncontrados.length > 0 && (
-                  <div className={`modalTablePremium ${styles.resultsTable}`} style={{ maxHeight: '350px', overflowY: 'auto' }}>
-                    {productosEncontrados.map((p: ProductoParaVenta) => (
-                      <div
-                        key={p.id_producto}
-                        className={styles.resultItem}
-                        style={{ opacity: p.stock <= 0 ? 0.6 : 1, cursor: p.stock > 0 ? 'pointer' : 'default' }}
-                        onClick={() => p.stock > 0 && agregarProducto(p)}
-                      >
-                        <div className="flex-1">
-                          <p className="m-0 font-bold text-sm">{p.nombre}</p>
-                          <div className="flex gap-md mt-xs">
-                            <span className="text-xxs text-secondary">Cód: {p.codigo || '—'}</span>
-                            <span className="text-xxs font-bold text-primary">{formatUSD(p.precio_venta)}</span>
-                            <span className={`text-xxs ${p.stock <= 0 ? 'text-primary' : 'text-secondary'}`} style={{ color: p.stock <= 0 ? 'var(--color-error)' : '' }}>Stock: {p.stock}</span>
-                          </div>
-                        </div>
-                        {p.stock > 0 ? (
-                          <span className="material-icons text-primary" style={{ fontSize: '24px' }}>add_circle</span>
-                        ) : (
-                          <span className="text-xxs font-bold" style={{ color: 'var(--color-error)', textTransform: 'uppercase' }}>Sin Stock</span>
-                        )}
-                      </div>
-                    ))}
+            {/* Buscador de Productos */}
+            <div className="mb-6">
+              <span className="modalSectionTitlePremium">Agregar Productos al Carrito</span>
+              <div className={styles.clientSearchWrapper}>
+                <AdminSearch
+                  value={busqProducto}
+                  onChange={handleBusqProductoChange}
+                  placeholder="Nombre o código del producto..."
+                  delay={400}
+                />
+                {buscandoProducto && (
+                  <div className={styles.searchLoading}>
+                    <span className="material-icons">autorenew</span>
                   </div>
                 )}
               </div>
 
-              {/* Columna Items Agregados */}
-              <div className="modalSideColumnPremium">
-                <span className="modalSectionTitlePremium">Carrito de Venta ({items.length})</span>
-                
-                <div className={`modalCartListPremium ${styles.cartList}`}>
-                  {items.length === 0 ? (
-                    <div className={styles.cartEmpty}>
-                      <span className={`material-icons ${styles.cartEmptyIcon}`}>shopping_basket</span>
-                      <p className="m-0 text-sm">Selecciona productos para iniciar la venta</p>
-                    </div>
-                  ) : (
-                    <>
-                      {items.map((item: ItemVentaManual) => (
-                        <div key={item.id_producto} className="modalCartItemPremium">
-                          <div className="modalCartItemHeaderPremium">
-                            <span className="modalCartItemTitlePremium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '160px' }}>{item.nombre}</span>
-                            <button className="modalIconButtonPremium" style={{ color: 'var(--color-error)' }} onClick={() => quitarProducto(item.id_producto)}>
-                              <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
-                            </button>
-                          </div>
-                          <div className="modalCartItemActionsPremium">
-                            <div className="modalQtyControlPremium">
-                              <button className="modalQtyBtnPremium" onClick={() => cambiarCantidad(item.id_producto, -1)} disabled={item.cantidad <= 1}>−</button>
-                              <span className="modalQtyValuePremium">{item.cantidad}</span>
-                              <button className="modalQtyBtnPremium" onClick={() => cambiarCantidad(item.id_producto, 1)} disabled={item.cantidad >= item.stock}>+</button>
-                            </div>
-                            <span className="font-bold text-primary text-sm">{formatUSD(item.subtotal)}</span>
-                          </div>
+              {productosEncontrados.length > 0 && (
+                <div className={`modalTablePremium ${styles.resultsTable}`} style={{ maxHeight: '250px', overflowY: 'auto', marginTop: '10px' }}>
+                  {productosEncontrados.map((p: ProductoParaVenta) => (
+                    <div
+                      key={p.id_producto}
+                      className={styles.resultItem}
+                      style={{ opacity: p.stock <= 0 ? 0.6 : 1, cursor: p.stock > 0 ? 'pointer' : 'default' }}
+                      onClick={() => p.stock > 0 && agregarProducto(p)}
+                    >
+                      <div className="flex-1 flex items-center gap-md">
+                        <p className="m-0 font-bold text-sm" style={{ minWidth: '150px' }}>{p.nombre}</p>
+                        <div className="flex items-center gap-md">
+                          <span className="text-xxs text-secondary whitespace-nowrap">Cód: {p.codigo || '—'}</span>
+                          <span className="text-xxs font-bold text-primary whitespace-nowrap">{formatUSD(p.precio_venta)}</span>
+                          <span className={`text-xxs whitespace-nowrap ${p.stock <= 0 ? 'text-primary' : 'text-secondary'}`} style={{ color: p.stock <= 0 ? 'var(--color-error)' : '' }}>Stock: {p.stock}</span>
                         </div>
-                      ))}
-                    </>
-                  )}
+                      </div>
+                      {p.stock > 0 ? (
+                        <span className="material-icons text-primary" style={{ fontSize: '24px' }}>add_circle</span>
+                      ) : (
+                        <span className="text-xxs font-bold" style={{ color: 'var(--color-error)', textTransform: 'uppercase' }}>Sin Stock</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
 
-                <div className={`modalTotalBoxPremium ${styles.totalBox}`}>
-                  <span className="modalTotalLabelPremium">Total Carrito (USD)</span>
+            {/* Carrito de Venta - Tabla Estándar */}
+            <div className="mt-8">
+              <span className="modalSectionTitlePremium">Carrito de Venta ({items.length})</span>
+              <div className="mt-2 mb-4">
+                  <AdminDataTable
+                    data={items}
+                    columns={cartColumns}
+                    sorting={cartSorting}
+                    onSortingChange={setCartSorting}
+                    columnOrder={cartColumnOrder}
+                    onColumnOrderChange={setCartColumnOrder}
+                    pagination={cartPagination}
+                    onPaginationChange={setCartPagination}
+                    totalItems={items.length}
+                    itemLabel="items"
+                    manualPagination={false}
+                    emptyMessage="El carrito está vacío. Agrega productos arriba."
+                  />
+              </div>
+
+              <div className="flex">
+                <div className={`modalTotalBoxPremium ml-auto ${styles.totalBox}`} style={{ minWidth: '250px' }}>
+                  <span className="modalTotalLabelPremium">Total Operación (USD)</span>
                   <span className={`modalTotalValuePremium ${styles.totalValue}`}>{formatUSD(totalVenta)}</span>
                 </div>
               </div>

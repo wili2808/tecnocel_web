@@ -20,7 +20,9 @@ const adminCompraService = {
   async listarCompras(
     filtros: FiltrosComprasAdmin = {},
     limit = 20,
-    offset = 0
+    offset = 0,
+    sortBy?: string,
+    order?: 'ASC' | 'DESC'
   ): Promise<{ success: boolean; data: CompraListItem[]; total: number; limit: number; offset: number }> {
     try {
       const params: Record<string, string | number> = { limit, offset };
@@ -29,6 +31,8 @@ const adminCompraService = {
       if (filtros.id_proveedor) params.id_proveedor = filtros.id_proveedor;
       if (filtros.estado) params.estado = filtros.estado;
       if (filtros.search) params.search = filtros.search;
+      if (sortBy) params.sortBy = sortBy;
+      if (order) params.order = order;
 
       const response = await adminApi.get('/compras/admin/listar', { params });
       return response.data;

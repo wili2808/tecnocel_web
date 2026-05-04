@@ -217,12 +217,13 @@ class AlmacenController {
       const offset = (page - 1) * limit;
 
       // Parsear filtros
-      const { categoria, marca, precio_min, precio_max } = req.query;
+      const { categoria, marca, precio_min, precio_max, es_destacado, sortBy = 'fyh_creacion', order = 'DESC' } = req.query;
 
       // Construir condiciones where
       const where: any = {};
       if (categoria) where.id_categoria = parseInt(categoria as string);
       if (marca) where.id_marca = parseInt(marca as string);
+      if (es_destacado === 'true') where.es_destacado = true;
       if (precio_min || precio_max) {
         where.precio = {};
         if (precio_min) where.precio[Op.gte] = parseFloat(precio_min as string);
@@ -283,7 +284,8 @@ class AlmacenController {
         ],
         limit,
         offset,
-        order: [['fyh_creacion', 'DESC']]
+        distinct: true,
+        order: [[sortBy as string, order as string]]
       });
 
       const productosConImagenes = await this.transformProductsWithImages(productos);
@@ -737,7 +739,7 @@ class AlmacenController {
    */
   async searchProducts(req: Request, res: Response) {
     try {
-      const { termino } = req.query;
+      const { termino, limit: limitParam, page: pageParam, sortBy = 'nombre', order = 'ASC' } = req.query;
       logger.debug(`Buscando productos en almacén con término: ${termino}`);
 
       if (!termino) {
@@ -745,7 +747,11 @@ class AlmacenController {
         return res.status(400).json(errorResponse('Término de búsqueda requerido'));
       }
 
-      const productos = await Almacen.findAll({
+      const page = Math.max(1, parseInt(pageParam as string) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(limitParam as string) || 10));
+      const offset = (page - 1) * limit;
+
+      const { count, rows: productos } = await Almacen.findAndCountAll({
         where: {
           [Op.or]: [
             { nombre: { [Op.like]: `%${termino}%` } },
@@ -765,13 +771,28 @@ class AlmacenController {
             as: 'imagenes',
             attributes: ['url_imagen', 'alt_text', 'es_principal', 'orden']
           }
-        ]
+        ],
+        distinct: true,
+        limit,
+        offset,
+        order: [[sortBy as string, order as string]]
       });
 
       const productosConImagenes = await this.transformProductsWithImages(productos);
 
-      logger.info(`Se encontraron ${productos.length} productos con el término: ${termino}`);
-      return res.json(okList(productosConImagenes));
+      logger.info(`Se encontraron ${count} productos con el término: ${termino}`, {
+        returned: productos.length,
+        total: count,
+        page,
+        limit
+      });
+
+      return res.json(okPaginated(productosConImagenes, {
+        page,
+        limit,
+        total: count,
+        pages: Math.ceil(count / limit)
+      }));
     } catch (error) {
       logger.error('Error al buscar productos en almacén:', {
         termino: req.query.termino,

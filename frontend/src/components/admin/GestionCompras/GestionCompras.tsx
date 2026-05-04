@@ -97,15 +97,38 @@ const GestionCompras: React.FC = memo(() => {
     }
   }, []);
 
-  const cargarCompras = useCallback(async () => {
+  const cargarCompras = useCallback(async (p: PaginationState, s: SortingState) => {
     if (cargandoRef.current) return;
     cargandoRef.current = true;
 
     try {
       setCargando(true);
       setError(null);
-      const off = pagination.pageIndex * pagination.pageSize;
-      const response = await adminCompraService.listarCompras(filtros, pagination.pageSize, off);
+      const off = p.pageIndex * p.pageSize;
+
+      let sortBy = 'fyh_creacion';
+      let order: 'ASC' | 'DESC' = 'DESC';
+
+      if (s.length > 0) {
+        const st = s[0];
+        order = st.desc ? 'DESC' : 'ASC';
+        switch (st.id) {
+          case 'nro_compra': sortBy = 'nro_compra'; break;
+          case 'fecha': sortBy = 'fyh_creacion'; break;
+          case 'proveedor': sortBy = 'proveedor'; break;
+          case 'monto': sortBy = 'precio_total'; break;
+          case 'items': sortBy = 'cantidad_items'; break;
+          default: sortBy = 'fyh_creacion';
+        }
+      }
+
+      const response = await adminCompraService.listarCompras(
+        filtros, 
+        p.pageSize, 
+        off, 
+        sortBy, 
+        order
+      );
 
       setCompras(response.data);
       setTotal(response.total);
@@ -116,7 +139,7 @@ const GestionCompras: React.FC = memo(() => {
       setCargando(false);
       cargandoRef.current = false;
     }
-  }, [filtros, pagination]);
+  }, [filtros]);
 
   // === Efectos ===
   useEffect(() => {
@@ -127,22 +150,22 @@ const GestionCompras: React.FC = memo(() => {
 
   useEffect(() => {
     if (activeTab === 'compras') {
-      cargarCompras();
+      cargarCompras(pagination, sorting);
     }
-  }, [activeTab, cargarCompras]);
+  }, [activeTab, cargarCompras, pagination, sorting]);
 
   const handleRegistrada = () => {
     setMostrarRegistrar(false);
     setSeleccionados(new Set());
     setStockParaCompra([]);
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-    cargarCompras();
+    cargarCompras(pagination, sorting);
     cargarStats();
   };
 
   const handleAnulada = () => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-    cargarCompras();
+    cargarCompras(pagination, sorting);
     cargarStats();
     showNotification('Compra anulada exitosamente', 'success');
   };
@@ -211,14 +234,15 @@ const GestionCompras: React.FC = memo(() => {
       accessorKey: 'comprobante',
       id: 'comprobante',
       header: 'Comprobante',
+      enableSorting: false,
       cell: info => <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{info.getValue() as string}</span>,
     },
     {
       accessorFn: row => parseFloat(row.precio_total),
       id: 'monto',
-      header: () => <div style={{ textAlign: 'right', width: '100%' }}>Monto</div>,
+      header: () => <div style={{ textAlign: 'left', width: '100%' }}>Monto</div>,
       cell: info => (
-        <div style={{ textAlign: 'right', fontWeight: 600 }}>
+        <div style={{ textAlign: 'left', fontWeight: 600 }}>
           ${(info.getValue() as number).toLocaleString('es-AR')}
         </div>
       ),
@@ -512,7 +536,7 @@ const GestionCompras: React.FC = memo(() => {
               title="No pudimos cargar las compras"
               message={error}
               actionLabel="Reintentar"
-              onAction={cargarCompras}
+            onAction={() => cargarCompras(pagination, sorting)}
               tone="danger"
               className={styles.errorState}
             />
@@ -544,6 +568,8 @@ const GestionCompras: React.FC = memo(() => {
               itemLabel="compras"
               onRowClick={(row) => setIdDetalleAbierto(row.id_compra)}
               isLoading={cargando}
+              manualPagination={true}
+              manualSorting={true}
               emptyMessage="No se encontraron compras para los filtros aplicados"
             />
           )}

@@ -55,14 +55,36 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   const cargandoRef = useRef(false);
 
   const cargarRetiros = useCallback(
-    async (f: Omit<FiltrosEnviosAdmin, 'tipo_entrega'>, pag: PaginationState) => {
+    async (f: Omit<FiltrosEnviosAdmin, 'tipo_entrega'>, pag: PaginationState, sort: SortingState) => {
       if (cargandoRef.current) return;
       cargandoRef.current = true;
       setCargando(true);
       setError(null);
       try {
         const off = pag.pageIndex * pag.pageSize;
-        const result = await envioAdminService.listarRetiros({ ...f, limit: pag.pageSize, offset: off });
+
+        // Mapeo de columnas para el backend
+        let sortBy = 'fyh_creacion';
+        let order: 'ASC' | 'DESC' = 'DESC';
+
+        if (sort.length > 0) {
+          const s = sort[0];
+          order = s.desc ? 'DESC' : 'ASC';
+          switch (s.id) {
+            case 'nro_venta': sortBy = 'nro_venta'; break;
+            case 'fecha': sortBy = 'fyh_creacion'; break;
+            case 'estado': sortBy = 'estado_envio'; break;
+            default: sortBy = 'fyh_creacion';
+          }
+        }
+
+        const result = await envioAdminService.listarRetiros({ 
+          ...f, 
+          limit: pag.pageSize, 
+          offset: off,
+          sortBy,
+          order
+        });
         setRetiros(result.data);
         setTotal(result.total);
 
@@ -88,10 +110,8 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   );
 
   useEffect(() => {
-    cargarRetiros(filtros, pagination);
-  }, [filtros, pagination, cargarRetiros]);
-
-
+    cargarRetiros(filtros, pagination, sorting);
+  }, [filtros, pagination, sorting, cargarRetiros]);
 
   const limpiarFiltros = () => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
@@ -100,7 +120,7 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
 
   const handleEntregado = () => {
     setRetiroSeleccionado(null);
-    cargarRetiros(filtros, pagination);
+    cargarRetiros(filtros, pagination, sorting);
   };
 
   // === Columnas TanStack ===
@@ -217,6 +237,7 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
           onRowClick={(row) => setRetiroSeleccionado(row)}
           isLoading={cargando}
           manualPagination={true}
+          manualSorting={true}
           emptyMessage="No se encontraron pedidos de retiro en tienda."
         />
 

@@ -151,6 +151,12 @@
 .textRight {
   text-align: right;
 }
+.textLeft {
+  text-align: left;
+}
+.textCenter {
+  text-align: center;
+}
 
 @media (max-width: 768px) {
   .container {

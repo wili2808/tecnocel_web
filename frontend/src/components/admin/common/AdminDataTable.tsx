@@ -63,6 +63,8 @@ interface AdminDataTableProps<T> {
   getRowClassName?: (row: T) => string;
   /** Si la paginación es manejada manualmente (API) o localmente */
   manualPagination?: boolean;
+  /** Si el ordenamiento es manejado manualmente (API) o localmente */
+  manualSorting?: boolean;
 }
 
 /**
@@ -88,7 +90,8 @@ const AdminDataTable = <T,>({
   isLoading = false,
   emptyMessage = 'No se encontraron resultados',
   getRowClassName,
-  manualPagination = true,
+  manualPagination = false,
+  manualSorting = false,
 }: AdminDataTableProps<T>) => {
   
   // 1. Configuración de TanStack Table
@@ -106,7 +109,9 @@ const AdminDataTable = <T,>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination, 
+    manualPagination,
+    manualSorting,
+    ...(manualPagination ? { rowCount: totalItems } : {}),
   });
 
   // 2. Sensores para el Drag & Drop de columnas
@@ -181,7 +186,7 @@ const AdminDataTable = <T,>({
       </div>
 
       <AdminPagination
-        total={totalItems}
+        total={manualPagination ? totalItems : data.length}
         limit={pagination.pageSize}
         offset={pagination.pageIndex * pagination.pageSize}
         onPageChange={(newOffset) => {

@@ -4,6 +4,8 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
 import type { EnvioAdminListItem, EnvioAdminDetalle } from '../../../types/envio';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { AdminDataTable } from '../common';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 
 import styles from './VentaModals.module.css';
 
@@ -32,6 +34,11 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
+
+  // ── Estados para AdminDataTable ────────────────────────────────────
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 5 });
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'cantidad', 'precio', 'subtotal']);
 
   const esEntregado = retiro.estado_envio === 'entregado';
 
@@ -66,6 +73,37 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
       setGuardando(false);
     }
   };
+
+  // ── Columnas para AdminDataTable ───────────────────────────────────
+  const columns = React.useMemo<ColumnDef<EnvioAdminDetalle['items'][0]>[]>(() => [
+    {
+      accessorKey: 'nombre_producto',
+      id: 'nombre',
+      header: 'Producto',
+      cell: (info) => <span className="font-bold">{info.getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'cantidad',
+      id: 'cantidad',
+      header: () => <div className="text-right">Cant.</div>,
+      cell: (info) => <div className="text-right">{info.getValue() as number}</div>,
+    },
+    {
+      accessorKey: 'precio_unitario',
+      id: 'precio',
+      header: () => <div className="text-right">Precio unit.</div>,
+      cell: (info) => <div className="text-right">{formatMoneda(info.getValue() as number, detalle?.moneda)}</div>,
+    },
+    {
+      id: 'subtotal',
+      header: () => <div className="text-right">Subtotal</div>,
+      cell: (info) => (
+        <div className="text-right font-bold text-primary">
+          {formatMoneda((info.row.original.cantidad * info.row.original.precio_unitario), detalle?.moneda)}
+        </div>
+      ),
+    },
+  ], [detalle?.moneda]);
 
   return (
     <PremiumModal
@@ -150,29 +188,21 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
             {/* Productos */}
             <div className="mb-6">
               <h4 className={styles.sectionTitle}>Productos del pedido</h4>
-              <div className="modalTableWrapperPremium mt-2">
-                <table className="modalTablePremium">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th style={{ textAlign: 'right' }}>Cant.</th>
-                      <th style={{ textAlign: 'right' }}>Precio unit.</th>
-                      <th style={{ textAlign: 'right' }}>Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detalle.items.map((item, i) => (
-                      <tr key={i}>
-                        <td className="font-bold">{item.nombre_producto}</td>
-                        <td style={{ textAlign: 'right' }}>{item.cantidad}</td>
-                        <td style={{ textAlign: 'right' }}>{formatMoneda(item.precio_unitario, detalle.moneda)}</td>
-                        <td className="text-right font-bold text-primary">
-                          {formatMoneda(item.cantidad * item.precio_unitario, detalle.moneda)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-2">
+                <AdminDataTable
+                  data={detalle.items}
+                  columns={columns}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalItems={detalle.items.length}
+                  itemLabel="productos"
+                  manualPagination={false}
+                  emptyMessage="No hay productos en este retiro"
+                />
               </div>
             </div>
 

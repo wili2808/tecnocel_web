@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useCallback } from 'react';
+import React, { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import adminCompraService from '../../../services/adminCompraService';
 import proveedorAdminService from '../../../services/proveedorAdminService';
 import adminProductService from '../../../services/adminProductService';
@@ -7,7 +7,8 @@ import ProveedorModal from './ProveedorModal';
 import { useNotification } from '../../../contexts/NotificationContext';
 import type { RegistrarCompraData, ProveedorListItem } from '../../../types';
 import type { ProductoStockBajo } from '../../../types/reporte';
-import { AdminSearch, AdminEmptyState } from '../common';
+import { AdminSearch, AdminEmptyState, AdminDataTable } from '../common';
+import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
@@ -76,6 +77,13 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
   const [mostrarCrearProveedor, setMostrarCrearProveedor] = useState(false);
   const [mostrarProductoNuevo, setMostrarProductoNuevo] = useState(false);
 
+  // ── Estados para AdminDataTable ────────────────────────────────────
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 50 });
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    'producto', 'cantidad', 'costo', 'venta', 'subtotal', 'margen', 'acciones'
+  ]);
+
   // ── Cargar Catálogos ───────────────────────────────────────────────
   const cargarProveedores = useCallback(async () => {
     try {
@@ -120,7 +128,7 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
     setBuscandoProducto(true);
     try {
       const results = await adminProductService.listarProductos(query);
-      setProductosEncontrados(results.map((p: any) => ({
+      setProductosEncontrados(results.items.map((p: any) => ({
         id_producto: p.id_producto,
         nombre: p.nombre,
         codigo: p.codigo,
@@ -249,6 +257,136 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
   const proveedorSeleccionado = proveedores.find(p => p.id_proveedor === idProveedor);
 
+  // ── Columnas para AdminDataTable ───────────────────────────────────
+  const columns = useMemo<ColumnDef<ItemForm>[]>(() => [
+    {
+      accessorKey: 'nombre_producto',
+      id: 'producto',
+      header: 'Producto',
+      cell: (info) => {
+        const item = info.row.original;
+        return (
+          <div className={styles.productCell}>
+            <div className="font-bold">{item.nombre_producto || item.nuevo_nombre}</div>
+            {item.es_nuevo && <span className={styles.newBadge}>NUEVO</span>}
+            <div className={styles.arsSpacer}>&nbsp;</div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'cantidad',
+      id: 'cantidad',
+      header: () => <div style={{ textAlign: 'center', width: '100%' }}>Cant.</div>,
+      cell: (info) => (
+        <div className="text-center">
+          <input
+            type="number"
+            value={info.row.original.cantidad}
+            onChange={(e) => actualizarItem(info.row.index, 'cantidad', parseInt(e.target.value) || 1)}
+            className="modalTableInputPremium"
+            style={{ width: '60px', margin: '0 auto' }}
+          />
+          <div className={styles.arsSpacer}>&nbsp;</div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'precio_unitario',
+      id: 'costo',
+      header: () => <div style={{ textAlign: 'center', width: '100%' }}>Costo (USD)</div>,
+      cell: (info) => {
+        const val = info.row.original.precio_unitario;
+        return (
+          <div className="text-center">
+            <input
+              type="number"
+              step="0.01"
+              value={val}
+              onChange={(e) => actualizarItem(info.row.index, 'precio_unitario', parseFloat(e.target.value) || 0)}
+              className="modalTableInputPremium"
+              style={{ width: '100px', margin: '0 auto' }}
+            />
+            <div className={styles.arsReference}>
+              {formatARS(val, tipoCambio)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'precio_venta',
+      id: 'venta',
+      header: () => <div style={{ textAlign: 'center', width: '100%' }}>Venta (USD)</div>,
+      cell: (info) => {
+        const val = info.row.original.precio_venta;
+        return (
+          <div className="text-center">
+            <input
+              type="number"
+              step="0.01"
+              value={val}
+              onChange={(e) => actualizarItem(info.row.index, 'precio_venta', parseFloat(e.target.value) || 0)}
+              className="modalTableInputPremium"
+              style={{ width: '100px', margin: '0 auto' }}
+            />
+            <div className={styles.arsReference}>
+              {formatARS(val, tipoCambio)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'subtotal',
+      header: () => <div style={{ textAlign: 'center', width: '100%' }}>Subtotal (USD)</div>,
+      cell: (info) => {
+        const item = info.row.original;
+        const sub = item.cantidad * item.precio_unitario;
+        return (
+          <div className="text-center">
+            <div className="font-bold">{formatUSD(sub)}</div>
+            <div className={styles.arsReference}>{formatARS(sub, tipoCambio)}</div>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'margen',
+      header: () => <div style={{ textAlign: 'center', width: '100%' }}>Margen</div>,
+      cell: (info) => {
+        const item = info.row.original;
+        const pc = Number(item.precio_unitario) || 0;
+        const pv = Number(item.precio_venta) || 0;
+        const margen = pc > 0 ? ((pv - pc) / pc) * 100 : 0;
+        return (
+          <div className="text-center font-bold">
+            <span className={margen > 0 ? 'text-success' : 'text-error'}>
+              {margen.toFixed(1)}%
+            </span>
+            <div className={styles.arsSpacer}>&nbsp;</div>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'acciones',
+      header: '',
+      enableSorting: false,
+      cell: (info) => (
+        <div className="flex justify-center">
+          <button 
+            onClick={() => eliminarItem(info.row.index)} 
+            className="modalIconButtonPremium text-error"
+            title="Quitar producto"
+          >
+            <span className="material-icons">delete_outline</span>
+          </button>
+        </div>
+      ),
+    },
+  ], [tipoCambio, actualizarItem, eliminarItem]);
+
   return (
     <PremiumModal
       isOpen={true}
@@ -373,103 +511,30 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
             {/* Lista de Items Agregados */}
             {items.length > 0 ? (
-              <div className="modalTableContainerPremium">
-                <table className="modalTablePremium">
-                  <thead>
-                    <tr>
-                      <th className={styles.productCell}>Producto</th>
-                      <th className="text-center" style={{ width: '80px' }}>Cant.</th>
-                      <th className="text-center" style={{ width: '110px' }}>Costo (USD)</th>
-                      <th className="text-center" style={{ width: '110px' }}>Venta (USD)</th>
-                      <th className="text-center" style={{ width: '120px' }}>Subtotal (USD)</th>
-                      <th className="text-center" style={{ width: '80px' }}>Margen</th>
-                      <th style={{ width: '40px' }} className={styles.actionCell}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item, idx) => {
-                      const pc = Number(item.precio_unitario) || 0;
-                      const pv = Number(item.precio_venta) || 0;
-                      const margen = pc > 0 ? ((pv - pc) / pc) * 100 : 0;
-
-                      return (
-                        <tr key={idx}>
-                          <td className={styles.productCell}>
-                            <div className="font-bold">{item.nombre_producto || item.nuevo_nombre}</div>
-                            {item.es_nuevo && <span className={styles.newBadge}>NUEVO</span>}
-                            <div className={styles.arsSpacer}>&nbsp;</div>
-                          </td>
-                          <td className="text-center">
-                            <input
-                              type="number"
-                              value={item.cantidad}
-                              onChange={(e) => actualizarItem(idx, 'cantidad', parseInt(e.target.value) || 1)}
-                              className="modalTableInputPremium"
-                            />
-                            <div className={styles.arsSpacer}>&nbsp;</div>
-                          </td>
-                          <td className="text-center">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={item.precio_unitario}
-                              onChange={(e) => actualizarItem(idx, 'precio_unitario', parseFloat(e.target.value) || 0)}
-                              className="modalTableInputPremium"
-                            />
-                            <div className={styles.arsReference}>
-                              {formatARS(item.precio_unitario, tipoCambio)}
-                            </div>
-                          </td>
-                          <td className="text-center">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={item.precio_venta}
-                              onChange={(e) => actualizarItem(idx, 'precio_venta', parseFloat(e.target.value) || 0)}
-                              className="modalTableInputPremium"
-                            />
-                            <div className={styles.arsReference}>
-                              {formatARS(item.precio_venta, tipoCambio)}
-                            </div>
-                          </td>
-                          <td className="text-center">
-                            <div className="font-bold">
-                              {formatUSD(item.cantidad * item.precio_unitario)}
-                            </div>
-                            <div className={styles.arsReference}>
-                              {formatARS(item.cantidad * item.precio_unitario, tipoCambio)}
-                            </div>
-                          </td>
-                          <td className="text-center font-bold">
-                            <span className={margen > 0 ? 'text-success' : 'text-error'}>
-                              {margen.toFixed(1)}%
-                            </span>
-                            <div className={styles.arsSpacer}>&nbsp;</div>
-                          </td>
-                          <td className={styles.actionCell}>
-                            <div className="flex justify-center">
-                              <button 
-                                onClick={() => eliminarItem(idx)} 
-                                className="modalIconButtonPremium text-error"
-                                title="Quitar producto"
-                              >
-                                <span className="material-icons">delete_outline</span>
-                              </button>
-                            </div>
-                            <div className={styles.arsSpacer}>&nbsp;</div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="mt-4">
+                <AdminDataTable
+                  data={items}
+                  columns={columns}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalItems={items.length}
+                  itemLabel="productos"
+                  manualPagination={false}
+                  emptyMessage="Busca y agrega productos para iniciar el registro de la compra."
+                />
               </div>
             ) : (
-              <AdminEmptyState
-                icon="inventory"
-                title="Sin productos"
-                message="Busca y agrega productos para iniciar el registro de la compra."
-              />
+              <div className="mt-4">
+                <AdminEmptyState
+                  icon="inventory"
+                  title="Sin productos"
+                  message="Busca y agrega productos para iniciar el registro de la compra."
+                />
+              </div>
             )}
           </div>
 

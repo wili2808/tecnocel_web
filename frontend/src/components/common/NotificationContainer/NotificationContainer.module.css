@@ -2,7 +2,7 @@
   position: fixed;
   top: 80px;
   right: var(--spacing-lg);
-  z-index: 10002;
+  z-index: var(--z-toast);
   pointer-events: none;
   display: flex;
   flex-direction: column;

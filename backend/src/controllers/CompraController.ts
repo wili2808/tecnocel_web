@@ -105,6 +105,7 @@ class CompraController {
     try {
       const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
       const offset = parseInt(req.query.offset as string) || 0;
+      const { sortBy = 'fyh_creacion', order = 'DESC' } = req.query;
       const filtros = req.query as any as FiltrosComprasAdmin;
 
       let whereClause: any = {};
@@ -159,8 +160,33 @@ class CompraController {
         };
       }
 
+      // Definir el ordenamiento
+      let orderClause: any[] = [];
+      if (sortBy === 'proveedor' || sortBy === 'nombre_proveedor') {
+        orderClause = [[{ model: Proveedor, as: 'Proveedor' }, 'nombre_proveedor', order as string]];
+      } else if (sortBy === 'precio_total' || sortBy === 'monto') {
+        // Castear precio_total (string) a DECIMAL para orden numérico
+        orderClause = [[sequelize.cast(sequelize.col('precio_total'), 'DECIMAL(10,2)'), order as string]];
+      } else if (sortBy === 'items' || sortBy === 'cantidad_items') {
+        // Ordenar por subconsulta que cuenta los items
+        orderClause = [[
+          sequelize.literal(`(SELECT COUNT(*) FROM tb_detalle_compras WHERE tb_detalle_compras.nro_compra = Compra.nro_compra)`),
+          order as string
+        ]];
+      } else {
+        orderClause = [[sortBy as string, order as string]];
+      }
+
       const { count, rows } = await Compra.findAndCountAll({
         where: whereClause,
+        attributes: {
+          include: [
+            [
+              sequelize.literal(`(SELECT COUNT(*) FROM tb_detalle_compras WHERE tb_detalle_compras.nro_compra = Compra.nro_compra)`),
+              'cantidad_items_total'
+            ]
+          ]
+        },
         include: [
           {
             model: Proveedor,
@@ -169,16 +195,12 @@ class CompraController {
           {
             model: Usuario,
             attributes: ['nombres']
-          },
-          {
-            model: DetalleCompra,
-            attributes: ['id_detalle_compra']
           }
         ],
-        order: [['fyh_creacion', 'DESC']],
+        order: orderClause,
         limit,
         offset,
-        subQuery: false
+        distinct: true
       });
 
       const comprasFormateadas = rows.map((c: any) => ({
@@ -193,7 +215,7 @@ class CompraController {
         empresa_proveedor: c.Proveedor?.empresa,
         id_usuario: c.id_usuario,
         nombre_usuario: c.Usuario?.nombres,
-        cantidad_items: c.DetalleCompras?.length || 0,
+        cantidad_items: parseInt(c.getDataValue('cantidad_items_total')) || 0,
         fyh_creacion: c.fyh_creacion
       }));
 

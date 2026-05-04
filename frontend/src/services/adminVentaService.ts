@@ -20,6 +20,8 @@ const adminVentaService = {
       if (filtros.metodo_pago)  params.metodo_pago  = filtros.metodo_pago;
       if (filtros.search)       params.search       = filtros.search;
       if (filtros.id_vendedor)  params.id_vendedor  = filtros.id_vendedor;
+      if (filtros.sortBy)       params.sortBy       = filtros.sortBy;
+      if (filtros.order)        params.order        = filtros.order;
 
       const response = await adminApi.get('/ventas/admin/listar', { params });
       return response.data;
