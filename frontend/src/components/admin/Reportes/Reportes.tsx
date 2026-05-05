@@ -192,125 +192,120 @@ const Reportes: React.FC = memo(() => {
   const activeKpiItems = useMemo(() => {
     switch (activeTab) {
       case 'ventas':
-        if (!ventasData) return null;
         return [
           {
             icon: 'receipt_long',
             label: 'Total ventas',
-            value: formatNumber(ventasData.resumen.total_ventas),
-            detail: `ARS: ${ventasData.resumen.ventas_ars} | USD: ${ventasData.resumen.ventas_usd}`,
+            value: ventasData ? formatNumber(ventasData.resumen.total_ventas) : 0,
+            detail: ventasData ? `ARS: ${ventasData.resumen.ventas_ars} | USD: ${ventasData.resumen.ventas_usd}` : 'Cargando...',
           },
           {
             icon: 'payments',
             label: 'Ingresos ARS',
-            value: formatCurrency(ventasData.resumen.ingresos_ars),
-            detail: formatUSD(ventasData.resumen.ingresos_usd),
+            value: ventasData ? formatCurrency(ventasData.resumen.ingresos_ars) : '$ 0',
+            detail: ventasData ? formatUSD(ventasData.resumen.ingresos_usd) : 'Cargando...',
             tone: 'success' as const,
           },
           {
             icon: 'confirmation_number',
             label: 'Ticket promedio',
-            value: formatCurrency(ventasData.resumen.ticket_promedio),
+            value: ventasData ? formatCurrency(ventasData.resumen.ticket_promedio) : '$ 0',
           },
           {
             icon: 'credit_card',
             label: 'Metodo mas usado',
-            value: ventasData.resumen.metodo_mas_usado,
+            value: ventasData ? ventasData.resumen.metodo_mas_usado : 'Cargando...',
           },
         ];
       case 'vendedores':
-        if (!vendedoresData) return null;
         return [
           {
             icon: 'group',
             label: 'Vendedores activos',
-            value: formatNumber(vendedoresData.resumen.total_vendedores_activos),
+            value: vendedoresData ? formatNumber(vendedoresData.resumen.total_vendedores_activos) : 0,
             detail: 'en el periodo',
           },
           {
             icon: 'point_of_sale',
             label: 'Total ventas',
-            value: formatNumber(vendedoresData.resumen.total_ventas_periodo),
+            value: vendedoresData ? formatNumber(vendedoresData.resumen.total_ventas_periodo) : 0,
             detail: 'ventas en el periodo',
           },
           {
             icon: 'trending_up',
             label: 'Top ingresos',
-            value: vendedoresData.resumen.vendedor_top_ingresos,
+            value: vendedoresData ? vendedoresData.resumen.vendedor_top_ingresos : 'Cargando...',
           },
           {
             icon: 'leaderboard',
             label: 'Top volumen',
-            value: vendedoresData.resumen.vendedor_top_ventas,
+            value: vendedoresData ? vendedoresData.resumen.vendedor_top_ventas : 'Cargando...',
           },
         ];
       case 'productos':
-        if (!productosData) return null;
         return [
           {
             icon: 'category',
             label: 'Productos vendidos',
-            value: formatNumber(productosData.resumen.productos_distintos_vendidos),
+            value: productosData ? formatNumber(productosData.resumen.productos_distintos_vendidos) : 0,
             detail: 'productos distintos',
           },
           {
             icon: 'inventory',
             label: 'Unidades totales',
-            value: formatNumber(productosData.resumen.unidades_totales),
+            value: productosData ? formatNumber(productosData.resumen.unidades_totales) : 0,
           },
           {
             icon: 'attach_money',
             label: 'Ingreso total',
-            value: formatCurrency(productosData.resumen.ingreso_total_productos),
+            value: productosData ? formatCurrency(productosData.resumen.ingreso_total_productos) : '$ 0',
           },
         ];
       case 'clientes':
-        if (!clientesData) return null;
         return [
           {
             icon: 'person_add',
             label: 'Clientes nuevos',
-            value: formatNumber(clientesData.resumen.clientes_nuevos_periodo),
+            value: clientesData ? formatNumber(clientesData.resumen.clientes_nuevos_periodo) : 0,
             detail: 'en el periodo',
           },
           {
             icon: 'shopping_bag',
             label: 'Con compras',
-            value: formatNumber(clientesData.resumen.clientes_con_compras),
+            value: clientesData ? formatNumber(clientesData.resumen.clientes_con_compras) : 0,
             detail: 'clientes activos',
           },
           {
             icon: 'groups',
             label: 'Total registrados',
-            value: formatNumber(clientesData.resumen.clientes_totales),
+            value: clientesData ? formatNumber(clientesData.resumen.clientes_totales) : 0,
           },
         ];
       case 'cancelaciones':
-        if (!cancelacionesData) return null;
         return [
           {
             icon: 'cancel',
             label: 'Total cancelaciones',
-            value: formatNumber(cancelacionesData.resumen.total_cancelaciones),
+            value: cancelacionesData ? formatNumber(cancelacionesData.resumen.total_cancelaciones) : 0,
             tone: 'danger' as const,
           },
           {
             icon: 'money_off',
             label: 'Monto cancelado',
-            value: formatCurrency(cancelacionesData.resumen.monto_ars),
-            detail: formatUSD(cancelacionesData.resumen.monto_usd),
+            value: cancelacionesData ? formatCurrency(cancelacionesData.resumen.monto_ars) : '$ 0',
+            detail: cancelacionesData ? formatUSD(cancelacionesData.resumen.monto_usd) : 'Cargando...',
             tone: 'danger' as const,
           },
           {
             icon: 'percent',
             label: 'Tasa de cancelacion',
-            value: `${cancelacionesData.resumen.tasa_cancelacion}%`,
+            value: cancelacionesData ? `${cancelacionesData.resumen.tasa_cancelacion}%` : '0%',
             detail: 'del total de ventas',
             tone: 'warning' as const,
           },
         ];
       default:
-        return null;
+        return [];
     }
   }, [activeTab, ventasData, vendedoresData, productosData, clientesData, cancelacionesData]);
 
@@ -329,14 +324,13 @@ const Reportes: React.FC = memo(() => {
 
   return (
     <div className={styles.container}>
-      {activeKpiItems ? (
-        <AdminMetricsStrip
-          items={activeKpiItems}
-          columns={activeKpiItems.length === 3 ? 3 : 4}
-          className={styles.kpiGrid}
-          itemClassName={styles.kpiCard}
-        />
-      ) : null}
+      <AdminMetricsStrip
+        items={activeKpiItems}
+        loading={loading}
+        columns={activeKpiItems.length === 3 ? 3 : 4}
+        className={styles.kpiGrid}
+        itemClassName={styles.kpiCard}
+      />
 
       {/* Tabs */}
       <AdminTabs 
@@ -405,16 +399,7 @@ const Reportes: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {/* Estado de carga/error */}
-      {loading && (
-        <AdminLoading
-          variant="panel"
-          title="Cargando reporte"
-          message="Estamos preparando la vista analítica del periodo seleccionado."
-          className={styles.stateBlock}
-        />
-      )}
-
+      {/* Estado de error */}
       {error && !loading && (
         <AdminEmptyState
           icon="error_outline"
@@ -428,7 +413,14 @@ const Reportes: React.FC = memo(() => {
       )}
 
       {/* Contenido del reporte */}
-      {!loading && !error && (
+      {loading ? (
+        <AdminLoading
+          variant="panel"
+          title="Cargando reporte"
+          message="Estamos preparando la vista analítica del periodo seleccionado."
+          className={styles.stateBlock}
+        />
+      ) : !error && (
         <>
           {activeTab === 'ventas' && ventasData && <ReporteVentasTab data={ventasData} searchTerm={searchTerm} />}
           {activeTab === 'vendedores' && vendedoresData && <ReporteVendedoresTab data={vendedoresData} searchTerm={searchTerm} />}

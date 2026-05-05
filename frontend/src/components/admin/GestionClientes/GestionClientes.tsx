@@ -161,6 +161,8 @@ const GestionClientes = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
+
+  // ── Si no tiene permisos para ver clientes ─────────────────────────────────
   if (!puedeVer) {
     return (
       <div className={styles.container}>
@@ -174,9 +176,12 @@ const GestionClientes = () => {
     );
   }
 
+  // ── Si tiene permisos para ver clientes ───────────────────────────────────
   return (
     <>
       <div className={styles.container}>
+
+        {/* ── Panel de filtros ────────────────────────────────────────────────── */}
         <AdminFilterPanel>
           <AdminFilterPanel.Row variant="bottom">
             <AdminFilterPanel.Grow>
@@ -197,6 +202,7 @@ const GestionClientes = () => {
           </AdminFilterPanel.Row>
         </AdminFilterPanel>
 
+        {/* ── Tabla de clientes ─────────────────────────────────────────────── */}
         {!loading && error && clientes.length === 0 ? (
           <AdminEmptyState
             icon="error_outline"
@@ -234,7 +240,7 @@ const GestionClientes = () => {
         )}
       </div>
 
-      {/* Modal de detalle (solo lectura) */}
+      {/* ── Modal de detalle (solo lectura) ─────────────────────────── */}
       {tipoModal === 'detalle' && clienteSeleccionado && (
         <DetalleClienteModal 
           cliente={clienteSeleccionado} 
@@ -243,12 +249,12 @@ const GestionClientes = () => {
         />
       )}
 
-      {/* Modal de edición (solo admin) */}
+      {/* ── Modal de edición ──────────────────────────────────────────── */}
       {tipoModal === 'editar' && clienteSeleccionado && (
         <EditarClienteModal cliente={clienteSeleccionado} onClose={handleCerrarModal} onGuardado={() => cargarClientes(pagination, sorting)} />
       )}
 
-      {/* Modal de creación de cliente */}
+      {/* ── Modal de creación de cliente ──────────────────────────────── */}
       {showCrearModal && <CrearClienteModal onClose={() => setShowCrearModal(false)} onCreado={() => cargarClientes(pagination, sorting)} />}
     </>
   );
