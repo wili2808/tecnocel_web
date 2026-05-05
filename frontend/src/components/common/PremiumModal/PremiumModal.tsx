@@ -1,7 +1,8 @@
-import React, { type ReactNode, useEffect } from 'react';
+import React, { type ReactNode, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeKey } from '../../../hooks/useEscapeKey';
-// import styles from './PremiumModal.module.css';
+import styles from './PremiumModal.module.css';
+import './PremiumModal.css';
 
 interface PremiumModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ interface PremiumModalProps {
  * - Cierre al hacer clic en el overlay
  * - Estructura visual Premium consistente
  */
-const PremiumModal: React.FC<PremiumModalProps> = ({
+const PremiumModal: React.FC<PremiumModalProps> = memo(({
   isOpen,
   onClose,
   children,
@@ -62,24 +63,24 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
   };
 
   return createPortal(
-    <div className="modalOverlayPremium" onClick={handleOverlayClick}>
+    <div className={styles.overlay} onClick={handleOverlayClick}>
       <div 
-        className={`modalPremium ${className}`} 
+        className={`${styles.modal} ${className}`} 
         style={{ maxWidth }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header (Opcional si se provee título) */}
         {(title || showCloseButton || headerChildren) && (
-          <div className="modalHeaderPremium">
+          <div className={styles.header}>
             {title && (
-              <h2 className="modalTitlePremium" style={titleStyle}>
-                {icon && <span className="material-icons">{icon}</span>}
+              <h2 className={styles.title} style={titleStyle}>
+                {icon && <span className={`material-icons ${styles.materialIcons}`}>{icon}</span>}
                 {title}
               </h2>
             )}
             {headerChildren}
             {showCloseButton && (
-              <button className="closeButtonPremium" onClick={onClose} aria-label="Cerrar modal">
+              <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar modal">
                 <span className="material-icons">close</span>
               </button>
             )}
@@ -92,6 +93,8 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
     </div>,
     document.body
   );
-};
+});
+
+PremiumModal.displayName = 'PremiumModal';
 
 export default PremiumModal;
