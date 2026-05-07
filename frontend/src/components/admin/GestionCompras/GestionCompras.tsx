@@ -65,7 +65,7 @@ const GestionCompras: React.FC = memo(() => {
   ]);
 
   const [stockColumnOrder, setStockColumnOrder] = useState<string[]>([
-    'sel', 'producto', 'stock_actual', 'stock_minimo', 'deficit', 'costo', 'estado_stock', 'accion'
+    'sel', 'producto', 'stock_actual', 'stock_minimo', 'deficit', 'costo', 'estado_stock'
   ]);
 
   // === Modales ===
@@ -394,22 +394,7 @@ const GestionCompras: React.FC = memo(() => {
       header: 'Estado',
       cell: () => <span className={styles.badgeAnulada}>Crítico</span>,
     },
-    {
-      id: 'accion',
-      header: '',
-      enableSorting: false,
-      cell: (info) => (
-        <button
-          className={styles.actionBtn}
-          title="Ordenar compra de este producto"
-          onClick={(e) => { e.stopPropagation(); abrirCompraConSeleccion([info.row.original]); }}
-          disabled={!puedeCrear}
-        >
-          <span className="material-icons" style={{ fontSize: '16px' }}>shopping_cart</span>
-        </button>
-      ),
-    },
-  ], [seleccionados, stockBajo, puedeCrear, toggleSeleccion, toggleTodos, abrirCompraConSeleccion]);
+  ], [seleccionados, stockBajo, toggleSeleccion, toggleTodos]);
 
 
 

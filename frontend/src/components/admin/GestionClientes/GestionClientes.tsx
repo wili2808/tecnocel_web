@@ -35,7 +35,7 @@ const GestionClientes = () => {
   // Estados TanStack
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_cliente', desc: false }]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'id_cliente', 'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha'
+    'nombre', 'email', 'celular', 'nit_ci', 'estado', 'fecha'
   ]);
 
   // Modal state
@@ -98,12 +98,7 @@ const GestionClientes = () => {
 
   // ── Columnas ───────────────────────────────────────────────────────────────
   const columns = useMemo<ColumnDef<ClienteListItem>[]>(() => [
-    {
-      accessorKey: 'id_cliente',
-      id: 'id_cliente',
-      header: 'ID',
-      cell: info => info.getValue(),
-    },
+
     {
       accessorFn: row => `${row.nombre_cliente} ${row.apellido_cliente}`,
       id: 'nombre',
