@@ -37,7 +37,7 @@ const GestionUsuarios = () => {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'id_usuario', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'id_usuario', 'nombres', 'email', 'rol', 'fecha', 'ultimo_login'
+    'nombres', 'email', 'rol', 'fecha', 'ultimo_login'
   ]);
 
   const cargarUsuarios = useCallback(async (p: PaginationState, s: SortingState) => {
@@ -124,12 +124,7 @@ const GestionUsuarios = () => {
   };
 
   const columns = useMemo<ColumnDef<UsuarioListItem>[]>(() => [
-    {
-      accessorKey: 'id_usuario',
-      id: 'id_usuario',
-      header: 'ID',
-      cell: info => info.getValue(),
-    },
+
     {
       accessorKey: 'nombres',
       id: 'nombres',
