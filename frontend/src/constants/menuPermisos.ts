@@ -60,6 +60,12 @@ export const MENU_PERMISOS: MenuPermisoOption[] = [
     icon: 'admin_panel_settings', 
     permisosRequeridos: ['gestionar_permisos']
   },
+  { 
+    id: 'mensajes', 
+    label: 'Mensajes', 
+    icon: 'email', 
+    permisosRequeridos: ['ver_mensajes']
+  },
 ];
 
 export const getPermisoPorModulo = (modulo: string): string[] => {

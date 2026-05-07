@@ -21,6 +21,8 @@ import envioRoutes from './routes/envioRoutes.js';
 import compraRoutes from './routes/compraRoutes.js';
 import proveedorRoutes from './routes/proveedorRoutes.js';
 import permisoRoutes from './routes/permisoRoutes.js';
+import mensajeRoutes from './routes/mensajeRoutes.js';
+
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
 import logger from './services/loggerService.js';
@@ -203,6 +205,8 @@ app.use('/api/envios', envioRoutes);
 app.use('/api/compras', compraRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 app.use('/api/permisos', permisoRoutes);
+app.use('/api/mensajes', mensajeRoutes);
+
 
 // Sanitizar body antes de loguear (evitar exponer contraseñas/tokens)
 const sanitizeBody = (body: Record<string, any>): Record<string, any> => {
