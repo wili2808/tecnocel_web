@@ -13,6 +13,7 @@ import { OfertasGlobalProvider } from './contexts/OfertasGlobalContext';
 import { NotificacionesProvider } from './contexts/NotificacionesContext';
 import { ProductProvider } from './contexts/ProductContext';
 import { TipoCambioProvider } from './contexts/TipoCambioContext';
+import { ConfigProvider } from './contexts/ConfigContext';
 import NotificationContainer from './components/common/NotificationContainer';
 import SearchSync from './components/common/SearchSync';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -43,6 +44,7 @@ const ActivarCuenta = lazy(() => import('./pages/Auth/ActivarCuenta/ActivarCuent
 // Componentes de administración
 const AdminLogin = lazy(() => import('./pages/AdminLogin/AdminLogin'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel/AdminPanel'));
+const Maintenance = lazy(() => import('./pages/Maintenance/Maintenance'));
 const NotFound = lazy(() => import('./pages/NotFound/NotFound'));
 
 // Componente de carga
@@ -71,6 +73,8 @@ const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+import MaintenanceGuard from './components/common/MaintenanceGuard';
+
 function App() {
   return (
     <HelmetProvider>
@@ -78,7 +82,8 @@ function App() {
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
       <AuthProvider>
         <AutoLogoutWrapper>
-          <ThemeProvider>
+          <ConfigProvider>
+            <ThemeProvider>
             <NotificationProvider>
               <NotificacionesProvider>
               <FavoritosGlobalProvider>
@@ -93,8 +98,11 @@ function App() {
                           <SearchSync />
                           <Suspense fallback={<LoadingFallback />}>
                             <Routes>
-                              {/* Rutas públicas que usan Layout normal */}
-                              <Route element={<Layout />}>
+                              {/* Ruta de mantenimiento (fuera del guard para evitar bucles) */}
+                              <Route path="/mantenimiento" element={<Maintenance />} />
+
+                              {/* Rutas protegidas por MaintenanceGuard */}
+                              <Route element={<MaintenanceGuard><Layout /></MaintenanceGuard>}>
                                 <Route path="/" element={<Home />} />
                                 {/* Rutas de autenticación - solo para usuarios no logueados */}
                                 <Route path="/login" element={
@@ -137,12 +145,14 @@ function App() {
                                 <Route path="/marcas" element={<Brands />} />
                                 <Route path="/contacto" element={<Contacto />} />
                               </Route>
-                              {/* Rutas públicas sin footer */}
-                              <Route element={<Layout hideFooter />}>
+
+                              {/* Rutas públicas sin footer con Guard */}
+                              <Route element={<MaintenanceGuard><Layout hideFooter /></MaintenanceGuard>}>
                                 <Route path="/productos" element={<ProductCatalog />} />
                                 <Route path="/productos/:id" element={<ProductPage />} />
                               </Route>
-                              {/* Rutas de administración (sin layout) */}
+
+                              {/* Rutas de administración (sin layout y sin guard de mantenimiento) */}
                               <Route path="/admin-login" element={
                                 <PublicOnlyRoute redirectTo="/admin-panel">
                                   <AdminLogin />
@@ -169,7 +179,8 @@ function App() {
               </FavoritosGlobalProvider>
               </NotificacionesProvider>
             </NotificationProvider>
-          </ThemeProvider>
+            </ThemeProvider>
+          </ConfigProvider>
         </AutoLogoutWrapper>
       </AuthProvider>
     </GoogleOAuthProvider>

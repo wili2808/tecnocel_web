@@ -316,6 +316,7 @@ class ImageService {
       const imagenesTransformadas = imagenes.map(imagen => ({
         id_imagen: imagen.id_imagen,
         imagen_url: this.generateImageUrl(imagen.url_imagen, ImageType.COMMENT),
+        url_imagen: this.generateImageUrl(imagen.url_imagen, ImageType.COMMENT), // Alias para consistencia
         alt_text: imagen.alt_text,
         tipo: ImageType.COMMENT
       }));

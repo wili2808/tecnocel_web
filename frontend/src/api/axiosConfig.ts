@@ -58,6 +58,13 @@ axiosInstance.interceptors.request.use(
     // Solo añadir el token si no está ya presente en los headers
     // Esto evita duplicar el token cuando se configura desde AuthContext
     const token = localStorage.getItem('token');
+    const adminToken = localStorage.getItem('admin_token');
+    
+    // Si hay un token de administrador, lo enviamos en un header personalizado
+    // para permitir el bypass del modo mantenimiento en rutas públicas
+    if (adminToken && config.headers) {
+      config.headers['X-Admin-Token'] = adminToken;
+    }
     
     if (token && config.headers && !config.headers['Authorization']) {
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -91,6 +98,15 @@ axiosInstance.interceptors.response.use(
       } else if (status === 404) {
         // No encontrado
         console.error('El recurso solicitado no existe');
+      } else if (status === 503 && (error.response.data as any)?.error === 'MODO_MANTENIMIENTO') {
+        // Redirigir a mantenimiento si el servidor reporta modo mantenimiento activo
+        // EXCEPTO si estamos en la página de login admin o el panel, para permitir el acceso al personal
+        const isPageAdmin = window.location.pathname.startsWith('/admin-login') || 
+                            window.location.pathname.startsWith('/admin-panel');
+                            
+        if (window.location.pathname !== '/mantenimiento' && !isPageAdmin) {
+          window.location.href = '/mantenimiento';
+        }
       } else if (status >= 500) {
         // Error del servidor
         console.error('Error en el servidor, por favor intenta más tarde');

@@ -23,8 +23,11 @@ const commentService = {
       if (params.offset) queryParams.append('offset', params.offset.toString());
       if (params.orden) queryParams.append('orden', params.orden);
       if (params.incluirOcultos) queryParams.append('incluir_ocultos', 'true');
+      if (params.idClienteActual !== undefined && params.idClienteActual !== null) {
+        queryParams.append('id_cliente_actual', params.idClienteActual.toString());
+      }
 
-      const url = `/comentarios/producto/${idProducto}${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const url = `/comentarios/producto/${idProducto}?${queryParams.toString()}`;
       const response = await axiosInstance.get(url);
       return response.data;
     } catch (error) {

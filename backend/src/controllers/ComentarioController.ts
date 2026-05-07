@@ -142,17 +142,32 @@ class ComentarioController {
           orderClause = [['fyh_creacion', 'DESC']];
       }
 
-      // Cuando se piden ocultos (vista admin), incluir activo + oculto
-      const estadosVisibles = mostrarOcultos
-        ? { [Op.in]: ['activo', 'oculto'] }
-        : 'activo';
+      const idClienteActualRaw = req.query.id_cliente_actual as string;
+      const idClienteActual = idClienteActualRaw && idClienteActualRaw !== 'undefined' ? parseInt(idClienteActualRaw) : null;
+
+      // Construir cláusula where
+      const whereClause: any = { id_producto: productId };
+
+      if (mostrarOcultos) {
+        whereClause.estado = { [Op.in]: ['activo', 'oculto', 'pendiente'] };
+      } else if (idClienteActual && !isNaN(idClienteActual)) {
+        // El cliente actual ve los activos Y sus propios pendientes
+        whereClause[Op.or] = [
+          { estado: 'activo' },
+          { 
+            [Op.and]: [
+              { estado: 'pendiente' }, 
+              { id_cliente: idClienteActual }
+            ] 
+          }
+        ];
+      } else {
+        whereClause.estado = 'activo';
+      }
 
       // Consultar comentarios
       const { rows: comentarios, count: total } = await Comentario.findAndCountAll({
-        where: {
-          id_producto: productId,
-          estado: estadosVisibles
-        },
+        where: whereClause,
         include: [
           {
             model: Cliente,
@@ -308,7 +323,7 @@ class ComentarioController {
         comentario,
         calificacion,
         es_verificado: false,
-        estado: 'activo',
+        estado: 'pendiente', // Por defecto todos los nuevos comentarios son pendientes de moderación
         fyh_creacion: new Date(),
         fyh_actualizacion: new Date()
       });
@@ -430,6 +445,9 @@ class ComentarioController {
         fyh_actualizacion: new Date()
       };
 
+      // Determinar si hay cambios que requieran re-moderación
+      let requiereRemoderacion = false;
+
       if (comentario !== undefined) {
         if (comentario.length < 10 || comentario.length > 2000) {
           res.status(400).json({
@@ -438,7 +456,10 @@ class ComentarioController {
           });
           return;
         }
-        datosActualizacion.comentario = comentario;
+        if (comentario !== comentarioExistente.comentario) {
+          datosActualizacion.comentario = comentario;
+          requiereRemoderacion = true;
+        }
       }
 
       if (calificacion !== undefined) {
@@ -449,7 +470,10 @@ class ComentarioController {
           });
           return;
         }
-        datosActualizacion.calificacion = calificacion;
+        if (calificacion !== comentarioExistente.calificacion) {
+          datosActualizacion.calificacion = calificacion;
+          requiereRemoderacion = true;
+        }
       }
 
       // Eliminar imágenes si se solicita
@@ -460,6 +484,7 @@ class ComentarioController {
             id_comentario: comentarioId
           }
         });
+        requiereRemoderacion = true;
         logger.info('Imágenes eliminadas del comentario', {
           id_comentario: comentarioId,
           ids_imagenes_eliminadas: imagenes_a_eliminar
@@ -476,10 +501,17 @@ class ComentarioController {
         }));
 
         await ComentarioImagen.bulkCreate(imagenesData);
+        requiereRemoderacion = true;
         logger.info('Nuevas imágenes agregadas al comentario', {
           id_comentario: comentarioId,
           cantidad_imagenes: imagenes.length
         });
+      }
+
+      // Si el comentario estaba activo y hubo cambios, vuelve a estar pendiente
+      if (requiereRemoderacion && comentarioExistente.estado === 'activo') {
+        datosActualizacion.estado = 'pendiente';
+        logger.info('Comentario revertido a pendiente por edición', { id_comentario: comentarioId });
       }
 
       // Actualizar comentario
@@ -1377,8 +1409,8 @@ class ComentarioController {
         return;
       }
 
-      if (!['activo', 'oculto', 'eliminado'].includes(estado)) {
-        res.status(400).json({ mensaje: 'Estado inválido', error: 'Valores permitidos: activo, oculto, eliminado' });
+      if (!['pendiente', 'activo', 'oculto', 'eliminado'].includes(estado)) {
+        res.status(400).json({ mensaje: 'Estado inválido', error: 'Valores permitidos: pendiente, activo, oculto, eliminado' });
         return;
       }
 
@@ -1444,8 +1476,8 @@ class ComentarioController {
         return;
       }
 
-      if (!['activo', 'oculto', 'eliminado'].includes(estado)) {
-        res.status(400).json({ mensaje: 'Estado inválido', error: 'Valores permitidos: activo, oculto, eliminado' });
+      if (!['pendiente', 'activo', 'oculto', 'eliminado'].includes(estado)) {
+        res.status(400).json({ mensaje: 'Estado inválido', error: 'Valores permitidos: pendiente, activo, oculto, eliminado' });
         return;
       }
 
@@ -1465,6 +1497,65 @@ class ComentarioController {
     } catch (error) {
       logger.error('Error al moderar respuesta:', { error: error instanceof Error ? error.message : error });
       res.status(500).json({ mensaje: 'Error interno del servidor', error: 'No se pudo moderar la respuesta' });
+    }
+  }
+  /**
+   * Lista todos los comentarios del sistema para moderación administrativa
+   */
+  async listarComentariosAdmin(req: Request, res: Response): Promise<void> {
+    try {
+      const { limite = '20', offset = '0', estado, calificacion, buscar } = req.query;
+      
+      const limit = parseInt(limite as string);
+      const offsetNum = parseInt(offset as string);
+      
+      const whereClause: any = {};
+      
+      if (estado && estado !== 'todos') {
+        whereClause.estado = { [Op.eq]: estado };
+      } else {
+        whereClause.estado = { [Op.ne]: 'eliminado' };
+      }
+      
+      if (calificacion) {
+        whereClause.calificacion = parseInt(calificacion as string);
+      }
+      
+      if (buscar) {
+        whereClause.comentario = { [Op.like]: `%${buscar}%` };
+      }
+
+
+
+      const { rows: comentarios, count: total } = await Comentario.findAndCountAll({
+        where: whereClause,
+        include: [
+          { model: Cliente, as: 'cliente', attributes: ['nombre_cliente', 'apellido_cliente', 'email_cliente'] },
+          { model: Almacen, as: 'producto', attributes: ['id_producto', 'nombre'] },
+          { model: ComentarioImagen, as: 'imagenes', attributes: ['id_imagen', 'url_imagen'] }
+        ],
+        order: [['fyh_creacion', 'DESC']],
+        limit,
+        offset: offsetNum
+      });
+
+      const comentariosTransformados = await this.transformComentariosWithImages(comentarios);
+
+      res.status(200).json({
+        mensaje: 'Comentarios listados exitosamente',
+        datos: {
+          comentarios: comentariosTransformados,
+          paginacion: {
+            total,
+            limite: limit,
+            offset: offsetNum,
+            paginas: Math.ceil(total / limit)
+          }
+        }
+      });
+    } catch (error) {
+      logger.error('Error al listar comentarios para admin:', error);
+      res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
   }
 }

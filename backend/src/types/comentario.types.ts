@@ -42,9 +42,9 @@ export interface CrearRespuestaAdminBody {
 }
 
 export interface ModerarComentarioBody {
-  estado: 'activo' | 'oculto' | 'eliminado';
+  estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado';
 }
 
 export interface ModerarRespuestaBody {
-  estado: 'activo' | 'oculto' | 'eliminado';
+  estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado';
 }

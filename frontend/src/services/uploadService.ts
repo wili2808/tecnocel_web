@@ -52,7 +52,7 @@ const uploadService = {
 
       // Realizar la petición
       const response = await axiosInstance.post<UploadResponse>(
-        '/upload/comment-images',
+        '/uploads/comment-images',
         formData,
         {
           headers: {

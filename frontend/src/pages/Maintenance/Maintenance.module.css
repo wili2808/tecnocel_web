@@ -1,0 +1,210 @@
+.container {
+  min-height: 100vh;
+  background-color: #050505;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+.grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  z-index: 1;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.logoContainer {
+  margin-bottom: 3rem;
+  position: relative;
+  display: inline-block;
+}
+
+.logo {
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  position: relative;
+}
+
+.logo::before,
+.logo::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #050505;
+  clip: rect(0, 0, 0, 0);
+}
+
+.logo::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00c1;
+  animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.logo::after {
+  left: -2px;
+  text-shadow: -2px 0 #00fff9;
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% { clip: rect(20px, 9999px, 15px, 0); }
+  20% { clip: rect(80px, 9999px, 30px, 0); }
+  40% { clip: rect(40px, 9999px, 60px, 0); }
+  60% { clip: rect(10px, 9999px, 90px, 0); }
+  80% { clip: rect(50px, 9999px, 20px, 0); }
+  100% { clip: rect(30px, 9999px, 70px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(40px, 9999px, 10px, 0); }
+  20% { clip: rect(10px, 9999px, 40px, 0); }
+  40% { clip: rect(60px, 9999px, 30px, 0); }
+  60% { clip: rect(30px, 9999px, 80px, 0); }
+  80% { clip: rect(90px, 9999px, 50px, 0); }
+  100% { clip: rect(20px, 9999px, 60px, 0); }
+}
+
+.pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(0, 112, 243, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulseAnim 4s infinite;
+  z-index: -1;
+}
+
+@keyframes pulseAnim {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+}
+
+.textBlock {
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #888;
+  line-height: 1.6;
+}
+
+.statusCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px border rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem 2.5rem;
+  backdrop-filter: blur(10px);
+  margin-bottom: 4rem;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: #0070f3;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #0070f3;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.statusText {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #0070f3;
+}
+
+.estimatedTime {
+  font-size: 1rem;
+  color: #ccc;
+  margin: 0;
+}
+
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 2rem;
+}
+
+.footer p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.socialLink {
+  color: #ffffff;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.socialLink:hover {
+  opacity: 1;
+  transform: translateY(-3px);
+  color: #0070f3;
+}
+
+@media (max-width: 768px) {
+  .logo { font-size: 2.5rem; }
+  .title { font-size: 1.5rem; }
+  .statusCard { padding: 1.5rem; }
+}

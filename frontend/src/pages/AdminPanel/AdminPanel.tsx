@@ -13,6 +13,8 @@ import GestionCompras from '../../components/admin/GestionCompras/GestionCompras
 import Reportes from '../../components/admin/Reportes/Reportes';
 import GestionPermisos from '../../components/admin/GestionPermisos/GestionPermisos';
 import GestionMensajes from '../../components/admin/GestionMensajes/GestionMensajes';
+import GestionConfiguracion from '../../components/admin/GestionConfiguracion/GestionConfiguracion';
+import GestionComentarios from '../../components/admin/GestionComentarios/GestionComentarios';
 import { MENU_PERMISOS, type MenuPermisoOption } from '../../constants/menuPermisos';
 import adminPanelStyles from './AdminPanel.module.css';
 import type { AdminUser } from '../../types/usuario';
@@ -28,6 +30,8 @@ const SECTION_DESCRIPTIONS: Record<string, string> = {
   reportes: 'Lectura analítica del rendimiento comercial y exportación de información.',
   permisos: 'Gobernanza de permisos y seguridad del sistema administrativo.',
   mensajes: 'Bandeja de entrada de consultas y mensajes desde el formulario de contacto.',
+  comentarios: 'Moderación de opiniones, calificaciones y contenido visual de clientes.',
+  configuracion: 'Ajustes globales de la plataforma, apariencia y preferencias técnicas.',
 };
 
 // --- COMPONENTES AUXILIARES ---
@@ -99,6 +103,12 @@ const ContentSection = ({
       
       case 'mensajes':
         return <GestionMensajes />;
+        
+      case 'comentarios':
+        return <GestionComentarios />;
+
+      case 'configuracion':
+        return <GestionConfiguracion />;
 
       default:
         return (
@@ -264,8 +274,17 @@ const AdminPanel = () => {
               ))}
             </div>
 
-            {/* Sección de cierre de sesión */}
+            {/* Sección de herramientas y sesión */}
             <div className={adminPanelStyles.logoutSection}>
+              <button 
+                className={`${adminPanelStyles.menuOption} ${activeSection === 'configuracion' ? adminPanelStyles.activeOption : ''}`} 
+                onClick={() => setActiveSection('configuracion')}
+                style={{ marginBottom: '8px', border: '1px solid var(--border-color)' }}
+              >
+                <span className="material-icons">settings</span>
+                <span className={adminPanelStyles.menuLabel}>Configuración</span>
+              </button>
+
               <button className={adminPanelStyles.logoutButton} onClick={handleLogout} aria-label="Cerrar sesión">
                 <span className="material-icons">logout</span>
                 <span>Cerrar Sesión</span>

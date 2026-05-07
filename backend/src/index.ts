@@ -22,12 +22,14 @@ import compraRoutes from './routes/compraRoutes.js';
 import proveedorRoutes from './routes/proveedorRoutes.js';
 import permisoRoutes from './routes/permisoRoutes.js';
 import mensajeRoutes from './routes/mensajeRoutes.js';
+import configuracionRoutes from './routes/configuracionRoutes.js';
 
 import { initDatabase } from './config/database.js';
 import { config } from './config/config.js';
 import logger from './services/loggerService.js';
 import { initializeImageService } from './services/imageService.js';
 import StaticImageMiddleware from './middleware/staticImageMiddleware.js';
+import { maintenanceMiddleware } from './middleware/maintenanceMiddleware.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json' with { type: 'json' };
 import './models/index.js';
@@ -42,7 +44,7 @@ const app = express();
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Token']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -57,7 +59,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     const logLevel = res.statusCode >= 400 ? 'warn' : 'info';
 
     // Formato estructurado para requests HTTP
-    const message = `${req.method} ${req.path} | Status: ${res.statusCode} | ${duration}ms`;
+    const message = `${req.method} ${req.originalUrl} | Status: ${res.statusCode} | ${duration}ms`;
 
     // Solo logear si no es una request duplicada o estática
     if (!res.locals.skipHttpLog) {
@@ -67,6 +69,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
   next();
 });
+
+// Aplicar modo mantenimiento (después del logger pero antes de las rutas)
+app.use(maintenanceMiddleware);
 
 // Log de inicio — primera línea visible en consola
 logger.info('Iniciando TecnoCel Web API', {
@@ -206,6 +211,7 @@ app.use('/api/compras', compraRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 app.use('/api/permisos', permisoRoutes);
 app.use('/api/mensajes', mensajeRoutes);
+app.use('/api/configuracion', configuracionRoutes);
 
 
 // Sanitizar body antes de loguear (evitar exponer contraseñas/tokens)

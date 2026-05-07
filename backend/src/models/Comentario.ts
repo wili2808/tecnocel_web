@@ -8,7 +8,7 @@ class Comentario extends Model {
   declare comentario: string;
   declare calificacion: number | null;
   declare es_verificado: boolean;
-  declare estado: 'activo' | 'oculto' | 'eliminado';
+  declare estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado';
   declare respuesta_admin: string | null;
   declare fecha_respuesta_admin: Date | null;
   declare id_admin_respuesta: number | null;
@@ -59,9 +59,9 @@ Comentario.init({
     defaultValue: false
   },
   estado: {
-    type: DataTypes.ENUM('activo', 'oculto', 'eliminado'),
+    type: DataTypes.ENUM('pendiente', 'activo', 'oculto', 'eliminado'),
     allowNull: false,
-    defaultValue: 'activo'
+    defaultValue: 'pendiente'
   },
   respuesta_admin: {
     type: DataTypes.TEXT,

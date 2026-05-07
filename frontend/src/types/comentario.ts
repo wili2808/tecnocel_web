@@ -16,6 +16,7 @@ export interface ComentarioImagen {
 export interface ClienteInfo {
   nombre_cliente: string;
   apellido_cliente: string;
+  email_cliente?: string;
 }
 
 /**
@@ -35,7 +36,7 @@ export interface Respuesta {
   id_usuario?: number | null;
   tipo_autor: 'cliente' | 'admin';
   contenido: string;
-  estado: 'activo' | 'oculto' | 'eliminado';
+  estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado';
   fyh_creacion: string;
   fyh_actualizacion: string;
   clienteAutor?: { nombre_cliente: string; apellido_cliente: string };
@@ -52,12 +53,13 @@ export interface Comentario {
   comentario: string;
   calificacion?: number;
   es_verificado: boolean;
-  estado: 'activo' | 'oculto' | 'eliminado';
+  estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado';
   respuesta_admin?: string;
   fecha_respuesta_admin?: string;
   fyh_creacion: string;
   fyh_actualizacion: string;
   cliente: ClienteInfo;
+  producto?: { id_producto: number; nombre: string };
   imagenes?: ComentarioImagen[];
   adminRespuesta?: AdminRespuesta;
   respuestas?: Respuesta[];
@@ -138,4 +140,6 @@ export interface ObtenerComentariosParams {
   orden?: 'recientes' | 'antiguos' | 'mejor_calificacion' | 'peor_calificacion';
   /** Cuando es true, incluye comentarios ocultos (solo para administradores del sistema) */
   incluirOcultos?: boolean;
+  /** ID del cliente actual para ver sus propios comentarios pendientes */
+  idClienteActual?: number;
 }

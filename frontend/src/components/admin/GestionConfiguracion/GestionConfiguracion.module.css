@@ -1,0 +1,234 @@
+.configContainer {
+  padding: var(--spacing-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn var(--transition-normal) var(--transition-curve);
+}
+
+.configHeader {
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-lg);
+}
+
+.configTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+  letter-spacing: -0.02em;
+}
+
+.configSubtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.configGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.configSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.sectionHeader .material-icons {
+  font-size: 1.25rem;
+  color: var(--color-primary);
+}
+
+.sectionHeader h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Tarjetas Estilo Admin */
+.configCard, .configCardForm {
+  display: flex;
+  gap: var(--spacing-md);
+  transition: transform var(--transition-fast) var(--transition-curve);
+}
+
+.configCard {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.configCardForm {
+  flex-direction: column;
+}
+
+.cardInfo h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.cardInfo p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Selector de Tema */
+.cardActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  background: var(--background-secondary);
+  padding: 4px;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.themeButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+.themeButton .material-icons {
+  font-size: 1.1rem;
+}
+
+.activeTheme {
+  background: var(--background-primary);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Layout de Filas en Formularios */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+/* Footer Actions */
+.footerActions {
+  margin-top: var(--spacing-xl);
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-lg) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: var(--border-radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+  box-shadow: 0 4px 12px var(--color-primary-200);
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--color-primary-600);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--color-primary-300);
+}
+
+.saveButton:active {
+  transform: translateY(0);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .configContainer {
+    padding: var(--spacing-md);
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .configCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .cardActions {
+    width: 100%;
+  }
+  
+  .themeButton {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .saveButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Modo Mantenimiento Toggle */
+.maintenanceActive {
+  border-color: #ff4757 !important;
+  background-color: rgba(255, 71, 87, 0.05) !important;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--background-secondary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+.activeToggle {
+  background: #ff4757;
+  border-color: #ff4757;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+.toggleButton:hover {
+  transform: translateY(-2px);
+}
+
+.toggleButton .material-icons {
+  font-size: 1.2rem;
+}

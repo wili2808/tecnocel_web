@@ -33,10 +33,11 @@ const mensajeService = {
    * @param leido - Filtro opcional por estado de lectura
    * @returns Promise con la lista de mensajes y metadata de paginación
    */
-  getMensajes: async (page = 1, limit = 20, leido?: boolean): Promise<MensajesPaginatedResponse['data']> => {
+  getMensajes: async (page = 1, limit = 20, leido?: boolean, buscar?: string): Promise<MensajesPaginatedResponse['data']> => {
     try {
       const params: any = { page, limit };
       if (leido !== undefined) params.leido = leido;
+      if (buscar) params.buscar = buscar;
 
       const response = await adminApi.get('/mensajes', { params });
       return response.data.data;

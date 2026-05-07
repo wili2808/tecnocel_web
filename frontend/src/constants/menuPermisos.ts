@@ -66,6 +66,12 @@ export const MENU_PERMISOS: MenuPermisoOption[] = [
     icon: 'email', 
     permisosRequeridos: ['ver_mensajes']
   },
+  { 
+    id: 'comentarios', 
+    label: 'Reseñas', 
+    icon: 'rate_review', 
+    permisosRequeridos: ['moderar_comentarios']
+  },
 ];
 
 export const getPermisoPorModulo = (modulo: string): string[] => {

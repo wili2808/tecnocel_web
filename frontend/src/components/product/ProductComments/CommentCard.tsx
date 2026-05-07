@@ -325,6 +325,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
             </div>
             <div className={styles.commentMeta}>
               <span className={styles.date}>{fechaFormateada}</span>
+              {comentario.estado === 'pendiente' && (
+                <span className={styles.pendingBadge}>
+                  <span className="material-icons">hourglass_empty</span>
+                  Pendiente de revisión
+                </span>
+              )}
               {comentario.es_verificado && (
                 <span className={styles.verified}>
                   <span className="material-icons">verified</span>

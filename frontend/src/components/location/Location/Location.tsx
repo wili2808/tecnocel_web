@@ -1,11 +1,19 @@
 import { useMemo } from 'react';
+import { useConfig } from '../../../contexts/ConfigContext';
 import styles from './Location.module.css';
 import OpenStreetMap from '../OpenStreetMap';
 import HistorySection from '../HistorySection';
 
 const Location = () => {
-    // Coordenadas de MAC WIL en Ituzaingó, Corrientes
-    const center = useMemo(() => ({ lat: -27.5906, lng: -56.6909 }), []);
+    const { getConfig } = useConfig();
+    
+    // Obtener configuración dinámica
+    const lat = parseFloat(getConfig('map_lat', '-27.5906'));
+    const lng = parseFloat(getConfig('map_lng', '-56.6909'));
+    const mapTitle = getConfig('map_title', 'TecnoCel - Nuestra Tienda');
+
+    // Coordenadas
+    const center = useMemo(() => ({ lat, lng }), [lat, lng]);
 
     const handleMarkerClick = () => {
         window.open(
@@ -22,7 +30,7 @@ const Location = () => {
                 <h3>Encuéntranos Aquí</h3>
                 <OpenStreetMap
                     center={center}
-                    title="MAC WIL - Creaciones e Impresiones"
+                    title={mapTitle}
                     onMarkerClick={handleMarkerClick}
                 />
             </div>
@@ -30,4 +38,4 @@ const Location = () => {
     );
 };
 
-export default Location; 
+export default Location;

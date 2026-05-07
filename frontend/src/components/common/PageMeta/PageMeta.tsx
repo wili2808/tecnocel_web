@@ -1,8 +1,7 @@
 import { Helmet } from 'react-helmet-async';
+import { useConfig } from '../../../contexts/ConfigContext';
 
-const SITE_NAME = 'TecnoCel';
 const BASE_URL = 'https://tecnocel-web.vercel.app';
-const DEFAULT_DESCRIPTION = 'TecnoCel — Tienda de productos tecnológicos en Argentina. Celulares, accesorios y más al mejor precio.';
 const DEFAULT_IMAGE = `${BASE_URL}/og-default.jpg`;
 
 interface PageMetaProps {
@@ -15,6 +14,12 @@ interface PageMetaProps {
 }
 
 const PageMeta = ({ title, description, image, url, noIndex }: PageMetaProps) => {
+  const { getConfig } = useConfig();
+  
+  // Obtener valores dinámicos de la configuración
+  const SITE_NAME = getConfig('site_title', 'TecnoCel');
+  const DEFAULT_DESCRIPTION = getConfig('site_description', 'TecnoCel — Tienda de productos tecnológicos en Argentina. Celulares, accesorios y más al mejor precio.');
+
   const fullTitle = `${title} — ${SITE_NAME}`;
   const metaDescription = description || DEFAULT_DESCRIPTION;
   const metaImage = image || DEFAULT_IMAGE;

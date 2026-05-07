@@ -16,9 +16,9 @@ const adminCommentService = {
   },
 
   /**
-   * Cambia el estado de un comentario (activo/oculto/eliminado)
+   * Cambia el estado de un comentario (pendiente/activo/oculto/eliminado)
    */
-  moderarComentario: async (idComentario: number, estado: 'activo' | 'oculto' | 'eliminado'): Promise<void> => {
+  moderarComentario: async (idComentario: number, estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado'): Promise<void> => {
     try {
       await adminApi.patch(`/comentarios/${idComentario}/moderar`, { estado });
     } catch (error) {
@@ -28,13 +28,32 @@ const adminCommentService = {
   },
 
   /**
-   * Cambia el estado de una respuesta (activo/oculto/eliminado)
+   * Cambia el estado de una respuesta (pendiente/activo/oculto/eliminado)
    */
-  moderarRespuesta: async (idRespuesta: number, estado: 'activo' | 'oculto' | 'eliminado'): Promise<void> => {
+  moderarRespuesta: async (idRespuesta: number, estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado'): Promise<void> => {
     try {
       await adminApi.patch(`/comentarios/respuestas/${idRespuesta}/moderar`, { estado });
     } catch (error) {
       console.error('Error moderating reply:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Lista todos los comentarios para moderación administrativa
+   */
+  listarComentarios: async (params: { 
+    limite?: number; 
+    offset?: number; 
+    estado?: string; 
+    calificacion?: number; 
+    buscar?: string;
+  }) => {
+    try {
+      const response = await adminApi.get('/comentarios/lista/admin', { params });
+      return response.data.datos;
+    } catch (error) {
+      console.error('Error listing comments for admin:', error);
       throw error;
     }
   },
