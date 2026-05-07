@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
+import sequelize from '../config/database.js';
 import type { TransformedProduct, CreateProductoBody, UpdateProductoBody, UpdateStockBody } from '../types/producto.types.js';
 // Modelos
 import Almacen from '../models/Almacen.js';
@@ -1008,7 +1009,18 @@ class AlmacenController {
     try {
       logger.debug('Obteniendo todas las categorías');
       const categorias = await Categoria.findAll({
-        attributes: ['id_categoria', 'nombre_categoria', 'fyh_creacion', 'fyh_actualizacion']
+        attributes: {
+          include: [
+            [
+              sequelize.literal(`(
+                SELECT COUNT(*)
+                FROM tb_almacen AS p
+                WHERE p.id_categoria = Categoria.id_categoria
+              )`),
+              'product_count'
+            ]
+          ]
+        }
       });
       res.locals.skipHttpLog = true;
       

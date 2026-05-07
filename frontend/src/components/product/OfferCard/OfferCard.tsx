@@ -26,10 +26,11 @@ const OfferCard: React.FC<OfferCardProps> = memo(({ oferta, productCount = 0, cl
   };
 
   const formatDiscount = () => {
+    const val = Number(oferta.valor_descuento);
     if (oferta.tipo_descuento === 'porcentaje') {
-      return `${oferta.valor_descuento}%`;
+      return `${Math.round(val)}%`;
     }
-    return `$${oferta.valor_descuento}`;
+    return `$${Math.round(val)}`;
   };
 
   const isActive = () => {

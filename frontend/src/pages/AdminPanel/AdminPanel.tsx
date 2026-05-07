@@ -12,6 +12,7 @@ import GestionVentas from '../../components/admin/GestionVentas/GestionVentas';
 import GestionCompras from '../../components/admin/GestionCompras/GestionCompras';
 import Reportes from '../../components/admin/Reportes/Reportes';
 import GestionPermisos from '../../components/admin/GestionPermisos/GestionPermisos';
+import GestionMensajes from '../../components/admin/GestionMensajes/GestionMensajes';
 import { MENU_PERMISOS, type MenuPermisoOption } from '../../constants/menuPermisos';
 import adminPanelStyles from './AdminPanel.module.css';
 import type { AdminUser } from '../../types/usuario';
@@ -26,6 +27,7 @@ const SECTION_DESCRIPTIONS: Record<string, string> = {
   compras: 'Abastecimiento, proveedores y trazabilidad de compras activas.',
   reportes: 'Lectura analítica del rendimiento comercial y exportación de información.',
   permisos: 'Gobernanza de permisos y seguridad del sistema administrativo.',
+  mensajes: 'Bandeja de entrada de consultas y mensajes desde el formulario de contacto.',
 };
 
 // --- COMPONENTES AUXILIARES ---
@@ -94,6 +96,9 @@ const ContentSection = ({
 
       case 'permisos':
         return <GestionPermisos />;
+      
+      case 'mensajes':
+        return <GestionMensajes />;
 
       default:
         return (

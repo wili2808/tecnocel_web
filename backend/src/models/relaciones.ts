@@ -33,6 +33,7 @@ import ProductoImagen from './ProductoImagen.js';
 import Notificacion from './Notificacion.js';
 import Permiso from './Permiso.js';
 import RolPermiso from './RolPermiso.js';
+import MensajeContacto from './MensajeContacto.js';
 
 // Almacen
 Almacen.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'Categoria' });
@@ -266,5 +267,6 @@ export {
   ProductoImagen,
   Notificacion,
   Permiso,
-  RolPermiso
+  RolPermiso,
+  MensajeContacto
 }; 

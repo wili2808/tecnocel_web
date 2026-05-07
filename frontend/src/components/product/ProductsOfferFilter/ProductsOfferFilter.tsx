@@ -55,7 +55,7 @@ const ProductsOfferFilter: React.FC<ProductsOfferFilterProps> = ({
                 <option value="todas">Todas las ofertas</option>
                 {ofertasActivas.map((oferta) => (
                     <option key={oferta.id_oferta} value={oferta.id_oferta}>
-                        {oferta.nombre_oferta} (-{oferta.valor_descuento}%)
+                        {oferta.nombre_oferta} (-{Math.round(Number(oferta.valor_descuento))}%)
                     </option>
                 ))}
             </select>

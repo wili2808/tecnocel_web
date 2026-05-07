@@ -195,7 +195,7 @@ const GestionOfertas = () => {
         const oferta = info.row.original;
         const valorMostrar = oferta.tipo_descuento === 'monto_fijo' 
           ? Math.round(oferta.valor_descuento * tipoCambio) 
-          : parseFloat(oferta.valor_descuento.toString());
+          : Math.round(Number(oferta.valor_descuento));
 
         return (
           <span className={styles.valorCell}>

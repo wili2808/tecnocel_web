@@ -34,6 +34,7 @@ interface ContactFormProps {
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import Select from '../../common/Select/Select';
+import mensajeService from '../../../services/mensajeService';
 
 export const ContactForm: React.FC<ContactFormProps> = ({
     onSubmitSuccess,
@@ -133,24 +134,34 @@ export const ContactForm: React.FC<ContactFormProps> = ({
      */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // ✅ VALIDAR FORMULARIO antes de procesar
+        if (!validateForm()) {
+            showNotification('Por favor corrija los errores en el formulario', 'error');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
-            // ✅ VALIDAR FORMULARIO antes de procesar
-            if (!validateForm()) {
-                showNotification('Por favor corrija los errores en el formulario', 'error');
-                return;
-            }
+            const response = await mensajeService.enviarMensaje(formData);
+            
+            showNotification(response.message || 'Mensaje enviado correctamente', 'success');
 
-            showNotification('La funcionalidad de contacto estará disponible próximamente.', 'info');
+            // Limpiar formulario
+            setFormData({
+                nombre: '',
+                email: '',
+                telefono: '',
+                asunto: '',
+                mensaje: ''
+            });
 
             if (onSubmitSuccess) {
                 onSubmitSuccess();
             }
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error
-                ? error.message
-                : 'No se pudo procesar el formulario de contacto';
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || 'No se pudo procesar el formulario de contacto';
             showNotification(errorMessage, 'error');
         } finally {
             setIsSubmitting(false);

@@ -37,7 +37,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-family-primary);
+  font-family: var(--font-family-admin);
 }
 
 .table thead {

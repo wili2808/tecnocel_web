@@ -243,3 +243,53 @@
   font-weight: 700;
   text-transform: uppercase;
 }
+
+/* --- NUEVOS ESTILOS PARA LAYOUT Y BOTONES --- */
+
+.infoCard {
+  background: var(--background-neutral);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.stepper {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg) 0;
+}
+
+.headerBadge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.fullWidthBtn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.actionButtons {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+@media (max-width: 480px) {
+  .actionButtons {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .flex1 {
+    width: 100%;
+  }
+}
+
+.flex1 {
+  flex: 1;
+}

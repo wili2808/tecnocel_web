@@ -30,7 +30,7 @@ const GestionCategorias: React.FC = memo(() => {
   // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
-  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'fecha']);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['nombre', 'productos']);
 
   const cargarCategorias = useCallback(async () => {
     try {
@@ -67,11 +67,19 @@ const GestionCategorias: React.FC = memo(() => {
       cell: info => <span className="font-bold">{info.getValue() as string}</span>,
     },
     {
-      accessorFn: row => new Date(row.fyh_creacion).getTime(),
-      id: 'fecha',
-      header: 'Fecha creación',
-      cell: info => new Date(info.row.original.fyh_creacion).toLocaleDateString('es-AR'),
+      accessorKey: 'product_count',
+      id: 'productos',
+      header: 'Productos',
+      cell: info => {
+        const count = info.getValue() as number || 0;
+        return (
+          <span className={`modalBadgePremium ${count > 0 ? 'info' : 'neutral'}`}>
+            {count} {count === 1 ? 'item' : 'items'}
+          </span>
+        );
+      }
     },
+
   ], []);
 
   // Filtrado local por nombre

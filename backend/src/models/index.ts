@@ -26,4 +26,6 @@ import './ProductoOferta.js';
 import './Favorito.js';
 import './Direccion.js';
 import './ProductoImagen.js';
+import './MensajeContacto.js';
+
 import './relaciones.js'; 

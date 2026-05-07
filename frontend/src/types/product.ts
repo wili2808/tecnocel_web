@@ -13,6 +13,7 @@ export interface Marca {
   logo_marca?: string | null;
   descripcion_marca?: string | null;
   activo: boolean;
+  product_count?: number;
   fyh_creacion: string;
   fyh_actualizacion: string;
 }
@@ -23,6 +24,7 @@ export interface Marca {
 export interface Category {
   id_categoria: number;
   nombre_categoria: string;
+  product_count?: number;
   fyh_creacion: string;
   fyh_actualizacion: string;
 }
