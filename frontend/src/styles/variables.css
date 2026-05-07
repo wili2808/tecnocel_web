@@ -109,6 +109,7 @@
   /* === TIPOGRAFÍA === */
   --font-family-primary: 'Poppins', system-ui, -apple-system, sans-serif;
   --font-family-secondary: 'Roboto', system-ui, -apple-system, sans-serif;
+  --font-family-admin: 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-mono: 'Courier New', Courier, monospace;
   --font-family-decorative: 'Great Vibes', cursive;
   --font-family-display: 'Syne', system-ui, -apple-system, sans-serif;

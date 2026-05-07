@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Marca from '../models/Marca.js';
 import logger from '../services/loggerService.js';
 import { getImageService, ImageType } from '../services/imageService.js';
+import sequelize from '../config/database.js';
 
 interface CreateMarcaBody { nombre_marca: string; logo_marca?: string; descripcion_marca?: string; }
 interface UpdateMarcaBody extends Partial<CreateMarcaBody> { activo?: boolean; }
@@ -48,6 +49,18 @@ class MarcaController {
       
       const marcas = await Marca.findAll({
         where: { activo: true },
+        attributes: {
+          include: [
+            [
+              sequelize.literal(`(
+                SELECT COUNT(*)
+                FROM tb_almacen AS p
+                WHERE p.id_marca = Marca.id_marca
+              )`),
+              'product_count'
+            ]
+          ]
+        },
         order: [['nombre_marca', 'ASC']]
       });
 

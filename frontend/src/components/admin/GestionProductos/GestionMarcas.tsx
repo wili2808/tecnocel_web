@@ -30,7 +30,7 @@ const GestionMarcas: React.FC = memo(() => {
   // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
-  const [columnOrder, setColumnOrder] = useState<string[]>(['logo', 'nombre', 'descripcion', 'estado', 'fecha']);
+  const [columnOrder, setColumnOrder] = useState<string[]>(['logo', 'nombre', 'descripcion', 'productos', 'estado']);
 
   const cargarMarcas = useCallback(async () => {
     try {
@@ -91,6 +91,19 @@ const GestionMarcas: React.FC = memo(() => {
       cell: info => info.getValue() ? (info.getValue() as string) : <span className="text-muted">—</span>,
     },
     {
+      accessorKey: 'product_count',
+      id: 'productos',
+      header: 'Productos',
+      cell: info => {
+        const count = info.getValue() as number || 0;
+        return (
+          <span className={`modalBadgePremium ${count > 0 ? 'info' : 'neutral'}`}>
+            {count} {count === 1 ? 'item' : 'items'}
+          </span>
+        );
+      }
+    },
+    {
       accessorFn: row => row.activo ? 1 : 0,
       id: 'estado',
       header: 'Estado',
@@ -103,12 +116,7 @@ const GestionMarcas: React.FC = memo(() => {
         );
       }
     },
-    {
-      accessorFn: row => new Date(row.fyh_creacion).getTime(),
-      id: 'fecha',
-      header: 'Creación',
-      cell: info => new Date(info.row.original.fyh_creacion).toLocaleDateString('es-AR'),
-    },
+
   ], []);
 
   // Filtrado local por nombre
