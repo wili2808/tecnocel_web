@@ -1,0 +1,276 @@
+.configContainer {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  max-width: 1100px;
+  margin: 0 auto;
+  animation: fadeIn var(--transition-normal) var(--transition-curve);
+}
+
+.configHeader {
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.configTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xxs);
+  letter-spacing: -0.04em;
+}
+
+.configSubtitle {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.configGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+}
+
+.configSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.iconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--border-radius-lg);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+.iconBox .material-icons {
+  font-size: 1.4rem;
+}
+
+.sectionHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+/* Tarjetas Estilo Admin */
+.configCard, .configCardForm {
+  padding: var(--spacing-lg) !important; /* Overriding AdminSurface padding if needed */
+  transition: var(--theme-transition);
+}
+
+.configCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.configCardForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.cardInfo {
+  flex: 1;
+}
+
+.cardInfo h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.cardInfo p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 60ch;
+}
+
+/* Selector de Tema */
+.cardActions {
+  display: flex;
+  gap: 6px;
+  background: color-mix(in srgb, var(--background-secondary) 80%, black);
+  padding: 6px;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.themeButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+.themeButton .material-icons {
+  font-size: 1.2rem;
+}
+
+.activeTheme {
+  background: var(--background-primary);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+/* Ajustes de Inputs */
+.configCardForm :global(.material-icons) {
+  font-size: 1.25rem !important;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Layout de Filas en Formularios */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+/* Footer Actions */
+.footerActions {
+  margin-top: var(--spacing-xl);
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-xl) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 14px 36px;
+  border-radius: var(--border-radius-lg);
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-curve);
+  box-shadow: 0 10px 20px -5px color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 25px -5px color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+.saveButton:active {
+  transform: translateY(-1px);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .configCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
+  
+  .cardActions {
+    width: 100%;
+  }
+  
+  .themeButton {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .configContainer {
+    padding: var(--spacing-md);
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .saveButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Modo Mantenimiento Toggle */
+.maintenanceActive {
+  border-color: var(--color-error) !important;
+  background-color: color-mix(in srgb, var(--color-error) 4%, var(--background-primary)) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-error) 20%, transparent);
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--background-secondary);
+  color: var(--text-secondary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-curve);
+}
+
+.activeToggle {
+  background: var(--color-error);
+  border-color: var(--color-error);
+  color: white !important;
+  box-shadow: 0 8px 20px -5px color-mix(in srgb, var(--color-error) 40%, transparent);
+}
+
+.toggleButton:hover:not(.activeToggle) {
+  background: var(--background-hover);
+  border-color: var(--text-secondary);
+}
+
+.activeToggle:hover {
+  background: var(--color-error-dark);
+  transform: translateY(-2px);
+}
+
+.toggleButton .material-icons {
+  font-size: 1.3rem;
+}

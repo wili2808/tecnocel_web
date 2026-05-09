@@ -9,9 +9,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   overflow: hidden;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 .offerCard:hover {
@@ -122,7 +120,7 @@
   line-height: 1.1;
   color: var(--text-primary);
   margin: 0;
-  transition: color var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 .offerCard:hover .offerTitle {
@@ -183,8 +181,7 @@
   border-radius: 50%;
   background: var(--color-primary);
   color: #fff;
-  transition: transform var(--transition-fast) var(--transition-curve),
-              background var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 .offerCard:hover .discountBadge {

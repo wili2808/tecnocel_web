@@ -28,8 +28,10 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 200px 300px;
 }
 
 .productLink:hover .productCard {
@@ -47,13 +49,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: var(--theme-transition);
 }
 
 .productImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-normal) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 .productLink:hover .productImage { transform: scale(1.05); }
@@ -64,22 +67,19 @@
   top: var(--spacing-sm);
   right: var(--spacing-sm);
   z-index: var(--z-catalog);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--theme-transition);
+}
+
+.favoriteButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all var(--transition-fast) var(--transition-curve);
-}
-
-/* Dark mode */
-[data-theme="dark"] .favoriteButton {
-  background: rgba(30, 30, 30, 0.9);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--background-elevated);
+  border-radius: var(--border-radius-full);
+  color: var(--text-secondary);
 }
 
 .favoriteButton:hover {
@@ -132,6 +132,7 @@
   font-weight: 700;
   color: var(--color-primary);
   line-height: 1.2;
+  transition: var(--theme-transition);
   letter-spacing: 0;
 }
 
@@ -157,6 +158,7 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   text-transform: none;
+  transition: var(--theme-transition);
 }
 
 /* Descripción — Informativa, última */

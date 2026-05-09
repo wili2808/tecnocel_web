@@ -14,6 +14,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useCarrito } from '../../../contexts/CarritoContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useConfig } from '../../../contexts/ConfigContext';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import ProductSearch from '../../product/ProductSearch';
 import IconButton from '../../common/IconButton';
@@ -44,7 +45,10 @@ const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { estado } = useCarrito();
   const { showNotification } = useNotification();
+  const { getConfig } = useConfig();
   const isMobile = useIsMobile();
+  
+  const siteTitle = getConfig('site_title', 'TecnoCel');
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -331,7 +335,7 @@ const Navbar: React.FC = () => {
           <div className={navbarStyle.mobileRow}>
             <div className={navbarStyle.mobileBrandSection}>
               <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
-                <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
+                <img src={logo} alt={`${siteTitle} Logo`} className={navbarStyle.logoImage} />
               </Link>
             </div>
 
@@ -365,7 +369,7 @@ const Navbar: React.FC = () => {
             <div className={navbarStyle.leftSection}>
               <div className={navbarStyle.brandSection}>
                 <Link to="/" className={navbarStyle.logoLink} onClick={handleLinkClick}>
-                  <img src={logo} alt="TecnoCel Logo" className={navbarStyle.logoImage} />
+                  <img src={logo} alt={`${siteTitle} Logo`} className={navbarStyle.logoImage} />
                 </Link>
               </div>
               <div className={navbarStyle.leftNavigation}>{SecondaryNavLinks({})}</div>

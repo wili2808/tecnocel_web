@@ -58,7 +58,7 @@
   border-radius: var(--border-radius-md);
   text-decoration: none;
   color: inherit;
-  transition: all var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
   cursor: pointer;
 }
 
@@ -82,7 +82,7 @@
   min-width: 44px;
   background: var(--method-color, var(--color-primary));
   border-radius: var(--border-radius-md);
-  transition: all var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 .methodCard:hover .iconWrapper {
@@ -137,7 +137,7 @@
 .methodCard .material-icons:last-child {
   font-size: 18px;
   color: var(--text-secondary);
-  transition: transform var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
   flex-shrink: 0;
 }
 

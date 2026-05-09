@@ -12,6 +12,7 @@
 
 .modalFooterPremium {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
@@ -24,6 +25,7 @@
 .btnPremium {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 20px;
   border-radius: var(--border-radius-md);
@@ -32,6 +34,8 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
+  white-space: nowrap;
+  height: 42px;
 }
 
 .btnPrimaryPremium {
@@ -545,6 +549,7 @@
 .modalBadgePremium.success { background: var(--color-success-light, #e6fffa); color: var(--color-success-dark, #234e52); }
 .modalBadgePremium.error { background: var(--color-error-light, #fff5f5); color: var(--color-error-dark, #742a2a); }
 .modalBadgePremium.neutral { background: var(--background-neutral); color: var(--text-secondary); }
+.modalBadgePremium.primary { background: var(--color-primary-100); color: var(--color-primary); }
 
 .modalLoadingPremium {
   padding: 60px;

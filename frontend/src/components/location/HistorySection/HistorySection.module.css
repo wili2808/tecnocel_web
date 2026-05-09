@@ -11,9 +11,7 @@
   gap: var(--spacing-xl);
 }
 
-/* Header */
-.header {
-}
+
 
 .title {
   font-family: var(--font-family-display);
@@ -47,7 +45,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
   border-bottom: 1px solid var(--border-color);
-  transition: padding-left var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition), padding-left var(--transition-fast) var(--transition-curve);
 }
 
 .contactItem:last-child {

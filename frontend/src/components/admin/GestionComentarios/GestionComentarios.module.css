@@ -1,0 +1,81 @@
+.container {
+  padding: var(--spacing-md);
+  animation: fadeIn var(--transition-normal) var(--transition-curve);
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.clientInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.clientInfo strong {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.clientInfo span {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+}
+
+.productName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.starFilled { 
+  color: #f1c40f; 
+  font-size: 1.1rem; 
+}
+
+.starEmpty { 
+  color: var(--text-tertiary); 
+  font-size: 1.1rem; 
+  opacity: 0.3; 
+}
+
+.truncatedComment {
+  max-width: 350px;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.pendiente { background: rgba(243, 156, 18, 0.1); color: #f39c12; }
+.activo { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+.oculto { background: rgba(149, 165, 166, 0.1); color: #95a5a6; }
+
+.noRating {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

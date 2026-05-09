@@ -7,11 +7,25 @@
   height: 100vh;
   overflow: hidden;
   display: flex;
-  background:
-    radial-gradient(circle at top left, var(--color-primary-50), transparent 24%),
-    var(--background-primary);
+  position: relative;
+  background-color: var(--background-primary);
   font-family: var(--font-family-admin);
   color: var(--text-primary);
+  isolation: isolate;
+  transition: background-color var(--transition-normal) var(--transition-curve), 
+              color var(--transition-normal) var(--transition-curve);
+}
+
+.adminPanel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top left, var(--color-primary-100), transparent 40%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .themeAware {
@@ -328,10 +342,23 @@
   flex: 1;
   height: 100vh;
   overflow-y: auto;
-  background:
-    radial-gradient(circle at top right, var(--color-primary-100), transparent 28%),
-    linear-gradient(180deg, var(--background-secondary) 0%, var(--background-primary) 100%);
-  transition: var(--theme-transition);
+  position: relative;
+  background-color: var(--background-primary);
+  transition: background-color var(--transition-normal) var(--transition-curve);
+}
+
+.mainContent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at top right, var(--color-primary-50), transparent 30%),
+    linear-gradient(180deg, rgba(var(--background-secondary-rgb), 0.3) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .contentArea {

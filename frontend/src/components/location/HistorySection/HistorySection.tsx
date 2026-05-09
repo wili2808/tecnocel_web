@@ -1,44 +1,37 @@
 import React from 'react';
 import { FiMapPin, FiPhone, FiClock, FiMail } from 'react-icons/fi';
+import { useConfig } from '../../../contexts/ConfigContext';
 import styles from './HistorySection.module.css';
 
-/**
- * Props para el componente HistorySection
- */
 interface HistorySectionProps {
-    /** Título de la sección (opcional) */
     title?: string;
-    /** Descripción o historia (opcional) */
     description?: string;
-    /** Información de contacto (opcional) */
     showContactInfo?: boolean;
 }
 
-/**
- * HistorySection - Componente de historia y ubicación de la empresa
- *
- * Muestra la historia de la empresa y opcionalmente información de contacto
- *
- * @component
- * @example
- * ```tsx
- * <HistorySection
- *   title="Nuestra Historia"
- *   description="TecnoCel en Resistencia..."
- *   showContactInfo={true}
- * />
- * ```
- */
 const HistorySection: React.FC<HistorySectionProps> = ({
-    title = "TecnoCel - Tu Tienda de Tecnología",
-    description = "TecnoCel es tu destino de confianza para productos tecnológicos en Resistencia, Chaco. Ofrecemos una amplia gama de dispositivos, accesorios y soluciones tecnológicas para satisfacer todas tus necesidades. Con años de experiencia en el mercado, nos enorgullecemos de brindar productos de calidad y un servicio excepcional a nuestra comunidad.",
+    title,
+    description,
     showContactInfo = true
 }) => {
+    const { getConfig } = useConfig();
+    
+    // Obtener valores dinámicos
+    const siteTitle = getConfig('site_title', 'TecnoCel');
+    const siteDescription = getConfig('site_description', 'Tu destino de confianza para productos tecnológicos.');
+    const siteAddress = getConfig('site_address', 'Resistencia, Chaco, Argentina');
+    const sitePhone = getConfig('site_phone', '+54 362 000-0000');
+    const siteHours = getConfig('site_hours', 'Lun - Vie: 9:00 - 20:00 / Sáb: 9:00 - 13:00');
+    const siteEmail = getConfig('site_email', 'info@tecnocel.com');
+
+    const displayTitle = title || `${siteTitle} - Tu Tienda de Tecnología`;
+    const displayDescription = description || siteDescription;
+
     return (
         <div className={styles.historySection}>
             <div className={styles.header}>
-                <h2 className={styles.title}>{title}</h2>
-                <p className={styles.description}>{description}</p>
+                <h2 className={styles.title}>{displayTitle}</h2>
+                <p className={styles.description}>{displayDescription}</p>
             </div>
 
             {showContactInfo && (
@@ -49,7 +42,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
                         </div>
                         <div className={styles.contactText}>
                             <h3>Ubicación</h3>
-                            <p>Resistencia, Chaco, Argentina</p>
+                            <p>{siteAddress}</p>
                         </div>
                     </div>
 
@@ -59,7 +52,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
                         </div>
                         <div className={styles.contactText}>
                             <h3>Teléfono</h3>
-                            <p>+54 362 XXX-XXXX</p>
+                            <p>{sitePhone}</p>
                         </div>
                     </div>
 
@@ -69,7 +62,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
                         </div>
                         <div className={styles.contactText}>
                             <h3>Horarios</h3>
-                            <p>Lun - Vie: 9:00 - 20:00 / Sáb: 9:00 - 13:00</p>
+                            <p>{siteHours}</p>
                         </div>
                     </div>
 
@@ -79,7 +72,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
                         </div>
                         <div className={styles.contactText}>
                             <h3>Email</h3>
-                            <p>info@tecnocel.com</p>
+                            <p>{siteEmail}</p>
                         </div>
                     </div>
                 </div>
@@ -88,4 +81,5 @@ const HistorySection: React.FC<HistorySectionProps> = ({
     );
 };
 
-export default HistorySection; 
+export default HistorySection;
+ 

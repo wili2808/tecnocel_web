@@ -9,16 +9,13 @@
   gap: var(--spacing-md);
   padding: var(--spacing-sm);
   width: 100%;
-  background: var(--background-primary);
   box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
-  contain: layout style;
-  will-change: background-color;
-  transition: background-color var(--transition-fast) var(--transition-curve);
+  contain: layout style paint;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
-  animation: fadeInUp 0.4s ease-out both;
+  animation: fadeInUp 0.3s ease-out both;
 }
 
 .productsGrid::-webkit-scrollbar { width: 6px; }

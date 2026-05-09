@@ -5,6 +5,7 @@
 .contactoPage {
   min-height: 100vh;
   background: var(--background-primary);
+  transition: var(--theme-transition);
 }
 
 /* ============================================================================
@@ -14,6 +15,7 @@
 .hero {
   padding: var(--spacing-3xl) var(--container-padding) var(--spacing-2xl);
   border-bottom: 1px solid var(--border-color);
+  transition: var(--theme-transition);
 }
 
 .heroContainer {
@@ -57,7 +59,7 @@
 .contentGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-lg);
   align-items: start;
 }
 
@@ -73,6 +75,7 @@
 .faqSection {
   padding: var(--spacing-3xl) 0;
   border-top: 1px solid var(--border-color);
+  transition: var(--theme-transition);
 }
 
 .faqHeader {
@@ -110,10 +113,12 @@
 
 .faqItem {
   padding: var(--spacing-xl);
+  background: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
+  content-visibility: auto;
+  contain-intrinsic-size: 400px 150px;
 }
 
 .faqItem:hover {

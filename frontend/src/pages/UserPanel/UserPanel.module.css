@@ -169,7 +169,7 @@
   font-size: var(--font-size-sm);
   cursor: pointer;
   border-radius: var(--border-radius-md);
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
   text-align: left;
   width: 100%;
   position: relative;
@@ -185,7 +185,7 @@
   border-radius: 1px;
   background-color: var(--color-primary);
   opacity: 0;
-  transition: opacity var(--transition-normal);
+  transition: opacity var(--theme-transition);
 }
 
 .menuOption:hover {

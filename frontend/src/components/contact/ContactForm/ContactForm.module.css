@@ -8,6 +8,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   width: 100%;
+  transition: var(--theme-transition);
 }
 
 .formHeader {
@@ -58,8 +59,7 @@
   border: none;
   border-radius: var(--border-radius-full);
   cursor: pointer;
-  transition: background var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
 }
 
 .submitButton:hover:not(:disabled) {

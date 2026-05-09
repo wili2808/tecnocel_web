@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { FaWhatsapp, FaFacebookF, FaInstagram } from 'react-icons/fa';
+import { useConfig } from '../../../contexts/ConfigContext';
 import styles from './ContactMethods.module.css';
 
 /**
@@ -36,22 +37,29 @@ interface ContactMethod {
  * redes sociales, email directo, etc.
  *
  * @component
- * @example
- * ```tsx
- * <ContactMethods />
- * ```
  */
 export const ContactMethods: React.FC<ContactMethodsProps> = ({
     className = ''
 }) => {
+    const { getConfig } = useConfig();
+    
+    // Obtener valores dinámicos
+    const whatsappRaw = getConfig('whatsapp_number', '5491100000000');
+    const whatsappDisplay = `+${whatsappRaw.slice(0, 2)} ${whatsappRaw.slice(2, 6)} ${whatsappRaw.slice(6)}`;
+    const instagramUrl = getConfig('instagram_url', 'https://instagram.com/tecnocel');
+    const facebookUrl = getConfig('facebook_url', 'https://facebook.com/tecnocel');
+    const siteEmail = getConfig('site_email', 'info@tecnocel.com');
+    const sitePhone = getConfig('site_phone', '541100000000');
+    const siteHours = getConfig('site_hours', 'Lunes a Viernes de 9:00 a 20:00hs | Sábados de 9:00 a 13:00hs');
+
     const contactMethods: ContactMethod[] = [
         {
             icon: FaWhatsapp,
             iconType: 'react',
             title: 'WhatsApp',
             description: 'Chatea con nosotros',
-            value: '+591 XXX-XXXX',
-            link: 'https://wa.me/591XXXXXXX',
+            value: whatsappDisplay,
+            link: `https://wa.me/${whatsappRaw}`,
             color: '#25D366',
             label: 'Abrir WhatsApp'
         },
@@ -60,8 +68,8 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
             iconType: 'material',
             title: 'Teléfono',
             description: 'Llámanos directamente',
-            value: '+591 XXX-XXXX',
-            link: 'tel:+591XXXXXXX',
+            value: sitePhone,
+            link: `tel:+${sitePhone}`,
             color: '#0EA5E9',
             label: 'Llamar ahora'
         },
@@ -70,8 +78,8 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
             iconType: 'material',
             title: 'Email',
             description: 'Escríbenos un correo',
-            value: 'info@tecnocel.com',
-            link: 'mailto:info@tecnocel.com',
+            value: siteEmail,
+            link: `mailto:${siteEmail}`,
             color: '#EA4335',
             label: 'Enviar email'
         },
@@ -80,8 +88,8 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
             iconType: 'react',
             title: 'Facebook',
             description: 'Síguenos en Facebook',
-            value: '@TecnoCel',
-            link: 'https://facebook.com/tecnocel',
+            value: facebookUrl.split('/').pop() || '@TecnoCel',
+            link: facebookUrl,
             color: '#1877F2',
             label: 'Ir a Facebook'
         },
@@ -90,8 +98,8 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
             iconType: 'react',
             title: 'Instagram',
             description: 'Mira nuestras historias',
-            value: '@tecnocel',
-            link: 'https://instagram.com/tecnocel',
+            value: instagramUrl.split('/').pop() || '@tecnocel',
+            link: instagramUrl,
             color: '#E4405F',
             label: 'Ir a Instagram'
         }
@@ -147,7 +155,7 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
                     schedule
                 </span>
                 <p className={styles.footerText}>
-                    <strong>Horario de atención:</strong> Lunes a Viernes de 9:00 a 20:00hs | Sábados de 9:00 a 13:00hs
+                    <strong>Horario de atención:</strong> {siteHours}
                 </p>
             </div>
         </div>

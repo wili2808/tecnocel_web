@@ -4,7 +4,7 @@
  * Incluye indicadores de oferta, favoritos y estado del carrito
  * Lógica integrada directamente en el componente para mayor simplicidad
  */
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductImage from '../ProductImage';
 import CartIndicator from '../../cart/CartIndicator';
@@ -20,7 +20,7 @@ import Button from '../../common/Button';
 import styles from './ProductCard.module.css';
 import type { ProductCardProps } from '../../../types';
 
-const ProductCard: React.FC<ProductCardProps> = ({
+const ProductCard: React.FC<ProductCardProps> = memo(({
   id_producto,
   nombre,
   descripcion,
@@ -152,9 +152,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // CÁLCULOS Y TEXTOS
   // ============================================================================
 
-  // Nota: stockText y overlayContent están comentados ya que no se usan actualmente
-  // Se pueden reactivar cuando se implementen las funcionalidades correspondientes
-
   // ============================================================================
   // ESTADOS DE CARGA
   // ============================================================================
@@ -169,12 +166,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
    * Determina si mostrar overlay rojo de límite alcanzado
    */
   const cannotAddMore = !canAddMoreOfProduct(id_producto, stock);
-
-  // ============================================================================
-  // FUNCIONES ESPECÍFICAS DE PRODUCTCARD
-  // ============================================================================
-
-  // Función reservada para futuras funcionalidades
 
   // ============================================================================
   // RENDERIZADO
@@ -298,7 +289,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </article>
     </Link>
   );
-};
+});
 
 ProductCard.displayName = 'ProductCard';
 

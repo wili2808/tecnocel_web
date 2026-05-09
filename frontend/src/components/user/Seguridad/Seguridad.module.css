@@ -31,6 +31,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xl);
+  transition: var(--theme-transition);
 }
 
 /* === ACCIONES === */
@@ -58,7 +59,7 @@
   border: none;
   border-radius: var(--border-radius-full);
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
 }
 
 .btnPrimary:hover:not(:disabled) {
@@ -117,7 +118,7 @@
   border-radius: var(--border-radius-full);
   font-size: var(--font-size-md);
   font-weight: 500;
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
 }
 
 .btnGoogle:hover {
@@ -136,6 +137,7 @@
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   margin-top: var(--spacing-xl);
+  transition: var(--theme-transition);
 }
 
 .securityTips h3 {

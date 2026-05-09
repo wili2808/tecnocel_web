@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import commentService from '../../../services/commentService';
 import adminCommentService from '../../../services/adminCommentService';
+import { useNotification } from '../../../contexts/NotificationContext';
 import uploadService from '../../../services/uploadService';
 import CommentForm from './CommentForm';
 import CommentCard from './CommentCard';
@@ -21,6 +22,7 @@ interface ProductCommentsProps {
 
 const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productName }) => {
   const { user, isAuthenticated, isSystemUser } = useAuth();
+  const { showNotification } = useNotification();
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [estadisticas, setEstadisticas] = useState<EstadisticasComentarios | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
         offset: pagina * COMENTARIOS_POR_PAGINA,
         orden: nuevoOrden || orden,
         incluirOcultos: isSystemUser,
+        idClienteActual: user?.id,
       });
 
       setComentarios(response.datos.comentarios);
@@ -112,6 +115,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId, productNam
       // Recargar comentarios para mostrar el nuevo
       await cargarComentarios(0);
       setShowForm(false);
+      showNotification('¡Gracias! Tu comentario ha sido enviado y se encuentra en revisión por seguridad.', 'info');
     } catch (err) {
       setError('Error al enviar el comentario. Por favor, intenta nuevamente.');
       console.error('Error submitting comment:', err);

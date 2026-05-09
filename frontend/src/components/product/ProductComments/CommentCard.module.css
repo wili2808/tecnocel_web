@@ -800,6 +800,24 @@
   font-size: 18px;
 }
 
+.pendingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #f39c12;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(243, 156, 18, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.pendingBadge .material-icons {
+  font-size: 12px !important;
+}
+
 .hiddenBadge {
   font-size: var(--font-size-xs);
   background-color: var(--color-warning, #f59e0b);

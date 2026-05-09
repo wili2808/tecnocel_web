@@ -63,7 +63,7 @@
   background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
 }
 
 .contactCard:hover {
@@ -101,7 +101,7 @@
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  transition: color var(--transition-normal);
+  transition: color var(--theme-transition);
   margin-top: var(--spacing-xs);
 }
 
@@ -121,7 +121,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   overflow: hidden;
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
 }
 
 .faqItem:hover {
@@ -140,7 +140,7 @@
   font-size: var(--font-size-md);
   font-weight: 500;
   color: var(--text-primary);
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
 }
 
 .faqQuestion:hover {
@@ -149,7 +149,7 @@
 
 .faqQuestion .material-icons {
   color: var(--color-primary);
-  transition: transform var(--transition-normal);
+  transition: transform var(--theme-transition);
 }
 
 .faqAnswer {
@@ -181,7 +181,7 @@
   border-radius: var(--border-radius-md);
   text-decoration: none;
   color: var(--text-primary);
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
 }
 
 .link:hover {
@@ -216,6 +216,7 @@
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   margin-top: var(--spacing-md);
+  transition: var(--theme-transition);
 }
 
 .helpBox > .material-icons {

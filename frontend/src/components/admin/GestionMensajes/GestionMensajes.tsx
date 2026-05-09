@@ -5,6 +5,8 @@ import {
   AdminEmptyState,
   AdminFilterPanel,
   AdminDataTable,
+  AdminTabs,
+  AdminSearch,
 } from '../common';
 import mensajeService from '../../../services/mensajeService';
 import DetalleMensajeModal from './DetalleMensajeModal';
@@ -21,6 +23,7 @@ const GestionMensajes = () => {
   const [mensajes, setMensajes] = useState<MensajeContacto[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroLeido, setFiltroLeido] = useState<boolean | undefined>(undefined);
+  const [buscar, setBuscar] = useState('');
 
   // Paginación
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -36,10 +39,10 @@ const GestionMensajes = () => {
   const [mensajeSeleccionado, setMensajeSeleccionado] = useState<MensajeContacto | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const cargarMensajes = useCallback(async (p: PaginationState, leido?: boolean) => {
+  const cargarMensajes = useCallback(async (p: PaginationState, leido?: boolean, busqueda?: string) => {
     try {
       setLoading(true);
-      const data = await mensajeService.getMensajes(p.pageIndex + 1, p.pageSize, leido);
+      const data = await mensajeService.getMensajes(p.pageIndex + 1, p.pageSize, leido, busqueda);
       
       // La API devuelve { items, pagination: { total, ... } }
       setMensajes(data.items || []);
@@ -52,8 +55,8 @@ const GestionMensajes = () => {
   }, [showNotification]);
 
   useEffect(() => {
-    cargarMensajes(pagination, filtroLeido);
-  }, [cargarMensajes, pagination, filtroLeido]);
+    cargarMensajes(pagination, filtroLeido, buscar);
+  }, [cargarMensajes, pagination, filtroLeido, buscar]);
 
   const handleMarcarLeido = async (id: number, nuevoEstado: boolean) => {
     try {
@@ -150,53 +153,60 @@ const GestionMensajes = () => {
     );
   }
 
+  const tabConfigs = [
+    { id: 'todos', label: 'Todos', icon: 'forum' },
+    { id: 'no-leidos', label: 'No leídos', icon: 'mark_email_unread' },
+    { id: 'leidos', label: 'Leídos', icon: 'drafts' },
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'todos') setFiltroLeido(undefined);
+    else if (tabId === 'no-leidos') setFiltroLeido(false);
+    else if (tabId === 'leidos') setFiltroLeido(true);
+  };
+
+  const activeTabId = filtroLeido === undefined ? 'todos' : (filtroLeido ? 'leidos' : 'no-leidos');
+
   return (
     <>
       <div className={styles.container}>
-        <AdminFilterPanel>
-          <AdminFilterPanel.Row>
-             <div className={styles.filterTabs}>
-                <button 
-                  className={`${styles.filterTab} ${filtroLeido === undefined ? styles.activeTab : ''}`}
-                  onClick={() => setFiltroLeido(undefined)}
-                >
-                  Todos
-                </button>
-                <button 
-                  className={`${styles.filterTab} ${filtroLeido === false ? styles.activeTab : ''}`}
-                  onClick={() => setFiltroLeido(false)}
-                >
-                  No leídos
-                </button>
-                <button 
-                  className={`${styles.filterTab} ${filtroLeido === true ? styles.activeTab : ''}`}
-                  onClick={() => setFiltroLeido(true)}
-                >
-                  Leídos
-                </button>
-             </div>
-          </AdminFilterPanel.Row>
-        </AdminFilterPanel>
-
-        <AdminDataTable
-          data={mensajes}
-          columns={columns}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          columnOrder={columnOrder}
-          onColumnOrderChange={setColumnOrder}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          totalItems={total}
-          itemLabel="mensajes"
-          isLoading={loading}
-          manualPagination={true}
-          onRowClick={(row) => {
-            setMensajeSeleccionado(row);
-            if (!row.leido) handleMarcarLeido(row.id_mensaje_contacto, true);
-          }}
-          emptyMessage={loading ? 'Cargando mensajes...' : 'No hay mensajes recibidos'}
+        <AdminTabs 
+          tabs={tabConfigs} 
+          activeTab={activeTabId} 
+          onChange={handleTabChange} 
         />
+
+        <div className={styles.mainContent}>
+          <AdminFilterPanel>
+            <AdminFilterPanel.Row>
+               <AdminSearch 
+                  placeholder="Buscar en mensajes..." 
+                  value={buscar}
+                  onChange={setBuscar}
+               />
+            </AdminFilterPanel.Row>
+          </AdminFilterPanel>
+
+          <AdminDataTable
+            data={mensajes}
+            columns={columns}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnOrder={columnOrder}
+            onColumnOrderChange={setColumnOrder}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            totalItems={total}
+            itemLabel="mensajes"
+            isLoading={loading}
+            manualPagination={true}
+            onRowClick={(row) => {
+              setMensajeSeleccionado(row);
+              if (!row.leido) handleMarcarLeido(row.id_mensaje_contacto, true);
+            }}
+            emptyMessage={loading ? 'Cargando mensajes...' : 'No hay mensajes recibidos'}
+          />
+        </div>
       </div>
 
       {mensajeSeleccionado && (

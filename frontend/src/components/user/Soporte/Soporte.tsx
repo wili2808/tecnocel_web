@@ -1,8 +1,5 @@
-/**
- * Componente Soporte - Centro de ayuda y soporte al usuario
- * FAQ, información de contacto y enlaces útiles
- */
 import { useState } from 'react';
+import { useConfig } from '../../../contexts/ConfigContext';
 import styles from './Soporte.module.css';
 
 interface FAQItem {
@@ -46,7 +43,15 @@ const faqData: FAQItem[] = [
 ];
 
 const Soporte = () => {
+    const { getConfig } = useConfig();
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+    // Configuraciones dinámicas
+    const siteEmail = getConfig('site_email', 'soporte@tecnocel.com');
+    const sitePhone = getConfig('site_phone', '+54 362 000-0000');
+    const whatsappRaw = getConfig('whatsapp_number', '5491100000000');
+    const siteAddress = getConfig('site_address', 'Resistencia, Chaco, Argentina');
+    const siteHours = getConfig('site_hours', 'Lun-Vie: 9:00 - 18:00');
 
     const toggleFAQ = (index: number) => {
         setExpandedIndex(expandedIndex === index ? null : index);
@@ -97,27 +102,27 @@ const Soporte = () => {
                     <div className={styles.contactCard}>
                         <span className="material-icons">email</span>
                         <h4>Email</h4>
-                        <p>soporte@tecnocel.com</p>
+                        <p>{siteEmail}</p>
                         <p className={styles.contactDetail}>
-                            Respuesta en 24-48 horas
+                            Soporte directo vía correo
                         </p>
                     </div>
 
                     <div className={styles.contactCard}>
                         <span className="material-icons">phone</span>
                         <h4>Teléfono</h4>
-                        <p>+591 70123456</p>
+                        <p>{sitePhone}</p>
                         <p className={styles.contactDetail}>
-                            Lun-Vie: 9:00 - 18:00
+                            {siteHours}
                         </p>
                     </div>
 
                     <div className={styles.contactCard}>
                         <span className="material-icons">chat</span>
                         <h4>WhatsApp</h4>
-                        <p>+591 70123456</p>
+                        <p>+{whatsappRaw}</p>
                         <a
-                            href="https://wa.me/59170123456"
+                            href={`https://wa.me/${whatsappRaw}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.contactLink}
@@ -129,9 +134,9 @@ const Soporte = () => {
                     <div className={styles.contactCard}>
                         <span className="material-icons">location_on</span>
                         <h4>Ubicación</h4>
-                        <p>La Paz, Bolivia</p>
+                        <p>{siteAddress}</p>
                         <p className={styles.contactDetail}>
-                            Zona Sopocachi
+                            Tienda oficial
                         </p>
                     </div>
                 </div>

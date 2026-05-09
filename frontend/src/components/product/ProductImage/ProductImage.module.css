@@ -19,7 +19,7 @@
   border-radius: var(--border-radius-md);
   overflow: hidden;
   border: 1px solid var(--border-color);
-  transition: border-color var(--transition-normal);
+  transition: opacity var(--theme-transition);
 }
 
 .mainImageContainer:hover {
@@ -194,19 +194,19 @@
 
 /* Variante simple para tarjetas: fondo blanco sin marco gris */
 .simpleMainImageContainer {
-  background-color: #fff;
+  background-color: transparent;
   border: none;
   border-radius: 0;
 }
 
 .simpleMainImageContainer .loadingOverlay {
-  background-color: #fff;
+  background-color: var(--background-primary);
 }
 
 
 /* Variante gallery para ProductPage: fondo blanco en principal y miniaturas */
 .galleryMainImageContainer {
-  background-color: #fff;
+  background-color: var(--background-primary);
 }
 
 .galleryMainImageContainer .loadingOverlay {
@@ -214,6 +214,6 @@
 }
 
 .galleryThumbnailButton {
-  background-color: #fff;
+  background-color: var(--background-primary);
 }
 

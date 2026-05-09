@@ -9,14 +9,9 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* Transiciones consistentes con --theme-transition para sincronización perfecta */
-  transition: color var(--transition-normal) var(--transition-curve),
-              background-color var(--transition-normal) var(--transition-curve),
-              border-color var(--transition-normal) var(--transition-curve),
-              box-shadow var(--transition-normal) var(--transition-curve);
 }
 
-/* Deshabilitar TODAS las transiciones para usuarios con sensibilidad al movimiento */
+/* Deshabilitar transiciones para usuarios con sensibilidad al movimiento */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -28,12 +23,17 @@
   }
 }
 
+html,
 body {
+  margin: 0;
+  padding: 0;
   font-family: var(--font-family-primary);
   background-color: var(--background-primary);
   color: var(--text-primary);
-  line-height: var(--line-height-normal);
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: var(--theme-transition);
 }
 
 /* Tipografía base */
@@ -213,12 +213,11 @@ input:focus, textarea:focus, select:focus {
   text-align: center;
 }
 
-/* El layout dividido se define en la sección de tablas/layouts más abajo */
-
 /* Grid */
 .grid {
   display: grid;
   gap: var(--spacing-md);
+  will-change: transform;
 }
 
 /* Utilidades de flexbox */
@@ -359,6 +358,8 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  transition: var(--theme-transition);
+  contain: layout style;
 }
 
 .admin-filter-row-top {

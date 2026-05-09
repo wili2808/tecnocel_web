@@ -43,6 +43,8 @@
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
+    contain: layout style;
     animation: fadeInUp 0.5s ease-out both;
 }
 

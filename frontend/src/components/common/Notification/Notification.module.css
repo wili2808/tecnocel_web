@@ -63,7 +63,7 @@
 }
 
 .actionButton:hover {
-  background-color: var(--color-sky-50);
+  background-color: var(--background-hover);
   color: var(--color-primary-dark);
 }
 

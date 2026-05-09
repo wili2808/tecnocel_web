@@ -5,6 +5,7 @@
   border-radius: var(--border-radius-xl);
   width: 100%;
   overflow: hidden;
+  transition: var(--theme-transition);
   animation: fadeInUp 0.45s ease-out both;
 }
 
@@ -20,6 +21,11 @@
   height: 56px;
   width: auto;
   object-fit: contain;
+  transition: var(--theme-transition);
+}
+
+:global([data-theme="dark"]) .logo {
+  filter: brightness(0) invert(1);
 }
 
 .subtitle {
@@ -53,9 +59,7 @@
   font-weight: 600;
   cursor: pointer;
   margin: var(--spacing-xs) 0;
-  transition: background var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
 }
 
 .submitButton:hover:not(:disabled) {
@@ -106,8 +110,7 @@
   color: var(--text-primary);
   cursor: pointer;
   min-height: 48px;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              background var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 .googleButton:hover:not(:disabled) {
