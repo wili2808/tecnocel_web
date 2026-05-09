@@ -34,8 +34,7 @@
   background: var(--background-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
   padding: var(--spacing-xs) 0;
 }
 

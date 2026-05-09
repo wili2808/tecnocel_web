@@ -24,6 +24,7 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--border-color);
+  transition: var(--theme-transition);
   animation: modalInPremium 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -39,6 +40,7 @@
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-color);
   background: var(--background-secondary);
+  transition: var(--theme-transition);
   flex-shrink: 0;
 }
 
@@ -66,7 +68,7 @@
   align-items: center;
   padding: 8px;
   border-radius: var(--border-radius-sm);
-  transition: all var(--transition-fast);
+  transition: var(--theme-transition);
 }
 
 .closeButton:hover {

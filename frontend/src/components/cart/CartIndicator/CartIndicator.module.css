@@ -22,7 +22,7 @@
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   pointer-events: none; /* No interferir con clicks */
-  transition: all var(--transition-normal) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 /* ============================================================================

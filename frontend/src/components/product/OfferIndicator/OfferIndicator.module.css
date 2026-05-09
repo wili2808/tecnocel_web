@@ -11,7 +11,7 @@
   text-align: center;
   box-shadow: var(--shadow-sm);
   transform: rotate(-2deg);
-  transition: transform var(--transition-normal) var(--transition-curve);
+  transition: var(--theme-transition);
   z-index: 20; /* Aumentado para asegurar visibilidad */
   position: absolute;
 }

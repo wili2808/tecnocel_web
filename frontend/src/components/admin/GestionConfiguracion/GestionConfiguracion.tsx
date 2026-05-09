@@ -96,7 +96,9 @@ const GestionConfiguracion: React.FC = memo(() => {
         {/* ESTADO DEL SITIO */}
         <section className={styles.configSection}>
           <div className={styles.sectionHeader}>
-            <span className="material-icons">settings_power</span>
+            <div className={styles.iconBox}>
+              <span className="material-icons">settings_power</span>
+            </div>
             <h3>Estado del Sitio</h3>
           </div>
           <AdminSurface className={`${styles.configCard} ${configs.maintenance_mode === '1' ? styles.maintenanceActive : ''}`}>
@@ -122,7 +124,9 @@ const GestionConfiguracion: React.FC = memo(() => {
         {/* APARIENCIA */}
         <section className={styles.configSection}>
           <div className={styles.sectionHeader}>
-            <span className="material-icons">palette</span>
+            <div className={styles.iconBox}>
+              <span className="material-icons">palette</span>
+            </div>
             <h3>Apariencia del Panel</h3>
           </div>
           <AdminSurface className={styles.configCard}>
@@ -154,7 +158,9 @@ const GestionConfiguracion: React.FC = memo(() => {
         {/* PRESENCIA WEB */}
         <section className={styles.configSection}>
           <div className={styles.sectionHeader}>
-            <span className="material-icons">public</span>
+            <div className={styles.iconBox}>
+              <span className="material-icons">public</span>
+            </div>
             <h3>Presencia Web (SEO)</h3>
           </div>
           <AdminSurface className={styles.configCardForm}>
@@ -183,7 +189,9 @@ const GestionConfiguracion: React.FC = memo(() => {
         {/* CONTACTO */}
         <section className={styles.configSection}>
           <div className={styles.sectionHeader}>
-            <span className="material-icons">contact_support</span>
+            <div className={styles.iconBox}>
+              <span className="material-icons">contact_support</span>
+            </div>
             <h3>Contacto y Horarios</h3>
           </div>
           <AdminSurface className={styles.configCardForm}>
@@ -220,7 +228,9 @@ const GestionConfiguracion: React.FC = memo(() => {
         {/* REDES SOCIALES */}
         <section className={styles.configSection}>
           <div className={styles.sectionHeader}>
-            <span className="material-icons">share</span>
+            <div className={styles.iconBox}>
+              <span className="material-icons">share</span>
+            </div>
             <h3>Redes Sociales</h3>
           </div>
           <AdminSurface className={styles.configCardForm}>
@@ -256,7 +266,9 @@ const GestionConfiguracion: React.FC = memo(() => {
         {/* UBICACIÓN */}
         <section className={styles.configSection}>
           <div className={styles.sectionHeader}>
-            <span className="material-icons">place</span>
+            <div className={styles.iconBox}>
+              <span className="material-icons">place</span>
+            </div>
             <h3>Ubicación y Mapa</h3>
           </div>
           <AdminSurface className={styles.configCardForm}>

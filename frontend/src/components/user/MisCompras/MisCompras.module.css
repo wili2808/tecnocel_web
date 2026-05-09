@@ -42,6 +42,7 @@
   padding: var(--spacing-md);
   flex: 1;
   min-width: 200px;
+  transition: var(--theme-transition);
 }
 
 .statCard .material-icons {
@@ -81,7 +82,7 @@
   font-size: var(--font-size-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
 }
 
 .btnPrimary:hover {
@@ -105,7 +106,7 @@
   background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
   overflow: hidden;
 }
 
@@ -177,7 +178,7 @@
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
   border-radius: var(--border-radius-full);
 }
 
@@ -195,6 +196,7 @@
   padding: var(--spacing-lg);
   border-top: 1px solid var(--border-color);
   background-color: var(--background-secondary);
+  transition: var(--theme-transition);
   animation: slideDown 0.3s ease-out;
 }
 

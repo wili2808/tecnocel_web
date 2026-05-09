@@ -27,7 +27,7 @@
   font-weight: var(--font-weight-semibold);
   border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: all var(--transition-normal) var(--transition-curve);
+  transition: var(--theme-transition);
   font-family: var(--font-family-primary);
   -webkit-user-select: none;
   user-select: none;

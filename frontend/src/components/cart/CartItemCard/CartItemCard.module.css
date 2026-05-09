@@ -6,7 +6,7 @@
     background-color: var(--background-secondary);
     border-radius: var(--border-radius-lg);
     border: 1px solid var(--border-color);
-    transition: border-color var(--transition-fast) var(--transition-curve);
+    transition: var(--theme-transition);
 }
 
 .card:hover {
@@ -181,7 +181,7 @@
     border: none;
     color: var(--text-primary);
     cursor: pointer;
-    transition: all var(--transition-fast) var(--transition-curve);
+    transition: var(--theme-transition);
 }
 
 .quantityButton:disabled {

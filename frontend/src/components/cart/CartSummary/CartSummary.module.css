@@ -5,6 +5,7 @@
     overflow: hidden;
     height: fit-content;
     border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
 }
 
 .summaryHeader {
@@ -195,8 +196,7 @@
     font-size: var(--font-size-sm);
     font-weight: 600;
     cursor: pointer;
-    transition: background var(--transition-fast) var(--transition-curve),
-                transform var(--transition-fast) var(--transition-curve);
+    transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
     display: flex;
     align-items: center;
     justify-content: center;

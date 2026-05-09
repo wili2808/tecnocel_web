@@ -9,6 +9,7 @@
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   background: var(--background-secondary);
+  transition: var(--theme-transition);
 }
 
 .featuresGrid {

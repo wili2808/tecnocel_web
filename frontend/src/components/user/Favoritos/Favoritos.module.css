@@ -53,7 +53,7 @@
   font-weight: 500;
   border-radius: var(--border-radius-full);
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
   border: none;
 }
 
@@ -101,7 +101,7 @@
   position: relative;
   border-radius: var(--border-radius-lg);
   overflow: hidden;
-  transition: all var(--transition-normal);
+  transition: var(--theme-transition);
 }
 
 /* === ESTADOS DE CARGA Y ERROR === */

@@ -9,6 +9,8 @@
   overflow: hidden;
   padding: clamp(6rem, 13vh, 10rem) var(--container-padding) clamp(5rem, 10vh, 8rem);
   background: var(--background-primary);
+  transition: var(--theme-transition);
+  contain: layout style;
 }
 
 /* Orbe atmosférico — presencia, no distracción */

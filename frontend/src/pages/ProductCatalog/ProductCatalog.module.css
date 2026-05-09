@@ -11,6 +11,7 @@
   overflow: hidden;
   contain: layout style paint;
   will-change: transform;
+  background-color: var(--background-primary);
   transition: var(--theme-transition);
 }
 
@@ -60,12 +61,10 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--background-primary);
+  background: transparent;
   /* Optimizaciones de renderizado para evitar bloqueo con muchos productos */
   transform: translateZ(0);
-  will-change: background-color;
-  /* Transición rápida del background */
-  transition: background-color var(--transition-fast) var(--transition-curve);
+  transition: var(--theme-transition);
 }
 
 /* === ANIMACIONES === */
@@ -136,11 +135,10 @@
     min-height: 0;
     flex: 1;
     overflow: hidden;
-    background: var(--background-primary);
+    background: transparent;
     /* Mantener optimizaciones en mobile */
     transform: translateZ(0);
-    will-change: background-color;
-    transition: background-color var(--transition-fast) var(--transition-curve);
+    transition: var(--theme-transition);
   }
 }
 

@@ -5,38 +5,19 @@ import { AdminTabs, AdminFilterPanel, AdminSearch, AdminDataTable } from '../com
 import DetalleComentarioModal from './DetalleComentarioModal';
 import styles from './GestionComentarios.module.css';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
+import type { Comentario } from '../../../types/comentario';
 
-interface ComentarioAdmin {
-  id_comentario: number;
-  id_producto: number;
-  comentario: string;
-  calificacion: number | null;
-  estado: 'pendiente' | 'activo' | 'oculto' | 'eliminado';
-  fyh_creacion: string;
-  cliente: {
-    nombre_cliente: string;
-    apellido_cliente: string;
-    email_cliente: string;
-  };
-  producto: {
-    nombre: string;
-  };
-  imagenes: Array<{
-    id_imagen: number;
-    imagen_url: string;
-  }>;
-}
 
 const GestionComentarios: React.FC = memo(() => {
   const { showNotification } = useNotification();
-  const [comentarios, setComentarios] = useState<ComentarioAdmin[]>([]);
+  const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<string>('pendiente');
   const [buscar, setBuscar] = useState('');
   const [total, setTotal] = useState(0);
   
   // Modal state
-  const [comentarioSeleccionado, setComentarioSeleccionado] = useState<ComentarioAdmin | null>(null);
+  const [comentarioSeleccionado, setComentarioSeleccionado] = useState<Comentario | null>(null);
 
   // TanStack Table states
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -54,7 +35,7 @@ const GestionComentarios: React.FC = memo(() => {
       });
       setComentarios(data.comentarios);
       setTotal(data.paginacion.total);
-    } catch (error) {
+    } catch (_error) {
       showNotification('Error al cargar comentarios', 'error');
     } finally {
       setLoading(false);
@@ -70,12 +51,12 @@ const GestionComentarios: React.FC = memo(() => {
       await adminCommentService.moderarComentario(id, nuevoEstado);
       showNotification(`Comentario ${nuevoEstado === 'activo' ? 'aprobado' : 'moderado'} correctamente`, 'success');
       fetchComentarios();
-    } catch (error) {
+    } catch (_error) {
       showNotification('Error al moderar el comentario', 'error');
     }
   };
 
-  const columns = useMemo<ColumnDef<ComentarioAdmin>[]>(() => [
+  const columns = useMemo<ColumnDef<Comentario>[]>(() => [
     {
       id: 'cliente',
       header: 'Cliente',
@@ -88,9 +69,9 @@ const GestionComentarios: React.FC = memo(() => {
       )
     },
     {
-      accessorKey: 'producto.nombre',
       id: 'producto',
       header: 'Producto',
+      accessorFn: (row) => row.producto?.nombre || 'Producto no especificado',
       cell: info => <span className={styles.productName}>{info.getValue() as string}</span>
     },
     {

@@ -11,8 +11,10 @@
   padding: var(--spacing-lg);
   text-align: center;
   cursor: pointer;
-  transition: border-color var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve);
+  transition: background-color var(--theme-transition), border-color var(--theme-transition);
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 200px 300px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -89,6 +91,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 

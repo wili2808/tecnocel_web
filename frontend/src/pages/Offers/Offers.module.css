@@ -6,6 +6,7 @@
 .offersPage {
   min-height: 100vh;
   background: var(--background-primary);
+  transition: var(--theme-transition);
 }
 
 .offersContainer {

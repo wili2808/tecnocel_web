@@ -15,6 +15,7 @@
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   font-family: var(--font-family-primary);
+  transition: var(--theme-transition);
 }
 
 .mainNavbar { width: 100%; }
