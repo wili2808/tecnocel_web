@@ -18,6 +18,7 @@ class Almacen extends Model {
   declare id_marca: number | null;
   declare es_destacado: boolean;
   declare orden_destacado: number;
+  declare activo: boolean;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
   
@@ -106,6 +107,11 @@ Almacen.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
+  },
+  activo: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   },
   fyh_creacion: {
     type: DataTypes.DATE,

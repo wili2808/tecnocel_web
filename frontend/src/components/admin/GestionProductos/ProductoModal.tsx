@@ -32,10 +32,10 @@ const INITIAL_FORM: ProductoFormData = {
   stock_maximo: 0,
   fecha_ingreso: new Date().toISOString().split('T')[0],
   es_destacado: false,
+  activo: true,
 };
 
 const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, onClose, onGuardado }) => {
-
   const { showNotification } = useNotification();
   const { tienePermiso } = useAuth();
   
@@ -102,6 +102,7 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
           stock_maximo: producto.stock_maximo || 0,
           fecha_ingreso: producto.fecha_ingreso ? producto.fecha_ingreso.split('T')[0] : INITIAL_FORM.fecha_ingreso,
           es_destacado: producto.es_destacado,
+          activo: producto.activo,
         });
         
         // Galería Unificada - Cargamos existentes
@@ -261,12 +262,18 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
     if (!producto) return;
     setEliminando(true);
     try {
-      await adminProductService.eliminarProducto(producto.id_producto);
-      showNotification('Producto eliminado correctamente', 'success');
+      if (producto.activo) {
+        await adminProductService.eliminarProducto(producto.id_producto);
+        showNotification('Producto desactivado correctamente', 'success');
+      } else {
+        await adminProductService.actualizarProducto(producto.id_producto, { ...form, activo: true });
+        showNotification('Producto reactivado correctamente', 'success');
+      }
+      setShowConfirmDelete(false);
       onGuardado();
       onClose();
     } catch (err) {
-      showNotification('Error al eliminar el producto', 'error');
+      showNotification('Error al cambiar el estado del producto', 'error');
     } finally {
       setEliminando(false);
     }
@@ -380,6 +387,11 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
                   <label className={styles.checkboxLabel}>
                     <input type="checkbox" name="es_destacado" checked={form.es_destacado} onChange={handleCheckboxChange} disabled={readonly} />
                     Destacar en Portada
+                  </label>
+
+                  <label className={styles.checkboxLabel}>
+                    <input type="checkbox" name="activo" checked={form.activo} onChange={handleCheckboxChange} disabled={readonly} />
+                    Producto Activo / Visible
                   </label>
                 </div>
               </div>
@@ -600,17 +612,14 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
           {modoEdicion && puedeEliminar && (
             <button 
               type="button" 
-              className="btnPremium btnDangerPremium mr-auto" 
+              className={`btnPremium ${producto?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
               onClick={() => setShowConfirmDelete(true)}
               disabled={guardando}
             >
-              <span className="material-icons">delete</span>
-              Eliminar Producto
+              <span className="material-icons">{producto?.activo ? 'visibility_off' : 'visibility'}</span>
+              {producto?.activo ? 'Desactivar Producto' : 'Reactivar Producto'}
             </button>
           )}
-          <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-            Cancelar
-          </button>
           {!readonly && (
             <button type="submit" form="product-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
               <span className="material-icons">{guardando ? 'sync' : 'save'}</span>
@@ -624,23 +633,26 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
       <PremiumModal
         isOpen={showConfirmDelete}
         onClose={() => setShowConfirmDelete(false)}
-        title="Confirmar eliminación"
-        icon="warning"
+        title={producto?.activo ? 'Desactivar producto' : 'Reactivar producto'}
+        icon={producto?.activo ? 'visibility_off' : 'visibility'}
         maxWidth="400px"
-        titleStyle={{ color: 'var(--color-error)' }}
+        titleStyle={{ color: producto?.activo ? 'var(--color-error)' : 'var(--color-success)' }}
       >
         <div className={styles.deleteConfirmBody}>
-          <p className="text-secondary">Esta acción borrará permanentemente el producto del catálogo.</p>
+          <p className="text-secondary">
+            {producto?.activo 
+              ? 'El producto dejará de ser visible en la tienda, pero se mantendrá en los registros históricos.' 
+              : 'El producto volverá a ser visible y podrá ser comprado por los clientes.'}
+          </p>
         </div>
         <div className="modalFooterPremium">
-          <button className="btnPremium btnSecondaryPremium" onClick={() => setShowConfirmDelete(false)}>Cancelar</button>
           <button 
-            className="btnPremium btnDangerPremium" 
+            className={`btnPremium ${producto?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'}`} 
             onClick={handleEliminar}
             disabled={eliminando}
           >
-            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
-            {eliminando ? 'Eliminando...' : 'Sí, Eliminar'}
+            <span className="material-icons">{eliminando ? 'sync' : (producto?.activo ? 'visibility_off' : 'visibility')}</span>
+            {eliminando ? 'Procesando...' : (producto?.activo ? 'Sí, Desactivar' : 'Sí, Reactivar')}
           </button>
         </div>
       </PremiumModal>

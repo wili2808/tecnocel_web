@@ -17,8 +17,16 @@ export function filterProducts(
 ): Product[] {
   let filtered = [...products];
 
-  // ✅ NOTA: La búsqueda ya se aplica en el contexto, solo aplicar filtros adicionales
-  // 1. Filtro por categoría del backend
+  // 1. Filtro por término de búsqueda (nombre o código)
+  if (filters.search) {
+    const q = filters.search.toLowerCase().trim();
+    filtered = filtered.filter(product => 
+      product.nombre.toLowerCase().includes(q) || 
+      (product.codigo && product.codigo.toLowerCase().includes(q))
+    );
+  }
+
+  // 2. Filtro por categoría del backend
   if (filters.selectedDropdownCategory) {
     filtered = filtered.filter(product => 
       String(product.id_categoria) === filters.selectedDropdownCategory

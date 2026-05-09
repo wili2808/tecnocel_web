@@ -10,8 +10,7 @@ import {
   AdminDataTable,
   AdminEmptyState
 } from '../common';
-
-
+import styles from './GestionProductos.module.css';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
 
 const GestionCategorias: React.FC = memo(() => {
@@ -26,6 +25,7 @@ const GestionCategorias: React.FC = memo(() => {
   const [modalOpen, setModalOpen] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<Category | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [soloInactivos, setSoloInactivos] = useState(false);
 
   // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
@@ -35,18 +35,18 @@ const GestionCategorias: React.FC = memo(() => {
   const cargarCategorias = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await adminProductService.obtenerCategorias();
+      const data = await adminProductService.obtenerCategorias(false, soloInactivos);
       setCategorias(data);
     } catch (err: any) {
       showNotification(err.response?.data?.error || err.message || 'Error al cargar categorías', 'error');
     } finally {
       setLoading(false);
     }
-  }, [showNotification]);
+  }, [showNotification, soloInactivos]);
 
   useEffect(() => {
     cargarCategorias();
-  }, [cargarCategorias]);
+  }, [cargarCategorias, soloInactivos]);
 
   const iniciarEdicion = useCallback((cat: Category) => {
     setCategoriaSeleccionada(cat);
@@ -79,7 +79,19 @@ const GestionCategorias: React.FC = memo(() => {
         );
       }
     },
-
+    {
+      accessorKey: 'activo',
+      id: 'estado',
+      header: 'Estado',
+      cell: info => {
+        const activo = info.getValue() as boolean;
+        return (
+          <span className={`modalBadgePremium ${activo ? 'success' : 'error'}`}>
+            {activo ? 'Activa' : 'Inactiva'}
+          </span>
+        );
+      }
+    }
   ], []);
 
   // Filtrado local por nombre
@@ -123,6 +135,17 @@ const GestionCategorias: React.FC = memo(() => {
               primaryActionDisabled={!puedeCrear}
             />
           </AdminFilterPanel.Grow>
+          <AdminFilterPanel.Actions>
+            <button
+              type="button"
+              className={`${styles.toggleBtn} ${soloInactivos ? styles.toggleBtnActive : ''}`}
+              onClick={() => setSoloInactivos(prev => !prev)}
+              title={soloInactivos ? 'Ver todas las categorías' : 'Ver solo categorías inactivas'}
+            >
+              <span className="material-icons">{soloInactivos ? 'visibility' : 'visibility_off'}</span>
+              Inactivas
+            </button>
+          </AdminFilterPanel.Actions>
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 

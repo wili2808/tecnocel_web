@@ -20,7 +20,9 @@ const adminProductService = {
     page = 1, 
     sortBy?: string, 
     order?: 'ASC' | 'DESC',
-    es_destacado?: boolean
+    es_destacado?: boolean,
+    ver_inactivos = true,
+    solo_inactivos = false
   ): Promise<{ items: Product[], total: number }> => {
     // Si hay búsqueda, usamos el endpoint de búsqueda
     // NOTA: El endpoint de búsqueda actual /buscar no soporta paginación nativa en el backend
@@ -32,7 +34,9 @@ const adminProductService = {
           limit,
           page,
           sortBy,
-          order
+          order,
+          ver_inactivos,
+          solo_inactivos
         }
       });
       const result = response.data;
@@ -51,7 +55,7 @@ const adminProductService = {
     }
 
     const response = await adminApi.get('/almacen/productos', {
-      params: { limit, page, sortBy, order, es_destacado }
+      params: { limit, page, sortBy, order, es_destacado, ver_inactivos, solo_inactivos }
     });
     
     // El backend devuelve { success: true, data: { items, pagination: { total } } }
@@ -137,8 +141,10 @@ const adminProductService = {
   /**
    * Obtiene todas las categorías
    */
-  obtenerCategorias: async (): Promise<Category[]> => {
-    const response = await adminApi.get('/almacen/categorias');
+  obtenerCategorias: async (ver_inactivos = true, solo_inactivos = false): Promise<Category[]> => {
+    const response = await adminApi.get('/almacen/categorias', {
+      params: { ver_inactivos, solo_inactivos }
+    });
     // getAllCategories devuelve { success, data: [...] }
     return response.data.data || response.data;
   },
@@ -146,8 +152,10 @@ const adminProductService = {
   /**
    * Obtiene todas las marcas
    */
-  obtenerMarcas: async (): Promise<Marca[]> => {
-    const response = await adminApi.get('/marcas');
+  obtenerMarcas: async (ver_inactivos = true, solo_inactivos = false): Promise<Marca[]> => {
+    const response = await adminApi.get('/marcas', {
+      params: { ver_inactivos, solo_inactivos }
+    });
     return response.data.data || response.data;
   },
 
@@ -156,8 +164,10 @@ const adminProductService = {
   /**
    * Obtiene todos los tipos de características activos
    */
-  obtenerTiposCaracteristicas: async (): Promise<TipoCaracteristica[]> => {
-    const response = await adminApi.get('/caracteristicas/tipos');
+  obtenerTiposCaracteristicas: async (ver_inactivos = true, solo_inactivos = false): Promise<TipoCaracteristica[]> => {
+    const response = await adminApi.get('/caracteristicas/tipos', {
+      params: { ver_inactivos, solo_inactivos }
+    });
     return response.data.data || [];
   },
 
@@ -186,7 +196,7 @@ const adminProductService = {
   /**
    * Crea una nueva marca
    */
-  crearMarca: async (data: { nombre_marca: string; descripcion_marca?: string }): Promise<Marca> => {
+  crearMarca: async (data: { nombre_marca: string; descripcion_marca?: string; activo?: boolean }): Promise<Marca> => {
     const response = await adminApi.post('/marcas', data);
     return response.data.data;
   },
@@ -194,14 +204,14 @@ const adminProductService = {
   /**
    * Crea una nueva categoría
    */
-  crearCategoria: async (data: { nombre_categoria: string }): Promise<Category> => {
+  crearCategoria: async (data: { nombre_categoria: string; activo?: boolean }): Promise<Category> => {
     const response = await adminApi.post('/almacen/categorias', data);
     return response.data.data;
   },
 
   // --- CRUD COMPLETO — MARCAS ---
 
-  actualizarMarca: async (id: number, data: { nombre_marca: string; descripcion_marca?: string }): Promise<Marca> => {
+  actualizarMarca: async (id: number, data: { nombre_marca: string; descripcion_marca?: string; activo?: boolean }): Promise<Marca> => {
     const response = await adminApi.put(`/marcas/${id}`, data);
     return response.data.data;
   },
@@ -225,7 +235,7 @@ const adminProductService = {
 
   // --- CRUD COMPLETO — CATEGORÍAS ---
 
-  actualizarCategoria: async (id: number, data: { nombre_categoria: string }): Promise<Category> => {
+  actualizarCategoria: async (id: number, data: { nombre_categoria: string; activo?: boolean }): Promise<Category> => {
     const response = await adminApi.put(`/almacen/categorias/${id}`, data);
     return response.data.data;
   },

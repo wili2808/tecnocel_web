@@ -47,8 +47,18 @@ class CaracteristicaController {
    */
   static async getTiposCaracteristicas(req: Request, res: Response) {
     try {
+      const soloInactivos = req.query.solo_inactivos === 'true';
+      const verInactivos = req.query.ver_inactivos === 'true';
+      
+      const where: any = {};
+      if (soloInactivos) {
+        where.activo = 0;
+      } else if (!verInactivos) {
+        where.activo = 1;
+      }
+
       const tipos = await TipoCaracteristica.findAll({
-        where: { activo: true },
+        where,
         order: [['nombre_tipo', 'ASC']]
       });
 

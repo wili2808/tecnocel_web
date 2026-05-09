@@ -53,6 +53,7 @@ const GestionProductos = () => {
 
   // Filtro de destacados
   const [soloDestacados, setSoloDestacados] = useState(false);
+  const [soloInactivos, setSoloInactivos] = useState(false);
 
   // --- Estados de TanStack Table ---
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
@@ -61,7 +62,7 @@ const GestionProductos = () => {
   ]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
-  const cargarProductos = useCallback(async (p: PaginationState, s: SortingState, sd: boolean) => {
+  const cargarProductos = useCallback(async (p: PaginationState, s: SortingState, sd: boolean, si: boolean) => {
     try {
       setLoading(true);
       setError(null);
@@ -88,7 +89,9 @@ const GestionProductos = () => {
         page, 
         sortBy, 
         order,
-        sd
+        sd,
+        false, // No ver inactivos por defecto
+        si     // solo_inactivos
       );
       setAllProductos(data.items);
       setTotal(data.total);
@@ -101,11 +104,16 @@ const GestionProductos = () => {
   }, [searchTerm, showNotification]);
 
   useEffect(() => {
-    cargarProductos(pagination, sorting, soloDestacados);
-  }, [cargarProductos, pagination, sorting, soloDestacados]);
+    cargarProductos(pagination, sorting, soloDestacados, soloInactivos);
+  }, [cargarProductos, pagination, sorting, soloDestacados, soloInactivos]);
 
   const handleToggleDestacados = () => {
     setSoloDestacados((prev) => !prev);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
+  const handleToggleInactivos = () => {
+    setSoloInactivos((prev) => !prev);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
@@ -127,7 +135,7 @@ const GestionProductos = () => {
   const handleGuardado = () => {
     setModalOpen(false);
     setProductoSeleccionado(null);
-    cargarProductos(pagination, sorting, soloDestacados);
+    cargarProductos(pagination, sorting, soloDestacados, soloInactivos);
   };
 
   const handleCancelar = () => {
@@ -245,6 +253,19 @@ const GestionProductos = () => {
           </div>
         );
       },
+    },
+    {
+      accessorKey: 'activo',
+      id: 'estado',
+      header: 'Estado',
+      cell: (info) => {
+        const activo = info.getValue() as boolean;
+        return (
+          <span className={`modalBadgePremium ${activo ? 'success' : 'error'}`}>
+            {activo ? 'Activo' : 'Inactivo'}
+          </span>
+        );
+      }
     }
   ], []);
 
@@ -311,6 +332,17 @@ const GestionProductos = () => {
                   title={soloDestacados ? 'Mostrando solo destacados' : 'Mostrar solo destacados'}
                 >
                   <span className="material-icons">{soloDestacados ? 'star' : 'star_outline'}</span>
+                  Destacados
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.toggleBtn} ${soloInactivos ? styles.toggleBtnActive : ''}`}
+                  onClick={handleToggleInactivos}
+                  title={soloInactivos ? 'Ver todos los productos' : 'Ver solo productos inactivos'}
+                >
+                  <span className="material-icons">{soloInactivos ? 'visibility' : 'visibility_off'}</span>
+                  Inactivos
                 </button>
               </AdminFilterPanel.Actions>
             </AdminFilterPanel.Row>
@@ -333,7 +365,7 @@ const GestionProductos = () => {
               title="No pudimos cargar el catálogo"
               message={error}
               actionLabel="Reintentar"
-              onAction={() => cargarProductos(pagination, sorting, soloDestacados)}
+              onAction={() => cargarProductos(pagination, sorting, soloDestacados, soloInactivos)}
               tone="danger"
               className={styles.stateBlock}
             />

@@ -70,6 +70,16 @@
   transform: translateY(-1px);
 }
 
+.btnSuccessPremium {
+  background: var(--color-success);
+  color: white;
+}
+
+.btnSuccessPremium:hover:not(:disabled) {
+  background: var(--color-success-dark);
+  transform: translateY(-1px);
+}
+
 /* --- NAVEGACIÓN POR TABS EN MODALES --- */
 .modalTabsPremium {
   display: flex;

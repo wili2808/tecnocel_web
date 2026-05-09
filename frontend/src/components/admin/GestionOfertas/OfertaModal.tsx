@@ -52,6 +52,8 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
   const [formData, setFormData] = useState<OfertaFormState>(INITIAL_FORM);
   const [ofertaActual, setOfertaActual] = useState<OfertaConProductos | null>(oferta || null);
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('general');
 
   // Cargar datos de la oferta en modo edición
@@ -163,14 +165,30 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
     }
   };
 
+  const handleEliminarClick = () => {
+    setShowConfirmDelete(true);
+  };
+
+  const handleEliminarConfirm = async () => {
+    if (!onEliminar) return;
+    setIsDeleting(true);
+    try {
+      await onEliminar();
+      setShowConfirmDelete(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <PremiumModal
-      isOpen={true}
-      onClose={onCancelar}
-      title={modo === 'crear' ? 'Nueva Oferta' : `Editar Oferta: ${formData.nombre_oferta}`}
-      icon={modo === 'crear' ? 'add_circle' : 'local_offer'}
-      maxWidth={activeTab === 'productos' ? '950px' : '750px'}
-    >
+    <>
+      <PremiumModal
+        isOpen={true}
+        onClose={onCancelar}
+        title={modo === 'crear' ? 'Nueva Oferta' : `Editar Oferta: ${formData.nombre_oferta}`}
+        icon={modo === 'crear' ? 'add_circle' : 'local_offer'}
+        maxWidth={activeTab === 'productos' ? '950px' : '750px'}
+      >
       {/* Navegación por Tabs (Solo en edición) */}
       {modo === 'editar' && (
         <div className="modalTabsPremium">
@@ -208,7 +226,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 onChange={handleChange}
                 placeholder="Ej: Ofertas de Verano"
                 required
-                disabled={loading}
+                disabled={loading || isDeleting}
               />
               <TextArea
                 id="descripcion"
@@ -218,7 +236,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 onChange={handleChange}
                 placeholder="Breve descripción para control interno..."
                 rows={2}
-                disabled={loading}
+                disabled={loading || isDeleting}
                 className="mt-4"
               />
             </div>
@@ -231,7 +249,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 label="Tipo de Descuento"
                 value={formData.tipo_descuento}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || isDeleting}
                 options={[
                   { value: 'porcentaje', label: 'Porcentaje (%)' },
                   { value: 'monto_fijo', label: 'Monto Fijo ($)' }
@@ -246,7 +264,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 onChange={handleChange}
                 placeholder="0.00"
                 required
-                disabled={loading}
+                disabled={loading || isDeleting}
                 icon={formData.tipo_descuento === 'porcentaje' ? 'percent' : 'payments'}
               />
             </div>
@@ -260,7 +278,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 value={formData.fecha_inicio}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || isDeleting}
               />
               <Input
                 id="fecha_fin"
@@ -270,7 +288,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 value={formData.fecha_fin}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || isDeleting}
                 min={formData.fecha_inicio}
               />
             </div>
@@ -285,7 +303,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 value={formData.precio_minimo}
                 onChange={handleChange}
                 placeholder="Sin mínimo"
-                disabled={loading}
+                disabled={loading || isDeleting}
               />
               <Input
                 id="precio_maximo"
@@ -295,7 +313,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 value={formData.precio_maximo}
                 onChange={handleChange}
                 placeholder="Sin máximo"
-                disabled={loading}
+                disabled={loading || isDeleting}
               />
               <Input
                 id="limite_uso"
@@ -305,7 +323,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                 value={formData.limite_uso}
                 onChange={handleChange}
                 placeholder="Ilimitado"
-                disabled={loading}
+                disabled={loading || isDeleting}
               />
             </div>
 
@@ -319,6 +337,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
                   type="button"
                   className={`${styles.toggle} ${formData.activo ? styles.toggleOn : ''}`}
                   onClick={() => setFormData(p => ({ ...p, activo: !p.activo }))}
+                  disabled={loading || isDeleting}
                 >
                   <span className={styles.toggleKnob} />
                 </button>
@@ -343,21 +362,22 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
           <button 
             type="button"
             className="btnPremium btnDangerPremium mr-auto" 
-            onClick={onEliminar}
+            onClick={handleEliminarClick}
+            disabled={loading || isDeleting}
             title="Eliminar esta oferta permanentemente"
           >
-            <span className="material-icons">delete</span>
-            Eliminar
+            <span className="material-icons">{isDeleting ? 'hourglass_empty' : 'delete'}</span>
+            {isDeleting ? 'Eliminando...' : 'Eliminar'}
           </button>
         )}
-        <button type="button" className="btnPremium btnSecondaryPremium" onClick={onCancelar}>
+        <button type="button" className="btnPremium btnSecondaryPremium" onClick={onCancelar} disabled={loading || isDeleting}>
           Cancelar
         </button>
         {activeTab === 'general' && (
           <button 
             type="submit" 
             form="oferta-form" 
-            disabled={loading} 
+            disabled={loading || isDeleting} 
             className="btnPremium btnPrimaryPremium"
           >
             <span className="material-icons">{loading ? 'hourglass_empty' : 'save'}</span>
@@ -366,6 +386,42 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
         )}
       </div>
     </PremiumModal>
+      {/* Sub-modal Confirmar Eliminación */}
+      <PremiumModal
+        isOpen={showConfirmDelete}
+        onClose={() => setShowConfirmDelete(false)}
+        title="¿Desactivar oferta?"
+        icon="warning"
+        maxWidth="400px"
+        titleStyle={{ color: 'var(--color-error)' }}
+      >
+        <div className="modalBodyPremium">
+          <p className={styles.deleteConfirmText}>
+            Estás a punto de desactivar la oferta <strong>{formData.nombre_oferta}</strong>. 
+            Esta acción impedirá que se apliquen los descuentos asociados.
+          </p>
+        </div>
+        <div className="modalFooterPremium">
+          <button 
+            type="button"
+            className="btnPremium btnSecondaryPremium" 
+            onClick={() => setShowConfirmDelete(false)} 
+            disabled={isDeleting}
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button"
+            className="btnPremium btnDangerPremium" 
+            onClick={handleEliminarConfirm} 
+            disabled={isDeleting}
+          >
+            <span className="material-icons">{isDeleting ? 'sync' : 'delete_forever'}</span>
+            {isDeleting ? 'Desactivando...' : 'Sí, desactivar oferta'}
+          </button>
+        </div>
+      </PremiumModal>
+    </>
   );
 });
 

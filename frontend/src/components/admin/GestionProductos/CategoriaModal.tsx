@@ -26,6 +26,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
   
   const [form, setForm] = useState({
     nombre_categoria: '',
+    activo: true,
   });
   
   const [guardando, setGuardando] = useState(false);
@@ -37,9 +38,10 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
       if (categoria) {
         setForm({
           nombre_categoria: categoria.nombre_categoria,
+          activo: categoria.activo,
         });
       } else {
-        setForm({ nombre_categoria: '' });
+        setForm({ nombre_categoria: '', activo: true });
       }
       setShowConfirmDelete(false);
     }
@@ -59,11 +61,13 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
       if (modoEdicion) {
         await adminProductService.actualizarCategoria(categoria!.id_categoria, {
           nombre_categoria: form.nombre_categoria.trim(),
+          activo: form.activo,
         });
         showNotification('Categoría actualizada exitosamente', 'success');
       } else {
         await adminProductService.crearCategoria({
           nombre_categoria: form.nombre_categoria.trim(),
+          activo: true,
         });
         showNotification('Categoría creada exitosamente', 'success');
       }
@@ -83,8 +87,14 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
     if (!categoria) return;
     setEliminando(true);
     try {
-      await adminProductService.eliminarCategoria(categoria.id_categoria);
-      showNotification('Categoría eliminada exitosamente', 'success');
+      if (categoria.activo) {
+        await adminProductService.eliminarCategoria(categoria.id_categoria);
+        showNotification('Categoría desactivada exitosamente', 'success');
+      } else {
+        await adminProductService.actualizarCategoria(categoria.id_categoria, { ...form, activo: true });
+        showNotification('Categoría reactivada exitosamente', 'success');
+      }
+      setShowConfirmDelete(false);
       onGuardado();
       onClose();
     } catch (err: any) {
@@ -116,7 +126,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
                 name="nombre_categoria"
                 label="Nombre de la Categoría"
                 value={form.nombre_categoria}
-                onChange={(e) => setForm({ nombre_categoria: e.target.value })}
+                onChange={(e) => setForm(prev => ({ ...prev, nombre_categoria: e.target.value }))}
                 placeholder="Ej: Smartphones, Tablets, Accesorios..."
                 disabled={guardando || readonly}
                 required
@@ -129,18 +139,15 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
             {modoEdicion && puedeEliminar && (
               <button 
                 type="button" 
-                className="btnPremium btnDangerPremium mr-auto" 
+                className={`btnPremium ${categoria?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
                 onClick={() => setShowConfirmDelete(true)} 
                 disabled={guardando}
               >
-                <span className="material-icons">delete</span>
-                Eliminar
+                <span className="material-icons">{categoria?.activo ? 'visibility_off' : 'visibility'}</span>
+                {categoria?.activo ? 'Desactivar' : 'Reactivar'}
               </button>
             )}
             
-            <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-              Cancelar
-            </button>
             {!readonly && (
               <button type="submit" form="categoria-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
                 <span className="material-icons">
@@ -157,33 +164,28 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
       <PremiumModal
         isOpen={showConfirmDelete}
         onClose={() => setShowConfirmDelete(false)}
-        title="¿Eliminar categoría?"
-        icon="warning"
+        title={categoria?.activo ? '¿Desactivar categoría?' : '¿Reactivar categoría?'}
+        icon={categoria?.activo ? 'visibility_off' : 'visibility'}
         maxWidth="400px"
-        titleStyle={{ color: 'var(--color-error)' }}
+        titleStyle={{ color: categoria?.activo ? 'var(--color-error)' : 'var(--color-success)' }}
       >
         <div className="modalBodyPremium">
           <p className={styles.deleteMessage}>
-            Estás a punto de eliminar la categoría <strong>{categoria?.nombre_categoria}</strong>. Esta acción no se puede deshacer.
+            {categoria?.activo 
+              ? `Estás a punto de desactivar la categoría ${categoria?.nombre_categoria}. Los productos asociados dejarán de ser visibles.`
+              : `Estás a punto de reactivar la categoría ${categoria?.nombre_categoria}.`
+            }
           </p>
         </div>
         <div className="modalFooterPremium">
           <button 
-            type="button"
-            className="btnPremium btnSecondaryPremium" 
-            onClick={() => setShowConfirmDelete(false)} 
-            disabled={eliminando}
-          >
-            Cancelar
-          </button>
-          <button 
-            type="button"
-            className="btnPremium btnDangerPremium" 
+            type="button" 
+            className={`btnPremium ${categoria?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'}`} 
             onClick={handleEliminar} 
             disabled={eliminando}
           >
-            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
-            {eliminando ? 'Eliminando...' : 'Sí, eliminar categoría'}
+            <span className="material-icons">{eliminando ? 'sync' : (categoria?.activo ? 'visibility_off' : 'visibility')}</span>
+            {eliminando ? 'Procesando...' : (categoria?.activo ? 'Sí, desactivar' : 'Sí, reactivar')}
           </button>
         </div>
       </PremiumModal>

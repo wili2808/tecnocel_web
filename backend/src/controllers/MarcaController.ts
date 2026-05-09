@@ -45,10 +45,18 @@ class MarcaController {
    */
   static async getAllMarcas(req: Request, res: Response) {
     try {
-      logger.debug('Obteniendo todas las marcas activas');
+      const soloInactivos = req.query.solo_inactivos === 'true';
+      const verInactivos = req.query.ver_inactivos === 'true';
+      
+      const where: any = {};
+      if (soloInactivos) {
+        where.activo = 0;
+      } else if (!verInactivos) {
+        where.activo = 1;
+      }
       
       const marcas = await Marca.findAll({
-        where: { activo: true },
+        where,
         attributes: {
           include: [
             [

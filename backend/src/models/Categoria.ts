@@ -4,6 +4,7 @@ import sequelize from '../config/database.js';
 class Categoria extends Model {
   declare id_categoria: number;
   declare nombre_categoria: string;
+  declare activo: boolean;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
@@ -17,6 +18,11 @@ Categoria.init({
   nombre_categoria: {
     type: DataTypes.STRING(255),
     allowNull: false
+  },
+  activo: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   },
   fyh_creacion: {
     type: DataTypes.DATE,

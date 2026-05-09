@@ -66,7 +66,7 @@ const ProductCatalog: React.FC = () => {
     const queryString = filtersToQueryString({
       marca: filters.marca,
       categoria: filters.categoria,
-      busqueda: debouncedSearchQuery || filters.busqueda || '',
+      busqueda: debouncedSearchQuery !== undefined ? debouncedSearchQuery : (filters.busqueda || ''),
       order: filters.order,
       solo_con_stock: filters.solo_con_stock,
     });
