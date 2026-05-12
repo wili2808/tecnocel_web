@@ -125,6 +125,39 @@
   font-size: var(--icon-size-xl);
 }
 
+/* === EFECTO PREMIUM (UNDERLINE) === */
+.underline {
+  position: relative !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: color var(--transition-fast) var(--transition-curve) !important;
+}
+
+.underline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 6px;
+  right: 6px;
+  height: 1px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transition: transform var(--transition-fast) var(--transition-curve);
+  transform-origin: center;
+}
+
+.underline:hover:not(:disabled) {
+  color: var(--color-primary) !important;
+  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.underline:hover:not(:disabled)::after {
+  transform: scaleX(1);
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .md {

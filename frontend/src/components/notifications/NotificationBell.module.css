@@ -10,60 +10,14 @@
 }
 
 /* ============================================================================
-   BOTÓN CAMPANA
-   ============================================================================ */
-
-.bell {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  min-height: 36px;
-  padding: var(--spacing-xs);
-  border: none;
-  border-radius: var(--border-radius-md);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color var(--transition-fast) var(--transition-curve),
-              background var(--transition-fast) var(--transition-curve),
-              transform var(--transition-fast) var(--transition-curve),
-              box-shadow var(--transition-fast) var(--transition-curve);
-  outline: none;
-}
-
-.bell .material-icons {
-  font-size: var(--icon-size-sm);
-}
-
-.bell:hover {
-  color: var(--text-primary);
-  background: var(--background-neutral);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.bell:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.bell:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  color: var(--text-primary);
-}
-
-/* ============================================================================
    BADGE DE CONTEO
    ============================================================================ */
 
 .badge {
   position: absolute;
-  top: 0;
+  top: 2px;
   right: 0;
-  transform: translate(30%, -30%);
+  transform: translate(30%, -15%);
   background: var(--color-error);
   color: var(--color-white);
   font-family: var(--font-family-primary);
@@ -83,8 +37,8 @@
 }
 
 @keyframes badge-pop {
-  from { transform: translate(30%, -30%) scale(0.6); }
-  to   { transform: translate(30%, -30%) scale(1); }
+  from { transform: translate(30%, -15%) scale(0.6); }
+  to   { transform: translate(30%, -15%) scale(1); }
 }
 
 /* ============================================================================

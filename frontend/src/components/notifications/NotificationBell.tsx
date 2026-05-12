@@ -7,6 +7,7 @@
 import React, { memo, useCallback, useRef } from 'react';
 import { useNotificaciones } from '../../hooks/useNotificaciones';
 import NotificationPanel from './NotificationPanel';
+import IconButton from '../common/IconButton';
 import styles from './NotificationBell.module.css';
 
 // ============================================================================
@@ -33,23 +34,24 @@ const NotificationBell: React.FC = memo(() => {
 
   return (
     <div ref={wrapperRef} className={styles.wrapper}>
-      <button
-        className={styles.bell}
+      <IconButton
+        icon={icono}
         onClick={handleToggle}
-        aria-label={noLeidas > 0 ? `Notificaciones — ${noLeidas} sin leer` : 'Notificaciones'}
+        ariaLabel={noLeidas > 0 ? `Notificaciones — ${noLeidas} sin leer` : 'Notificaciones'}
         aria-expanded={panelAbierto}
         aria-haspopup="dialog"
-        type="button"
+        variant="ghost"
+        size="sm"
+        underline={true}
+        className={styles.bell}
       >
-        <span className="material-icons">{icono}</span>
-
         {/* Badge de conteo — solo visible cuando hay no leídas */}
         {noLeidas > 0 && (
           <span className={styles.badge} aria-hidden="true">
             {badgeLabel}
           </span>
         )}
-      </button>
+      </IconButton>
 
       {/* Panel de notificaciones — montado solo cuando está abierto */}
       {panelAbierto && <NotificationPanel wrapperRef={wrapperRef} onClose={cerrarPanel} />}

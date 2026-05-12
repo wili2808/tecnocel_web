@@ -7,27 +7,19 @@
 import React, { memo } from 'react';
 import styles from './IconButton.module.css';
 
-interface IconButtonProps {
+interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     /** Nombre del icono de Material Design */
     icon: string;
-    /** Función que se ejecuta al hacer clic */
-    onClick?: (event?: React.MouseEvent<HTMLButtonElement>) => void;
-    /** Texto descriptivo para lectores de pantalla */
+    /** Texto descriptivo para lectores de pantalla (Requerido para accesibilidad) */
     ariaLabel: string;
-    /** Clases CSS adicionales */
-    className?: string;
-    /** Si el botón está deshabilitado */
-    disabled?: boolean;
     /** Variante visual del botón */
     variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
     /** Tamaño del botón */
     size?: 'sm' | 'md' | 'lg';
-    /** Contenido adicional */
-    children?: React.ReactNode;
     /** Si el botón está en estado de carga */
     loading?: boolean;
-    /** Tipo de botón HTML */
-    type?: 'button' | 'submit' | 'reset';
+    /** Si el botón usa el estilo de subrayado animado en hover (Silicon Precision) */
+    underline?: boolean;
 }
 
 const IconButton: React.FC<IconButtonProps> = memo(({
@@ -40,25 +32,20 @@ const IconButton: React.FC<IconButtonProps> = memo(({
     size = 'md',
     children,
     loading = false,
-    type = 'button'
+    type = 'button',
+    underline = false,
+    ...props
 }) => {
-    // ============================================================================
-    // CÁLCULOS DE ESTADO
-    // ============================================================================
-
     const isDisabled = disabled || loading;
-
-    // ============================================================================
-    // RENDERIZADO
-    // ============================================================================
 
     return (
         <button
-            className={`${styles.iconButton} ${styles[variant]} ${styles[size]} ${className}`}
+            className={`${styles.iconButton} ${styles[variant]} ${styles[size]} ${underline ? styles.underline : ''} ${className}`}
             onClick={onClick}
             aria-label={loading ? `${ariaLabel} - Cargando...` : ariaLabel}
             disabled={isDisabled}
             type={type}
+            {...props}
         >
             {/* Mostrar icono de carga o icono normal según estado */}
             {loading ? (

@@ -12,19 +12,18 @@
   display: flex;
   align-items: center;
   width: 100%;
+  height: var(--search-input-height);
   background: var(--background-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   padding: 0 12px;
-  height: 48px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--theme-transition);
 }
 
 .searchInputGroup:focus-within {
   background: var(--background-primary);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px var(--color-primary-100), var(--shadow-lg);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .searchIconLeading {
@@ -50,6 +49,7 @@
   font-family: inherit;
   outline: none;
   width: 100%;
+  padding: 0;
   height: 100%;
 }
 
@@ -126,7 +126,7 @@
 
 .resultsDropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: rgba(var(--background-elevated-rgb, 255, 255, 255), 0.85);
