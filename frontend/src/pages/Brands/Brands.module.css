@@ -38,29 +38,7 @@
   line-height: var(--line-height-relaxed);
 }
 
-/* Stats — inline, discreto */
-.statsBar {
-  display: flex;
-  gap: var(--spacing-2xl);
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-xl);
-  border-top: 1px solid var(--border-color);
-}
 
-.stat {
-  color: var(--color-primary-dark);
-  font-size: var(--font-size-sm);
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-xs);
-}
-
-.stat strong {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--text-primary);
-}
 
 /* Marcas grid */
 .brandsContainer {
@@ -127,13 +105,13 @@
 
 @media (max-width: 768px) {
   .header { padding: var(--spacing-2xl) var(--container-padding); }
-  .statsBar { gap: var(--spacing-xl); }
+
   .brandsContainer { padding: var(--spacing-2xl) var(--container-padding); }
 }
 
 @media (max-width: 480px) {
   .header { padding: var(--spacing-xl) var(--spacing-md); }
-  .statsBar { flex-wrap: wrap; gap: var(--spacing-lg); }
+
   .brandsContainer { padding: var(--spacing-xl) var(--spacing-md); }
 }
 

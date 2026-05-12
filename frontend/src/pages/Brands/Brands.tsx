@@ -94,15 +94,9 @@ const Brands = () => {
       {/* Header de la página */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Nuestras Marcas</h1>
+          <h1 className={styles.title}>Tecnología de Primer Nivel</h1>
           <p className={styles.subtitle}>Explora productos de las mejores marcas tecnológicas del mercado</p>
-          {brands.length > 0 && (
-            <div className={styles.statsBar}>
-              <span className={styles.stat}>
-                <strong>{brands.length}</strong> marcas disponibles
-              </span>
-            </div>
-          )}
+
         </div>
       </header>
 

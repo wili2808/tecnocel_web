@@ -57,6 +57,10 @@
   border-radius: var(--border-radius-sm);
 }
 
+:global([data-theme="dark"]) .logoImage {
+  filter: invert(1);
+}
+
 /* Nav links desktop */
 .leftNavigation { display: flex; }
 

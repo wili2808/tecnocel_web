@@ -89,15 +89,10 @@
   box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
 }
 
-.iconWrapper .material-icons {
-  font-size: 22px;
-  color: var(--color-white);
-}
-
 .iconWrapper .reactIcon {
   width: 22px;
   height: 22px;
-  color: var(--color-white);
+  color: #ffffff !important;
 }
 
 /* ============================================================================
@@ -134,14 +129,16 @@
    FLECHA
    ============================================================================ */
 
-.methodCard .material-icons:last-child {
+.methodCard .arrowIcon {
   font-size: 18px;
+  width: 18px;
+  height: 18px;
   color: var(--text-secondary);
   transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
   flex-shrink: 0;
 }
 
-.methodCard:hover .material-icons:last-child {
+.methodCard:hover .arrowIcon {
   transform: translateX(3px);
   color: var(--color-primary);
 }
@@ -161,9 +158,11 @@
   transition: var(--theme-transition);
 }
 
-.footer .material-icons {
+.footerIcon {
   color: var(--color-primary);
   font-size: 18px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
