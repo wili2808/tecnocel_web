@@ -1,10 +1,4 @@
-/**
- * Componente UserPanel - Panel de usuario completo con navegación lateral
- * Proporciona acceso a todas las funcionalidades del usuario autenticado
- * Incluye gestión de perfil, favoritos, compras y configuración de cuenta
- * Utiliza múltiples hooks y contextos para funcionalidad completa
- */
-import { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { MobileMenuDropdown } from '../../components/common/MobileMenuDropdown';
@@ -16,17 +10,13 @@ import Favoritos from '../../components/user/Favoritos';
 import Direcciones from '../../components/user/Direcciones';
 import Soporte from '../../components/user/Soporte';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
-import userPanelStyles from './UserPanel.module.css';
+import styles from './UserPanel.module.css';
 import type { Cliente } from '../../types/cliente';
 
 // ============================================================================
-// CONFIGURACIÓN Y CONSTANTES
+// CONFIGURACIÓN
 // ============================================================================
 
-/**
- * Opciones del menú del panel de usuario
- * Cada opción incluye id, etiqueta e icono de Material Design
- */
 const MENU_OPTIONS = [
   { id: 'profile', label: 'Información Personal', icon: 'person' },
   { id: 'account', label: 'Datos de Cuenta', icon: 'account_circle' },
@@ -35,206 +25,143 @@ const MENU_OPTIONS = [
   { id: 'favorites', label: 'Favoritos', icon: 'favorite' },
   { id: 'addresses', label: 'Direcciones', icon: 'location_on' },
   { id: 'support', label: 'Soporte', icon: 'help' },
-];
+] as const;
+
+type SectionId = (typeof MENU_OPTIONS)[number]['id'];
 
 // ============================================================================
 // COMPONENTES AUXILIARES
 // ============================================================================
 
-/**
- * Componente de elemento del menú del panel
- * Renderiza cada opción del menú con estado activo y funcionalidad de click
- */
-const MenuOption = ({
+const MenuOption = memo(({
   option,
   isActive,
   onClick,
 }: {
-  option: (typeof MENU_OPTIONS)[0];
+  option: (typeof MENU_OPTIONS)[number];
   isActive: boolean;
   onClick: () => void;
 }) => (
   <button
-    className={`${userPanelStyles.menuOption} ${isActive ? userPanelStyles.activeOption : ''}`}
+    className={`${styles.menuOption} ${isActive ? styles.activeOption : ''}`}
     onClick={onClick}
     aria-label={option.label}
+    aria-current={isActive ? 'page' : undefined}
   >
     <span className="material-icons">{option.icon}</span>
-    <span className={userPanelStyles.menuLabel}>{option.label}</span>
+    <span className={styles.menuLabel}>{option.label}</span>
   </button>
-);
+));
 
-// ============================================================================
-// SECCIÓN DE CONTENIDO DINÁMICO
-// ============================================================================
+MenuOption.displayName = 'MenuOption';
 
-/**
- * Componente de contenido dinámico del panel
- * Renderiza diferentes secciones según la opción activa del menú
- * Cada sección tiene su propia lógica y presentación
- */
-const ContentSection = ({ activeSection }: { activeSection: string }) => {
-  /**
-   * Renderiza el contenido específico de cada sección del panel
-   * Utiliza switch statement para manejar múltiples opciones de menú
-   */
+const ContentSection = memo(({ activeSection }: { activeSection: SectionId }) => {
   const renderContent = () => {
     switch (activeSection) {
-      case 'profile':
-        return <InformacionPersonal />;
-
-      case 'account':
-        return <DatosCuenta />;
-
-      case 'security':
-        return <Seguridad />;
-      case 'purchases':
-        return <MisCompras />;
-      case 'favorites':
-        return <Favoritos />;
-      case 'addresses':
-        return <Direcciones />;
-      case 'support':
-        return <Soporte />;
-      default:
-        return (
-          <div className={userPanelStyles.contentSection}>
-            <h2 className={userPanelStyles.sectionTitle}>Bienvenido</h2>
-            <p>Selecciona una opción del menú para comenzar.</p>
-          </div>
-        );
+      case 'profile': return <InformacionPersonal />;
+      case 'account': return <DatosCuenta />;
+      case 'security': return <Seguridad />;
+      case 'purchases': return <MisCompras />;
+      case 'favorites': return <Favoritos />;
+      case 'addresses': return <Direcciones />;
+      case 'support': return <Soporte />;
+      default: return null;
     }
   };
 
-  return <div className={userPanelStyles.contentArea}>{renderContent()}</div>;
-};
+  return <div className={styles.contentArea}>{renderContent()}</div>;
+});
+
+ContentSection.displayName = 'ContentSection';
 
 // ============================================================================
-// COMPONENTE PRINCIPAL - USERPANEL
+// COMPONENTE PRINCIPAL
 // ============================================================================
 
-/**
- * Componente principal del panel de usuario
- * Gestiona la autenticación, navegación y renderizado del panel completo
- * Incluye sidebar con menú y área de contenido principal
- */
-const UserPanel = () => {
-  // ============================================================================
-  // HOOKS Y ESTADO
-  // ============================================================================
+const UserPanel: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeSection, setActiveSection] = useState((location.state as { tab?: string } | null)?.tab || 'profile');
+  
+  const [activeSection, setActiveSection] = useState<SectionId>(
+    (location.state as { tab?: SectionId } | null)?.tab || 'profile'
+  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // ============================================================================
-  // FUNCIONES DE NAVEGACIÓN Y AUTENTICACIÓN
-  // ============================================================================
-
-  /**
-   * Cierra la sesión del usuario y redirige al inicio
-   */
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  /**
-   * Navega de vuelta a la página principal
-   */
-  const handleBackToHome = () => {
-    navigate('/');
-  };
-
-  // ============================================================================
-  // VERIFICACIÓN DE AUTENTICACIÓN
-  // ============================================================================
-
-  // Verificar si el usuario está autenticado antes de mostrar el panel
   if (!user) {
     return (
-      <div className={userPanelStyles.userPanel}>
-        <div className={userPanelStyles.container}>
-          <div className={userPanelStyles.contentSection}>
-            <h2 className={userPanelStyles.sectionTitle}>Acceso Denegado</h2>
-            <p>Debes iniciar sesión para acceder al panel de usuario.</p>
-            <button onClick={() => navigate('/login')} className={userPanelStyles.retryButton}>
-              <span className="material-icons">login</span>
-              Ir al Login
-            </button>
+      <div className={styles.userPanel}>
+        <div className={styles.container}>
+          <div className={styles.mainContent}>
+            <div className={styles.contentArea} style={{ textAlign: 'center', padding: '2rem' }}>
+              <h2>Acceso Denegado</h2>
+              <p>Debes iniciar sesión para acceder al panel de usuario.</p>
+              <button onClick={() => navigate('/login')} className={styles.logoutButton} style={{ margin: '1rem auto', width: 'auto' }}>
+                <span className="material-icons">login</span>
+                Ir al Login
+              </button>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // ============================================================================
-  // RENDERIZADO PRINCIPAL DEL PANEL
-  // ============================================================================
+  const cliente = user as Cliente;
 
   return (
-    <div className={`${userPanelStyles.userPanel} ${userPanelStyles.themeAware}`}>
+    <div className={styles.userPanel}>
       <PageMeta title="Mi cuenta" noIndex />
-      <div className={userPanelStyles.container}>
-        {/* Sidebar del panel con navegación y información del usuario */}
-        <aside className={userPanelStyles.sidebar}>
-          {/* Encabezado del sidebar con botón de retorno */}
-          <div className={userPanelStyles.sidebarHeader}>
-            <button className={userPanelStyles.backButton} onClick={handleBackToHome} aria-label="Volver al inicio">
+      <div className={styles.container}>
+        {/* SIDEBAR */}
+        <aside className={styles.sidebar}>
+          <div className={styles.sidebarHeader}>
+            <button className={styles.backButton} onClick={() => navigate('/')}>
               <span className="material-icons">arrow_back</span>
               <span>Volver al inicio</span>
             </button>
           </div>
 
-          {/* Información del usuario autenticado */}
-          <div className={userPanelStyles.userInfo}>
-            <div className={userPanelStyles.userAvatar} aria-hidden="true">
-              <span className={userPanelStyles.avatarInitials}>
-                {((user as Cliente).nombre?.[0] ?? '').toUpperCase()}
-                {((user as Cliente).apellido?.[0] ?? '').toUpperCase()}
+          <div className={styles.userInfo}>
+            <div className={styles.userAvatar}>
+              <span className={styles.avatarInitials}>
+                {(cliente.nombre?.[0] || '').toUpperCase()}
+                {(cliente.apellido?.[0] || '').toUpperCase()}
               </span>
             </div>
-            <div className={userPanelStyles.userDetails}>
-              <h3 className={userPanelStyles.userName}>
-                {(user as Cliente).nombre} {(user as Cliente).apellido}
-              </h3>
-              <p className={userPanelStyles.userRole}>Mi cuenta</p>
+            <div className={styles.userDetails}>
+              <h3 className={styles.userName}>{cliente.nombre} {cliente.apellido}</h3>
+              <p className={styles.userRole}>Cliente</p>
             </div>
           </div>
 
-          {/* Navegación principal del sidebar */}
-          <nav className={userPanelStyles.sidebarNav}>
-            {/* Menú desplegable mobile — solo visible en ≤480px */}
-            <MobileMenuDropdown
-              options={MENU_OPTIONS}
-              activeOptionId={activeSection}
-              onSelect={setActiveSection}
-              isOpen={isMobileMenuOpen}
-              onToggle={setIsMobileMenuOpen}
-              showTriggerIcon={true}
-              triggerAriaLabel="Abrir menú de navegación"
-              containerClassName={userPanelStyles.mobileMenuWrapper}
-            />
-
-            {/* Opciones del menú principal — visible en desktop (>480px) */}
-            <div className={userPanelStyles.menuOptions}>
+          <nav className={styles.sidebarNav}>
+            {/* Desktop Menu */}
+            <div className={styles.menuOptions}>
               {MENU_OPTIONS.map((option) => (
                 <MenuOption
                   key={option.id}
                   option={option}
                   isActive={activeSection === option.id}
-                  onClick={() => {
-                    setActiveSection(option.id);
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={() => setActiveSection(option.id)}
                 />
               ))}
             </div>
 
-            {/* Sección de cierre de sesión */}
-            <div className={userPanelStyles.logoutSection}>
-              <button className={userPanelStyles.logoutButton} onClick={handleLogout} aria-label="Cerrar sesión">
+            {/* Mobile Menu */}
+            <div className={styles.mobileMenuWrapper}>
+              <MobileMenuDropdown
+                options={[...MENU_OPTIONS]}
+                activeOptionId={activeSection}
+                onSelect={(id) => setActiveSection(id as SectionId)}
+                isOpen={isMobileMenuOpen}
+                onToggle={setIsMobileMenuOpen}
+                showTriggerIcon={true}
+              />
+            </div>
+
+            <div className={styles.logoutSection}>
+              <button className={styles.logoutButton} onClick={() => { logout(); navigate('/'); }}>
                 <span className="material-icons">logout</span>
                 <span>Cerrar Sesión</span>
               </button>
@@ -242,8 +169,8 @@ const UserPanel = () => {
           </nav>
         </aside>
 
-        {/* Área de contenido principal del panel */}
-        <main className={userPanelStyles.mainContent}>
+        {/* MAIN CONTENT */}
+        <main className={styles.mainContent}>
           <ContentSection activeSection={activeSection} />
         </main>
       </div>
@@ -254,3 +181,4 @@ const UserPanel = () => {
 UserPanel.displayName = 'UserPanel';
 
 export default UserPanel;
+
