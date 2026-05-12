@@ -4,6 +4,10 @@ import type { ProductFilters, Category, Marca } from '../types';
 /**
  * Hook personalizado que proporciona una API limpia para interactuar con el ProductContext
  * Consolida todas las acciones relacionadas con productos, categorías y marcas
+ * 
+ * NOTA: Las funciones retornadas (loadProducts, updateFilters, etc.) pueden cambiar
+ * de referencia entre renders debido a dependencias en el contexto subyacente.
+ * Los consumidores que las usen en useEffect DEBEN usar refs para evitar loops.
  */
 export const useProductActions = () => {
   const context = useProductContext();
@@ -280,12 +284,12 @@ export const useProductActions = () => {
     clearCache: (key?: string) => clearCache(key),
     
     /**
-     * ✅ NUEVA FUNCIÓN: Limpieza completa del estado del producto
+     * Limpieza completa del estado del producto
      */
     clearProductState: () => context.clearProductState(),
     
     /**
-     * ✅ NUEVA FUNCIÓN: Limpieza forzada para navegación
+     * Limpieza forzada para navegación
      */
     forceClearProductState: () => context.forceClearProductState(),
     
