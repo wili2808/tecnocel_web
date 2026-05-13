@@ -7,7 +7,6 @@
 .mobileMenuContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
   width: 100%;
   position: relative;
   z-index: 10001;
@@ -80,7 +79,11 @@
 
 /* === DROPDOWN MENU === */
 .mobileMenuDropdown {
-  position: fixed;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  min-width: 200px;
   z-index: 10001;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--background-primary) 96%, transparent), color-mix(in srgb, var(--background-secondary) 88%, transparent));
@@ -91,7 +94,6 @@
   display: flex;
   flex-direction: column;
   animation: slideDownAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  /* Position calculado con JavaScript en el componente */
 }
 
 /* === MENU ITEMS === */

@@ -239,7 +239,6 @@
 
 /* === MENÚ MÓVIL === */
 .mobileMenuWrapper {
-  padding: var(--spacing-lg) var(--spacing-md);
   display: none;
   z-index: 10001;
 }
@@ -470,6 +469,14 @@
     height: auto;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
+    overflow: visible; /* Permitir que el dropdown sea visible */
+    z-index: 100; /* Asegurar que esté sobre el contenido principal */
+  }
+
+  .sidebarNav {
+    overflow: visible;
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .userInfoHeader {
@@ -497,6 +504,8 @@
   /* Mostrar el menú desplegable mobile */
   .mobileMenuWrapper {
     display: flex;
+    z-index: 101;
+    position: relative;
   }
 
   /* Ocultar el menú desktop y mostrar dropdown */

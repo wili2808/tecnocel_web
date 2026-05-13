@@ -46,6 +46,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
   const [modalOpen, setModalOpen] = useState(false);
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoCaracteristica | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [soloInactivos, setSoloInactivos] = useState(false);
 
   // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
@@ -55,18 +56,18 @@ const GestionCaracteristicas: React.FC = memo(() => {
   const cargarTipos = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await adminProductService.obtenerTiposCaracteristicas();
+      const data = await adminProductService.obtenerTiposCaracteristicas(false, soloInactivos);
       setTipos(data);
     } catch (err: any) {
       showNotification(err.message || 'Error al cargar tipos de características', 'error');
     } finally {
       setLoading(false);
     }
-  }, [showNotification]);
+  }, [showNotification, soloInactivos]);
 
   useEffect(() => {
     cargarTipos();
-  }, [cargarTipos]);
+  }, [cargarTipos, soloInactivos]);
 
   const abrirFormCrear = useCallback(() => {
     setTipoSeleccionado(null);
@@ -186,6 +187,17 @@ const GestionCaracteristicas: React.FC = memo(() => {
               primaryActionDisabled={!puedeCrear}
             />
           </AdminFilterPanel.Grow>
+          <AdminFilterPanel.Actions>
+            <button
+              type="button"
+              className={`${styles.toggleBtn} ${soloInactivos ? styles.toggleBtnActive : ''}`}
+              onClick={() => setSoloInactivos(prev => !prev)}
+              title={soloInactivos ? 'Ver todas las características' : 'Ver solo características inactivas'}
+            >
+              <span className="material-icons">{soloInactivos ? 'visibility' : 'visibility_off'}</span>
+              Inactivas
+            </button>
+          </AdminFilterPanel.Actions>
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 

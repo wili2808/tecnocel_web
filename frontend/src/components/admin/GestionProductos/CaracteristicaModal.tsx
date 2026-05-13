@@ -161,13 +161,19 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, is
     if (!tipo) return;
     setEliminando(true);
     try {
-      await adminProductService.eliminarTipoCaracteristica(tipo.id_tipo);
-      showNotification('Tipo de característica desactivado exitosamente', 'success');
+      if (tipo.activo) {
+        await adminProductService.eliminarTipoCaracteristica(tipo.id_tipo);
+        showNotification('Tipo de característica desactivado exitosamente', 'success');
+      } else {
+        await adminProductService.actualizarTipoCaracteristica(tipo.id_tipo, { activo: true });
+        showNotification('Tipo de característica reactivado exitosamente', 'success');
+      }
+      setShowConfirmDelete(false);
       onGuardado();
       onClose();
     } catch (err: any) {
       showNotification(
-        err.response?.data?.error || err.response?.data?.message || err.message || 'Error al desactivar el tipo',
+        err.response?.data?.error || err.response?.data?.message || err.message || 'Error al procesar la solicitud',
         'error'
       );
     } finally {
@@ -297,21 +303,18 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, is
           </div>
 
           <div className="modalFooterPremium">
-            {modoEdicion && puedeEliminar && tipo?.activo && (
+            {modoEdicion && puedeEliminar && (
               <button 
                 type="button" 
-                className="btnPremium btnDangerPremium mr-auto" 
+                className={`btnPremium ${tipo?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
                 onClick={() => setShowConfirmDelete(true)} 
                 disabled={guardando}
               >
-                <span className="material-icons">delete</span>
-                Desactivar
+                <span className="material-icons">{tipo?.activo ? 'visibility_off' : 'visibility'}</span>
+                {tipo?.activo ? 'Desactivar' : 'Reactivar'}
               </button>
             )}
             
-            <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-              Cancelar
-            </button>
             {!readonly && (
               <button type="submit" form="caracteristica-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
                 <span className="material-icons">
@@ -324,37 +327,32 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, is
         </form>
       </PremiumModal>
 
-      {/* Sub-modal Confirmar Desactivación */}
+      {/* Sub-modal Confirmar Acción de Estado */}
       <PremiumModal
         isOpen={showConfirmDelete}
         onClose={() => setShowConfirmDelete(false)}
-        title="¿Desactivar tipo de característica?"
-        icon="warning"
+        title={tipo?.activo ? '¿Desactivar tipo de característica?' : '¿Reactivar tipo de característica?'}
+        icon={tipo?.activo ? 'warning' : 'info'}
         maxWidth="400px"
-        titleStyle={{ color: 'var(--color-error)' }}
+        titleStyle={{ color: tipo?.activo ? 'var(--color-error)' : 'var(--color-success)' }}
       >
         <div className="modalBodyPremium">
           <p className={styles.deleteConfirmText}>
-            Estás a punto de desactivar <strong>{tipo?.nombre_tipo}</strong>. 
+            {tipo?.activo 
+              ? `Estás a punto de desactivar ${tipo?.nombre_tipo}.`
+              : `Estás a punto de reactivar ${tipo?.nombre_tipo}.`
+            }
           </p>
         </div>
         <div className="modalFooterPremium">
           <button 
             type="button"
-            className="btnPremium btnSecondaryPremium" 
-            onClick={() => setShowConfirmDelete(false)} 
-            disabled={eliminando}
-          >
-            Cancelar
-          </button>
-          <button 
-            type="button"
-            className="btnPremium btnDangerPremium" 
+            className={`btnPremium ${tipo?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'}`} 
             onClick={handleEliminar} 
             disabled={eliminando}
           >
-            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
-            {eliminando ? 'Desactivando...' : 'Sí, desactivar tipo'}
+            <span className="material-icons">{eliminando ? 'sync' : (tipo?.activo ? 'delete_forever' : 'check_circle')}</span>
+            {eliminando ? 'Procesando...' : (tipo?.activo ? 'Sí, desactivar tipo' : 'Sí, reactivar tipo')}
           </button>
         </div>
       </PremiumModal>

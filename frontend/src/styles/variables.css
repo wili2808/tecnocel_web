@@ -179,12 +179,13 @@
   --container-max-width: 1200px;
   --container-padding: 2rem;
   --section-spacing: 4rem;
+  --logo-height: 35px;
 
   /* === COMPONENTES ESPECÍFICOS === */
-  --navbar-height: 70px;
-  --navbar-height-mobile: 70px; /* Altura específica para mobile con una fila optimizada */
-  --navbar-height-tablet: 70px;
-  --search-input-height: 40px;
+  --navbar-height: 50px;
+  --navbar-height-mobile: 50px; /* Altura específica para mobile con una fila optimizada */
+  --navbar-height-tablet: 50px;
+  --search-input-height: 32px;
   
   /* === CATÁLOGO === */
   --sidebar-width: 320px;

@@ -148,11 +148,38 @@ class AlmacenController {
       const limitParam = req.query.limit as string;
       const hasPagination = pageParam !== undefined || limitParam !== undefined;
 
-      // Si no hay parámetros de paginación, devolver todos los productos sin paginar
+      // Si no hay parámetros de paginación, devolver todos los productos sin paginar (con filtros si existen)
       if (!hasPagination) {
         const now = new Date();
+        const { categoria, marca, es_destacado, busqueda, precio_min, precio_max } = req.query;
+        
+        const where: any = {};
+        if (categoria) where.id_categoria = parseInt(categoria as string);
+        if (marca) where.id_marca = parseInt(marca as string);
+        if (es_destacado === 'true') where.es_destacado = true;
+        
+        // Filtrado por estado activo/inactivo
+        if (req.query.solo_inactivos === 'true') {
+          where.activo = false;
+        } else if (req.query.ver_inactivos !== 'true') {
+          where.activo = true;
+        }
+        
+        if (busqueda) {
+          where[Op.or] = [
+            { nombre: { [Op.like]: `%${busqueda}%` } },
+            { codigo: { [Op.like]: `%${busqueda}%` } }
+          ];
+        }
+
+        if (precio_min || precio_max) {
+          where.precio_venta = {};
+          if (precio_min) where.precio_venta[Op.gte] = parseFloat(precio_min as string);
+          if (precio_max) where.precio_venta[Op.lte] = parseFloat(precio_max as string);
+        }
 
         const productos = await Almacen.findAll({
+          where,
           include: [
             {
               model: Categoria,
@@ -218,17 +245,44 @@ class AlmacenController {
       const offset = (page - 1) * limit;
 
       // Parsear filtros
-      const { categoria, marca, precio_min, precio_max, es_destacado, sortBy = 'fyh_creacion', order = 'DESC' } = req.query;
+      const { 
+        categoria, 
+        marca, 
+        precio_min, 
+        precio_max, 
+        es_destacado, 
+        busqueda,
+        sortBy = 'fyh_creacion', 
+        order = 'DESC' 
+      } = req.query;
 
       // Construir condiciones where
       const where: any = {};
       if (categoria) where.id_categoria = parseInt(categoria as string);
       if (marca) where.id_marca = parseInt(marca as string);
       if (es_destacado === 'true') where.es_destacado = true;
+      
+      const soloInactivos = req.query.solo_inactivos === 'true';
+      const verInactivos = req.query.ver_inactivos === 'true';
+
+      if (soloInactivos) {
+        where.activo = 0;
+      } else if (!verInactivos) {
+        where.activo = 1;
+      }
+      
+      // Filtro de búsqueda
+      if (busqueda) {
+        where[Op.or] = [
+          { nombre: { [Op.like]: `%${busqueda}%` } },
+          { codigo: { [Op.like]: `%${busqueda}%` } }
+        ];
+      }
+
       if (precio_min || precio_max) {
-        where.precio = {};
-        if (precio_min) where.precio[Op.gte] = parseFloat(precio_min as string);
-        if (precio_max) where.precio[Op.lte] = parseFloat(precio_max as string);
+        where.precio_venta = {}; // Corregido de 'precio' a 'precio_venta' según el modelo
+        if (precio_min) where.precio_venta[Op.gte] = parseFloat(precio_min as string);
+        if (precio_max) where.precio_venta[Op.lte] = parseFloat(precio_max as string);
       }
 
       logger.debug('Obteniendo lista de productos del almacén con filtros', {
@@ -669,54 +723,36 @@ class AlmacenController {
   async deleteProduct(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      logger.debug(`Eliminando producto del almacén ID: ${id}`);
+      logger.debug(`Desactivando producto del almacén ID: ${id}`);
+
+      // En lugar de eliminar, desactivamos (Soft Delete)
+      const [updated] = await Almacen.update({
+        activo: false,
+        fyh_actualizacion: new Date()
+      }, {
+        where: { id_producto: id }
+      });
       
-      // Eliminar imágenes de Cloudinary antes de borrar los registros
-      if (isCloudinaryConfigured()) {
-        const imagenes = await ProductoImagen.findAll({
-          where: { id_producto: id },
-          attributes: ['url_imagen']
-        });
-        await Promise.allSettled(
-          imagenes.map(img => {
-            const publicId = /^https?:\/\//i.test(img.url_imagen)
-              ? extractCloudinaryPublicId(img.url_imagen)
-              : `${config.images.cloudinary.productFolder}/${buildCloudinaryPublicId(img.url_imagen)}`;
-            if (!publicId) return Promise.resolve();
-            return deleteCloudinaryByPublicId(publicId);
-          })
-        );
-      }
-
-      // Eliminar imágenes de BD
-      await ProductoImagen.destroy({
-        where: { id_producto: id }
-      });
-
-      const deleted = await Almacen.destroy({
-        where: { id_producto: id }
-      });
-
-      if (!deleted) {
-        logger.warn(`Intento de eliminar producto inexistente del almacén ID: ${id}`);
+      if (!updated) {
+        logger.warn(`Intento de desactivar producto inexistente en almacén ID: ${id}`);
         return res.status(404).json(errorResponse('Producto no encontrado'));
       }
-
+      
       res.locals.skipHttpLog = true;
-
-      logger.info('Producto eliminado exitosamente', {
-        operacion: 'eliminar_producto',
+      
+      logger.info('Producto desactivado exitosamente (Soft Delete)', {
+        operacion: 'desactivar_producto',
         producto_id: id,
         success: true
       });
-
-      return res.json(okMessage('Producto eliminado correctamente'));
+      
+      return res.json(okMessage('Producto desactivado correctamente'));
     } catch (error) {
-      logger.error('Error al eliminar producto del almacén:', {
+      logger.error('Error al desactivar producto en almacén:', {
         id: req.params.id,
         error: error instanceof Error ? error.message : 'Error desconocido'
       });
-      res.status(500).json(errorResponse('Error al eliminar el producto del almacén'));
+      res.status(500).json(errorResponse('Error al desactivar el producto en almacén'));
     }
   }
 
@@ -1008,7 +1044,18 @@ class AlmacenController {
   async getAllCategories(req: Request, res: Response) {
     try {
       logger.debug('Obteniendo todas las categorías');
+      const soloInactivos = req.query.solo_inactivos === 'true';
+      const verInactivos = req.query.ver_inactivos === 'true';
+
+      const where: any = {};
+      if (soloInactivos) {
+        where.activo = 0; // Solo inactivos
+      } else if (!verInactivos) {
+        where.activo = 1; // Solo activos
+      }
+
       const categorias = await Categoria.findAll({
+        where,
         attributes: {
           include: [
             [
@@ -1016,6 +1063,7 @@ class AlmacenController {
                 SELECT COUNT(*)
                 FROM tb_almacen AS p
                 WHERE p.id_categoria = Categoria.id_categoria
+                AND p.activo = 1
               )`),
               'product_count'
             ]
@@ -1166,16 +1214,20 @@ class AlmacenController {
         return res.status(400).json(errorResponse(`Hay ${count} producto${count !== 1 ? 's' : ''} asignado${count !== 1 ? 's' : ''} a esta categoría. Reasígnalo${count !== 1 ? 's' : ''} antes de eliminarla.`));
       }
 
-      await categoria.destroy();
+      // En lugar de destruir, desactivamos
+      await (categoria as any).update({
+        activo: false,
+        fyh_actualizacion: new Date()
+      });
 
-      logger.info('Categoría eliminada', {
-        operacion: 'eliminar_categoria',
+      logger.info('Categoría desactivada (Soft Delete)', {
+        operacion: 'desactivar_categoria',
         id_usuario: req.usuario?.id,
         id_categoria: id,
         nombre_categoria: categoria.getDataValue('nombre_categoria'),
       });
 
-      return res.status(200).json(okMessage('Categoría eliminada exitosamente'));
+      return res.status(200).json(okMessage('Categoría desactivada exitosamente'));
     } catch (error) {
       logger.error('Error al eliminar categoría:', {
         error: error instanceof Error ? error.message : 'Error desconocido',

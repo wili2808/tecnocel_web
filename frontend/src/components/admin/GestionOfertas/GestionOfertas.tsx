@@ -135,39 +135,34 @@ const GestionOfertas = () => {
     }
   }, [puedeEditar, showNotification]);
 
-  const handleEliminarOferta = useCallback(async (id: number, nombre: string) => {
+  const handleCancelar = useCallback(() => {
+    setShowCrearForm(false);
+    setEditandoOferta(null);
+    setModoModal('crear');
+  }, []);
+
+  const handleEliminarOferta = useCallback(async (id: number) => {
     if (!puedeEliminar) {
       showNotification('No tienes permisos para eliminar ofertas', 'error');
-      return;
-    }
-
-    if (!confirm(`¿Estás seguro de desactivar la oferta "${nombre}"?`)) {
       return;
     }
 
     try {
       await adminOfertaService.eliminarOferta(id);
       showNotification('Oferta desactivada exitosamente', 'success');
-      setShowCrearForm(false);
-      setEditandoOferta(null);
-      cargarOfertas();
+      handleCancelar();
+      await cargarOfertas();
     } catch (err: any) {
       showNotification(err.message || 'Error al eliminar oferta', 'error');
     }
-  }, [puedeEliminar, showNotification, cargarOfertas]);
+  }, [puedeEliminar, showNotification, handleCancelar, cargarOfertas]);
 
-  const handleGuardado = () => {
+  const handleGuardado = useCallback(() => {
     setShowCrearForm(false);
     setEditandoOferta(null);
     setModoModal('crear');
     cargarOfertas();
-  };
-
-  const handleCancelar = () => {
-    setShowCrearForm(false);
-    setEditandoOferta(null);
-    setModoModal('crear');
-  };
+  }, [cargarOfertas]);
 
   // --- Columnas ---
   const columns = useMemo<ColumnDef<OfertaConConteo>[]>(() => [
@@ -360,7 +355,8 @@ const GestionOfertas = () => {
           oferta={editandoOferta}
           onCancelar={handleCancelar}
           onGuardado={handleGuardado}
-          onEliminar={editandoOferta ? () => handleEliminarOferta(editandoOferta.id_oferta, editandoOferta.nombre_oferta) : undefined}
+          onEliminar={editandoOferta ? () => handleEliminarOferta(editandoOferta.id_oferta) : undefined}
+          onRefreshLista={cargarOfertas}
           modo={modoModal}
         />
       )}

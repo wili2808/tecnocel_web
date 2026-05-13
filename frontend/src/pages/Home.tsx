@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect} from 'react';
 import { FiZap, FiShield, FiRefreshCw, FiHeadphones } from 'react-icons/fi';
 import PageMeta from '../components/common/PageMeta/PageMeta';
 import HeroSection from '../components/layout/HeroSection';
@@ -21,16 +21,17 @@ const Home = () => {
   const { featuredProducts, productsLoading, productsError, loadFeaturedProducts } = useProductActions();
   const { loadOfertas, ofertas } = useOfertasGlobal();
 
-  const loadProducts = useCallback(() => {
-    if (!featuredProducts.length && !productsLoading) loadFeaturedProducts(8);
-  }, [featuredProducts.length, productsLoading, loadFeaturedProducts]);
-
-  const loadOfertasIfNeeded = useCallback(() => {
-    if (!ofertas.length) loadOfertas();
-  }, [ofertas.length, loadOfertas]);
-
-  useEffect(() => { loadProducts(); }, [loadProducts]);
-  useEffect(() => { loadOfertasIfNeeded(); }, [loadOfertasIfNeeded]);
+  // Cargar datos iniciales una sola vez al montar el componente
+  useEffect(() => {
+    // Solo cargar si no hay datos y no se está cargando ya
+    if (featuredProducts.length === 0 && !productsLoading) {
+      loadFeaturedProducts(8);
+    }
+    if (ofertas.length === 0) {
+      loadOfertas();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); 
 
   return (
     <>

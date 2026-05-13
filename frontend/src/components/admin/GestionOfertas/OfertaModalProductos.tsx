@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import type { OfertaConProductos, ProductoEnOferta, Product } from '../../../types';
@@ -19,6 +19,56 @@ interface ProductoSeleccionado {
   precio_oferta?: number;
 }
 
+// ── Sub-componente memoizado para el input de precio manual ──────────────────
+// Usa input NO CONTROLADO (defaultValue) + custom memo comparator:
+// - Solo re-renderiza cuando cambia isSelected o idProducto (no al tipear)
+// - onCommit se guarda en ref para evitar closure stale sin disparar re-renders
+// Esto permite poner `seleccionados` de vuelta en los deps de columnsBusqueda
+// (checkbox funciona) sin que el input pierda el foco en cada keystroke.
+interface PrecioManualInputProps {
+  idProducto: number;
+  isSelected: boolean;
+  onCommit: (idProducto: number, precio: string) => void;
+}
+
+const PrecioManualInput = memo(
+  ({ idProducto, isSelected, onCommit }: PrecioManualInputProps) => {
+    // Ref estable para onCommit — siempre apunta a la versión más reciente
+    // sin convertirlo en dep del componente
+    const onCommitRef = useRef(onCommit);
+    onCommitRef.current = onCommit;
+
+    return (
+      <div className={styles.precioManualCell} onClick={(e) => e.stopPropagation()}>
+        <input
+          id={`precio-manual-${idProducto}`}
+          type="number"
+          placeholder="Precio manual"
+          defaultValue=""
+          onChange={(e) => onCommitRef.current(idProducto, e.target.value)}
+          className={styles.precioManualInput}
+          style={{
+            opacity: isSelected ? 1 : 0.35,
+            pointerEvents: isSelected ? 'all' : 'none',
+            cursor: isSelected ? 'text' : 'not-allowed',
+          }}
+          step="1"
+          min="0"
+          disabled={!isSelected}
+          aria-label={`Precio manual para producto ${idProducto}`}
+          aria-disabled={!isSelected}
+        />
+      </div>
+    );
+  },
+  // Custom comparator: solo re-renderiza si cambia isSelected o el id del producto.
+  // Ignorar cambios de onCommit (manejado por ref) y del precio (input no controlado).
+  (prev, next) =>
+    prev.isSelected === next.isSelected && prev.idProducto === next.idProducto,
+);
+PrecioManualInput.displayName = 'PrecioManualInput';
+
+
 const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProductosProps) => {
   const { showNotification } = useNotification();
   const { tipoCambio } = useTipoCambio();
@@ -34,7 +84,17 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
   const [productosDisponibles, setProductosDisponibles] = useState<Product[]>([]);
   const [loadingBusqueda, setLoadingBusqueda] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Map<number, ProductoSeleccionado>>(new Map());
+  // Ref que siempre apunta al Map actual — las células lo leen sin estar en deps
+  const seleccionadosRef = useRef<Map<number, ProductoSeleccionado>>(new Map());
+  // Contador que SOLO incrementa al seleccionar/deseleccionar (no al tipear precio)
+  // Esto fuerza re-render del checkbox sin regenerar las columnas al tipear
+  const [seleccionadosVersion, setSeleccionadosVersion] = useState(0);
   const [asignando, setAsignando] = useState(false);
+
+  // Mantener ref sincronizado con el estado
+  useEffect(() => {
+    seleccionadosRef.current = seleccionados;
+  }, [seleccionados]);
 
   // ── Estados para Tabla Principal (Asignados) ───────────────────────
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -86,8 +146,12 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
       } else {
         next.set(producto.id_producto, { id_producto: producto.id_producto });
       }
+      seleccionadosRef.current = next;
       return next;
     });
+    // Incrementar versión SOLO al seleccionar/deseleccionar (no al tipear)
+    // Esto actualiza el checkbox sin regenerar toda la columna al escribir precio
+    setSeleccionadosVersion(v => v + 1);
   }, []);
 
   const handlePrecioOfertaChange = useCallback((idProducto: number, precio: string) => {
@@ -260,7 +324,8 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
       header: '',
       enableSorting: false,
       cell: (info) => {
-        const isSelected = seleccionados.has(info.row.original.id_producto);
+        // Lee el ref — siempre actualizado, sin necesitar seleccionados en deps
+        const isSelected = seleccionadosRef.current.has(info.row.original.id_producto);
         return (
           <div className="flex justify-center">
             <span className={`material-icons ${isSelected ? 'text-primary' : 'text-secondary opacity-30'}`} style={{ fontSize: '20px' }}>
@@ -304,34 +369,25 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
     {
       id: 'precio_personalizado',
       header: () => <div className="text-center">Precio Manual (ARS)</div>,
+      enableSorting: false,
       cell: (info) => {
         const producto = info.row.original;
-        const isSelected = seleccionados.has(producto.id_producto);
-        const selItem = seleccionados.get(producto.id_producto);
-        
+        // Lee el ref — no deps → las columnas NO se regeneran al tipear
+        const isSelected = seleccionadosRef.current.has(producto.id_producto);
         return (
-          <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-            <input
-              type="number"
-              placeholder="Pesos ($)"
-              value={selItem?.precio_oferta ?? ''}
-              onChange={(e) => handlePrecioOfertaChange(producto.id_producto, e.target.value)}
-              className="modalTableInputPremium"
-              style={{ 
-                width: '100px', 
-                textAlign: 'right',
-                opacity: isSelected ? 1 : 0.3,
-                pointerEvents: isSelected ? 'all' : 'none'
-              }}
-              step="0.01"
-              min="0"
-              disabled={!isSelected}
-            />
-          </div>
+          <PrecioManualInput
+            idProducto={producto.id_producto}
+            isSelected={isSelected}
+            onCommit={handlePrecioOfertaChange}
+          />
         );
       }
     }
-  ], [seleccionados, tipoCambio, handlePrecioOfertaChange, calcularPrecioDescuento]);
+  // seleccionadosVersion en deps: solo cambia al clic (no al tipear precio)
+  // → columnsBusqueda se regenera para actualizar checkboxes, pero NO al tipear
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [seleccionadosVersion, tipoCambio, handlePrecioOfertaChange, calcularPrecioDescuento]);
+
 
   return (
     <div className={styles.modalBodyContent}>

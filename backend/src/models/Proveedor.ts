@@ -9,6 +9,7 @@ class Proveedor extends Model {
   declare empresa: string;
   declare email: string | null;
   declare direccion: string;
+  declare activo: boolean;
   declare fyh_creacion: Date;
   declare fyh_actualizacion: Date;
 }
@@ -42,6 +43,11 @@ Proveedor.init({
   direccion: {
     type: DataTypes.STRING(255),
     allowNull: false
+  },
+  activo: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   },
   fyh_creacion: {
     type: DataTypes.DATE,

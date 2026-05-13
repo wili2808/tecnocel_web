@@ -4,7 +4,7 @@
  * Incluye WhatsApp, redes sociales, email directo, etc.
  */
 import React from 'react';
-import { FaWhatsapp, FaFacebookF, FaInstagram } from 'react-icons/fa';
+import { FaWhatsapp, FaFacebookF, FaInstagram, FaPhoneAlt, FaEnvelope, FaClock, FaArrowRight } from 'react-icons/fa';
 import { useConfig } from '../../../contexts/ConfigContext';
 import styles from './ContactMethods.module.css';
 
@@ -20,8 +20,7 @@ interface ContactMethodsProps {
  * Interfaz para definir los métodos de contacto
  */
 interface ContactMethod {
-    icon: string | React.ComponentType<any>;
-    iconType: 'material' | 'react';
+    icon: React.ComponentType<any>;
     title: string;
     description: string;
     value: string;
@@ -55,7 +54,6 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
     const contactMethods: ContactMethod[] = [
         {
             icon: FaWhatsapp,
-            iconType: 'react',
             title: 'WhatsApp',
             description: 'Chatea con nosotros',
             value: whatsappDisplay,
@@ -64,8 +62,7 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
             label: 'Abrir WhatsApp'
         },
         {
-            icon: 'phone',
-            iconType: 'material',
+            icon: FaPhoneAlt,
             title: 'Teléfono',
             description: 'Llámanos directamente',
             value: sitePhone,
@@ -74,8 +71,7 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
             label: 'Llamar ahora'
         },
         {
-            icon: 'email',
-            iconType: 'material',
+            icon: FaEnvelope,
             title: 'Email',
             description: 'Escríbenos un correo',
             value: siteEmail,
@@ -85,7 +81,6 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
         },
         {
             icon: FaFacebookF,
-            iconType: 'react',
             title: 'Facebook',
             description: 'Síguenos en Facebook',
             value: facebookUrl.split('/').pop() || '@TecnoCel',
@@ -95,7 +90,6 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
         },
         {
             icon: FaInstagram,
-            iconType: 'react',
             title: 'Instagram',
             description: 'Mira nuestras historias',
             value: instagramUrl.split('/').pop() || '@tecnocel',
@@ -115,45 +109,32 @@ export const ContactMethods: React.FC<ContactMethodsProps> = ({
                 </p>
             </div>
 
-            {/* Grid de métodos de contacto */}
             <div className={styles.methodsGrid}>
-                {contactMethods.map((method, index) => {
-                    const IconComponent = method.iconType === 'react' ? method.icon as React.ComponentType<any> : null;
-
-                    return (
-                        <a
-                            key={index}
-                            href={method.link}
-                            target={method.link.startsWith('http') ? '_blank' : undefined}
-                            rel={method.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                            className={styles.methodCard}
-                            aria-label={method.label}
-                            style={{ '--method-color': method.color } as React.CSSProperties}
-                        >
-                            <div className={styles.iconWrapper}>
-                                {method.iconType === 'material' ? (
-                                    <span className="material-icons">{method.icon as string}</span>
-                                ) : IconComponent ? (
-                                    <IconComponent className={styles.reactIcon} />
-                                ) : null}
-                            </div>
-                            <div className={styles.methodContent}>
-                                <p className={styles.methodDescription}>{method.description}</p>
-                                <p className={styles.methodValue}>{method.value}</p>
-                            </div>
-                            <span className="material-icons" style={{ color: method.color }}>
-                                arrow_forward
-                            </span>
-                        </a>
-                    );
-                })}
+                {contactMethods.map((method, index) => (
+                    <a
+                        key={index}
+                        href={method.link}
+                        target={method.link.startsWith('http') ? '_blank' : undefined}
+                        rel={method.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        className={styles.methodCard}
+                        aria-label={method.label}
+                        style={{ '--method-color': method.color } as React.CSSProperties}
+                    >
+                        <div className={styles.iconWrapper}>
+                            <method.icon className={styles.reactIcon} />
+                        </div>
+                        <div className={styles.methodContent}>
+                            <p className={styles.methodDescription}>{method.description}</p>
+                            <p className={styles.methodValue}>{method.value}</p>
+                        </div>
+                        <FaArrowRight className={styles.arrowIcon} style={{ color: method.color }} />
+                    </a>
+                ))}
             </div>
 
             {/* Footer con horario de atención */}
             <div className={styles.footer}>
-                <span className="material-icons" style={{ marginRight: 'var(--spacing-sm)' }}>
-                    schedule
-                </span>
+                <FaClock className={styles.footerIcon} />
                 <p className={styles.footerText}>
                     <strong>Horario de atención:</strong> {siteHours}
                 </p>

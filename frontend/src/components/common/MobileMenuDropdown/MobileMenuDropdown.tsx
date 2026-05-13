@@ -4,7 +4,7 @@
  * Soporta iconos, labels, estados activos y animaciones suaves
  */
 
-import React, { memo, useRef, useState, useEffect } from 'react';
+import React, { memo } from 'react';
 import styles from './MobileMenuDropdown.module.css';
 
 export interface MenuDropdownOption {
@@ -59,25 +59,6 @@ const MobileMenuDropdown: React.FC<MobileMenuDropdownProps> = memo(
     showTriggerIcon = true,
     containerClassName,
   }) => {
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    const [dropdownPosition, setDropdownPosition] = useState({
-      top: 0,
-      left: 0,
-      width: 0,
-    });
-
-    // Calcular la posición del dropdown cuando se abre
-    useEffect(() => {
-      if (isOpen && triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect();
-        setDropdownPosition({
-          top: rect.bottom + 4, // 4px debajo del trigger
-          left: rect.left,
-          width: rect.width,
-        });
-      }
-    }, [isOpen]);
-
     const activeOption = options.find((o) => o.id === activeOptionId);
 
     const handleSelectOption = (optionId: string) => {
@@ -89,7 +70,6 @@ const MobileMenuDropdown: React.FC<MobileMenuDropdownProps> = memo(
       <div className={`${styles.mobileMenuContainer} ${containerClassName || ''}`}>
         {/* Trigger Button */}
         <button
-          ref={triggerRef}
           className={`${styles.mobileMenuTrigger} ${triggerClassName || ''}`}
           onClick={() => onToggle(!isOpen)}
           aria-expanded={isOpen}
@@ -110,15 +90,7 @@ const MobileMenuDropdown: React.FC<MobileMenuDropdownProps> = memo(
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div
-            className={styles.mobileMenuDropdown}
-            role="listbox"
-            style={{
-              top: `${dropdownPosition.top}px`,
-              left: `${dropdownPosition.left}px`,
-              width: `${dropdownPosition.width}px`,
-            }}
-          >
+          <div className={styles.mobileMenuDropdown} role="listbox">
             {options.map((option) => (
               <button
                 key={option.id}

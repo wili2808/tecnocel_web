@@ -24,6 +24,7 @@ export interface Marca {
 export interface Category {
   id_categoria: number;
   nombre_categoria: string;
+  activo: boolean;
   product_count?: number;
   fyh_creacion: string;
   fyh_actualizacion: string;
@@ -114,6 +115,7 @@ export interface Product {
   id_marca?: number | null;
   es_destacado: boolean;
   orden_destacado: number;
+  activo: boolean;
   fyh_creacion: string;
   fyh_actualizacion: string;
   
@@ -219,6 +221,7 @@ export interface ProductoFormData {
   fecha_ingreso: string;
   es_destacado: boolean;
   orden_destacado?: number;
+  activo?: boolean;
   imagenes?: { url_imagen: string; alt_text?: string }[];
   caracteristicas?: { id_tipo: number; valor: string }[];
 }

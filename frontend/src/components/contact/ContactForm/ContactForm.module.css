@@ -8,6 +8,9 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   transition: var(--theme-transition);
 }
 
@@ -34,13 +37,14 @@
 .contactForm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
+  flex: 1;
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
 
@@ -60,6 +64,7 @@
   border-radius: var(--border-radius-full);
   cursor: pointer;
   transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
+  margin-top: auto;
 }
 
 .submitButton:hover:not(:disabled) {

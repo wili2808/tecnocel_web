@@ -18,6 +18,7 @@ export interface TransformedProduct {
   id_categoria: number;
   id_marca: number | null;
   es_destacado: boolean;
+  activo: boolean;
   imagen_url: string | null;
   imagen_disponible: boolean;
   imagenes?: TransformedProductImage[];
@@ -49,6 +50,7 @@ export interface CreateProductoBody {
   id_marca?: number;
   modelo?: string;
   es_destacado?: boolean;
+  activo?: boolean;
   imagenes?: CreateProductoImagen[];
   caracteristicas?: CreateProductoCaracteristica[];
 }

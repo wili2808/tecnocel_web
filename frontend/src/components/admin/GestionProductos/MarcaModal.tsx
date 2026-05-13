@@ -28,6 +28,7 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
   const [form, setForm] = useState({
     nombre_marca: '',
     descripcion_marca: '',
+    activo: true,
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -42,11 +43,12 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
         setForm({
           nombre_marca: marca.nombre_marca,
           descripcion_marca: marca.descripcion_marca || '',
+          activo: marca.activo,
         });
         setLogoPreview(marca.logo_marca || null);
         setLogoFile(null);
       } else {
-        setForm({ nombre_marca: '', descripcion_marca: '' });
+        setForm({ nombre_marca: '', descripcion_marca: '', activo: true });
         setLogoPreview(null);
         setLogoFile(null);
       }
@@ -86,6 +88,7 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
         await adminProductService.actualizarMarca(marca!.id_marca, {
           nombre_marca: form.nombre_marca.trim(),
           descripcion_marca: form.descripcion_marca.trim() || undefined,
+          activo: form.activo,
         });
         if (logoFile) {
           await adminProductService.uploadMarcaLogo(marca!.id_marca, logoFile);
@@ -117,8 +120,14 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
     if (!marca) return;
     setEliminando(true);
     try {
-      await adminProductService.eliminarMarca(marca.id_marca);
-      showNotification('Marca eliminada exitosamente', 'success');
+      if (marca.activo) {
+        await adminProductService.eliminarMarca(marca.id_marca);
+        showNotification('Marca desactivada exitosamente', 'success');
+      } else {
+        await adminProductService.actualizarMarca(marca.id_marca, { ...form, activo: true });
+        showNotification('Marca reactivada exitosamente', 'success');
+      }
+      setShowConfirmDelete(false);
       onGuardado();
       onClose();
     } catch (err: any) {
@@ -205,18 +214,15 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
             {modoEdicion && puedeEliminar && (
               <button 
                 type="button" 
-                className="btnPremium btnDangerPremium mr-auto" 
+                className={`btnPremium ${marca?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
                 onClick={() => setShowConfirmDelete(true)} 
                 disabled={guardando}
               >
-                <span className="material-icons">delete</span>
-                Eliminar
+                <span className="material-icons">{marca?.activo ? 'visibility_off' : 'visibility'}</span>
+                {marca?.activo ? 'Desactivar' : 'Reactivar'}
               </button>
             )}
             
-            <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-              Cancelar
-            </button>
             {!readonly && (
               <button type="submit" form="marca-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
                 <span className="material-icons">
@@ -233,33 +239,28 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
       <PremiumModal
         isOpen={showConfirmDelete}
         onClose={() => setShowConfirmDelete(false)}
-        title="¿Eliminar marca?"
-        icon="warning"
+        title={marca?.activo ? '¿Desactivar marca?' : '¿Reactivar marca?'}
+        icon={marca?.activo ? 'visibility_off' : 'visibility'}
         maxWidth="400px"
-        titleStyle={{ color: 'var(--color-error)' }}
+        titleStyle={{ color: marca?.activo ? 'var(--color-error)' : 'var(--color-success)' }}
       >
         <div className="modalBodyPremium">
           <p className={styles.deleteMessage}>
-            Estás a punto de eliminar <strong>{marca?.nombre_marca}</strong>. Esta acción no se puede deshacer.
+            {marca?.activo 
+              ? `Estás a punto de desactivar la marca ${marca?.nombre_marca}. Los productos asociados dejarán de ser visibles.`
+              : `Estás a punto de reactivar la marca ${marca?.nombre_marca}.`
+            }
           </p>
         </div>
         <div className="modalFooterPremium">
           <button 
             type="button"
-            className="btnPremium btnSecondaryPremium" 
-            onClick={() => setShowConfirmDelete(false)} 
-            disabled={eliminando}
-          >
-            Cancelar
-          </button>
-          <button 
-            type="button"
-            className="btnPremium btnDangerPremium" 
+            className={`btnPremium ${marca?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'}`} 
             onClick={handleEliminar} 
             disabled={eliminando}
           >
-            <span className="material-icons">{eliminando ? 'sync' : 'delete_forever'}</span>
-            {eliminando ? 'Eliminando...' : 'Sí, eliminar marca'}
+            <span className="material-icons">{eliminando ? 'sync' : (marca?.activo ? 'visibility_off' : 'visibility')}</span>
+            {eliminando ? 'Procesando...' : (marca?.activo ? 'Sí, desactivar' : 'Sí, reactivar')}
           </button>
         </div>
       </PremiumModal>

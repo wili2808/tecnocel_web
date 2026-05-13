@@ -22,9 +22,7 @@ import NotificationBell from '../../notifications/NotificationBell';
 import navbarStyle from './Navbar.module.css';
 import Button from '../../common/Button';
 
-// ============================================================================
 // CONFIGURACIÓN
-// ============================================================================
 
 /** Rutas de navegación principal */
 const SECONDARY_NAV_ROUTES = [
@@ -34,9 +32,7 @@ const SECONDARY_NAV_ROUTES = [
   { path: '/contacto', label: 'CONTACTO' },
 ];
 
-// ============================================================================
 // COMPONENTE PRINCIPAL
-// ============================================================================
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -157,7 +153,8 @@ const Navbar: React.FC = () => {
         disabled={!isCliente}
         variant="ghost"
         size="sm"
-        className={`${navbarStyle.cartButton} ${!isCliente ? navbarStyle.cartButtonDisabled : ''}`}
+        underline={true}
+        className={!isCliente ? navbarStyle.cartButtonDisabled : ''}
       >
         {cartItemCount > 0 && <span className={navbarStyle.cartBadge}>{cartItemCount}</span>}
       </IconButton>
@@ -177,7 +174,7 @@ const Navbar: React.FC = () => {
           ariaLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
           variant="ghost"
           size="sm"
-          className={navbarStyle.themeToggle}
+          underline={true}
         />
         {isCliente && <NotificationBell />}
         {CartButton()}
@@ -205,7 +202,9 @@ const Navbar: React.FC = () => {
           {mobile ? (
             <div className={navbarStyle.mobileUserProfile}>
               <button
-                className={navbarStyle.mobileUserInfo}
+                className={`${navbarStyle.mobileUserInfo} ${
+                  location.pathname.startsWith('/panel') ? navbarStyle.active : ''
+                }`}
                 onClick={handleAuthClick}
                 aria-label="Ir al panel de usuario"
               >
@@ -215,61 +214,63 @@ const Navbar: React.FC = () => {
                 </span>
               </button>
             </div>
-          ) : (
-            <IconButton
-              icon="account_circle"
-              onClick={handleAuthClick}
-              ariaLabel="Ir al panel de usuario"
-              variant="ghost"
-              size="sm"
-              className={navbarStyle.authButton}
-              children={
-                <span className={navbarStyle.authButtonText}>
-                  {'nombre' in user ? `${user.nombre} ${user.apellido}` : user.nombres}
-                </span>
-              }
-            />
-          )}
-        </div>
-      );
-    }
+      ) : (
+        <button
+          className={`${navbarStyle.authButton} ${
+            location.pathname.startsWith('/panel') ? navbarStyle.active : ''
+          }`}
+          onClick={handleAuthClick}
+          aria-label="Ir al panel de usuario"
+        >
+          <span className={navbarStyle.authButtonText}>
+            {'nombre' in user ? `${user.nombre} ${user.apellido}` : user.nombres}
+          </span>
+        </button>
+      )}
+    </div>
+  );
+}
 
-    return (
-      <div className={baseClass}>
-        {mobile ? (
-          <div className={navbarStyle.mobileAuthButtons}>
-            <Link
-              to="/login"
-              className={navbarStyle.mobileAuthButton}
-              onClick={handleLinkClick}
-              aria-label="Iniciar sesión"
-            >
-              <span className="material-icons">login</span>
-              <span className={navbarStyle.mobileAuthText}>Ingresar</span>
-            </Link>
-            <Link
-              to="/register"
-              className={`${navbarStyle.mobileAuthButton} ${navbarStyle.mobileRegisterButton}`}
-              onClick={handleLinkClick}
-              aria-label="Crear cuenta"
-            >
-              <span className="material-icons">person_add</span>
-              <span className={navbarStyle.mobileAuthText}>Registro</span>
-            </Link>
-          </div>
-        ) : (
-          <IconButton
-            icon="login"
-            onClick={handleAuthClick}
-            ariaLabel="Iniciar sesión"
-            variant="ghost"
-            size="sm"
-            className={navbarStyle.authButton}
-            children={<span className={navbarStyle.authButtonText}>Ingresar</span>}
-          />
-        )}
+return (
+  <div className={baseClass}>
+    {mobile ? (
+      <div className={navbarStyle.mobileAuthButtons}>
+        <Link
+          to="/login"
+          className={`${navbarStyle.mobileAuthButton} ${
+            location.pathname === '/login' ? navbarStyle.active : ''
+          }`}
+          onClick={handleLinkClick}
+          aria-label="Iniciar sesión"
+        >
+          <span className="material-icons">login</span>
+          <span className={navbarStyle.mobileAuthText}>Ingresar</span>
+        </Link>
+        <Link
+          to="/register"
+          className={`${navbarStyle.mobileAuthButton} ${navbarStyle.mobileRegisterButton} ${
+            location.pathname === '/register' ? navbarStyle.active : ''
+          }`}
+          onClick={handleLinkClick}
+          aria-label="Crear cuenta"
+        >
+          <span className="material-icons">person_add</span>
+          <span className={navbarStyle.mobileAuthText}>Registro</span>
+        </Link>
       </div>
-    );
+    ) : (
+      <button
+        className={`${navbarStyle.authButton} ${
+          location.pathname === '/login' ? navbarStyle.active : ''
+        }`}
+        onClick={handleAuthClick}
+        aria-label="Iniciar sesión"
+      >
+        <span className={navbarStyle.authButtonText}>Ingresar</span>
+      </button>
+    )}
+  </div>
+);
   }
 
   /**

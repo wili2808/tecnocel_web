@@ -71,15 +71,20 @@ const adminOfertaService = {
       const response = await adminApi.get('/almacen/productos/buscar', {
         params: { termino: search.trim() }
       });
-      // searchProducts devuelve { success, data: [...] }
-      return response.data.data || response.data;
+      // searchProducts devuelve okPaginated → { success, data: { items: [], pagination: {} } }
+      const data = response.data.data;
+      if (data && !Array.isArray(data) && Array.isArray(data.items)) {
+        return data.items;
+      }
+      // Fallback: si por alguna razón devuelve array directo
+      return Array.isArray(data) ? data : [];
     }
     const response = await adminApi.get('/almacen/productos', {
       params: { limit: 1000 }
     });
     // Con paginación: { success, data: { items, pagination } }
     const data = response.data.data;
-    return Array.isArray(data) ? data : data.items || [];
+    return Array.isArray(data) ? data : data?.items ?? [];
   },
 };
 

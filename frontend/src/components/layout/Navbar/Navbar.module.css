@@ -53,8 +53,12 @@
 .logoLink:hover { opacity: 0.75; }
 
 .logoImage {
-  height: 38px;
+  height: var(--logo-height);
   border-radius: var(--border-radius-sm);
+}
+
+:global([data-theme="dark"]) .logoImage {
+  filter: invert(1);
 }
 
 /* Nav links desktop */
@@ -133,24 +137,52 @@
 .authButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
+  padding: 6px var(--spacing-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
   font-size: var(--font-size-xs);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-fast) var(--transition-curve);
 }
 
-.authButton:hover { transform: translateY(-1px); }
+/* Subrayado animado en hover para el botón de auth (mismo que tabs) */
+.authButton::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--spacing-sm);
+  right: var(--spacing-sm);
+  height: 1px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transition: transform var(--transition-fast) var(--transition-curve);
+  transform-origin: center;
+}
+
+.authButton:hover,
+.authButton.active {
+  color: var(--color-primary);
+}
+
+.authButton:hover::after,
+.authButton.active::after {
+  transform: scaleX(1);
+}
 
 .authButtonText {
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 /* Badge del carrito */
 .cartBadge {
   position: absolute;
-  top: 0;
+  top: 2px;
   right: 0;
   background: var(--color-error);
   color: #fff;
@@ -163,7 +195,7 @@
   justify-content: center;
   border-radius: var(--border-radius-full);
   line-height: 1;
-  transform: translate(30%, -30%);
+  transform: translate(30%, -15%);
 }
 
 .cartButtonDisabled {
@@ -192,7 +224,6 @@
   flex: 1;
   min-width: 0;
   margin: 0 var(--spacing-sm);
-  overflow: hidden;
 }
 
 .mobileControlsSection {
@@ -257,7 +288,8 @@
   transition: border-color var(--transition-fast) var(--transition-curve);
 }
 
-.mobileUserInfo:hover { border-color: var(--color-primary); }
+.mobileUserInfo:hover,
+.mobileUserInfo.active { border-color: var(--color-primary); }
 
 .mobileUserText {
   font-size: var(--font-size-sm);
@@ -289,7 +321,8 @@
               background var(--transition-fast) var(--transition-curve);
 }
 
-.mobileAuthButton:hover {
+.mobileAuthButton:hover,
+.mobileAuthButton.active {
   border-color: var(--color-primary);
   background: rgba(var(--color-primary-rgb), 0.04);
 }

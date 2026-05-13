@@ -26,6 +26,7 @@ const GestionMarcas: React.FC = memo(() => {
   const [modalOpen, setModalOpen] = useState(false);
   const [marcaSeleccionada, setMarcaSeleccionada] = useState<Marca | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [soloInactivos, setSoloInactivos] = useState(false);
 
   // Estados Tabla
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
@@ -35,18 +36,18 @@ const GestionMarcas: React.FC = memo(() => {
   const cargarMarcas = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await adminProductService.obtenerMarcas();
+      const data = await adminProductService.obtenerMarcas(false, soloInactivos);
       setMarcas(data);
     } catch (err: any) {
       showNotification(err.response?.data?.error || err.message || 'Error al cargar marcas', 'error');
     } finally {
       setLoading(false);
     }
-  }, [showNotification]);
+  }, [showNotification, soloInactivos]);
 
   useEffect(() => {
     cargarMarcas();
-  }, [cargarMarcas]);
+  }, [cargarMarcas, soloInactivos]);
 
   const iniciarEdicion = useCallback((marca: Marca) => {
     setMarcaSeleccionada(marca);
@@ -161,6 +162,17 @@ const GestionMarcas: React.FC = memo(() => {
               primaryActionDisabled={!puedeCrear}
             />
           </AdminFilterPanel.Grow>
+          <AdminFilterPanel.Actions>
+            <button
+              type="button"
+              className={`${styles.toggleBtn} ${soloInactivos ? styles.toggleBtnActive : ''}`}
+              onClick={() => setSoloInactivos(prev => !prev)}
+              title={soloInactivos ? 'Ver todas las marcas' : 'Ver solo marcas inactivas'}
+            >
+              <span className="material-icons">{soloInactivos ? 'visibility' : 'visibility_off'}</span>
+              Inactivas
+            </button>
+          </AdminFilterPanel.Actions>
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 

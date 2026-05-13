@@ -221,3 +221,53 @@
     padding: 10px !important;
   }
 }
+
+/* --- INPUT PRECIO MANUAL (OfertaModalProductos) --- */
+
+.precioManualCell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.precioManualInput {
+  width: 120px;
+  padding: 6px 10px;
+  background: var(--background-elevated);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: right;
+  transition: var(--theme-transition),
+              border-color var(--transition-fast) var(--transition-curve),
+              box-shadow   var(--transition-fast) var(--transition-curve);
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.precioManualInput::-webkit-outer-spin-button,
+.precioManualInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.precioManualInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+}
+
+.precioManualInput:not(:disabled):hover {
+  border-color: rgba(var(--color-primary-rgb), 0.5);
+}
+
+.precioManualInput:disabled {
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .precioManualInput {
+  background: var(--background-secondary);
+}

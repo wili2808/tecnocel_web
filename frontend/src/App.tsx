@@ -120,11 +120,6 @@ function App() {
                                 <Route path="/forgot-password" element={<ForgotPassword />} />
                                 <Route path="/activar-cuenta" element={<ActivarCuenta />} />
                                 {/* Rutas protegidas de cliente */}
-                                <Route path="/panel" element={
-                                  <ProtectedRoute allowedUserTypes={['cliente']}>
-                                    <UserPanel />
-                                  </ProtectedRoute>
-                                } />
                                 <Route path="/carrito" element={
                                   <ProtectedRoute allowedUserTypes={['cliente']}>
                                     <Cart />
@@ -150,6 +145,11 @@ function App() {
                               <Route element={<MaintenanceGuard><Layout hideFooter /></MaintenanceGuard>}>
                                 <Route path="/productos" element={<ProductCatalog />} />
                                 <Route path="/productos/:id" element={<ProductPage />} />
+                                <Route path="/panel" element={
+                                  <ProtectedRoute allowedUserTypes={['cliente']}>
+                                    <UserPanel />
+                                  </ProtectedRoute>
+                                } />
                               </Route>
 
                               {/* Rutas de administración (sin layout y sin guard de mantenimiento) */}
