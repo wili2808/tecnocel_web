@@ -7,7 +7,7 @@ import React, { useMemo } from 'react';
 import { useOfertasPagination } from '../../hooks/useOfertasPagination';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
 import OfferCard from '../../components/product/OfferCard';
-import ProductCard from '../../components/product/ProductCard';
+import OfferProductCarousel from '../../components/product/OfferProductCarousel/OfferProductCarousel';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import type { Product } from '../../types';
 import styles from './Offers.module.css';
@@ -136,25 +136,10 @@ const Offers: React.FC = () => {
                   <OfferCard oferta={oferta} productCount={productos.length} />
 
                   {productos.length > 0 && (
-                    <div className={styles.offerProducts}>
-                      {productos.map((product) => (
-                        <ProductCard
-                          key={product.id_producto}
-                          id_producto={product.id_producto}
-                          nombre={product.nombre}
-                          descripcion={product.descripcion}
-                          imagen_url={product.imagen_url}
-                          imagenes={product.imagenes}
-                          precio_venta={product.precio_venta}
-                          stock={product.stock}
-                          precio_original={product.precio_original}
-                          precio_oferta={product.precio_oferta}
-                          descuento_porcentaje={product.descuento_porcentaje}
-                          en_oferta={product.en_oferta}
-                          ofertas={product.ofertas}
-                        />
-                      ))}
-                    </div>
+                    <OfferProductCarousel
+                      productos={productos}
+                      fechaFin={oferta.fecha_fin}
+                    />
                   )}
 
                   {productos.length === 0 && !loading && (

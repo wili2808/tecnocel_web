@@ -115,13 +115,7 @@
   animation: fadeInUp 0.5s ease-out both;
 }
 
-/* ── Grid de productos por oferta ───────────────────────────────────── */
 
-.offerProducts {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-md);
-}
 
 .noProducts {
   font-size: var(--font-size-sm);
@@ -268,18 +262,6 @@
 
 /* ── Responsive ─────────────────────────────────────────────────────── */
 
-@media (max-width: 1280px) {
-  .offerProducts {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 1024px) {
-  .offerProducts {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-sm);
-  }
-}
 
 @media (max-width: 768px) {
   .pageHeader {
@@ -300,10 +282,6 @@
 
   .offersList { gap: var(--spacing-2xl); }
 
-  .offerProducts {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
-  }
 
   .expiredGrid {
     grid-template-columns: 1fr;
@@ -324,10 +302,6 @@
     padding: var(--spacing-lg) var(--spacing-md);
   }
 
-  .offerProducts {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-xs);
-  }
 
   .loadMoreButton {
     padding: var(--spacing-sm) var(--spacing-xl);

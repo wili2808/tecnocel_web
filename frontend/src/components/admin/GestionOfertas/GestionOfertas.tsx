@@ -356,6 +356,7 @@ const GestionOfertas = () => {
           onCancelar={handleCancelar}
           onGuardado={handleGuardado}
           onEliminar={editandoOferta ? () => handleEliminarOferta(editandoOferta.id_oferta) : undefined}
+          onRefreshLista={cargarOfertas}
           modo={modoModal}
         />
       )}

@@ -16,6 +16,8 @@ interface OfertaModalProps {
   onGuardado: () => void;
   onCancelar: () => void;
   onEliminar?: () => void;
+  /** Recarga la lista principal sin cerrar el modal (para actualizar contadores) */
+  onRefreshLista?: () => void;
 }
 
 type TabType = 'general' | 'productos';
@@ -46,7 +48,7 @@ const INITIAL_FORM: OfertaFormState = {
   activo: true,
 };
 
-const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado, onCancelar, onEliminar }) => {
+const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado, onCancelar, onEliminar, onRefreshLista }) => {
   const { showNotification } = useNotification();
   const { tipoCambio } = useTipoCambio();
   const [formData, setFormData] = useState<OfertaFormState>(INITIAL_FORM);
@@ -163,6 +165,9 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
         /* no crítico */
       }
     }
+    // Recarga la tabla de GestionOfertas para actualizar productos_count
+    // sin cerrar el modal (onGuardado lo cerraría)
+    onRefreshLista?.();
   };
 
   const handleEliminarClick = () => {
