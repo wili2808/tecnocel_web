@@ -24,45 +24,26 @@ const adminProductService = {
     ver_inactivos = true,
     solo_inactivos = false
   ): Promise<{ items: Product[], total: number }> => {
-    // Si hay búsqueda, usamos el endpoint de búsqueda
-    // NOTA: El endpoint de búsqueda actual /buscar no soporta paginación nativa en el backend
-    // pero lo adaptaremos para que al menos devuelva la estructura correcta.
+    const params: any = { 
+      limit, 
+      page, 
+      sortBy, 
+      order, 
+      es_destacado, 
+      ver_inactivos, 
+      solo_inactivos 
+    };
+
     if (search && search.trim()) {
-      const response = await adminApi.get('/almacen/productos/buscar', {
-        params: { 
-          termino: search.trim(),
-          limit,
-          page,
-          sortBy,
-          order,
-          ver_inactivos,
-          solo_inactivos
-        }
-      });
-      const result = response.data;
-      // La búsqueda ahora devuelve la misma estructura que la lista general
-      if (result.data && result.data.items) {
-        return {
-          items: result.data.items,
-          total: result.data.pagination?.total || result.data.items.length
-        };
-      }
-      const items = Array.isArray(result.data) ? result.data : [];
-      return {
-        items,
-        total: result.pagination?.total || items.length
-      };
+      params.busqueda = search.trim();
     }
 
-    const response = await adminApi.get('/almacen/productos', {
-      params: { limit, page, sortBy, order, es_destacado, ver_inactivos, solo_inactivos }
-    });
+    const response = await adminApi.get('/almacen/productos', { params });
     
     // El backend devuelve { success: true, data: { items, pagination: { total } } }
     // o a veces { success: true, data: [...], pagination: { total } }
     const result = response.data;
     
-    // El backend devuelve { success: true, data: { items, pagination: { total } } }
     if (result.data && result.data.items) {
       return {
         items: result.data.items,
@@ -70,7 +51,7 @@ const adminProductService = {
       };
     }
     
-    // Caso de búsqueda o fallback: { success: true, data: [...] }
+    // Caso de fallback: { success: true, data: [...] }
     const items = Array.isArray(result.data) ? result.data : [];
     return {
       items,
