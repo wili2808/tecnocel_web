@@ -7,6 +7,7 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminDataTable,
+  AdminLoading,
 } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import styles from './GestionUsuarios.module.css';
@@ -192,6 +193,18 @@ const GestionUsuarios = () => {
       (u.Rol?.rol && u.Rol.rol.toLowerCase().includes(lowerSearch))
     );
   }, [usuarios, searchTerm]);
+
+  if (loading && usuarios.length === 0) {
+    return (
+      <div className={styles.container}>
+        <AdminLoading
+          variant="page"
+          title="Cargando usuarios"
+          message="Obteniendo la lista de usuarios del sistema y sus roles..."
+        />
+      </div>
+    );
+  }
 
   if (!puedeVer) {
     return (

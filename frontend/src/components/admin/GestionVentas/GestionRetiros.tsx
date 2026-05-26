@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import envioAdminService from '../../../services/envioAdminService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminDataTable } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminDataTable, AdminLoading } from '../common';
 import GestionRetirosModal from './GestionRetirosModal';
 import styles from './GestionVentas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
@@ -160,6 +160,16 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
 
 
   if (error) return <div className={styles.errorMsg}>{error}</div>;
+
+  if (cargando && retiros.length === 0) {
+    return (
+      <AdminLoading
+        variant="panel"
+        title="Cargando retiros"
+        message="Estamos obteniendo la lista de retiros en tienda pendientes..."
+      />
+    );
+  }
 
   return (
     <div>

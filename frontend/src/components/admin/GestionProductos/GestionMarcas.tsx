@@ -8,7 +8,8 @@ import {
   AdminEntitySearchBar, 
   AdminFilterPanel, 
   AdminDataTable,
-  AdminEmptyState 
+  AdminEmptyState,
+  AdminLoading
 } from '../common';
 import styles from './GestionProductos.module.css';
 
@@ -129,6 +130,16 @@ const GestionMarcas: React.FC = memo(() => {
       (m.descripcion_marca && m.descripcion_marca.toLowerCase().includes(lowerSearch))
     );
   }, [marcas, searchTerm]);
+
+  if (loading && marcas.length === 0) {
+    return (
+      <AdminLoading
+        variant="panel"
+        title="Cargando marcas"
+        message="Estamos obteniendo la lista de marcas de productos..."
+      />
+    );
+  }
 
   if (!puedeVer) {
     return (

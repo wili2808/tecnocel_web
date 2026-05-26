@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import adminCommentService from '../../../services/adminCommentService';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { AdminTabs, AdminFilterPanel, AdminSearch, AdminDataTable } from '../common';
+import { AdminTabs, AdminFilterPanel, AdminSearch, AdminDataTable, AdminLoading } from '../common';
 import DetalleComentarioModal from './DetalleComentarioModal';
 import styles from './GestionComentarios.module.css';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
@@ -119,6 +119,18 @@ const GestionComentarios: React.FC = memo(() => {
     { id: 'activo', label: 'Aprobados', icon: 'check_circle' },
     { id: 'todos', label: 'Todos', icon: 'reviews' },
   ];
+
+  if (loading && comentarios.length === 0) {
+    return (
+      <div className={styles.container}>
+        <AdminLoading
+          variant="page"
+          title="Cargando reseñas"
+          message="Estamos recuperando los comentarios y calificaciones de clientes..."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

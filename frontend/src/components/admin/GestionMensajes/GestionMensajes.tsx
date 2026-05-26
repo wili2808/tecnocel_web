@@ -7,6 +7,7 @@ import {
   AdminDataTable,
   AdminTabs,
   AdminSearch,
+  AdminLoading,
 } from '../common';
 import mensajeService from '../../../services/mensajeService';
 import DetalleMensajeModal from './DetalleMensajeModal';
@@ -139,6 +140,18 @@ const GestionMensajes = () => {
       })
     }
   ], []);
+
+  if (loading && mensajes.length === 0) {
+    return (
+      <div className={styles.container}>
+        <AdminLoading
+          variant="page"
+          title="Cargando mensajes"
+          message="Estamos sincronizando la bandeja de entrada..."
+        />
+      </div>
+    );
+  }
 
   if (!puedeVer) {
     return (
