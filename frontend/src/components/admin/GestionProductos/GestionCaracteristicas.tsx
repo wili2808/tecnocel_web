@@ -8,7 +8,8 @@ import {
   AdminEntitySearchBar, 
   AdminFilterPanel, 
   AdminDataTable,
-  AdminEmptyState 
+  AdminEmptyState,
+  AdminLoading
 } from '../common';
 import styles from './GestionProductos.module.css';
 
@@ -154,6 +155,16 @@ const GestionCaracteristicas: React.FC = memo(() => {
       (t.descripcion && t.descripcion.toLowerCase().includes(lowerSearch))
     );
   }, [tipos, searchTerm]);
+
+  if (loading && tipos.length === 0) {
+    return (
+      <AdminLoading
+        variant="panel"
+        title="Cargando características"
+        message="Estamos obteniendo los tipos de características técnicas..."
+      />
+    );
+  }
 
   if (!puedeVer) {
     return (

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from '
 import { useNotification } from '../../../contexts/NotificationContext';
 import envioAdminService from '../../../services/envioAdminService';
 import { ESTADO_ENVIO_LABELS } from '../../../types/envio';
-import { AdminEntitySearchBar, AdminFilterPanel, AdminDataTable } from '../common';
+import { AdminEntitySearchBar, AdminFilterPanel, AdminDataTable, AdminLoading } from '../common';
 import GestionEnviosModal from './GestionEnviosModal';
 import styles from './GestionVentas.module.css';
 import controlStyles from '../common/AdminControlStyles.module.css';
@@ -182,6 +182,16 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
 
 
   if (error) return <div className={styles.errorMsg}>{error}</div>;
+
+  if (cargando && envios.length === 0) {
+    return (
+      <AdminLoading
+        variant="panel"
+        title="Cargando envíos"
+        message="Estamos obteniendo el listado de envíos a domicilio y sus estados..."
+      />
+    );
+  }
 
   return (
     <div>

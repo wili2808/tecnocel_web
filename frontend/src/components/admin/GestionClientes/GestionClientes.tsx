@@ -6,6 +6,7 @@ import {
   AdminEntitySearchBar,
   AdminFilterPanel,
   AdminDataTable,
+  AdminLoading,
 } from '../common';
 import usuarioService from '../../../services/usuarioService';
 import DetalleClienteModal from './DetalleClienteModal';
@@ -158,6 +159,18 @@ const GestionClientes = () => {
 
 
   // ── Si no tiene permisos para ver clientes ─────────────────────────────────
+  if (loading && clientes.length === 0) {
+    return (
+      <div className={styles.container}>
+        <AdminLoading
+          variant="page"
+          title="Cargando clientes"
+          message="Obteniendo la base de datos de clientes registrados..."
+        />
+      </div>
+    );
+  }
+
   if (!puedeVer) {
     return (
       <div className={styles.container}>

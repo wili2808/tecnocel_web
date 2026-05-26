@@ -8,7 +8,8 @@ import {
   AdminEntitySearchBar, 
   AdminFilterPanel, 
   AdminDataTable,
-  AdminEmptyState
+  AdminEmptyState,
+  AdminLoading
 } from '../common';
 import styles from './GestionProductos.module.css';
 import type { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table';
@@ -102,6 +103,16 @@ const GestionCategorias: React.FC = memo(() => {
       c.nombre_categoria.toLowerCase().includes(lowerSearch)
     );
   }, [categorias, searchTerm]);
+
+  if (loading && categorias.length === 0) {
+    return (
+      <AdminLoading
+        variant="panel"
+        title="Cargando categorías"
+        message="Estamos obteniendo la lista de categorías de productos..."
+      />
+    );
+  }
 
   if (!puedeVer) {
     return (
