@@ -20,8 +20,12 @@ const options = {
     },
     servers: [
       {
+        url: 'https://tecnocel-api.onrender.com/api',
+        description: 'Servidor de producción (Render)'
+      },
+      {
         url: 'http://localhost:3000/api',
-        description: 'Servidor de desarrollo'
+        description: 'Servidor de desarrollo (Local)'
       }
     ],
     securityDefinitions: {

@@ -6,8 +6,8 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc && node -e \"require('fs').cpSync('src/templates', 'dist/templates', {recursive: true})\"",
-    "build:swagger": "ts-node scripts/swagger-jsdoc.ts",
-    "swagger": "ts-node scripts/swagger-jsdoc.ts",
+    "build:swagger": "node scripts/swagger-jsdoc.mjs",
+    "swagger": "node scripts/swagger-jsdoc.mjs",
     "start": "node dist/index.js",
     "dev": "concurrently \"tsc --watch\" \"nodemon\"",
     "sync:cloudinary": "node --loader ts-node/esm scripts/migrations/syncToCloudinary.ts"
