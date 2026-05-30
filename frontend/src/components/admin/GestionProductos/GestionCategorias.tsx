@@ -104,15 +104,7 @@ const GestionCategorias: React.FC = memo(() => {
     );
   }, [categorias, searchTerm]);
 
-  if (loading && categorias.length === 0) {
-    return (
-      <AdminLoading
-        variant="panel"
-        title="Cargando categorías"
-        message="Estamos obteniendo la lista de categorías de productos..."
-      />
-    );
-  }
+
 
   if (!puedeVer) {
     return (
@@ -160,21 +152,31 @@ const GestionCategorias: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      <AdminDataTable
-        data={categoriasFiltradas}
-        columns={columns}
-        isLoading={loading}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        columnOrder={columnOrder}
-        onColumnOrderChange={setColumnOrder}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        totalItems={categoriasFiltradas.length}
-        onRowClick={puedeEditar ? iniciarEdicion : undefined}
-        itemLabel="categorías"
-        emptyMessage={loading ? 'Cargando categorías...' : 'No se encontraron categorías'}
-      />
+      {loading && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando categorías"
+          message="Estamos obteniendo la lista de categorías de productos..."
+        />
+      )}
+
+      {!loading && (
+        <AdminDataTable
+          data={categoriasFiltradas}
+          columns={columns}
+          isLoading={loading}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={categoriasFiltradas.length}
+          onRowClick={puedeEditar ? iniciarEdicion : undefined}
+          itemLabel="categorías"
+          emptyMessage="No se encontraron categorías"
+        />
+      )}
 
       <CategoriaModal
         isOpen={modalOpen}

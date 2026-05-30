@@ -156,15 +156,7 @@ const GestionCaracteristicas: React.FC = memo(() => {
     );
   }, [tipos, searchTerm]);
 
-  if (loading && tipos.length === 0) {
-    return (
-      <AdminLoading
-        variant="panel"
-        title="Cargando características"
-        message="Estamos obteniendo los tipos de características técnicas..."
-      />
-    );
-  }
+
 
   if (!puedeVer) {
     return (
@@ -212,21 +204,31 @@ const GestionCaracteristicas: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      <AdminDataTable
-        data={tiposFiltrados}
-        columns={columns}
-        isLoading={loading}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        columnOrder={columnOrder}
-        onColumnOrderChange={setColumnOrder}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        totalItems={tiposFiltrados.length}
-        onRowClick={puedeEditar ? abrirFormEditar : undefined}
-        itemLabel="características"
-        emptyMessage={loading ? 'Cargando características...' : 'No se encontraron características'}
-      />
+      {loading && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando características"
+          message="Estamos obteniendo los tipos de características técnicas..."
+        />
+      )}
+
+      {!loading && (
+        <AdminDataTable
+          data={tiposFiltrados}
+          columns={columns}
+          isLoading={loading}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={tiposFiltrados.length}
+          onRowClick={puedeEditar ? abrirFormEditar : undefined}
+          itemLabel="características"
+          emptyMessage="No se encontraron características"
+        />
+      )}
 
       <CaracteristicaModal
         isOpen={modalOpen}

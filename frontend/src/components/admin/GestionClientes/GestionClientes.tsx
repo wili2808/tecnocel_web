@@ -159,18 +159,6 @@ const GestionClientes = () => {
 
 
   // ── Si no tiene permisos para ver clientes ─────────────────────────────────
-  if (loading && clientes.length === 0) {
-    return (
-      <div className={styles.container}>
-        <AdminLoading
-          variant="page"
-          title="Cargando clientes"
-          message="Obteniendo la base de datos de clientes registrados..."
-        />
-      </div>
-    );
-  }
-
   if (!puedeVer) {
     return (
       <div className={styles.container}>
@@ -210,41 +198,46 @@ const GestionClientes = () => {
           </AdminFilterPanel.Row>
         </AdminFilterPanel>
 
+        {/* Estado de carga */}
+        {loading && (
+          <AdminLoading
+            variant="panel"
+            title="Cargando clientes"
+            message="Obteniendo la base de datos de clientes registrados..."
+          />
+        )}
+
         {/* ── Tabla de clientes ─────────────────────────────────────────────── */}
-        {!loading && error && clientes.length === 0 ? (
-          <AdminEmptyState
-            icon="error_outline"
-            title="No pudimos cargar los clientes"
-            message={error}
-            actionLabel="Reintentar"
-            onAction={() => cargarClientes(pagination, sorting)}
-            tone="danger"
-            className={styles.stateBlock}
-          />
-        ) : (
-          <AdminDataTable
-            data={clientes}
-            columns={columns}
-            sorting={sorting}
-            onSortingChange={setSorting}
-            columnOrder={columnOrder}
-            onColumnOrderChange={setColumnOrder}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            totalItems={total}
-            itemLabel="clientes"
-            onRowClick={(row) => handleVerDetalle(row)}
-            isLoading={loading}
-            manualPagination={true}
-            manualSorting={true}
-            emptyMessage={
-              loading
-                ? 'Cargando...'
-                : error
-                  ? error
-                  : 'No se encontraron clientes'
-            }
-          />
+        {!loading && (
+          error && clientes.length === 0 ? (
+            <AdminEmptyState
+              icon="error_outline"
+              title="No pudimos cargar los clientes"
+              message={error}
+              actionLabel="Reintentar"
+              onAction={() => cargarClientes(pagination, sorting)}
+              tone="danger"
+              className={styles.stateBlock}
+            />
+          ) : (
+            <AdminDataTable
+              data={clientes}
+              columns={columns}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              columnOrder={columnOrder}
+              onColumnOrderChange={setColumnOrder}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={total}
+              itemLabel="clientes"
+              onRowClick={(row) => handleVerDetalle(row)}
+              isLoading={loading}
+              manualPagination={true}
+              manualSorting={true}
+              emptyMessage={error ? error : 'No se encontraron clientes'}
+            />
+          )
         )}
       </div>
 

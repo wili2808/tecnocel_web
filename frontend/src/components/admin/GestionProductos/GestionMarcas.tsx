@@ -131,15 +131,7 @@ const GestionMarcas: React.FC = memo(() => {
     );
   }, [marcas, searchTerm]);
 
-  if (loading && marcas.length === 0) {
-    return (
-      <AdminLoading
-        variant="panel"
-        title="Cargando marcas"
-        message="Estamos obteniendo la lista de marcas de productos..."
-      />
-    );
-  }
+
 
   if (!puedeVer) {
     return (
@@ -187,21 +179,31 @@ const GestionMarcas: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      <AdminDataTable
-        data={marcasFiltradas}
-        columns={columns}
-        isLoading={loading}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        columnOrder={columnOrder}
-        onColumnOrderChange={setColumnOrder}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        totalItems={marcasFiltradas.length}
-        onRowClick={puedeEditar ? iniciarEdicion : undefined}
-        itemLabel="marcas"
-        emptyMessage={loading ? 'Cargando marcas...' : 'No se encontraron marcas'}
-      />
+      {loading && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando marcas"
+          message="Estamos obteniendo la lista de marcas de productos..."
+        />
+      )}
+
+      {!loading && (
+        <AdminDataTable
+          data={marcasFiltradas}
+          columns={columns}
+          isLoading={loading}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={marcasFiltradas.length}
+          onRowClick={puedeEditar ? iniciarEdicion : undefined}
+          itemLabel="marcas"
+          emptyMessage="No se encontraron marcas"
+        />
+      )}
 
       <MarcaModal
         isOpen={modalOpen}
