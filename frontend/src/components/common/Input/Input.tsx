@@ -13,6 +13,9 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
  * Componente Input - Atómico y reutilizable
  * Maneja estados de focus, errores, iconos y visibilidad de contraseña
  */
+const isTouchDevice = () =>
+  typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 const Input: React.FC<InputProps> = memo(({
   label,
   icon,
@@ -26,6 +29,7 @@ const Input: React.FC<InputProps> = memo(({
   style,
   onFocus,
   onBlur,
+  autoFocus,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -77,6 +81,7 @@ const Input: React.FC<InputProps> = memo(({
           onFocus={handleFocus}
           onBlur={handleBlur}
           className={styles.input}
+          autoFocus={autoFocus && !isTouchDevice() ? true : undefined}
           {...props}
         />
 

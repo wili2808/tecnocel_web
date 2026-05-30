@@ -13,6 +13,9 @@ interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
  * Componente TextArea - Atómico y reutilizable
  * Maneja estados de focus, errores e iconos
  */
+const isTouchDevice = () =>
+  typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 const TextArea: React.FC<TextAreaProps> = memo(({
   label,
   icon,
@@ -26,6 +29,7 @@ const TextArea: React.FC<TextAreaProps> = memo(({
   onFocus,
   onBlur,
   rows = 4,
+  autoFocus,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -68,6 +72,7 @@ const TextArea: React.FC<TextAreaProps> = memo(({
           onBlur={handleBlur}
           className={styles.textarea}
           rows={rows}
+          autoFocus={autoFocus && !isTouchDevice() ? true : undefined}
           {...props}
         />
       </div>
