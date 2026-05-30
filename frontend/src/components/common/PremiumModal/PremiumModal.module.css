@@ -13,6 +13,18 @@
   padding: 20px;
 }
 
+@media (max-width: 480px) {
+  .overlay {
+    padding: 8px;
+    align-items: flex-end;
+  }
+
+  .modal {
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    max-height: 92vh;
+  }
+}
+
 .modal {
   background: var(--background-elevated);
   border-radius: var(--border-radius-lg);

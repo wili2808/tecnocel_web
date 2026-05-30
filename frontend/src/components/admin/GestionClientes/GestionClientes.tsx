@@ -22,6 +22,7 @@ const GestionClientes = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_clientes');
   const puedeCrear = tienePermiso('crear_cliente');
+  const puedeEditar = tienePermiso('editar_cliente');
   const { showNotification } = useNotification();
 
   const [clientes, setClientes] = useState<ClienteListItem[]>([]);
@@ -246,7 +247,7 @@ const GestionClientes = () => {
         <DetalleClienteModal 
           cliente={clienteSeleccionado} 
           onClose={handleCerrarModal} 
-          onEdit={() => handleEditar(clienteSeleccionado)}
+          onEdit={puedeEditar ? () => handleEditar(clienteSeleccionado) : undefined}
         />
       )}
 
