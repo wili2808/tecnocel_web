@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
+import { FiCopy } from 'react-icons/fi';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import adminProductService from '../../../services/adminProductService';
@@ -154,6 +155,16 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
     setForm(prev => ({ ...prev, [name]: val }));
   };
 
+  const handleCopy = useCallback(async (text: string, label: string) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      showNotification(`${label} copiado al portapapeles`, 'success');
+    } catch {
+      showNotification(`Error al copiar ${label.toLowerCase()}`, 'error');
+    }
+  }, [showNotification]);
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setForm(prev => ({ ...prev, [name]: checked }));
@@ -289,6 +300,7 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
         title={modoEdicion ? `Editando: ${producto?.nombre}` : 'Nuevo Producto en Almacén'}
         icon={modoEdicion ? 'edit_note' : 'add_box'}
         maxWidth="900px"
+        height="90vh"
       >
         <div className="modalTabsPremium">
           {[
@@ -314,31 +326,55 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
             {activeTab === 'general' && (
               <div className="fade-in">
                 <div className="modalFormGroupFullPremium">
-                  <Input
-                    id="nombre"
-                    name="nombre"
-                    label="Nombre del Producto"
-                    value={form.nombre}
-                    onChange={handleInputChange}
-                    placeholder="Ej: Samsung Galaxy S23 Ultra"
-                    disabled={readonly}
-                    required
-                    autoFocus
-                  />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <Input
+                        id="nombre"
+                        name="nombre"
+                        label="Nombre del Producto"
+                        value={form.nombre}
+                        onChange={handleInputChange}
+                        placeholder="Ej: Samsung Galaxy S23 Ultra"
+                        disabled={readonly}
+                        required
+                        autoFocus
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(form.nombre, 'Nombre')}
+                      title="Copiar nombre"
+                      className={styles.copyCodeBtn}
+                    >
+                      <FiCopy size={18} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="modalFormGroupFullPremium">
-                  <Input
-                    id="codigo"
-                    name="codigo"
-                    label="Código de Producto (SKU)"
-                    value={form.codigo}
-                    onChange={handleInputChange}
-                    placeholder="Ej: TC-S23U-001"
-                    disabled={modoEdicion || readonly}
-                    required
-                    className="font-mono font-bold"
-                  />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <Input
+                        id="codigo"
+                        name="codigo"
+                        label="Código de Producto (SKU)"
+                        value={form.codigo}
+                        onChange={handleInputChange}
+                        placeholder="Ej: TC-S23U-001"
+                        disabled={modoEdicion || readonly}
+                        required
+                        className="font-mono font-bold"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(form.codigo, 'Código')}
+                      title="Copiar código"
+                      className={styles.copyCodeBtn}
+                    >
+                      <FiCopy size={18} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="modalFormGridPremium">

@@ -60,6 +60,21 @@
   to { transform: rotate(360deg); }
 }
 
+/* ---- Motion track (swipe / drag) ---- */
+
+.motionTrack {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+
+.motionTrack:active {
+  cursor: grabbing;
+}
+
 /* ---- Botones de navegación ---- */
 
 .navButton {

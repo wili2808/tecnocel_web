@@ -11,6 +11,7 @@ interface PremiumModalProps {
   title?: string;
   icon?: string;
   maxWidth?: string;
+  height?: string;
   className?: string;
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
@@ -33,6 +34,7 @@ const PremiumModal: React.FC<PremiumModalProps> = memo(({
   title,
   icon,
   maxWidth = '600px',
+  height,
   className = '',
   showCloseButton = true,
   closeOnOverlayClick = true,
@@ -66,7 +68,7 @@ const PremiumModal: React.FC<PremiumModalProps> = memo(({
     <div className={styles.overlay} onClick={handleOverlayClick}>
       <div 
         className={`${styles.modal} ${className}`} 
-        style={{ maxWidth }} 
+        style={{ maxWidth, ...(height ? { height } : {}) }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header (Opcional si se provee título) */}
