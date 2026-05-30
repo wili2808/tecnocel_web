@@ -20,6 +20,9 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
  * Componente Select - Atómico y reutilizable
  * Maneja estados de focus, errores e iconos con estilo consistente
  */
+const isTouchDevice = () =>
+  typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 const Select: React.FC<SelectProps> = memo(({
   label,
   icon,
@@ -33,6 +36,7 @@ const Select: React.FC<SelectProps> = memo(({
   style,
   onFocus,
   onBlur,
+  autoFocus,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -74,6 +78,7 @@ const Select: React.FC<SelectProps> = memo(({
           onFocus={handleFocus}
           onBlur={handleBlur}
           className={`${styles.select} ${className}`}
+          autoFocus={autoFocus && !isTouchDevice() ? true : undefined}
           {...props}
         >
           {options.map((option) => (
