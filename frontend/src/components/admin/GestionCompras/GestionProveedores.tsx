@@ -132,31 +132,6 @@ const GestionProveedores: React.FC = memo(() => {
     );
   }
 
-  if (cargando) {
-    return (
-      <AdminLoading
-        variant="panel"
-        title="Cargando proveedores"
-        message="Estamos obteniendo la lista de proveedores registrados…"
-        className={styles.loadingState}
-      />
-    );
-  }
-
-  if (error) {
-    return (
-      <AdminEmptyState
-        icon="error_outline"
-        title="No pudimos cargar los proveedores"
-        message={error}
-        actionLabel="Reintentar"
-        onAction={() => cargarProveedores(pagination, sorting)}
-        tone="danger"
-        className={styles.errorState}
-      />
-    );
-  }
-
   return (
     <>
       <AdminFilterPanel>
@@ -179,6 +154,31 @@ const GestionProveedores: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
+      {/* Estado de carga */}
+      {cargando && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando proveedores"
+          message="Estamos obteniendo la lista de proveedores registrados…"
+          className={styles.loadingState}
+        />
+      )}
+
+      {/* Error */}
+      {!cargando && error && (
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar los proveedores"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={() => cargarProveedores(pagination, sorting)}
+          tone="danger"
+          className={styles.errorState}
+        />
+      )}
+
+      {/* Tabla de proveedores */}
+      {!cargando && !error && (
         <AdminDataTable
           data={proveedores}
           columns={columns}
@@ -202,6 +202,7 @@ const GestionProveedores: React.FC = memo(() => {
           manualSorting={true}
           emptyMessage={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay proveedores registrados aún."}
         />
+      )}
 
       {modalProveedor && (
         <ProveedorModal

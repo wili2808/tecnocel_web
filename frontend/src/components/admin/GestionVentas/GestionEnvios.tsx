@@ -181,18 +181,6 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
   ], []);
 
 
-  if (error) return <div className={styles.errorMsg}>{error}</div>;
-
-  if (cargando && envios.length === 0) {
-    return (
-      <AdminLoading
-        variant="panel"
-        title="Cargando envíos"
-        message="Estamos obteniendo el listado de envíos a domicilio y sus estados..."
-      />
-    );
-  }
-
   return (
     <div>
       {/* Filtros - Usando Sistema Global */}
@@ -257,7 +245,22 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
+      {/* Estado de carga */}
+      {cargando && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando envíos"
+          message="Estamos obteniendo el listado de envíos a domicilio y sus estados..."
+        />
+      )}
+
+      {/* Error */}
+      {!cargando && error && (
+        <div className={styles.errorMsg}>{error}</div>
+      )}
+
       {/* Tabla */}
+      {!cargando && !error && (
         <AdminDataTable
           data={envios}
           columns={columns}
@@ -275,6 +278,7 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
           manualSorting={true}
           emptyMessage="No se encontraron pedidos de envío a domicilio."
         />
+      )}
 
       {/* Modal */}
       {envioSeleccionado && (

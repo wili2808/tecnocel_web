@@ -159,18 +159,6 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
   ], []);
 
 
-  if (error) return <div className={styles.errorMsg}>{error}</div>;
-
-  if (cargando && retiros.length === 0) {
-    return (
-      <AdminLoading
-        variant="panel"
-        title="Cargando retiros"
-        message="Estamos obteniendo la lista de retiros en tienda pendientes..."
-      />
-    );
-  }
-
   return (
     <div>
       {/* Filtros - Usando Sistema Global */}
@@ -232,7 +220,22 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
+      {/* Estado de carga */}
+      {cargando && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando retiros"
+          message="Estamos obteniendo la lista de retiros en tienda pendientes..."
+        />
+      )}
+
+      {/* Error */}
+      {!cargando && error && (
+        <div className={styles.errorMsg}>{error}</div>
+      )}
+
       {/* Tabla */}
+      {!cargando && !error && (
         <AdminDataTable
           data={retiros}
           columns={columns}
@@ -250,6 +253,7 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
           manualSorting={true}
           emptyMessage="No se encontraron pedidos de retiro en tienda."
         />
+      )}
 
       {/* Modal */}
       {retiroSeleccionado && (

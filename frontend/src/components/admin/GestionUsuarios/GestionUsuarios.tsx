@@ -194,18 +194,6 @@ const GestionUsuarios = () => {
     );
   }, [usuarios, searchTerm]);
 
-  if (loading && usuarios.length === 0) {
-    return (
-      <div className={styles.container}>
-        <AdminLoading
-          variant="page"
-          title="Cargando usuarios"
-          message="Obteniendo la lista de usuarios del sistema y sus roles..."
-        />
-      </div>
-    );
-  }
-
   if (!puedeVer) {
     return (
       <div className={styles.container}>
@@ -241,40 +229,51 @@ const GestionUsuarios = () => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {!loading && error && usuarios.length === 0 ? (
-        <AdminEmptyState
-          icon="error_outline"
-          title="No pudimos cargar los usuarios"
-          message={error}
-          actionLabel="Reintentar"
-          onAction={() => cargarUsuarios(pagination, sorting)}
-          tone="danger"
-          className={styles.stateBlock}
+      {/* Estado de carga */}
+      {loading && (
+        <AdminLoading
+          variant="panel"
+          title="Cargando usuarios"
+          message="Obteniendo la lista de usuarios del sistema y sus roles..."
         />
-      ) : (
-        <AdminDataTable
-          data={usuariosFiltrados}
-          columns={columns}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          columnOrder={columnOrder}
-          onColumnOrderChange={setColumnOrder}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          totalItems={total}
-          itemLabel="usuarios"
-          onRowClick={handleEditarClick}
-          isLoading={loading}
-          emptyMessage={
-            loading
-              ? 'Cargando usuarios...'
-              : searchTerm
-                ? `No se encontraron usuarios para "${searchTerm}"`
-                : 'No hay usuarios registrados'
-          }
-          manualPagination={true}
-          manualSorting={true}
-        />
+      )}
+
+      {!loading && (
+        error && usuarios.length === 0 ? (
+          <AdminEmptyState
+            icon="error_outline"
+            title="No pudimos cargar los usuarios"
+            message={error}
+            actionLabel="Reintentar"
+            onAction={() => cargarUsuarios(pagination, sorting)}
+            tone="danger"
+            className={styles.stateBlock}
+          />
+        ) : (
+          <AdminDataTable
+            data={usuariosFiltrados}
+            columns={columns}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnOrder={columnOrder}
+            onColumnOrderChange={setColumnOrder}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            totalItems={total}
+            itemLabel="usuarios"
+            onRowClick={handleEditarClick}
+            isLoading={loading}
+            emptyMessage={
+              error
+                ? error
+                : searchTerm
+                  ? `No se encontraron usuarios para "${searchTerm}"`
+                  : 'No hay usuarios registrados'
+            }
+            manualPagination={true}
+            manualSorting={true}
+          />
+        )
       )}
 
       {/* Modales Separados */}
