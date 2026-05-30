@@ -248,11 +248,6 @@ const GestionRetirosModal: React.FC<GestionRetirosModalProps> = ({ retiro, onClo
         )}
       </div>
 
-      <div className="modalFooterPremium">
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
-          Cerrar
-        </button>
-      </div>
     </PremiumModal>
   );
 };

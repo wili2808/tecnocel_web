@@ -134,9 +134,6 @@ const DetalleMensajeModal: React.FC<Props> = memo(({
           </button>
         )}
 
-        <button className="btnPremium btnPrimaryPremium" onClick={onClose}>
-          Cerrar
-        </button>
       </div>
     </PremiumModal>
   );

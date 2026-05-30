@@ -369,11 +369,6 @@ const GestionEnviosModal: React.FC<GestionEnviosModalProps> = ({ envio, onClose,
         )}
       </div>
 
-      <div className="modalFooterPremium">
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
-          Cerrar
-        </button>
-      </div>
     </PremiumModal>
   );
 };

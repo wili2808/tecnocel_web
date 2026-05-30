@@ -119,9 +119,6 @@ const DetalleClienteModal: React.FC<Props> = memo(({ cliente, onClose, onEdit })
             Editar Cliente
           </button>
         )}
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
-          Cerrar
-        </button>
       </div>
     </PremiumModal>
   );

@@ -180,9 +180,6 @@ const DetalleComentarioModal: React.FC<DetalleComentarioModalProps> = memo(({
           Eliminar
         </button>
 
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose}>
-          Cerrar
-        </button>
       </div>
     </PremiumModal>
   );
