@@ -6,6 +6,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { formatARS } from '../../../utils/formatPrecio';
 import adminProductService from '../../../services/adminProductService';
 import ProductoModal from './ProductoModal';
 import GestionMarcas from './GestionMarcas';
@@ -32,10 +34,9 @@ const GestionProductos = () => {
   const { tienePermiso } = useAuth();
   const puedeVer = tienePermiso('ver_productos');
   const puedeCrear = tienePermiso('crear_producto');
-  const puedeEditar = tienePermiso('editar_producto');
 
-  const isReadOnly = !puedeEditar;
   const { showNotification } = useNotification();
+  const { tipoCambio } = useTipoCambio();
 
   // Estado de la vista
   const [activeTab, setActiveTab] = useState<TabProductos>('productos');
@@ -58,7 +59,7 @@ const GestionProductos = () => {
   // --- Estados de TanStack Table ---
   const [sorting, setSorting] = useState<SortingState>([{ id: 'nombre', desc: false }]);
   const [columnOrder, setColumnOrder] = useState<string[]>([
-    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock'
+    'imagen', 'codigo', 'nombre', 'categoria', 'marca', 'precio_venta', 'precio_venta_ars', 'stock'
   ]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
@@ -207,6 +208,10 @@ const GestionProductos = () => {
       header: 'Precio Venta',
       cell: (info) => {
         const val = parseFloat(info.getValue() as string) || 0;
+        const formatoUSD = new Intl.NumberFormat('es-AR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(val);
         return (
           <div className={`${styles.precioCell} ${styles.textLeft}`}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
@@ -224,7 +229,36 @@ const GestionProductos = () => {
               >
                 USD
               </span>
-              <span>$ {val.toFixed(2)}</span>
+              <span>$ {formatoUSD}</span>
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'precio_venta_ars',
+      accessorFn: (row) => Math.round(parseFloat(row.precio_venta) * tipoCambio),
+      header: 'Precio ARS',
+      cell: (info) => {
+        const valUSD = parseFloat(info.row.original.precio_venta) || 0;
+        return (
+          <div className={`${styles.precioCell} ${styles.textLeft}`}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{
+                  marginLeft: '0px',
+                  fontSize: '0.75rem',
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  backgroundColor: '#e0f2e9',
+                  color: '#0d6636',
+                  fontWeight: '500',
+                  flexShrink: 0,
+                }}
+              >
+                ARS
+              </span>
+              <span>{formatARS(valUSD, tipoCambio)}</span>
             </span>
           </div>
         );
@@ -267,7 +301,7 @@ const GestionProductos = () => {
         );
       }
     }
-  ], []);
+  ], [tipoCambio]);
 
 
   const productTabs = useMemo<AdminTabConfig[]>(() => [
@@ -384,7 +418,7 @@ const GestionProductos = () => {
               onPaginationChange={setPagination}
               totalItems={total}
               itemLabel="productos"
-              onRowClick={(row) => !isReadOnly && handleEditar(row.id_producto)}
+              onRowClick={(row) => handleEditar(row.id_producto)}
               isLoading={loading}
               manualPagination={true}
               manualSorting={true}

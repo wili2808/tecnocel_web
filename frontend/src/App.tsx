@@ -21,7 +21,6 @@ import PublicOnlyRoute from './components/common/PublicOnlyRoute';
 import ErrorBoundary from './components/common/ErrorBoundary/ErrorBoundary';
 import ScrollToTop from './components/common/ScrollToTop/ScrollToTop';
 import LoadingScreen from './components/common/LoadingScreen/LoadingScreen';
-import LoadingSpinner from './components/common/LoadingSpinner/LoadingSpinner';
 import { useAutoLogout } from './hooks/useAutoLogout';
 import './styles/global.css';
 
@@ -47,15 +46,7 @@ const Maintenance = lazy(() => import('./pages/Maintenance/Maintenance'));
 const NotFound = lazy(() => import('./pages/NotFound/NotFound'));
 
 const LoadingFallback = () => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '60vh',
-    padding: '2rem'
-  }}>
-    <LoadingSpinner size="lg" text="Cargando sección..." />
-  </div>
+  <LoadingScreen variant="page" message="Cargando sección..." />
 );
 
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {

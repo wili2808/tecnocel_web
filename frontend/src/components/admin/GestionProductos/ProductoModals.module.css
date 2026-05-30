@@ -238,6 +238,32 @@
   background: var(--color-primary-dark);
 }
 
+/* --- COPY CODE BUTTON --- */
+
+.copyCodeBtn {
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--background-secondary);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  margin-bottom: 1px;
+}
+
+.copyCodeBtn:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}
+
+.copyCodeBtn:active {
+  transform: scale(0.95);
+}
+
 /* --- RESPONSIVE --- */
 
 @media (max-width: 600px) {

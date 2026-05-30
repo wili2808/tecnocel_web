@@ -1,16 +1,28 @@
 import React from 'react';
 import styles from './LoadingScreen.module.css';
 
+type LoadingVariant = 'full' | 'page' | 'inline';
+
 interface LoadingScreenProps {
   message?: string;
   fullPage?: boolean;
+  variant?: LoadingVariant;
 }
+
+const variantClass: Record<LoadingVariant, string> = {
+  full: 'fullPage',
+  page: 'page',
+  inline: 'inline',
+};
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message = 'Cargando...',
   fullPage = true,
+  variant,
 }) => {
-  const rootClass = fullPage ? styles.fullPage : styles.inline;
+  const resolvedVariant: LoadingVariant =
+    variant ?? (fullPage ? 'full' : 'inline');
+  const rootClass = styles[variantClass[resolvedVariant]];
 
   return (
     <div className={rootClass} role="status" aria-busy="true" aria-live="polite">

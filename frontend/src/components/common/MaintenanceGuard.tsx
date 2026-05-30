@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useConfig } from '../../contexts/ConfigContext';
 import { useAuth } from '../../contexts/AuthContext';
-import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
+import LoadingScreen from './LoadingScreen/LoadingScreen';
 
 interface MaintenanceGuardProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ const MaintenanceGuard: React.FC<MaintenanceGuardProps> = ({ children }) => {
   }
 
   if (loading) {
-    return <LoadingSpinner size="lg" text="Verificando configuración..." />;
+    return <LoadingScreen variant="page" message="Verificando configuración..." />;
   }
 
   if (isMaintenanceMode && !isSystemUser) {
