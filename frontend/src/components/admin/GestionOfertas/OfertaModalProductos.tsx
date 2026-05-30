@@ -484,12 +484,6 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
             {seleccionados.size} producto{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
           </div>
           <button
-            className="btnPremium btnSecondaryPremium"
-            onClick={handleCerrarBuscador}
-          >
-            Cancelar
-          </button>
-          <button
             className="btnPremium btnPrimaryPremium"
             onClick={handleAsignarProductos}
             disabled={seleccionados.size === 0 || asignando}

@@ -8,6 +8,7 @@ import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import Select from '../../common/Select/Select';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 import styles from './ProductoModals.module.css';
 
 interface ProductoModalProps {
@@ -46,6 +47,7 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
 
   const modoEdicion = !!producto;
   const [activeTab, setActiveTab] = useState<TabType>('general');
+  const { setInitialValues, isDirty } = useFormDirty<ProductoFormData>();
   
   // Datos maestros para selects
   const [marcas, setMarcas] = useState<Marca[]>([]);
@@ -89,7 +91,7 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
     if (isOpen) {
       cargarDatosMaestros();
       if (producto) {
-        setForm({
+        const vals = {
           codigo: producto.codigo || '',
           nombre: producto.nombre,
           descripcion: producto.descripcion || '',
@@ -104,7 +106,9 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
           fecha_ingreso: producto.fecha_ingreso ? producto.fecha_ingreso.split('T')[0] : INITIAL_FORM.fecha_ingreso,
           es_destacado: producto.es_destacado,
           activo: producto.activo,
-        });
+        };
+        setForm(vals);
+        setInitialValues(vals);
         
         // Galería Unificada - Cargamos existentes
         const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -140,7 +144,7 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
       setActiveTab('general');
       setShowConfirmDelete(false);
     }
-  }, [isOpen, producto, cargarDatosMaestros]);
+  }, [isOpen, producto, cargarDatosMaestros, setInitialValues]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -657,7 +661,7 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
             </button>
           )}
           {!readonly && (
-            <button type="submit" form="product-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
+            <button type="submit" form="product-form" className="btnPremium btnPrimaryPremium" disabled={guardando || (modoEdicion && !isDirty(form))}>
               <span className="material-icons">{guardando ? 'sync' : 'save'}</span>
               {guardando ? 'Procesando...' : 'Guardar Cambios'}
             </button>

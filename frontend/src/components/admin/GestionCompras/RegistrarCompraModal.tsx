@@ -614,9 +614,6 @@ const RegistrarCompraModal: React.FC<RegistrarCompraModalProps> = memo(({ onClos
 
       {/* Footer Premium - FIJO */}
       <div className="modalFooterPremium">
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={registrando}>
-          Cancelar
-        </button>
         <button 
           type="button"
           className={`btnPremium btnPrimaryPremium ${styles.footerBtn}`} 

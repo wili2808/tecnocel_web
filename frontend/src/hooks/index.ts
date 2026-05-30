@@ -25,5 +25,8 @@ export { useEscapeKey } from './useEscapeKey';
 export { useSearchHistory } from './useSearchHistory';
 export { useIsMobile } from './useIsMobile';
 
+// Hooks de formularios
+export { useFormDirty } from './useFormDirty';
+
 // Hooks de direcciones
 export { useDirecciones } from './useDirecciones'; 

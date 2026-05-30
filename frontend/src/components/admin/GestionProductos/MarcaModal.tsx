@@ -6,6 +6,7 @@ import type { Marca } from '../../../types/product';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 import styles from './ProductoModals.module.css';
 
 interface MarcaModalProps {
@@ -33,6 +34,8 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   
+  const { setInitialValues, isDirty } = useFormDirty<{ nombre_marca: string; descripcion_marca: string; activo: boolean }>();
+
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -40,11 +43,13 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
   useEffect(() => {
     if (isOpen) {
       if (marca) {
-        setForm({
+        const vals = {
           nombre_marca: marca.nombre_marca,
           descripcion_marca: marca.descripcion_marca || '',
           activo: marca.activo,
-        });
+        };
+        setForm(vals);
+        setInitialValues(vals);
         setLogoPreview(marca.logo_marca || null);
         setLogoFile(null);
       } else {
@@ -54,7 +59,7 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
       }
       setShowConfirmDelete(false);
     }
-  }, [isOpen, marca]);
+  }, [isOpen, marca, setInitialValues]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -151,8 +156,8 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
         icon={modoEdicion ? 'edit' : 'add_circle'}
         maxWidth="500px"
       >
-        <form id="marca-form" onSubmit={handleSubmit}>
-          <div className="modalBodyPremium">
+        <div className="modalBodyPremium">
+          <form id="marca-form" onSubmit={handleSubmit}>
             <div className={styles.logoUploadContainer}>
               <div className={styles.logoPreviewWrapper}>
                 {logoPreview ? (
@@ -208,31 +213,31 @@ const MarcaModal: React.FC<MarcaModalProps> = memo(({ marca, isOpen, onClose, on
                 rows={3}
               />
             </div>
-          </div>
+          </form>
+        </div>
 
-          <div className="modalFooterPremium">
-            {modoEdicion && puedeEliminar && (
-              <button 
-                type="button" 
-                className={`btnPremium ${marca?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
-                onClick={() => setShowConfirmDelete(true)} 
-                disabled={guardando}
-              >
-                <span className="material-icons">{marca?.activo ? 'visibility_off' : 'visibility'}</span>
-                {marca?.activo ? 'Desactivar' : 'Reactivar'}
-              </button>
-            )}
-            
-            {!readonly && (
-              <button type="submit" form="marca-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
-                <span className="material-icons">
-                  {guardando ? 'hourglass_empty' : 'save'}
-                </span>
-                {guardando ? 'Guardando...' : 'Guardar'}
-              </button>
-            )}
-          </div>
-        </form>
+        <div className="modalFooterPremium">
+          {modoEdicion && puedeEliminar && (
+            <button 
+              type="button" 
+              className={`btnPremium ${marca?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
+              onClick={() => setShowConfirmDelete(true)} 
+              disabled={guardando}
+            >
+              <span className="material-icons">{marca?.activo ? 'visibility_off' : 'visibility'}</span>
+              {marca?.activo ? 'Desactivar' : 'Reactivar'}
+            </button>
+          )}
+          
+          {!readonly && (
+            <button type="submit" form="marca-form" className="btnPremium btnPrimaryPremium" disabled={guardando || (modoEdicion && !isDirty(form))}>
+              <span className="material-icons">
+                {guardando ? 'hourglass_empty' : 'save'}
+              </span>
+              {guardando ? 'Guardando...' : 'Guardar'}
+            </button>
+          )}
+        </div>
       </PremiumModal>
 
       {/* Sub-modal Confirmar Eliminación */}

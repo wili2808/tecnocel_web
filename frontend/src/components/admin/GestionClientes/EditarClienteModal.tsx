@@ -1,9 +1,10 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useNotification } from '../../../contexts/NotificationContext';
 import usuarioService from '../../../services/usuarioService';
 import type { ClienteListItem } from '../../../types/usuario';
 import Input from '../../common/Input/Input';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 import styles from './ClienteModals.module.css';
 
 interface Props {
@@ -25,6 +26,21 @@ const EditarClienteModal: React.FC<Props> = memo(({ cliente, onClose, onGuardado
     is_web_enabled: cliente.is_web_enabled,
     email_verified: cliente.email_verified,
   });
+
+  const { setInitialValues, isDirty } = useFormDirty<typeof form>();
+
+  useEffect(() => {
+    const vals = {
+      nombre_cliente: cliente.nombre_cliente,
+      apellido_cliente: cliente.apellido_cliente,
+      celular_cliente: cliente.celular_cliente || '',
+      nit_ci_cliente: cliente.nit_ci_cliente || '',
+      is_web_enabled: cliente.is_web_enabled,
+      email_verified: cliente.email_verified,
+    };
+    setForm(vals);
+    setInitialValues(vals);
+  }, [cliente]);
 
   const setField = (field: string, value: string | boolean) => setForm((prev) => ({ ...prev, [field]: value }));
 
@@ -161,14 +177,11 @@ const EditarClienteModal: React.FC<Props> = memo(({ cliente, onClose, onGuardado
       </div>
 
       <div className="modalFooterPremium">
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-          Cancelar
-        </button>
         <button 
           type="submit" 
           form="edit-cliente-form"
           className="btnPremium btnPrimaryPremium" 
-          disabled={guardando}
+          disabled={guardando || !isDirty(form)}
         >
           <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
           {guardando ? 'Guardando...' : 'Guardar Cambios'}

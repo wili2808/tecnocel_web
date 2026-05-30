@@ -548,14 +548,10 @@ const RegistrarVentaModal: React.FC<RegistrarVentaModalProps> = ({ onClose, onRe
       </div>
 
       <div className="modalFooterPremium">
-        {paso > 0 ? (
+        {paso > 0 && (
           <button className="btnPremium btnSecondaryPremium" onClick={() => setPaso((p) => p - 1)} disabled={enviando}>
             <span className="material-icons">arrow_back</span>
             Atrás
-          </button>
-        ) : (
-          <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={enviando}>
-            Cancelar
           </button>
         )}
 

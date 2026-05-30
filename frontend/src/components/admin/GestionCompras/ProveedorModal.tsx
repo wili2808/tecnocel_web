@@ -1,9 +1,10 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import proveedorAdminService from '../../../services/proveedorAdminService';
 import type { CreateProveedorData, ProveedorListItem } from '../../../types';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 import styles from './CompraModals.module.css';
 
 interface ProveedorModalProps {
@@ -14,6 +15,8 @@ interface ProveedorModalProps {
 }
 
 const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, proveedor, onClose, onGuardado }) => {
+  const { setInitialValues, isDirty } = useFormDirty<CreateProveedorData & { id_proveedor?: number }>();
+
   const [formData, setFormData] = useState<CreateProveedorData & { id_proveedor?: number }>({
     nombre_proveedor: proveedor?.nombre_proveedor || '',
     empresa: proveedor?.empresa || '',
@@ -23,6 +26,20 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, pro
     direccion: proveedor?.direccion || '',
     id_proveedor: proveedor?.id_proveedor,
   });
+
+  useEffect(() => {
+    const vals = {
+      nombre_proveedor: proveedor?.nombre_proveedor || '',
+      empresa: proveedor?.empresa || '',
+      celular: proveedor?.celular || '',
+      telefono: proveedor?.telefono || '',
+      email: proveedor?.email || '',
+      direccion: proveedor?.direccion || '',
+      id_proveedor: proveedor?.id_proveedor,
+    };
+    setFormData(vals);
+    setInitialValues(vals);
+  }, [proveedor]);
 
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -170,14 +187,11 @@ const ProveedorModal: React.FC<ProveedorModalProps> = memo(({ isOpen = true, pro
       </div>
 
       <div className="modalFooterPremium">
-        <button className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-          Cancelar
-        </button>
         <button 
           type="submit" 
           form="proveedor-form" 
           className="btnPremium btnPrimaryPremium" 
-          disabled={guardando}
+          disabled={guardando || (isEditing && !isDirty(formData))}
         >
           <span className="material-icons">{guardando ? 'hourglass_empty' : 'save'}</span>
           {guardando ? 'Guardando...' : isEditing ? 'Actualizar Proveedor' : 'Crear Proveedor'}

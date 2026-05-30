@@ -5,6 +5,7 @@ import adminProductService from '../../../services/adminProductService';
 import type { Category } from '../../../types/product';
 import Input from '../../common/Input/Input';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 import styles from './ProductoModals.module.css';
 
 interface CategoriaModalProps {
@@ -29,6 +30,8 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
     activo: true,
   });
   
+  const { setInitialValues, isDirty } = useFormDirty<{ nombre_categoria: string; activo: boolean }>();
+
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -36,16 +39,15 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
   useEffect(() => {
     if (isOpen) {
       if (categoria) {
-        setForm({
-          nombre_categoria: categoria.nombre_categoria,
-          activo: categoria.activo,
-        });
+        const vals = { nombre_categoria: categoria.nombre_categoria, activo: categoria.activo };
+        setForm(vals);
+        setInitialValues(vals);
       } else {
         setForm({ nombre_categoria: '', activo: true });
       }
       setShowConfirmDelete(false);
     }
-  }, [isOpen, categoria]);
+  }, [isOpen, categoria, setInitialValues]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,8 +120,8 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
         icon={modoEdicion ? 'edit' : 'add_circle'}
         maxWidth="450px"
       >
-        <form id="categoria-form" onSubmit={handleSubmit}>
-          <div className="modalBodyPremium">
+        <div className="modalBodyPremium">
+          <form id="categoria-form" onSubmit={handleSubmit}>
             <div className="modalFormGroupFullPremium">
               <Input
                 id="nombre_categoria"
@@ -133,31 +135,31 @@ const CategoriaModal: React.FC<CategoriaModalProps> = memo(({ categoria, isOpen,
                 autoFocus
               />
             </div>
-          </div>
+          </form>
+        </div>
 
-          <div className="modalFooterPremium">
-            {modoEdicion && puedeEliminar && (
-              <button 
-                type="button" 
-                className={`btnPremium ${categoria?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
-                onClick={() => setShowConfirmDelete(true)} 
-                disabled={guardando}
-              >
-                <span className="material-icons">{categoria?.activo ? 'visibility_off' : 'visibility'}</span>
-                {categoria?.activo ? 'Desactivar' : 'Reactivar'}
-              </button>
-            )}
-            
-            {!readonly && (
-              <button type="submit" form="categoria-form" className="btnPremium btnPrimaryPremium" disabled={guardando}>
-                <span className="material-icons">
-                  {guardando ? 'hourglass_empty' : 'save'}
-                </span>
-                {guardando ? 'Guardando...' : 'Guardar'}
-              </button>
-            )}
-          </div>
-        </form>
+        <div className="modalFooterPremium">
+          {modoEdicion && puedeEliminar && (
+            <button 
+              type="button" 
+              className={`btnPremium ${categoria?.activo ? 'btnDangerPremium' : 'btnSuccessPremium'} mr-auto`} 
+              onClick={() => setShowConfirmDelete(true)} 
+              disabled={guardando}
+            >
+              <span className="material-icons">{categoria?.activo ? 'visibility_off' : 'visibility'}</span>
+              {categoria?.activo ? 'Desactivar' : 'Reactivar'}
+            </button>
+          )}
+          
+          {!readonly && (
+              <button type="submit" form="categoria-form" className="btnPremium btnPrimaryPremium" disabled={guardando || (modoEdicion && !isDirty(form))}>
+              <span className="material-icons">
+                {guardando ? 'hourglass_empty' : 'save'}
+              </span>
+              {guardando ? 'Guardando...' : 'Guardar'}
+            </button>
+          )}
+        </div>
       </PremiumModal>
 
       {/* Sub-modal Confirmar Eliminación */}
