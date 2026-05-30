@@ -18,8 +18,6 @@ const EditarClienteModal: React.FC<Props> = memo(({ cliente, onClose, onGuardado
   const { showNotification } = useNotification();
   const [guardando, setGuardando] = useState(false);
 
-  const { setInitialValues, isDirty } = useFormDirty<typeof cliente & { celular_cliente: string; nit_ci_cliente: string }>();
-
   const [form, setForm] = useState({
     nombre_cliente: cliente.nombre_cliente,
     apellido_cliente: cliente.apellido_cliente,
@@ -28,6 +26,8 @@ const EditarClienteModal: React.FC<Props> = memo(({ cliente, onClose, onGuardado
     is_web_enabled: cliente.is_web_enabled,
     email_verified: cliente.email_verified,
   });
+
+  const { setInitialValues, isDirty } = useFormDirty<typeof form>();
 
   useEffect(() => {
     const vals = {
@@ -41,8 +41,6 @@ const EditarClienteModal: React.FC<Props> = memo(({ cliente, onClose, onGuardado
     setForm(vals);
     setInitialValues(vals);
   }, [cliente]);
-
-  const dirty = isDirty(form);
 
   const setField = (field: string, value: string | boolean) => setForm((prev) => ({ ...prev, [field]: value }));
 

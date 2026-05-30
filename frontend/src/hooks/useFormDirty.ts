@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 
-export function useFormDirty<T extends Record<string, unknown>>() {
+export function useFormDirty<T extends object>() {
   const initialRef = useRef<T | null>(null);
 
   const setInitialValues = useCallback((values: T) => {

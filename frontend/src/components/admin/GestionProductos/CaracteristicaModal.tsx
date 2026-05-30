@@ -266,9 +266,45 @@ const CaracteristicaModal: React.FC<CaracteristicaModalProps> = memo(({ tipo, is
                 </label>
                 <div className={styles.selectionInputContainer}>
                   <Input
+                    id="nueva-opcion"
                     label=""
-
+                    placeholder="Escribir opción..."
+                    value={nuevaOpcion}
+                    onChange={(e) => setNuevaOpcion(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); agregarOpcion(); } }}
+                    disabled={guardando || readonly}
+                    autoFocus
                   />
+                  <button
+                    type="button"
+                    className={styles.addBtn}
+                    onClick={agregarOpcion}
+                    disabled={guardando || readonly || !nuevaOpcion.trim()}
+                    title="Agregar opción"
+                  >
+                    <span className="material-icons" style={{ fontSize: 20 }}>add</span>
+                  </button>
+                </div>
+                <div className={styles.tagsContainer}>
+                  {form.opciones_seleccion.length === 0 ? (
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', padding: 4 }}>
+                      No hay opciones agregadas
+                    </span>
+                  ) : (
+                    form.opciones_seleccion.map((opcion) => (
+                      <span key={opcion} className={styles.tag}>
+                        {opcion}
+                        <button
+                          type="button"
+                          className={styles.removeTagBtn}
+                          onClick={() => quitarOpcion(opcion)}
+                          title="Quitar opción"
+                        >
+                          <span className="material-icons" style={{ fontSize: 16 }}>close</span>
+                        </button>
+                      </span>
+                    ))
+                  )}
                 </div>
               </div>
             )}
