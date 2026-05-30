@@ -80,17 +80,11 @@ const GestionConfiguracion: React.FC = memo(() => {
     }
   };
 
-  if (loading) {
-    return <AdminLoading variant="page" title="Cargando ajustes" message="Sincronizando preferencias del sistema..." />;
-  }
-
   return (
-    <div className={styles.configContainer}>
-      <div className={styles.configHeader}>
-        <h2 className={styles.configTitle}>Ajustes del Sistema</h2>
-        <p className={styles.configSubtitle}>Administra la identidad de tu marca, SEO, contactos y ubicación.</p>
-      </div>
-
+    <div className={styles.container}>
+      {loading ? (
+        <AdminLoading variant="panel" title="Cargando ajustes" message="Sincronizando preferencias del sistema..." />
+      ) : (
       <form onSubmit={handleSave} className={styles.configGrid}>
         
         {/* ESTADO DEL SITIO */}
@@ -316,6 +310,7 @@ const GestionConfiguracion: React.FC = memo(() => {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 });

@@ -1,7 +1,6 @@
-.dashboard {
+.container {
+  padding: var(--spacing-md);
   min-height: 100%;
-  padding: 24px;
-  color: var(--text-primary);
 }
 
 .hero,
@@ -498,8 +497,8 @@
 }
 
 @media (max-width: 1024px) {
-  .dashboard {
-    padding: 18px;
+  .container {
+    padding: var(--spacing-md);
   }
 
   .hero {
@@ -508,8 +507,8 @@
 }
 
 @media (max-width: 768px) {
-  .dashboard {
-    padding: 16px;
+  .container {
+    padding: var(--spacing-md);
   }
 
   .hero,
@@ -536,8 +535,8 @@
 }
 
 @media (max-width: 480px) {
-  .dashboard {
-    padding: 12px;
+  .container {
+    padding: var(--spacing-sm);
   }
 
   .heroMeta {
