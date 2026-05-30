@@ -157,26 +157,14 @@ const formatDateTime = (value: string): string =>
     minute: '2-digit',
   });
 
-const formatRelativeDate = (value: Date): string =>
-  value.toLocaleString('es-AR', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
 const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
-  const { user, isAdmin, tienePermiso } = useAuth();
+  const { isAdmin, tienePermiso } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData>(INITIAL_DATA);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [, setLastUpdated] = useState<Date | null>(null);
 
   const monthRange = useMemo(() => toMonthDateRange(), []);
-
-  const userName = user && 'nombres' in user ? user.nombres : 'Equipo';
-  const roleName = user && 'rolNombre' in user ? user.rolNombre : 'Sistema';
-  const permissionCount = user && 'permisos' in user ? (user.permisos?.length ?? 0) : 0;
 
   const canViewVentas = tienePermiso('ver_ventas');
   const canViewCompras = tienePermiso('ver_compras');
@@ -534,51 +522,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
   const loadingMetrics = [0, 1, 2, 3];
 
   return (
-    <section className={styles.dashboard}>
-      <header className={styles.hero}>
-        <div className={styles.heroContent}>
-          <span className={styles.eyebrow}>Centro operativo</span>
-          <h1 className={styles.title}>Dashboard administrativo</h1>
-          <p className={styles.subtitle}>
-            {userName}, este tablero resume el estado comercial, operativo y de acceso de tu sesión actual sin duplicar
-            la navegación del sidebar.
-          </p>
-
-          <div className={styles.heroMeta}>
-            <span className={styles.roleBadge}>
-              <span className="material-icons">shield</span>
-              {roleName}
-            </span>
-            <span className={styles.metaPill}>
-              <span className="material-icons">grid_view</span>
-              {enabledModules.length} módulos activos
-            </span>
-            <span className={styles.metaPill}>
-              <span className="material-icons">key</span>
-              {isAdmin ? 'Acceso total' : `${permissionCount} permisos asignados`}
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.heroAside}>
-          <div className={styles.heroStat}>
-            <span className={styles.heroStatLabel}>Actualización</span>
-            <strong className={styles.heroStatValue}>
-              {lastUpdated ? formatRelativeDate(lastUpdated) : 'Cargando'}
-            </strong>
-          </div>
-          <div className={styles.heroStat}>
-            <span className={styles.heroStatLabel}>Productos activos</span>
-            <strong className={styles.heroStatValue}>
-              {dashboardData.general ? formatNumber(dashboardData.general.productos_activos) : '—'}
-            </strong>
-          </div>
-          <div className={styles.heroStat}>
-            <span className={styles.heroStatLabel}>Foco inmediato</span>
-            <strong className={styles.heroStatValue}>{priorityItems[0]?.title ?? 'Operación estable'}</strong>
-          </div>
-        </div>
-      </header>
+    <div className={styles.container}>
 
       {error && (
         <div className={styles.alertBanner}>
@@ -719,7 +663,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
           <p className={styles.emptyState}>Todavía no hay movimientos recientes visibles con los permisos actuales.</p>
         )}
       </section>
-    </section>
+    </div>
   );
 };
 

@@ -81,8 +81,12 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
       setFormData(vals);
       setInitialValues(vals);
       setOfertaActual(oferta);
+    } else if (modo === 'crear') {
+      setFormData(INITIAL_FORM);
+      setInitialValues(INITIAL_FORM);
+      setOfertaActual(null);
     }
-  }, [modo, oferta, tipoCambio]);
+  }, [modo, oferta, tipoCambio, setInitialValues]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -384,7 +388,7 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
           <button 
             type="submit" 
             form="oferta-form" 
-            disabled={loading || isDeleting || !isDirty(formData)} 
+            disabled={loading || isDeleting || (modo === 'editar' && !isDirty(formData))} 
             className="btnPremium btnPrimaryPremium"
           >
             <span className="material-icons">{loading ? 'hourglass_empty' : 'save'}</span>
