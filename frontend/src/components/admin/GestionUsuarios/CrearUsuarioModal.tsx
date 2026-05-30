@@ -98,8 +98,8 @@ const CrearUsuarioModal: React.FC<CrearUsuarioModalProps> = ({ isOpen, onClose, 
       title="Registrar Nuevo Usuario"
       icon="person_add"
     >
-      <form id="crear-usuario-form" onSubmit={handleSubmit}>
-        <div className="modalBodyPremium">
+      <div className="modalBodyPremium">
+        <form id="crear-usuario-form" onSubmit={handleSubmit}>
           <h4 className={styles.sectionTitle}>Información de Perfil</h4>
           
           <div className="modalFormGridPremium">
@@ -174,18 +174,15 @@ const CrearUsuarioModal: React.FC<CrearUsuarioModalProps> = ({ isOpen, onClose, 
             <span className="material-icons">info</span>
             <span>El usuario podrá iniciar sesión inmediatamente después de su creación.</span>
           </div>
-        </div>
+        </form>
+      </div>
 
-        <div className="modalFooterPremium">
-          <button type="button" onClick={handleClose} className="btnPremium btnSecondaryPremium" disabled={creando}>
-            Cancelar
-          </button>
-          <button type="submit" form="crear-usuario-form" disabled={creando} className="btnPremium btnPrimaryPremium">
-            <span className="material-icons">{creando ? 'hourglass_empty' : 'person_add'}</span>
-            {creando ? 'Creando...' : 'Crear Usuario'}
-          </button>
-        </div>
-      </form>
+      <div className="modalFooterPremium">
+        <button type="submit" form="crear-usuario-form" disabled={creando} className="btnPremium btnPrimaryPremium">
+          <span className="material-icons">{creando ? 'hourglass_empty' : 'person_add'}</span>
+          {creando ? 'Creando...' : 'Crear Usuario'}
+        </button>
+      </div>
     </PremiumModal>
   );
 };

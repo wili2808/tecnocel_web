@@ -9,6 +9,7 @@ import Select from '../../common/Select/Select';
 import TextArea from '../../common/TextArea/TextArea';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 
 interface OfertaModalProps {
   modo: 'crear' | 'editar';
@@ -55,13 +56,15 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
   const [ofertaActual, setOfertaActual] = useState<OfertaConProductos | null>(oferta || null);
   const [loading, setLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { setInitialValues, isDirty } = useFormDirty<OfertaFormState>();
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('general');
 
   // Cargar datos de la oferta en modo edición
   useEffect(() => {
     if (modo === 'editar' && oferta) {
-      setFormData({
+      const vals = {
         nombre_oferta: oferta.nombre_oferta || '',
         descripcion: oferta.descripcion || '',
         tipo_descuento: oferta.tipo_descuento || 'porcentaje',
@@ -74,7 +77,9 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
         precio_maximo: oferta.precio_maximo ? Math.round(oferta.precio_maximo * tipoCambio).toString() : '',
         limite_uso: oferta.limite_uso?.toString() || '',
         activo: oferta.activo ?? true,
-      });
+      };
+      setFormData(vals);
+      setInitialValues(vals);
       setOfertaActual(oferta);
     }
   }, [modo, oferta, tipoCambio]);
@@ -375,14 +380,11 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
             {isDeleting ? 'Eliminando...' : 'Eliminar'}
           </button>
         )}
-        <button type="button" className="btnPremium btnSecondaryPremium" onClick={onCancelar} disabled={loading || isDeleting}>
-          Cancelar
-        </button>
         {activeTab === 'general' && (
           <button 
             type="submit" 
             form="oferta-form" 
-            disabled={loading || isDeleting} 
+            disabled={loading || isDeleting || !isDirty(formData)} 
             className="btnPremium btnPrimaryPremium"
           >
             <span className="material-icons">{loading ? 'hourglass_empty' : 'save'}</span>
@@ -407,14 +409,6 @@ const OfertaModal: React.FC<OfertaModalProps> = memo(({ modo, oferta, onGuardado
           </p>
         </div>
         <div className="modalFooterPremium">
-          <button 
-            type="button"
-            className="btnPremium btnSecondaryPremium" 
-            onClick={() => setShowConfirmDelete(false)} 
-            disabled={isDeleting}
-          >
-            Cancelar
-          </button>
           <button 
             type="button"
             className="btnPremium btnDangerPremium" 

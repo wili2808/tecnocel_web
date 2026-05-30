@@ -52,6 +52,13 @@
   height: 42px;
 }
 
+.btnPremium:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  pointer-events: none;
+}
+
 .btnPrimaryPremium {
   background: var(--color-primary);
   color: white;

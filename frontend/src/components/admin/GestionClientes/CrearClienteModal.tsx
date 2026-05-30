@@ -64,9 +64,8 @@ const CrearClienteModal: React.FC<Props> = memo(({ onClose, onCreado }) => {
       icon="person_add_alt"
       maxWidth="600px"
     >
-      <form id="create-cliente-form" onSubmit={handleSubmit}>
-        <div className="modalBodyPremium">
-          
+      <div className="modalBodyPremium">
+        <form id="create-cliente-form" onSubmit={handleSubmit}>
           <h4 className="sectionTitleWithDividerPremium">Información de Contacto</h4>
           
           <div className="modalFormGridPremium">
@@ -132,25 +131,22 @@ const CrearClienteModal: React.FC<Props> = memo(({ onClose, onCreado }) => {
               El cliente recibirá automáticamente un **correo electrónico de activación** para establecer su contraseña y habilitar su acceso a la plataforma web.
             </p>
           </div>
-        </div>
+        </form>
+      </div>
 
-        <div className="modalFooterPremium">
-          <button type="button" className="btnPremium btnSecondaryPremium" onClick={onClose} disabled={guardando}>
-            Cancelar
-          </button>
-          <button 
-            type="submit" 
-            form="create-cliente-form"
-            className="btnPremium btnPrimaryPremium" 
-            disabled={guardando}
-          >
-            <span className="material-icons">
-              {guardando ? 'hourglass_empty' : 'send'}
-            </span>
-            {guardando ? 'Creando...' : 'Crear y Enviar Invitación'}
-          </button>
-        </div>
-      </form>
+      <div className="modalFooterPremium">
+        <button 
+          type="submit"
+          form="create-cliente-form"
+          className="btnPremium btnPrimaryPremium" 
+          disabled={guardando}
+        >
+          <span className="material-icons">
+            {guardando ? 'hourglass_empty' : 'send'}
+          </span>
+          {guardando ? 'Creando...' : 'Crear y Enviar Invitación'}
+        </button>
+      </div>
     </PremiumModal>
   );
 });

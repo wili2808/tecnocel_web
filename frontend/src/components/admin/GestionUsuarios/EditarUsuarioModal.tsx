@@ -5,6 +5,7 @@ import type { UsuarioListItem, RolItem, ActualizarUsuarioData } from '../../../t
 import Input from '../../common/Input/Input';
 import Select from '../../common/Select/Select';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
+import { useFormDirty } from '../../../hooks/useFormDirty';
 import styles from './UsuarioModals.module.css';
 
 interface EditarUsuarioModalProps {
@@ -45,15 +46,19 @@ const EditarUsuarioModal: React.FC<EditarUsuarioModalProps> = ({
   const [editando, setEditando] = useState(false);
   const editandoRef = useRef(false);
 
+  const { setInitialValues, isDirty } = useFormDirty<EditarUsuarioFormData>();
+
   useEffect(() => {
     if (usuario) {
-      setFormData({
+      const vals = {
         nombres: usuario.nombres,
         email: usuario.email,
         id_rol: usuario.id_rol,
         password: '',
         confirmPassword: '',
-      });
+      };
+      setFormData(vals);
+      setInitialValues(vals);
     }
   }, [usuario]);
 
@@ -125,8 +130,8 @@ const EditarUsuarioModal: React.FC<EditarUsuarioModalProps> = ({
       icon="manage_accounts"
     >
       {usuario && (
-        <form id="editar-usuario-form" onSubmit={handleSubmit}>
-          <div className="modalBodyPremium">
+        <div className="modalBodyPremium">
+          <form id="editar-usuario-form" onSubmit={handleSubmit}>
             <h4 className={styles.sectionTitle}>Información del Empleado</h4>
             
             <div className="modalFormGridPremium">
@@ -195,30 +200,28 @@ const EditarUsuarioModal: React.FC<EditarUsuarioModalProps> = ({
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="modalFooterPremium">
-            {puedeEliminar && usuario.id_usuario !== 1 && (
-              <button
-                type="button"
-                onClick={() => onDelete(usuario.id_usuario, usuario.nombres)}
-                className="btnPremium btnDangerPremium mr-auto"
-                title="Eliminar usuario"
-                disabled={editando}
-              >
-                <span className="material-icons">delete</span>
-                Eliminar
-              </button>
-            )}
-            <button type="button" onClick={handleClose} className="btnPremium btnSecondaryPremium" disabled={editando}>
-              Cancelar
+          </form>
+        </div>
+      )}
+      {usuario && (
+        <div className="modalFooterPremium">
+          {puedeEliminar && usuario.id_usuario !== 1 && (
+            <button
+              type="button"
+              onClick={() => onDelete(usuario.id_usuario, usuario.nombres)}
+              className="btnPremium btnDangerPremium mr-auto"
+              title="Eliminar usuario"
+              disabled={editando}
+            >
+              <span className="material-icons">delete</span>
+              Eliminar
             </button>
-            <button type="submit" form="editar-usuario-form" disabled={editando} className="btnPremium btnPrimaryPremium">
-              <span className="material-icons">{editando ? 'hourglass_empty' : 'save'}</span>
-              {editando ? 'Guardando...' : 'Guardar Cambios'}
-            </button>
-          </div>
-        </form>
+          )}
+            <button type="submit" form="editar-usuario-form" disabled={editando || !isDirty(formData)} className="btnPremium btnPrimaryPremium">
+            <span className="material-icons">{editando ? 'hourglass_empty' : 'save'}</span>
+            {editando ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+        </div>
       )}
     </PremiumModal>
   );
