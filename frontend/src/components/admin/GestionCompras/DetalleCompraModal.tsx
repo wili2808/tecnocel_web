@@ -111,9 +111,6 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(({ idCompra, 
         <div className="modalBodyPremium text-center" style={{ padding: '40px' }}>
           <span className="material-icons text-error mb-4" style={{ fontSize: '48px' }}>error_outline</span>
           <p className="text-error font-bold">{error || 'No se encontró la compra'}</p>
-          <button className="btnPremium btnSecondaryPremium mt-5" onClick={onClose}>
-            Cerrar
-          </button>
         </div>
       ) : (
         <>
@@ -213,9 +210,6 @@ const DetalleCompraModal: React.FC<DetalleCompraModalProps> = memo(({ idCompra, 
                 Anular Compra
               </button>
             )}
-            <button className="btnPremium btnPrimaryPremium" onClick={onClose} style={{ minWidth: '100px' }}>
-              Cerrar
-            </button>
           </div>
         </>
       )}

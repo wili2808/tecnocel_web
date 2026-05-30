@@ -340,9 +340,6 @@ const DetalleVentaModal: React.FC<DetalleVentaModalProps> = ({ idVenta, onClose,
               </button>
             )}
 
-            <button className="btnPremium btnPrimaryPremium" onClick={onClose} style={{ minWidth: '100px' }}>
-              Cerrar
-            </button>
           </div>
         </div>
       </PremiumModal>
