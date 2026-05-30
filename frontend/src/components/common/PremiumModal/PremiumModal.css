@@ -19,6 +19,20 @@
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
   background: var(--background-secondary);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .modalFooterPremium {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .modalFooterPremium .btnPremium {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* --- BOTONES PREMIUM --- */
@@ -154,6 +168,30 @@
   .modalGrid2Premium, .modalGrid3Premium {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .modalBodyPremium {
+    padding: 16px;
+  }
+
+  .modalTabBtnPremium {
+    padding: 12px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalTabBtnPremium span:not(.material-icons) {
+    display: none;
+  }
+
+  .modalTabBtnPremium {
+    gap: 0;
+    padding: 12px 8px;
+  }
+
+  .modalFormGridPremium {
+    grid-template-columns: 1fr;
   }
 }
 
