@@ -108,7 +108,6 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
           activo: producto.activo,
         };
         setForm(vals);
-        setInitialValues(vals);
         
         // Galería Unificada - Cargamos existentes
         const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -136,10 +135,16 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
           }
         });
         setCaracteristicas(mapping);
+
+        setInitialValues(vals, {
+          galeria: exist.map(({ id, url_imagen, alt_text, esNuevo }) => ({ id, url_imagen, alt_text, esNuevo, hasFile: false })),
+          caracteristicas: mapping,
+        });
       } else {
         setForm(INITIAL_FORM);
         setGaleria([]);
         setCaracteristicas({});
+        setInitialValues(INITIAL_FORM, { galeria: [], caracteristicas: {} });
       }
       setActiveTab('general');
       setShowConfirmDelete(false);
@@ -661,7 +666,10 @@ const ProductoModal: React.FC<ProductoModalProps> = memo(({ producto, isOpen, on
             </button>
           )}
           {!readonly && (
-            <button type="submit" form="product-form" className="btnPremium btnPrimaryPremium" disabled={guardando || (modoEdicion && !isDirty(form))}>
+            <button type="submit" form="product-form" className="btnPremium btnPrimaryPremium" disabled={guardando || (modoEdicion && !isDirty(form, {
+              galeria: galeria.map(({ id, url_imagen, alt_text, esNuevo, file }) => ({ id, url_imagen, alt_text, esNuevo, hasFile: !!file })),
+              caracteristicas,
+            }))}>
               <span className="material-icons">{guardando ? 'sync' : 'save'}</span>
               {guardando ? 'Procesando...' : 'Guardar Cambios'}
             </button>
