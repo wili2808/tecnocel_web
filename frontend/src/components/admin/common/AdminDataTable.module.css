@@ -1,9 +1,7 @@
 .tableWrapper {
-  background: var(--background-secondary-dark);
-  border: 1px solid var(--border-color-light);
-  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
   margin-bottom: 24px;
   position: relative;
 }
@@ -41,15 +39,15 @@
 }
 
 .table thead {
-  background: var(--background-dark);
+  background: color-mix(in srgb, var(--background-secondary) 30%, transparent);
 }
 
 
 
 .table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-color-light);
-  font-size: 14px;
+  padding: 8px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+  font-size: 13px;
   line-height: 1.4;
   color: var(--text-secondary);
   white-space: nowrap;

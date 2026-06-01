@@ -212,10 +212,10 @@
 .mobileRow {
   display: flex;
   align-items: center;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: 0 var(--spacing-md);
   gap: var(--spacing-sm);
   width: 100%;
-  min-height: var(--navbar-height-mobile);
+  height: var(--navbar-height-mobile);
 }
 
 .mobileBrandSection { flex-shrink: 0; }
@@ -429,7 +429,7 @@
 }
 
 @media (max-width: 480px) {
-  .mobileRow           { padding: var(--spacing-xs) var(--spacing-sm); gap: var(--spacing-xs); }
+  .mobileRow           { padding: 0 var(--spacing-sm); gap: var(--spacing-xs); }
   .logoImage           { height: 30px; }
   .mobileSearchSection { margin: 0 var(--spacing-xs); }
   .mobileDropdown      { right: var(--spacing-sm); min-width: 240px; }

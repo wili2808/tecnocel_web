@@ -298,8 +298,8 @@ const GestionOfertas = () => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {/* Estado de carga */}
-      {loading && (
+      {/* Estado de carga inicial */}
+      {loading && filteredOfertas.length === 0 && !error && (
         <AdminLoading
           variant="panel"
           title="Cargando ofertas"
@@ -321,32 +321,28 @@ const GestionOfertas = () => {
         />
       )}
 
-      {/* Tabla de ofertas */}
-      {!loading && !error && (
-        <>
-
-
-          <AdminDataTable
-            data={filteredOfertas}
-            columns={columns}
-            sorting={sorting}
-            onSortingChange={setSorting}
-            columnOrder={columnOrder}
-            onColumnOrderChange={setColumnOrder}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            totalItems={filteredOfertas.length}
-            itemLabel="ofertas"
-            onRowClick={(row) => handleEditarOferta(row)}
-            isLoading={loading}
-            manualPagination={false}
-            emptyMessage={
-              searchTerm || filtroEstado !== 'todas'
-                ? 'No se encontraron ofertas con los filtros aplicados'
-                : 'No hay ofertas registradas'
-            }
-          />
-        </>
+      {/* Tabla de ofertas (siempre montada una vez que hay data) */}
+      {!error && (filteredOfertas.length > 0 || !loading) && (
+        <AdminDataTable
+          data={filteredOfertas}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={filteredOfertas.length}
+          itemLabel="ofertas"
+          onRowClick={(row) => handleEditarOferta(row)}
+          isLoading={loading}
+          manualPagination={false}
+          emptyMessage={
+            searchTerm || filtroEstado !== 'todas'
+              ? 'No se encontraron ofertas con los filtros aplicados'
+              : 'No hay ofertas registradas'
+          }
+        />
       )}
 
       {/* Modal para crear/editar oferta */}

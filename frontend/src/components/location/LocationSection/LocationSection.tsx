@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './LocationSection.module.css';
 import OpenStreetMap from '../OpenStreetMap/OpenStreetMap';
 import HistorySection from '../HistorySection/HistorySection';
+import { useConfig } from '../../../contexts/ConfigContext';
 
 /**
  * Props para el componente LocationSection
@@ -47,15 +48,19 @@ interface LocationSectionProps {
 export const LocationSection: React.FC<LocationSectionProps> = ({
     title = "Nuestra Ubicación",
     subtitle = "Visítanos y descubre nuestros productos",
-    coordinates = {
-        lat: -27.4514,
-        lng: -58.9867
-    },
-    locationName = "TecnoCel - Resistencia, Chaco",
+    coordinates: coordinatesProp,
+    locationName: locationNameProp,
     showContactInfo = true,
     description,
     className = ''
 }) => {
+    const { getConfig } = useConfig();
+
+    const coordinates = coordinatesProp ?? {
+        lat: parseFloat(getConfig('map_lat', '-27.4514')),
+        lng: parseFloat(getConfig('map_lng', '-58.9867'))
+    };
+    const locationName = locationNameProp ?? getConfig('map_title', 'TecnoCel - Resistencia, Chaco');
     return (
         <section className={`${styles.locationSection} ${className}`} aria-labelledby="location-title">
             <div className={styles.container}>

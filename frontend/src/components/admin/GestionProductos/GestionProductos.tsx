@@ -382,8 +382,8 @@ const GestionProductos = () => {
             </AdminFilterPanel.Row>
           </AdminFilterPanel>
 
-          {/* Estado de carga */}
-          {loading && (
+          {/* Estado de carga inicial (solo primera vez, sin data previa) */}
+          {loading && allProductos.length === 0 && (
             <AdminLoading
               variant="panel"
               title="Cargando productos"
@@ -405,8 +405,8 @@ const GestionProductos = () => {
             />
           )}
 
-          {/* Tabla de productos (AdminDataTable) */}
-          {!loading && !error && (
+          {/* Tabla de productos (siempre montada mientras no haya error, oculta solo en carga inicial) */}
+          {!error && (allProductos.length > 0 || !loading) && (
             <AdminDataTable
               data={allProductos}
               columns={columns}

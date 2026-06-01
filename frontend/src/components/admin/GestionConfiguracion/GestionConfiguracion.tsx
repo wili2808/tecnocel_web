@@ -1,24 +1,43 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { configuracionService, type Configuracion } from '../../../services/configuracionService';
 import { useNotification } from '../../../contexts/NotificationContext';
 import { useConfig } from '../../../contexts/ConfigContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { AdminSurface, AdminLoading } from '../common';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import styles from './GestionConfiguracion.module.css';
 
-/**
- * Componente de Gestión de Configuración (Refactorizado v2)
- * Utiliza componentes atómicos (Input, TextArea) y componentes de superficie del admin.
- */
+let _isDirty = false;
+export const isConfigDirty = () => _isDirty;
+
 const GestionConfiguracion: React.FC = memo(() => {
   const { theme, toggleTheme } = useTheme();
   const { showNotification } = useNotification();
   const { refreshConfigs } = useConfig();
+  const { tienePermiso } = useAuth();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const dirtyRef = useRef(false);
+  const configsRef = useRef<Record<string, string>>({});
+  const puedeGestionar = tienePermiso('gestionar_configuracion');
+  const puedePresenciaWeb = tienePermiso('gestionar_presencia_web');
+  const puedeContacto = tienePermiso('gestionar_contacto');
+  const puedeRedesSociales = tienePermiso('gestionar_redes_sociales');
+  const puedeUbicacion = tienePermiso('gestionar_ubicacion');
+
+  const markDirty = useCallback(() => {
+    dirtyRef.current = true;
+    _isDirty = true;
+  }, []);
+
+  const markClean = useCallback(() => {
+    dirtyRef.current = false;
+    _isDirty = false;
+  }, []);
+
   const [configs, setConfigs] = useState<Record<string, string>>({
     site_title: '',
     site_description: '',
@@ -35,15 +54,41 @@ const GestionConfiguracion: React.FC = memo(() => {
     maintenance_mode: '0'
   });
 
+  const originalConfigs = useRef<Record<string, string> | null>(null);
+
+  const hasChanges = useMemo(() => {
+    if (!originalConfigs.current) return false;
+    const orig = originalConfigs.current;
+    return Object.keys(orig).some(key => orig[key] !== (configs[key] ?? ''));
+  }, [configs]);
+
   useEffect(() => {
     const fetchConfigs = async () => {
       try {
+        _isDirty = false;
+        dirtyRef.current = false;
         const data = await configuracionService.getAll();
-        const configMap: Record<string, string> = {};
+        const configMap: Record<string, string> = {
+          site_title: '',
+          site_description: '',
+          whatsapp_number: '',
+          instagram_url: '',
+          facebook_url: '',
+          site_email: '',
+          site_phone: '',
+          site_hours: '',
+          site_address: '',
+          map_lat: '',
+          map_lng: '',
+          map_title: '',
+          maintenance_mode: '0',
+        };
         data.forEach((c: Configuracion) => {
           configMap[c.clave] = c.valor;
         });
         setConfigs(prev => ({ ...prev, ...configMap }));
+        configsRef.current = { ...configMap };
+        originalConfigs.current = { ...configMap };
       } catch (error) {
         console.error('Error al cargar configuraciones:', error);
       } finally {
@@ -53,12 +98,28 @@ const GestionConfiguracion: React.FC = memo(() => {
     fetchConfigs();
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      _isDirty = false;
+    };
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    markDirty();
     setConfigs(prev => ({ ...prev, [name]: value }));
   };
 
   const handleToggleMaintenance = () => {
+    markDirty();
     setConfigs(prev => ({
       ...prev,
       maintenance_mode: prev.maintenance_mode === '1' ? '0' : '1'
@@ -72,6 +133,8 @@ const GestionConfiguracion: React.FC = memo(() => {
       await configuracionService.updateMultiple(configs);
       showNotification('Configuraciones guardadas correctamente', 'success');
       await refreshConfigs();
+      originalConfigs.current = { ...configs };
+      markClean();
     } catch (error) {
       console.error('Error al guardar configuraciones:', error);
       showNotification('Error al guardar las configuraciones', 'error');
@@ -103,8 +166,10 @@ const GestionConfiguracion: React.FC = memo(() => {
             <div className={styles.cardActions}>
               <button 
                 type="button" 
-                className={`${styles.toggleButton} ${configs.maintenance_mode === '1' ? styles.activeToggle : ''}`}
+                className={`${styles.toggleButton} ${configs.maintenance_mode === '1' ? styles.activeToggle : ''} ${!puedeGestionar ? styles.disabledToggle : ''}`}
                 onClick={handleToggleMaintenance}
+                disabled={!puedeGestionar}
+                title={!puedeGestionar ? 'No tienes permisos para gestionar el modo mantenimiento' : ''}
               >
                 <span className="material-icons">
                   {configs.maintenance_mode === '1' ? 'construction' : 'check_circle'}
@@ -150,12 +215,13 @@ const GestionConfiguracion: React.FC = memo(() => {
         </section>
 
         {/* PRESENCIA WEB */}
-        <section className={styles.configSection}>
+        <section className={`${styles.configSection} ${!puedePresenciaWeb ? styles.sectionDisabled : ''}`}>
           <div className={styles.sectionHeader}>
             <div className={styles.iconBox}>
               <span className="material-icons">public</span>
             </div>
             <h3>Presencia Web (SEO)</h3>
+            {!puedePresenciaWeb && <span className={`material-icons ${styles.lockBadge}`} title="Sin permisos">lock</span>}
           </div>
           <AdminSurface className={styles.configCardForm}>
             <Input 
@@ -166,6 +232,7 @@ const GestionConfiguracion: React.FC = memo(() => {
               onChange={handleChange}
               placeholder="Ej: TecnoCel - Tecnología y Celulares"
               icon="title"
+              disabled={!puedePresenciaWeb}
             />
             <TextArea 
               id="site_description"
@@ -176,17 +243,19 @@ const GestionConfiguracion: React.FC = memo(() => {
               placeholder="Describe tu tienda para los buscadores..."
               icon="description"
               rows={3}
+              disabled={!puedePresenciaWeb}
             />
           </AdminSurface>
         </section>
 
         {/* CONTACTO */}
-        <section className={styles.configSection}>
+        <section className={`${styles.configSection} ${!puedeContacto ? styles.sectionDisabled : ''}`}>
           <div className={styles.sectionHeader}>
             <div className={styles.iconBox}>
               <span className="material-icons">contact_support</span>
             </div>
             <h3>Contacto y Horarios</h3>
+            {!puedeContacto && <span className={`material-icons ${styles.lockBadge}`} title="Sin permisos">lock</span>}
           </div>
           <AdminSurface className={styles.configCardForm}>
             <div className={styles.formRow}>
@@ -198,6 +267,7 @@ const GestionConfiguracion: React.FC = memo(() => {
                 value={configs.site_email}
                 onChange={handleChange}
                 icon="email"
+                disabled={!puedeContacto}
               />
               <Input 
                 id="site_phone"
@@ -206,6 +276,7 @@ const GestionConfiguracion: React.FC = memo(() => {
                 value={configs.site_phone}
                 onChange={handleChange}
                 icon="call"
+                disabled={!puedeContacto}
               />
             </div>
             <Input 
@@ -215,17 +286,19 @@ const GestionConfiguracion: React.FC = memo(() => {
               value={configs.site_hours}
               onChange={handleChange}
               icon="schedule"
+              disabled={!puedeContacto}
             />
           </AdminSurface>
         </section>
 
         {/* REDES SOCIALES */}
-        <section className={styles.configSection}>
+        <section className={`${styles.configSection} ${!puedeRedesSociales ? styles.sectionDisabled : ''}`}>
           <div className={styles.sectionHeader}>
             <div className={styles.iconBox}>
               <span className="material-icons">share</span>
             </div>
             <h3>Redes Sociales</h3>
+            {!puedeRedesSociales && <span className={`material-icons ${styles.lockBadge}`} title="Sin permisos">lock</span>}
           </div>
           <AdminSurface className={styles.configCardForm}>
             <div className={styles.formRow}>
@@ -236,6 +309,7 @@ const GestionConfiguracion: React.FC = memo(() => {
                 value={configs.whatsapp_number}
                 onChange={handleChange}
                 icon="phone_iphone"
+                disabled={!puedeRedesSociales}
               />
               <Input 
                 id="instagram_url"
@@ -244,6 +318,7 @@ const GestionConfiguracion: React.FC = memo(() => {
                 value={configs.instagram_url}
                 onChange={handleChange}
                 icon="camera_alt"
+                disabled={!puedeRedesSociales}
               />
             </div>
             <Input 
@@ -253,17 +328,19 @@ const GestionConfiguracion: React.FC = memo(() => {
               value={configs.facebook_url}
               onChange={handleChange}
               icon="facebook"
+              disabled={!puedeRedesSociales}
             />
           </AdminSurface>
         </section>
 
         {/* UBICACIÓN */}
-        <section className={styles.configSection}>
+        <section className={`${styles.configSection} ${!puedeUbicacion ? styles.sectionDisabled : ''}`}>
           <div className={styles.sectionHeader}>
             <div className={styles.iconBox}>
               <span className="material-icons">place</span>
             </div>
             <h3>Ubicación y Mapa</h3>
+            {!puedeUbicacion && <span className={`material-icons ${styles.lockBadge}`} title="Sin permisos">lock</span>}
           </div>
           <AdminSurface className={styles.configCardForm}>
             <Input 
@@ -273,6 +350,7 @@ const GestionConfiguracion: React.FC = memo(() => {
               value={configs.site_address}
               onChange={handleChange}
               icon="home"
+              disabled={!puedeUbicacion}
             />
             <div className={styles.formRow}>
               <Input 
@@ -282,6 +360,7 @@ const GestionConfiguracion: React.FC = memo(() => {
                 value={configs.map_lat}
                 onChange={handleChange}
                 icon="location_on"
+                disabled={!puedeUbicacion}
               />
               <Input 
                 id="map_lng"
@@ -290,6 +369,7 @@ const GestionConfiguracion: React.FC = memo(() => {
                 value={configs.map_lng}
                 onChange={handleChange}
                 icon="location_on"
+                disabled={!puedeUbicacion}
               />
             </div>
             <Input 
@@ -299,12 +379,13 @@ const GestionConfiguracion: React.FC = memo(() => {
               value={configs.map_title}
               onChange={handleChange}
               icon="label"
+              disabled={!puedeUbicacion}
             />
           </AdminSurface>
         </section>
 
         <div className={styles.footerActions}>
-          <button type="submit" className={styles.saveButton} disabled={saving}>
+          <button type="submit" className={styles.saveButton} disabled={!hasChanges || saving}>
             <span className="material-icons">{saving ? 'sync' : 'save'}</span>
             <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
           </button>

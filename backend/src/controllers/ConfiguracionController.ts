@@ -24,13 +24,18 @@ export class ConfiguracionController {
       // Solo retornar claves que son seguras para el público
       const publicKeys = [
         'maintenance_mode',
-        'site_name',
-        'contact_email',
-        'contact_phone',
+        'site_title',
+        'site_description',
+        'site_email',
+        'site_phone',
+        'site_hours',
+        'site_address',
+        'map_lat',
+        'map_lng',
+        'map_title',
         'facebook_url',
         'instagram_url',
-        'whatsapp_url',
-        'office_hours'
+        'whatsapp_number',
       ];
 
       const configs = await Configuracion.findAll({

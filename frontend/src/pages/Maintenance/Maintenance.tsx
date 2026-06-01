@@ -1,15 +1,42 @@
-import React from 'react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Maintenance.module.css';
 import { useConfig } from '../../contexts/ConfigContext';
+import { configuracionService } from '../../services/configuracionService';
 import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 
 const Maintenance: React.FC = () => {
   const { getConfig } = useConfig();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const check = async () => {
+      try {
+        const data = await configuracionService.getPublic();
+        const entry = data.find(c => c.clave === 'maintenance_mode');
+        if (!cancelled && entry?.valor === '0') {
+          navigate('/', { replace: true });
+        }
+      } catch {
+        // Silently retry
+      }
+    };
+
+    check();
+
+    const interval = setInterval(check, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [navigate]);
   
-  const siteName = getConfig('site_name', 'TecnoCel');
-  const facebook = getConfig('social_facebook', '');
-  const instagram = getConfig('social_instagram', '');
-  const whatsapp = getConfig('social_whatsapp', '');
+  const siteName = getConfig('site_title', 'TecnoCel');
+  const facebook = getConfig('facebook_url', '');
+  const instagram = getConfig('instagram_url', '');
+  const whatsapp = getConfig('whatsapp_number', '');
 
   return (
     <div className={styles.container}>

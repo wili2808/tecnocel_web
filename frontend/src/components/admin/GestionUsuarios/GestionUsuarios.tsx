@@ -229,8 +229,8 @@ const GestionUsuarios = () => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {/* Estado de carga */}
-      {loading && (
+      {/* Estado de carga inicial */}
+      {loading && usuarios.length === 0 && !error && (
         <AdminLoading
           variant="panel"
           title="Cargando usuarios"
@@ -238,42 +238,42 @@ const GestionUsuarios = () => {
         />
       )}
 
-      {!loading && (
-        error && usuarios.length === 0 ? (
-          <AdminEmptyState
-            icon="error_outline"
-            title="No pudimos cargar los usuarios"
-            message={error}
-            actionLabel="Reintentar"
-            onAction={() => cargarUsuarios(pagination, sorting)}
-            tone="danger"
-            className={styles.stateBlock}
-          />
-        ) : (
-          <AdminDataTable
-            data={usuariosFiltrados}
-            columns={columns}
-            sorting={sorting}
-            onSortingChange={setSorting}
-            columnOrder={columnOrder}
-            onColumnOrderChange={setColumnOrder}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            totalItems={total}
-            itemLabel="usuarios"
-            onRowClick={handleEditarClick}
-            isLoading={loading}
-            emptyMessage={
-              error
-                ? error
-                : searchTerm
-                  ? `No se encontraron usuarios para "${searchTerm}"`
-                  : 'No hay usuarios registrados'
-            }
-            manualPagination={true}
-            manualSorting={true}
-          />
-        )
+      {/* Error */}
+      {error && (
+        <AdminEmptyState
+          icon="error_outline"
+          title="No pudimos cargar los usuarios"
+          message={error}
+          actionLabel="Reintentar"
+          onAction={() => cargarUsuarios(pagination, sorting)}
+          tone="danger"
+          className={styles.stateBlock}
+        />
+      )}
+
+      {/* Tabla (siempre montada una vez que hay data) */}
+      {!error && (usuarios.length > 0 || !loading) && (  
+        <AdminDataTable
+          data={usuariosFiltrados}
+          columns={columns}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalItems={total}
+          itemLabel="usuarios"
+          onRowClick={handleEditarClick}
+          isLoading={loading}
+          emptyMessage={
+            searchTerm
+              ? `No se encontraron usuarios para "${searchTerm}"`
+              : 'No hay usuarios registrados'
+          }
+          manualPagination={true}
+          manualSorting={true}
+        />
       )}
 
       {/* Modales Separados */}

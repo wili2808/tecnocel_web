@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import PageMeta from '../../components/common/PageMeta/PageMeta';
@@ -13,7 +13,7 @@ import GestionCompras from '../../components/admin/GestionCompras/GestionCompras
 import Reportes from '../../components/admin/Reportes/Reportes';
 import GestionPermisos from '../../components/admin/GestionPermisos/GestionPermisos';
 import GestionMensajes from '../../components/admin/GestionMensajes/GestionMensajes';
-import GestionConfiguracion from '../../components/admin/GestionConfiguracion/GestionConfiguracion';
+import GestionConfiguracion, { isConfigDirty } from '../../components/admin/GestionConfiguracion/GestionConfiguracion';
 import GestionComentarios from '../../components/admin/GestionComentarios/GestionComentarios';
 import { MENU_PERMISOS, type MenuPermisoOption } from '../../constants/menuPermisos';
 import adminPanelStyles from './AdminPanel.module.css';
@@ -138,6 +138,16 @@ const AdminPanel = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleSectionChange = useCallback((section: string) => {
+    if (section === activeSection) return;
+    if (isConfigDirty()) {
+      const confirmed = window.confirm('Tienes cambios sin guardar. ¿Deseas descartarlos?');
+      if (!confirmed) return;
+    }
+    setActiveSection(section);
+  }, [activeSection]);
+
   const filteredMenuOptions = useMemo(() => {
     return MENU_PERMISOS.filter((option) => {
       if (option.id === 'dashboard') return true;
@@ -201,7 +211,9 @@ const AdminPanel = () => {
     .map((chunk) => chunk[0]?.toUpperCase() ?? '')
     .join('');
   const activeMenuOption = filteredMenuOptions.find((option) => option.id === activeSection);
-  const activeSectionLabel = activeMenuOption?.label || 'Panel de Administración';
+  const activeSectionLabel = activeSection === 'configuracion' 
+    ? 'Configuración' 
+    : (activeMenuOption?.label || 'Panel de Administración');
   const activeSectionDescription =
     SECTION_DESCRIPTIONS[activeSection] || 'Módulo administrativo disponible según los permisos actuales.';
 
@@ -215,6 +227,30 @@ const AdminPanel = () => {
       <div className={adminPanelStyles.container}>
         {/* Sidebar del panel con navegación e información del usuario */}
         <aside className={adminPanelStyles.sidebar}>
+          {/* Barra compacta para mobile — visible solo en ≤480px */}
+          <div className={adminPanelStyles.mobileTopBar}>
+            <div className={adminPanelStyles.mobileUser}>
+              <div className={adminPanelStyles.mobileAvatar}>
+                <span>{userInitials || 'TC'}</span>
+              </div>
+              <div className={adminPanelStyles.mobileUserMeta}>
+                <span className={adminPanelStyles.mobileUserName}>{userName}</span>
+                <span className={adminPanelStyles.mobileUserRole}>{userRole}</span>
+              </div>
+            </div>
+            <div className={adminPanelStyles.mobileActions}>
+              <button className={adminPanelStyles.mobileActionBtn} onClick={handleBackToHome} aria-label="Ir a la tienda">
+                <span className="material-icons">store</span>
+              </button>
+              <button className={adminPanelStyles.mobileActionBtn} onClick={() => handleSectionChange('configuracion')} aria-label="Configuración">
+                <span className="material-icons">settings</span>
+              </button>
+              <button className={adminPanelStyles.mobileActionBtn} onClick={handleLogout} aria-label="Cerrar sesión">
+                <span className="material-icons">logout</span>
+              </button>
+            </div>
+          </div>
+
           {/* Encabezado del sidebar con marca y botón de retorno */}
           <div className={adminPanelStyles.sidebarHeader}>
             <div className={adminPanelStyles.sidebarBrand}>
@@ -249,10 +285,10 @@ const AdminPanel = () => {
           <nav className={adminPanelStyles.sidebarNav}>
             {/* Menú desplegable mobile — solo visible en ≤480px */}
             <MobileMenuDropdown
-              options={filteredMenuOptions}
+              options={[...filteredMenuOptions, { id: 'configuracion', label: 'Configuración', icon: 'settings', permisosRequeridos: [] }]}
               activeOptionId={activeSection}
               onSelect={(id) => {
-                setActiveSection(id);
+                handleSectionChange(id);
                 setIsMobileMenuOpen(false);
               }}
               isOpen={isMobileMenuOpen}
@@ -269,7 +305,7 @@ const AdminPanel = () => {
                   key={option.id}
                   option={option}
                   isActive={activeSection === option.id}
-                  onClick={() => setActiveSection(option.id)}
+                  onClick={() => handleSectionChange(option.id)}
                 />
               ))}
             </div>
@@ -278,7 +314,7 @@ const AdminPanel = () => {
             <div className={adminPanelStyles.logoutSection}>
               <button 
                 className={`${adminPanelStyles.menuOption} ${activeSection === 'configuracion' ? adminPanelStyles.activeOption : ''}`} 
-                onClick={() => setActiveSection('configuracion')}
+                onClick={() => handleSectionChange('configuracion')}
                 style={{ marginBottom: '8px', border: '1px solid var(--border-color)' }}
               >
                 <span className="material-icons">settings</span>

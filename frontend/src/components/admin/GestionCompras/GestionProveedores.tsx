@@ -154,8 +154,8 @@ const GestionProveedores: React.FC = memo(() => {
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {/* Estado de carga */}
-      {cargando && (
+      {/* Estado de carga inicial */}
+      {cargando && proveedores.length === 0 && !error && (
         <AdminLoading
           variant="panel"
           title="Cargando proveedores"
@@ -177,8 +177,8 @@ const GestionProveedores: React.FC = memo(() => {
         />
       )}
 
-      {/* Tabla de proveedores */}
-      {!cargando && !error && (
+      {/* Tabla (siempre montada una vez que hay data) */}
+      {!error && (proveedores.length > 0 || !cargando) && (
         <AdminDataTable
           data={proveedores}
           columns={columns}

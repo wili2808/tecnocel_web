@@ -633,15 +633,18 @@ const GestionVentas: React.FC = () => {
             </AdminFilterPanel.Row>
           </AdminFilterPanel>
 
-          {/* Tabla */}
-          {cargando ? (
+          {/* Loading inicial (solo primera vez, sin data previa) */}
+          {cargando && ventas.length === 0 && !error && (
             <AdminLoading
               variant="panel"
               title="Cargando ventas"
               message="Estamos preparando el listado y las estadísticas operativas de ventas."
               className={styles.loadingState}
             />
-          ) : error ? (
+          )}
+
+          {/* Error */}
+          {error && (
             <AdminEmptyState
               icon="error_outline"
               title="No pudimos cargar las ventas"
@@ -651,7 +654,10 @@ const GestionVentas: React.FC = () => {
               tone="danger"
               className={styles.errorState}
             />
-          ) : (
+          )}
+
+          {/* Tabla (siempre montada una vez que hay data, oculta solo en carga inicial) */}
+          {!error && (ventas.length > 0 || !cargando) && (
             <AdminDataTable
               data={ventas}
               columns={columns}

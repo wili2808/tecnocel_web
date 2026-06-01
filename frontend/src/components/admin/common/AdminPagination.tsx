@@ -30,6 +30,7 @@ const AdminPagination: React.FC<AdminPaginationProps> = ({
       </span>
       <div className={styles.controls}>
         <button
+          type="button"
           className={styles.btn}
           onClick={() => onPageChange(Math.max(0, offset - limit))}
           disabled={offset === 0}
@@ -42,6 +43,7 @@ const AdminPagination: React.FC<AdminPaginationProps> = ({
           Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
         </span>
         <button
+          type="button"
           className={styles.btn}
           onClick={() => onPageChange(offset + limit)}
           disabled={offset + limit >= total}
