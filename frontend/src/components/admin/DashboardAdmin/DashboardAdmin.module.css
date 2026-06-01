@@ -3,6 +3,60 @@
   min-height: 100%;
 }
 
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.greeting {
+  margin: 0;
+  font-size: clamp(1.3rem, 1.8vw, 1.6rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.03em;
+}
+
+.freshness {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+  border-radius: var(--border-radius-full);
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.refreshBtn:hover {
+  background: color-mix(in srgb, var(--background-elevated) 80%, var(--background-primary));
+}
+
+.refreshBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refreshBtn .material-icons {
+  font-size: 16px;
+}
+
 .hero,
 .panel,
 .activityPanel,
@@ -152,8 +206,25 @@
 
 .metricCard {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   padding: 20px;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+
+.metricClickable {
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.metricClickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.metricClickable:active {
+  transform: translateY(0);
 }
 
 .metricSkeleton {
@@ -186,6 +257,13 @@
   font-size: 22px;
 }
 
+.metricValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .metricValue {
   font-family: var(--font-family-admin);
   font-size: clamp(1.65rem, 2vw, 2.1rem);
@@ -197,6 +275,36 @@
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   line-height: 1.6;
+}
+
+.metricSparkline {
+  margin-top: 2px;
+  opacity: 0.5;
+}
+
+.changeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 6px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+.changeBadge .material-icons {
+  font-size: 12px;
+}
+
+.changeUp {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--background-success) 60%, transparent);
+}
+
+.changeDown {
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--background-error) 60%, transparent);
 }
 
 .metricprimary {
@@ -228,6 +336,23 @@
   align-items: flex-start;
   padding: 16px;
   border-radius: 20px;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+
+.priorityClickable {
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.priorityClickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.priorityClickable:active {
+  transform: translateY(0);
 }
 
 .priorityIcon {
@@ -248,6 +373,7 @@
 .priorityBody {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
 .priorityTitle {
@@ -267,6 +393,25 @@
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   line-height: 1.55;
+}
+
+.priorityDetails {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 3px;
+}
+
+.priorityDetails li {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .prioritysuccess .priorityIcon {
@@ -368,6 +513,17 @@
   padding: 14px;
   border-radius: 18px;
   background: var(--background-secondary);
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+  cursor: pointer;
+  border: none;
+  color: inherit;
+  transition: background 0.12s;
+}
+
+.moduleItem:hover {
+  background: color-mix(in srgb, var(--color-primary-50) 60%, var(--background-secondary));
 }
 
 .moduleIcon {
@@ -403,7 +559,16 @@
 
 .activityList {
   display: grid;
-  gap: 12px;
+  gap: 16px;
+}
+
+.activityGroupLabel {
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .activityItem {
@@ -441,6 +606,11 @@
 .activitycompra {
   background: color-mix(in srgb, var(--background-warning) 62%, var(--background-primary));
   color: var(--color-warning);
+}
+
+.activitycancelacion {
+  background: color-mix(in srgb, var(--background-error) 62%, var(--background-primary));
+  color: var(--color-error);
 }
 
 .activityContent {
@@ -481,6 +651,16 @@
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
 @media (max-width: 1280px) {
   .metricsGrid,
   .priorityGrid {
@@ -509,6 +689,11 @@
 @media (max-width: 768px) {
   .container {
     padding: var(--spacing-md);
+  }
+
+  .topBar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .hero,
