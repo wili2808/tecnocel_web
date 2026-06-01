@@ -79,15 +79,16 @@ const ProductCatalog: React.FC = () => {
       categoria: urlFilters.categoria,
       order: urlFilters.order,
       solo_con_stock: urlFilters.solo_con_stock,
+      solo_ofertas: urlFilters.solo_ofertas,
       busqueda: urlFilters.search
     };
     
-    // Comparación granular campo a campo para evitar loops
     const hasChanges = 
       filtersToApply.marca !== currentFilters.marca ||
       filtersToApply.categoria !== currentFilters.categoria ||
       filtersToApply.order !== currentFilters.order ||
       filtersToApply.solo_con_stock !== currentFilters.solo_con_stock ||
+      filtersToApply.solo_ofertas !== currentFilters.solo_ofertas ||
       (filtersToApply.busqueda || '') !== (currentFilters.busqueda || '');
 
     if (hasChanges) {
@@ -120,6 +121,7 @@ const ProductCatalog: React.FC = () => {
       busqueda: currentSearch,
       order: filters.order,
       solo_con_stock: filters.solo_con_stock,
+      solo_ofertas: filters.solo_ofertas,
     });
 
     const newSearch = queryString ? `?${queryString}` : '';
@@ -135,6 +137,7 @@ const ProductCatalog: React.FC = () => {
     selectedDropdownBrand: filters.marca?.toString() || '',
     order: filters.order || '',
     onlyStock: filters.solo_con_stock || false,
+    onlyOffers: filters.solo_ofertas || false,
   }), [debouncedSearchQuery, productSearchQuery, filters]);
 
   const handleFiltersChange = useCallback((newFilters: Partial<ProductUIFilters>) => {
@@ -143,6 +146,7 @@ const ProductCatalog: React.FC = () => {
     if (newFilters.selectedDropdownBrand !== undefined) backendFilters.marca = newFilters.selectedDropdownBrand ? parseInt(newFilters.selectedDropdownBrand) : undefined;
     if (newFilters.order !== undefined) backendFilters.order = newFilters.order;
     if (newFilters.onlyStock !== undefined) backendFilters.solo_con_stock = newFilters.onlyStock;
+    if (newFilters.onlyOffers !== undefined) backendFilters.solo_ofertas = newFilters.onlyOffers;
     updateFilters(backendFilters);
   }, [updateFilters]);
 

@@ -197,6 +197,10 @@ export interface ProductUIFilters {
   selectedDropdownBrand: string;
   order: string;
   onlyStock: boolean;
+  priceMin?: string;
+  priceMax?: string;
+  onlyOffers?: boolean;
+  minRating?: number;
 }
 
 // ============================================================================

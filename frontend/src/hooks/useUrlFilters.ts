@@ -24,6 +24,7 @@ export interface UrlFilters {
   search?: string;
   order?: string;
   solo_con_stock?: boolean;
+  solo_ofertas?: boolean;
 }
 
 /**
@@ -102,6 +103,14 @@ export const useUrlFilters = (): UrlFilters => {
       result.solo_con_stock = stockParam === 'true' || stockParam === '1';
     }
 
+    // ============================================================================
+    // SOLO OFERTAS - Parsear como boolean
+    // ============================================================================
+    const ofertasParam = searchParams.get('solo_ofertas');
+    if (ofertasParam) {
+      result.solo_ofertas = ofertasParam === 'true' || ofertasParam === '1';
+    }
+
     return result;
   }, [searchParams]);
 
@@ -142,6 +151,10 @@ export const filtersToQueryString = (filters: Partial<ProductFilters>): string =
 
   if (filters.solo_con_stock) {
     params.set('solo_con_stock', 'true');
+  }
+
+  if (filters.solo_ofertas) {
+    params.set('solo_ofertas', 'true');
   }
 
   return params.toString();
