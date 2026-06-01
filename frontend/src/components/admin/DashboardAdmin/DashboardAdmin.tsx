@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { MENU_PERMISOS } from '../../../constants/menuPermisos';
 import adminApi from '../../../api/axiosAdminConfig';
@@ -6,6 +6,8 @@ import adminCompraService from '../../../services/adminCompraService';
 import envioAdminService from '../../../services/envioAdminService';
 import reporteService from '../../../services/reporteService';
 import adminVentaService from '../../../services/adminVentaService';
+import mensajeService from '../../../services/mensajeService';
+import Sparkline from './Sparkline';
 import styles from './DashboardAdmin.module.css';
 import type {
   CompraListItem,
@@ -17,6 +19,7 @@ import type {
   ReporteVentasResumen,
   VentaListItem,
 } from '../../../types';
+import type { CancelacionReporteItem } from '../../../types/reporte';
 
 interface DashboardAdminProps {
   onNavigate: (section: string) => void;
@@ -33,27 +36,15 @@ interface TipoCambioInfo {
   fyh_actualizacion: string | null;
 }
 
-interface DashboardData {
-  general: StatsGenerales | null;
-  ventasStats: EstadisticasVentas | null;
-  comprasStats: EstadisticasCompras | null;
-  ventasResumen: ReporteVentasResumen | null;
-  productosReporte: ReporteProductosResponse | null;
-  clientesReporte: ReporteClientesResponse | null;
-  vendedoresReporte: ReporteVendedoresResponse | null;
-  enviosPendientes: number;
-  retirosPendientes: number;
-  tipoCambio: TipoCambioInfo | null;
-  recentVentas: VentaListItem[];
-  recentCompras: CompraListItem[];
-}
-
 interface MetricCardData {
   label: string;
   value: string;
   icon: string;
   detail: string;
   tone: 'primary' | 'success' | 'warning' | 'neutral';
+  change?: { value: number; positive: boolean } | null;
+  trend?: number[];
+  navTarget?: string;
 }
 
 interface PriorityItem {
@@ -62,6 +53,8 @@ interface PriorityItem {
   description: string;
   icon: string;
   tone: 'success' | 'warning' | 'danger' | 'info';
+  details?: string[];
+  navTarget?: string;
 }
 
 interface InsightItem {
@@ -77,7 +70,7 @@ interface ActivityItem {
   amount: string;
   icon: string;
   timestamp: number;
-  tone: 'venta' | 'compra';
+  tone: 'venta' | 'compra' | 'cancelacion';
 }
 
 interface ModuleSummary {
@@ -85,6 +78,23 @@ interface ModuleSummary {
   label: string;
   icon: string;
   summary: string;
+}
+
+interface DashboardData {
+  general: StatsGenerales | null;
+  ventasStats: EstadisticasVentas | null;
+  comprasStats: EstadisticasCompras | null;
+  ventasResumen: ReporteVentasResumen | null;
+  productosReporte: ReporteProductosResponse | null;
+  clientesReporte: ReporteClientesResponse | null;
+  vendedoresReporte: ReporteVendedoresResponse | null;
+  enviosPendientes: number;
+  retirosPendientes: number;
+  tipoCambio: TipoCambioInfo | null;
+  recentVentas: VentaListItem[];
+  recentCompras: CompraListItem[];
+  ventasTrend: number[];
+  cancelacionesRecientes: CancelacionReporteItem[];
 }
 
 const INITIAL_DATA: DashboardData = {
@@ -100,6 +110,8 @@ const INITIAL_DATA: DashboardData = {
   tipoCambio: null,
   recentVentas: [],
   recentCompras: [],
+  ventasTrend: [],
+  cancelacionesRecientes: [],
 };
 
 const MODULE_SUMMARIES: Record<string, string> = {
@@ -114,9 +126,10 @@ const MODULE_SUMMARIES: Record<string, string> = {
   permisos: 'Gobernanza de acceso y seguridad operativa.',
 };
 
-const toMonthDateRange = () => {
+const toMonthDateRange = (offset = 0) => {
   const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const start = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  const end = offset === 0 ? now : new Date(now.getFullYear(), now.getMonth() - offset + 1, 0);
 
   const format = (date: Date) => {
     const year = date.getFullYear();
@@ -127,7 +140,7 @@ const toMonthDateRange = () => {
 
   return {
     fecha_inicio: format(start),
-    fecha_fin: format(now),
+    fecha_fin: format(end),
   };
 };
 
@@ -157,132 +170,221 @@ const formatDateTime = (value: string): string =>
     minute: '2-digit',
   });
 
-const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
-  const { isAdmin, tienePermiso } = useAuth();
+const formatTimeAgo = (date: Date): string => {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'recién';
+  if (mins < 60) return `hace ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `hace ${hrs}h`;
+  return formatDateTime(date.toISOString());
+};
+
+const getGreeting = (): string => {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 18) return 'Buenas tardes';
+  return 'Buenas noches';
+};
+
+const computeChange = (current: number, previous: number): { value: number; positive: boolean } | null => {
+  if (previous === 0) {
+    if (current === 0) return null;
+    return { value: 100, positive: current > 0 };
+  }
+  return {
+    value: Math.round(((current - previous) / previous) * 100),
+    positive: current >= previous,
+  };
+};
+
+const groupActivityByDay = (items: ActivityItem[]) => {
+  const today = new Date();
+  const todayStr = today.toDateString();
+  const yesterdayStr = new Date(today.getTime() - 86400000).toDateString();
+  const weekAgo = new Date(today.getTime() - 7 * 86400000);
+
+  const groups: { label: string; items: ActivityItem[] }[] = [];
+  const groupMap = new Map<string, ActivityItem[]>();
+
+  items.forEach((item) => {
+    const d = new Date(item.timestamp);
+    let key: string;
+    if (d.toDateString() === todayStr) key = 'Hoy';
+    else if (d.toDateString() === yesterdayStr) key = 'Ayer';
+    else if (d >= weekAgo) key = 'Esta semana';
+    else key = 'Anterior';
+
+    if (!groupMap.has(key)) groupMap.set(key, []);
+    groupMap.get(key)!.push(item);
+  });
+
+  for (const label of ['Hoy', 'Ayer', 'Esta semana', 'Anterior']) {
+    const items = groupMap.get(label);
+    if (items?.length) groups.push({ label, items });
+  }
+  return groups;
+};
+
+const DashboardAdmin = ({ onNavigate }: DashboardAdminProps) => {
+  const { isAdmin, user, tienePermiso } = useAuth();
+  const nombre = user
+    ? 'nombres' in user
+      ? (user as { nombres: string }).nombres
+      : `${(user as { nombre: string }).nombre} ${(user as { apellido: string }).apellido}`
+    : '';
   const [dashboardData, setDashboardData] = useState<DashboardData>(INITIAL_DATA);
+  const [prevMonthData, setPrevMonthData] = useState<{ ingresos: number; ventas: number } | null>(null);
+  const [mensajesPendientes, setMensajesPendientes] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [, setLastUpdated] = useState<Date | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const monthRange = useMemo(() => toMonthDateRange(), []);
+  const prevMonthRange = useMemo(() => toMonthDateRange(1), []);
 
   const canViewVentas = tienePermiso('ver_ventas');
   const canViewCompras = tienePermiso('ver_compras');
   const canViewEnvios = tienePermiso('ver_envios');
   const canViewReportes = tienePermiso('ver_reportes');
   const canViewConfig = tienePermiso('ver_configuracion');
+  const canViewMensajes = tienePermiso('ver_mensajes');
+
+  const loadDashboard = useCallback(async () => {
+    setError(null);
+
+    const nextData: DashboardData = { ...INITIAL_DATA };
+    let prevMonth: { ingresos: number; ventas: number } | null = null;
+    let mensajesCount = 0;
+
+    const requests: Promise<unknown>[] = [
+      adminApi.get<StatsGenerales>('/usuarios/admin/dashboard-stats').then((response) => {
+        nextData.general = response.data;
+      }),
+    ];
+
+    if (canViewVentas) {
+      requests.push(
+        adminVentaService.obtenerEstadisticas().then((data) => {
+          nextData.ventasStats = data;
+        }),
+      );
+      requests.push(
+        adminVentaService.listarVentas({}, 4, 0).then((response) => {
+          nextData.recentVentas = response.ventas;
+        }),
+      );
+    }
+
+    if (canViewCompras) {
+      requests.push(
+        adminCompraService.obtenerEstadisticas().then((response) => {
+          nextData.comprasStats = response.data;
+        }),
+      );
+      requests.push(
+        adminCompraService.listarCompras({}, 4, 0).then((response) => {
+          nextData.recentCompras = response.data;
+        }),
+      );
+    }
+
+    if (canViewReportes) {
+      requests.push(
+        reporteService.obtenerReporteVentas(monthRange).then((data) => {
+          nextData.ventasResumen = data.resumen;
+          nextData.ventasTrend = (data.datos || []).map((d) => d.ingresos_ars);
+        }),
+      );
+      requests.push(
+        reporteService.obtenerReporteVentas(prevMonthRange).then((data) => {
+          prevMonth = {
+            ingresos: data.resumen.ingresos_ars,
+            ventas: data.resumen.total_ventas,
+          };
+        }),
+      );
+      requests.push(
+        reporteService.obtenerReporteProductos({ ...monthRange, limite: 5 }).then((data) => {
+          nextData.productosReporte = data;
+        }),
+      );
+      requests.push(
+        reporteService.obtenerReporteClientes({ ...monthRange, limite: 5 }).then((data) => {
+          nextData.clientesReporte = data;
+        }),
+      );
+      requests.push(
+        reporteService.obtenerReporteVendedores({ ...monthRange, limite: 5 }).then((data) => {
+          nextData.vendedoresReporte = data;
+        }),
+      );
+      requests.push(
+        reporteService.obtenerReporteCancelaciones(monthRange).then((data) => {
+          nextData.cancelacionesRecientes = (data.datos || []).slice(0, 3);
+        }),
+      );
+    }
+
+    if (canViewEnvios) {
+      requests.push(
+        envioAdminService.listarEnvios({ estado_envio: 'pendiente', limit: 1, offset: 0 }).then((response) => {
+          nextData.enviosPendientes = response.total;
+        }),
+      );
+      requests.push(
+        envioAdminService.listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 }).then((response) => {
+          nextData.retirosPendientes = response.total;
+        }),
+      );
+    }
+
+    if (canViewConfig) {
+      requests.push(
+        adminVentaService.getTipoCambio().then((data) => {
+          nextData.tipoCambio = data;
+        }),
+      );
+    }
+
+    if (canViewMensajes) {
+      requests.push(
+        mensajeService.getMensajes(1, 1, false).then((response) => {
+          mensajesCount = response.pagination.total;
+        }),
+      );
+    }
+
+    await Promise.allSettled(requests);
+
+    setDashboardData(nextData);
+    setPrevMonthData(prevMonth);
+    setMensajesPendientes(mensajesCount);
+    setLastUpdated(new Date());
+  }, [canViewCompras, canViewConfig, canViewEnvios, canViewMensajes, canViewReportes, canViewVentas, monthRange, prevMonthRange]);
 
   useEffect(() => {
     let active = true;
 
-    const cargarDashboard = async () => {
+    const init = async () => {
       setLoading(true);
-      setError(null);
-
-      const nextData: DashboardData = {
-        ...INITIAL_DATA,
-        recentVentas: [],
-        recentCompras: [],
-      };
-
-      const requests: Promise<unknown>[] = [
-        adminApi.get<StatsGenerales>('/usuarios/admin/dashboard-stats').then((response) => {
-          nextData.general = response.data;
-        }),
-      ];
-
-      if (canViewVentas) {
-        requests.push(
-          adminVentaService.obtenerEstadisticas().then((data) => {
-            nextData.ventasStats = data;
-          }),
-        );
-        requests.push(
-          adminVentaService.listarVentas({}, 4, 0).then((response) => {
-            nextData.recentVentas = response.ventas;
-          }),
-        );
-      }
-
-      if (canViewCompras) {
-        requests.push(
-          adminCompraService.obtenerEstadisticas().then((response) => {
-            nextData.comprasStats = response.data;
-          }),
-        );
-        requests.push(
-          adminCompraService.listarCompras({}, 4, 0).then((response) => {
-            nextData.recentCompras = response.data;
-          }),
-        );
-      }
-
-      if (canViewReportes) {
-        requests.push(
-          reporteService.obtenerReporteVentas(monthRange).then((data) => {
-            nextData.ventasResumen = data.resumen;
-          }),
-        );
-        requests.push(
-          reporteService.obtenerReporteProductos({ ...monthRange, limite: 5 }).then((data) => {
-            nextData.productosReporte = data;
-          }),
-        );
-        requests.push(
-          reporteService.obtenerReporteClientes({ ...monthRange, limite: 5 }).then((data) => {
-            nextData.clientesReporte = data;
-          }),
-        );
-        requests.push(
-          reporteService.obtenerReporteVendedores({ ...monthRange, limite: 5 }).then((data) => {
-            nextData.vendedoresReporte = data;
-          }),
-        );
-      }
-
-      if (canViewEnvios) {
-        requests.push(
-          envioAdminService.listarEnvios({ estado_envio: 'pendiente', limit: 1, offset: 0 }).then((response) => {
-            nextData.enviosPendientes = response.total;
-          }),
-        );
-        requests.push(
-          envioAdminService.listarRetiros({ estado_envio: 'pendiente', limit: 1, offset: 0 }).then((response) => {
-            nextData.retirosPendientes = response.total;
-          }),
-        );
-      }
-
-      if (canViewConfig) {
-        requests.push(
-          adminVentaService.getTipoCambio().then((data) => {
-            nextData.tipoCambio = data;
-          }),
-        );
-      }
-
-      const results = await Promise.allSettled(requests);
-      const hasData = results.some((result) => result.status === 'fulfilled');
-
-      if (!active) {
-        return;
-      }
-
-      setDashboardData(nextData);
-      setLastUpdated(new Date());
-      setLoading(false);
-
-      if (!hasData) {
-        setError('No se pudo cargar la información operativa del dashboard.');
-      }
+      await loadDashboard();
+      if (active) setLoading(false);
     };
 
-    void cargarDashboard();
+    void init();
 
     return () => {
       active = false;
     };
-  }, [canViewCompras, canViewConfig, canViewEnvios, canViewReportes, canViewVentas, monthRange]);
+  }, [loadDashboard]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await loadDashboard();
+    setIsRefreshing(false);
+  };
 
   const enabledModules = useMemo<ModuleSummary[]>(() => {
     return MENU_PERMISOS.filter((option) => {
@@ -303,6 +405,14 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
   const balanceEstimado = ingresosMes - gastoMes;
   const stockBajoCount = dashboardData.productosReporte?.stock_bajo.length ?? 0;
 
+  const ingresosChange = useMemo(
+    () => (prevMonthData ? computeChange(ingresosMes, prevMonthData.ingresos) : null),
+    [ingresosMes, prevMonthData],
+  );
+  const ventasChange = useMemo(() => {
+    const current = dashboardData.ventasStats?.ventas_mes ?? 0;
+    return prevMonthData ? computeChange(current, prevMonthData.ventas) : null;
+  }, [dashboardData.ventasStats, prevMonthData]);
   const primaryMetrics = useMemo<MetricCardData[]>(() => {
     const metrics: MetricCardData[] = [];
 
@@ -313,6 +423,9 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         icon: 'payments',
         detail: `${formatNumber(dashboardData.ventasStats.ventas_mes)} ventas cerradas`,
         tone: 'primary',
+        change: ingresosChange,
+        trend: dashboardData.ventasTrend.length >= 2 ? dashboardData.ventasTrend : undefined,
+        navTarget: 'ventas',
       });
       metrics.push({
         label: 'Ventas del mes',
@@ -320,6 +433,8 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         icon: 'receipt_long',
         detail: `${formatNumber(dashboardData.ventasStats.ventas_hoy)} realizadas hoy`,
         tone: 'success',
+        change: ventasChange,
+        navTarget: 'ventas',
       });
     }
 
@@ -330,6 +445,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         icon: 'shopping_cart',
         detail: `${formatNumber(dashboardData.comprasStats.compras_mes)} compras activas este mes`,
         tone: 'warning',
+        navTarget: 'compras',
       });
     }
 
@@ -340,6 +456,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         icon: balanceEstimado >= 0 ? 'trending_up' : 'trending_down',
         detail: balanceEstimado >= 0 ? 'Margen mensual favorable' : 'Compras por encima del ingreso mensual',
         tone: balanceEstimado >= 0 ? 'success' : 'warning',
+        navTarget: 'reportes',
       });
     } else if (dashboardData.general) {
       metrics.push({
@@ -348,6 +465,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         icon: 'inventory_2',
         detail: stockBajoCount > 0 ? `${stockBajoCount} con stock comprometido` : 'Catálogo estable',
         tone: 'neutral',
+        navTarget: 'productos',
       });
     }
 
@@ -357,8 +475,11 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
     dashboardData.comprasStats,
     dashboardData.general,
     dashboardData.ventasStats,
+    dashboardData.ventasTrend,
     gastoMes,
+    ingresosChange,
     stockBajoCount,
+    ventasChange,
   ]);
 
   const priorityItems = useMemo<PriorityItem[]>(() => {
@@ -371,6 +492,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         description: 'Pedidos con entrega a domicilio esperando gestión.',
         icon: 'local_shipping',
         tone: 'warning',
+        navTarget: 'ventas',
       });
     }
 
@@ -381,16 +503,33 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
         description: 'Órdenes listas o por preparar para retiro presencial.',
         icon: 'storefront',
         tone: 'info',
+        navTarget: 'ventas',
       });
     }
 
     if (stockBajoCount > 0) {
+      const productNames = dashboardData.productosReporte?.stock_bajo
+        .slice(0, 3)
+        .map((p) => `${p.nombre} (stock: ${p.stock})`) || [];
       items.push({
         title: 'Stock bajo',
         value: formatNumber(stockBajoCount),
         description: 'Productos críticos detectados por el reporte comercial.',
+        details: productNames,
         icon: 'inventory',
         tone: stockBajoCount >= 5 ? 'danger' : 'warning',
+        navTarget: 'productos',
+      });
+    }
+
+    if (mensajesPendientes > 0) {
+      items.push({
+        title: 'Mensajes sin leer',
+        value: formatNumber(mensajesPendientes),
+        description: 'Consultas de clientes pendientes de respuesta.',
+        icon: 'email',
+        tone: mensajesPendientes >= 5 ? 'danger' : 'info',
+        navTarget: 'mensajes',
       });
     }
 
@@ -415,7 +554,14 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
     }
 
     return items.slice(0, 4);
-  }, [dashboardData.enviosPendientes, dashboardData.retirosPendientes, dashboardData.ventasResumen, stockBajoCount]);
+  }, [
+    dashboardData.enviosPendientes,
+    dashboardData.retirosPendientes,
+    dashboardData.productosReporte,
+    dashboardData.ventasResumen,
+    mensajesPendientes,
+    stockBajoCount,
+  ]);
 
   const commercialInsights = useMemo<InsightItem[]>(() => {
     const insights: InsightItem[] = [];
@@ -516,13 +662,56 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
       tone: 'compra',
     }));
 
-    return [...ventas, ...compras].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6);
-  }, [dashboardData.recentCompras, dashboardData.recentVentas]);
+    const cancelaciones = dashboardData.cancelacionesRecientes.map<ActivityItem>((c) => ({
+      id: `cancelacion-${c.id_venta}`,
+      title: `Cancelación V${c.nro_venta}`,
+      meta: `${c.motivo} · ${formatDateTime(c.fecha_cancelacion)}`,
+      amount: formatCurrency(c.monto_ars),
+      icon: 'cancel',
+      timestamp: new Date(c.fecha_cancelacion).getTime(),
+      tone: 'cancelacion',
+    }));
+
+    return [...ventas, ...compras, ...cancelaciones].sort((a, b) => b.timestamp - a.timestamp).slice(0, 8);
+  }, [dashboardData.recentCompras, dashboardData.recentVentas, dashboardData.cancelacionesRecientes]);
+
+  const activityGroups = useMemo(() => groupActivityByDay(activityItems), [activityItems]);
 
   const loadingMetrics = [0, 1, 2, 3];
 
+  const renderChangeBadge = (change: { value: number; positive: boolean } | null | undefined) => {
+    if (!change || change.value === 0) return null;
+    return (
+      <span className={`${styles.changeBadge} ${change.positive ? styles.changeUp : styles.changeDown}`}>
+        <span className="material-icons">{change.positive ? 'arrow_upward' : 'arrow_downward'}</span>
+        {change.value}%
+      </span>
+    );
+  };
+
   return (
     <div className={styles.container}>
+      <header className={styles.topBar}>
+        <div className={styles.topBarLeft}>
+          <h1 className={styles.greeting}>
+            {getGreeting()}{nombre ? `, ${nombre}` : ''}
+          </h1>
+          {lastUpdated && (
+            <span className={styles.freshness}>
+              Actualizado {formatTimeAgo(lastUpdated)}
+            </span>
+          )}
+        </div>
+        <button
+          className={styles.refreshBtn}
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          title="Actualizar dashboard"
+        >
+          <span className={`material-icons ${isRefreshing ? styles.spin : ''}`}>refresh</span>
+          {isRefreshing ? 'Actualizando…' : 'Actualizar'}
+        </button>
+      </header>
 
       {error && (
         <div className={styles.alertBanner}>
@@ -534,31 +723,64 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
       <section className={styles.metricsGrid}>
         {loading
           ? loadingMetrics.map((item) => <div key={item} className={styles.metricSkeleton} />)
-          : primaryMetrics.map((metric) => (
-              <article key={metric.label} className={`${styles.metricCard} ${styles[`metric${metric.tone}`]}`}>
-                <div className={styles.metricHeader}>
-                  <span className={styles.metricLabel}>{metric.label}</span>
-                  <span className={`material-icons ${styles.metricIcon}`}>{metric.icon}</span>
-                </div>
-                <strong className={styles.metricValue}>{metric.value}</strong>
-                <span className={styles.metricDetail}>{metric.detail}</span>
-              </article>
-            ))}
+          : primaryMetrics.map((metric) => {
+              const Wrapper = metric.navTarget ? 'button' : 'article';
+              const wrapperProps = metric.navTarget
+                ? { onClick: () => onNavigate(metric.navTarget!), className: `${styles.metricCard} ${styles.metricClickable} ${styles[`metric${metric.tone}`]}` }
+                : { className: `${styles.metricCard} ${styles[`metric${metric.tone}`]}` };
+
+              return (
+                <Wrapper key={metric.label} {...wrapperProps}>
+                  <div className={styles.metricHeader}>
+                    <span className={styles.metricLabel}>{metric.label}</span>
+                    <span className={`material-icons ${styles.metricIcon}`}>{metric.icon}</span>
+                  </div>
+                  <div className={styles.metricValueRow}>
+                    <strong className={styles.metricValue}>{metric.value}</strong>
+                    {renderChangeBadge(metric.change)}
+                  </div>
+                  <span className={styles.metricDetail}>{metric.detail}</span>
+                  {metric.trend && metric.trend.length >= 2 && (
+                    <Sparkline
+                      data={metric.trend}
+                      width={120}
+                      height={28}
+                      color="currentColor"
+                      className={styles.metricSparkline}
+                    />
+                  )}
+                </Wrapper>
+              );
+            })}
       </section>
 
       <section className={styles.priorityGrid}>
-        {priorityItems.map((item) => (
-          <article key={item.title} className={`${styles.priorityCard} ${styles[`priority${item.tone}`]}`}>
-            <div className={styles.priorityIcon}>
-              <span className="material-icons">{item.icon}</span>
-            </div>
-            <div className={styles.priorityBody}>
-              <span className={styles.priorityTitle}>{item.title}</span>
-              <strong className={styles.priorityValue}>{item.value}</strong>
-              <span className={styles.priorityDescription}>{item.description}</span>
-            </div>
-          </article>
-        ))}
+        {priorityItems.map((item) => {
+          const Wrapper = item.navTarget ? 'button' : 'article';
+          const wrapperProps = item.navTarget
+            ? { onClick: () => onNavigate(item.navTarget!), className: `${styles.priorityCard} ${styles.priorityClickable} ${styles[`priority${item.tone}`]}` }
+            : { className: `${styles.priorityCard} ${styles[`priority${item.tone}`]}` };
+
+          return (
+            <Wrapper key={item.title} {...wrapperProps}>
+              <div className={styles.priorityIcon}>
+                <span className="material-icons">{item.icon}</span>
+              </div>
+              <div className={styles.priorityBody}>
+                <span className={styles.priorityTitle}>{item.title}</span>
+                <strong className={styles.priorityValue}>{item.value}</strong>
+                <span className={styles.priorityDescription}>{item.description}</span>
+                {item.details && item.details.length > 0 && (
+                  <ul className={styles.priorityDetails}>
+                    {item.details.map((d) => (
+                      <li key={d}>{d}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </Wrapper>
+          );
+        })}
       </section>
 
       <section className={styles.panelGrid}>
@@ -621,7 +843,11 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
 
           <div className={styles.moduleList}>
             {enabledModules.map((module) => (
-              <div key={module.id} className={styles.moduleItem}>
+              <button
+                key={module.id}
+                className={styles.moduleItem}
+                onClick={() => onNavigate(module.id)}
+              >
                 <div className={styles.moduleIcon}>
                   <span className="material-icons">{module.icon}</span>
                 </div>
@@ -629,7 +855,7 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
                   <strong className={styles.moduleTitle}>{module.label}</strong>
                   <span className={styles.moduleSummary}>{module.summary}</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </article>
@@ -644,19 +870,24 @@ const DashboardAdmin = ({ onNavigate: _onNavigate }: DashboardAdminProps) => {
           <span className={`material-icons ${styles.panelIcon}`}>history</span>
         </div>
 
-        {activityItems.length > 0 ? (
+        {activityGroups.length > 0 ? (
           <div className={styles.activityList}>
-            {activityItems.map((item) => (
-              <article key={item.id} className={styles.activityItem}>
-                <div className={`${styles.activityMarker} ${styles[`activity${item.tone}`]}`}>
-                  <span className="material-icons">{item.icon}</span>
-                </div>
-                <div className={styles.activityContent}>
-                  <strong className={styles.activityTitle}>{item.title}</strong>
-                  <span className={styles.activityMeta}>{item.meta}</span>
-                </div>
-                <strong className={styles.activityAmount}>{item.amount}</strong>
-              </article>
+            {activityGroups.map((group) => (
+              <div key={group.label}>
+                <span className={styles.activityGroupLabel}>{group.label}</span>
+                {group.items.map((item) => (
+                  <article key={item.id} className={styles.activityItem}>
+                    <div className={`${styles.activityMarker} ${styles[`activity${item.tone}`]}`}>
+                      <span className="material-icons">{item.icon}</span>
+                    </div>
+                    <div className={styles.activityContent}>
+                      <strong className={styles.activityTitle}>{item.title}</strong>
+                      <span className={styles.activityMeta}>{item.meta}</span>
+                    </div>
+                    <strong className={styles.activityAmount}>{item.amount}</strong>
+                  </article>
+                ))}
+              </div>
             ))}
           </div>
         ) : (

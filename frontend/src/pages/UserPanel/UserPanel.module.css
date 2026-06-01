@@ -391,17 +391,7 @@
   }
 
   .mobileTopBar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: var(--navbar-height-mobile);
-    padding: 0 var(--spacing-md);
-    gap: var(--spacing-xs);
-    flex-shrink: 0;
-    background: rgba(var(--background-primary-rgb), 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-color);
+    display: none;
   }
 
   .mobileMenuWrapper {
