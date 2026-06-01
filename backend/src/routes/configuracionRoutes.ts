@@ -11,12 +11,12 @@ router.get('/public', ConfiguracionController.getPublic);
 // Todas las rutas de configuración requieren ser usuario del sistema
 router.use(verificarToken);
 
-// Solo ADMIN y GERENTE pueden ver y editar configuraciones generales
-router.get('/', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), ConfiguracionController.getAll);
-router.get('/:clave', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), ConfiguracionController.getByKey);
+// Cualquier usuario del sistema puede VER las configuraciones
+router.get('/', ConfiguracionController.getAll);
+router.get('/:clave', ConfiguracionController.getByKey);
 
-// Solo ADMIN puede actualizar configuraciones
-router.put('/:clave', verificarRol([ROLES.ADMIN]), ConfiguracionController.update);
-router.post('/bulk', verificarRol([ROLES.ADMIN]), ConfiguracionController.bulkUpdate);
+// Solo ADMIN y GERENTE pueden actualizar configuraciones
+router.put('/:clave', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), ConfiguracionController.update);
+router.post('/bulk', verificarRol([ROLES.ADMIN, ROLES.GERENTE]), ConfiguracionController.bulkUpdate);
 
 export default router;

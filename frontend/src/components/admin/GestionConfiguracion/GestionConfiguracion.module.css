@@ -94,11 +94,11 @@
 .cardActions {
   display: flex;
   gap: 6px;
-  background: color-mix(in srgb, var(--background-secondary) 80%, black);
+  background: var(--background-secondary);
   padding: 6px;
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: var(--theme-transition);
 }
 
 .themeButton {
@@ -192,6 +192,11 @@
     flex: 1;
     justify-content: center;
   }
+
+  .toggleButton {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 768px) {
@@ -246,4 +251,31 @@
 
 .toggleButton .material-icons {
   font-size: 1.1rem;
+}
+
+.disabledToggle {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.disabledToggle:hover {
+  transform: none !important;
+  background: var(--background-secondary) !important;
+}
+
+.sectionDisabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.sectionDisabled .sectionHeader h3 {
+  color: var(--text-tertiary);
+}
+
+.lockBadge {
+  font-size: 0.75rem;
+  margin-left: auto;
+  opacity: 0.5;
+  cursor: help;
 }

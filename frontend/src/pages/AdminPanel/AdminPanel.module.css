@@ -19,11 +19,7 @@
 .adminPanel::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at top left, var(--color-primary-100), transparent 40%);
+  inset: 0;
   pointer-events: none;
   z-index: -1;
 }
@@ -45,14 +41,98 @@
    ============================================================================ */
 
 .sidebar {
-  flex: 0 0 260px;
+  flex: 0 0 240px;
   height: 100vh;
-  background: color-mix(in srgb, var(--background-primary) 96%, transparent);
-  border-right: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  background: color-mix(in srgb, var(--background-primary) 98%, var(--background-secondary));
+  border-right: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: var(--theme-transition);
+}
+
+/* === HEADER DEL SIDEBAR === */
+
+/* === BARRA COMPACTA MOBILE === */
+.mobileTopBar {
+  display: none;
+}
+
+.mobileUser {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.mobileAvatar {
+  width: var(--avatar-size-md);
+  height: var(--avatar-size-md);
+  border-radius: var(--border-radius-full);
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  font-size: var(--font-size-xxs);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mobileUserMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.mobileUserName {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobileUserRole {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.mobileActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.mobileActionBtn {
+  width: var(--button-size-sm);
+  height: var(--button-size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: color var(--transition-fast) var(--transition-curve),
+              background var(--transition-fast) var(--transition-curve);
+}
+
+.mobileActionBtn:hover {
+  color: var(--text-primary);
+  background: var(--background-hover);
+}
+
+.mobileActionBtn .material-icons {
+  font-size: var(--icon-size-md) !important;
 }
 
 /* === HEADER DEL SIDEBAR === */
@@ -66,13 +146,13 @@
 .sidebarBrand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .brandIcon {
-  font-size: 40px !important;
+  font-size: 28px !important;
   color: var(--color-primary) !important;
   flex-shrink: 0;
 }
@@ -80,19 +160,19 @@
 .brandText {
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+  line-height: 1.2;
   text-align: center
 }
 
 .brandName {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.3px;
 }
 
 .brandSub {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--color-primary);
   text-transform: uppercase;
@@ -104,18 +184,18 @@
 .backButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: var(--spacing-xs);
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  padding: 6px 10px;
+  border: none;
   background: none;
-  color: var(--text-muted);
-  font-size: var(--font-size-md);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   transition: color var(--transition-fast) var(--transition-curve),
               background-color var(--transition-fast) var(--transition-curve);
   width: 100%;
-  justify-content: center;
 }
 
 .backButton:hover {
@@ -131,16 +211,12 @@
 
 .userInfo {
   display: grid;
-  gap: 12px;
+  gap: var(--spacing-sm);
   margin: 0 var(--spacing-md);
   padding: var(--spacing-xs);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border-color) 74%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
   border-radius: var(--border-radius-md);
-  background:
-    linear-gradient(160deg, color-mix(in srgb, var(--color-primary-50) 78%, transparent), transparent 58%),
-    color-mix(in srgb, var(--background-secondary) 68%, var(--background-primary));
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  background: color-mix(in srgb, var(--background-secondary) 50%, var(--background-primary));
   flex-shrink: 0;
   transition: var(--theme-transition);
   text-align: left;
@@ -149,25 +225,23 @@
 .userInfoHeader {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-sm);
   min-width: 0;
 }
 
 .userAvatar {
-  width: 42px;
-  height: 42px;
+  width: var(--avatar-size-lg);
+  height: var(--avatar-size-lg);
   border-radius: var(--border-radius-full);
-  background:
-    linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-secondary) 62%, var(--color-primary)));
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #fff;
   flex-shrink: 0;
-  font-size: 14px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
-  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.22);
 }
 
 .userIdentity {
@@ -184,8 +258,8 @@
 }
 
 .userName {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
   line-height: 1.25;
@@ -193,7 +267,7 @@
 }
 
 .userRole {
-  font-size: 10px;
+  font-size: var(--font-size-xxs);
   font-weight: 600;
   color: var(--color-primary);
   text-transform: uppercase;
@@ -248,30 +322,28 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0 var(--spacing-md);
-  margin: var(--spacing-sm) 0;
-  gap: 2px;
+  padding: 0 var(--spacing-xs);
+  margin: var(--spacing-xs) 0;
+  gap: 1px;
 }
 
 .menuOption {
   display: flex;
   color: var(--text-secondary);
   align-items: center;
-  gap: 10px;
-  padding: var(--spacing-xs);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xxs) var(--spacing-xs);
   border: none;
-  border-left: 2px solid transparent;
   background: none;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 500;
   font-family: var(--font-family-admin);
   cursor: pointer;
   transition: background-color var(--transition-fast) var(--transition-curve),
-              color var(--transition-fast) var(--transition-curve),
-              border-left-color var(--transition-fast) var(--transition-curve);
+              color var(--transition-fast) var(--transition-curve);
   text-align: left;
   width: 100%;
-  border-radius: var(--border-radius-md)
+  border-radius: var(--border-radius-sm);
 }
 
 .menuOption .material-icons {
@@ -286,11 +358,9 @@
 }
 
 .menuOption.activeOption {
-  background: linear-gradient(90deg, var(--color-primary-50), transparent);
+  background: var(--color-primary-50);
   color: var(--color-primary);
-  border-left-color: var(--color-primary);
   font-weight: 600;
-  transform: translateX(3px);
 }
 
 .menuOption.activeOption .material-icons {
@@ -302,35 +372,37 @@
 /* === CERRAR SESIÓN === */
 
 .logoutSection {
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
   flex-shrink: 0;
-  padding: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-xs);
 }
 
 .logoutButton {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: var(--spacing-xs);
-  border: 1px solid var(--color-error);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
   background: none;
   color: var(--color-error);
-  font-size: var(--font-size-md);
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
   font-family: var(--font-family-admin);
   cursor: pointer;
   width: 100%;
   text-align: left;
-  transition: background-color var(--transition-fast) var(--transition-curve);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast) var(--transition-curve),
+              border-color var(--transition-fast) var(--transition-curve);
 }
 
 .logoutButton:hover {
   background: var(--color-error-100);
+  border-color: var(--color-error);
 }
 
 .logoutButton .material-icons {
-  font-size: 18px !important;
+  font-size: var(--icon-size-sm) !important;
 }
 
 /* ============================================================================
@@ -340,7 +412,9 @@
 .mainContent {
   flex: 1;
   height: 100vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   position: relative;
   background-color: var(--background-primary);
   transition: background-color var(--transition-normal) var(--transition-curve);
@@ -349,36 +423,33 @@
 .mainContent::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at top right, var(--color-primary-50), transparent 30%),
-    linear-gradient(180deg, rgba(var(--background-secondary-rgb), 0.3) 0%, transparent 100%);
+  inset: 0;
   pointer-events: none;
   z-index: -1;
 }
 
 .contentArea {
-  min-height: 100%;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .mainHeader {
-  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  flex-shrink: 0;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
 }
 
 .mainHeaderCopy {
   display: grid;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .mainEyebrow {
   display: inline-flex;
   justify-content: center;
   width: 100%;
-  padding: 6px 10px;
+  padding: var(--spacing-xxs) var(--spacing-xs);
   border-radius: var(--border-radius-full);
   background: var(--color-primary-50);
   color: var(--color-primary);
@@ -469,23 +540,14 @@
     height: auto;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
-    overflow: visible; /* Permitir que el dropdown sea visible */
-    z-index: 100; /* Asegurar que esté sobre el contenido principal */
+    overflow: visible;
+    z-index: 100;
   }
 
   .sidebarNav {
     overflow: visible;
-    padding: var(--spacing-md);
-    gap: var(--spacing-sm);
-  }
-
-  .userInfoHeader {
-    align-items: flex-start;
-  }
-
-  .userAvatar {
-    width: 40px;
-    height: 40px;
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
   }
 
   .mainContent {
@@ -493,66 +555,69 @@
     min-height: 50vh;
   }
 
+  .contentArea {
+    overflow: visible;
+    flex: none;
+  }
+
   .mainHeader {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
 
   .sidebarBrand {
     display: none;
   }
 
-  /* Mostrar el menú desplegable mobile */
+  .sidebarHeader,
+  .userInfo,
+  .logoutSection {
+    display: none;
+  }
+
+  .mobileTopBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--navbar-height-mobile);
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+    background: rgba(var(--background-primary-rgb), 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+  }
+
   .mobileMenuWrapper {
     display: flex;
     z-index: 101;
     position: relative;
   }
 
-  /* Ocultar el menú desktop y mostrar dropdown */
   .menuOptions {
     display: none;
-  }
-
-  .menuOption .material-icons {
-    display: none;
-  }
-
-  .logoutSection {
-    padding: var(--spacing-md);
-  }
-
-  .logoutButton {
-    padding: 7px 12px;
   }
 }
 
 @media (max-width: 480px) {
+  .mobileTopBar {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .sidebar {
+    padding: 0;
+  }
+
+  .sidebarNav {
+    padding: 2px;
+  }
+
   .mobileMenuWrapper {
-    padding: var(--spacing-md);
-  }
-  .sidebarHeader {
-    padding: var(--spacing-md);
-  }
-
-  .userInfoHeader {
-    gap: 10px;
-  }
-
-  .userAvatar {
-    width: 38px;
-    height: 38px;
-    font-size: 13px;
-  }
-
-  .userName {
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 0;
   }
 
   .mainHeader {
-    padding: 16px 14px 0;
+    padding: 10px 12px 0;
   }
 }
 

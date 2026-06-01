@@ -8,8 +8,8 @@ const Location = () => {
     const { getConfig } = useConfig();
     
     // Obtener configuración dinámica
-    const lat = parseFloat(getConfig('map_lat', '-27.5906'));
-    const lng = parseFloat(getConfig('map_lng', '-56.6909'));
+    const lat = parseFloat(getConfig('map_lat', '-27.4514'));
+    const lng = parseFloat(getConfig('map_lng', '-58.9867'));
     const mapTitle = getConfig('map_title', 'TecnoCel - Nuestra Tienda');
 
     // Coordenadas

@@ -1,8 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from './OpenStreetMap.module.css';
+
+const MapCenterUpdater = ({ center, zoom }: { center: { lat: number; lng: number }; zoom: number }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo([center.lat, center.lng], zoom, { duration: 1 });
+  }, [map, center.lat, center.lng, zoom]);
+  return null;
+};
 
 interface OpenStreetMapProps {
   center: {
@@ -196,6 +204,7 @@ const OpenStreetMap = ({ center, zoom = 16, title = 'Ubicación', description, o
         zoomControl={true}
         key={isDarkMode ? 'dark-map' : 'light-map'} // Forzar re-renderizado al cambiar de tema para actualizar Tiles
       >
+        <MapCenterUpdater center={center} zoom={zoom} />
         <TileLayer
           attribution='&copy; <a href="https://carto.com/" target="_blank">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
           url={tileUrl}
@@ -204,6 +213,7 @@ const OpenStreetMap = ({ center, zoom = 16, title = 'Ubicación', description, o
 
         {/* Marcador personalizado */}
         <Marker
+          key={`${center.lat}-${center.lng}-${title}-${description}`}
           position={[center.lat, center.lng]}
           icon={createCustomIcon()}
           eventHandlers={{

@@ -220,8 +220,8 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {/* Estado de carga */}
-      {cargando && (
+      {/* Estado de carga inicial */}
+      {cargando && retiros.length === 0 && !error && (
         <AdminLoading
           variant="panel"
           title="Cargando retiros"
@@ -234,8 +234,8 @@ const GestionRetiros: React.FC<GestionRetirosProps> = memo(({ onPendientesChange
         <div className={styles.errorMsg}>{error}</div>
       )}
 
-      {/* Tabla */}
-      {!cargando && !error && (
+      {/* Tabla (siempre montada una vez que hay data) */}
+      {!error && (retiros.length > 0 || !cargando) && (
         <AdminDataTable
           data={retiros}
           columns={columns}

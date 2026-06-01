@@ -115,6 +115,27 @@ const UserPanel: React.FC = () => {
       <div className={styles.container}>
         {/* SIDEBAR */}
         <aside className={styles.sidebar}>
+          {/* Barra compacta para mobile */}
+          <div className={styles.mobileTopBar}>
+            <div className={styles.mobileUser}>
+              <div className={styles.mobileAvatar}>
+                {(cliente.nombre?.[0] || '').toUpperCase()}
+              </div>
+              <div className={styles.mobileUserMeta}>
+                <span className={styles.mobileUserName}>{cliente.nombre}</span>
+                <span className={styles.mobileUserRole}>Cliente</span>
+              </div>
+            </div>
+            <div className={styles.mobileActions}>
+              <button className={styles.mobileActionBtn} onClick={() => navigate('/')} aria-label="Volver al inicio">
+                <span className="material-icons">home</span>
+              </button>
+              <button className={styles.mobileActionBtn} onClick={() => { logout(); navigate('/'); }} aria-label="Cerrar sesión">
+                <span className="material-icons">logout</span>
+              </button>
+            </div>
+          </div>
+
           <div className={styles.sidebarHeader}>
             <button className={styles.backButton} onClick={() => navigate('/')}>
               <span className="material-icons">arrow_back</span>

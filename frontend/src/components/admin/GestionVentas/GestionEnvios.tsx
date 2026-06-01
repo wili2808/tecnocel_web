@@ -245,8 +245,8 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
         </AdminFilterPanel.Row>
       </AdminFilterPanel>
 
-      {/* Estado de carga */}
-      {cargando && (
+      {/* Estado de carga inicial */}
+      {cargando && envios.length === 0 && !error && (
         <AdminLoading
           variant="panel"
           title="Cargando envíos"
@@ -259,8 +259,8 @@ const GestionEnvios: React.FC<GestionEnviosProps> = memo(({ onPendientesChange }
         <div className={styles.errorMsg}>{error}</div>
       )}
 
-      {/* Tabla */}
-      {!cargando && !error && (
+      {/* Tabla (siempre montada una vez que hay data) */}
+      {!error && (envios.length > 0 || !cargando) && (
         <AdminDataTable
           data={envios}
           columns={columns}

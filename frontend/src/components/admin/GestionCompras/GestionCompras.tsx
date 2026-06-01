@@ -515,6 +515,17 @@ const GestionCompras: React.FC = memo(() => {
             </AdminFilterPanel.Row>
           </AdminFilterPanel>
 
+          {/* Estado de carga inicial */}
+          {cargando && compras.length === 0 && !error && (
+            <AdminLoading
+              variant="panel"
+              title="Cargando compras"
+              message="Estamos obteniendo el historial de compras y sus métricas de abastecimiento."
+              className={styles.loadingState}
+            />
+          )}
+
+          {/* Error / Vacío / Tabla */}
           {error ? (
             <AdminEmptyState
               icon="error_outline"
@@ -525,21 +536,14 @@ const GestionCompras: React.FC = memo(() => {
               tone="danger"
               className={styles.errorState}
             />
-          ) : cargando ? (
-            <AdminLoading
-              variant="panel"
-              title="Cargando compras"
-              message="Estamos obteniendo el historial de compras y sus métricas de abastecimiento."
-              className={styles.loadingState}
-            />
-          ) : compras.length === 0 ? (
+          ) : !cargando && compras.length === 0 ? (
             <AdminEmptyState
               icon="inventory_2"
               title="No hay compras registradas"
               message="Todavía no se encontraron compras para los filtros actuales."
               className={styles.loadingState}
             />
-          ) : (
+          ) : (compras.length > 0 || !cargando) ? (
             <AdminDataTable
               data={compras}
               columns={comprasColumns}
@@ -557,7 +561,7 @@ const GestionCompras: React.FC = memo(() => {
               manualSorting={true}
               emptyMessage="No se encontraron compras para los filtros aplicados"
             />
-          )}
+          ) : null}
         </>
       )}
 
