@@ -258,7 +258,17 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
       accessorKey: 'nombre',
       id: 'nombre',
       header: 'Nombre',
-      cell: (info) => <span className="font-bold">{info.getValue() as string}</span>,
+      cell: (info) => {
+        const producto = info.row.original;
+        return (
+          <span className="font-bold">
+            {producto.nombre}
+            {producto.activo === false && (
+              <span className={styles.inactiveBadge}>Inactivo</span>
+            )}
+          </span>
+        );
+      },
     },
     {
       accessorKey: 'precio_venta',
@@ -395,6 +405,12 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
         <h3 className="m-0 text-sm font-bold flex items-center gap-sm">
           <span className="material-icons text-primary" style={{ fontSize: '18px' }}>inventory_2</span>
           Productos en esta Oferta ({productosAsignados.length})
+          {(() => {
+            const inactivos = productosAsignados.filter(p => p.activo === false).length;
+            return inactivos > 0
+              ? <span className={styles.inactiveCount}>{inactivos} inactivo{inactivos > 1 ? 's' : ''}</span>
+              : null;
+          })()}
         </h3>
         <button className="btnPremium btnPrimaryPremium btnSmPremium" onClick={handleAbrirBuscador}>
           <span className="material-icons">add</span>
@@ -416,6 +432,7 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
           itemLabel="productos"
           manualPagination={false}
           emptyMessage="No hay productos asignados a esta oferta"
+          getRowClassName={(row) => row.activo === false ? styles.inactiveRow : ''}
         />
       </div>
 

@@ -400,7 +400,8 @@ class AlmacenController {
       const { id } = req.params;
       const now = new Date();
       
-      const producto = await Almacen.findByPk(id, {
+      const producto = await Almacen.findOne({
+        where: { id_producto: id, activo: true },
         include: [
           { 
             model: Categoria,

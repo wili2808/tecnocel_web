@@ -144,6 +144,7 @@ class OfertaController {
       const now = new Date();
 
       const productosEnOferta = await Almacen.findAndCountAll({
+        where: { activo: true },
         include: [
           {
             model: Oferta,
@@ -543,7 +544,7 @@ class OfertaController {
           {
             model: Almacen,
             as: 'productos',
-            attributes: ['id_producto', 'codigo', 'nombre', 'precio_venta'],
+            attributes: ['id_producto', 'codigo', 'nombre', 'precio_venta', 'activo'],
             through: {
               attributes: ['id_producto_oferta', 'precio_oferta', 'es_precio_personalizado']
             },
