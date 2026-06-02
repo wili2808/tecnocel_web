@@ -6,20 +6,52 @@
  * Grid responsive que se adapta automáticamente a diferentes tamaños de pantalla
  */
 import React, { useMemo } from 'react';
+import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import ProductCard from '../ProductCard';
 import styles from './ProductGrid.module.css';
 import { useProductActions } from '../../../hooks/useProductActions';
 import { filterProducts } from '../../../utils/productFiltering';
-import type { ProductUIFilters } from '../../../types';
+import type { Product, ProductUIFilters } from '../../../types';
 
 interface ProductGridProps {
     filters?: ProductUIFilters;
 }
 
+const MAX_STAGGERED_PRODUCTS = 16;
+
+const gridItemVariants: Variants = {
+    hidden: {
+        opacity: 0,
+        y: 18,
+        scale: 0.97,
+    },
+    visible: (index: number) => ({
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: 0.34,
+            ease: 'easeOut',
+            delay: Math.min(index, MAX_STAGGERED_PRODUCTS) * 0.035,
+        },
+    }),
+    exit: {
+        opacity: 0,
+        y: -10,
+        scale: 0.97,
+        transition: {
+            duration: 0.22,
+            ease: 'easeIn',
+        },
+    },
+};
+
 const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
     // ============================================================================
     // HOOKS Y CONTEXTOS
     // ============================================================================
+    const shouldReduceMotion = useReducedMotion();
 
     // Usar el contexto directamente para obtener productos y estado
     const {
@@ -36,12 +68,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
 
     // ✅ Lógica inteligente: usar filteredProducts del contexto si hay búsqueda activa
     // y aplicar filtros adicionales del frontend (categoría, marca, stock, ordenamiento)
-    const products = useMemo(() => {
+    const products = useMemo<Product[]>(() => {
         if (!filters) return allProducts;
 
         // Si hay búsqueda activa, usar productos ya filtrados del contexto
         // Fallback a array vacío para evitar errores si filteredProducts es undefined
-        let baseProducts = filters.search.trim() ? (filteredProducts || []) : allProducts;
+        const baseProducts = filters.search.trim() ? (filteredProducts || []) : allProducts;
 
         // Aplicar filtros adicionales del frontend
         return filterProducts(baseProducts, filters);
@@ -100,22 +132,37 @@ const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
 
     // Grid responsive de productos con ProductCard
     return (
-        <div className={styles.productsGrid}>
-            {products.map((product: any) => (
-                <ProductCard
-                    key={product.id_producto}
-                    id_producto={product.id_producto}
-                    nombre={product.nombre}
-                    descripcion={product.descripcion}
-                    imagen_url={product.imagen_url}
-                    imagenes={product.imagenes || []}
-                    precio_venta={String(product.precio_venta)}
-                    stock={product.stock}
-                    precio_oferta={product.precio_oferta}
-                    en_oferta={product.en_oferta}
-                    precio_original={product.precio_original}
-                />
-            ))}
+        <div className={styles.productsGrid} aria-live="polite">
+            <LazyMotion features={domAnimation}>
+                <AnimatePresence mode="popLayout">
+                    {products.map((product, index) => (
+                        <m.div
+                            key={product.id_producto}
+                            className={styles.productMotionItem}
+                            layout={!shouldReduceMotion}
+                            variants={shouldReduceMotion ? undefined : gridItemVariants}
+                            initial={shouldReduceMotion ? false : 'hidden'}
+                            animate={shouldReduceMotion ? undefined : 'visible'}
+                            exit={shouldReduceMotion ? undefined : 'exit'}
+                            custom={index}
+                        >
+                            <ProductCard
+                                id_producto={product.id_producto}
+                                nombre={product.nombre}
+                                descripcion={product.descripcion}
+                                imagen_url={product.imagen_url}
+                                imagenes={product.imagenes || []}
+                                precio_venta={String(product.precio_venta)}
+                                stock={product.stock}
+                                precio_oferta={product.precio_oferta}
+                                descuento_porcentaje={product.descuento_porcentaje}
+                                en_oferta={product.en_oferta}
+                                precio_original={product.precio_original}
+                            />
+                        </m.div>
+                    ))}
+                </AnimatePresence>
+            </LazyMotion>
         </div>
     );
 };

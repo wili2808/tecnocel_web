@@ -31,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
   className,
   precio_original,
   precio_oferta,
+  descuento_porcentaje,
   en_oferta,
 }) => {
   // ============================================================================
@@ -58,19 +59,24 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
    * Incluye precios actuales, originales y cálculo de descuentos
    */
   const priceInfo = useMemo(() => {
-    const current = precio_oferta || Number(precio_venta);
-    const original = precio_original || Number(precio_venta);
-    const hasDiscount = precio_oferta && precio_oferta < Number(precio_venta);
+    const basePrice = Number(precio_venta);
+    const current = precio_oferta && precio_oferta > 0 ? precio_oferta : basePrice;
+    const providedDiscount = descuento_porcentaje && descuento_porcentaje > 0 ? descuento_porcentaje : 0;
+    const original = precio_original && precio_original > current
+      ? precio_original
+      : providedDiscount > 0
+        ? current / (1 - providedDiscount / 100)
+        : basePrice;
+    const hasDiscount = Boolean((en_oferta || providedDiscount > 0) && original > current);
+    const calculatedDiscount = hasDiscount ? Math.round(((original - current) / original) * 100) : 0;
 
     return {
       current,
       original,
       hasDiscount,
-      discountPercentage: hasDiscount
-        ? Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100)
-        : 0,
+      discountPercentage: providedDiscount || calculatedDiscount,
     };
-  }, [precio_venta, precio_original, precio_oferta]);
+  }, [precio_venta, precio_original, precio_oferta, descuento_porcentaje, en_oferta]);
 
   /**
    * Click en la tarjeta del producto
@@ -193,13 +199,9 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
           />
 
           {/* Indicador de oferta — Superior izquierda */}
-          {(en_oferta || (precio_oferta && precio_oferta < Number(precio_venta))) && (
+          {priceInfo.hasDiscount && (
             <OfferIndicator
-              descuentoPorcentaje={
-                precio_oferta && precio_venta
-                  ? Math.round(((Number(precio_venta) - precio_oferta) / Number(precio_venta)) * 100)
-                  : 0
-              }
+              descuentoPorcentaje={priceInfo.discountPercentage}
               size="small"
               position="top-left"
               showLabel={true}

@@ -8,6 +8,7 @@
   color: inherit;
   display: block;
   height: 100%;
+  min-height: 100%;
   transition: transform var(--transition-fast) var(--transition-curve);
 }
 
@@ -21,10 +22,14 @@
 
 /* Tarjeta — Superficie elevada sutil */
 .productCard {
+  --card-image-ratio: 1 / 1;
+  --card-body-min-height: 152px;
+  container-type: inline-size;
   background: var(--background-secondary);
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
+  min-height: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -43,7 +48,8 @@
 .imageContainer {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: var(--card-image-ratio);
+  flex: 0 0 auto;
   overflow: hidden;
   background: var(--background-neutral);
   display: flex;
@@ -103,30 +109,39 @@
 
 .productInfo {
   padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: var(--card-body-min-height);
   flex-grow: 1;
   gap: var(--spacing-sm);
-  justify-content: space-between;
 }
 
 /* Encabezado con precio PRIMERO (reordenado en JSX) */
 .productHeader {
-  display: flex;
-  flex-direction: column;
+  grid-row: 1;
+  display: grid;
+  grid-template-rows: auto auto;
   gap: var(--spacing-sm);
   order: -1; /* Fuerza que sea el primero visualmente */
+  min-width: 0;
 }
 
 /* Precio destacado — Elemento más importante */
 .priceContainer {
   display: flex;
   align-items: baseline;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 24px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .price {
+  flex: 0 1 auto;
+  min-width: 0;
   font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
   font-weight: 700;
@@ -134,14 +149,20 @@
   line-height: 1.2;
   transition: var(--theme-transition);
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .originalPrice {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: var(--font-size-sm);
   color: var(--text-muted);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Título — Secundario, después del precio */
@@ -163,6 +184,7 @@
 
 /* Descripción — Informativa, última */
 .productDescription {
+  grid-row: 2;
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin: 0;
@@ -180,7 +202,14 @@
 ============================================================================ */
 
 .addButton {
-  content: "Agregar";
+  width: 100%;
+  align-self: end;
+}
+
+.productInfo > button {
+  grid-row: 3;
+  width: 100%;
+  align-self: end;
 }
 
 /* ============================================================================
@@ -224,7 +253,10 @@
   .productLink:hover { transform: none; }
 
   /* Info más compacta pero con aire */
-  .productInfo { padding: var(--spacing-md) var(--spacing-md) var(--spacing-md); }
+  .productInfo {
+    --card-body-min-height: 140px;
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md);
+  }
 
   /* Precio discreto en mobile */
   .price { font-size: var(--font-size-md); }
@@ -239,7 +271,10 @@
 }
 
 @media (max-width: 480px) {
-  .productInfo { padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md); }
+  .productInfo {
+    --card-body-min-height: 126px;
+    padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md);
+  }
 
   .price { font-size: var(--font-size-md); }
 
@@ -256,6 +291,30 @@
 
   .overlayIcon { font-size: 28px; }
   .overlayText { font-size: var(--font-size-sm); }
+}
+
+@container (max-width: 205px) {
+  .price {
+    font-size: var(--font-size-md);
+  }
+
+  .originalPrice {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@container (max-width: 170px) {
+  .priceContainer {
+    gap: 4px;
+  }
+
+  .price {
+    font-size: var(--font-size-sm);
+  }
+
+  .originalPrice {
+    font-size: 11px;
+  }
 }
 
 /* ============================================================================
