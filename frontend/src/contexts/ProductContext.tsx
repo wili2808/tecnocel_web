@@ -211,6 +211,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   const fetchProducts = useCallback(
     async (filters?: ProductFilters, page?: number) => {
       try {
+        dispatch({ type: 'SET_PRODUCTS_ERROR', payload: null });
         dispatch({ type: 'SET_PRODUCTS_LOADING', payload: true });
         
         // Si no se especifica página, cargar sin límite para que el filtrado local funcione
@@ -240,6 +241,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   const fetchProduct = useCallback(
     async (id: number, signal?: AbortSignal) => {
       try {
+        dispatch({ type: 'SET_PRODUCTS_ERROR', payload: null });
         dispatch({ type: 'SET_PRODUCTS_LOADING', payload: true });
         const product = await productService.getProductById(id, signal);
         const productWithOffers = syncProductsWithOffers([product])[0];
@@ -256,6 +258,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const fetchFeaturedProducts = useCallback(async (limit?: number) => {
     try {
+      dispatch({ type: 'SET_PRODUCTS_ERROR', payload: null });
       dispatch({ type: 'SET_PRODUCTS_LOADING', payload: true });
       const featured = await productService.getFeaturedProducts(limit);
       const productsWithOffers = syncProductsWithOffers(featured);

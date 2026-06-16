@@ -5,10 +5,11 @@
 
 .productsGrid {
   --catalog-card-min-width: 184px;
-  --catalog-card-min-height: 360px;
+  --catalog-card-min-height: 400px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--catalog-card-min-width), 1fr));
   grid-auto-rows: 1fr;
+  justify-items: center;
   gap: var(--spacing-md);
   justify-content: stretch;
   align-content: start;
@@ -25,6 +26,8 @@
 
 .productMotionItem {
   min-width: 0;
+  width: 100%;
+  max-width: 320px;
   height: 100%;
   min-height: var(--catalog-card-min-height);
   will-change: transform, opacity;
@@ -49,6 +52,7 @@
   padding: var(--spacing-3xl) 0;
   text-align: center;
   grid-column: 1 / -1;
+  justify-self: stretch;
   color: var(--text-secondary);
 }
 
@@ -95,21 +99,21 @@
 @media (max-width: 1024px) {
   .productsGrid {
     --catalog-card-min-width: 162px;
-    --catalog-card-min-height: 326px;
+    --catalog-card-min-height: 380px;
     gap: var(--spacing-sm);
   }
 }
 @media (max-width: 768px) {
   .productsGrid {
     --catalog-card-min-width: 148px;
-    --catalog-card-min-height: 300px;
+    --catalog-card-min-height: 380px;
     gap: var(--spacing-xs);
     padding: var(--spacing-xs);
   }
 }
 @media (max-width: 480px) {
   .productsGrid {
-    --catalog-card-min-height: 284px;
+    --catalog-card-min-height: 370px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     padding: var(--spacing-xs);
   }
