@@ -4,9 +4,16 @@
    ============================================================================ */
 
 .productsGrid {
+  --catalog-card-min-width: 184px;
+  --catalog-card-min-height: 400px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(var(--catalog-card-min-width), 1fr));
+  grid-auto-rows: 1fr;
+  justify-items: center;
   gap: var(--spacing-md);
+  justify-content: stretch;
+  align-content: start;
+  align-items: stretch;
   padding: var(--spacing-sm);
   width: 100%;
   box-sizing: border-box;
@@ -15,7 +22,15 @@
   contain: layout style paint;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
-  animation: fadeInUp 0.3s ease-out both;
+}
+
+.productMotionItem {
+  min-width: 0;
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+  min-height: var(--catalog-card-min-height);
+  will-change: transform, opacity;
 }
 
 .productsGrid::-webkit-scrollbar { width: 6px; }
@@ -37,6 +52,7 @@
   padding: var(--spacing-3xl) 0;
   text-align: center;
   grid-column: 1 / -1;
+  justify-self: stretch;
   color: var(--text-secondary);
 }
 
@@ -81,24 +97,33 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .productsGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--spacing-sm); }
+  .productsGrid {
+    --catalog-card-min-width: 162px;
+    --catalog-card-min-height: 380px;
+    gap: var(--spacing-sm);
+  }
 }
 @media (max-width: 768px) {
-  .productsGrid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--spacing-xs); padding: var(--spacing-xs); }
+  .productsGrid {
+    --catalog-card-min-width: 148px;
+    --catalog-card-min-height: 380px;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+  }
 }
 @media (max-width: 480px) {
-  .productsGrid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); padding: var(--spacing-xs); }
+  .productsGrid {
+    --catalog-card-min-height: 370px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: var(--spacing-xs);
+  }
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .productsGrid { animation: none; }
+  .productMotionItem { will-change: auto; }
   .spinner { animation: none; }
 }

@@ -89,9 +89,9 @@ axiosInstance.interceptors.response.use(
       const status = error.response.status;
       
       if (status === 401) {
-        // No autorizado - limpiar token y redirigir a login
+        // No autorizado - limpiar token y notificar al AuthContext
         localStorage.removeItem('token');
-        // Aquí se podría implementar una redirección al login
+        window.dispatchEvent(new CustomEvent('auth:token-expired'));
       } else if (status === 403) {
         // Prohibido - el usuario no tiene permisos
         console.error('No tienes permisos para realizar esta acción');

@@ -138,6 +138,7 @@ export interface ProductoEnOferta {
   codigo: string;
   nombre: string;
   precio_venta: string;
+  activo: boolean;
   imagen_url?: string | null;
   imagenes?: { url_imagen: string; alt_text?: string | null; es_principal: boolean }[];
   ProductoOferta: {

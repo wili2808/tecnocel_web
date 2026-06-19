@@ -212,10 +212,15 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
             console.log('🔄 Ofertas cargadas desde cache (evitando llamada duplicada)');
           }
 
+          // Filtrar productos inactivos del cache (defensa ante datos obsoletos)
+          const productosActivos = (parsed.productosEnOferta as Product[]).filter(
+            (p) => p.activo !== false
+          );
+
           // Reconstruir Maps y Sets desde cache con tipos explícitos
           const ofertasMap = new Map<number, Oferta>(parsed.ofertas.map((o: Oferta) => [o.id_oferta, o]));
           const productosMap = new Map<number, Product>(
-            parsed.productosEnOferta.map((p: Product) => [p.id_producto, p]),
+            productosActivos.map((p: Product) => [p.id_producto, p]),
           );
           const ofertasActivasSet = new Set<number>(parsed.ofertasActivas);
           const ofertasExpiradasSet = new Set<number>(parsed.ofertasExpiradas);
@@ -223,7 +228,7 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
           setState((prev) => ({
             ...prev,
             ofertas: parsed.ofertas as Oferta[],
-            productosEnOferta: parsed.productosEnOferta as Product[],
+            productosEnOferta: productosActivos,
             ofertasActivas: parsed.ofertas.filter((o: Oferta) => isOfertaActive(o)),
             ofertasExpiradas: parsed.ofertas.filter((o: Oferta) => !isOfertaActive(o)),
             cache: {
@@ -259,16 +264,19 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
       const ofertasActivas = ofertasData.filter(isOfertaActive);
       const ofertasExpiradas = ofertasData.filter((o) => !isOfertaActive(o));
 
+      // Filtrar productos inactivos (defensa ante datos obsoletos)
+      const productosActivos = productosData.data.filter((p) => p.activo !== false);
+
       // Crear Maps y Sets para cache
       const ofertasMap = new Map(ofertasData.map((o) => [o.id_oferta, o]));
-      const productosMap = new Map(productosData.data.map((p) => [p.id_producto, p]));
+      const productosMap = new Map(productosActivos.map((p) => [p.id_producto, p]));
       const ofertasActivasSet = new Set(ofertasActivas.map((o) => o.id_oferta));
       const ofertasExpiradasSet = new Set(ofertasExpiradas.map((o) => o.id_oferta));
 
       // Guardar en cache ANTES de actualizar el estado
       const cacheData = {
         ofertas: ofertasData,
-        productosEnOferta: productosData.data,
+        productosEnOferta: productosActivos,
         ofertasActivas: Array.from(ofertasActivasSet),
         ofertasExpiradas: Array.from(ofertasExpiradasSet),
         timestamp: Date.now(),
@@ -279,7 +287,7 @@ export const OfertasGlobalProvider: React.FC<OfertasGlobalProviderProps> = ({ ch
       setState((prev) => ({
         ...prev,
         ofertas: ofertasData,
-        productosEnOferta: productosData.data,
+        productosEnOferta: productosActivos,
         ofertasActivas,
         ofertasExpiradas,
         cache: {

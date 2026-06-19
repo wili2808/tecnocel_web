@@ -8,6 +8,7 @@ import Cancelacion from '../models/Cancelacion.js';
 import Direccion from '../models/Direccion.js';
 import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
+import ProductoImagen from '../models/ProductoImagen.js';
 import logger from '../services/loggerService.js';
 
 /**
@@ -59,7 +60,14 @@ class VentaController {
               {
                 model: Almacen,
                 as: 'producto',
-                attributes: ['id_producto', 'nombre', 'descripcion']
+                attributes: ['id_producto', 'nombre', 'descripcion'],
+                include: [{
+                  model: ProductoImagen,
+                  as: 'imagenes',
+                  attributes: ['url_imagen', 'es_principal'],
+                  required: false,
+                  separate: false
+                }]
               }
             ]
           },
@@ -91,12 +99,19 @@ class VentaController {
         const ventaData = venta.toJSON() as Record<string, any>;
         const numeroVentaFormateado = `V-${ventaData.nro_venta.toString().padStart(5, '0')}`;
 
-        const items = (ventaData.items || []).map((item: Record<string, any>) => ({
-          nombre_producto: item.producto?.nombre || 'Producto no disponible',
-          cantidad: item.cantidad,
-          precio_unitario: parseFloat(item.precio_unitario),
-          subtotal: parseFloat(item.subtotal)
-        }));
+        const items = (ventaData.items || []).map((item: Record<string, any>) => {
+          const imagenes = item.producto?.imagenes || [];
+          const imgPrincipal = imagenes.find((i: any) => i.es_principal) || imagenes[0];
+          const imagen_url = imgPrincipal?.url_imagen ? `/api/images/${imgPrincipal.url_imagen}` : null;
+          return {
+            id_producto: item.producto?.id_producto || null,
+            nombre_producto: item.producto?.nombre || 'Producto no disponible',
+            imagen_url,
+            cantidad: item.cantidad,
+            precio_unitario: parseFloat(item.precio_unitario),
+            subtotal: parseFloat(item.subtotal)
+          };
+        });
 
         return {
           id_venta: ventaData.id_venta,

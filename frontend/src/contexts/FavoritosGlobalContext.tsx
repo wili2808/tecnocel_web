@@ -163,6 +163,10 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
     lastUpdated: null,
   });
 
+  // Ref para leer el estado actual sin causar dependencias en callbacks
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
   /**
    * Verifica si el cache es válido
    */
@@ -185,14 +189,15 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
 
   /**
    * Sincroniza el cache con el estado actual
-   * ✅ FIX: También limpia el cache cuando no hay favoritos
+   * ✅ FIX: Usa stateRef para evitar depender de state.favoritos (Map) y romper ciclos
    */
   const syncCache = useCallback(() => {
+    const current = stateRef.current;
     // Solo sincronizar cache para clientes autenticados (no admin/empleado)
     if (!isAuthenticated || !user?.id || userType !== 'cliente') {
       // Usuario no autenticado o no es cliente, limpiar cache y estado
       localStorage.removeItem(FAVORITOS_CACHE_KEY);
-      if (state.favoritos.size > 0 || state.favoritosCompletos.length > 0) {
+      if (current.favoritos.size > 0 || current.favoritosCompletos.length > 0) {
         setState((prev) => ({
           ...prev,
           favoritos: new Map(),
@@ -203,20 +208,19 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
       return;
     }
 
-    if (state.favoritos.size > 0) {
+    if (current.favoritos.size > 0) {
       // Hay favoritos, guardar en cache
       const cacheData = {
         userId: user.id,
-        favoritosIds: Array.from(state.favoritos.keys()),
-        favoritosCompletos: state.favoritosCompletos,
+        favoritosIds: Array.from(current.favoritos.keys()),
+        favoritosCompletos: current.favoritosCompletos,
         timestamp: Date.now(),
       };
       localStorage.setItem(FAVORITOS_CACHE_KEY, JSON.stringify(cacheData));
     } else {
-      // ✅ FIX: No hay favoritos, limpiar el cache
       localStorage.removeItem(FAVORITOS_CACHE_KEY);
     }
-  }, [isAuthenticated, user?.id, userType, state.favoritos, state.favoritosCompletos]);
+  }, [isAuthenticated, user?.id, userType]);
 
   /**
    * Carga los favoritos del usuario desde el servidor
@@ -568,22 +572,22 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
    * Obtiene el conteo de favoritos
    */
   const getFavoritosCount = useCallback((): number => {
-    return state.favoritos.size;
-  }, []); // ✅ SIN DEPENDENCIAS - Función estable
+    return stateRef.current.favoritos.size;
+  }, []);
 
   /**
    * Obtiene los IDs de productos favoritos
    */
   const getFavoritosIds = useCallback((): number[] => {
-    return Array.from(state.favoritos.keys());
-  }, []); // ✅ SIN DEPENDENCIAS - Función estable
+    return Array.from(stateRef.current.favoritos.keys());
+  }, []);
 
   /**
    * Obtiene los favoritos completos
    */
   const getFavoritosCompletos = useCallback((): Favorito[] => {
-    return state.favoritosCompletos;
-  }, []); // ✅ SIN DEPENDENCIAS - Función estable
+    return stateRef.current.favoritosCompletos;
+  }, []);
 
   // Memoizar el contexto para evitar re-renders innecesarios
   const contextValue = useMemo(

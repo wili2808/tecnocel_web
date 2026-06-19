@@ -1,17 +1,14 @@
-/* === CONTENEDOR PRINCIPAL === */
 .container {
   width: 100%;
   padding: var(--spacing-md);
-  animation: fadeIn 0.3s ease-in;
 }
 
-/* === HEADER === */
 .header {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
 }
 
 .title {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-display, inherit);
   font-size: var(--font-size-2xl);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -25,28 +22,27 @@
   margin: var(--spacing-xs) 0 0 0;
 }
 
-.stats {
+.statsRow {
   display: flex;
-  gap: var(--spacing-lg);
-  flex-wrap: wrap;
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-xl);
 }
 
 .statCard {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
   background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
   transition: var(--theme-transition);
 }
 
 .statCard .material-icons {
-  font-size: var(--font-size-2xl);
+  font-size: 28px;
   color: var(--color-primary);
 }
 
@@ -56,7 +52,7 @@
 }
 
 .statValue {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-display, inherit);
   font-size: var(--font-size-xl);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -65,7 +61,7 @@
 }
 
 .statLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin: 0;
 }
@@ -82,7 +78,7 @@
   font-size: var(--font-size-md);
   font-weight: 500;
   cursor: pointer;
-  transition: var(--theme-transition), transform var(--transition-fast) var(--transition-curve);
+  transition: background-color 0.2s, transform 0.15s;
 }
 
 .btnPrimary:hover {
@@ -90,18 +86,12 @@
   transform: translateY(-1px);
 }
 
-.btnPrimary .material-icons {
-  font-size: var(--font-size-xl);
-}
-
-/* === LISTA DE COMPRAS === */
 .ventasList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
-/* === TARJETA DE COMPRA === */
 .ventaCard {
   background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
@@ -117,21 +107,31 @@
 .ventaHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: var(--spacing-lg);
   cursor: pointer;
-  transition: background-color var(--transition-normal);
+  transition: var(--theme-transition);
 }
 
 .ventaHeader:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.04);
+  background-color: rgba(var(--color-primary-rgb), 0.03);
 }
 
-.ventaInfo {
+.ventaHeaderLeft {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   flex: 1;
+  min-width: 0;
+}
+
+.ventaHeaderRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  margin-left: var(--spacing-lg);
 }
 
 .ventaNumero {
@@ -139,34 +139,75 @@
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+  transition: var(--theme-transition);
 }
 
-.ventaFecha {
+.ventaFecha,
+.ventaItemsCount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   margin: 0;
+}
+
+.ventaFecha .material-icons,
+.ventaItemsCount .material-icons {
+  font-size: 14px;
+  color: var(--text-tertiary);
 }
 
 .ventaTotal {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--spacing-xs);
+  gap: 2px;
 }
 
 .totalLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin: 0;
 }
 
 .totalValue {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-display, inherit);
   font-size: var(--font-size-xl);
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--color-primary);
   margin: 0;
+  transition: var(--theme-transition);
+}
+
+.ventaActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pdfBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-error, #ef4444);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pdfBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.pdfBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .expandBtn {
@@ -178,61 +219,153 @@
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
-  transition: var(--theme-transition);
-  border-radius: var(--border-radius-full);
+  transition: color 0.2s;
+  border-radius: 50%;
 }
 
 .expandBtn:hover {
-  background-color: var(--background-hover);
+  background-color: var(--background-hover, rgba(0,0,0,0.04));
   color: var(--color-primary);
 }
 
 .expandBtn .material-icons {
-  font-size: var(--font-size-2xl);
+  font-size: 28px;
 }
 
-/* === DETALLES DE LA COMPRA === */
-.ventaDetails {
-  padding: var(--spacing-lg);
-  border-top: 1px solid var(--border-color);
-  background-color: var(--background-secondary);
-  transition: var(--theme-transition);
-  animation: slideDown 0.3s ease-out;
-}
-
-.ventaDetails h4 {
-  font-size: var(--font-size-lg);
+.estadoBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-md) 0;
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.estadoCompletada {
+  background: var(--color-success-100, #dcfce7);
+  color: var(--color-success, #16a34a);
+  transition: var(--theme-transition);
+}
+
+.estadoCancelada {
+  background: var(--color-error-100, #fee2e2);
+  color: var(--color-error, #dc2626);
+  transition: var(--theme-transition);
+}
+
+.estadoPendiente {
+  background: var(--color-warning-100, #fef9c3);
+  color: var(--color-warning, #ca8a04);
+  transition: var(--theme-transition);
+}
+
+.ventaNumeroRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.pagoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  background: var(--background-hover, rgba(0,0,0,0.03));
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  transition: var(--theme-transition);
+}
+
+.pagoBadge .material-icons {
+  font-size: 13px;
+}
+
+/* === DETALLES === */
+.ventaDetails {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  transition: var(--theme-transition);
+}
+
+.detailsTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detailsTitle .material-icons {
+  font-size: 16px;
+  color: var(--color-primary);
 }
 
 .itemsList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 1px;
+  background-color: var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  transition: var(--theme-transition);
+}
+
+.itemLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: var(--theme-transition);
+}
+
+.itemLink:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.04);
+}
+
+.itemLink:hover .itemName {
+  color: var(--color-primary);
 }
 
 .item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius-md);
-  transition: background-color var(--transition-normal);
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--background-secondary);
+  transition: var(--theme-transition);
 }
 
-.item:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.04);
+.itemThumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--background-light, #f5f5f5);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--theme-transition);
+}
+
+.itemThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .itemInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
   flex: 1;
+  min-width: 0;
 }
 
 .itemName {
@@ -240,35 +373,233 @@
   font-weight: 500;
   color: var(--text-primary);
   margin: 0;
+  transition: var(--theme-transition);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.itemCantidad {
-  font-size: var(--font-size-sm);
+.itemMeta {
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  margin: 0;
-}
-
-.itemPrecios {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--spacing-xs);
-}
-
-.itemPrecio {
-  font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
-  margin: 0;
+  margin: 2px 0 0;
+  transition: var(--theme-transition);
 }
 
 .itemSubtotal {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: var(--theme-transition);
 }
 
-/* === ESTADO VACÍO === */
+/* === TIMELINE === */
+.timelineSection {
+  margin-top: var(--spacing-md);
+}
+
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: var(--spacing-md) 0;
+  overflow-x: auto;
+}
+
+.timelineStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.timelineDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  background: var(--background-secondary);
+  padding: 0 4px;
+  transition: var(--theme-transition);
+}
+
+.timelineDot .material-icons {
+  font-size: 22px;
+  color: var(--text-tertiary);
+  transition: color 0.3s;
+}
+
+.timelineCompleted .timelineDot .material-icons {
+  color: var(--color-success, #16a34a);
+}
+
+.timelineCurrent .timelineDot .material-icons {
+  color: var(--color-primary);
+}
+
+.timelineLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.timelineCompleted .timelineLabel,
+.timelineCurrent .timelineLabel {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.timelineConnector {
+  position: absolute;
+  top: 11px;
+  left: calc(50% + 14px);
+  right: calc(-50% + 14px);
+  height: 2px;
+  background: var(--border-color);
+  z-index: 0;
+  transition: var(--theme-transition);
+}
+
+.timelineConnectorActive {
+  background: var(--color-success, #16a34a);
+}
+
+/* === RETIRO EN TIENDA === */
+.retiroCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  transition: var(--theme-transition);
+}
+
+.retiroCard .material-icons {
+  font-size: 28px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.retiroCard > div {
+  flex: 1;
+}
+
+.retiroTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+  transition: var(--theme-transition);
+}
+
+.retiroMsg {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  transition: var(--theme-transition);
+}
+
+.retiroListo {
+  background: var(--background-info);
+  border-color: var(--color-info-100);
+}
+
+.retiroListo .material-icons {
+  color: var(--color-info);
+  transition: var(--theme-transition);
+}
+
+.retiroEntregado {
+  background: var(--background-success);
+  border-color: var(--color-success-100);
+}
+
+.retiroEntregado .material-icons {
+  color: var(--color-success);
+  transition: var(--theme-transition);
+}
+
+/* === INFO BLOCKS === */
+.infoBlock {
+  margin-top: var(--spacing-md);
+}
+
+.direccionBox {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--background-light, rgba(0,0,0,0.02));
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-primary);
+  transition: var(--theme-transition);
+}
+
+.direccionLinea {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-success, #16a34a);
+  font-weight: 500;
+}
+
+.infoRow .material-icons {
+  font-size: 18px;
+}
+
+.reembolsoRow {
+  color: var(--color-warning, #ca8a04);
+}
+
+/* === CANCELACIÓN === */
+.cancelacionBox {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-error-100, #fee2e2);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-error, #dc2626);
+  transition: var(--theme-transition);
+}
+
+.cancelacionTitulo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-error, #dc2626);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.cancelacionTitulo .material-icons {
+  font-size: 18px;
+}
+
+.cancelacionFecha,
+.cancelacionMotivo {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  margin: 2px 0 0;
+  line-height: 1.5;
+}
+
+/* === ESTADOS === */
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -281,10 +612,11 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   margin-top: var(--spacing-xl);
+  transition: var(--theme-transition);
 }
 
 .emptyState .material-icons {
-  font-size: var(--icon-size-4xl);
+  font-size: 48px;
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-lg);
 }
@@ -302,8 +634,6 @@
   margin-bottom: var(--spacing-lg);
 }
 
-
-/* === ESTADO DE CARGA === */
 .loadingContainer {
   display: flex;
   flex-direction: column;
@@ -331,7 +661,7 @@
     font-size: var(--font-size-xl);
   }
 
-  .stats {
+  .statsRow {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
@@ -346,29 +676,33 @@
     gap: var(--spacing-md);
   }
 
-  .ventaInfo {
+  .ventaHeaderRight {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
+    margin-left: 0;
   }
 
   .ventaTotal {
     align-items: flex-start;
   }
 
-  .ventaActions {
-    border-left: none;
-    padding-left: 0;
-    margin-left: 0;
-  }
-
   .item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
+    flex-wrap: wrap;
   }
 
-  .itemPrecios {
-    align-items: flex-start;
+  .itemSubtotal {
     width: 100%;
+    padding-left: 52px;
+  }
+
+  .timeline {
+    gap: 0;
+  }
+
+  .timelineLabel {
+    font-size: 10px;
   }
 }
 
@@ -382,190 +716,12 @@
   }
 }
 
-/* === MÉTODO DE PAGO === */
-.ventaMetodo {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  margin: 2px 0 0 0;
-}
-
-.ventaMetodo .material-icons {
-  font-size: 14px;
-}
-
-/* === GRUPO DE ACCIONES (PDF + expandir) ═══════════════════════ */
-.ventaActions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  border-left: 1px solid var(--border-color);
-  padding-left: var(--spacing-sm);
-  margin-left: var(--spacing-sm);
-  flex-shrink: 0;
-}
-
-/* === BOTÓN DESCARGA PDF ═══════════════════════════════════════ */
-.pdfBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: var(--border-radius-sm, 6px);
-  background: transparent;
-  color: var(--color-error, #ef4444);
-  cursor: pointer;
-  transition: background 0.15s;
-  flex-shrink: 0;
-}
-
-.pdfBtn:hover {
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.pdfBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .pdfBtn { transition: none; }
-}
-
-/* === NÚMERO DE VENTA + BADGE ═══════════════════════════════════ */
-.ventaNumeroRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-}
-
-/* === BADGES DE ESTADO ═══════════════════════════════════════════ */
-.estadoBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.estadoCompletada {
-  background: var(--color-success-100, #dcfce7);
-  color: var(--color-success, #16a34a);
-}
-
-.estadoCancelada {
-  background: var(--color-error-100, #fee2e2);
-  color: var(--color-error, #dc2626);
-}
-
-.estadoPendiente {
-  background: var(--color-warning-100, #fef9c3);
-  color: var(--color-warning, #ca8a04);
-}
-
-/* === TIPO DE ENTREGA ════════════════════════════════════════════ */
-.entregaInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-md);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.entregaInfo .material-icons {
-  font-size: 18px;
-  color: var(--color-primary);
-}
-
-/* === DIRECCIÓN DE ENVÍO ═════════════════════════════════════════ */
-.direccionBox {
-  margin-top: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--background-light);
-  border-radius: var(--border-radius-md);
-  border-left: 3px solid var(--color-primary);
-}
-
-.direccionLinea {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* === FECHA DE DESPACHO ══════════════════════════════════════════ */
-.despachoRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  color: var(--color-success, #16a34a);
-  font-weight: 500;
-}
-
-.despachoRow .material-icons {
-  font-size: 18px;
-}
-
-/* === ESTADO DE REEMBOLSO ════════════════════════════════════════ */
-.reembolsoRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  color: var(--color-warning, #ca8a04);
-  font-weight: 500;
-}
-
-.reembolsoRow .material-icons {
-  font-size: 18px;
-}
-
-/* === CAJA DE CANCELACIÓN ════════════════════════════════════════ */
-.cancelacionBox {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: var(--color-error-100, #fee2e2);
-  border-radius: var(--border-radius-md);
-  border-left: 3px solid var(--color-error, #dc2626);
-}
-
-.cancelacionTitulo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-error, #dc2626);
-  margin: 0 0 var(--spacing-xs) 0;
-}
-
-.cancelacionTitulo .material-icons {
-  font-size: 18px;
-}
-
-.cancelacionFecha,
-.cancelacionMotivo {
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  margin: 2px 0 0 0;
-  line-height: 1.5;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .container { animation: none; }
-  .ventaCard, .ventaHeader, .item, .btnPrimary, .expandBtn { transition: none; }
-  .ventaDetails { animation: none; }
+  .ventaCard,
+  .ventaHeader,
+  .itemLink,
+  .btnPrimary,
+  .expandBtn {
+    transition: none;
+  }
 }

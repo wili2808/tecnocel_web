@@ -1,10 +1,3 @@
-/**
- * Componente ProductFilters - Filtros y controles de búsqueda de productos
- * Muestra filtros por categoría, marca, ordenamiento y disponibilidad de stock
- * Incluye funcionalidades para filtrado dinámico y contadores de resultados
- * Utiliza useProductActions para obtener categorías y marcas del sistema
- * Layout responsive: columnas en desktop, fila horizontal en móvil
- */
 import React from 'react';
 import styles from './ProductFilters.module.css';
 import type { ProductUIFilters } from '../../../types';
@@ -12,11 +5,8 @@ import { useProductActions } from '../../../hooks/useProductActions';
 import { ORDER_OPTIONS } from '../../../utils/productFiltering';
 
 interface ProductFiltersProps {
-    // Filtros actuales
     filters: ProductUIFilters;
     onFiltersChange: (filters: Partial<ProductUIFilters>) => void;
-
-    // Contadores para estadísticas
     totalProducts: number;
     filteredProducts: number;
 }
@@ -27,40 +17,29 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     totalProducts,
     filteredProducts
 }) => {
-    // ============================================================================
-    // HOOKS Y CONTEXTOS
-    // ============================================================================
-
-    // Usar el contexto directamente para obtener categorías y marcas
     const { categories, brands } = useProductActions();
 
-    // ============================================================================
-    // PREPARACIÓN DE DATOS
-    // ============================================================================
-
-    // Datos seguros con fallbacks
     const safeCategories = categories || [];
     const safeBrands = brands || [];
 
-    // ============================================================================
-    // RENDERIZADO
-    // ============================================================================
-
     return (
         <div className={styles.filtersContainer}>
-            {/* Filtros principales - Layout responsive */}
+            <div className={styles.filtersHeader}>
+                <span className={`material-icons ${styles.filtersHeaderIcon}`}>filter_list</span>
+                <span className={styles.filtersHeaderText}>Filtros</span>
+            </div>
+
             <div className={styles.filtersRow}>
-                {/* Filtro de Categorías del sistema */}
                 <div className={styles.filterSection}>
-                    <h3 className={styles.filterSectionTitle}>Categorías</h3>
+                    <h3 className={styles.filterSectionTitle}>Categoría</h3>
                     <div className={styles.filterGroup}>
                         <select
                             className={styles.filterSelect}
                             value={filters.selectedDropdownCategory}
                             onChange={(e) => onFiltersChange({ selectedDropdownCategory: e.target.value })}
-                            aria-label="Filtrar por categoría del sistema"
+                            aria-label="Filtrar por categoría"
                         >
-                            <option value="">Todas las categorías</option>
+                            <option value="">Todas</option>
                             {safeCategories.map(category => (
                                 <option key={category.id_categoria} value={category.id_categoria}>
                                     {category.nombre_categoria}
@@ -70,17 +49,16 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     </div>
                 </div>
 
-                {/* Filtro de Marcas del sistema */}
                 <div className={styles.filterSection}>
-                    <h3 className={styles.filterSectionTitle}>Marcas</h3>
+                    <h3 className={styles.filterSectionTitle}>Marca</h3>
                     <div className={styles.filterGroup}>
                         <select
                             className={styles.filterSelect}
                             value={filters.selectedDropdownBrand || ''}
                             onChange={(e) => onFiltersChange({ selectedDropdownBrand: e.target.value })}
-                            aria-label="Filtrar por marca del sistema"
+                            aria-label="Filtrar por marca"
                         >
-                            <option value="">Todas las marcas</option>
+                            <option value="">Todas</option>
                             {safeBrands.map(brand => (
                                 <option key={brand.id_marca} value={brand.id_marca.toString()}>
                                     {brand.nombre_marca}
@@ -90,12 +68,10 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     </div>
                 </div>
 
-                {/* Selector de ordenamiento de productos */}
                 <div className={styles.filterSection}>
                     <h3 className={styles.filterSectionTitle}>Ordenar</h3>
                     <div className={styles.filterGroup}>
                         <select
-                            id="sort-select"
                             className={styles.filterSelect}
                             value={filters.order}
                             onChange={(e) => onFiltersChange({ order: e.target.value })}
@@ -110,9 +86,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     </div>
                 </div>
 
-                {/* Filtro de disponibilidad de stock */}
                 <div className={styles.filterSection}>
-                    <h3 className={styles.filterSectionTitle}>Disponibles</h3>
+                    <h3 className={styles.filterSectionTitle}>Disponibilidad</h3>
                     <div className={styles.filterGroup}>
                         <label className={styles.toggleLabel}>
                             <input
@@ -122,17 +97,29 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                                 className={styles.toggleCheckbox}
                             />
                             <span className={styles.toggleSlider}></span>
-                            <span className={styles.toggleText}>
-                                <span className={styles.toggleTextFull}>Solo con stock disponible</span>
-                                <span className={styles.toggleTextShort}>Stock</span>
-                            </span>
+                            <span className={styles.toggleText}>Solo con stock</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div className={styles.filterSection}>
+                    <h3 className={styles.filterSectionTitle}>Ofertas</h3>
+                    <div className={styles.filterGroup}>
+                        <label className={styles.toggleLabel}>
+                            <input
+                                type="checkbox"
+                                checked={filters.onlyOffers || false}
+                                onChange={(e) => onFiltersChange({ onlyOffers: e.target.checked })}
+                                className={styles.toggleCheckbox}
+                            />
+                            <span className={styles.toggleSlider}></span>
+                            <span className={styles.toggleText}>Solo en oferta</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            {/* Contador de resultados filtrados - Oculto en móvil */}
-            <div className={`${styles.resultsCounter} ${styles.resultsCounterDesktop}`}>
+            <div className={styles.resultsCounter}>
                 <div className={styles.resultsCounterContent}>
                     <span className={styles.resultsNumber}>{filteredProducts}</span>
                     <span className={styles.resultsText}>de {totalProducts} productos</span>

@@ -261,6 +261,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, [verifyToken, updateState, clearClienteData]);
 
+  /**
+   * Escucha evento personalizado de token expirado (disparado desde axiosConfig)
+   * Sincroniza el estado cuando el interceptor de axios detecta un 401 en la misma pestaña
+   */
+  useEffect(() => {
+    const handleTokenExpired = () => {
+      clearClienteData();
+      usuarioService.clearAuthToken();
+      updateState({
+        user: null,
+        userType: null,
+        token: null,
+        isVerifying: false,
+        error: null,
+      });
+    };
+
+    try {
+      window.addEventListener('auth:token-expired', handleTokenExpired);
+    } catch (error) {
+      console.error('Error al configurar listener de token expirado:', error);
+    }
+
+    return () => {
+      try {
+        window.removeEventListener('auth:token-expired', handleTokenExpired);
+      } catch (error) {
+        console.error('Error al limpiar listener de token expirado:', error);
+      }
+    };
+  }, [updateState, clearClienteData]);
+
   // ============================================================================
   // FUNCIONES DE AUTENTICACIÓN
   // ============================================================================
