@@ -10,6 +10,7 @@ import Almacen from '../models/Almacen.js';
 import Cliente from '../models/Cliente.js';
 import ProductoImagen from '../models/ProductoImagen.js';
 import logger from '../services/loggerService.js';
+import { getImageService, ImageType } from '../services/imageService.js';
 
 /**
  * Controlador para gestión de ventas (vista del cliente)
@@ -102,7 +103,12 @@ class VentaController {
         const items = (ventaData.items || []).map((item: Record<string, any>) => {
           const imagenes = item.producto?.imagenes || [];
           const imgPrincipal = imagenes.find((i: any) => i.es_principal) || imagenes[0];
-          const imagen_url = imgPrincipal?.url_imagen ? `/api/images/${imgPrincipal.url_imagen}` : null;
+          const imageService = getImageService();
+          const imagen_url = imgPrincipal?.url_imagen
+            ? imageService
+              ? imageService.generateImageUrl(imgPrincipal.url_imagen, ImageType.PRODUCT)
+              : imgPrincipal.url_imagen
+            : null;
           return {
             id_producto: item.producto?.id_producto || null,
             nombre_producto: item.producto?.nombre || 'Producto no disponible',
