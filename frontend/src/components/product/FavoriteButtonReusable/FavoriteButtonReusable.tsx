@@ -110,7 +110,7 @@ const FavoriteButtonReusable: React.FC<FavoriteButtonReusableProps> = ({
         <svg
             viewBox="0 0 24 24"
             className={styles.icon}
-            fill={isActive ? "currentColor" : "none"}
+            fill={loading ? "none" : (isActive ? "currentColor" : "none")}
             stroke="currentColor"
             strokeWidth="2"
         >

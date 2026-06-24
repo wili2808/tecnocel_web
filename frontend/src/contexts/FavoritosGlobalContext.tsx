@@ -167,6 +167,11 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
   const stateRef = useRef(state);
   stateRef.current = state;
 
+  // Contador de generación para descartar respuestas obsoletas de loadFavoritos
+  // Cada vez que se inicia una nueva carga, se incrementa el contador.
+  // Si el contador cambió durante el await, la respuesta se descarta.
+  const loadGenerationRef = useRef(0);
+
   /**
    * Verifica si el cache es válido
    */
@@ -224,8 +229,12 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
 
   /**
    * Carga los favoritos del usuario desde el servidor
+   * Usa generación counter para descartar respuestas obsoletas cuando
+   * el estado de autenticación cambia durante la operación asíncrona
    */
   const loadFavoritos = useCallback(async () => {
+    const generation = ++loadGenerationRef.current;
+
     // Solo cargar favoritos para clientes autenticados (no admin/empleado)
     if (!isAuthenticated || !user?.id || userType !== 'cliente') {
       setState((prev) => ({
@@ -247,6 +256,8 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
         const parsed = JSON.parse(cachedData);
         // Verificar que el cache sea del usuario actual y esté vigente
         if (parsed.userId === user.id && Date.now() - parsed.timestamp < CACHE_DURATION) {
+          if (generation !== loadGenerationRef.current) return;
+
           const favoritosMap = new Map();
           parsed.favoritosIds.forEach((id: number) => favoritosMap.set(id, true));
 
@@ -257,7 +268,6 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
             loading: false,
             lastUpdated: parsed.timestamp,
           }));
-          console.log('Favoritos cargados desde cache localStorage');
           return;
         }
       } catch (error) {
@@ -270,6 +280,9 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
 
     try {
       const response = await favoritoService.getFavoritos(user.id);
+
+      // 🛡️ Si el estado de auth cambió durante el fetch, descartar respuesta obsoleta
+      if (generation !== loadGenerationRef.current) return;
 
       // Crear Map para búsquedas O(1)
       const favoritosMap = new Map();
@@ -296,6 +309,9 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
       };
       localStorage.setItem(FAVORITOS_CACHE_KEY, JSON.stringify(cacheData));
     } catch (error) {
+      // 🛡️ Si la generación cambió, no actualizar estado con error obsoleto
+      if (generation !== loadGenerationRef.current) return;
+
       console.error('Error al cargar favoritos:', error);
       setState((prev) => ({
         ...prev,
@@ -303,7 +319,7 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
         error: 'Error al cargar favoritos',
       }));
     }
-  }, [isAuthenticated, user?.id, userType]); // OPTIMIZACIÓN: Remover showNotification de dependencias
+  }, [isAuthenticated, user?.id, userType]);
 
   /**
    * Verifica si un producto es favorito
@@ -439,26 +455,21 @@ export const FavoritosGlobalProvider: React.FC<FavoritosGlobalProviderProps> = (
   /**
    * Toggle de favorito (agregar/quitar)
    * OPTIMIZACIÓN: Manejo inteligente de desincronización con backend
+   * Usa stateRef para leer el estado actual de favoritos en lugar del closure,
+   * evitando decisiones incorrectas en toggles rápidos o race conditions
    */
   const toggleFavorito = useCallback(
     async (productId: number): Promise<boolean> => {
-      const isCurrentlyFavorite = state.favoritos.get(productId);
+      const isCurrentlyFavorite = stateRef.current.favoritos.get(productId);
 
       if (isCurrentlyFavorite) {
-        // El frontend piensa que está en favoritos, intentar quitar
-        const result = await removeFavorito(productId);
-        return result;
+        return await removeFavorito(productId);
       } else {
-        // El frontend piensa que NO está en favoritos, intentar agregar
-        const result = await addFavorito(productId);
-
-        // Si hay error 409 (ya está en favoritos), significa que hay desincronización
-        // En este caso, el addFavorito ya sincronizó el estado, así que el toggle fue exitoso
-        return result;
+        return await addFavorito(productId);
       }
     },
-    [addFavorito, removeFavorito, state.favoritos],
-  ); // Incluir state.favoritos para detectar cambios
+    [addFavorito, removeFavorito],
+  );
 
   /**
    * Refresca los favoritos desde el servidor
