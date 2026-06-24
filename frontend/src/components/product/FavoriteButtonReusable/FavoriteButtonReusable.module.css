@@ -30,6 +30,15 @@
   transform: none;
 }
 
+.favoriteButton.loading .icon {
+  animation: loadingPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+}
+
 /* === TAMAÑOS === */
 .small {
   width: 1.75rem;
