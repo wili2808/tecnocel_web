@@ -3,7 +3,7 @@ import { useNotification } from '../../../contexts/NotificationContext';
 import adminOfertaService from '../../../services/adminOfertaService';
 import type { OfertaConProductos, ProductoEnOferta, Product } from '../../../types';
 import { AdminSearch, AdminDataTable } from '../common';
-import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
+import type { CellContext, ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import PremiumModal from '../../common/PremiumModal/PremiumModal';
 import { useTipoCambio } from '../../../contexts/TipoCambioContext';
 import { formatARS } from '../../../utils/formatPrecio';
@@ -11,6 +11,7 @@ import styles from './OfertaModals.module.css';
 
 interface OfertaModalProductosProps {
   oferta: OfertaConProductos;
+  readonly?: boolean;
   onProductosChanged: () => void;
 }
 
@@ -69,7 +70,7 @@ const PrecioManualInput = memo(
 PrecioManualInput.displayName = 'PrecioManualInput';
 
 
-const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProductosProps) => {
+const OfertaModalProductos = ({ oferta, readonly = false, onProductosChanged }: OfertaModalProductosProps) => {
   const { showNotification } = useNotification();
   const { tipoCambio } = useTipoCambio();
 
@@ -99,9 +100,10 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
   // ── Estados para Tabla Principal (Asignados) ───────────────────────
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
-  const [columnOrder, setColumnOrder] = useState<string[]>([
-    'imagen', 'codigo', 'nombre', 'precio_original', 'precio_oferta', 'tipo_precio', 'acciones'
-  ]);
+  const baseColumnOrder = ['imagen', 'codigo', 'nombre', 'precio_original', 'precio_oferta', 'tipo_precio'];
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    readonly ? baseColumnOrder : [...baseColumnOrder, 'acciones']
+  );
 
   // ── Estados para Tabla de Búsqueda ──────────────────────────────────
   const [searchSorting, setSearchSorting] = useState<SortingState>([]);
@@ -310,11 +312,11 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
         </div>
       ),
     },
-    {
-      id: 'acciones',
+    ...(!readonly ? [{
+      id: 'acciones' as const,
       header: () => <div className="text-right">Acción</div>,
       enableSorting: false,
-      cell: (info) => (
+      cell: (info: CellContext<ProductoEnOferta, unknown>) => (
         <div className="text-right">
           <button
             className={styles.removeButton}
@@ -325,8 +327,8 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
           </button>
         </div>
       ),
-    },
-  ], [tipoCambio, oferta.tipo_descuento, oferta.valor_descuento, handleRemoverProducto, calcularPrecioDescuento]);
+    }] : []),
+  ], [tipoCambio, oferta.tipo_descuento, oferta.valor_descuento, handleRemoverProducto, calcularPrecioDescuento, readonly]);
 
   const columnsBusqueda = useMemo<ColumnDef<Product>[]>(() => [
     {
@@ -412,10 +414,12 @@ const OfertaModalProductos = ({ oferta, onProductosChanged }: OfertaModalProduct
               : null;
           })()}
         </h3>
-        <button className="btnPremium btnPrimaryPremium btnSmPremium" onClick={handleAbrirBuscador}>
-          <span className="material-icons">add</span>
-          <span>Agregar Productos</span>
-        </button>
+        {!readonly && (
+          <button className="btnPremium btnPrimaryPremium btnSmPremium" onClick={handleAbrirBuscador}>
+            <span className="material-icons">add</span>
+            <span>Agregar Productos</span>
+          </button>
+        )}
       </div>
 
       <div className="mt-2" style={{ margin: '0 var(--spacing-lg)' }}>
