@@ -52,7 +52,6 @@ const GestionOfertas = () => {
   const { tipoCambio } = useTipoCambio();
   const puedeVer = tienePermiso('ver_ofertas');
   const puedeCrear = tienePermiso('crear_oferta');
-  const puedeEditar = tienePermiso('editar_oferta');
   const puedeEliminar = tienePermiso('eliminar_oferta');
 
   // Estado del modal
@@ -121,19 +120,15 @@ const GestionOfertas = () => {
   }, [cargarOfertas]);
 
   const handleEditarOferta = useCallback(async (oferta: OfertaConConteo) => {
-    if (!puedeEditar) {
-      showNotification('No tienes permisos para editar ofertas', 'error');
-      return;
-    }
     try {
       const data = await adminOfertaService.obtenerOferta(oferta.id_oferta);
       setEditandoOferta(data);
       setModoModal('editar');
       setShowCrearForm(true);
     } catch {
-      showNotification('Error al cargar oferta para editar', 'error');
+      showNotification('Error al cargar oferta', 'error');
     }
-  }, [puedeEditar, showNotification]);
+  }, [showNotification]);
 
   const handleCancelar = useCallback(() => {
     setShowCrearForm(false);
