@@ -1,7 +1,6 @@
-import './Carrito.js';
+import './Almacen.js';
 import './CarritoWeb.js';
 import './CarritoWebItems.js';
-import './Almacen.js';
 import './Categoria.js';
 import './Cliente.js';
 import './Comentario.js';
@@ -9,15 +8,13 @@ import './ComentarioImagen.js';
 import './ComentarioRespuesta.js';
 import './Compra.js';
 import './DetalleCompra.js';
-import './DetalleDevolucion.js';
-import './Devolucion.js';
-import './Presupuesto.js';
-import './PresupuestoDetalle.js';
 import './Proveedor.js';
 import './Rol.js';
 import './Usuario.js';
 import './Venta.js';
-// Nuevos modelos
+import './VentaItem.js';
+import './Cancelacion.js';
+import './Envio.js';
 import './Marca.js';
 import './TipoCaracteristica.js';
 import './ProductoCaracteristica.js';
@@ -26,6 +23,10 @@ import './ProductoOferta.js';
 import './Favorito.js';
 import './Direccion.js';
 import './ProductoImagen.js';
+import './Notificacion.js';
+import './Permiso.js';
+import './RolPermiso.js';
 import './MensajeContacto.js';
+import './Configuracion.js';
 
 import './relaciones.js'; 
