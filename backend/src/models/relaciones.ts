@@ -1,5 +1,4 @@
 import Almacen from './Almacen.js';
-import Carrito from './Carrito.js';
 import CarritoWeb from './CarritoWeb.js';
 import CarritoWebItems from './CarritoWebItems.js';
 import Categoria from './Categoria.js';
@@ -9,10 +8,6 @@ import ComentarioImagen from './ComentarioImagen.js';
 import ComentarioRespuesta from './ComentarioRespuesta.js';
 import Compra from './Compra.js';
 import DetalleCompra from './DetalleCompra.js';
-import DetalleDevolucion from './DetalleDevolucion.js';
-import Devolucion from './Devolucion.js';
-import Presupuesto from './Presupuesto.js';
-import PresupuestoDetalle from './PresupuestoDetalle.js';
 import Proveedor from './Proveedor.js';
 import Rol from './Rol.js';
 import Usuario from './Usuario.js';
@@ -21,7 +16,6 @@ import VentaItem from './VentaItem.js';
 import Cancelacion from './Cancelacion.js';
 import Envio from './Envio.js';
 import './Configuracion.js';
-// Nuevos modelos
 import Marca from './Marca.js';
 import TipoCaracteristica from './TipoCaracteristica.js';
 import ProductoCaracteristica from './ProductoCaracteristica.js';
@@ -44,12 +38,6 @@ Usuario.hasMany(Almacen, { foreignKey: 'id_usuario' });
 // Nuevas relaciones para Marcas
 Almacen.belongsTo(Marca, { foreignKey: 'id_marca', as: 'marca' });
 Marca.hasMany(Almacen, { foreignKey: 'id_marca', as: 'productos' });
-
-// Carrito (tabla antigua - legacy, no se usa para nuevas ventas)
-Carrito.belongsTo(Almacen, { foreignKey: 'id_producto' });
-Almacen.hasMany(Carrito, { foreignKey: 'id_producto' });
-Carrito.belongsTo(Venta, { foreignKey: 'nro_venta', targetKey: 'nro_venta' });
-Venta.hasMany(Carrito, { foreignKey: 'nro_venta', sourceKey: 'nro_venta' });
 
 // CarritoWeb (nueva implementación - flujo web del cliente)
 CarritoWeb.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
@@ -82,22 +70,6 @@ DetalleCompra.belongsTo(Compra, { foreignKey: 'nro_compra', targetKey: 'nro_comp
 Compra.hasMany(DetalleCompra, { foreignKey: 'nro_compra', sourceKey: 'nro_compra' });
 DetalleCompra.belongsTo(Almacen, { foreignKey: 'id_producto' });
 Almacen.hasMany(DetalleCompra, { foreignKey: 'id_producto' });
-
-// DetalleDevolucion y Devolucion
-DetalleDevolucion.belongsTo(Almacen, { foreignKey: 'id_producto' });
-Almacen.hasMany(DetalleDevolucion, { foreignKey: 'id_producto' });
-DetalleDevolucion.belongsTo(Devolucion, { foreignKey: 'id_devolucion' });
-Devolucion.hasMany(DetalleDevolucion, { foreignKey: 'id_devolucion' });
-Devolucion.belongsTo(Cliente, { foreignKey: 'id_cliente' });
-Cliente.hasMany(Devolucion, { foreignKey: 'id_cliente' });
-
-// Presupuesto y PresupuestoDetalle
-Presupuesto.belongsTo(Cliente, { foreignKey: 'id_cliente' });
-Cliente.hasMany(Presupuesto, { foreignKey: 'id_cliente' });
-PresupuestoDetalle.belongsTo(Presupuesto, { foreignKey: 'nro_presupuesto', targetKey: 'nro_presupuesto' });
-Presupuesto.hasMany(PresupuestoDetalle, { foreignKey: 'nro_presupuesto', sourceKey: 'nro_presupuesto' });
-PresupuestoDetalle.belongsTo(Almacen, { foreignKey: 'id_producto' });
-Almacen.hasMany(PresupuestoDetalle, { foreignKey: 'id_producto' });
 
 // Usuario y Rol
 Usuario.belongsTo(Rol, { foreignKey: 'id_rol' });
@@ -235,7 +207,6 @@ Notificacion.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
 // Exportar todos los modelos (opcional, útil para inicialización)
 export {
   Almacen,
-  Carrito,
   CarritoWeb,
   CarritoWebItems,
   Categoria,
@@ -245,10 +216,6 @@ export {
   ComentarioRespuesta,
   Compra,
   DetalleCompra,
-  DetalleDevolucion,
-  Devolucion,
-  Presupuesto,
-  PresupuestoDetalle,
   Proveedor,
   Rol,
   Usuario,
@@ -256,7 +223,6 @@ export {
   VentaItem,
   Cancelacion,
   Envio,
-  // Nuevos modelos
   Marca,
   TipoCaracteristica,
   ProductoCaracteristica,
