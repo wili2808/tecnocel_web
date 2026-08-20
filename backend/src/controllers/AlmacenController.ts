@@ -108,7 +108,7 @@ class AlmacenController {
     }
   }
 
-  // --- Metodos de productos ---
+  // --- Métodos de productos ---
 
   /**
    * Obtiene todos los productos del almacén con información relacionada
@@ -1020,7 +1020,7 @@ class AlmacenController {
     }
   }
 
-  // --- Metodos de categorias ---
+  // --- Métodos de categorías ---
 
   /**
    * Obtiene todas las categorías disponibles

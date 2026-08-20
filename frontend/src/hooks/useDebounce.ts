@@ -5,9 +5,9 @@ import { useState, useEffect } from 'react';
  * Útil para búsquedas, filtros y otras operaciones que no deben dispararse
  * en cada keystroke sino después de que el usuario deje de escribir.
  *
- * @param value - El valor a debuncear
+ * @param value - El valor al que se aplica el debounce
  * @param delay - Tiempo en milisegundos antes de actualizar (default 500ms)
- * @returns El valor debounceado
+ * @returns El valor actualizado tras el debounce
  */
 export function useDebounce<T>(value: T, delay: number = 500): T {
   const [debounced, setDebounced] = useState<T>(value);

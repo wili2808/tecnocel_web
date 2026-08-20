@@ -1,5 +1,5 @@
 /**
- * Utility para normalizar respuestas API del backend
+ * Utilidad para normalizar respuestas API del backend
  *
  * Proporciona helpers consistentes para todas las respuestas HTTP:
  * - Item único: { success: true, data: T }

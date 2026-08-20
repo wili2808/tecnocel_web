@@ -57,17 +57,8 @@ coverage/
 database/backups/*.sql
 !database/backups/.gitkeep
 
-# Documentación temporal
-# docs/temp/
-
-# Archivos locales
-# .cursor/
-# .claude/
-# note/
-# CLAUDE.md
+# Archivos locales del desarrollador
+*.local
 
 # Uploads (imágenes)
 backend/uploads
-
-# Skills y plugins
-docs/superpowers

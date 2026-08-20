@@ -10,6 +10,7 @@ TecnoCel Web es una plataforma de e-commerce full-stack orientada a la venta de 
 - [Características Principales](#características-principales)
 - [Requisitos del Sistema](#requisitos-del-sistema)
 - [Estructura del Proyecto](#estructura-del-proyecto)
+- [Sitios de Producción](#sitios-de-producción)
 - [Documentación](#documentación)
 - [Licencia](#licencia)
 
@@ -38,6 +39,20 @@ npm run dev
 **Accesos locales:**
 - Frontend: `http://localhost:5173`
 - Backend API: `http://localhost:3000/api`
+
+---
+
+## Sitios de Producción
+
+| Recurso | URL |
+| ------- | --- |
+| Web (Frontend) | [https://tecnocel-web.vercel.app/](https://tecnocel-web.vercel.app/) |
+| Panel de Gestión | [https://tecnocel-web.vercel.app/admin-login](https://tecnocel-web.vercel.app/admin-login) |
+| API REST | [https://tecnocel-api.onrender.com/api](https://tecnocel-api.onrender.com/api) |
+| Documentación API (Swagger) | [https://tecnocel-api.onrender.com/api-docs](https://tecnocel-api.onrender.com/api-docs) |
+| Base de datos | MySQL gestionada en Aiven |
+
+> La API corre sobre el plan gratuito de Render y puede "dormirse" tras ~15 minutos de inactividad; el primer acceso tras la espera puede demorar unos segundos en responder.
 
 ---
 

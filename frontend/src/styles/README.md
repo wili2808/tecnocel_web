@@ -717,7 +717,7 @@ Verifica en qué archivo debe estar:
 - **Archivo principal**: `variables.css` - Todas las variables base
 - **Mapeo de temas**: `themes.css` - Variables por tema light/dark
 - **Estilos globales**: `global.css` - Reset y componentes base
-- **Documentación proyecto**: `CLAUDE.md` en la raíz
+- **Documentación proyecto**: `README.md` en la raíz
 
 ---
 
