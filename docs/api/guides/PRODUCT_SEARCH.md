@@ -1,5 +1,4 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Guía de Búsqueda y Filtrado de Productos
@@ -1298,7 +1297,7 @@ function Catalogo() {
 **Estado**: Completado
 
 **Relacionado con**:
-- [API Reference](../README.md)
+- [API Reference](../ENDPOINTS.md)
 - [Endpoints de Productos](../endpoints/productos.md)
 - [Endpoints de Ofertas](../endpoints/ofertas.md)
 - [Guía del Carrito de Compras](./SHOPPING_CART.md)

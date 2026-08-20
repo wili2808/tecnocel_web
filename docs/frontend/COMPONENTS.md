@@ -1,8 +1,8 @@
-[Frontend](./README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
+[Frontend](../../frontend/README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
 
 ---
 
-# 💻 Componentes del Frontend - TecnoCel Web
+# Componentes del Frontend - TecnoCel Web
 
 **Última actualización**: 25 de Marzo, 2026 | **Versión**: 1.4
 
@@ -1452,7 +1452,7 @@ Sección con dirección, horarios y mapa.
 
 ### GoogleMap
 
-**Ubicación**: [`frontend/src/components/location/GoogleMap/`](../../frontend/src/components/location/GoogleMap/)
+**Ubicación**: [`frontend/src/components/location/OpenStreetMap/`](../../frontend/src/components/location/OpenStreetMap/)
 
 Mapa de Google embebido con marker de la tienda.
 
@@ -1790,7 +1790,7 @@ const { products, loading } = useProducts();
 
 ---
 
-## 📊 Resumen de Componentes por Categoría
+## Resumen de Componentes por Categoría
 
 ### Componentes Comunes (6)
 
@@ -1865,15 +1865,15 @@ const { products, loading } = useProducts();
 
 ---
 
-## 🔗 Enlaces Relacionados
+## Enlaces Relacionados
 
 - [Contextos del Frontend](./CONTEXTS.md)
 - [Hooks Personalizados](./HOOKS.md)
 - [Servicios de API](./SERVICES.md)
 - [Sistema de Rutas](./ROUTING.md)
-- [Sistema de Estilos](./STYLING.md)
+- [Sistema de Estilos](./STYLING_AND_THEMING.md)
 - [Gestión de Estado](./STATE_MANAGEMENT.md)
 
 ---
 
-[Volver arriba](#componentes-del-frontend---tecnocel-web) | [Frontend](./README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
+[Volver arriba](#componentes-del-frontend---tecnocel-web) | [Frontend](../../frontend/README.md) | [Documentación](../README.md) | [Inicio](../../README.md)

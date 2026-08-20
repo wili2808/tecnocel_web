@@ -182,7 +182,7 @@ const puedeUsar = tienePermiso('mi_permiso');
 
 ```
 - responder_comentarios: Permite responder a comentarios
-- moderar_comentarios: Permite ocultar/mostrar comentarios  
+- moderar_comentarios: Permite ocultar/mostrar comentarios
 - eliminar_comentarios: Permite eliminar cualquier comentario
 ```
 
@@ -202,6 +202,6 @@ JOIN tb_roles_permisos rp ON p.id_permiso = rp.id_permiso
 WHERE rp.id_rol = 2;
 
 -- Ver permisos no usados (no asignados a ningún rol)
-SELECT * FROM tb_permisos 
+SELECT * FROM tb_permisos
 WHERE id_permiso NOT IN (SELECT id_permiso FROM tb_roles_permisos);
 ```

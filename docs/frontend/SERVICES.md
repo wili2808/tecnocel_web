@@ -18,17 +18,17 @@
   - [ofertaService](#ofertaservice)
   - [productService](#productservice)
   - [uploadService](#uploadservice)
-  - [adminProductService](#adminproductservice) ⭐
-  - [adminCommentService](#admincommentservice) ⭐
-  - [adminOfertaService](#adminofertaservice) ⭐
-  - [adminVentaService](#adminVentaService) ⭐
-  - [envioAdminService](#envioadminservice) ⭐
-  - [notificacionService](#notificacionservice) ⭐
-  - [reporteService](#reporteservice) ⭐
-  - [usuarioService](#usuarioservice) ⭐
-  - [UsuarioAdminService](#usuarioadminservice) ⭐
-  - [adminCompraService](#adminCompraService) ⭐
-  - [proveedorAdminService](#proveedoradminservice) ⭐
+  - [adminProductService](#adminproductservice)
+  - [adminCommentService](#admincommentservice)
+  - [adminOfertaService](#adminofertaservice)
+  - [adminVentaService](#adminVentaService)
+  - [envioAdminService](#envioadminservice)
+  - [notificacionService](#notificacionservice)
+  - [reporteService](#reporteservice)
+  - [usuarioService](#usuarioservice)
+  - [UsuarioAdminService](#usuarioadminservice)
+  - [adminCompraService](#adminCompraService)
+  - [proveedorAdminService](#proveedoradminservice)
 - [Patrones Comunes](#patrones-comunes)
 - [Manejo de Errores](#manejo-de-errores)
 - [Mejores Prácticas](#mejores-prácticas)
@@ -169,7 +169,7 @@ const { item, total_carrito } = await CarritoService.actualizarCantidad(45, 3);
 // Confirmar compra
 const { venta } = await CarritoService.confirmarCompra({
   observaciones: 'Entrega urgente',
-  moneda: 'BOB',
+  moneda: 'ARS',
   metodo_pago: 'efectivo'
 });
 ```
@@ -272,10 +272,10 @@ const direcciones = await direccionService.getDirecciones(clienteId);
 // Crear nueva dirección
 const nuevaDireccion = await direccionService.createDireccion(clienteId, {
   nombre_direccion: 'Casa',
-  calle: 'Av. Principal',
+  calle: 'Av. Corrientes',
   numero: '123',
-  ciudad: 'Santa Cruz',
-  provincia: 'Santa Cruz',
+  ciudad: 'Buenos Aires',
+  provincia: 'Buenos Aires',
   es_predeterminada: true
 });
 
@@ -502,7 +502,7 @@ const sizeText = uploadService.formatFileSize(file.size); // "2.5 MB"
 - Tamaño máximo: 10MB por imagen
 - Timeout: 30 segundos
 
-### Servicios Administrativos ⭐
+### Servicios Administrativos
 
 #### adminProductService
 
@@ -569,7 +569,7 @@ const {
 } = adminVentaService;
 ```
 
-#### envioAdminService ⭐
+#### envioAdminService
 
 **Ubicación**: `frontend/src/services/envioAdminService.ts`
 
@@ -584,7 +584,7 @@ const {
 } = envioAdminService;
 ```
 
-#### notificacionService ⭐
+#### notificacionService
 
 **Ubicación**: `frontend/src/services/notificacionService.ts`
 
@@ -601,7 +601,7 @@ const {
 } = notificacionService;
 ```
 
-#### reporteService ⭐
+#### reporteService
 
 **Ubicación**: `frontend/src/services/reporteService.ts`
 
@@ -618,7 +618,7 @@ const {
 } = reporteService;
 ```
 
-#### usuarioService ⭐
+#### usuarioService
 
 **Ubicación**: `frontend/src/services/usuarioService.ts`
 
@@ -633,7 +633,7 @@ const {
 } = usuarioService;
 ```
 
-#### UsuarioAdminService ⭐
+#### UsuarioAdminService
 
 **Ubicación**: `frontend/src/services/UsuarioAdminService.ts`
 
@@ -651,7 +651,7 @@ const {
 } = UsuarioAdminService;
 ```
 
-#### adminCompraService ⭐
+#### adminCompraService
 
 **Ubicación**: `frontend/src/services/adminCompraService.ts`
 
@@ -668,7 +668,7 @@ const {
 } = adminCompraService;
 ```
 
-#### proveedorAdminService ⭐
+#### proveedorAdminService
 
 **Ubicación**: `frontend/src/services/proveedorAdminService.ts`
 
@@ -883,7 +883,7 @@ export type {
 
 - [Hooks Personalizados](HOOKS.md) - Hooks que usan estos servicios
 - [Contextos del Frontend](CONTEXTS.md) - Contextos que consumen servicios
-- [Tipos TypeScript](../types/README.md) - Definiciones de tipos compartidos
+- [Tipos TypeScript](../../frontend/src/types/index.ts) - Definiciones de tipos compartidos
 - [API Backend](../../backend/README.md) - Documentación de endpoints
 
 ---
@@ -894,4 +894,4 @@ export type {
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](README.md)** | **[Inicio](../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**

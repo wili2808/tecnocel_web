@@ -7,16 +7,16 @@ Gestión de ofertas y descuentos en productos.
 
 ---
 
-## 📋 Índice
+## Índice
 
 - [Obtener ofertas activas](#get-ofertas)
 - [Obtener productos en oferta](#get-ofertasproductos)
-- [Crear oferta](#post-ofertas) 🔒
-- [Asignar productos a oferta](#post-ofertasid_ofertaproductos) 🔒
-- [Actualizar oferta](#put-ofertasid) 🔒
-- [Eliminar oferta](#delete-ofertasid) 🔒
+- [Crear oferta](#post-ofertas)
+- [Asignar productos a oferta](#post-ofertasid_ofertaproductos)
+- [Actualizar oferta](#put-ofertasid)
+- [Eliminar oferta](#delete-ofertasid)
 
-🔒 = Requiere autenticación de administrador
+ = Requiere autenticación de administrador
 
 ---
 
@@ -24,7 +24,7 @@ Gestión de ofertas y descuentos en productos.
 
 Obtener todas las ofertas activas vigentes.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Response 200**:
 ```json
@@ -74,7 +74,7 @@ curl -X GET "http://localhost:3000/api/ofertas"
 
 Obtener productos que tienen ofertas activas con paginación.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Query Parameters**:
 
@@ -159,7 +159,7 @@ curl -X GET "http://localhost:3000/api/ofertas/productos?limit=20&offset=20"
 
 Crear una nueva oferta (solo administradores).
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **Body**:
 ```json
@@ -242,7 +242,7 @@ curl -X POST "http://localhost:3000/api/ofertas" \
 
 Asignar productos a una oferta existente.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -338,7 +338,7 @@ curl -X POST "http://localhost:3000/api/ofertas/6/productos" \
 
 Actualizar una oferta existente.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -398,7 +398,7 @@ curl -X PUT "http://localhost:3000/api/ofertas/5" \
 
 Eliminar (desactivar) una oferta.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -433,7 +433,7 @@ curl -X DELETE "http://localhost:3000/api/ofertas/5" \
 
 ---
 
-## 📝 Notas Técnicas
+## Notas Técnicas
 
 ### Tipos de Descuento
 
@@ -504,11 +504,11 @@ precio_oferta = Math.max(0, precio_oferta); // Nunca negativo
 
 ---
 
-## 🔗 Ver También
+## Ver También
 
 - [Productos API](./productos.md) - Para consultar productos disponibles
 - [Carrito API](./carrito.md) - Los precios de oferta se aplican en el carrito
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -516,4 +516,4 @@ precio_oferta = Math.max(0, precio_oferta); // Nunca negativo
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

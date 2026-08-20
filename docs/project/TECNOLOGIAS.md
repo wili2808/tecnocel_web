@@ -1,4 +1,4 @@
-# 🛠️ Stack Tecnológico - TecnoCel Web
+# Stack Tecnológico - TecnoCel Web
 
 Documentación completa de todas las tecnologías, librerías y herramientas utilizadas.
 
@@ -344,19 +344,19 @@ EMAIL_PASS=password_de_aplicacion
 
 | Dependencia | Versión Actual | Última Versión | Estado |
 |-------------|----------------|----------------|--------|
-| express | 4.18.2 | 4.19.x | ✅ Actualizado |
-| sequelize | 6.35.2 | 6.37.x | ⚠️ Actualizable |
-| jsonwebtoken | 9.0.2 | 9.0.2 | ✅ Latest |
-| sharp | 0.34.3 | 0.33.x | ✅ Actualizado |
+| express | 4.18.2 | 4.19.x |  Actualizado |
+| sequelize | 6.35.2 | 6.37.x | Actualizable |
+| jsonwebtoken | 9.0.2 | 9.0.2 |  Latest |
+| sharp | 0.34.3 | 0.33.x |  Actualizado |
 
 ### Frontend Dependencies
 
 | Dependencia | Versión Actual | Última Versión | Estado |
 |-------------|----------------|----------------|--------|
-| react | 18.2.0 | 18.3.x | ⚠️ Actualizable |
-| vite | 5.0.12 | 5.4.x | ⚠️ Actualizable |
-| axios | 1.9.0 | 1.7.x | ✅ Actualizado |
-| react-router-dom | 6.21.3 | 6.26.x | ⚠️ Actualizable |
+| react | 18.2.0 | 18.3.x | Actualizable |
+| vite | 5.0.12 | 5.4.x | Actualizable |
+| axios | 1.9.0 | 1.7.x |  Actualizado |
+| react-router-dom | 6.21.3 | 6.26.x | Actualizable |
 
 ---
 

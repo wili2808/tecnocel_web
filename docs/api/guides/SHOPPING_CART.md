@@ -1,5 +1,4 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Guía del Carrito de Compras
@@ -239,10 +238,10 @@ POST /api/carrito/items
 ```
 
 **Validaciones automáticas**:
-- ✅ Stock disponible suficiente
-- ✅ Producto existe en el catálogo
-- ✅ Cantidad es un número positivo
-- ✅ Aplicación de ofertas vigentes
+- Stock disponible suficiente
+- Producto existe en el catálogo
+- Cantidad es un número positivo
+- Aplicación de ofertas vigentes
 
 **Comportamiento**:
 - Si el producto **ya existe** en el carrito: actualiza la cantidad sumando
@@ -522,7 +521,7 @@ POST /api/carrito/confirmar-compra
 ```json
 {
   "observaciones": "Entrega a domicilio en horario de oficina",
-  "moneda": "BOB"
+  "moneda": "ARS"
 }
 ```
 
@@ -582,7 +581,7 @@ async function confirmarCompra(token, observaciones = '') {
       },
       body: JSON.stringify({
         observaciones: observaciones,
-        moneda: 'BOB'
+        moneda: 'ARS'
       })
     });
 
@@ -1129,7 +1128,7 @@ async function cargarCarritoConFallback() {
 **Estado**: Completado
 
 **Relacionado con**:
-- [API Reference](../README.md)
+- [API Reference](../ENDPOINTS.md)
 - [Endpoints de Carrito](../endpoints/carrito.md)
 - [Endpoints de Productos](../endpoints/productos.md)
 - [Guía de Autenticación](./AUTHENTICATION.md)

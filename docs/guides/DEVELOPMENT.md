@@ -1,5 +1,4 @@
 **[Documentación](../README.md#estructura-de-documentación)** | **[Inicio](../README.md)**
-
 ---
 
 # Guía de Desarrollo
@@ -62,7 +61,7 @@ npm run dev
 
 - TypeScript estricto en backend y frontend.
 - Mantener nombres descriptivos y evitar abreviaturas.
-- Seguir la guía de estandarización de documentación en `docs/guides/GUIA_ESTANDARIZACION_DOCUMENTACION.md`.
+- Seguir las convenciones de la documentación interna del proyecto.
 
 ---
 
@@ -103,7 +102,7 @@ tail -f backend/dist/logs/combined.log
 
 - Rama principal protegida.
 - Trabajar en ramas feature: `feat/nombre-corto`.
-- Commits semánticos siguiendo `docs/guides/COMMIT_JUSTIFICATION.md`.
+- Commits semánticos (conventional commits).
 
 ---
 
@@ -112,7 +111,6 @@ tail -f backend/dist/logs/combined.log
 - [ ] Compila y corre en local
 - [ ] Sin errores de lint
 - [ ] Documentación actualizada si aplica
-- [ ] Ejecutado `node scripts/fix-markdown-docs.js` para estandarización
 - [ ] Enlaces internos probados en docs
 
 ---
@@ -123,4 +121,4 @@ tail -f backend/dist/logs/combined.log
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](README.md)** | **[Inicio](../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**

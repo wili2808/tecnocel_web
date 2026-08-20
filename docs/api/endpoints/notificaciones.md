@@ -1,5 +1,4 @@
 **[Endpoints](../ENDPOINTS.md)** | **[Documentación](../../README.md)**
-
 ---
 
 # Endpoint: Notificaciones
@@ -7,7 +6,7 @@
 Sistema de notificaciones in-app para clientes. Las notificaciones se disparan automáticamente en respuesta a eventos del sistema (respuestas de comentarios, confirmación de ventas, etc.).
 
 **Base URL**: `/api/notificaciones`
-**Autenticación**: Requerida (JWT Cliente) 🔒
+**Autenticación**: Requerida (JWT Cliente)
 **Métodos**: GET, PUT, DELETE
 
 ---

@@ -1,5 +1,4 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Modelos (Sequelize) - Referencia Técnica
@@ -20,7 +19,7 @@
 
 ## Resumen
 
-Los modelos están definidos con Sequelize y se inicializan en `backend/src/models/index.ts`, donde también se importan las asociaciones desde `relaciones.ts`. El esquema físico y columnas están documentados en `docs/database/SCHEMA.md`.
+Los modelos están definidos con Sequelize y se inicializan en `backend/src/models/index.ts`, donde también se importan las asociaciones desde `relaciones.ts`. El esquema físico y columnas están documentados en `docs/database/DIAGRAMS.md`.
 
 ---
 
@@ -48,7 +47,7 @@ Los modelos están definidos con Sequelize y se inicializan en `backend/src/mode
 - `PresupuestoDetalle` — Detalle de presupuestos.
 - `ProductoCaracteristica` — Valores de características por producto.
 - `ProductoImagen` — Imágenes de producto.
-- `ProductoOferta` — Join de producto↔oferta.
+- `ProductoOferta` — Join de productooferta.
 - `Proveedor` — Proveedores.
 - `Rol` — Roles de usuarios internos.
 - `TipoCaracteristica` — Definición de características (tipo, unidad, opciones).
@@ -69,7 +68,7 @@ Archivo: `backend/src/models/relaciones.ts`
 - CarritoWeb ↔ CarritoWebItems (1:N) e Item ↔ Producto (N:1)
 - Usuario ↔ Rol (N:1)
 
-> Consultar `docs/database/SCHEMA.md` para claves foráneas y columnas.
+> Consultar `docs/database/DIAGRAMS.md` para claves foráneas y columnas.
 
 ---
 
@@ -82,9 +81,8 @@ Archivo: `backend/src/models/relaciones.ts`
 
 ## Recursos Relacionados
 
-- [Esquema de Base de Datos](../../database/SCHEMA.md)
-- [Plan de Mejoras BD](../../database/IMPROVEMENTS_PLAN.md)
-- [Análisis de Rutas](./ROUTES_ANALYSIS.md)
+- [Esquema de Base de Datos](../../database/DIAGRAMS.md)
+- [Endpoints de API](../ENDPOINTS.md)
 - [Controladores](./CONTROLLERS.md)
 
 ---

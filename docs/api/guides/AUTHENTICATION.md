@@ -1,8 +1,7 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
-# 🔒 Guía de Autenticación (API Backend)
+# Guía de Autenticación (API Backend)
 
 > Guía práctica para integrar autenticación en la API: JWT para clientes y staff, verificación de roles y login con Google OAuth.
 
@@ -259,7 +258,7 @@ GOOGLE_CLIENT_ID=tu_client_id_de_google
 **Estado**: Completado
 **Relacionado con**:
 
-- [API Reference](../README.md)
+- [API Reference](../ENDPOINTS.md)
 - [Endpoints de Clientes](../endpoints/clientes.md)
 - [Servicio de Imágenes](../reference/IMAGES_SERVICE.md)
 

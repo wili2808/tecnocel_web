@@ -1,4 +1,4 @@
-**[Documentación](README.md)** | **[Inicio](../README.md)**
+**[Documentación](../README.md)** | **[Inicio](../../README.md)**
 
 ---
 
@@ -21,8 +21,8 @@
   - [SearchContext](#searchcontext)
   - [ThemeContext](#themecontext)
   - [NotificationContext](#notificationcontext)
-  - [NotificacionesContext](#notificacionescontext) ⭐
-  - [TipoCambioContext](#tipocambiocontext) ⭐
+  - [NotificacionesContext](#notificacionescontext)
+  - [TipoCambioContext](#tipocambiocontext)
 - [Integración de Contextos](#integración-de-contextos)
 - [Optimizaciones y Mejores Prácticas](#optimizaciones-y-mejores-prácticas)
 - [Ejemplos de Uso](#ejemplos-de-uso)
@@ -391,7 +391,7 @@ const ProductCard = ({ productId }) => {
 
   return (
     <button onClick={toggleFavorito} disabled={loading}>
-      {isFavorito ? '❤️' : '🤍'}
+      {isFavorito ? 'favorito' : 'no favorito'}
     </button>
   );
 };
@@ -849,7 +849,7 @@ showNotification('Error al cargar datos', 'error', 5000, {
 
 ---
 
-### NotificacionesContext ⭐
+### NotificacionesContext
 
 **Ubicación**: `frontend/src/contexts/NotificacionesContext.tsx`
 **Hook**: `useNotificaciones()`
@@ -893,7 +893,7 @@ interface NotificacionesContextType {
 
 ---
 
-### TipoCambioContext ⭐
+### TipoCambioContext
 
 **Ubicación**: `frontend/src/contexts/TipoCambioContext.tsx`
 **Hook**: `useTipoCambio()`
@@ -1090,7 +1090,7 @@ const ProductPage = () => {
       <h1>{state.currentProduct.nombre}</h1>
       <button onClick={handleAddToCart}>Agregar al Carrito</button>
       <button onClick={handleToggleFavorito}>
-        {isFavorito ? '❤️' : '🤍'}
+        {isFavorito ? 'favorito' : 'no favorito'}
       </button>
     </div>
   );
@@ -1220,4 +1220,4 @@ const Cart = () => {
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](README.md)** | **[Inicio](../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**

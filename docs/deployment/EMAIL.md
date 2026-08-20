@@ -2,7 +2,7 @@
 
 ## Situación actual
 
-✅ **El sistema de emails funciona correctamente en producción con dominio verificado.**
+**El sistema de emails funciona correctamente en producción con dominio verificado.**
 
 Se usa el dominio `tecnocel.website` verificado en Resend, con entrega vía **Amazon SES**. Los emails se envían exitosamente a cualquier destinatario (Gmail, Hotmail, etc.).
 
@@ -107,7 +107,7 @@ Resend proporciona los valores exactos al agregar el dominio. Ejemplo para `tecn
 - El **nombre completo del dominio** es requerido (ej: `resend._domainkey.tecnocel.website`, no solo `resend._domainkey`)
 - Algunos proveedores como DonWeb piden el nombre con la raíz incluida
 - Después de agregar los registros, espera 5-15 minutos para que se propaguen
-- En Resend, verifica que todos los registros muestren ✅ (estado verde)
+- En Resend, verifica que todos los registros muestren (estado verde)
 
 ---
 

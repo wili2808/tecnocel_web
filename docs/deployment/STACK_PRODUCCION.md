@@ -2,7 +2,7 @@
 
 > Estado actual del deployment. Este archivo refleja la infraestructura real en uso.
 
-**Última actualización**: Marzo 2025
+**Última actualización**: 20 de Agosto, 2026
 
 ---
 
@@ -21,10 +21,10 @@
 
 ```
 Frontend:  https://tecnocel-web.vercel.app/
-Backend:   https://tecnocel-api.onrender.com
+Panel admin: https://tecnocel-web.vercel.app/admin-login
+Backend:   https://tecnocel-api.onrender.com/api
+Swagger:   https://tecnocel-api.onrender.com/api-docs
 ```
-
-> Completar con las URLs reales cuando estén disponibles.
 
 ---
 
@@ -70,7 +70,7 @@ LOG_LEVEL=info
 ### Frontend (configuradas en Vercel Dashboard → Settings → Environment Variables)
 
 ```env
-VITE_API_URL=https://<servicio>.onrender.com/api
+VITE_API_URL=https://tecnocel-api.onrender.com/api
 VITE_GOOGLE_CLIENT_ID=<client_id>.apps.googleusercontent.com
 ```
 

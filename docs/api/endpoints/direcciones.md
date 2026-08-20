@@ -28,7 +28,7 @@ Gestión de direcciones de envío de clientes.
     - [Casos de Uso](#casos-de-uso)
   - [Ver También](#ver-también)
 
-🔒 Todos los endpoints requieren autenticación
+ Todos los endpoints requieren autenticación
 
 ---
 
@@ -36,7 +36,7 @@ Gestión de direcciones de envío de clientes.
 
 Obtener todas las direcciones de un cliente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -119,7 +119,7 @@ curl -X GET "http://localhost:3000/api/direcciones/cliente/10" \
 
 Obtener información detallada de una dirección específica.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -175,7 +175,7 @@ curl -X GET "http://localhost:3000/api/direcciones/5" \
 
 Obtener la dirección predeterminada de un cliente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -222,7 +222,7 @@ curl -X GET "http://localhost:3000/api/direcciones/cliente/10/predeterminada" \
 
 Crear una nueva dirección para un cliente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -320,7 +320,7 @@ curl -X POST "http://localhost:3000/api/direcciones/cliente/10" \
 
 Actualizar una dirección existente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente - propietario de la dirección)
+**Autenticación**: Requerida (JWT Cliente - propietario de la dirección)
 
 **URL Parameters**:
 
@@ -384,7 +384,7 @@ curl -X PUT "http://localhost:3000/api/direcciones/5" \
 
 Establecer una dirección como predeterminada.
 
-**Autenticación**: ✅ Requerida (JWT Cliente - propietario de la dirección)
+**Autenticación**: Requerida (JWT Cliente - propietario de la dirección)
 
 **URL Parameters**:
 
@@ -427,7 +427,7 @@ curl -X PATCH "http://localhost:3000/api/direcciones/6/predeterminada" \
 
 Eliminar una dirección.
 
-**Autenticación**: ✅ Requerida (JWT Cliente - propietario de la dirección)
+**Autenticación**: Requerida (JWT Cliente - propietario de la dirección)
 
 **URL Parameters**:
 
@@ -566,7 +566,7 @@ POST /api/carrito/confirmar-compra
 
 - [Clientes API](./clientes.md) - Para autenticación y gestión de clientes
 - [Carrito API](./carrito.md) - Para usar direcciones en compras
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -574,4 +574,4 @@ POST /api/carrito/confirmar-compra
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

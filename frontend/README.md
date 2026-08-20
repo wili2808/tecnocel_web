@@ -84,9 +84,9 @@ Para consultar detalles específicos sobre la arquitectura y directrices del fro
 - **Componentes:** [Catálogo de componentes](../docs/frontend/COMPONENTS.md)
 - **Estado Global:** [Contextos](../docs/frontend/CONTEXTS.md) y [Hooks personalizados](../docs/frontend/HOOKS.md)
 - **Servicios:** [Integración con API](../docs/frontend/SERVICES.md)
-- **Sistema de Diseño:** [Estilos (CSS Modules)](../docs/frontend/STYLING.md) y [Theming](../docs/frontend/THEMING.md)
+- **Sistema de Diseño:** [Estilos y Theming (CSS Modules)](../docs/frontend/STYLING_AND_THEMING.md)
 - **Rutas:** [Navegación (React Router)](../docs/frontend/ROUTING.md)
-- **Guías de Desarrollo:** [Convenciones de Código](../docs/guides/CODING_STANDARDS.md) y [Guía General](../docs/guides/DEVELOPMENT.md)
+- **Guías de Desarrollo:** [Guía General](../docs/guides/DEVELOPMENT.md)
 
 ---
 

@@ -2,21 +2,21 @@
 
 Componente optimizado de "Llamada a la Acción" diseñado para convertir visitantes en clientes mediante acciones específicas y directas.
 
-## 📋 Descripción
+## Descripción
 
 Un **CTA (Call To Action)** es un elemento estratégico de diseño web que guía al usuario hacia una acción específica. Este componente incluye:
 
-- ✅ Múltiples variantes visuales (primary, secondary, accent, gradient)
-- ✅ Animaciones suaves y modernas
-- ✅ Elementos decorativos flotantes
-- ✅ Soporte completo para tema oscuro
-- ✅ Diseño responsive mobile-first
-- ✅ Accesibilidad WCAG 2.1
-- ✅ Botón primario y secundario opcional
-- ✅ Iconos personalizables
-- ✅ Navegación interna con React Router
+- Múltiples variantes visuales (primary, secondary, accent, gradient)
+- Animaciones suaves y modernas
+- Elementos decorativos flotantes
+- Soporte completo para tema oscuro
+- Diseño responsive mobile-first
+- Accesibilidad WCAG 2.1
+- Botón primario y secundario opcional
+- Iconos personalizables
+- Navegación interna con React Router
 
-## 🚀 Uso Básico
+## Uso Básico
 
 ```tsx
 import CTASection from '@/components/common/CTASection';
@@ -33,7 +33,7 @@ function HomePage() {
 }
 ```
 
-## 📖 Props
+## Props
 
 ### Requeridas
 
@@ -55,7 +55,7 @@ function HomePage() {
 | `external` | `boolean` | `false` | Si el enlace es externo |
 | `className` | `string` | `''` | Clases CSS adicionales |
 
-## 🎨 Variantes
+## Variantes
 
 ### 1. Primary (Default)
 Fondo degradado azul cielo suave, ideal para secciones estándar.
@@ -110,7 +110,7 @@ Fondo con gradiente animado multicolor, máximo impacto visual.
 />
 ```
 
-## 🎯 Iconos Disponibles
+## Iconos Disponibles
 
 | Icono | Cuándo usar |
 |-------|-------------|
@@ -120,7 +120,7 @@ Fondo con gradiente animado multicolor, máximo impacto visual.
 | `phone` | Llamadas, soporte telefónico |
 | `none` | Sin icono |
 
-## 📱 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### CTA Simple
 
@@ -176,7 +176,7 @@ Fondo con gradiente animado multicolor, máximo impacto visual.
 />
 ```
 
-## 🎭 Características Visuales
+## Características Visuales
 
 ### Animaciones
 
@@ -202,7 +202,7 @@ Dos círculos con gradiente radial flotando en el fondo:
 - Círculo 1: Superior derecha (azul cielo)
 - Círculo 2: Inferior izquierda (cyan)
 
-## 🌗 Soporte de Tema Oscuro
+## Soporte de Tema Oscuro
 
 El componente adapta automáticamente sus colores al tema oscuro:
 
@@ -211,16 +211,16 @@ El componente adapta automáticamente sus colores al tema oscuro:
 - Botones con colores optimizados
 - Círculos decorativos con opacidad reducida
 
-## ♿ Accesibilidad
+## Accesibilidad
 
-- ✅ Etiquetas ARIA apropiadas
-- ✅ Navegación por teclado completa
-- ✅ Contraste de color AAA
-- ✅ Soporte para `prefers-reduced-motion`
-- ✅ Roles semánticos correctos
-- ✅ Enlaces externos con `rel="noopener noreferrer"`
+- Etiquetas ARIA apropiadas
+- Navegación por teclado completa
+- Contraste de color AAA
+- Soporte para `prefers-reduced-motion`
+- Roles semánticos correctos
+- Enlaces externos con `rel="noopener noreferrer"`
 
-## 📐 Responsive
+## Responsive
 
 ### Desktop (>768px)
 - Padding: 96px vertical
@@ -241,7 +241,7 @@ El componente adapta automáticamente sus colores al tema oscuro:
 - Botones: apilados verticalmente
 - Botones de ancho completo
 
-## 🔧 Personalización
+## Personalización
 
 ### Clases CSS Personalizadas
 
@@ -268,16 +268,16 @@ El componente adapta automáticamente sus colores al tema oscuro:
 }
 ```
 
-## 💡 Mejores Prácticas
+## Mejores Prácticas
 
-### ✅ DO (Hacer)
+### DO (Hacer)
 
 1. **Usar un CTA por página/sección**
    - Evita confundir al usuario con múltiples acciones
 
 2. **Texto claro y accionable**
    ```tsx
-   buttonText="Solicitar Cotización" // ✅ Específico
+   buttonText="Solicitar Cotización" //  Específico
    ```
 
 3. **Ubicación estratégica**
@@ -289,16 +289,16 @@ El componente adapta automáticamente sus colores al tema oscuro:
    - `primary`: Estándar profesional
    - `accent`: Ofertas/promociones
 
-### ❌ DON'T (Evitar)
+### DON'T (Evitar)
 
 1. **Texto genérico**
    ```tsx
-   buttonText="Clic aquí" // ❌ Poco descriptivo
+   buttonText="Clic aquí" //  Poco descriptivo
    ```
 
 2. **Múltiples CTAs competiendo**
    ```tsx
-   // ❌ Evitar
+   //  Evitar
    <CTASection ... />
    <CTASection ... />
    <CTASection ... />
@@ -308,7 +308,7 @@ El componente adapta automáticamente sus colores al tema oscuro:
    - Máximo 2 líneas
    - Ir al grano
 
-## 📊 Métricas de Conversión
+## Métricas de Conversión
 
 Para trackear el rendimiento:
 
@@ -331,7 +331,7 @@ gtag('event', 'cta_click', {
 });
 ```
 
-## 🎓 Psicología del CTA
+## Psicología del CTA
 
 ### Elementos que mejoran conversión:
 
@@ -356,27 +356,27 @@ gtag('event', 'cta_click', {
 />
 ```
 
-## 🔄 Historial de Cambios
+## Historial de Cambios
 
 ### v2.0.0 (Actual)
-- ✅ Múltiples variantes visuales
-- ✅ Animaciones modernas
-- ✅ Botón secundario opcional
-- ✅ Iconos personalizables
-- ✅ React Router Link integration
-- ✅ Elementos decorativos
-- ✅ Gradiente animado
-- ✅ Documentación completa
+- Múltiples variantes visuales
+- Animaciones modernas
+- Botón secundario opcional
+- Iconos personalizables
+- React Router Link integration
+- Elementos decorativos
+- Gradiente animado
+- Documentación completa
 
 ### v1.0.0 (Anterior)
-- ✅ CTA básico con un botón
-- ✅ Estilos simples
-- ✅ Responsive básico
+- CTA básico con un botón
+- Estilos simples
+- Responsive básico
 
-## 📄 Licencia
+## Licencia
 
 Parte del proyecto TecnoCel Web - Uso interno
 
 ---
 
-**Desarrollado con ❤️ por el equipo de TecnoCel**
+**Desarrollado con por el equipo de TecnoCel**

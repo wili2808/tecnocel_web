@@ -8,15 +8,15 @@ Gestión de proveedores para compras internas.
 
 ---
 
-## 📋 Índice
+## Índice
 
 - [Listar proveedores](#get-)
-- [Obtener proveedor](#get-id) 🔒
-- [Crear proveedor](#post-) 🔒
-- [Actualizar proveedor](#put-id) 🔒
-- [Eliminar proveedor](#delete-id) 🔒
+- [Obtener proveedor](#get-id)
+- [Crear proveedor](#post-)
+- [Actualizar proveedor](#put-id)
+- [Eliminar proveedor](#delete-id)
 
-🔒 = Requiere autenticación + rol ADMIN/GERENTE
+ = Requiere autenticación + rol ADMIN/GERENTE
 
 ---
 
@@ -24,7 +24,7 @@ Gestión de proveedores para compras internas.
 
 Obtener lista de proveedores con búsqueda opcional.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE, VENDEDOR)
+**Autenticación**: Requerida (ADMIN, GERENTE, VENDEDOR)
 
 **Query Parameters**:
 
@@ -60,7 +60,7 @@ Obtener lista de proveedores con búsqueda opcional.
 
 Obtener detalle de un proveedor.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE, VENDEDOR)
+**Autenticación**: Requerida (ADMIN, GERENTE, VENDEDOR)
 
 **Path Parameters**:
 
@@ -93,7 +93,7 @@ Obtener detalle de un proveedor.
 
 Crear un nuevo proveedor.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE)
+**Autenticación**: Requerida (ADMIN, GERENTE)
 
 **Request Body**:
 
@@ -138,7 +138,7 @@ Crear un nuevo proveedor.
 
 Actualizar datos de un proveedor.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE)
+**Autenticación**: Requerida (ADMIN, GERENTE)
 
 **Path Parameters**:
 
@@ -183,7 +183,7 @@ Actualizar datos de un proveedor.
 
 Eliminar un proveedor.
 
-**Autenticación**: 🔒 Requerida (ADMIN)
+**Autenticación**: Requerida (ADMIN)
 
 **Path Parameters**:
 
@@ -206,7 +206,7 @@ Eliminar un proveedor.
 
 ---
 
-## 🔍 Búsqueda Inteligente
+## Búsqueda Inteligente
 
 El parámetro `search` busca en:
 - Nombre del proveedor
@@ -221,7 +221,7 @@ El parámetro `search` busca en:
 
 ---
 
-## ⚠️ Códigos de Error
+## Códigos de Error
 
 | Código | Descripción |
 |--------|-------------|

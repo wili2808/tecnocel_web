@@ -1,10 +1,10 @@
-# 🎨 Sistema de Estilos TecnoCel Web
+# Sistema de Estilos TecnoCel Web
 
 Guía completa del sistema de estilos optimizado para el proyecto TecnoCel Web.
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 1. [Arquitectura del Sistema](#arquitectura-del-sistema)
 2. [Cuándo Usar Cada Archivo](#cuándo-usar-cada-archivo)
@@ -16,7 +16,7 @@ Guía completa del sistema de estilos optimizado para el proyecto TecnoCel Web.
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura del Sistema
 
 ```
 variables.css → Define TODAS las variables base (paleta, espaciado, tipografía, RGB)
@@ -37,11 +37,11 @@ Component.module.css → Usa variables semánticas de themes.css
 
 ---
 
-## 📂 Cuándo Usar Cada Archivo
+## Cuándo Usar Cada Archivo
 
 ### 1. `variables.css` - Variables Base
 
-**✅ Definir aquí:**
+** Definir aquí:**
 - Paletas de colores completas (sky-50 a sky-900)
 - Sistema de espaciado (spacing-xs a spacing-4xl)
 - Tipografía (font-size, font-weight, font-family)
@@ -51,22 +51,22 @@ Component.module.css → Usa variables semánticas de themes.css
 - **Variables RGB para transparencias**
 - Breakpoints y z-index
 
-**❌ NO definir aquí:**
+** NO definir aquí:**
 - Variables que cambien según el tema (light/dark)
 - Estilos CSS (solo variables)
 - Componentes específicos
 
 **Ejemplo:**
 ```css
-/* ✅ BIEN - Variable base */
+/*  BIEN - Variable base */
 --color-sky-600: #0284C7;
 --spacing-md: 1rem;
 --font-size-lg: 1.125rem;
 
-/* ✅ BIEN - RGB para transparencias */
+/*  BIEN - RGB para transparencias */
 --color-sky-600-rgb: 2, 132, 199;
 
-/* ❌ MAL - Variable semántica (va en themes.css) */
+/*  MAL - Variable semántica (va en themes.css) */
 --color-primary: #0284C7;
 ```
 
@@ -74,7 +74,7 @@ Component.module.css → Usa variables semánticas de themes.css
 
 ### 2. `themes.css` - Mapeo Semántico
 
-**✅ Definir aquí:**
+** Definir aquí:**
 - Colores primarios/secundarios/accent del tema
 - Colores de texto (primary, secondary, muted, inverse)
 - Colores de fondo (primary, secondary, elevated)
@@ -82,14 +82,14 @@ Component.module.css → Usa variables semánticas de themes.css
 - Sombras que cambian con el tema
 - **Variables RGB dinámicas que cambian por tema**
 
-**❌ NO definir aquí:**
+** NO definir aquí:**
 - Valores base hardcodeados
 - Paletas de colores completas
 - Estilos CSS
 
 **Ejemplo:**
 ```css
-/* ✅ BIEN - Mapeo semántico que cambia por tema */
+/*  BIEN - Mapeo semántico que cambia por tema */
 :root[data-theme="light"] {
   --color-primary: var(--color-sky-600);
   --text-primary: var(--color-text-light-primary);
@@ -102,7 +102,7 @@ Component.module.css → Usa variables semánticas de themes.css
   --color-primary-rgb: 14, 165, 233; /* Diferente en dark */
 }
 
-/* ❌ MAL - Valor hardcodeado (va en variables.css) */
+/*  MAL - Valor hardcodeado (va en variables.css) */
 :root[data-theme="light"] {
   --color-primary: #0284C7;
 }
@@ -112,20 +112,20 @@ Component.module.css → Usa variables semánticas de themes.css
 
 ### 3. `global.css` - Reset y Estilos Globales
 
-**✅ Definir aquí:**
+** Definir aquí:**
 - Reset CSS (`* { margin: 0; ... }`)
 - Estilos de elementos HTML base (body, h1-h6, a, button, input)
 - Componentes base globales (.btn, .btn-primary, .container)
 - Layout containers (.app, .main-content, .section)
 - Clases utilitarias reutilizables (.flex, .grid, .gap-md)
 
-**❌ NO definir aquí:**
+** NO definir aquí:**
 - Variables CSS nuevas (van en variables.css o themes.css)
 - Estilos específicos de un solo componente
 
 **Ejemplo:**
 ```css
-/* ✅ BIEN - Reset y estilos base */
+/*  BIEN - Reset y estilos base */
 * {
   margin: 0;
   padding: 0;
@@ -137,18 +137,18 @@ body {
   color: var(--text-primary);
 }
 
-/* ✅ BIEN - Componente base global */
+/*  BIEN - Componente base global */
 .btn {
   padding: var(--spacing-md) var(--spacing-xl);
   border-radius: var(--border-radius-md);
 }
 
-/* ❌ MAL - Variable nueva (va en variables.css) */
+/*  MAL - Variable nueva (va en variables.css) */
 :root {
   --my-new-color: #ff0000;
 }
 
-/* ❌ MAL - Componente específico (va en ProductCard.module.css) */
+/*  MAL - Componente específico (va en ProductCard.module.css) */
 .productCard {
   border: 1px solid var(--border-color);
 }
@@ -158,20 +158,20 @@ body {
 
 ### 4. `Component.module.css` - Estilos de Componentes
 
-**✅ Usar aquí:**
+** Usar aquí:**
 - Variables semánticas de themes.css
 - Variables RGB para transparencias
 - Variables de espaciado, tipografía, bordes
 - Clases con alcance de componente
 
-**❌ NO usar aquí:**
+** NO usar aquí:**
 - Colores hardcodeados (#0EA5E9, rgb(), rgba())
 - Variables base directamente (--color-sky-600)
 - Valores hardcodeados (16px, 1rem sin variables)
 
 **Ejemplo:**
 ```css
-/* ✅ BIEN - Variables semánticas */
+/*  BIEN - Variables semánticas */
 .productCard {
   background-color: var(--background-elevated);
   color: var(--text-primary);
@@ -184,14 +184,14 @@ body {
   box-shadow: 0 4px 8px rgba(var(--color-primary-rgb), 0.3);
 }
 
-/* ❌ MAL - Colores hardcodeados */
+/*  MAL - Colores hardcodeados */
 .productCard {
   background-color: #ffffff;
   color: #2d2d2d;
   box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
 }
 
-/* ❌ MAL - Variable base directamente */
+/*  MAL - Variable base directamente */
 .productCard {
   background-color: var(--color-neutral-100);
   color: var(--color-neutral-900);
@@ -200,18 +200,18 @@ body {
 
 ---
 
-## 🌈 Sistema RGB para Transparencias
+## Sistema RGB para Transparencias
 
 ### ¿Por qué RGB?
 
 Los colores con transparencia (rgba) necesitan adaptarse al tema. Con el sistema RGB, puedes usar transparencias dinámicas:
 
 ```css
-/* ❌ MAL - Hardcodeado, no se adapta al tema */
+/*  MAL - Hardcodeado, no se adapta al tema */
 box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
 background: rgba(255, 255, 255, 0.9);
 
-/* ✅ BIEN - Usa variables RGB, se adapta al tema */
+/*  BIEN - Usa variables RGB, se adapta al tema */
 box-shadow: 0 4px 8px rgba(var(--color-primary-rgb), 0.3);
 background: rgba(var(--color-white-rgb), 0.9);
 ```
@@ -284,7 +284,7 @@ background: rgba(var(--color-white-rgb), 0.9);
 
 ---
 
-## 📊 Variables Más Usadas
+## Variables Más Usadas
 
 ### Top 10 Variables (Según análisis)
 
@@ -353,16 +353,16 @@ background: rgba(var(--color-white-rgb), 0.9);
 
 ---
 
-## ✅ Mejores Prácticas
+## Mejores Prácticas
 
 ### 1. Siempre Usar Variables Semánticas
 
 ```css
-/* ❌ MAL - Variable base */
+/*  MAL - Variable base */
 color: var(--color-sky-600);
 background: var(--color-neutral-100);
 
-/* ✅ BIEN - Variable semántica */
+/*  BIEN - Variable semántica */
 color: var(--color-primary);
 background: var(--background-elevated);
 ```
@@ -370,21 +370,21 @@ background: var(--background-elevated);
 ### 2. Usar border-radius-full para Círculos
 
 ```css
-/* ❌ MAL - Hardcodeado */
+/*  MAL - Hardcodeado */
 border-radius: 50%;
 
-/* ✅ BIEN - Variable */
+/*  BIEN - Variable */
 border-radius: var(--border-radius-full);
 ```
 
 ### 3. Usar RGB para Transparencias
 
 ```css
-/* ❌ MAL - RGBA hardcodeado */
+/*  MAL - RGBA hardcodeado */
 box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
 background: rgba(255, 255, 255, 0.9);
 
-/* ✅ BIEN - RGB variable */
+/*  BIEN - RGB variable */
 box-shadow: 0 4px 8px rgba(var(--color-primary-rgb), 0.3);
 background: rgba(var(--color-white-rgb), 0.9);
 ```
@@ -392,12 +392,12 @@ background: rgba(var(--color-white-rgb), 0.9);
 ### 4. Preferir Variables sobre Valores Directos
 
 ```css
-/* ❌ MAL - Valores hardcodeados */
+/*  MAL - Valores hardcodeados */
 padding: 16px;
 font-size: 14px;
 margin-top: 24px;
 
-/* ✅ BIEN - Variables */
+/*  BIEN - Variables */
 padding: var(--spacing-md);
 font-size: var(--font-size-sm);
 margin-top: var(--spacing-lg);
@@ -406,14 +406,14 @@ margin-top: var(--spacing-lg);
 ### 5. No Usar Colores Directos en Componentes
 
 ```css
-/* ❌ MAL - Colores hex/rgb directos */
+/*  MAL - Colores hex/rgb directos */
 .button {
   background: #0EA5E9;
   color: #ffffff;
   border: 1px solid #e5e7eb;
 }
 
-/* ✅ BIEN - Variables del tema */
+/*  BIEN - Variables del tema */
 .button {
   background: var(--color-primary);
   color: var(--text-inverse);
@@ -423,7 +423,7 @@ margin-top: var(--spacing-lg);
 
 ---
 
-## 🔄 Migración de Componentes
+## Migración de Componentes
 
 ### Proceso Paso a Paso
 
@@ -517,7 +517,7 @@ gap: var(--spacing-xs);
 
 ---
 
-## 🚀 Cheatsheet Rápido
+## Cheatsheet Rápido
 
 ### Colores
 
@@ -632,7 +632,7 @@ gap: var(--spacing-xs);
 
 ---
 
-## 📱 Responsive Design
+## Responsive Design
 
 ### Breakpoints
 
@@ -670,7 +670,7 @@ gap: var(--spacing-xs);
 
 ---
 
-## 🎯 Próximos Pasos
+## Próximos Pasos
 
 Ahora que tienes el sistema base optimizado:
 
@@ -681,25 +681,25 @@ Ahora que tienes el sistema base optimizado:
 
 ---
 
-## 🔍 Debugging
+## Debugging
 
 ### ¿El color no cambia con el tema?
 
 ```css
-/* ❌ Estás usando variable base */
+/*  Estás usando variable base */
 color: var(--color-sky-600);
 
-/* ✅ Usa variable semántica */
+/*  Usa variable semántica */
 color: var(--color-primary);
 ```
 
 ### ¿La transparencia se ve mal?
 
 ```css
-/* ❌ RGBA hardcodeado */
+/*  RGBA hardcodeado */
 rgba(14, 165, 233, 0.3)
 
-/* ✅ RGB variable */
+/*  RGB variable */
 rgba(var(--color-primary-rgb), 0.3)
 ```
 
@@ -712,7 +712,7 @@ Verifica en qué archivo debe estar:
 
 ---
 
-## 📚 Recursos
+## Recursos
 
 - **Archivo principal**: `variables.css` - Todas las variables base
 - **Mapeo de temas**: `themes.css` - Variables por tema light/dark

@@ -24,12 +24,12 @@
 
 ## Características Principales
 
-- **🎨 Sistema de Diseño Integrado**: Utiliza completamente las variables CSS del sistema de diseño
-- **📱 Responsive**: Adaptable a 3 breakpoints principales (Mobile, Tablet, Desktop)
-- **♿ Accesible**: Soporte completo para lectores de pantalla y navegación por teclado
-- **⚡ Performance**: Optimizado con React.memo y forwardRef, sin hooks innecesarios
-- **🔗 Flexible**: Soporta botones, enlaces y formularios
-- **📦 Ligero**: Código simplificado sin funcionalidades duplicadas
+- ** Sistema de Diseño Integrado**: Utiliza completamente las variables CSS del sistema de diseño
+- ** Responsive**: Adaptable a 3 breakpoints principales (Mobile, Tablet, Desktop)
+- ** Accesible**: Soporte completo para lectores de pantalla y navegación por teclado
+- ** Performance**: Optimizado con React.memo y forwardRef, sin hooks innecesarios
+- ** Flexible**: Soporta botones, enlaces y formularios
+- ** Ligero**: Código simplificado sin funcionalidades duplicadas
 
 ## Instalación
 
@@ -50,13 +50,13 @@ import Button from "../../components/common/Button";
 | `ghost`     | Botón transparente                 | Navegación, controles sutiles |
 | `outline`   | Botón con borde                    | Acciones alternativas         |
 | `text`      | Botón de texto plano               | Enlaces internos              |
-| `link`      | Botón de enlace                    | Navegación, enlaces externos  |
+| `link`      | Botón de enlace                    | Navegación, enlaces externos |
 
 ### Variantes de Estado
 
-| Variante  | Descripción                  | Uso Recomendado         |
+| Variante | Descripción                  | Uso Recomendado         |
 | --------- | ---------------------------- | ----------------------- |
-| `danger`  | Botón de peligro/eliminación | Eliminar, cancelar      |
+| `danger` | Botón de peligro/eliminación | Eliminar, cancelar      |
 | `success` | Botón de éxito               | Confirmar, guardar      |
 | `warning` | Botón de advertencia         | Alertas, confirmaciones |
 
@@ -66,7 +66,7 @@ import Button from "../../components/common/Button";
 
 | Tamaño | Altura | Padding   | Uso Recomendado           |
 | ------ | ------ | --------- | ------------------------- |
-| `xs`   | 32px   | 8px 12px  | Controles compactos       |
+| `xs`   | 32px   | 8px 12px | Controles compactos       |
 | `sm`   | 36px   | 12px 16px | Botones pequeños          |
 | `md`   | 44px   | 16px 24px | **Default** - Uso general |
 | `lg`   | 52px   | 24px 32px | Botones destacados        |
@@ -81,10 +81,10 @@ import Button from "../../components/common/Button";
 | Prop       | Tipo            | Default     | Descripción                         |
 | ---------- | --------------- | ----------- | ----------------------------------- |
 | `children` | `ReactNode`     | -           | **Requerido** - Contenido del botón |
-| `variant`  | `ButtonVariant` | `'primary'` | Variante visual del botón           |
+| `variant` | `ButtonVariant` | `'primary'` | Variante visual del botón           |
 | `size`     | `ButtonSize`    | `'md'`      | Tamaño del botón                    |
 | `disabled` | `boolean`       | `false`     | Si el botón está deshabilitado      |
-| `loading`  | `boolean`       | `false`     | Si el botón está cargando           |
+| `loading` | `boolean`       | `false`     | Si el botón está cargando           |
 
 ### Props de Funcionalidad
 
@@ -94,13 +94,13 @@ import Button from "../../components/common/Button";
 | `type`    | `'button' \| 'submit' \| 'reset'`            | `'button'` | Tipo de botón HTML                   |
 | `form`    | `string`                                     | -          | ID del formulario asociado           |
 | `href`    | `string`                                     | -          | URL para convertir en enlace         |
-| `target`  | `'_blank' \| '_self' \| '_parent' \| '_top'` | -          | Target para enlaces                  |
+| `target` | `'_blank' \| '_self' \| '_parent' \| '_top'` | -          | Target para enlaces                  |
 
 ### Props de Estilo
 
 | Prop              | Tipo      | Default | Descripción                      |
 | ----------------- | --------- | ------- | -------------------------------- |
-| `className`       | `string`  | `''`    | Clases CSS adicionales           |
+| `className`       | `string` | `''`    | Clases CSS adicionales           |
 | `fullWidth`       | `boolean` | `false` | Si debe ocupar todo el ancho     |
 | `mobileFullWidth` | `boolean` | `false` | Ancho completo solo en móvil     |
 | `rounded`         | `boolean` | `false` | Si debe tener bordes redondeados |
@@ -108,7 +108,7 @@ import Button from "../../components/common/Button";
 
 ### Props de Iconos
 
-| Prop           | Tipo                | Default  | Descripción                      |
+| Prop           | Tipo                | Default | Descripción                      |
 | -------------- | ------------------- | -------- | -------------------------------- |
 | `icon`         | `string`            | -        | Nombre del icono Material Design |
 | `iconPosition` | `'left' \| 'right'` | `'left'` | Posición del icono               |
@@ -236,30 +236,30 @@ El componente se adapta automáticamente a 3 breakpoints principales:
 ### Botón no responde
 
 ```tsx
-// ❌ Incorrecto
+//  Incorrecto
 <Button onClick={handleClick()}>
 
-// ✅ Correcto
+//  Correcto
 <Button onClick={handleClick}>
 ```
 
 ### Estilos no se aplican
 
 ```tsx
-// ❌ Incorrecto
+//  Incorrecto
 <Button className="custom-class" variant="primary">
 
-// ✅ Correcto
+//  Correcto
 <Button className="custom-class" variant="primary">
 ```
 
 ### Enlace no funciona
 
 ```tsx
-// ❌ Incorrecto
+//  Incorrecto
 <Button href="/ruta" onClick={handleClick}>
 
-// ✅ Correcto
+//  Correcto
 <Button href="/ruta">
 ```
 
@@ -279,7 +279,7 @@ El componente utiliza completamente el sistema de variables CSS:
 
 ## Cambios en la Versión Optimizada
 
-### ✅ Mantenido
+### Mantenido
 
 - Todas las variantes de botón
 - Sistema de tamaños responsive
@@ -288,7 +288,7 @@ El componente utiliza completamente el sistema de variables CSS:
 - Accesibilidad completa
 - Responsive design
 
-### ❌ Eliminado
+### Eliminado
 
 - Hooks personalizados innecesarios
 - Componentes helper duplicados
@@ -296,7 +296,7 @@ El componente utiliza completamente el sistema de variables CSS:
 - CSS duplicado y complejo
 - Lógica de responsive innecesaria
 
-### 📈 Mejoras
+### Mejoras
 
 - **Código**: Reducido de 515 a ~80 líneas (85% reducción)
 - **CSS**: Reducido de 901 a ~300 líneas (67% reducción)
@@ -328,4 +328,4 @@ El componente utiliza completamente el sistema de variables CSS:
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Componentes](../README.md)** | **[Inicio](../../../../../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Componentes](../../../../../docs/frontend/COMPONENTS.md)** | **[Inicio](../../../../../README.md)**

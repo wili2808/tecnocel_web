@@ -7,13 +7,13 @@ Gestión de carga y procesamiento de imágenes.
 
 ---
 
-## 📋 Índice
+## Índice
 
-- [Subir imágenes de producto](#post-uploadproducto) 🔒
+- [Subir imágenes de producto](#post-uploadproducto)
 - [Subir imágenes de comentario](#post-uploadcomentario)
-- [Obtener información de directorios](#get-uploadinfo) 🔒
+- [Obtener información de directorios](#get-uploadinfo)
 
-🔒 = Requiere autenticación
+ = Requiere autenticación
 
 ---
 
@@ -21,7 +21,7 @@ Gestión de carga y procesamiento de imágenes.
 
 Subir múltiples imágenes de un producto con procesamiento automático.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **Content-Type**: `multipart/form-data`
 
@@ -107,7 +107,7 @@ const response = await fetch('http://localhost:3000/api/upload/producto', {
 
 Subir múltiples imágenes de un comentario con procesamiento automático.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Content-Type**: `multipart/form-data`
 
@@ -190,7 +190,7 @@ const response = await fetch('http://localhost:3000/api/upload/comentario', {
 
 Obtener información sobre los directorios de imágenes y estadísticas.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **Response 200**:
 ```json
@@ -224,7 +224,7 @@ curl -X GET "http://localhost:3000/api/upload/info" \
 
 ---
 
-## 📝 Notas Técnicas
+## Notas Técnicas
 
 ### Directorios de Almacenamiento
 
@@ -395,12 +395,12 @@ Procesada:       1200x900px, 450KB (-86%)
 ### Seguridad
 
 **Validaciones implementadas**:
-- ✅ Solo tipos de archivo permitidos
-- ✅ Límite de tamaño por archivo
-- ✅ Límite de cantidad de archivos
-- ✅ Nombres únicos (previene sobrescritura)
-- ✅ Autenticación requerida
-- ✅ Separación por tipo (producto/comentario)
+- Solo tipos de archivo permitidos
+- Límite de tamaño por archivo
+- Límite de cantidad de archivos
+- Nombres únicos (previene sobrescritura)
+- Autenticación requerida
+- Separación por tipo (producto/comentario)
 
 **Pendientes** (recomendaciones):
 - Validación de dimensiones mínimas
@@ -410,11 +410,11 @@ Procesada:       1200x900px, 450KB (-86%)
 
 ---
 
-## 🔗 Ver También
+## Ver También
 
 - [Productos API](./productos.md) - Para usar imágenes en productos
 - [Comentarios API](./comentarios.md) - Para usar imágenes en comentarios
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -422,4 +422,4 @@ Procesada:       1200x900px, 450KB (-86%)
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

@@ -5,13 +5,13 @@
 `MobileMenuDropdown` es un componente React reutilizable que proporciona un menú desplegable touch-friendly optimizado para pantallas pequeñas (smartphones). Diseñado con aesthetic refinado y micro-interactions suaves.
 
 **Características:**
-- ✅ Dropdown desplegable con animaciones suaves
-- ✅ Iconografía Material Design integrada
-- ✅ Estados visuales claros (activo, hover, expandido)
-- ✅ Touch-friendly con padding generoso
-- ✅ Accesibilidad ARIA completa
-- ✅ Tema claro/oscuro compatible
-- ✅ Reutilizable en cualquier contexto de navegación
+- Dropdown desplegable con animaciones suaves
+- Iconografía Material Design integrada
+- Estados visuales claros (activo, hover, expandido)
+- Touch-friendly con padding generoso
+- Accesibilidad ARIA completa
+- Tema claro/oscuro compatible
+- Reutilizable en cualquier contexto de navegación
 
 ## Props
 
@@ -189,11 +189,11 @@ Puedes personalizar el componente agregando clases CSS adicionales:
 
 ## Accesibilidad
 
-- ✅ Roles ARIA: `listbox`, `option`
-- ✅ Atributos: `aria-expanded`, `aria-selected`, `aria-haspopup`
-- ✅ Keyboard navigation: Tab, Enter, Space
-- ✅ Screen reader friendly
-- ✅ Respeta `prefers-reduced-motion`
+- Roles ARIA: `listbox`, `option`
+- Atributos: `aria-expanded`, `aria-selected`, `aria-haspopup`
+- Keyboard navigation: Tab, Enter, Space
+- Screen reader friendly
+- Respeta `prefers-reduced-motion`
 
 ## Responsive
 

@@ -24,12 +24,12 @@ Tecnocel Web utiliza un sistema de gestión de estado basado en **React Context 
 
 ### Tecnologías Utilizadas
 
-- ✅ **Context API** - Estado global compartido
-- ✅ **useState** - Estado local de componentes
-- ✅ **useReducer** - Estado complejo con lógica
-- ✅ **Custom Hooks** - Lógica de estado reutilizable
-- ✅ **localStorage** - Persistencia de estado
-- ✅ **TypeScript** - Type-safe state management
+- **Context API** - Estado global compartido
+- **useState** - Estado local de componentes
+- **useReducer** - Estado complejo con lógica
+- **Custom Hooks** - Lógica de estado reutilizable
+- **localStorage** - Persistencia de estado
+- **TypeScript** - Type-safe state management
 
 ---
 
@@ -181,7 +181,7 @@ Estado que solo afecta a un componente específico:
 
 ```tsx
 const Component = () => {
-  // ✅ Estado local
+  //  Estado local
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({});
   const [selectedTab, setSelectedTab] = useState(0);
@@ -201,7 +201,7 @@ const Component = () => {
 Estado que necesita ser compartido entre múltiples componentes:
 
 ```tsx
-// ✅ Estado global
+// Estado global
 const { user, isAuthenticated } = useAuth();
 const { items, total } = useCarrito();
 const { theme, toggleTheme } = useTheme();
@@ -409,12 +409,12 @@ const handleLike = async (productId: number) => {
 const Component = () => {
   const { items } = useCarrito();
 
-  // ✅ Memoizado - solo recalcula cuando items cambia
+  //  Memoizado - solo recalcula cuando items cambia
   const total = useMemo(() => {
     return items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
   }, [items]);
 
-  // ❌ Sin memoizar - recalcula en cada render
+  //  Sin memoizar - recalcula en cada render
   const totalBad = items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
 };
 ```
@@ -425,12 +425,12 @@ const Component = () => {
 const Component = () => {
   const { addNotification } = useNotification();
 
-  // ✅ Memoizado - misma referencia
+  //  Memoizado - misma referencia
   const handleClick = useCallback(() => {
     addNotification({ type: 'success', message: 'Clicked' });
   }, [addNotification]);
 
-  // ❌ Sin memoizar - nueva función en cada render
+  //  Sin memoizar - nueva función en cada render
   const handleClickBad = () => {
     addNotification({ type: 'success', message: 'Clicked' });
   };
@@ -444,7 +444,7 @@ const Component = () => {
 Dividir contextos grandes en contextos más pequeños:
 
 ```tsx
-// ❌ Malo - un contexto gigante
+// Malo - un contexto gigante
 const AppContext = {
   user,
   cart,
@@ -453,7 +453,7 @@ const AppContext = {
   notifications
 };
 
-// ✅ Bueno - contextos separados
+// Bueno - contextos separados
 <AuthProvider>
   <CarritoProvider>
     <ThemeProvider>
@@ -470,13 +470,13 @@ const AppContext = {
 Extraer solo el estado necesario:
 
 ```tsx
-// ❌ Malo - componente se re-renderiza cuando cambia cualquier parte del estado
+// Malo - componente se re-renderiza cuando cambia cualquier parte del estado
 const Component = () => {
   const allState = useCarrito();
   return <div>{allState.items.length}</div>;
 };
 
-// ✅ Bueno - solo se re-renderiza cuando cambia items
+// Bueno - solo se re-renderiza cuando cambia items
 const Component = () => {
   const { items } = useCarrito();
   return <div>{items.length}</div>;
@@ -573,13 +573,13 @@ const Component = () => {
 ### 1. Inicialización de Estado
 
 ```tsx
-// ✅ Bueno - función de inicialización
+// Bueno - función de inicialización
 const [state, setState] = useState(() => {
   const saved = localStorage.getItem('key');
   return saved ? JSON.parse(saved) : defaultValue;
 });
 
-// ❌ Malo - se ejecuta en cada render
+// Malo - se ejecuta en cada render
 const [state, setState] = useState(
   JSON.parse(localStorage.getItem('key') || 'null') || defaultValue
 );
@@ -588,22 +588,22 @@ const [state, setState] = useState(
 ### 2. Actualización de Estado
 
 ```tsx
-// ✅ Bueno - usar función para actualizar basado en estado anterior
+// Bueno - usar función para actualizar basado en estado anterior
 setCount(prevCount => prevCount + 1);
 
-// ❌ Malo - puede tener race conditions
+// Malo - puede tener race conditions
 setCount(count + 1);
 ```
 
 ### 3. Evitar Estado Redundante
 
 ```tsx
-// ❌ Malo - estado derivado innecesario
+// Malo - estado derivado innecesario
 const [firstName, setFirstName] = useState('');
 const [lastName, setLastName] = useState('');
 const [fullName, setFullName] = useState('');
 
-// ✅ Bueno - calcular fullName cuando se necesita
+// Bueno - calcular fullName cuando se necesita
 const [firstName, setFirstName] = useState('');
 const [lastName, setLastName] = useState('');
 const fullName = `${firstName} ${lastName}`;
@@ -612,13 +612,13 @@ const fullName = `${firstName} ${lastName}`;
 ### 4. Normalizar Estado
 
 ```tsx
-// ❌ Malo - arrays anidados difíciles de actualizar
+// Malo - arrays anidados difíciles de actualizar
 const [products] = useState([
   { id: 1, name: 'Product 1', reviews: [...] },
   { id: 2, name: 'Product 2', reviews: [...] }
 ]);
 
-// ✅ Bueno - estado normalizado
+// Bueno - estado normalizado
 const [products] = useState({
   byId: {
     1: { id: 1, name: 'Product 1', reviewIds: [1, 2] },
@@ -643,7 +643,7 @@ useEffect(() => {
     setState(data);
   });
 
-  // ✅ Siempre limpiar suscripciones/timers
+  //  Siempre limpiar suscripciones/timers
   return () => {
     subscription.unsubscribe();
   };
@@ -653,7 +653,7 @@ useEffect(() => {
 ### 6. Tipos TypeScript
 
 ```tsx
-// ✅ Definir tipos claramente
+// Definir tipos claramente
 interface ProductState {
   products: Producto[];
   loading: boolean;
@@ -672,7 +672,7 @@ const [state, setState] = useState<ProductState>({
 ### 7. Separar Lógica de UI
 
 ```tsx
-// ✅ Bueno - lógica en custom hook
+// Bueno - lógica en custom hook
 const useProductList = () => {
   const [products, setProducts] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -717,4 +717,4 @@ const ProductList = () => {
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Frontend](README.md)** | **[Documentación](../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Frontend](../../frontend/README.md)** | **[Documentación](../README.md)**

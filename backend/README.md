@@ -84,9 +84,9 @@ Para más detalle sobre las variables de entorno necesarias, consultar el archiv
 
 Para una inmersión más profunda en el funcionamiento interno y la base de datos, revisa la siguiente documentación:
 
-- **API y Endpoints:** [Documentación de Endpoints](../docs/api/ENDPOINTS.md) y [Guía de Uso](../docs/api/guides/USO_API.md)
+- **API y Endpoints:** [Documentación de Endpoints](../docs/api/ENDPOINTS.md) y [Guía de Autenticación](../docs/api/guides/AUTHENTICATION.md)
 - **Autenticación:** [Guía de Autenticación](../docs/api/guides/AUTHENTICATION.md)
-- **Base de Datos:** [Esquema Completo](../docs/database/SCHEMA.md), [Modelos](../docs/database/MODELS.md) y [Migraciones](../docs/database/MIGRATIONS.md)
+- **Base de Datos:** [Esquema y Diagramas](../docs/database/DIAGRAMS.md) y [Modelos](../docs/api/reference/MODELS.md)
 - **Servicios Internos:** [Servicio de Imágenes](../docs/api/reference/IMAGES_SERVICE.md)
 - **Guías de Desarrollo:** [Entorno y Deployment](../docs/deployment/ENVIRONMENT.md) y [Guía General](../docs/guides/DEVELOPMENT.md)
 

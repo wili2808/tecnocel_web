@@ -30,15 +30,15 @@ TecnoCel Web implementa un sistema de estilos moderno y escalable basado en **CS
 
 ### Características Principales
 
-- ✅ **Scoping automático** - CSS Modules previenen conflictos de nombres
-- ✅ **Variables CSS** - Sistema centralizado de diseño con tokens
-- ✅ **Temas claro/oscuro** - Alternancia dinámica con persistencia
-- ✅ **Sincronización con sistema** - Detecta preferencias del OS
-- ✅ **Transiciones suaves** - Cambios visuales fluidos entre temas
-- ✅ **Utilidades globales** - Clases reutilizables para layouts comunes
-- ✅ **Responsive design** - Mobile-first approach con breakpoints
-- ✅ **Type-safe** - TypeScript para imports de estilos
-- ✅ **Accesibilidad** - WCAG 2.1 AA compatible
+- **Scoping automático** - CSS Modules previenen conflictos de nombres
+- **Variables CSS** - Sistema centralizado de diseño con tokens
+- **Temas claro/oscuro** - Alternancia dinámica con persistencia
+- **Sincronización con sistema** - Detecta preferencias del OS
+- **Transiciones suaves** - Cambios visuales fluidos entre temas
+- **Utilidades globales** - Clases reutilizables para layouts comunes
+- **Responsive design** - Mobile-first approach con breakpoints
+- **Type-safe** - TypeScript para imports de estilos
+- **Accesibilidad** - WCAG 2.1 AA compatible
 
 ---
 
@@ -83,14 +83,14 @@ import styles from './Button.module.css';
 
 ```
 Usuario → toggleTheme() → ThemeContext
-                              ↓
+
                     Actualiza estado
-                              ↓
+
                     ┌─────────┴─────────┐
-                    ↓                   ↓
+
             localStorage         document.documentElement
                                  [data-theme="dark"]
-                                        ↓
+
                                   CSS aplica estilos
 ```
 
@@ -830,7 +830,7 @@ Ejemplos:
 Usar **camelCase** para nombres de clases en CSS Modules:
 
 ```css
-/* ✅ Bueno */
+/* Bueno */
 .productCard { }
 .cardHeader { }
 .priceLabel { }
@@ -838,7 +838,7 @@ Usar **camelCase** para nombres de clases en CSS Modules:
 .isActive { }
 .variantPrimary { }
 
-/* ❌ Malo */
+/* Malo */
 .product-card { }
 .CardHeader { }
 .price_label { }
@@ -986,13 +986,13 @@ El archivo `global.css` proporciona clases de utilidad reutilizables:
 ### Cuándo Usar Utilidades
 
 ```tsx
-// ✅ Bueno - Para ajustes menores de layout
+// Bueno - Para ajustes menores de layout
 <div className="flex items-center gap-md">
   <Icon />
   <span>Texto</span>
 </div>
 
-// ❌ Malo - Para estilos complejos del componente
+// Malo - Para estilos complejos del componente
 <div className="flex items-center gap-md p-lg rounded-md shadow-md bg-primary">
   {/* Usar CSS Module en su lugar */}
 </div>
@@ -1381,7 +1381,7 @@ Modificar variables en `themes.css`:
 ### 1. Usar Variables CSS Siempre
 
 ```css
-/* ✅ Bueno */
+/* Bueno */
 .button {
   padding: var(--spacing-md);
   color: var(--text-primary);
@@ -1390,7 +1390,7 @@ Modificar variables en `themes.css`:
   background-color: var(--color-primary);
 }
 
-/* ❌ Malo */
+/* Malo */
 .button {
   padding: 16px;
   color: #2d2d2d;
@@ -1403,7 +1403,7 @@ Modificar variables en `themes.css`:
 ### 2. Composición sobre Repetición
 
 ```css
-/* ✅ Bueno */
+/* Bueno */
 .button {
   /* estilos base compartidos */
   padding: var(--spacing-md);
@@ -1422,7 +1422,7 @@ Modificar variables en `themes.css`:
   color: var(--text-primary);
 }
 
-/* ❌ Malo */
+/* Malo */
 .primaryButton {
   padding: var(--spacing-md);
   border-radius: var(--border-radius-md);
@@ -1443,14 +1443,14 @@ Modificar variables en `themes.css`:
 ### 3. Evitar !important
 
 ```css
-/* ✅ Bueno - Mayor especificidad */
+/* Bueno - Mayor especificidad */
 .button.disabled {
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* ❌ Malo */
+/* Malo */
 .disabled {
   opacity: 0.6 !important;
   cursor: not-allowed !important;
@@ -1523,10 +1523,10 @@ Modificar variables en `themes.css`:
 ### 6. Evitar Estilos Condicionales Inline
 
 ```tsx
-/* ✅ Bueno */
+/* Bueno */
 <div className={styles.card}>Content</div>
 
-/* ❌ Malo */
+/* Malo */
 <div style={{
   backgroundColor: theme === 'light' ? '#fff' : '#000',
   color: theme === 'light' ? '#000' : '#fff'
@@ -1538,7 +1538,7 @@ Modificar variables en `themes.css`:
 ### 7. Usar Transiciones Apropiadas
 
 ```css
-/* ✅ Bueno - solo propiedades que cambian */
+/* Bueno - solo propiedades que cambian */
 .card {
   transition:
     background-color var(--transition-normal),
@@ -1547,7 +1547,7 @@ Modificar variables en `themes.css`:
     transform var(--transition-fast);
 }
 
-/* ❌ Malo - transition: all puede ser lento */
+/* Malo - transition: all puede ser lento */
 .card {
   transition: all 0.3s;
 }
@@ -1607,7 +1607,7 @@ const DevThemeToggle = () => {
   return (
     <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
       <button onClick={toggleTheme}>
-        {theme === 'light' ? '🌙' : '☀️'} Toggle Theme
+        {theme === 'light' ? 'L' : 'O'} Toggle Theme
       </button>
     </div>
   );
@@ -1629,7 +1629,7 @@ const DevThemeToggle = () => {
 
 - [Componentes](COMPONENTS.md)
 - [Contextos](CONTEXTS.md)
-- [Guía de Frontend](README.md)
+- [Guía de Frontend](../../frontend/README.md)
 
 ### Herramientas Útiles
 
@@ -1645,4 +1645,4 @@ const DevThemeToggle = () => {
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Frontend](README.md)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Frontend](../../frontend/README.md)** | **[Documentación](../README.md)** | **[Inicio](../../README.md)**

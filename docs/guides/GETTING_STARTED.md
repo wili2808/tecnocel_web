@@ -140,19 +140,14 @@ SHOW DATABASES;
 EXIT;
 ```
 
-### 3. (Opcional) Importar Datos de Ejemplo
-
-Si deseas importar datos de ejemplo:
+### 3. Aplicar Migraciones
 
 ```bash
 # Desde la raíz del proyecto
-mysql -u root -p db_tecnocel_v4 < database/backups/db_tecnocel_v4.sql
+mysql -u root -p < database/migrations/V1__scheme_inicial.sql
 ```
 
-**Nota:** El backup incluye:
-- Estructura completa de tablas
-- Datos de ejemplo (productos, categorías, marcas)
-- Usuario administrador de prueba
+**Nota:** Las migraciones se aplican en orden secuencial (`V1` a `V16`) y crean la estructura completa de tablas con sus relaciones.
 
 ---
 
@@ -180,7 +175,7 @@ cp .env.example .env
 - `FRONTEND_URL` - URL del frontend para CORS
 - `IMAGES_BASE_PATH`, `PRODUCT_IMAGES_PATH`, `COMMENT_IMAGES_PATH` - Rutas de imágenes
 
-> 📖 **Ver configuración completa:** [ENVIRONMENT.md](../deployment/ENVIRONMENT.md#backend-env)
+> **Ver configuración completa:** [ENVIRONMENT.md](../deployment/ENVIRONMENT.md#backend-env)
 
 ### Frontend (.env)
 
@@ -197,24 +192,25 @@ cp .env.example .env
 **Variables esenciales:**
 - `VITE_API_URL` - URL de la API del backend
 
-> 📖 **Ver configuración completa:** [ENVIRONMENT.md](../deployment/ENVIRONMENT.md#frontend-env)
+> *Ver configuración completa:** [ENVIRONMENT.md](../deployment/ENVIRONMENT.md#frontend-env)
 
 ### Crear Carpetas de Imágenes (Importante)
 
-```bash
-# Windows (XAMPP)
-mkdir C:\xampp\htdocs\tecnocel
-mkdir C:\xampp\htdocs\tecnocel\almacen
-mkdir C:\xampp\htdocs\tecnocel\almacen\img_productos
-mkdir C:\xampp\htdocs\tecnocel\img_comments
+Las rutas de imágenes se configuran en `backend/.env`. Por defecto el backend usa `backend/uploads`:
 
-# macOS/Linux
-sudo mkdir -p /var/www/html/tecnocel/almacen/img_productos
-sudo mkdir -p /var/www/html/tecnocel/img_comments
-sudo chmod -R 755 /var/www/html/tecnocel
+```bash
+# El backend crea automáticamente las subcarpetas al iniciar
+# backend/uploads/productos
+# backend/uploads/comentarios
+# backend/uploads/marcas
+
+# Si es necesario, crearlas manualmente:
+mkdir -p backend/uploads/productos
+mkdir -p backend/uploads/comentarios
+mkdir -p backend/uploads/marcas
 ```
 
-> 💡 **Tip:** Para generar un JWT_SECRET seguro: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+> **Tip:** Para generar un JWT_SECRET seguro: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
 
 ---
 
@@ -231,8 +227,8 @@ npm run dev
 **Output esperado:**
 ```
 [nodemon] starting `ts-node src/index.ts`
-🚀 Servidor corriendo en puerto 3000
-✅ Base de datos conectada
+ Servidor corriendo en puerto 3000
+ Base de datos conectada
 ```
 
 **Terminal 2 - Frontend:**
@@ -279,9 +275,9 @@ curl http://localhost:3000/api/almacen
 - http://localhost:5173
 
 **Deberías ver:**
-- ✅ Página principal de TecnoCel Web
-- ✅ Navbar con logo y navegación
-- ✅ Productos cargados desde la API
+- Página principal de TecnoCel Web
+- Navbar con logo y navegación
+- Productos cargados desde la API
 
 ### 3. Verificar Base de Datos
 
@@ -301,12 +297,12 @@ SELECT id, nombre, precio FROM tb_almacen LIMIT 5;
 
 ### 4. Checklist Completo
 
-- [ ] ✅ Backend corriendo en http://localhost:3000
-- [ ] ✅ Frontend corriendo en http://localhost:5173
-- [ ] ✅ Base de datos creada y conectada
-- [ ] ✅ API responde correctamente
-- [ ] ✅ Productos visibles en el frontend
-- [ ] ✅ Sin errores en consolas (backend/frontend)
+- [ ] Backend corriendo en http://localhost:3000
+- [ ] Frontend corriendo en http://localhost:5173
+- [ ] Base de datos creada y conectada
+- [ ] API responde correctamente
+- [ ] Productos visibles en el frontend
+- [ ] Sin errores en consolas (backend/frontend)
 
 ---
 
@@ -329,7 +325,7 @@ DB_PASSWORD=tu_password_correcto
 mysql -u root -p -e "SHOW DATABASES;"
 ```
 
-> 📖 **Más soluciones:** [ENVIRONMENT.md - Troubleshooting](../deployment/ENVIRONMENT.md#troubleshooting)
+> **Más soluciones:** [ENVIRONMENT.md - Troubleshooting](../deployment/ENVIRONMENT.md#troubleshooting)
 
 ### Error: "CORS policy"
 
@@ -344,7 +340,7 @@ FRONTEND_URL=http://localhost:5173
 VITE_API_URL=http://localhost:3000/api
 ```
 
-> 📖 **Más soluciones:** [ENVIRONMENT.md - CORS](../deployment/ENVIRONMENT.md#error-cors-policy)
+> **Más soluciones:** [ENVIRONMENT.md - CORS](../deployment/ENVIRONMENT.md#error-cors-policy)
 
 ### Error: "Port 3000 already in use"
 
@@ -382,16 +378,18 @@ npm install
 
 **Soluciones:**
 ```bash
-# Crear carpetas (Windows - XAMPP)
-mkdir C:\xampp\htdocs\tecnocel\almacen\img_productos
-mkdir C:\xampp\htdocs\tecnocel\img_comments
+# Crear carpetas
+mkdir -p backend/uploads/productos
+mkdir -p backend/uploads/comentarios
+mkdir -p backend/uploads/marcas
 
 # Verificar rutas en backend/.env
-PRODUCT_IMAGES_PATH=C:/xampp/htdocs/tecnocel/almacen/img_productos
-COMMENT_IMAGES_PATH=C:/xampp/htdocs/tecnocel/img_comments
+IMAGES_BASE_PATH=backend/uploads
+PRODUCT_IMAGES_PATH=backend/uploads/productos
+COMMENT_IMAGES_PATH=backend/uploads/comentarios
 ```
 
-> 📖 **Problemas con variables de entorno:** [ENVIRONMENT.md - Troubleshooting completo](../deployment/ENVIRONMENT.md#troubleshooting)
+> *Problemas con variables de entorno:** [ENVIRONMENT.md - Troubleshooting completo](../deployment/ENVIRONMENT.md#troubleshooting)
 
 ---
 
@@ -407,7 +405,7 @@ Después de completar la instalación:
 2. **Lee la documentación:**
    - [Guía de Desarrollo](DEVELOPMENT.md)
    - [API Endpoints](../api/ENDPOINTS.md)
-   - [Base de Datos](../database/SCHEMA.md)
+   - [Base de Datos](../database/DIAGRAMS.md)
 
 3. **Configura opcionales:**
    - Google OAuth 2.0
@@ -421,7 +419,7 @@ Después de completar la instalación:
 - [Configuración de Environment Variables](../deployment/ENVIRONMENT.md)
 - [Guía de Desarrollo](DEVELOPMENT.md)
 - [Documentación de la API](../api/ENDPOINTS.md)
-- [Hosting y Deployment](../deployment/HOSTING.md)
+- [Stack de Producción](../deployment/STACK_PRODUCCION.md)
 
 ---
 

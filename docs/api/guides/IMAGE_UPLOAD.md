@@ -1,5 +1,4 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Guía de Carga de Imágenes
@@ -60,11 +59,11 @@ El sistema maneja dos tipos de imágenes:
 ### Formatos Permitidos
 
 ```
-✅ image/jpeg
-✅ image/jpg
-✅ image/png
-✅ image/webp
-✅ image/gif
+ image/jpeg
+ image/jpg
+ image/png
+ image/webp
+ image/gif
 ```
 
 ### Tamaños y Cantidades
@@ -613,7 +612,7 @@ async function subirConReintentos(archivos, maxIntentos = 3) {
 **Estado**: Completado
 
 **Relacionado con**:
-- [API Reference](../README.md)
+- [API Reference](../ENDPOINTS.md)
 - [Endpoints de Upload](../endpoints/upload.md)
 - [Endpoints de Productos](../endpoints/productos.md)
 - [Endpoints de Comentarios](../endpoints/comentarios.md)

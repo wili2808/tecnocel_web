@@ -8,15 +8,15 @@ Gestión de compras internas a proveedores con control de stock y auditoría.
 
 ---
 
-## 📋 Índice
+## Índice
 
 - [Listar compras](#get-adminlistar)
 - [Obtener detalle](#get-adminid)
-- [Registrar compra](#post-adminregistrar) 🔒
-- [Anular compra](#patch-adminidanular) 🔒
-- [Estadísticas](#get-adminestadisticas) 🔒
+- [Registrar compra](#post-adminregistrar)
+- [Anular compra](#patch-adminidanular)
+- [Estadísticas](#get-adminestadisticas)
 
-🔒 = Requiere autenticación + rol ADMIN/GERENTE
+ = Requiere autenticación + rol ADMIN/GERENTE
 
 ---
 
@@ -24,7 +24,7 @@ Gestión de compras internas a proveedores con control de stock y auditoría.
 
 Obtener lista de compras con paginación y filtros.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE, VENDEDOR)
+**Autenticación**: Requerida (ADMIN, GERENTE, VENDEDOR)
 
 **Query Parameters**:
 
@@ -72,7 +72,7 @@ Obtener lista de compras con paginación y filtros.
 
 Obtener detalle completo de una compra.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE, VENDEDOR)
+**Autenticación**: Requerida (ADMIN, GERENTE, VENDEDOR)
 
 **Path Parameters**:
 
@@ -120,7 +120,7 @@ Obtener detalle completo de una compra.
 
 Registrar una nueva compra a proveedor.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE)
+**Autenticación**: Requerida (ADMIN, GERENTE)
 
 **Request Body**:
 
@@ -177,7 +177,7 @@ Registrar una nueva compra a proveedor.
 
 Anular una compra activa con reversión de stock.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE)
+**Autenticación**: Requerida (ADMIN, GERENTE)
 
 **Path Parameters**:
 
@@ -217,7 +217,7 @@ Anular una compra activa con reversión de stock.
 
 Obtener estadísticas de compras.
 
-**Autenticación**: 🔒 Requerida (ADMIN, GERENTE)
+**Autenticación**: Requerida (ADMIN, GERENTE)
 
 **Response 200**:
 
@@ -235,7 +235,7 @@ Obtener estadísticas de compras.
 
 ---
 
-## 🔍 Búsqueda Inteligente
+## Búsqueda Inteligente
 
 El parámetro `search` acepta múltiples formatos:
 
@@ -249,7 +249,7 @@ El parámetro `search` acepta múltiples formatos:
 
 ---
 
-## ⚠️ Códigos de Error
+## Códigos de Error
 
 | Código | Descripción |
 |--------|-------------|

@@ -2,20 +2,20 @@
 
 Componente optimizado que muestra la ubicación de la empresa en un mapa interactivo junto con información de contacto y descripción de la empresa en un diseño moderno tipo grid.
 
-## 📋 Descripción
+## Descripción
 
 **LocationSection** es un componente integral que combina:
-- ✅ Mapa interactivo (OpenStreetMap)
-- ✅ Información de la empresa (HistorySection)
-- ✅ Datos de contacto con iconos
-- ✅ Diseño grid responsivo
-- ✅ Animaciones suaves
-- ✅ Elementos decorativos
-- ✅ Soporte completo para tema oscuro
-- ✅ Accesibilidad WCAG 2.1
-- ✅ Personalización total
+- Mapa interactivo (OpenStreetMap)
+- Información de la empresa (HistorySection)
+- Datos de contacto con iconos
+- Diseño grid responsivo
+- Animaciones suaves
+- Elementos decorativos
+- Soporte completo para tema oscuro
+- Accesibilidad WCAG 2.1
+- Personalización total
 
-## 🚀 Uso Básico
+## Uso Básico
 
 ```tsx
 import LocationSection from '@/components/location/LocationSection';
@@ -27,7 +27,7 @@ function HomePage() {
 }
 ```
 
-## 📖 Props
+## Props
 
 Todas las props son opcionales y tienen valores por defecto.
 
@@ -41,7 +41,7 @@ Todas las props son opcionales y tienen valores por defecto.
 | `description` | `string` | `undefined` | Descripción personalizada (usa default si no se proporciona) |
 | `className` | `string` | `''` | Clases CSS adicionales |
 
-## 🎨 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### Uso por Defecto
 
@@ -99,17 +99,17 @@ Esto muestra:
 />
 ```
 
-## 🗺️ Componente OpenStreetMap
+## Componente OpenStreetMap
 
 El mapa usa **OpenStreetMap** con **Leaflet**, una solución 100% gratuita y open source.
 
 ### Características del Mapa:
-- ✅ Sin costos ni límites de uso
-- ✅ Zoom interactivo
-- ✅ Marcador personalizable
-- ✅ Popup con información
-- ✅ Scroll wheel zoom
-- ✅ Tema oscuro automático
+- Sin costos ni límites de uso
+- Zoom interactivo
+- Marcador personalizable
+- Popup con información
+- Scroll wheel zoom
+- Tema oscuro automático
 
 ### Obtener Coordenadas
 
@@ -135,14 +135,14 @@ Para encontrar coordenadas de cualquier ubicación:
 />
 ```
 
-## 📞 Información de Contacto
+## Información de Contacto
 
 El componente `HistorySection` (incluido internamente) muestra 4 tarjetas de contacto:
 
-1. **📍 Ubicación**: Ciudad y provincia
-2. **📞 Teléfono**: Número de contacto
-3. **🕐 Horarios**: Horario de atención
-4. **✉️ Email**: Correo electrónico
+1. ** Ubicación**: Ciudad y provincia
+2. ** Teléfono**: Número de contacto
+3. ** Horarios**: Horario de atención
+4. ** Email**: Correo electrónico
 
 ### Personalizar Datos de Contacto
 
@@ -165,14 +165,14 @@ Actualmente los datos están hardcodeados en `HistorySection.tsx`. Para personal
 <p>info@tecnocel.com</p>
 ```
 
-## 🎭 Características Visuales
+## Características Visuales
 
 ### Animaciones
 
 - **Título/Subtítulo**: Fade-in desde arriba
 - **Grid**: Fade-in desde abajo con delay
 - **Mapa al hover**: Elevación y sombra expandida
-- **Label del mapa**: Icono 📍 con animación bounce
+- **Label del mapa**: Icono con animación bounce
 - **Tarjetas de contacto**: Elevación al hover con rotación de icono
 - **Círculos decorativos**: Animación de flotación continua
 
@@ -187,9 +187,9 @@ Desktop (>768px):
 │  │             │  │  TecnoCel      │           │
 │  │    MAPA     │  │  Descripción   │           │
 │  │             │  │                │           │
-│  │             │  │  📍 📞 🕐 ✉️   │           │
+│  │             │  │        │           │
 │  └─────────────┘  └────────────────┘           │
-│  📍 Ubicación                                   │
+│   Ubicación                                   │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -201,12 +201,12 @@ Mobile (<768px):
 │  ┌─────────────┐  │
 │  │    MAPA     │  │
 │  └─────────────┘  │
-│  📍 Ubicación     │
+│   Ubicación     │
 │                   │
 │  ┌─────────────┐  │
 │  │  TecnoCel   │  │
 │  │ Descripción │  │
-│  │ 📍 📞 🕐 ✉️ │  │
+│  │     │  │
 │  └─────────────┘  │
 └───────────────────┘
 ```
@@ -227,7 +227,7 @@ Mobile (<768px):
 - Icono: `scale(1.1)` + `rotate(5deg)`
 - Sombra aumentada
 
-## 🌗 Soporte de Tema Oscuro
+## Soporte de Tema Oscuro
 
 El componente adapta automáticamente sus colores:
 
@@ -237,17 +237,17 @@ El componente adapta automáticamente sus colores:
 - Círculos decorativos con menor opacidad
 - Tarjetas con fondo zinc-900
 
-## ♿ Accesibilidad
+## Accesibilidad
 
-- ✅ `aria-labelledby` en la sección
-- ✅ `aria-hidden` en elementos decorativos
-- ✅ Navegación por teclado completa
-- ✅ Contraste de color AAA
-- ✅ Soporte para `prefers-reduced-motion`
-- ✅ Roles semánticos correctos
-- ✅ Textos alternativos en iconos
+- `aria-labelledby` en la sección
+- `aria-hidden` en elementos decorativos
+- Navegación por teclado completa
+- Contraste de color AAA
+- Soporte para `prefers-reduced-motion`
+- Roles semánticos correctos
+- Textos alternativos en iconos
 
-## 📐 Responsive
+## Responsive
 
 ### Desktop (>1024px)
 - Grid 2 columnas (50/50)
@@ -270,7 +270,7 @@ El componente adapta automáticamente sus colores:
 - Label y padding reducidos
 - Gap: 16px
 
-## 🔧 Personalización Avanzada
+## Personalización Avanzada
 
 ### Cambiar Color del Mapa en Tema Oscuro
 
@@ -325,7 +325,7 @@ Edita `HistorySection.tsx` líneas 45-86:
 </div>
 ```
 
-## 🎯 Integración con Google Maps (Opcional)
+## Integración con Google Maps (Opcional)
 
 Si prefieres usar Google Maps en lugar de OpenStreetMap:
 
@@ -343,19 +343,19 @@ import GoogleMap from '../GoogleMap/GoogleMap';
 
 **Nota**: Google Maps tiene límites de uso y cuesta después de $200 USD/mes gratis.
 
-## 💡 Mejores Prácticas
+## Mejores Prácticas
 
-### ✅ DO (Hacer)
+### DO (Hacer)
 
 1. **Verificar coordenadas precisas**
    ```tsx
-   // ✅ Coordenadas precisas de tu ubicación real
+   //  Coordenadas precisas de tu ubicación real
    coordinates={{ lat: -27.4514, lng: -58.9867 }}
    ```
 
 2. **Nombre descriptivo en el marcador**
    ```tsx
-   // ✅ Incluye nombre del negocio y ciudad
+   //  Incluye nombre del negocio y ciudad
    locationName="TecnoCel - Resistencia, Chaco"
    ```
 
@@ -369,29 +369,29 @@ import GoogleMap from '../GoogleMap/GoogleMap';
    - Zoom funcional
    - Tamaño adecuado
 
-### ❌ DON'T (Evitar)
+### DON'T (Evitar)
 
 1. **Coordenadas incorrectas**
    ```tsx
-   // ❌ No uses coordenadas aproximadas o inventadas
+   //  No uses coordenadas aproximadas o inventadas
    coordinates={{ lat: 0, lng: 0 }}
    ```
 
 2. **Información desactualizada**
    ```tsx
-   // ❌ No dejes horarios incorrectos
+   //  No dejes horarios incorrectos
    <p>Lun - Dom: 24 horas</p> // Si no es verdad
    ```
 
 3. **Múltiples mapas en una página**
    ```tsx
-   // ❌ Evitar múltiples mapas (afecta rendimiento)
+   //  Evitar múltiples mapas (afecta rendimiento)
    <LocationSection />
    <LocationSection />
    <LocationSection />
    ```
 
-## 📊 Estructura de Archivos
+## Estructura de Archivos
 
 ```
 location/
@@ -412,27 +412,27 @@ location/
     └── index.ts
 ```
 
-## 🔄 Historial de Cambios
+## Historial de Cambios
 
 ### v2.0.0 (Actual)
-- ✅ Rediseño completo con grid layout
-- ✅ Props personalizables
-- ✅ HistorySection con información de contacto
-- ✅ Animaciones modernas
-- ✅ Elementos decorativos
-- ✅ OpenStreetMap (gratuito)
-- ✅ Tema oscuro completo
-- ✅ Responsive mejorado
-- ✅ Accesibilidad AAA
-- ✅ Documentación JSDoc
-- ✅ README completo
+- Rediseño completo con grid layout
+- Props personalizables
+- HistorySection con información de contacto
+- Animaciones modernas
+- Elementos decorativos
+- OpenStreetMap (gratuito)
+- Tema oscuro completo
+- Responsive mejorado
+- Accesibilidad AAA
+- Documentación JSDoc
+- README completo
 
 ### v1.0.0 (Anterior)
-- ✅ Layout básico
-- ✅ Mapa simple
-- ✅ Información estática
+- Layout básico
+- Mapa simple
+- Información estática
 
-## 🚀 Ejemplos Reales
+## Ejemplos Reales
 
 ### E-commerce (TecnoCel)
 
@@ -483,7 +483,7 @@ location/
 />
 ```
 
-## 📱 Testing
+## Testing
 
 Para probar el componente:
 
@@ -509,7 +509,7 @@ El LocationSection aparecerá al final de la home después del CTASection.
 - [ ] Hover effects funcionan
 - [ ] Accesibilidad con teclado OK
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### El mapa no se carga
 
@@ -555,10 +555,10 @@ Verifica en `OpenStreetMap.module.css` líneas 27-34:
 - Esto es correcto y respeta preferencias de accesibilidad
 - Las animaciones se desactivan automáticamente
 
-## 📄 Licencia
+## Licencia
 
 Parte del proyecto TecnoCel Web - Uso interno
 
 ---
 
-**Desarrollado con ❤️ por el equipo de TecnoCel**
+**Desarrollado con por el equipo de TecnoCel**

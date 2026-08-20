@@ -26,7 +26,7 @@ Gestión de características técnicas de productos.
     - [Estados y Activación](#estados-y-activación)
   - [Ver También](#ver-también)
 
-🔒 = Requiere autenticación de administrador
+ = Requiere autenticación de administrador
 
 ---
 
@@ -34,7 +34,7 @@ Gestión de características técnicas de productos.
 
 Obtener todos los tipos de características disponibles.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Response 200**:
 ```json
@@ -99,7 +99,7 @@ curl -X GET "http://localhost:3000/api/caracteristicas/tipos"
 
 Obtener todas las características de un producto específico.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **URL Parameters**:
 
@@ -166,7 +166,7 @@ curl -X GET "http://localhost:3000/api/caracteristicas/producto/1"
 
 Agregar una característica a un producto (solo administradores).
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -241,7 +241,7 @@ curl -X POST "http://localhost:3000/api/caracteristicas/producto/1" \
 
 Actualizar el valor de una característica.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -305,7 +305,7 @@ curl -X PUT "http://localhost:3000/api/caracteristicas/12" \
 
 Eliminar una característica de un producto.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -342,7 +342,7 @@ curl -X DELETE "http://localhost:3000/api/caracteristicas/12" \
 
 Crear un nuevo tipo de característica (solo administradores).
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **Body**:
 ```json
@@ -504,7 +504,7 @@ RAM: 6GB            RAM: 8GB
 ## Ver También
 
 - [Productos API](./productos.md) - Para crear y gestionar productos
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -514,4 +514,4 @@ RAM: 6GB            RAM: 8GB
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

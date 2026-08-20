@@ -1,5 +1,4 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Guía de Manejo de Errores
@@ -969,28 +968,28 @@ export default ErrorLogger;
 ### 1. Mensajes Claros para el Usuario
 
 ```javascript
-// ❌ Malo - Mensaje técnico
+// Malo - Mensaje técnico
 "Error: ECONNREFUSED at Socket.connect"
 
-// ✅ Bueno - Mensaje amigable
+// Bueno - Mensaje amigable
 "No pudimos conectar con el servidor. Por favor, verifica tu conexión a internet."
 
-// ❌ Malo - Mensaje genérico
+// Malo - Mensaje genérico
 "Error"
 
-// ✅ Bueno - Mensaje específico y accionable
+// Bueno - Mensaje específico y accionable
 "El producto que buscas no está disponible. ¿Deseas ver productos similares?"
 ```
 
 ### 2. No Exponer Información Sensible
 
 ```javascript
-// ❌ Malo
+// Malo
 {
   error: "MySQL Error: Table 'users' doesn't exist at line 42"
 }
 
-// ✅ Bueno
+// Bueno
 {
   mensaje: "Error interno del servidor",
   error: "No se pudo procesar la solicitud"
@@ -1160,7 +1159,7 @@ class ErrorBoundary extends React.Component {
 **Estado**: Completado
 
 **Relacionado con**:
-- [API Reference](../README.md)
+- [API Reference](../ENDPOINTS.md)
 - [Guía de Autenticación](./AUTHENTICATION.md)
 - [Endpoints de la API](../ENDPOINTS.md)
 

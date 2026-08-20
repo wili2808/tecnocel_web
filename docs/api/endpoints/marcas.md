@@ -7,15 +7,15 @@ Gestión de marcas de productos.
 
 ---
 
-## 📋 Índice
+## Índice
 
 - [Obtener todas las marcas](#get-marcas)
 - [Obtener marca por ID](#get-marcasid)
-- [Crear marca](#post-marcas) 🔒
-- [Actualizar marca](#put-marcasid) 🔒
-- [Eliminar marca](#delete-marcasid) 🔒
+- [Crear marca](#post-marcas)
+- [Actualizar marca](#put-marcasid)
+- [Eliminar marca](#delete-marcasid)
 
-🔒 = Requiere autenticación de administrador
+ = Requiere autenticación de administrador
 
 ---
 
@@ -23,7 +23,7 @@ Gestión de marcas de productos.
 
 Obtener todas las marcas activas ordenadas alfabéticamente.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Response 200**:
 ```json
@@ -73,7 +73,7 @@ curl -X GET "http://localhost:3000/api/marcas"
 
 Obtener información de una marca específica por ID.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **URL Parameters**:
 
@@ -112,7 +112,7 @@ curl -X GET "http://localhost:3000/api/marcas/1"
 
 Crear una nueva marca (solo administradores).
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **Body**:
 ```json
@@ -175,7 +175,7 @@ curl -X POST "http://localhost:3000/api/marcas" \
 
 Actualizar información de una marca existente.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -241,7 +241,7 @@ curl -X PUT "http://localhost:3000/api/marcas/3" \
 
 Eliminar (desactivar) una marca.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -276,7 +276,7 @@ curl -X DELETE "http://localhost:3000/api/marcas/3" \
 
 ---
 
-## 📝 Notas Técnicas
+## Notas Técnicas
 
 ### Estructura de Marca
 
@@ -349,10 +349,10 @@ Las marcas se retornan ordenadas alfabéticamente para:
 
 ---
 
-## 🔗 Ver También
+## Ver También
 
 - [Productos API](./productos.md) - Para filtrar productos por marca
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -360,4 +360,4 @@ Las marcas se retornan ordenadas alfabéticamente para:
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

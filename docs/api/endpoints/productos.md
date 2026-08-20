@@ -8,7 +8,7 @@ Gestión del catálogo de productos de la tienda.
 
 ---
 
-## 📋 Índice
+## Índice
 
 - [Listar productos](#get-productos)
 - [Obtener producto por ID](#get-productosid)
@@ -16,13 +16,13 @@ Gestión del catálogo de productos de la tienda.
 - [Buscar productos](#get-productosbuscar)
 - [Productos por categoría](#get-productoscategoriacategoriaid)
 - [Listar categorías](#get-categorias)
-- [Crear producto](#post-productos) 🔒
-- [Actualizar producto](#put-productosid) 🔒
-- [Eliminar producto](#delete-productosid) 🔒
-- [Actualizar stock](#patch-productosidstock) 🔒
+- [Crear producto](#post-productos)
+- [Actualizar producto](#put-productosid)
+- [Eliminar producto](#delete-productosid)
+- [Actualizar stock](#patch-productosidstock)
 - [Diagnóstico](#get-diagnostico)
 
-🔒 = Requiere autenticación
+ = Requiere autenticación
 
 ---
 
@@ -30,7 +30,7 @@ Gestión del catálogo de productos de la tienda.
 
 Obtener lista de todos los productos con filtros opcionales.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Query Parameters**:
 
@@ -115,7 +115,7 @@ curl -X GET "http://localhost:3000/api/almacen/productos?destacado=true"
 
 Obtener un producto específico por ID con toda su información detallada.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **URL Parameters**:
 
@@ -206,7 +206,7 @@ curl -X GET "http://localhost:3000/api/almacen/productos/1"
 
 Obtener productos marcados como destacados.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Query Parameters**:
 
@@ -256,7 +256,7 @@ curl -X GET "http://localhost:3000/api/almacen/productos/destacados?limit=5"
 
 Buscar productos por nombre o descripción (búsqueda full-text).
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Query Parameters**:
 
@@ -310,7 +310,7 @@ curl -X GET "http://localhost:3000/api/almacen/productos/buscar?termino=samsung&
 
 Obtener todos los productos de una categoría específica.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **URL Parameters**:
 
@@ -353,7 +353,7 @@ curl -X GET "http://localhost:3000/api/almacen/productos/categoria/1"
 
 Obtener todas las categorías disponibles en la tienda.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Response 200**:
 
@@ -389,7 +389,7 @@ curl -X GET "http://localhost:3000/api/almacen/categorias"
 
 Crear un nuevo producto en el catálogo.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **Body**:
 
@@ -462,7 +462,7 @@ curl -X POST "http://localhost:3000/api/almacen/productos" \
 
 Actualizar un producto existente.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -520,7 +520,7 @@ curl -X PUT "http://localhost:3000/api/almacen/productos/101" \
 
 Eliminar un producto (soft delete - marca como inactivo).
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -556,7 +556,7 @@ curl -X DELETE "http://localhost:3000/api/almacen/productos/101" \
 
 Actualizar solo el stock de un producto.
 
-**Autenticación**: ✅ Requerida (JWT Admin)
+**Autenticación**: Requerida (JWT Admin)
 
 **URL Parameters**:
 
@@ -618,7 +618,7 @@ curl -X PATCH "http://localhost:3000/api/almacen/productos/1/stock" \
 
 Endpoint de diagnóstico para verificar el estado de la API de productos.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Response 200**:
 
@@ -644,13 +644,13 @@ curl -X GET "http://localhost:3000/api/almacen/diagnostico"
 
 ---
 
-## 📝 Notas Técnicas
+## Notas Técnicas
 
 ### Imágenes de Productos
 
 - Las URLs de imágenes son generadas automáticamente
 - Formato: `http://localhost:3000/api/uploads/productos/{nombre_archivo}`
-- Se sirven desde el directorio configurado en `IMAGES_PATH`
+- Se sirven desde el directorio configurado en `PRODUCT_IMAGES_PATH` (o Cloudinary si `USE_CLOUDINARY=true`)
 - Si no hay imagen, se usa una imagen por defecto
 - Soporta múltiples imágenes por producto
 
@@ -678,12 +678,12 @@ El endpoint de búsqueda utiliza índices FULLTEXT de MySQL:
 
 ---
 
-## 🔗 Ver También
+## Ver También
 
 - [Ofertas API](./ofertas.md) - Para gestionar descuentos en productos
 - [Marcas API](./marcas.md) - Para gestionar marcas
 - [Upload API](./upload.md) - Para subir imágenes de productos
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -691,4 +691,4 @@ El endpoint de búsqueda utiliza índices FULLTEXT de MySQL:
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

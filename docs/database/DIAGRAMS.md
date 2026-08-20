@@ -1,4 +1,4 @@
-# 📊 Diagramas ER - Base de Datos TecnoCel Web
+# Diagramas ER - Base de Datos TecnoCel Web
 
 **Base de datos**: `db_tecnocel_v4`
 **Motor**: MariaDB 10.4.27 / MySQL 8.0+
@@ -6,7 +6,7 @@
 
 ---
 
-## 📋 Índice de Diagramas
+## Índice de Diagramas
 
 1. [Diagrama ER General - Vista Completa](#diagrama-er-general---vista-completa)
 2. [Sistema de Productos](#diagrama-sistema-de-productos)
@@ -486,7 +486,7 @@ erDiagram
 
 ---
 
-## 📚 Convenciones de Diagramas
+## Convenciones de Diagramas
 
 ### Tipos de Datos Comunes
 
@@ -520,7 +520,7 @@ erDiagram
 
 ---
 
-## 🔍 Cómo Usar Estos Diagramas
+## Cómo Usar Estos Diagramas
 
 ### En Desarrollo
 
@@ -537,7 +537,7 @@ erDiagram
 **Para nuevos desarrolladores**:
 - Primero revisa el diagrama general
 - Luego profundiza en el subsistema específico
-- Consulta [SCHEMA.md](./SCHEMA.md) para detalles de columnas
+- Consulta las migraciones en `database/migrations/` para detalles de columnas
 
 **Para diseño de features**:
 - Usa estos diagramas en documentos de diseño
@@ -545,11 +545,10 @@ erDiagram
 
 ---
 
-## 📖 Recursos Relacionados
+## Recursos Relacionados
 
-- [SCHEMA.md](./SCHEMA.md) - Documentación completa del esquema con todas las columnas
-- [IMPROVEMENTS_PLAN.md](./IMPROVEMENTS_PLAN.md) - Plan de mejoras de la BD
-- [README.md](./README.md) - Índice de documentación de database
+- [Modelos Sequelize](../api/reference/MODELS.md) - Documentación de modelos
+- [Endpoints de API](../api/ENDPOINTS.md) - Endpoints de almacen
 
 ---
 
@@ -557,8 +556,8 @@ erDiagram
 **Versión de la BD**: 4.0
 **Formato**: Mermaid ERD (Entity Relationship Diagram)
 
-[← Volver al índice de database](./README.md) | [← Volver a SCHEMA.md](./SCHEMA.md)
+[Volver al índice de documentación](../README.md)
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../README.md)** | **[🏠 Inicio](../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../README.md) | [Inicio](../../README.md)

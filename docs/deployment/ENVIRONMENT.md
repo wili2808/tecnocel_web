@@ -1,9 +1,9 @@
-# ⚙️ Variables de Entorno
+# Variables de Entorno
 
-> Documentación completa de todas las variables de entorno para backend y frontend.
+> Documentación de las variables de entorno para backend y frontend.
 
-**Última actualización**: 7 de Octubre, 2025
-**Versión**: 1.1.0
+**Última actualización**: 20 de Agosto, 2026
+**Versión**: 1.2.0
 
 ---
 
@@ -51,7 +51,7 @@ cp frontend/.env.example frontend/.env
 
 ```env
 # =====================================================
-# 🗄️ CONFIGURACIÓN DE BASE DE DATOS
+# CONFIGURACIÓN DE BASE DE DATOS
 # =====================================================
 
 DB_NAME=db_tecnocel_v4
@@ -61,14 +61,14 @@ DB_HOST=localhost
 DB_PORT=3306
 
 # =====================================================
-# 🌐 CONFIGURACIÓN DEL SERVIDOR
+# CONFIGURACIÓN DEL SERVIDOR
 # =====================================================
 
 PORT=3000
 NODE_ENV=development
 
 # =====================================================
-# 🔐 CONFIGURACIÓN JWT
+# CONFIGURACIÓN JWT
 # =====================================================
 
 # IMPORTANTE: Genera una clave única y segura
@@ -76,7 +76,7 @@ NODE_ENV=development
 JWT_SECRET=clave_secreta_supersegura_cambiar_en_produccion
 
 # =====================================================
-# 📝 CONFIGURACIÓN DE LOGGING
+# CONFIGURACIÓN DE LOGGING
 # =====================================================
 
 # Niveles: error, warn, info, debug
@@ -86,46 +86,47 @@ LOG_LEVEL=info
 SEQUELIZE_DEBUG=false
 
 # =====================================================
-# 🖼️ CONFIGURACIÓN DE IMÁGENES
+# CONFIGURACIÓN DE IMÁGENES
 # =====================================================
 
-# OPCIÓN 1: Windows con XAMPP
-IMAGES_BASE_PATH=C:/xampp/htdocs/tecnocel
-PRODUCT_IMAGES_PATH=C:/xampp/htdocs/tecnocel/almacen/img_productos
-COMMENT_IMAGES_PATH=C:/xampp/htdocs/tecnocel/img_comments
+# Modo de almacenamiento: true = Cloudinary, false = filesystem local
+USE_CLOUDINARY=false
 
-# OPCIÓN 2: macOS/Linux
-# IMAGES_BASE_PATH=/var/www/html/tecnocel
-# PRODUCT_IMAGES_PATH=/var/www/html/tecnocel/almacen/img_productos
-# COMMENT_IMAGES_PATH=/var/www/html/tecnocel/img_comments
+# Rutas locales (solo si USE_CLOUDINARY=false)
+IMAGES_BASE_PATH=backend/uploads
+PRODUCT_IMAGES_PATH=backend/uploads/productos
+COMMENT_IMAGES_PATH=backend/uploads/comentarios
+MARCA_IMAGES_PATH=backend/uploads/marcas
 
 # URL base para servir imágenes
-BASE_URL=http://localhost
-IMAGES_ENDPOINT=
+BASE_URL=http://localhost:3000
 
 # Imágenes por defecto
 DEFAULT_PRODUCT_IMAGE=default-product.png
 DEFAULT_COMMENT_IMAGE=default-comment.png
+DEFAULT_MARCA_IMAGE=default-marca.png
+
+# Cloudinary (solo si USE_CLOUDINARY=true)
+# CLOUDINARY_CLOUD_NAME=
+# CLOUDINARY_API_KEY=
+# CLOUDINARY_API_SECRET=
 
 # =====================================================
-# 📧 CONFIGURACIÓN DE EMAIL (Opcional)
+# CONFIGURACIÓN DE EMAIL (Opcional)
 # =====================================================
 
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=tu_email@gmail.com
-EMAIL_PASS=tu_password_de_aplicacion_google
-EMAIL_FROM=tu_email@gmail.com
+RESEND_API_KEY=tu_resend_api_key
+EMAIL_FROM=TecnoCel <noreply@resend.dev>
 
 # =====================================================
-# 🔗 CONFIGURACIÓN DEL FRONTEND
+# CONFIGURACIÓN DEL FRONTEND
 # =====================================================
 
 # URL del frontend para CORS
 FRONTEND_URL=http://localhost:5173
 
 # =====================================================
-# 🔐 GOOGLE OAUTH 2.0 (Opcional)
+# GOOGLE OAUTH 2.0 (Opcional)
 # =====================================================
 
 GOOGLE_CLIENT_ID=tu_google_client_id.apps.googleusercontent.com
@@ -140,11 +141,11 @@ GOOGLE_CLIENT_SECRET=tu_google_client_secret
 
 | Variable      | Descripción                | Ejemplo           | Requerido |
 | ------------- | -------------------------- | ----------------- | --------- |
-| `DB_NAME`     | Nombre de la base de datos | `db_tecnocel_v4`  | ✅ Sí     |
-| `DB_USER`     | Usuario de MySQL           | `root`            | ✅ Sí     |
-| `DB_PASSWORD` | Contraseña de MySQL        | `mi_password_123` | ✅ Sí     |
-| `DB_HOST`     | Host de MySQL              | `localhost`       | ✅ Sí     |
-| `DB_PORT`     | Puerto de MySQL            | `3306`            | ✅ Sí     |
+| `DB_NAME`     | Nombre de la base de datos | `db_tecnocel_v4`  |  Sí     |
+| `DB_USER`     | Usuario de MySQL           | `root`            |  Sí     |
+| `DB_PASSWORD` | Contraseña de MySQL        | `mi_password_123` |  Sí     |
+| `DB_HOST`     | Host de MySQL              | `localhost`       |  Sí     |
+| `DB_PORT`     | Puerto de MySQL            | `3306`            |  Sí     |
 
 **Notas:**
 
@@ -158,8 +159,8 @@ GOOGLE_CLIENT_SECRET=tu_google_client_secret
 
 | Variable   | Descripción          | Ejemplo                      | Requerido |
 | ---------- | -------------------- | ---------------------------- | --------- |
-| `PORT`     | Puerto del servidor  | `3000`                       | ✅ Sí     |
-| `NODE_ENV` | Entorno de ejecución | `development` / `production` | ✅ Sí     |
+| `PORT`     | Puerto del servidor  | `3000`                       |  Sí     |
+| `NODE_ENV` | Entorno de ejecución | `development` / `production` |  Sí     |
 
 **Valores de NODE_ENV:**
 
@@ -173,7 +174,7 @@ GOOGLE_CLIENT_SECRET=tu_google_client_secret
 
 | Variable     | Descripción                      | Ejemplo     | Requerido |
 | ------------ | -------------------------------- | ----------- | --------- |
-| `JWT_SECRET` | Clave secreta para firmar tokens | (ver abajo) | ✅ Sí     |
+| `JWT_SECRET` | Clave secreta para firmar tokens | (ver abajo) |  Sí     |
 
 **Generar JWT_SECRET seguro:**
 
@@ -185,7 +186,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 # a3f8b9c2d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
 ```
 
-**⚠️ IMPORTANTE:**
+** IMPORTANTE:**
 
 - Nunca uses valores por defecto en producción
 - Si cambias JWT_SECRET, todos los tokens existentes se invalidan
@@ -197,8 +198,8 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 | Variable          | Descripción              | Ejemplo | Requerido |
 | ----------------- | ------------------------ | ------- | --------- |
-| `LOG_LEVEL`       | Nivel de detalle de logs | `info`  | ❌ No     |
-| `SEQUELIZE_DEBUG` | Mostrar queries SQL      | `false` | ❌ No     |
+| `LOG_LEVEL`       | Nivel de detalle de logs | `info`  |  No     |
+| `SEQUELIZE_DEBUG` | Mostrar queries SQL      | `false` |  No     |
 
 **Niveles de LOG_LEVEL:**
 
@@ -211,57 +212,47 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 #### Imágenes
 
-| Variable                | Descripción                       | Ejemplo                                          | Requerido |
-| ----------------------- | --------------------------------- | ------------------------------------------------ | --------- |
-| `IMAGES_BASE_PATH`      | Ruta base de imágenes             | `C:/xampp/htdocs/tecnocel`                       | ✅ Sí     |
-| `PRODUCT_IMAGES_PATH`   | Ruta de imágenes de productos     | `C:/xampp/htdocs/tecnocel/almacen/img_productos` | ✅ Sí     |
-| `COMMENT_IMAGES_PATH`   | Ruta de imágenes de comentarios   | `C:/xampp/htdocs/tecnocel/img_comments`          | ✅ Sí     |
-| `BASE_URL`              | URL base del servidor             | `http://localhost`                               | ✅ Sí     |
-| `IMAGES_ENDPOINT`       | Endpoint adicional para imágenes  | `` (vacío)                                       | ❌ No     |
-| `DEFAULT_PRODUCT_IMAGE` | Imagen por defecto de productos   | `default-product.png`                            | ❌ No     |
-| `DEFAULT_COMMENT_IMAGE` | Imagen por defecto de comentarios | `default-comment.png`                            | ❌ No     |
+| Variable                | Descripción                       | Ejemplo                                  | Requerido |
+| ----------------------- | --------------------------------- | ---------------------------------------- | --------- |
+| `USE_CLOUDINARY`        | Almacenamiento en Cloudinary      | `false` / `true`                         |  No     |
+| `IMAGES_BASE_PATH`      | Ruta base de imágenes             | `backend/uploads`                        |  No     |
+| `PRODUCT_IMAGES_PATH`   | Ruta de imágenes de productos     | `backend/uploads/productos`              |  No     |
+| `COMMENT_IMAGES_PATH`   | Ruta de imágenes de comentarios   | `backend/uploads/comentarios`            |  No     |
+| `MARCA_IMAGES_PATH`     | Ruta de imágenes de marcas        | `backend/uploads/marcas`                 |  No     |
+| `BASE_URL`              | URL base del servidor             | `http://localhost:3000`                  |  No     |
+| `DEFAULT_PRODUCT_IMAGE` | Imagen por defecto de productos   | `default-product.png`                    |  No     |
+| `DEFAULT_COMMENT_IMAGE` | Imagen por defecto de comentarios | `default-comment.png`                    |  No     |
+| `DEFAULT_MARCA_IMAGE`   | Imagen por defecto de marcas      | `default-marca.png`                      |  No     |
 
-**Crear carpetas (Windows - XAMPP):**
-
-```bash
-mkdir C:\xampp\htdocs\tecnocel
-mkdir C:\xampp\htdocs\tecnocel\almacen
-mkdir C:\xampp\htdocs\tecnocel\almacen\img_productos
-mkdir C:\xampp\htdocs\tecnocel\img_comments
-```
-
-**Crear carpetas (macOS/Linux):**
+**Crear carpetas (modo filesystem):**
 
 ```bash
-sudo mkdir -p /var/www/html/tecnocel/almacen/img_productos
-sudo mkdir -p /var/www/html/tecnocel/img_comments
-sudo chmod -R 755 /var/www/html/tecnocel
+mkdir -p backend/uploads/productos
+mkdir -p backend/uploads/comentarios
+mkdir -p backend/uploads/marcas
 ```
 
 ---
 
-#### Email (Nodemailer)
+#### Email (Resend)
 
-| Variable     | Descripción              | Ejemplo               | Requerido   |
-| ------------ | ------------------------ | --------------------- | ----------- |
-| `EMAIL_HOST` | Host del servidor SMTP   | `smtp.gmail.com`      | ❌ Opcional |
-| `EMAIL_PORT` | Puerto SMTP              | `587`                 | ❌ Opcional |
-| `EMAIL_USER` | Usuario del email        | `tu_email@gmail.com`  | ❌ Opcional |
-| `EMAIL_PASS` | Contraseña de aplicación | `abcd efgh ijkl mnop` | ❌ Opcional |
-| `EMAIL_FROM` | Email remitente          | `tu_email@gmail.com`  | ❌ Opcional |
+| Variable       | Descripción          | Ejemplo                         | Requerido |
+| -------------- | -------------------- | ------------------------------- | --------- |
+| `RESEND_API_KEY` | Clave de API de Resend | `re_xxxxxxxxxxxxxxxxxxxxxxxx` |  Opcional |
+| `EMAIL_FROM`   | Remitente            | `TecnoCel <noreply@resend.dev>` |  Opcional |
 
-**Configurar Gmail:**
+**Configuración:**
 
-1. Ir a [myaccount.google.com/security](https://myaccount.google.com/security)
-2. Activar **Verificación en 2 pasos**
-3. Crear **Contraseña de aplicación**
-4. Usar la contraseña generada en `EMAIL_PASS`
+1. Crear cuenta en [resend.com](https://resend.com/)
+2. Generar una API Key desde el dashboard
+3. Asignar la clave en `RESEND_API_KEY`
+4. Configurar `EMAIL_FROM` con el remitente verificado
 
-**Otros proveedores:**
+**Uso en producción:**
 
-- **SendGrid**: `smtp.sendgrid.net:587`
-- **Mailgun**: `smtp.mailgun.org:587`
-- **AWS SES**: `email-smtp.us-east-1.amazonaws.com:587`
+- El servicio de email usa la API HTTP de Resend (ver `backend/src/services/emailService.ts`)
+- En producción la variable se configura en el dashboard de Render
+- Si `RESEND_API_KEY` no está definida, el envío se omite sin romper el flujo
 
 ---
 
@@ -269,7 +260,7 @@ sudo chmod -R 755 /var/www/html/tecnocel
 
 | Variable       | Descripción      | Ejemplo                 | Requerido |
 | -------------- | ---------------- | ----------------------- | --------- |
-| `FRONTEND_URL` | URL del frontend | `http://localhost:5173` | ✅ Sí     |
+| `FRONTEND_URL` | URL del frontend | `http://localhost:5173` |  Sí     |
 
 **Múltiples orígenes (producción):**
 
@@ -277,8 +268,7 @@ sudo chmod -R 755 /var/www/html/tecnocel
 // En src/index.ts
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  "https://tecnocel.com",
-  "https://www.tecnocel.com",
+  "https://tecnocel-web.vercel.app",
 ];
 ```
 
@@ -288,8 +278,8 @@ const allowedOrigins = [
 
 | Variable               | Descripción               | Ejemplo                          | Requerido   |
 | ---------------------- | ------------------------- | -------------------------------- | ----------- |
-| `GOOGLE_CLIENT_ID`     | Client ID de Google Cloud | `xxx.apps.googleusercontent.com` | ❌ Opcional |
-| `GOOGLE_CLIENT_SECRET` | Client Secret de Google   | `GOCSPX-xxx`                     | ❌ Opcional |
+| `GOOGLE_CLIENT_ID`     | Client ID de Google Cloud | `xxx.apps.googleusercontent.com` |  Opcional |
+| `GOOGLE_CLIENT_SECRET` | Client Secret de Google   | `GOCSPX-xxx`                     |  Opcional |
 
 **Configurar Google OAuth:**
 
@@ -325,25 +315,25 @@ const allowedOrigins = [
 
 ```env
 # =====================================================
-# 🌐 CONFIGURACIÓN DE API
+# CONFIGURACIÓN DE API
 # =====================================================
 
 VITE_API_URL=http://localhost:3000/api
 
 # =====================================================
-# 🔐 GOOGLE OAUTH 2.0 (Opcional)
+# GOOGLE OAUTH 2.0 (Opcional)
 # =====================================================
 
 VITE_GOOGLE_CLIENT_ID=tu_google_client_id.apps.googleusercontent.com
 
 # =====================================================
-# 🗺️ GOOGLE MAPS (Opcional)
+# GOOGLE MAPS (Opcional)
 # =====================================================
 
 VITE_GOOGLE_MAPS_API_KEY=tu_google_maps_api_key
 
 # =====================================================
-# 💾 CONFIGURACIÓN DE CACHE DE FAVORITOS
+# CONFIGURACIÓN DE CACHE DE FAVORITOS
 # =====================================================
 
 # Duración del cache de favoritos en milisegundos (5 minutos por defecto)
@@ -353,7 +343,7 @@ VITE_FAVORITOS_CACHE_DURATION=300000
 VITE_FAVORITOS_CACHE_KEY=favoritos_cache
 
 # =====================================================
-# 🎯 CONFIGURACIÓN DE CACHE DE OFERTAS
+# CONFIGURACIÓN DE CACHE DE OFERTAS
 # =====================================================
 
 # Duración del cache de ofertas en milisegundos (5 minutos por defecto)
@@ -374,7 +364,7 @@ VITE_OFERTAS_REFRESH_INTERVAL=60000
 
 | Variable       | Descripción        | Ejemplo                     | Requerido |
 | -------------- | ------------------ | --------------------------- | --------- |
-| `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` | ✅ Sí     |
+| `VITE_API_URL` | URL base de la API | `http://localhost:3000/api` |  Sí     |
 
 **Nota:** Vite solo expone variables que empiezan con `VITE_`
 
@@ -390,7 +380,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 | Variable                | Descripción         | Ejemplo                          | Requerido   |
 | ----------------------- | ------------------- | -------------------------------- | ----------- |
-| `VITE_GOOGLE_CLIENT_ID` | Client ID de Google | `xxx.apps.googleusercontent.com` | ❌ Opcional |
+| `VITE_GOOGLE_CLIENT_ID` | Client ID de Google | `xxx.apps.googleusercontent.com` |  Opcional |
 
 **Configuración:**
 
@@ -403,7 +393,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 | Variable                   | Descripción            | Ejemplo               | Requerido   |
 | -------------------------- | ---------------------- | --------------------- | ----------- |
-| `VITE_GOOGLE_MAPS_API_KEY` | API Key de Google Maps | `AIzaSyXXXXXXXXXXXXX` | ❌ Opcional |
+| `VITE_GOOGLE_MAPS_API_KEY` | API Key de Google Maps | `AIzaSyXXXXXXXXXXXXX` |  Opcional |
 
 **Obtener API Key:**
 
@@ -418,8 +408,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 | Variable                        | Descripción              | Ejemplo           | Requerido   |
 | ------------------------------- | ------------------------ | ----------------- | ----------- |
-| `VITE_FAVORITOS_CACHE_DURATION` | Duración del cache en ms | `300000` (5 min)  | ❌ Opcional |
-| `VITE_FAVORITOS_CACHE_KEY`      | Clave para localStorage  | `favoritos_cache` | ❌ Opcional |
+| `VITE_FAVORITOS_CACHE_DURATION` | Duración del cache en ms | `300000` (5 min)  |  Opcional |
+| `VITE_FAVORITOS_CACHE_KEY`      | Clave para localStorage  | `favoritos_cache` |  Opcional |
 
 **Configuración:**
 
@@ -438,9 +428,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 | Variable                        | Descripción                 | Ejemplo          | Requerido   |
 | ------------------------------- | --------------------------- | ---------------- | ----------- |
-| `VITE_OFERTAS_CACHE_DURATION`   | Duración del cache en ms    | `300000` (5 min) | ❌ Opcional |
-| `VITE_OFERTAS_CACHE_KEY`        | Clave para localStorage     | `ofertas_cache`  | ❌ Opcional |
-| `VITE_OFERTAS_REFRESH_INTERVAL` | Intervalo de refresco en ms | `60000` (1 min)  | ❌ Opcional |
+| `VITE_OFERTAS_CACHE_DURATION`   | Duración del cache en ms    | `300000` (5 min) |  Opcional |
+| `VITE_OFERTAS_CACHE_KEY`        | Clave para localStorage     | `ofertas_cache`  |  Opcional |
+| `VITE_OFERTAS_REFRESH_INTERVAL` | Intervalo de refresco en ms | `60000` (1 min)  |  Opcional |
 
 **Configuración:**
 
@@ -492,18 +482,18 @@ VITE_OFERTAS_REFRESH_INTERVAL=60000
 ```env
 NODE_ENV=production
 PORT=3000
-DB_HOST=tu-rds-endpoint.amazonaws.com
-DB_PASSWORD=password_super_seguro_64_caracteres
-FRONTEND_URL=https://www.tecnocel.com
+DB_HOST=<host>.aivencloud.com
+DB_PASSWORD=<contraseña_segura>
+FRONTEND_URL=https://tecnocel-web.vercel.app/
 LOG_LEVEL=info
 SEQUELIZE_DEBUG=false
-JWT_SECRET=clave_aleatoria_256_bits_generada
+JWT_SECRET=<clave_aleatoria_generada>
 ```
 
 **Frontend:**
 
 ```env
-VITE_API_URL=https://api.tecnocel.com/api
+VITE_API_URL=https://tecnocel-api.onrender.com/api
 VITE_FAVORITOS_CACHE_DURATION=600000
 VITE_OFERTAS_CACHE_DURATION=900000
 VITE_OFERTAS_REFRESH_INTERVAL=300000
@@ -528,21 +518,21 @@ LOG_LEVEL=error
 
 ### Hacer
 
-- ✅ Usar `.env.example` como plantilla **sin valores reales**
-- ✅ Agregar `.env` a `.gitignore` (ya configurado)
-- ✅ Generar JWT_SECRET aleatorio y único
-- ✅ Usar contraseñas seguras (min 16 caracteres)
-- ✅ Rotar secretos periódicamente en producción
-- ✅ Usar gestores de secretos (AWS Secrets Manager, etc.)
-- ✅ Validar variables al inicio de la aplicación
+- Usar `.env.example` como plantilla **sin valores reales**
+- Agregar `.env` a `.gitignore` (ya configurado)
+- Generar JWT_SECRET aleatorio y único
+- Usar contraseñas seguras (min 16 caracteres)
+- Rotar secretos periódicamente en producción
+- Usar gestores de secretos (AWS Secrets Manager, etc.)
+- Validar variables al inicio de la aplicación
 
 ### NO Hacer
 
-- ❌ **NUNCA** commitear archivos `.env` a Git
-- ❌ **NUNCA** compartir `.env` por email/chat
-- ❌ **NUNCA** usar valores por defecto en producción
-- ❌ **NUNCA** hardcodear credenciales en código
-- ❌ **NUNCA** exponer variables sensibles en frontend
+- **NUNCA** commitear archivos `.env` a Git
+- **NUNCA** compartir `.env` por email/chat
+- **NUNCA** usar valores por defecto en producción
+- **NUNCA** hardcodear credenciales en código
+- **NUNCA** exponer variables sensibles en frontend
 
 ---
 
@@ -563,7 +553,7 @@ const requiredEnvVars = [
 
 requiredEnvVars.forEach((varName) => {
   if (!process.env[varName]) {
-    throw new Error(`❌ Variable de entorno ${varName} no definida`);
+    throw new Error(` Variable de entorno ${varName} no definida`);
   }
 });
 
@@ -647,8 +637,8 @@ FRONTEND_URL=http://localhost:5173  # Debe coincidir EXACTAMENTE
 cat frontend/.env | grep VITE_API_URL
 
 # 2. Debe empezar con VITE_
-VITE_API_URL=http://localhost:3000/api  # ✅ Correcto
-API_URL=http://localhost:3000/api       # ❌ NO funciona en Vite
+VITE_API_URL=http://localhost:3000/api  # Correcto
+API_URL=http://localhost:3000/api       # NO funciona en Vite
 
 # 3. Reiniciar servidor Vite después de cambiar .env
 ```
@@ -666,4 +656,4 @@ API_URL=http://localhost:3000/api       # ❌ NO funciona en Vite
 
 ---
 
-[Volver arriba](#-variables-de-entorno) | [Despliegue](README.md) | [Documentación](../README.md) | [Inicio](../../README.md)
+[Volver arriba](#-variables-de-entorno) | [Despliegue](STACK_PRODUCCION.md) | [Documentación](../README.md) | [Inicio](../../README.md)

@@ -1,5 +1,4 @@
 **[Documentación](../README.md#-api-backend)** | **[Inicio](../../README.md)**
-
 ---
 
 # Endpoints de la API - TecnoCel Web
@@ -42,8 +41,8 @@ Gestión del catálogo de productos.
 - `GET /almacen/productos/:id` - Detalle de producto
 - `GET /almacen/productos/destacados` - Productos destacados
 - `GET /almacen/productos/buscar` - Búsqueda full-text
-- `POST /almacen/productos` - Crear producto 🔒
-- `PUT /almacen/productos/:id` - Actualizar producto 🔒
+- `POST /almacen/productos` - Crear producto
+- `PUT /almacen/productos/:id` - Actualizar producto
 - Y más...
 
 [Ver documentación completa →](./endpoints/productos.md)
@@ -54,7 +53,7 @@ Gestión del catálogo de productos.
 
 Gestión del carrito de compras.
 
-**7 endpoints** | Autenticación: Requerida 🔒
+**7 endpoints** | Autenticación: Requerida
 
 - `GET /carrito` - Obtener carrito activo
 - `POST /carrito/items` - Agregar producto
@@ -76,7 +75,7 @@ Sistema de autenticación y gestión de cuentas.
 - `POST /clientes/register` - Registro de cliente
 - `POST /clientes/login` - Iniciar sesión
 - `POST /clientes/google-login` - Login con Google OAuth
-- `GET /clientes/verify-token` - Verificar token 🔒
+- `GET /clientes/verify-token` - Verificar token
 - `POST /clientes/forgot-password` - Recuperar contraseña
 - Y más...
 
@@ -91,9 +90,9 @@ Sistema de comentarios y calificaciones de productos.
 **6 endpoints** | Autenticación: Mixta
 
 - `GET /comentarios/producto/:id_producto` - Obtener comentarios
-- `POST /comentarios` - Crear comentario 🔒
-- `PUT /comentarios/:id_comentario` - Actualizar comentario 🔒
-- `DELETE /comentarios/:id_comentario` - Eliminar comentario 🔒
+- `POST /comentarios` - Crear comentario
+- `PUT /comentarios/:id_comentario` - Actualizar comentario
+- `DELETE /comentarios/:id_comentario` - Eliminar comentario
 - `GET /comentarios/producto/:id_producto/estadisticas` - Estadísticas
 - Y más...
 
@@ -109,10 +108,10 @@ Gestión de ofertas y descuentos.
 
 - `GET /ofertas` - Ofertas activas
 - `GET /ofertas/productos` - Productos en oferta
-- `POST /ofertas` - Crear oferta 🔒
-- `POST /ofertas/:id_oferta/productos` - Asignar productos 🔒
-- `PUT /ofertas/:id` - Actualizar oferta 🔒
-- `DELETE /ofertas/:id` - Eliminar oferta 🔒
+- `POST /ofertas` - Crear oferta
+- `POST /ofertas/:id_oferta/productos` - Asignar productos
+- `PUT /ofertas/:id` - Actualizar oferta
+- `DELETE /ofertas/:id` - Eliminar oferta
 
 [Ver documentación completa →](./endpoints/ofertas.md)
 
@@ -122,7 +121,7 @@ Gestión de ofertas y descuentos.
 
 Gestión de productos favoritos.
 
-**6 endpoints** | Autenticación: Requerida 🔒
+**6 endpoints** | Autenticación: Requerida
 
 - `GET /favoritos/cliente/:id_cliente` - Listar favoritos
 - `GET /favoritos/cliente/:id_cliente/producto/:id_producto` - Verificar favorito
@@ -143,10 +142,10 @@ Gestión de características técnicas de productos.
 
 - `GET /caracteristicas/tipos` - Tipos de características
 - `GET /caracteristicas/producto/:id_producto` - Características de producto
-- `POST /caracteristicas/producto/:id_producto` - Agregar característica 🔒
-- `PUT /caracteristicas/:id_caracteristica` - Actualizar característica 🔒
-- `DELETE /caracteristicas/:id_caracteristica` - Eliminar característica 🔒
-- `POST /caracteristicas/tipos` - Crear tipo 🔒
+- `POST /caracteristicas/producto/:id_producto` - Agregar característica
+- `PUT /caracteristicas/:id_caracteristica` - Actualizar característica
+- `DELETE /caracteristicas/:id_caracteristica` - Eliminar característica
+- `POST /caracteristicas/tipos` - Crear tipo
 
 [Ver documentación completa →](./endpoints/caracteristicas.md)
 
@@ -156,7 +155,7 @@ Gestión de características técnicas de productos.
 
 Carga y procesamiento de imágenes.
 
-**3 endpoints** | Autenticación: Requerida 🔒
+**3 endpoints** | Autenticación: Requerida
 
 - `POST /upload/producto` - Subir imágenes de producto
 - `POST /upload/comentario` - Subir imágenes de comentario
@@ -174,9 +173,9 @@ Gestión de marcas de productos.
 
 - `GET /marcas` - Listar marcas activas
 - `GET /marcas/:id` - Obtener marca por ID
-- `POST /marcas` - Crear marca 🔒
-- `PUT /marcas/:id` - Actualizar marca 🔒
-- `DELETE /marcas/:id` - Eliminar marca 🔒
+- `POST /marcas` - Crear marca
+- `PUT /marcas/:id` - Actualizar marca
+- `DELETE /marcas/:id` - Eliminar marca
 
 [Ver documentación completa →](./endpoints/marcas.md)
 
@@ -186,7 +185,7 @@ Gestión de marcas de productos.
 
 Gestión de direcciones de envío.
 
-**7 endpoints** | Autenticación: Requerida 🔒
+**7 endpoints** | Autenticación: Requerida
 
 - `GET /direcciones/cliente/:id_cliente` - Listar direcciones
 - `GET /direcciones/:id` - Obtener dirección por ID
@@ -204,7 +203,7 @@ Gestión de direcciones de envío.
 
 Sistema de notificaciones in-app para clientes.
 
-**5 endpoints** | Autenticación: Requerida 🔒
+**5 endpoints** | Autenticación: Requerida
 
 - `GET /notificaciones` - Listar todas las notificaciones
 - `GET /notificaciones/no-leidas` - Notificaciones no leídas
@@ -220,7 +219,7 @@ Sistema de notificaciones in-app para clientes.
 
 Gestión administrativa de envíos y rastreo.
 
-**3 endpoints** | Autenticación: Admin 🔒
+**3 endpoints** | Autenticación: Admin
 
 - `GET /envios/admin` - Listar todos los envíos
 - `GET /envios/admin/:id` - Obtener detalle de envío
@@ -234,7 +233,7 @@ Gestión administrativa de envíos y rastreo.
 
 Gestión de compras internas a proveedores con control de stock.
 
-**5 endpoints** | Autenticación: Admin/Gerente/Vendedor 🔒
+**5 endpoints** | Autenticación: Admin/Gerente/Vendedor
 
 - `GET /compras/admin/listar` - Listar compras con filtros
 - `GET /compras/admin/:id` - Obtener detalle de compra
@@ -250,7 +249,7 @@ Gestión de compras internas a proveedores con control de stock.
 
 Gestión de proveedores para compras internas.
 
-**5 endpoints** | Autenticación: Admin/Gerente/Vendedor (lectura), Admin/Gerente (escritura) 🔒
+**5 endpoints** | Autenticación: Admin/Gerente/Vendedor (lectura), Admin/Gerente (escritura)
 
 - `GET /proveedores` - Listar proveedores con búsqueda
 - `GET /proveedores/:id` - Obtener detalle de proveedor
@@ -267,18 +266,18 @@ Gestión de proveedores para compras internas.
 | Módulo                | Endpoints | Auth Requerida | Documentación                           |
 | --------------------- | --------- | -------------- | --------------------------------------- |
 | Productos             | 11        | Mixta          | [Ver →](./endpoints/productos.md)       |
-| Carrito               | 7         | Sí 🔒          | [Ver →](./endpoints/carrito.md)         |
+| Carrito               | 7         | Sí           | [Ver →](./endpoints/carrito.md)         |
 | Clientes              | 7         | Mixta          | [Ver →](./endpoints/clientes.md)        |
 | Comentarios           | 6         | Mixta          | [Ver →](./endpoints/comentarios.md)     |
 | Ofertas               | 6         | Mixta          | [Ver →](./endpoints/ofertas.md)         |
-| Favoritos             | 6         | Sí 🔒          | [Ver →](./endpoints/favoritos.md)       |
+| Favoritos             | 6         | Sí           | [Ver →](./endpoints/favoritos.md)       |
 | Características       | 6         | Mixta          | [Ver →](./endpoints/caracteristicas.md) |
-| Upload                | 3         | Sí 🔒          | [Ver →](./endpoints/upload.md)          |
+| Upload                | 3         | Sí           | [Ver →](./endpoints/upload.md)          |
 | Marcas                | 5         | Mixta          | [Ver →](./endpoints/marcas.md)          |
-| Direcciones           | 7         | Sí 🔒          | [Ver →](./endpoints/direcciones.md)     |
-| Notificaciones        | 5         | Sí 🔒          | [Ver →](./endpoints/notificaciones.md)  |
-| Envíos (Admin)        | 3         | Admin 🔒       | [Ver →](./endpoints/envios.md)          |
-| Compras a Proveedores | 5         | Sí 🔒          | [Ver →](./endpoints/compras.md)         |
+| Direcciones           | 7         | Sí           | [Ver →](./endpoints/direcciones.md)     |
+| Notificaciones        | 5         | Sí           | [Ver →](./endpoints/notificaciones.md)  |
+| Envíos (Admin)        | 3         | Admin        | [Ver →](./endpoints/envios.md)          |
+| Compras a Proveedores | 5         | Sí           | [Ver →](./endpoints/compras.md)         |
 | Proveedores           | 5         | Mixta          | [Ver →](./endpoints/proveedores.md)     |
 | **TOTAL**             | **86**    | -              | -                                       |
 
@@ -510,7 +509,7 @@ Ver [Upload API](./endpoints/upload.md) para detalles de carga y procesamiento.
 ## Recursos Adicionales
 
 - [Guía de Inicio Rápido](../guides/GETTING_STARTED.md) - Configuración inicial
-- [Esquema de Base de Datos](../database/SCHEMA.md) - Estructura de datos
+- [Esquema de Base de Datos](../database/DIAGRAMS.md) - Estructura de datos
 - [Guía de Autenticación](./guides/AUTHENTICATION.md) - Detalles de autenticación
 - [Volver al índice de documentación](../README.md)
 

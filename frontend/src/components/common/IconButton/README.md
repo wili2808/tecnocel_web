@@ -18,10 +18,10 @@ Componente de botón con icono optimizado para el sistema de diseño de TecnoCel
 | `onClick`   | `() => void`                                       | -          | Función que se ejecuta al hacer clic        |
 | `ariaLabel` | `string`                                           | -          | Texto descriptivo para lectores de pantalla |
 | `className` | `string`                                           | `''`       | Clases CSS adicionales                      |
-| `disabled`  | `boolean`                                          | `false`    | Si el botón está deshabilitado              |
-| `variant`   | `'primary' \| 'secondary' \| 'ghost' \| 'outline'` | `'ghost'`  | Variante visual del botón                   |
+| `disabled` | `boolean`                                          | `false`    | Si el botón está deshabilitado              |
+| `variant`   | `'primary' \| 'secondary' \| 'ghost' \| 'outline'` | `'ghost'` | Variante visual del botón                   |
 | `size`      | `'sm' \| 'md' \| 'lg'`                             | `'md'`     | Tamaño del botón                            |
-| `children`  | `React.ReactNode`                                  | -          | Contenido adicional                         |
+| `children` | `React.ReactNode`                                  | -          | Contenido adicional                         |
 | `loading`   | `boolean`                                          | `false`    | Si el botón está en estado de carga         |
 | `type`      | `'button' \| 'submit' \| 'reset'`                  | `'button'` | Tipo de botón HTML                          |
 
@@ -94,4 +94,4 @@ El componente utiliza las siguientes variables del sistema de diseño:
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../../../docs/README.md)** | **[🏠 Inicio](../../../../../README.md)**
+**[ Volver arriba](#tabla-de-contenidos)** | **[ Documentación](../../../../../docs/README.md)** | **[ Inicio](../../../../../README.md)**

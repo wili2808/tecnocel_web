@@ -29,12 +29,12 @@
 
 Tecnocel Web utiliza **React Router v6** para gestionar la navegación del cliente (SPA). El sistema de routing implementa:
 
-- ✅ **Lazy loading** de componentes para optimizar rendimiento
-- ✅ **Layouts anidados** con configuración de footer condicional
-- ✅ **Navegación programática** con `useNavigate()`
-- ✅ **Detección de ruta activa** con `useLocation()`
-- ✅ **Rutas protegidas** mediante autenticación
-- ✅ **Parámetros dinámicos** para productos y entidades
+- **Lazy loading** de componentes para optimizar rendimiento
+- **Layouts anidados** con configuración de footer condicional
+- **Navegación programática** con `useNavigate()`
+- **Detección de ruta activa** con `useLocation()`
+- **Rutas protegidas** mediante autenticación
+- **Parámetros dinámicos** para productos y entidades
 
 ---
 
@@ -61,7 +61,7 @@ npm install react-router-dom
 ### Árbol de Rutas Completo
 
 ```
-/                           → Home (con footer)
+/                            Home (con footer)
 ├── /login                  → Login (con footer)
 ├── /register               → Register (con footer)
 ├── /panel                  → UserPanel (con footer)
@@ -127,10 +127,10 @@ function App() {
 El lazy loading mejora el rendimiento inicial cargando componentes bajo demanda:
 
 ```tsx
-// ❌ Importación directa (carga todo al inicio)
+// Importación directa (carga todo al inicio)
 import Home from './pages/Home';
 
-// ✅ Lazy loading (carga solo cuando se necesita)
+// Lazy loading (carga solo cuando se necesita)
 const Home = lazy(() => import('./pages/Home'));
 ```
 
@@ -153,10 +153,10 @@ const LoadingFallback = () => (
 
 ### Beneficios
 
-- ⚡ **Carga inicial más rápida**: Solo se descarga el código de la ruta actual
-- 📦 **Code splitting**: Bundle dividido en chunks más pequeños
-- 🎯 **Mejor Time to Interactive**: Reduce el JavaScript inicial
-- 💾 **Menor consumo de ancho de banda**: Solo se descarga lo necesario
+- **Carga inicial más rápida**: Solo se descarga el código de la ruta actual
+- **Code splitting**: Bundle dividido en chunks más pequeños
+- **Mejor Time to Interactive**: Reduce el JavaScript inicial
+- **Menor consumo de ancho de banda**: Solo se descarga lo necesario
 
 ---
 
@@ -667,34 +667,34 @@ const SecondaryNav = () => {
 ### 1. Usar Lazy Loading
 
 ```tsx
-// ✅ Bueno
+// Bueno
 const Home = lazy(() => import('./pages/Home'));
 
-// ❌ Malo
+// Malo
 import Home from './pages/Home';
 ```
 
 ### 2. Memoizar Navegación
 
 ```tsx
-// ✅ Bueno
+// Bueno
 const handleNavigation = useCallback(() => {
   navigate('/productos');
 }, [navigate]);
 
-// ❌ Malo - crea función nueva en cada render
+// Malo - crea función nueva en cada render
 const handleNavigation = () => navigate('/productos');
 ```
 
 ### 3. Usar NavLink para Navegación
 
 ```tsx
-// ✅ Bueno - detecta automáticamente ruta activa
+// Bueno - detecta automáticamente ruta activa
 <NavLink to="/productos" className={({ isActive }) => isActive ? 'active' : ''}>
   Productos
 </NavLink>
 
-// ❌ Malo - detección manual
+// Malo - detección manual
 <Link to="/productos" className={location.pathname === '/productos' ? 'active' : ''}>
   Productos
 </Link>
@@ -719,10 +719,10 @@ navigate(ROUTES.PRODUCT_DETAIL('123'));
 ### 5. Tipado de Parámetros
 
 ```tsx
-// ✅ Bueno
+// Bueno
 const { id } = useParams<{ id: string }>();
 
-// ❌ Malo
+// Malo
 const { id } = useParams();
 ```
 
@@ -837,4 +837,4 @@ useEffect(() => {
 
 ---
 
-**[Volver arriba](#tabla-de-contenidos)** | **[Frontend](README.md)** | **[Documentación](../README.md)**
+**[Volver arriba](#tabla-de-contenidos)** | **[Frontend](../../frontend/README.md)** | **[Documentación](../README.md)**

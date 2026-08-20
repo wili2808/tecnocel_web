@@ -1,5 +1,4 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Guía del Sistema de Comentarios y Calificaciones
@@ -278,7 +277,7 @@ async function obtenerEstadisticas(idProducto) {
 
 // Uso
 const stats = await obtenerEstadisticas(45);
-console.log(`Calificación promedio: ${stats.calificacion_promedio} ⭐`);
+console.log(`Calificación promedio: ${stats.calificacion_promedio} `);
 ```
 
 ---
@@ -313,10 +312,10 @@ POST /api/comentarios
 ```
 
 **Validaciones**:
-- ✅ `comentario`: 10-2000 caracteres
-- ✅ `calificacion`: 1-5 (opcional)
-- ✅ `imagenes`: Máximo 5 (opcional)
-- ✅ Producto y cliente deben existir
+- `comentario`: 10-2000 caracteres
+- `calificacion`: 1-5 (opcional)
+- `imagenes`: Máximo 5 (opcional)
+- Producto y cliente deben existir
 
 **Respuesta Exitosa (201)**:
 
@@ -800,7 +799,7 @@ function ReviewsSection({ productoId }) {
             key={estrella}
             className={estrella <= rating ? 'estrella-llena' : 'estrella-vacia'}
           >
-            ★
+
           </span>
         ))}
       </div>
@@ -827,7 +826,7 @@ function ReviewsSection({ productoId }) {
           <div className="distribucion">
             {[5, 4, 3, 2, 1].map(estrella => (
               <div key={estrella} className="barra-distribucion">
-                <span>{estrella}★</span>
+                <span>{estrella}</span>
                 <div className="barra">
                   <div
                     className="barra-fill"
@@ -865,7 +864,7 @@ function ReviewsSection({ productoId }) {
                       className={estrella <= calificacion ? 'seleccionada' : ''}
                       onClick={() => setCalificacion(estrella)}
                     >
-                      ★
+
                     </button>
                   ))}
                 </div>
@@ -939,7 +938,7 @@ function ReviewsSection({ productoId }) {
                   {comentario.cliente.nombre_cliente} {comentario.cliente.apellido_cliente}
                 </strong>
                 {comentario.es_verificado && (
-                  <span className="badge-verificado">✓ Compra verificada</span>
+                  <span className="badge-verificado"> Compra verificada</span>
                 )}
               </div>
               {comentario.calificacion && renderEstrellas(comentario.calificacion)}
@@ -1041,7 +1040,7 @@ function RatingSummary({ estadisticas }) {
 
           return (
             <div key={estrella} className="rating-bar-row">
-              <span className="star-label">{estrella}⭐</span>
+              <span className="star-label">{estrella}</span>
               <div className="progress-bar">
                 <div
                   className="progress-fill"
@@ -1232,7 +1231,7 @@ async function obtenerComentariosConCache(idProducto, opciones) {
 **Estado**: Completado
 
 **Relacionado con**:
-- [API Reference](../README.md)
+- [API Reference](../ENDPOINTS.md)
 - [Endpoints de Comentarios](../endpoints/comentarios.md)
 - [Guía de Carga de Imágenes](./IMAGE_UPLOAD.md)
 - [Guía de Autenticación](./AUTHENTICATION.md)

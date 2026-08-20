@@ -15,9 +15,9 @@ Gestión de autenticación y cuentas de clientes.
   - [POST /clientes/login](#post-clienteslogin)
   - [POST /clientes/google-login](#post-clientesgoogle-login)
   - [GET /clientes/verify-token](#get-clientesverify-token)
-  - [GET /clientes/perfil](#get-clientesperfil) 🔒
-  - [PUT /clientes/perfil](#put-clientesperfil) 🔒
-  - [PUT /clientes/cambiar-contrasena](#put-clientescambiar-contrasena) 🔒
+  - [GET /clientes/perfil](#get-clientesperfil)
+  - [PUT /clientes/perfil](#put-clientesperfil)
+  - [PUT /clientes/cambiar-contrasena](#put-clientescambiar-contrasena)
   - [GET /clientes/verify-email](#get-clientesverify-email)
   - [POST /clientes/forgot-password](#post-clientesforgot-password)
   - [POST /clientes/reset-password](#post-clientesreset-password)
@@ -30,7 +30,7 @@ Gestión de autenticación y cuentas de clientes.
     - [Google OAuth 2.0](#google-oauth-20)
   - [Ver También](#ver-también)
 
-🔒 = Requiere autenticación
+ = Requiere autenticación
 
 ---
 
@@ -38,7 +38,7 @@ Gestión de autenticación y cuentas de clientes.
 
 Registrar un nuevo cliente con login automático.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Body**:
 ```json
@@ -110,7 +110,7 @@ curl -X POST "http://localhost:3000/api/clientes/register" \
 
 Iniciar sesión con email y contraseña.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Body**:
 ```json
@@ -169,7 +169,7 @@ curl -X POST "http://localhost:3000/api/clientes/login" \
 
 Iniciar sesión con cuenta de Google OAuth 2.0.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Body**:
 ```json
@@ -227,7 +227,7 @@ curl -X POST "http://localhost:3000/api/clientes/google-login" \
 
 Verificar si el token JWT sigue siendo válido (para mantener sesión).
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Response 200**:
 ```json
@@ -266,7 +266,7 @@ curl -X GET "http://localhost:3000/api/clientes/verify-token" \
 
 Obtener perfil completo del cliente autenticado.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Response 200**:
 ```json
@@ -321,7 +321,7 @@ curl -X GET "http://localhost:3000/api/clientes/perfil" \
 
 Actualizar datos personales del cliente autenticado.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Body**:
 ```json
@@ -388,7 +388,7 @@ curl -X PUT "http://localhost:3000/api/clientes/perfil" \
 
 Cambiar contraseña del cliente autenticado (solo para cuentas normales, no Google).
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Body**:
 ```json
@@ -448,7 +448,7 @@ curl -X PUT "http://localhost:3000/api/clientes/cambiar-contrasena" \
 
 Verificar email del cliente mediante token (legacy - actualmente no se usa).
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Query Parameters**:
 
@@ -485,7 +485,7 @@ curl -X GET "http://localhost:3000/api/clientes/verify-email?token=abc-123-def-4
 
 Solicitar restablecimiento de contraseña (envía email con token).
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Body**:
 ```json
@@ -533,7 +533,7 @@ curl -X POST "http://localhost:3000/api/clientes/forgot-password" \
 
 Restablecer contraseña con token de recuperación.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **Body**:
 ```json
@@ -621,7 +621,7 @@ curl -X POST "http://localhost:3000/api/clientes/reset-password" \
 - [Direcciones API](./direcciones.md) - Para gestionar direcciones de envío
 - [Carrito API](./carrito.md) - Para operaciones de carrito (requiere autenticación)
 - [Favoritos API](./favoritos.md) - Para gestionar productos favoritos
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -629,4 +629,4 @@ curl -X POST "http://localhost:3000/api/clientes/reset-password" \
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

@@ -28,7 +28,7 @@ Gestión de comentarios y calificaciones de productos.
     - [Respuestas de Admin](#respuestas-de-admin)
   - [Ver También](#ver-también)
 
-🔒 = Requiere autenticación
+ = Requiere autenticación
 
 ---
 
@@ -36,7 +36,7 @@ Gestión de comentarios y calificaciones de productos.
 
 Obtener todos los comentarios de un producto con paginación y ordenamiento.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **URL Parameters**:
 
@@ -124,7 +124,7 @@ curl -X GET "http://localhost:3000/api/comentarios/producto/1?orden=mejor_califi
 
 Crear un nuevo comentario en un producto.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Body**:
 ```json
@@ -212,7 +212,7 @@ curl -X POST "http://localhost:3000/api/comentarios" \
 
 Actualizar un comentario existente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente - propietario del comentario)
+**Autenticación**: Requerida (JWT Cliente - propietario del comentario)
 
 **URL Parameters**:
 
@@ -295,7 +295,7 @@ curl -X PUT "http://localhost:3000/api/comentarios/46" \
 
 Eliminar un comentario (soft delete).
 
-**Autenticación**: ✅ Requerida (JWT Cliente - propietario del comentario)
+**Autenticación**: Requerida (JWT Cliente - propietario del comentario)
 
 **URL Parameters**:
 
@@ -337,7 +337,7 @@ curl -X DELETE "http://localhost:3000/api/comentarios/46" \
 
 Eliminar una imagen específica de un comentario.
 
-**Autenticación**: ✅ Requerida (JWT Cliente - propietario del comentario)
+**Autenticación**: Requerida (JWT Cliente - propietario del comentario)
 
 **URL Parameters**:
 
@@ -381,7 +381,7 @@ curl -X DELETE "http://localhost:3000/api/comentarios/46/imagenes/30" \
 
 Obtener estadísticas de comentarios y calificaciones de un producto.
 
-**Autenticación**: ❌ No requerida
+**Autenticación**: No requerida
 
 **URL Parameters**:
 
@@ -490,7 +490,7 @@ curl -X GET "http://localhost:3000/api/comentarios/producto/1/estadisticas"
 - [Productos API](./productos.md) - Para consultar productos
 - [Upload API](./upload.md) - Para subir imágenes de comentarios
 - [Clientes API](./clientes.md) - Para autenticación
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -498,4 +498,4 @@ curl -X GET "http://localhost:3000/api/comentarios/producto/1/estadisticas"
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

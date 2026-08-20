@@ -25,7 +25,7 @@ Gestión del carrito de compras del cliente.
     - [Sincronización](#sincronización)
   - [Ver También](#ver-también)
 
-🔒 Todos los endpoints requieren autenticación
+ Todos los endpoints requieren autenticación
 
 ---
 
@@ -33,7 +33,7 @@ Gestión del carrito de compras del cliente.
 
 Obtener el carrito activo del cliente autenticado.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Response 200**:
 ```json
@@ -108,7 +108,7 @@ curl -X GET "http://localhost:3000/api/carrito" \
 
 Agregar un producto al carrito.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Body**:
 ```json
@@ -175,7 +175,7 @@ curl -X POST "http://localhost:3000/api/carrito/items" \
 
 Actualizar la cantidad de un item del carrito.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -238,7 +238,7 @@ curl -X PUT "http://localhost:3000/api/carrito/items/12" \
 
 Eliminar un item del carrito.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -277,7 +277,7 @@ curl -X DELETE "http://localhost:3000/api/carrito/items/12" \
 
 Vaciar el carrito completo (eliminar todos los items).
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Response 200**:
 ```json
@@ -315,7 +315,7 @@ curl -X DELETE "http://localhost:3000/api/carrito" \
 
 Confirmar la compra (convertir el carrito en una venta).
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Body**:
 ```json
@@ -397,7 +397,7 @@ curl -X POST "http://localhost:3000/api/carrito/confirmar-compra" \
 
 Obtener el historial de carritos completados del cliente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **Query Parameters**:
 
@@ -494,7 +494,7 @@ curl -X GET "http://localhost:3000/api/carrito/historial?estado=completado&page=
 - [Productos API](./productos.md) - Para consultar productos disponibles
 - [Clientes API](./clientes.md) - Para autenticación y gestión de clientes
 - [Direcciones API](./direcciones.md) - Para gestionar direcciones de envío
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -502,4 +502,4 @@ curl -X GET "http://localhost:3000/api/carrito/historial?estado=completado&page=
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

@@ -1,5 +1,4 @@
 **[Endpoints](../ENDPOINTS.md)** | **[Documentación](../../README.md)**
-
 ---
 
 # Endpoint: Envíos (Admin)
@@ -7,7 +6,7 @@
 Gestión administrativa de envíos y rastreo. Permite a administradores y gerentes consultar y actualizar el estado de los envíos.
 
 **Base URL**: `/api/envios`
-**Autenticación**: Requerida (Admin/Gerente) 🔒
+**Autenticación**: Requerida (Admin/Gerente)
 **Métodos**: GET, PATCH
 
 ---
@@ -253,7 +252,7 @@ PATCH /api/envios/admin/:id/estado
 
 ```
 pendiente → enviado → entregado
-            ↓
+
          cancelado
 ```
 

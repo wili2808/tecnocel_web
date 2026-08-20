@@ -1,5 +1,4 @@
 **[Documentación](../README.md)** | **[Inicio](../../README.md)**
-
 # Hooks Personalizados del Frontend
 
 > Documentación completa de los 18+ hooks personalizados de React en Tecnocel Web.
@@ -30,14 +29,14 @@
     - [useProductActions](#useproductactions)
   - [Búsqueda y Filtros](#búsqueda-y-filtros)
     - [useUrlFilters](#useurlfilters)
-    - [useDebounce](#usedebounce) ⭐
+    - [useDebounce](#usedebounce)
     - [useSearchHistory](#usesearchhistory)
   - [Otros](#otros)
     - [useDirecciones](#usedirecciones)
     - [useEscapeKey](#useescapekey)
-    - [useIsMobile](#useismobile) ⭐
-    - [useBrands](#usebrands) ⭐
-    - [useNotificaciones](#usenotificaciones) ⭐
+    - [useIsMobile](#useismobile)
+    - [useBrands](#usebrands)
+    - [useNotificaciones](#usenotificaciones)
 - [Patrones de Uso](#patrones-de-uso)
 - [Mejores Prácticas](#mejores-prácticas)
 
@@ -590,7 +589,7 @@ const FavoriteButton = ({ productId }) => {
 
   return (
     <button onClick={handleToggle} disabled={loading}>
-      {isFavorito(productId) ? '❤️' : '🤍'}
+      {isFavorito(productId) ? '' : ''}
     </button>
   );
 };
@@ -1243,7 +1242,7 @@ const SearchBar = () => {
 
 ### Búsqueda y Filtros
 
-#### useDebounce ⭐
+#### useDebounce
 
 **Ubicación**: `frontend/src/hooks/useDebounce.ts`
 
@@ -1266,7 +1265,7 @@ const debouncedQuery = useDebounce(searchQuery, 300);
 // debouncedQuery se actualiza 300ms después de que searchQuery cambia
 ```
 
-#### useIsMobile ⭐
+#### useIsMobile
 
 **Ubicación**: `frontend/src/hooks/useIsMobile.ts`
 
@@ -1278,7 +1277,7 @@ const isMobile = useIsMobile();
 // returns: boolean
 ```
 
-#### useBrands ⭐
+#### useBrands
 
 **Ubicación**: `frontend/src/hooks/useBrands.ts`
 
@@ -1289,7 +1288,7 @@ const isMobile = useIsMobile();
 const { brands, loadBrands, createBrand, updateBrand, deleteBrand, isLoading } = useBrands();
 ```
 
-#### useNotificaciones ⭐
+#### useNotificaciones
 
 **Ubicación**: `frontend/src/hooks/useNotificaciones.ts`
 
@@ -1435,12 +1434,12 @@ const myHook = () => {
 Divide hooks grandes en hooks más pequeños y especializados:
 
 ```typescript
-// ❌ MAL - Hook monolítico
+// MAL - Hook monolítico
 const useEverything = () => {
   // Muchas responsabilidades mezcladas
 };
 
-// ✅ BIEN - Hooks especializados
+// BIEN - Hooks especializados
 const useCarrito = () => { /* Utilidades */ };
 const useCarritoOperations = () => { /* Operaciones CRUD */ };
 const useCarritoUtils = () => { /* Cálculos */ };

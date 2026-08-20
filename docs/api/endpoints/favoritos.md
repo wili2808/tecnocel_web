@@ -28,7 +28,7 @@ Gestión de productos favoritos de clientes.
     - [Casos de Uso Comunes](#casos-de-uso-comunes)
   - [Ver También](#ver-también)
 
-🔒 Todos los endpoints requieren autenticación
+ Todos los endpoints requieren autenticación
 
 ---
 
@@ -36,7 +36,7 @@ Gestión de productos favoritos de clientes.
 
 Obtener todos los productos favoritos de un cliente con paginación.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -118,7 +118,7 @@ curl -X GET "http://localhost:3000/api/favoritos/cliente/10?limit=20&offset=0" \
 
 Verificar si un producto está en favoritos del cliente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -166,7 +166,7 @@ curl -X GET "http://localhost:3000/api/favoritos/cliente/10/producto/1" \
 
 Agregar un producto a favoritos.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -241,7 +241,7 @@ curl -X POST "http://localhost:3000/api/favoritos/cliente/10" \
 
 Eliminar un producto de favoritos.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -275,7 +275,7 @@ curl -X DELETE "http://localhost:3000/api/favoritos/cliente/10/producto/1" \
 
 Alternar estado de favorito (agregar si no existe, eliminar si existe).
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -332,7 +332,7 @@ curl -X PUT "http://localhost:3000/api/favoritos/cliente/10/producto/2/toggle" \
 
 Obtener estadísticas de favoritos del cliente.
 
-**Autenticación**: ✅ Requerida (JWT Cliente)
+**Autenticación**: Requerida (JWT Cliente)
 
 **URL Parameters**:
 
@@ -464,7 +464,7 @@ GET /favoritos/cliente/10?limit=20&offset=0
 - [Productos API](./productos.md) - Para obtener detalles de productos
 - [Clientes API](./clientes.md) - Para autenticación
 - [Carrito API](./carrito.md) - Para agregar favoritos al carrito
-- [Volver al índice de API](../README.md)
+- [Volver al índice de API](../ENDPOINTS.md)
 
 ---
 
@@ -472,4 +472,4 @@ GET /favoritos/cliente/10?limit=20&offset=0
 
 ---
 
-**[⬆ Volver arriba](#tabla-de-contenidos)** | **[📚 Documentación](../../../docs/README.md)** | **[🏠 Inicio](../../../README.md)**
+[Volver arriba](#tabla-de-contenidos) | [Documentación](../../../docs/README.md) | [Inicio](../../../README.md)

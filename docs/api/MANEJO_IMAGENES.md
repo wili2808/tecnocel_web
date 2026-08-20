@@ -12,8 +12,8 @@
 
 ## Variable clave: `USE_CLOUDINARY`
 
-- `false` → las imágenes se guardan y sirven desde el **disco local**
-- `true` → las imágenes se suben y sirven desde **Cloudinary CDN**
+- `false` — las imágenes se guardan y sirven desde el **disco local**
+- `true` — las imágenes se suben y sirven desde **Cloudinary CDN**
 
 ---
 
@@ -71,7 +71,7 @@ Cuando el backend se deploya a un servidor remoto (Railway, Render, VPS, etc.):
 
 - El servidor **no tiene** los archivos de `uploads/` locales
 - Las imágenes guardadas como filename (modo filesystem) **no aparecen** → muestra imagen por defecto
-- Las imágenes guardadas como URL de Cloudinary **sí aparecen** ✓
+- Las imágenes guardadas como URL de Cloudinary **sí aparecen**
 
 **Solución antes de deployar:** re-subir los logos/imágenes desde el panel admin para que se guarden en Cloudinary, o ejecutar un script de migración.
 

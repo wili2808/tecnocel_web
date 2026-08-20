@@ -1,10 +1,9 @@
 **[Documentación](../../README.md)** | **[Inicio](../../../README.md)**
-
 ---
 
 # Servicio de Imágenes Estáticas
 
-> Sistema completo para servir, procesar y gestionar imágenes de productos desde el directorio htdocs.
+> Sistema para servir y procesar las imágenes de productos en modo local (filesystem). Para la gestión completa de imágenes (incluyendo Cloudinary en producción), consultar [Manejo de Imágenes](../MANEJO_IMAGENES.md).
 
 ---
 
@@ -38,13 +37,19 @@
 
 ## Descripción General
 
-El servicio de imágenes estáticas es un sistema que permite servir archivos de imágenes de productos desde un directorio local externo (htdocs de XAMPP) a través de la API. Este sistema transforma las rutas de archivos locales en URLs completas accesibles vía HTTP.
+El servicio de imágenes permite servir y procesar las imágenes de los productos del catálogo. En modo local (desarrollo) las imágenes se almacenan en un directorio configurable del servidor y se sirven a través de la API; en producción se utiliza Cloudinary como CDN, con transformaciones realizadas mediante Sharp antes de la subida.
+
+### Modos de Operación
+
+- **Local (desarrollo)**: las imágenes se guardan en disco y se sirven desde `GET /api/images/:filename`, con soporte para múltiples formatos (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`).
+- **Producción (Cloudinary)**: las imágenes se suben a Cloudinary y se devuelven URLs HTTPS permanentes desde el CDN.
+
+El modo se controla mediante la variable `USE_CLOUDINARY` en el backend.
 
 ### Características Principales
 
-- Servicio de imágenes desde directorio externo configurable
+- Servicio de imágenes desde directorio externo configurable (modo local)
 - Validación de seguridad contra path traversal attacks
-- Soporte para múltiples formatos: `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`
 - Sistema de caché HTTP optimizado (1 año)
 - Fallback automático a imagen por defecto
 - Generación automática de URLs completas
@@ -77,8 +82,8 @@ Clase singleton que gestiona la configuración y generación de URLs de imágene
 
 ```typescript
 // En index.ts al iniciar el servidor
-const imagesPath = process.env.IMAGES_PATH || 'C:/xampp/htdocs/tecnocel/almacen/img_productos';
-const defaultImage = process.env.DEFAULT_IMAGE || 'default-product.png';
+const imagesPath = process.env.IMAGES_BASE_PATH || 'backend/uploads';
+const defaultImage = process.env.DEFAULT_PRODUCT_IMAGE || 'default-product.png';
 const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
 
 imageService.initialize(imagesPath, defaultImage, baseUrl);
@@ -202,7 +207,7 @@ import { imageService } from './services/imageService.js';
 import { serveStaticImage } from './middleware/staticImageMiddleware.js';
 
 // 2. Inicializar servicio al iniciar servidor
-const imagesPath = process.env.IMAGES_PATH;
+const imagesPath = process.env.IMAGES_BASE_PATH;
 imageService.initialize(imagesPath, defaultImage, baseUrl);
 
 // 3. Registrar rutas
@@ -319,7 +324,7 @@ GET http://localhost:3000/api/images/2025-05-07-06-55-39__s24%20negro.jpg
 ```json
 {
   "service_initialized": true,
-  "images_path": "C:/xampp/htdocs/tecnocel/almacen/img_productos",
+  "images_path": "backend/uploads",
   "directory_exists": true,
   "base_url": "http://localhost:3000",
   "default_image": "default-product.png"
@@ -335,11 +340,15 @@ GET http://localhost:3000/api/images/2025-05-07-06-55-39__s24%20negro.jpg
 Configurar las siguientes variables en el archivo `backend/.env`:
 
 ```env
-# Ruta al directorio de imágenes
-IMAGES_PATH=C:/xampp/htdocs/tecnocel/almacen/img_productos
+# Ruta base de imágenes (modo filesystem)
+IMAGES_BASE_PATH=backend/uploads
+
+# Subdirectorios por tipo de imagen
+PRODUCT_IMAGES_PATH=backend/uploads/productos
+COMMENT_IMAGES_PATH=backend/uploads/comentarios
 
 # Nombre de la imagen por defecto
-DEFAULT_IMAGE=default-product.png
+DEFAULT_PRODUCT_IMAGE=default-product.png
 
 # URL base del servidor
 BASE_URL=http://localhost:3000
@@ -350,19 +359,21 @@ PORT=3000
 
 **Variables requeridas**:
 
-| Variable        | Descripción                            | Ejemplo                                         |
-| --------------- | -------------------------------------- | ----------------------------------------------- |
-| `IMAGES_PATH`   | Ruta absoluta al directorio de imágenes | `C:/xampp/htdocs/tecnocel/almacen/img_productos` |
-| `DEFAULT_IMAGE` | Nombre de la imagen por defecto        | `default-product.png`                           |
-| `BASE_URL`      | URL base para generar enlaces          | `http://localhost:3000`                         |
-| `PORT`          | Puerto donde corre el servidor         | `3000`                                          |
+| Variable              | Descripción                            | Ejemplo                              |
+| --------------------- | -------------------------------------- | ------------------------------------ |
+| `IMAGES_BASE_PATH`    | Ruta base de imágenes                   | `backend/uploads`                    |
+| `PRODUCT_IMAGES_PATH` | Ruta de imágenes de productos           | `backend/uploads/productos`          |
+| `COMMENT_IMAGES_PATH` | Ruta de imágenes de comentarios         | `backend/uploads/comentarios`        |
+| `DEFAULT_PRODUCT_IMAGE` | Nombre de la imagen por defecto       | `default-product.png`                |
+| `BASE_URL`            | URL base para generar enlaces          | `http://localhost:3000`              |
+| `PORT`                | Puerto donde corre el servidor         | `3000`                               |
 
 ### Estructura de Directorios
 
 El directorio de imágenes debe seguir esta estructura:
 
 ```
-C:/xampp/htdocs/tecnocel/almacen/img_productos/
+backend/uploads/productos/
 ├── 2025-05-07-06-51-57__Realme-Note-50-4.png
 ├── 2025-05-07-06-55-39__s24 negro.jpg
 ├── default-product.png
@@ -382,7 +393,7 @@ Se debe crear una imagen por defecto que se utilizará cuando no se encuentre la
 **Especificaciones**:
 
 - **Nombre**: `default-product.png`
-- **Ubicación**: `{IMAGES_PATH}/default-product.png`
+- **Ubicación**: `{IMAGES_BASE_PATH}/default-product.png`
 - **Tamaño recomendado**: 400x400 píxeles
 - **Formato**: PNG con transparencia
 - **Propósito**: Fallback para productos sin imagen o errores al cargar
@@ -391,7 +402,7 @@ Se debe crear una imagen por defecto que se utilizará cuando no se encuentre la
 
 ```bash
 # Copiar una imagen de ejemplo como default
-cp ejemplo-producto.png C:/xampp/htdocs/tecnocel/almacen/img_productos/default-product.png
+cp ejemplo-producto.png backend/uploads/productos/default-product.png
 ```
 
 ---
@@ -473,7 +484,7 @@ GET http://localhost:3000/api/images-status
 ```json
 {
   "service_initialized": true,
-  "images_path": "C:/xampp/htdocs/tecnocel/almacen/img_productos",
+  "images_path": "backend/uploads",
   "directory_exists": true,
   "base_url": "http://localhost:3000",
   "default_image": "default-product.png"
@@ -522,10 +533,10 @@ Esto asegura que la API nunca falle completamente por problemas de imágenes.
 **Path Traversal Protection**:
 
 ```typescript
-// ❌ Bloqueado
+// Bloqueado
 GET /api/images/../../../etc/passwd
 
-// ✅ Permitido
+// Permitido
 GET /api/images/2025-05-07-06-55-39__s24.jpg
 ```
 
@@ -544,11 +555,11 @@ Solo se sirven archivos con extensiones de imagen conocidas:
 El patrón singleton evita múltiples instancias y re-inicializaciones:
 
 ```typescript
-// ✅ Correcto: Una sola instancia compartida
+// Correcto: Una sola instancia compartida
 import { imageService } from './services/imageService.js';
 imageService.getImageUrl('file.jpg'); // Rápido, usa config cacheada
 
-// ❌ Incorrecto: Crear nuevas instancias
+// Incorrecto: Crear nuevas instancias
 const service = new ImageService(); // Anti-patrón, no hacer esto
 ```
 
@@ -573,7 +584,7 @@ const productosConImagenes = productos.map(p =>
 
 **Causas posibles**:
 
-1. Variable `IMAGES_PATH` no configurada en `.env`
+1. Variable `IMAGES_BASE_PATH` no configurada en `.env`
 2. Directorio de imágenes no existe
 3. Permisos insuficientes en el directorio
 
@@ -581,11 +592,11 @@ const productosConImagenes = productos.map(p =>
 
 ```bash
 # Verificar variable de entorno
-echo $IMAGES_PATH  # En Linux/Mac
-echo %IMAGES_PATH% # En Windows
+echo $IMAGES_BASE_PATH  # En Linux/Mac
+echo %IMAGES_BASE_PATH% # En Windows
 
 # Verificar existencia del directorio
-ls C:/xampp/htdocs/tecnocel/almacen/img_productos
+ls backend/uploads/productos
 
 # Revisar logs del servidor al iniciar
 ```
@@ -627,17 +638,17 @@ app.get('/api/images/:filename', serveStaticImage);
 import { serveStaticImage } from './middleware/staticImageMiddleware.js';
 
 // 3. Verificar que el archivo existe físicamente
-// Buscar en: C:/xampp/htdocs/tecnocel/almacen/img_productos/
+// Buscar en: backend/uploads/productos/
 ```
 
 **URL encoding**:
 
 ```javascript
 // Si el nombre tiene espacios, debe estar URL-encoded
-// ❌ Incorrecto
+// Incorrecto
 'http://localhost:3000/api/images/s24 negro.jpg'
 
-// ✅ Correcto
+// Correcto
 'http://localhost:3000/api/images/s24%20negro.jpg'
 ```
 
@@ -668,8 +679,8 @@ res.json(productosConImagenes);
 
 ---
 
-**Última actualización**: 17 de Octubre, 2025
-**Versión**: 2.0
+**Última actualización**: 20 de Agosto, 2026
+**Versión**: 2.1
 **Estado**: Completado
 
 ---
