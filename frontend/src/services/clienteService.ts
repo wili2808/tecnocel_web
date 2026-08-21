@@ -256,10 +256,29 @@ const clienteService = {
       const status = error.response?.status;
       const data = error.response?.data;
 
+      // El backend usa varias formas de respuesta ({ mensaje }, { error, detalles }
+      // o { message }); las contemplamos todas para mostrar el motivo real
+      const mensajeServidor: string | undefined =
+        data?.mensaje ||
+        (data?.error
+          ? data?.detalles
+            ? `${data.error}: ${data.detalles}`
+            : data.error
+          : undefined) ||
+        data?.message;
+
+      if (status === 400) {
+        return {
+          code: 'BAD_REQUEST',
+          message: mensajeServidor || 'Datos inválidos en la solicitud',
+          details: data
+        };
+      }
+
       if (status === 401) {
         return {
           code: 'UNAUTHORIZED',
-          message: data?.mensaje || 'Credenciales inválidas',
+          message: mensajeServidor || 'Credenciales inválidas',
           details: data
         };
       }
@@ -267,7 +286,7 @@ const clienteService = {
       if (status === 409) {
         return {
           code: 'EMAIL_EXISTS',
-          message: data?.mensaje || 'El correo electrónico ya está registrado',
+          message: mensajeServidor || 'El correo electrónico ya está registrado',
           details: data
         };
       }
@@ -275,7 +294,7 @@ const clienteService = {
       if (status === 403) {
         return {
           code: 'FORBIDDEN',
-          message: data?.mensaje || 'Acceso denegado o cuenta no habilitada',
+          message: mensajeServidor || 'Acceso denegado o cuenta no habilitada',
           details: data
         };
       }
@@ -283,7 +302,7 @@ const clienteService = {
       if (status === 422) {
         return {
           code: 'VALIDATION_ERROR',
-          message: 'Datos de entrada inválidos',
+          message: mensajeServidor || 'Datos de entrada inválidos',
           details: data
         };
       }
@@ -291,7 +310,7 @@ const clienteService = {
       if (status === 429) {
         return {
           code: 'TOO_MANY_REQUESTS',
-          message: data?.mensaje || 'Demasiados intentos de inicio de sesión. Por favor, espera algunos minutos e intenta nuevamente.',
+          message: mensajeServidor || 'Demasiados intentos de inicio de sesión. Por favor, espera algunos minutos e intenta nuevamente.',
           details: data
         };
       }
