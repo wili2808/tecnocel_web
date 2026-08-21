@@ -1,6 +1,6 @@
 import axios from 'axios';
 import axiosInstance from '../api/axiosConfig';
-import type { AuthResponse, AuthError, RegisterData } from '../types/auth';
+import type { AuthResponse, AuthError, RegisterData, RegisterResult } from '../types/auth';
 import type { Cliente } from '../types/cliente';
 
 /**
@@ -184,8 +184,9 @@ const clienteService = {
   /**
    * Registra un nuevo usuario en el sistema sincronizado con el Backend
    * @param data - Datos del formulario (Interfaz RegisterData)
+   * @returns Sesión iniciada (token + cliente) o verificación de email pendiente
    */
-  register: async (data: RegisterData): Promise<AuthResponse> => {
+  register: async (data: RegisterData): Promise<RegisterResult> => {
     try {
       // 1. Mapeo de nombres: Del Front (RegisterData) al Back (req.body)
       const response = await axiosInstance.post('/clientes/register', {
@@ -198,17 +199,19 @@ const clienteService = {
       });
 
       // 2. Extraemos los datos según el res.status(201).json del Backend
-      const { cliente, token } = response.data;
+      const { token, cliente, requiresVerification, mensaje } = response.data;
 
-      if (!token || !cliente) {
-        throw new Error('La respuesta del servidor está incompleta');
+      // 3. Registro con sesión automática (cuenta verificada al crearla)
+      if (token && cliente) {
+        return { cliente, token };
       }
 
-      // 3. Devolvemos el objeto siguiendo tu interfaz AuthResponse
-      return { 
-        cliente,
-        token 
-      };
+      // 4. Registro exitoso pero pendiente de verificación de email
+      if (requiresVerification) {
+        return { requiereVerificacion: true, mensaje };
+      }
+
+      throw new Error('La respuesta del servidor está incompleta');
     } catch (error) {
       // Usamos el manejador de errores estandarizado
       throw clienteService.handleAuthError(error);

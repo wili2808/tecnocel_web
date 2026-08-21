@@ -88,11 +88,18 @@ export interface AuthResponse {
 
 /**
  * Resultado del registro devuelto por AuthContext.register()
- * Garantiza que cliente siempre existe (a diferencia de AuthResponse donde es opcional)
+ *
+ * Dos escenarios posibles:
+ * - Sesión automática: la cuenta quedó creada y autenticada (token + cliente)
+ * - Verificación pendiente: hay que confirmar el email antes de ingresar
  */
 export interface RegisterResult {
-  token: string;
-  cliente: Cliente;
+  /** Token JWT presente cuando la sesión inició automáticamente */
+  token?: string;
+  /** Datos del cliente presentes junto con el token */
+  cliente?: Cliente;
+  /** True cuando la cuenta requiere verificar el email antes de iniciar sesión */
+  requiereVerificacion?: boolean;
   mensaje?: string;
 }
 

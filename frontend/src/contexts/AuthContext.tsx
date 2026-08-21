@@ -338,21 +338,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         const authData = await clienteService.register(data);
 
-        if (!authData.cliente) {
-          throw new Error('Respuesta inválida del servidor');
+        // Cuenta creada y autenticada automáticamente (modo demo)
+        if (authData.token && authData.cliente) {
+          saveClienteData(authData.cliente, authData.token);
+          updateState({
+            user: authData.cliente,
+            userType: 'cliente',
+            token: authData.token,
+            error: null,
+          });
+
+          return {
+            token: authData.token,
+            cliente: authData.cliente,
+            mensaje: authData.mensaje,
+          };
         }
 
-        saveClienteData(authData.cliente, authData.token);
-        updateState({
-          user: authData.cliente,
-          userType: 'cliente',
-          token: authData.token,
-          error: null,
-        });
-
+        // Cuenta creada pero pendiente de verificación de email
         return {
-          token: authData.token,
-          cliente: authData.cliente,
+          requiereVerificacion: authData.requiereVerificacion ?? true,
           mensaje: authData.mensaje,
         };
       } catch (error: any) {

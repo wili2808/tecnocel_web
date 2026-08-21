@@ -307,12 +307,17 @@ class ClienteController {
           .catch(err => logger.error('Error enviando email de verificación:', { error: err.message }));
       }
 
+      // Modo demo: al quedar la cuenta verificada se entrega un JWT para
+      // iniciar la sesión automáticamente tras el registro.
+      const token = emailsHabilitados ? null : ClienteController.generarTokenJWT(nuevoCliente.id_cliente);
+
       return res.status(201).json({
         success: true,
         mensaje: emailsHabilitados
           ? 'Registro exitoso. Revisá tu email para activar tu cuenta.'
           : 'Registro exitoso. Tu cuenta ya está activa, podés iniciar sesión.',
         requiresVerification: emailsHabilitados,
+        ...(token && { token, cliente: ClienteController.mapearClienteRespuesta(nuevoCliente) }),
       });
     
     } catch (error) {

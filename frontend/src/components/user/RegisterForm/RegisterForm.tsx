@@ -128,10 +128,10 @@ const RegisterForm = () => {
       }
 
       // ✅ EJECUTAR REGISTRO con datos validados
-      await register(formData);
+      const resultado = await register(formData);
 
-      // ✅ REDIRIGIR a la página de verificación de email
-      navigate("/verificar-email");
+      // ✅ REDIRIGIR: a verificar email si está pendiente, o al inicio si la sesión inició sola
+      navigate(resultado.requiereVerificacion ? "/verificar-email" : "/");
     } catch (error: any) {
       // ✅ MANEJO DE ERRORES con mensajes descriptivos
       const errorMessage =
