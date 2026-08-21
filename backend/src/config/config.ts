@@ -11,7 +11,14 @@ const MARCA_IMAGES_PATH = process.env.MARCA_IMAGES_PATH || path.join(IMAGES_BASE
 
 const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
 
+// Envío de emails vía Resend. Con EMAIL_ENABLED=false (modo demo sin dominio)
+// se omiten todos los envíos y el registro crea cuentas ya verificadas.
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED !== 'false';
+
 export const config = {
+  email: {
+    enabled: EMAIL_ENABLED
+  },
   database: {
     name: process.env.DB_NAME || 'db_tecnocel_v4',
     user: process.env.DB_USER || 'root',

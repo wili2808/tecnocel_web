@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Resend } from 'resend';
 import { fileURLToPath } from 'url';
+import { config } from '../config/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,24 @@ const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'email');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_FROM = process.env.EMAIL_FROM ?? 'TecnoCel <onboarding@resend.dev>';
+
+// --- Envío centralizado (permite modo demo sin servicio de email) ---
+
+interface MailPayload {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: Array<{ filename: string; content: Buffer }>;
+}
+
+async function sendMail(payload: MailPayload): Promise<{ error: { message: string } | null }> {
+  if (!config.email.enabled) {
+    logger.info('Envío de email omitido (EMAIL_ENABLED=false)', { to: maskEmail(payload.to), subject: payload.subject });
+    return { error: null };
+  }
+  return resend.emails.send(payload);
+}
 
 // --- Caché de plantillas HTML (evita leer disco en cada envío) ---
 
@@ -145,7 +164,7 @@ export async function sendVerificationEmail(email: string, nombre: string, token
   const verificationUrl = `${FRONTEND_URL}/verificar-email?token=${token}`;
   try {
     const html = renderTemplate('verification', { nombre, verification_url: verificationUrl });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Activá tu cuenta en TecnoCel', html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: 'Activá tu cuenta en TecnoCel', html });
     if (error) throw new Error(error.message);
     logger.info('Email de verificación enviado', { email: maskEmail(email) });
   } catch (error) {
@@ -158,7 +177,7 @@ export async function sendResetPasswordEmail(email: string, token: string): Prom
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
   try {
     const html = renderTemplate('reset-password', { reset_url: resetUrl });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Restablecer contraseña — TecnoCel', html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: 'Restablecer contraseña — TecnoCel', html });
     if (error) throw new Error(error.message);
     logger.info('Email de reset de contraseña enviado', { email: maskEmail(email) });
   } catch (error) {
@@ -170,7 +189,7 @@ export async function sendResetPasswordEmail(email: string, token: string): Prom
 export async function sendWelcomeEmail(email: string, nombre: string): Promise<void> {
   try {
     const html = renderTemplate('welcome', { nombre, frontend_url: FRONTEND_URL });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: '¡Tu cuenta está activa! Bienvenido/a a TecnoCel', html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: '¡Tu cuenta está activa! Bienvenido/a a TecnoCel', html });
     if (error) throw new Error(error.message);
     logger.info('Email de bienvenida enviado', { email: maskEmail(email) });
   } catch (error) {
@@ -187,7 +206,7 @@ export async function sendOrderConfirmationEmail(email: string, venta: Confirmac
       total_pagado: `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`,
       items_table: buildItemsTable(venta.items),
     });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: `¡Pedido confirmado! ${venta.nro_venta} — TecnoCel`, html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: `¡Pedido confirmado! ${venta.nro_venta} — TecnoCel`, html });
     if (error) throw new Error(error.message);
     logger.info('Email de confirmación de compra enviado', { email: maskEmail(email), nro_venta: venta.nro_venta });
   } catch (error) {
@@ -209,7 +228,7 @@ export async function sendCancellationEmail(email: string, venta: VentaEmailData
       total_pagado: `$${venta.total_pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`,
       items_table: buildItemsTable(venta.items),
     });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: `Tu pedido ${venta.nro_venta} fue cancelado — TecnoCel`, html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: `Tu pedido ${venta.nro_venta} fue cancelado — TecnoCel`, html });
     if (error) throw new Error(error.message);
     logger.info('Email de cancelación enviado', { email: maskEmail(email), nro_venta: venta.nro_venta });
   } catch (error) {
@@ -228,7 +247,7 @@ export async function sendOrderStatusEmail(email: string, data: EstadoVentaEmail
       estado_label: estadoInfo.label,
       estado_descripcion: estadoInfo.descripcion,
     });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: `Actualización de tu pedido ${data.nro_venta} — TecnoCel`, html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: `Actualización de tu pedido ${data.nro_venta} — TecnoCel`, html });
     if (error) throw new Error(error.message);
     logger.info('Email de estado de venta enviado', { email: maskEmail(email), nro_venta: data.nro_venta, estado: data.nuevo_estado });
   } catch (error) {
@@ -247,7 +266,7 @@ export async function sendCommentReplyEmail(email: string, data: CommentReplyEma
       texto_respuesta: escapeHtml(data.texto_respuesta),
       producto_url: productoUrl,
     });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Respondieron tu comentario en TecnoCel', html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: 'Respondieron tu comentario en TecnoCel', html });
     if (error) throw new Error(error.message);
     logger.info('Email de respuesta a comentario enviado', { email: maskEmail(email) });
   } catch (error) {
@@ -294,7 +313,7 @@ export async function sendShippingInTransitEmail(
         <p style="color:#64748B;font-size:13px;">Te avisaremos cuando sea entregado.</p>
         <p>¡Gracias por tu compra en TecnoCel!</p>
       </div>`;
-    const { error } = await resend.emails.send({
+    const { error } = await sendMail({
       from: EMAIL_FROM,
       to: email,
       subject: `Tu pedido ${data.nro_venta} está en camino 🚚`,
@@ -332,7 +351,7 @@ export async function sendShippingDeliveredEmail(
         <p>Esperamos que disfrutes tu compra. Si tenés algún problema, no dudes en contactarnos.</p>
         <p>¡Gracias por elegir TecnoCel!</p>
       </div>`;
-    const { error } = await resend.emails.send({
+    const { error } = await sendMail({
       from: EMAIL_FROM,
       to: email,
       subject: `Tu pedido ${data.nro_venta} fue entregado ✅`,
@@ -353,7 +372,7 @@ export async function sendComprobanteEmail(
   pdfBuffer: Buffer
 ): Promise<void> {
   try {
-    const { error } = await resend.emails.send({
+    const { error } = await sendMail({
       from: EMAIL_FROM,
       to: email,
       subject: `Comprobante de venta ${nroVenta} — TecnoCel`,
@@ -379,7 +398,7 @@ export async function sendAccountCreatedByAdminEmail(email: string, nombre: stri
   const activationUrl = `${FRONTEND_URL}/activar-cuenta?token=${token}`;
   try {
     const html = renderTemplate('account-created-by-admin', { nombre, activation_url: activationUrl });
-    const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Activá tu cuenta en TecnoCel', html });
+    const { error } = await sendMail({ from: EMAIL_FROM, to: email, subject: 'Activá tu cuenta en TecnoCel', html });
     if (error) throw new Error(error.message);
     logger.info('Email de activación por admin enviado', { email: maskEmail(email) });
   } catch (error) {

@@ -6,6 +6,7 @@ import logger from '../services/loggerService.js';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { sendVerificationEmail, sendResetPasswordEmail, sendWelcomeEmail } from '../services/emailService.js';
+import { config } from '../config/config.js';
 import {
   ClienteResponse,
   ClientePerfilResponse,
@@ -274,7 +275,11 @@ class ClienteController {
 
       // hash de la contraseña
       const password_hash = await bcrypt.hash(contrasena, BCRYPT_SALT_ROUNDS);
-      
+
+      // Modo demo (EMAIL_ENABLED=false): sin servicio de email disponible,
+      // la cuenta se crea ya verificada y habilitada para iniciar sesión.
+      const emailsHabilitados = config.email.enabled;
+
       // Creación del cliente
       // Nota: Omitimos fyh_creacion si el ORM está bien configurado
       const nuevoCliente = await Cliente.create({
@@ -284,26 +289,30 @@ class ClienteController {
         password_hash,
         celular_cliente: celular_cliente || null,
         nit_ci_cliente: nit_ci_cliente || null,
-        is_web_enabled: false,
-        email_verified: false,
-        verification_token: uuidv4(),
-        verification_token_expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        is_web_enabled: !emailsHabilitados,
+        email_verified: !emailsHabilitados,
+        verification_token: emailsHabilitados ? uuidv4() : null,
+        verification_token_expires: emailsHabilitados ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null,
       });
 
       // Evitamos loguear datos sensibles en el middleware de HTTP
       res.locals.skipHttpLog = true;
 
-      logger.info(`Nuevo cliente registrado (pendiente verificación): ${email_cliente} (ID: ${nuevoCliente.id_cliente})`);
+      logger.info(`Nuevo cliente registrado${emailsHabilitados ? ' (pendiente verificación)' : ' (auto-verificado, modo demo)'}: ${email_cliente} (ID: ${nuevoCliente.id_cliente})`);
 
       // Email de verificación (no bloqueante — no afecta el registro si falla)
-      const nombre = nuevoCliente.nombre_cliente;
-      sendVerificationEmail(nuevoCliente.email_cliente, nombre, nuevoCliente.verification_token!)
-        .catch(err => logger.error('Error enviando email de verificación:', { error: err.message }));
+      if (emailsHabilitados) {
+        const nombre = nuevoCliente.nombre_cliente;
+        sendVerificationEmail(nuevoCliente.email_cliente, nombre, nuevoCliente.verification_token!)
+          .catch(err => logger.error('Error enviando email de verificación:', { error: err.message }));
+      }
 
       return res.status(201).json({
         success: true,
-        mensaje: 'Registro exitoso. Revisá tu email para activar tu cuenta.',
-        requiresVerification: true,
+        mensaje: emailsHabilitados
+          ? 'Registro exitoso. Revisá tu email para activar tu cuenta.'
+          : 'Registro exitoso. Tu cuenta ya está activa, podés iniciar sesión.',
+        requiresVerification: emailsHabilitados,
       });
     
     } catch (error) {

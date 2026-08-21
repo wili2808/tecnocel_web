@@ -240,6 +240,7 @@ mkdir -p backend/uploads/marcas
 | -------------- | -------------------- | ------------------------------- | --------- |
 | `RESEND_API_KEY` | Clave de API de Resend | `re_xxxxxxxxxxxxxxxxxxxxxxxx` |  Opcional |
 | `EMAIL_FROM`   | Remitente            | `TecnoCel <noreply@resend.dev>` |  Opcional |
+| `EMAIL_ENABLED` | Habilita el envío de emails | `true` |  Opcional (default: `true`) |
 
 **Configuración:**
 
@@ -247,6 +248,12 @@ mkdir -p backend/uploads/marcas
 2. Generar una API Key desde el dashboard
 3. Asignar la clave en `RESEND_API_KEY`
 4. Configurar `EMAIL_FROM` con el remitente verificado
+
+**Modo demo (`EMAIL_ENABLED=false`):**
+
+- Se omiten todos los envíos de email (verificación, recuperación, notificaciones)
+- El registro de clientes crea las cuentas ya verificadas y habilitadas, permitiendo iniciar sesión sin necesidad de confirmar el email
+- Pensado para entornos de evaluación sin dominio propio configurado en Resend
 
 **Uso en producción:**
 
